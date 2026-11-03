@@ -2,7 +2,7 @@ import { afterEach, expect, mock, test } from 'bun:test';
 import {
   OtherRefusedChanges,
   RefusedChangeNotice,
-} from '@libs/app-root-client-ts/refused-change-notice';
+} from '@libs/app-env-client-ts/refused-change-notice';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';

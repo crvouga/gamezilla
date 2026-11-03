@@ -1,0 +1,23 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/app-env-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/app-env-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-nested-await.grit": [
+    "**/libs/app-env-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/libs/app-env-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/libs/app-env-client-ts/src/create-client-pubsub.ts",
+    "!**/libs/app-env-client-ts/src/pubsub-token.ts",
+    "!**/libs/app-env-client-ts/src/sync-api.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/app-env-client-ts/src/browser-boundaries.ts",
+    "!**/libs/app-env-client-ts/src/browser-identity.ts"
+  ]
+}

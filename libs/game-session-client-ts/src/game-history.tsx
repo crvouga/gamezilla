@@ -1,28 +1,27 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSpaceDecision } from '@libs/spaces-client-ts/use-space-decision';
-import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { GameHistoryScreen } from '@pkgs/ui-root-client-ts/game-history-screen';
-import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
-import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
-import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
-import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
-import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, For, type JSX, Match, Show, Switch } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { GameHistoryParticipant } from './game-history-participant';
+import type { FramePeople } from './game-frame-view-types';
+import {
+  type GameHistoryRow,
+  GameHistoryScreenView,
+} from './game-history-screen-view';
 import { useGameRecordLabel } from './game-record-label';
+import { GameReplayScreenView } from './game-replay-screen-view';
 import { type GameHistoryRecord, useGameRecords } from './use-game-records';
 
+const PEOPLE: FramePeople = {
+  name: (person) => <UserUsername profileId={person} withAt={false} />,
+};
+
+/** Replays one finished game on the game's own board, read-only. */
 function RecordReview(props: {
   record: GameHistoryRecord;
   onBack: () => void;
@@ -44,113 +43,31 @@ function RecordReview(props: {
   return (
     <>
       <DefineBackButton onPress={props.onBack} />
-      <GameReviewScreen
-        screenId="game-history-review"
-        title={<Trans>Game replay</Trans>}
-        timeline={
-          <P
-            variant="caption"
-            role="status"
-            testId="game-history-review-move"
-            dataSet={{ 'shown-position': position() }}
-          >
-            <Trans>
-              Move {ply()} of {props.record.moves.length}.{' '}
-              {recordLabel(props.record)}
-            </Trans>
-          </P>
+      <GameReplayScreenView
+        ply={ply()}
+        moves={props.record.moves.length}
+        label={recordLabel(props.record)}
+        position={position()}
+        onPrevious={() => setPly((n) => n - 1)}
+        onNext={() => setPly((n) => n + 1)}
+        board={
+          <Dynamic
+            component={presentation(position()).Board}
+            position={position()}
+            orientation={side()}
+            interactive={false}
+            sound={false}
+            syncKey={0}
+            onAction={() => {}}
+            testId="game-history-board"
+            setup={props.record.setup}
+            hand={props.record.hand}
+            committed={[]}
+            commitment={null}
+          />
         }
-        actions={
-          <GameActions>
-            <Button
-              title={<Trans>Previous move</Trans>}
-              disabled={ply() === 0}
-              onClick={() => setPly((n) => n - 1)}
-            />
-            <Button
-              title={<Trans>Next move</Trans>}
-              disabled={ply() === props.record.moves.length}
-              onClick={() => setPly((n) => n + 1)}
-            />
-          </GameActions>
-        }
-      >
-        <Dynamic
-          component={presentation(position()).Board}
-          position={position()}
-          orientation={side()}
-          interactive={false}
-          sound={false}
-          syncKey={0}
-          onAction={() => {}}
-          testId="game-history-board"
-          setup={props.record.setup}
-          hand={props.record.hand}
-          committed={[]}
-          commitment={null}
-        />
-      </GameReviewScreen>
+      />
     </>
-  );
-}
-/** The finished games, or why there are none to show yet. */
-function GameHistoryRecords(props: {
-  records: readonly GameHistoryRecord[];
-  loading: boolean;
-  onSelect: (record: GameHistoryRecord) => void;
-}): JSX.Element {
-  const recordLabel = useGameRecordLabel();
-  return (
-    <Switch
-      fallback={
-        <MenuList dataSet={{ testid: 'game-history-records' }}>
-          <For each={props.records}>
-            {(record) => (
-              <MainMenuItemRow
-                item={{
-                  key: record.id,
-                  title: (
-                    <>
-                      <For each={record.participants}>
-                        {(participant, index) => (
-                          <>
-                            <Show when={index() > 0}> / </Show>
-                            <GameHistoryParticipant
-                              id={participant.person}
-                              bot={participant.bot}
-                              local={participant.local}
-                            />
-                          </>
-                        )}
-                      </For>
-                    </>
-                  ),
-                  caption: recordLabel(record),
-                  dataSet: { testid: 'game-history-record' },
-                  onClick: () => props.onSelect(record),
-                }}
-              />
-            )}
-          </For>
-        </MenuList>
-      }
-    >
-      <Match when={props.records.length === 0 && props.loading}>
-        <LoadingState
-          variant="compact"
-          caption={<Trans>Loading games…</Trans>}
-          dataSet={{ testid: 'game-history-loading' }}
-        />
-      </Match>
-      <Match when={props.records.length === 0}>
-        <EmptyState
-          variant="compact"
-          title={<Trans>No completed games yet.</Trans>}
-          body={<Trans>Finished games will appear here.</Trans>}
-          dataSet={{ testid: 'game-history-empty' }}
-        />
-      </Match>
-    </Switch>
   );
 }
 
@@ -159,7 +76,20 @@ function AllowedGameHistory(props: {
   onBack: () => void;
 }): JSX.Element {
   const model = useGameRecords(() => props.gameId);
+  const recordLabel = useGameRecordLabel();
   const [selected, select] = createSignal<GameHistoryRecord | null>(null);
+  const rows = createMemo((): readonly GameHistoryRow[] =>
+    model.records().map((record) => ({
+      id: record.id,
+      players: record.participants.map((participant) => ({
+        person: participant.person,
+        plainName: '',
+        bot: participant.bot,
+        local: participant.local,
+      })),
+      label: recordLabel(record),
+    }))
+  );
   return (
     <Show
       when={selected()}
@@ -167,50 +97,15 @@ function AllowedGameHistory(props: {
       fallback={
         <>
           <DefineBackButton onPress={props.onBack} />
-          <GameHistoryScreen
-            screenId="game-history"
-            title={<Trans>History and stats</Trans>}
-            subtitle={
-              <Trans>
-                Finished custom games in this space and your recent matched
-                games.
-              </Trans>
+          <GameHistoryScreenView
+            loading={model.isLoading()}
+            statistics={model.statistics()}
+            records={rows()}
+            people={PEOPLE}
+            onSelect={(id) =>
+              select(model.records().find((record) => record.id === id) ?? null)
             }
-            statistics={
-              <Grid
-                columns={3}
-                gap="md"
-                testId="game-history-statistics"
-                dataSet={{
-                  wins: String(model.statistics().wins),
-                  losses: String(model.statistics().losses),
-                  draws: String(model.statistics().draws),
-                }}
-              >
-                <GameStat
-                  label={<Trans>Wins</Trans>}
-                  value={model.statistics().wins}
-                  detail={null}
-                />
-                <GameStat
-                  label={<Trans>Losses</Trans>}
-                  value={model.statistics().losses}
-                  detail={null}
-                />
-                <GameStat
-                  label={<Trans>Draws</Trans>}
-                  value={model.statistics().draws}
-                  detail={null}
-                />
-              </Grid>
-            }
-          >
-            <GameHistoryRecords
-              records={model.records()}
-              loading={model.isLoading()}
-              onSelect={select}
-            />
-          </GameHistoryScreen>
+          />
         </>
       }
     >
@@ -219,6 +114,7 @@ function AllowedGameHistory(props: {
   );
 }
 
+/** A game's History and stats: wires `GameHistoryScreenView` to the space. */
 export function GameHistory(props: {
   gameId: string;
   onBack: () => void;
@@ -229,13 +125,20 @@ export function GameHistory(props: {
     PERMISSION.gameCustomWatch
   );
   return (
-    <Show
-      when={decision().allowed}
-      fallback={
-        <DenialSurface decision={decision()} testId="game-history-denial" />
-      }
+    <DecisionGate
+      decision={decision()}
+      testId="game-history-denial"
+      denied={(denial) => (
+        <GameHistoryScreenView
+          denial={denial}
+          loading={false}
+          statistics={{ wins: 0, losses: 0, draws: 0 }}
+          records={[]}
+          onSelect={() => undefined}
+        />
+      )}
     >
       <AllowedGameHistory {...props} />
-    </Show>
+    </DecisionGate>
   );
 }

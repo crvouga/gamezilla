@@ -1,13 +1,12 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
-import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import { RemoveSpacePersonModal } from './remove-space-person-modal';
+import type { SpacePerson } from './space-person-view';
 import { SpaceShareAddPeople } from './space-share-add-people';
-import { SpaceShareLinkSection } from './space-share-link-section';
-import { SpaceSharePeopleList } from './space-share-people-list';
+import { SpaceShareSheetView } from './space-share-sheet-view';
 import { useSpaceCan } from './use-space-can';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
+import { useSpacePeople } from './use-space-people';
 import { useSpaceUserEntries } from './use-space-user-entries';
 
 export type SpaceShareSheetProps = {
@@ -16,36 +15,51 @@ export type SpaceShareSheetProps = {
   readonly onOpenChange: (open: boolean) => void;
 };
 
+function spaceShareUrl(spaceId: string): string {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/space/${spaceId}`;
+  }
+  return `/space/${spaceId}`;
+}
+
+/** Wires {@link SpaceShareSheetView} to the space's people and its link. */
 export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
   const canManageMembers = useSpaceCan(
     () => props.spaceId,
     PERMISSION.spacesManageMembers
   );
-  const { entries } = useSpaceUserEntries(props.spaceId);
+  const { entries, isLoading } = useSpaceUserEntries(props.spaceId);
+  const people = useSpacePeople(() => entries().map((e) => e.userId));
   const listedIds = createMemo(() => new Set(entries().map((e) => e.userId)));
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const [removing, setRemoving] = createSignal<SpacePerson | null>(null);
 
   return (
-    <ResponsiveSurface
-      visible={props.open}
+    <SpaceShareSheetView
+      open={props.open}
       onClose={() => props.onOpenChange(false)}
-      title={<Trans>Share space</Trans>}
-      size="medium"
-      scroll={false}
-      closeDataSet={{ testid: Handles.spaceShareClose }}
-    >
-      <ScrollView maxHeight="lg" gap="md">
-        <SpaceShareLinkSection spaceId={props.spaceId} />
-        <Show when={canManageMembers()}>
-          <SpaceShareAddPeople
-            spaceId={props.spaceId}
-            listedIds={listedIds()}
-          />
+      onCopyLink={async () => {
+        await navigator.clipboard.writeText(spaceShareUrl(props.spaceId));
+      }}
+      canManage={canManageMembers()}
+      addPeople={
+        <SpaceShareAddPeople spaceId={props.spaceId} listedIds={listedIds()} />
+      }
+      peopleStatus={isLoading() ? 'loading' : 'ready'}
+      people={people()}
+      hostId={host()?.profileId ?? null}
+      onRemovePerson={setRemoving}
+      overlay={
+        <Show when={removing()} keyed>
+          {(person) => (
+            <RemoveSpacePersonModal
+              spaceId={props.spaceId}
+              person={person}
+              onClose={() => setRemoving(null)}
+            />
+          )}
         </Show>
-        <SpaceSharePeopleList
-          spaceId={props.spaceId}
-          canManage={canManageMembers()}
-        />
-      </ScrollView>
-    </ResponsiveSurface>
+      }
+    />
   );
 }

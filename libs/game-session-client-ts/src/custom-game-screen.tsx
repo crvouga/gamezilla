@@ -1,112 +1,137 @@
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
+import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
+import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { type JSX, Show } from 'solid-js';
-import { CustomGameStarter } from './custom-game-actions';
-import { CustomGameActiveNotices } from './custom-game-active';
-import { CustomGameBoard, CustomGameRecord } from './custom-game-board';
-import { CustomGameConfiguration } from './custom-game-configuration';
-import { CustomGameError } from './custom-game-error';
-import { CustomGamePrivateSetup } from './custom-game-private-setup';
-import { CustomGameSeats } from './custom-game-side';
-import {
-  CustomGameConnectionNotice,
-  CustomGameStatus,
-} from './custom-game-status';
+import type { JSX } from 'solid-js';
+import { useRefusalText } from './custom-game-error';
+import { CustomGameSetupBoard } from './custom-game-private-setup';
+import { frameConnection, useFrameStatus } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
 import {
-  FrameActions,
-  FrameHeader,
-  FrameWatching,
-  useFrameBoard,
-} from './game-frame-play';
-import { GameFrameResult } from './game-frame-result';
+  FRAME_NO_NEXT,
+  FRAME_NO_PLAY,
+  FRAME_NO_TABLE,
+} from './game-frame-empty';
+import { FrameBoardMount, useFrameBoard } from './game-frame-play';
+import { useFrameResult } from './game-frame-result';
+import {
+  GameFrameScreenView,
+  type GameFrameScreenViewProps,
+} from './game-frame-screen-view';
+import type { FramePeople } from './game-frame-view-types';
+import { useFrameWatcherCount } from './game-frame-watchers';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 import { useCustomGameScreen } from './use-custom-game-screen';
+import {
+  useFrameBoardState,
+  useFrameNext,
+  useFramePlay,
+  useFrameRecord,
+} from './use-frame-play';
+import { useFrameTable } from './use-frame-seats';
+import { useFrameSetup } from './use-frame-setup';
 
-type ModelProps = { model: CustomGameScreenModel };
+/** People at the table, as the app shows them: live usernames and pictures. */
+const PEOPLE: FramePeople = {
+  name: (person, bold) => (
+    <UserUsername
+      profileId={person}
+      withAt={false}
+      variant={bold === true ? 'bodyBold' : undefined}
+    />
+  ),
+  avatar: (person, size) => (
+    <UserProfileAvatar profileId={person} size={size} />
+  ),
+};
 
-/**
- * Under the board: the line about a game being set up (once it is played
- * the line sits between the board and the person's own seat), what a
- * player is told during play, and the result once the game is over.
- */
-function CustomGameStatusRow(props: ModelProps): JSX.Element {
-  return (
-    <Show when={props.model.current() !== null}>
-      <Show when={props.model.current()?.status === 'configuring'}>
-        <CustomGameStatus model={props.model} />
-      </Show>
-      <Show when={props.model.current()?.status === 'active'}>
-        <CustomGameActiveNotices model={props.model} />
-      </Show>
-      <Show when={props.model.current()?.status === 'completed'}>
-        <GameFrameResult model={props.model} />
-      </Show>
-    </Show>
-  );
-}
+const nothing = async (): Promise<void> => undefined;
 
-function CustomGameContent(props: ModelProps): JSX.Element {
-  const review = useCustomGameReview(props.model);
-  const board = useFrameBoard(props.model, review);
+/** The frame behind a denial: no game, nothing to do. */
+const DENIED_FRAME = {
+  phase: 'none',
+  viewerSide: null,
+  watchers: 0,
+  connection: 'online',
+  error: '',
+  stopped: false,
+  status: null,
+  canCreate: false,
+  playerCount: 2,
+  setup: null,
+  table: FRAME_NO_TABLE,
+  play: FRAME_NO_PLAY,
+  result: null,
+  next: FRAME_NO_NEXT,
+  record: null,
+  onChoose: nothing,
+  onReady: nothing,
+  onPlayBot: nothing,
+  onRandomSetup: nothing,
+  onSeek: () => undefined,
+  onReturnLive: () => undefined,
+  onSelectRecord: () => undefined,
+  onOpenHistory: () => undefined,
+} satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
+
+type FrameProps = { model: CustomGameScreenModel; title: JSX.Element };
+
+/** Reads the room for `GameFrameScreenView`: the allowed custom game. */
+function CustomGameFrame(props: FrameProps): JSX.Element {
+  const model = props.model;
+  const review = useCustomGameReview(model);
+  const board = useFrameBoard(model, review);
+  const refusal = useRefusalText();
+  const status = useFrameStatus(model);
+  const watchers = useFrameWatcherCount(model.current);
+  const setup = useFrameSetup(model);
+  const table = useFrameTable(model, board);
+  const play = useFramePlay(model, board);
+  const result = useFrameResult(model);
+  const next = useFrameNext(model);
+  const record = useFrameRecord(model, review);
+  const boardState = useFrameBoardState(model, review, board);
   return (
     <>
-      <GameSessionLayout
-        dataSet={{
-          component: 'CustomGameContent',
-          testid: 'custom-game-content',
-        }}
-        header={<FrameHeader model={props.model} />}
-        notices={
-          <>
-            <CustomGameConnectionNotice model={props.model} />
-            <CustomGameError
-              reason={props.model.error()}
-              position={props.model.current()?.fen}
-            />
-          </>
-        }
-        setup={
-          <Show
-            when={props.model.current() !== null}
-            fallback={
-              <>
-                <CustomGameStatus model={props.model} />
-                <CustomGameStarter model={props.model} />
-              </>
-            }
-          >
-            <Show when={props.model.current()?.status === 'configuring'}>
-              <CustomGameSeats model={props.model} />
-              <CustomGamePrivateSetup model={props.model} />
-              <CustomGameConfiguration model={props.model} />
-            </Show>
-          </Show>
-        }
-        aside={
-          props.model.current() === null ? undefined : (
-            <CustomGameRecord model={props.model} review={review} />
-          )
-        }
-        status={<CustomGameStatusRow model={props.model} />}
-        actions={
-          <FrameActions model={props.model} board={board} review={review} />
-        }
-        footer={<FrameWatching model={props.model} />}
-      >
-        <Show when={props.model.current() !== null}>
-          <CustomGameBoard model={props.model} review={review} board={board} />
-        </Show>
-      </GameSessionLayout>
-      <CustomGameTest model={props.model} review={review} />
+      <GameFrameScreenView
+        title={props.title}
+        phase={model.current()?.status ?? 'none'}
+        viewerSide={model.mySide()}
+        watchers={watchers()}
+        connection={frameConnection(model)}
+        error={refusal(model.error(), model.current()?.fen)}
+        stopped={model.simulation.error()}
+        status={status()}
+        canCreate={model.canCreate()}
+        playerCount={model.playerCount()}
+        setup={setup()}
+        table={table()}
+        play={play()}
+        result={result()}
+        next={next()}
+        record={record()}
+        board={<FrameBoardMount board={board} />}
+        setupBoard={<CustomGameSetupBoard model={model} />}
+        boardState={boardState()}
+        people={PEOPLE}
+        onChoose={model.choose}
+        onReady={model.ready}
+        onPlayBot={model.playBot}
+        onRandomSetup={async () => model.privateSetup.random()}
+        onBack={model.back}
+        onSeek={review.seek}
+        onReturnLive={review.returnLive}
+        onSelectRecord={review.select}
+        onOpenHistory={() => model.openHistory?.()}
+      />
+      <CustomGameTest model={model} review={review} />
     </>
   );
 }
 
+/** A game's custom game in a space: wires `GameFrameScreenView` to the room. */
 export function CustomGameScreen(props: {
   gameId: string;
   onBack: () => void;
@@ -118,25 +143,24 @@ export function CustomGameScreen(props: {
     () => props.gameId,
     props.onHistory
   );
+  const title = (): JSX.Element => props.title ?? <Trans>Custom game</Trans>;
   return (
     <>
       <DefineBackButton onPress={model.back} />
-      <GameScreen
-        screenId="custom-game"
-        title={props.title ?? <Trans>Custom game</Trans>}
+      <DecisionGate
+        decision={model.watchDecision()}
+        testId="custom-game-denial"
+        denied={(denial) => (
+          <GameFrameScreenView
+            {...DENIED_FRAME}
+            title={title()}
+            denial={denial}
+            onBack={model.back}
+          />
+        )}
       >
-        <Show
-          when={model.watchDecision().allowed}
-          fallback={
-            <DenialSurface
-              decision={model.watchDecision()}
-              testId="custom-game-denial"
-            />
-          }
-        >
-          <CustomGameContent model={model} />
-        </Show>
-      </GameScreen>
+        <CustomGameFrame model={model} title={title()} />
+      </DecisionGate>
     </>
   );
 }

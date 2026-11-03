@@ -8,7 +8,7 @@
  * here and the composition root hands it to `wallClientEnv`.
  */
 
-import type { CreateRoomTransport } from '@libs/app-root-client-ts/client-env';
+import type { CreateRoomTransport } from '@libs/app-env-client-ts/client-env';
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared-ts/space-room-url';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared-ts/websocket-transport';
 import { roomRoundTrip } from './room-transport-measures';

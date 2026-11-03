@@ -13,6 +13,7 @@ import {
 } from '@libs/secrets-shared-ts/auth-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared-ts/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared-ts/cf-api-token';
+import { CHROMATIC_PROJECT_TOKEN } from '@libs/secrets-shared-ts/chromatic-token';
 import { CI_ARTIFACTS_SECRETS } from '@libs/secrets-shared-ts/ci-artifacts-credentials';
 import {
   FEEDBACK_GITHUB_REPOSITORY,
@@ -70,6 +71,7 @@ import {
  * are reported, never deleted (a human-entered value cannot be recovered).
  */
 export const SECRETS: readonly Secret[] = [
+  CHROMATIC_PROJECT_TOKEN,
   FEEDBACK_GITHUB_TOKEN,
   FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,

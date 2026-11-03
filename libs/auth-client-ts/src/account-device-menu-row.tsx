@@ -10,10 +10,11 @@ import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import { AccountDeviceSessionCaptionText } from './account-device-session-caption-text';
+import type { AccountDeviceView } from './account-device-view';
 
 export type AccountDeviceMenuRowProps = {
-  deviceId: string;
-  onOpenDevice: (deviceId: string) => void;
+  readonly device: AccountDeviceView;
+  readonly onOpenDevice: (deviceId: string) => void;
 };
 
 /** Composed device row: title + captions + current badge + chevron. */
@@ -24,22 +25,22 @@ export function AccountDeviceMenuRow(
 ): JSX.Element {
   return (
     <MenuRow
-      title={<AccountDeviceListTitleText deviceId={props.deviceId} lines={1} />}
+      title={<AccountDeviceListTitleText device={props.device} lines={1} />}
       caption={
         <StackVertical>
-          <AccountDeviceListCaptionText deviceId={props.deviceId} lines={1} />
-          <AccountDeviceSessionCaptionText deviceId={props.deviceId} />
+          <AccountDeviceListCaptionText device={props.device} lines={1} />
+          <AccountDeviceSessionCaptionText device={props.device} />
         </StackVertical>
       }
       leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
       trailing={
         <StackHorizontal align="center" gap="sm">
-          <AccountDeviceCurrentBadge deviceId={props.deviceId} />
+          <AccountDeviceCurrentBadge current={props.device.current} />
           <ChevronRightIcon size={ROW_ICON_SIZE} color="icon" />
         </StackHorizontal>
       }
-      onClick={() => props.onOpenDevice(props.deviceId)}
-      dataSet={{ testid: Handles.accountDevice(props.deviceId) }}
+      onClick={() => props.onOpenDevice(props.device.id)}
+      dataSet={{ testid: Handles.accountDevice(props.device.id) }}
     />
   );
 }

@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@libs/app-config-client-ts": "workspace:*",
-    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",
@@ -38,6 +38,8 @@
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

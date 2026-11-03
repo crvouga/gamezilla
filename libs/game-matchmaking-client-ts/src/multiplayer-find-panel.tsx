@@ -4,26 +4,27 @@ import {
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
-import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText } from './time-control-name';
-import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 
-/** Choose one of the offered time controls, then find an opponent at it. */
+/**
+ * Choose one of the offered time controls (for a game with clock choices),
+ * then find an opponent, or the other players of a bigger game, at it.
+ */
 export function MultiplayerFindPanel(props: {
-  readonly gameId: string;
-  readonly controls: MultiplayerControlsModel;
+  /** How many players a game seats, the person included. */
+  readonly players: number;
+  /** The game offers clock choices. */
+  readonly timed: boolean;
+  /** Starts the search, at the chosen time control when timed. */
+  readonly onFind: (timeControl: string | undefined) => Promise<void>;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
-  const rules = useTurnGames();
-  const count = () => gameSides(rules.byId(props.gameId)).length;
-  const timed = () =>
-    rules.capability(props.gameId, 'matchmaking')?.clockChoices === true;
+  const count = () => props.players;
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
@@ -31,7 +32,7 @@ export function MultiplayerFindPanel(props: {
         <>
           <Show when={count() > 2}>
             <Show
-              when={timed()}
+              when={props.timed}
               fallback={
                 <Trans>
                   A game needs {count()} players including you. Find{' '}
@@ -46,7 +47,7 @@ export function MultiplayerFindPanel(props: {
             </Show>{' '}
           </Show>
           <Show
-            when={timed()}
+            when={props.timed}
             fallback={<Trans>Find someone to play with.</Trans>}
           >
             <Trans>
@@ -72,7 +73,7 @@ export function MultiplayerFindPanel(props: {
             </Show>
           }
           operation={() =>
-            props.controls.begin(timed() ? timeControl() : undefined)
+            props.onFind(props.timed ? timeControl() : undefined)
           }
           variant="solid"
           fullWidth
@@ -80,7 +81,7 @@ export function MultiplayerFindPanel(props: {
         />
       }
     >
-      <Show when={timed()}>
+      <Show when={props.timed}>
         <GameChoiceGrid
           label={<Trans>Time control</Trans>}
           value={timeControl()}

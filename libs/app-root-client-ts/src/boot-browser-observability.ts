@@ -1,4 +1,14 @@
 import {
+  installBrowserObservabilityBoundaries,
+  setBrowserTraceFlush,
+} from '@libs/app-env-client-ts/browser-boundaries';
+import {
+  browserObservabilityIdentity,
+  installBrowserObsHelper,
+  setBrowserSessionId,
+} from '@libs/app-env-client-ts/browser-identity';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
+import {
   APP_VERSION,
   getCommitHash,
   hasCommitProvenance,
@@ -12,16 +22,6 @@ import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared-ts/a
 import { acknowledgedMetricExporter } from '@pkgs/observability-runtime-shared-ts/acknowledged-metric-exporter';
 import { TelemetryOutbox } from '@pkgs/observability-runtime-shared-ts/telemetry-outbox';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared-ts/interaction-correlation';
-import {
-  installBrowserObservabilityBoundaries,
-  setBrowserTraceFlush,
-} from './browser-boundaries';
-import {
-  browserObservabilityIdentity,
-  installBrowserObsHelper,
-  setBrowserSessionId,
-} from './browser-identity';
-import type { ClientEnv } from './client-env';
 import type { OfflineNetworkController } from './offline-network-controller';
 import { createOfflineHttp } from './offline-network-http';
 import { installBrowserPerformanceTelemetry } from './wall';

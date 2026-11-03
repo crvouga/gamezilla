@@ -3,39 +3,25 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { SignInMethodId } from '@pkgs/auth-root-shared-ts/sign-in-method';
-import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from 'solid-js';
 
-import { useAuthClientPort } from './auth-client-provider';
-import { authFlowErrorMessage, providerName } from './auth-flow-messages';
-import { useIdentityRefresh } from './use-identity-refresh';
+import { providerName } from './auth-flow-messages';
 
 export function UnlinkMethodModal(props: {
+  /** The method being removed; the dialog is open while it is set. */
   readonly provider: SignInMethodId | null;
   readonly onClose: () => void;
+  /** Removes the method; rejects with the message the dialog shows. */
+  readonly onConfirm: () => Promise<void>;
 }): JSX.Element {
   const { i18n } = useLingui();
-  const port = useAuthClientPort();
-  const refresh = useIdentityRefresh();
-  const log = useLogger('auth-unlink');
   const name = () =>
     props.provider === null ? '' : providerName(i18n(), props.provider);
-  const operation = async (): Promise<void> => {
-    const provider = props.provider;
-    if (provider === null) return;
-    try {
-      await port.unlinkProvider(provider);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      throw new Error(authFlowErrorMessage(i18n(), err));
-    }
-    await refresh();
-  };
   return (
     <MutationModal
       visible={props.provider !== null}
-      onClose={props.onClose}
+      onClose={() => props.onClose()}
       title={<Trans>Remove {name()} sign-in?</Trans>}
       message={
         <Trans>
@@ -45,12 +31,11 @@ export function UnlinkMethodModal(props: {
       }
       submitLabel={<Trans>Remove</Trans>}
       variant="destructive"
-      operation={operation}
+      operation={() => props.onConfirm()}
       loadingLabel={<Trans>Removing…</Trans>}
       successTitle={<Trans>Removed</Trans>}
       successBody={<Trans>{name()} no longer signs in to this account.</Trans>}
       errorTitle={<Trans>Couldn't remove it</Trans>}
-      onError={(error) => log.warn('unlink failed', { error: error.message })}
       submitDataSet={{ testid: Handles.accountUnlinkConfirm }}
       dismissDataSet={{ testid: Handles.accountUnlinkDone }}
     />

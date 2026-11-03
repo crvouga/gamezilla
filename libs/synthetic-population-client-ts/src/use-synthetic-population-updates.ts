@@ -1,5 +1,5 @@
 import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
-import { useClientEnv } from '@libs/app-root-client-ts/client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { SYNTHETIC_POPULATION_TOPIC } from '@libs/synthetic-population-shared-ts/synthetic-population-topic';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { createEffect, onCleanup } from 'solid-js';

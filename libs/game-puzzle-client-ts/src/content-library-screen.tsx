@@ -1,206 +1,145 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
+import type { AttemptLibrary } from '@libs/game-puzzle-shared-ts/attempt-library';
 import { isBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
 import {
+  type ContentLibrary,
   discoverContent,
   workingContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-library';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createMemo, type JSX } from 'solid-js';
 import { ContentCreateControls } from './content-create-controls';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
-import { ContentLoadMore } from './content-load-more';
-import { ContentSavedAttempts } from './content-saved-attempts';
+import {
+  type ContentLibraryAttempt,
+  type ContentLibraryDraft,
+  ContentLibraryScreenView,
+} from './content-library-screen-view';
 import { byContentId } from './use-content-pages';
+import { useDeniedView } from './use-denied-view';
 
-function PublishedContent(): JSX.Element {
-  const { t } = useLingui();
-  const game = useContentGame();
-  const data = useContentLibraryState();
-  const entries = createMemo(() =>
-    discoverContent(
-      {
-        ...data.content(),
-        documents: data
-          .content()
-          .documents.filter(
-            (doc) =>
-              doc.published_revision_id !== null && !isBundledContent(doc.id)
-          )
-          .toSorted(byContentId)
-          .slice(0, data.pages.published.limit()),
-      },
-      game.id
-    )
-  );
-  const ids = createMemo(() => entries().map((entry) => entry.id));
-  return (
-    <>
-      <Show
-        when={ids().length > 0}
-        fallback={
-          <EmptyState
-            variant="compact"
-            title={t`No published puzzles loaded`}
-            body={t`Create a private draft above, or come back for new puzzles and packs.`}
-          />
-        }
-      >
-        <MenuSection title={<Trans>Published puzzles and packs</Trans>}>
-          <For each={ids()}>
-            {(id) => {
-              const entry = () =>
-                entries().find((revision) => revision.id === id);
-              return (
-                <MenuRow
-                  title={entry()?.title}
-                  caption={entry()?.description}
-                  value={
-                    entry()?.kind === 'pack'
-                      ? t`Pack`
-                      : (entry()?.difficulty ?? '') || t`Puzzle`
-                  }
-                  onClick={() =>
-                    game.open({
-                      kind: 'edition',
-                      revisionId: id,
-                      packRevisionId: null,
-                    })
-                  }
-                  dataSet={{ testid: `content-published-${id}` }}
-                />
-              );
-            }}
-          </For>
-        </MenuSection>
-      </Show>
-      <ContentLoadMore
-        testId="content-more-published"
-        page={data.pages.published}
-        label={t`Load more published puzzles and packs`}
-      />
-    </>
+/** The saved attempts of `mode` on the loaded page, titled by their source. */
+function savedAttempts(args: {
+  content: ContentLibrary;
+  play: AttemptLibrary;
+  limit: number;
+  mode: 'ordinary' | 'playtest';
+}): readonly ContentLibraryAttempt[] {
+  return args.play.attempts
+    .slice(0, args.limit)
+    .filter((attempt) => attempt.mode === args.mode)
+    .map((attempt) => {
+      const source =
+        args.mode === 'ordinary'
+          ? args.content.revisions.find(
+              (entry) => entry.id === attempt.source_id
+            )
+          : args.content.drafts.find((entry) => entry.id === attempt.source_id);
+      return {
+        id: attempt.id,
+        title: source?.title ?? '',
+        completed:
+          args.mode === 'ordinary' &&
+          args.play.completions.some(
+            (entry) => entry.puzzle_revision_id === attempt.source_id
+          ),
+      };
+    });
+}
+
+/** The person's own drafts and publications on the loaded page. */
+function ownedDrafts(
+  content: ContentLibrary,
+  ownerId: string,
+  limit: number
+): readonly ContentLibraryDraft[] {
+  return content.documents
+    .filter((doc) => doc.owner_id === ownerId)
+    .toSorted(byContentId)
+    .slice(0, limit)
+    .filter((doc) => doc.deleted_at === null)
+    .map((doc) => ({
+      id: doc.id,
+      title: workingContentDraft(content, doc.id)?.title ?? '',
+      status: doc.status,
+    }));
+}
+
+/** Published (not shipped) editions on the loaded page, by id. */
+function publishedEditions(
+  content: ContentLibrary,
+  gameId: string,
+  limit: number
+) {
+  return discoverContent(
+    {
+      ...content,
+      documents: content.documents
+        .filter(
+          (doc) =>
+            doc.published_revision_id !== null && !isBundledContent(doc.id)
+        )
+        .toSorted(byContentId)
+        .slice(0, limit),
+    },
+    gameId
   );
 }
 
-/** Packs the game ships: available to everyone, with or without a connection. */
-function BundledPacks(): JSX.Element {
-  const game = useContentGame();
-  const data = useContentLibraryState();
-  const packs = createMemo(() =>
-    discoverContent(data.content(), game.id).filter(
-      (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
-    )
-  );
-  return (
-    <Show when={packs().length > 0}>
-      <MenuSection title={<Trans>Starter packs</Trans>}>
-        <For each={packs()}>
-          {(pack) => (
-            <MenuRow
-              title={pack.title}
-              caption={pack.description}
-              onClick={() =>
-                game.open({
-                  kind: 'edition',
-                  revisionId: pack.id,
-                  packRevisionId: null,
-                })
-              }
-              dataSet={{ testid: `content-bundled-${pack.document_id}` }}
-            />
-          )}
-        </For>
-      </MenuSection>
-    </Show>
-  );
-}
-
-function PersonalContent(): JSX.Element {
-  const { t } = useLingui();
+/** The library wired to the synced content, attempts and their pages. */
+export function ContentLibraryScreen(): JSX.Element {
   const game = useContentGame();
   const data = useContentLibraryState();
   const myId = useMyId();
   const decision = useDecision(PERMISSION.puzzlesReadOwnContent);
-  const ids = createMemo(() =>
-    data
-      .content()
-      .documents.filter((doc) => doc.owner_id === myId())
-      .toSorted(byContentId)
-      .slice(0, data.pages.owned.limit())
-      .filter((doc) => doc.deleted_at === null)
-      .map((doc) => doc.id)
+  const personalDenial = useDeniedView({
+    get decision() {
+      return decision();
+    },
+  });
+  const pages = data.pages;
+  const attempts = (mode: 'ordinary' | 'playtest') =>
+    savedAttempts({
+      content: data.content(),
+      play: data.play(),
+      limit: pages.attempts.limit(),
+      mode,
+    });
+  const bundled = createMemo(() =>
+    discoverContent(data.content(), game.id).filter(
+      (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
+    )
   );
+  const openEdition = (revisionId: string): void =>
+    game.open({ kind: 'edition', revisionId, packRevisionId: null });
   return (
-    <>
-      <Show
-        when={decision().allowed}
-        fallback={<DenialSurface decision={decision()} variant="compact" />}
-      >
-        <Show when={ids().length > 0}>
-          <MenuSection title={<Trans>Your drafts and publications</Trans>}>
-            <For each={ids()}>
-              {(id) => {
-                const draft = () => workingContentDraft(data.content(), id);
-                const doc = () =>
-                  data.content().documents.find((entry) => entry.id === id);
-                return (
-                  <MenuRow
-                    title={(draft()?.title ?? '') || t`Untitled draft`}
-                    value={
-                      doc()?.status === 'published'
-                        ? t`Published`
-                        : doc()?.status === 'withdrawn'
-                          ? t`Withdrawn`
-                          : t`Draft`
-                    }
-                    onClick={() => game.open({ kind: 'edit', documentId: id })}
-                    dataSet={{ testid: `content-draft-${id}` }}
-                  />
-                );
-              }}
-            </For>
-          </MenuSection>
-        </Show>
-        <ContentLoadMore
-          page={data.pages.owned}
-          label={t`Load more of your drafts and publications`}
-        />
-      </Show>
-      <ContentSavedAttempts mode="ordinary" />
-      <ContentSavedAttempts mode="playtest" />
-      <ContentLoadMore
-        page={data.pages.attempts}
-        label={t`Load earlier attempts`}
-      />
-    </>
-  );
-}
-
-export function ContentLibraryScreen(): JSX.Element {
-  const game = useContentGame();
-  return (
-    <EmbeddedScreen
-      screenId="puzzle-content-library"
+    <ContentLibraryScreenView
+      status={data.isLoading() ? 'loading' : 'ready'}
       title={game.title}
-      subtitle={
-        <Trans>
-          Play published puzzles, continue your attempts, or build something of
-          your own.
-        </Trans>
-      }
-    >
-      <ContentCreateControls />
-      <BundledPacks />
-      <PersonalContent />
-      <PublishedContent />
-    </EmbeddedScreen>
+      createControls={<ContentCreateControls />}
+      bundledPacks={bundled()}
+      personalDenial={personalDenial()}
+      drafts={ownedDrafts(data.content(), myId(), pages.owned.limit())}
+      attempts={attempts('ordinary')}
+      playtests={attempts('playtest')}
+      published={publishedEditions(
+        data.content(),
+        game.id,
+        pages.published.limit()
+      )}
+      more={{
+        owned: pages.owned.hasMore(),
+        attempts: pages.attempts.hasMore(),
+        published: pages.published.hasMore(),
+      }}
+      onOpenEdition={openEdition}
+      onOpenDraft={(documentId) => game.open({ kind: 'edit', documentId })}
+      onOpenAttempt={(attemptId) => game.open({ kind: 'attempt', attemptId })}
+      onMoreOwned={pages.owned.more}
+      onMoreAttempts={pages.attempts.more}
+      onMorePublished={pages.published.more}
+    />
   );
 }

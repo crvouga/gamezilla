@@ -11,10 +11,7 @@ import {
   on,
   untrack,
 } from 'solid-js';
-import {
-  type LexiconState,
-  useWordTilesLexicon,
-} from './use-word-tiles-lexicon';
+import type { LexiconState } from './use-word-tiles-lexicon';
 import { type Candidate, newCandidate, rebase } from './word-tiles-candidate';
 import { previewCandidate, type WordTilesPreview } from './word-tiles-preview';
 
@@ -39,8 +36,14 @@ export type WordTilesDraft = {
   };
 };
 
-/** The draft of the seat `props` shows, following its position and rack. */
-export function createWordTilesDraft(props: GameBoardProps): WordTilesDraft {
+/**
+ * The draft of the seat `props` shows, following its position and rack,
+ * previewed against `lexicon`, the word list its position pins.
+ */
+export function createWordTilesDraft(
+  props: GameBoardProps,
+  lexicon: WordTilesDraft['lexicon']
+): WordTilesDraft {
   const position = createMemo(() => decodePosition(props.position));
   const [candidate, setCandidate] = createSignal(
     untrack(() => newCandidate(props.position, props.hand))
@@ -52,7 +55,6 @@ export function createWordTilesDraft(props: GameBoardProps): WordTilesDraft {
       setCandidate((c) => rebase(c, props.position, props.hand))
     )
   );
-  const lexicon = useWordTilesLexicon(() => position()?.lexicon ?? '');
   const preview = createMemo(() => {
     const decoded = position();
     return decoded === null

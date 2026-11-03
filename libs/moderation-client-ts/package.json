@@ -22,6 +22,8 @@
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

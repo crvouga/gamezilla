@@ -4,7 +4,7 @@ import {
   captureBrowserStorageEvidence,
   readBrowserStorageEvidence,
 } from '@apps/product-ts/browser-failure-summary';
-import { BROWSER_STARTUP_STAGES } from '@libs/app-root-client-ts/browser-identity';
+import { BROWSER_STARTUP_STAGES } from '@libs/app-env-client-ts/browser-identity';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 
 const ACCOUNT = 'a63ba7ed-145a-4b8c-8161-eed141a55334';

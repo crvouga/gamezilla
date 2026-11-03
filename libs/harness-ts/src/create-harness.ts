@@ -1,4 +1,4 @@
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import type { Client } from '@libs/app-root-client-ts/create-client';
 import { createClient } from '@libs/app-root-client-ts/create-client';
 import type { ServerEnv } from '@libs/app-root-shared-ts/server-env';

@@ -4,14 +4,13 @@ import {
   frameHeadlineText,
   frameStandingRows,
 } from '@libs/game-session-client-ts/game-frame-headline';
-import { FrameWatching } from '@libs/game-session-client-ts/game-frame-play';
 import { customGameWinner } from '@libs/game-session-client-ts/game-frame-result';
+import { FrameWatchingView } from '@libs/game-session-client-ts/game-frame-status-view';
 import {
   frameTable,
   sameTable,
 } from '@libs/game-session-client-ts/game-frame-table';
 import { seatedPeople } from '@libs/game-session-client-ts/game-frame-watchers';
-import type { CustomGameScreenModel } from '@libs/game-session-client-ts/use-custom-game-screen';
 import {
   type CustomGame,
   newCustomGame,
@@ -88,33 +87,21 @@ describe('the table around the board', () => {
   });
 });
 
-function watchingModel(
-  game: CustomGame | null,
-  side: GameSide | null
-): CustomGameScreenModel {
-  return {
-    current: () => game,
-    mySide: () => side,
-  } as unknown as CustomGameScreenModel;
-}
-
 function activeGame(): CustomGame {
   return { ...newCustomGame('g', 'alice', 'position'), status: 'active' };
 }
 
 describe('watching a game', () => {
   test('someone without a seat in a game under way is told they are watching', () => {
-    themed(() => <FrameWatching model={watchingModel(activeGame(), null)} />);
+    themed(() => <FrameWatchingView phase="active" viewerSide={null} />);
     expect(screen.getByText("You're watching")).toBeInTheDocument();
   });
 
   test('a player, or a game not under way, shows no watching footer', () => {
     const view = themed(() => (
       <>
-        <FrameWatching model={watchingModel(activeGame(), 'white')} />
-        <FrameWatching
-          model={watchingModel(newCustomGame('g', 'alice', 'position'), null)}
-        />
+        <FrameWatchingView phase="active" viewerSide="white" />
+        <FrameWatchingView phase="configuring" viewerSide={null} />
       </>
     ));
     expect(view.container.textContent).toBe('');

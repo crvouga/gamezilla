@@ -13,7 +13,7 @@
 import {
   BOOT_GLOBAL_MENU_IDENTITY,
   useGlobalMenuIdentityPublisher,
-} from '@libs/app-root-client-ts/global-menu-identity-context';
+} from '@libs/app-env-client-ts/global-menu-identity-context';
 import { useSessionAccountEmail } from '@libs/auth-client-ts/use-current-user';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';

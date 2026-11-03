@@ -11,7 +11,7 @@ test('Storybook tasks hash every discovered story owner', () => {
     ['pkgs/ui-codegen-server-ts/turbo.json', 'inventory'],
   ] as const;
   const stories = [
-    ...new Bun.Glob('pkgs/*-client-ts/src/**/*.stories.tsx').scanSync({
+    ...new Bun.Glob('{pkgs,libs}/*-client-ts/src/**/*.stories.tsx').scanSync({
       cwd: root,
     }),
   ].map(slashPath);

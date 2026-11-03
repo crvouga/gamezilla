@@ -1,0 +1,139 @@
+import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
+import { resolveBattleshipShot } from '@libs/battleship-shared-ts/battleship-rules';
+import {
+  type GameSetups,
+  TWO_PLAYER_SIDES,
+} from '@pkgs/turn-game-shared-ts/game-rules';
+import { expect, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { BattleshipBoard } from './battleship-board';
+import { battleshipPresentation } from './battleship-presentation';
+import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from './game-table.example';
+
+/** Blue's fleet along rows 1, 3, 5, 7 and 9 from column A. */
+const BLUE_FLEET =
+  'fleet:carrier@a1h;battleship@a3h;cruiser@a5h;submarine@a7h;destroyer@a9h';
+/** Red's fleet along rows 2, 4, 6, 8 and 10 from column F. */
+const RED_FLEET =
+  'fleet:carrier@f2h;battleship@f4h;cruiser@f6h;submarine@f8h;destroyer@f10h';
+const FLEETS: GameSetups = { white: BLUE_FLEET, black: RED_FLEET };
+
+/** The position after `cells` are fired at in turn, Blue first, against the fleets above. */
+function after(cells: readonly string[]): string {
+  const actions: string[] = [];
+  for (const cell of cells) {
+    const action = resolveBattleshipShot(
+      encodeBattleshipPosition(actions),
+      cell,
+      FLEETS
+    );
+    if (action === null) throw new Error(`Refused shot at ${cell}`);
+    actions.push(action);
+  }
+  return encodeBattleshipPosition(actions);
+}
+
+/** Blue sinks Red's destroyer and hits its carrier; Red misses twice and hits once. */
+const VOLLEYS = ['f10', 'a2', 'g10', 'b9', 'f2', 'a1', 'g2', 'c4'];
+/** Every one of Red's fleet cells, Blue firing; Red misses along row 2 and 4. */
+const RED_CELLS = [
+  'f2',
+  'g2',
+  'h2',
+  'i2',
+  'j2',
+  'f4',
+  'g4',
+  'h4',
+  'i4',
+  'f6',
+  'g6',
+  'h6',
+  'f8',
+  'g8',
+  'h8',
+  'f10',
+  'g10',
+];
+const RED_MISSES = 'a2 b2 c2 d2 e2 f2 g2 h2 i2 j2 a4 b4 c4 d4 e4 f4'.split(' ');
+const BLUE_VICTORY = RED_CELLS.flatMap((cell, i) => {
+  const reply = RED_MISSES[i];
+  return reply === undefined ? [cell] : [cell, reply];
+});
+
+const meta = {
+  id: 'screens-games-battleship-board',
+  title: 'Screens/Games/Battleship/Board',
+  component: BattleshipBoard,
+  tags: ['autodocs'],
+  render: (args, context) =>
+    renderGameTable(battleshipPresentation, TWO_PLAYER_SIDES, args, context),
+  parameters: {
+    appRouter: true,
+    controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
+    table: { turn: 'white' } satisfies GameTableStory,
+  },
+  args: boardArgs(after([]), { interactive: true, setup: BLUE_FLEET }),
+} satisfies Meta<typeof BattleshipBoard>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/** The first shot: Blue fires first, so the targeting waters open at once. */
+export const Opening: Story = {};
+
+/** Mid-game on Blue's turn: a sunk destroyer, hits and misses on both boards. */
+export const YourTurn: Story = { args: { position: after(VOLLEYS) } };
+
+/** Red is firing: Blue's own fleet shows, with the shots that hit it. */
+export const WaitingForOpponent: Story = {
+  args: { position: after(VOLLEYS.slice(0, -1)), interactive: false },
+  parameters: { table: { turn: 'black' } satisfies GameTableStory },
+};
+
+/** A watcher sees both waters as public shots, named by fleet, and no ships. */
+export const Watching: Story = {
+  args: { position: after(VOLLEYS), interactive: false, setup: null },
+  parameters: { table: { viewer: null, turn: 'white' } },
+};
+
+/** Blue sinks the whole Red fleet and is told so. */
+export const Won: Story = {
+  args: { position: after(BLUE_VICTORY), interactive: false },
+  parameters: {
+    table: {
+      ending: { winner: 'white', reason: 'fleet sunk' },
+    } satisfies GameTableStory,
+  },
+};
+
+/** Red's side of the same game: its whole fleet is sunk. */
+export const Lost: Story = {
+  args: {
+    position: after(BLUE_VICTORY),
+    interactive: false,
+    orientation: 'black',
+    setup: RED_FLEET,
+  },
+  parameters: {
+    table: {
+      ending: { winner: 'white', reason: 'fleet sunk' },
+    } satisfies GameTableStory,
+  },
+};
+
+/** Pressing an open cell of the rival's waters fires at it. */
+export const FireAShot: Story = {
+  args: { position: after(VOLLEYS) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-target-e5')
+    );
+    await expect(args.onAction).toHaveBeenCalledWith('e5');
+  },
+};

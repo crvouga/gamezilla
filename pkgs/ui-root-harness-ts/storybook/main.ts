@@ -13,17 +13,21 @@ import solid from 'vite-plugin-solid';
 import { configureDocgen } from './docgen';
 
 const root = resolve(import.meta.dirname, '../../..');
-const storyDirectories = readdirSync(resolve(root, 'pkgs'))
-  .filter(
-    (name) =>
-      name.endsWith('-client-ts') &&
-      existsSync(resolve(root, 'pkgs', name, 'src')) &&
-      readdirSync(resolve(root, 'pkgs', name, 'src'), {
-        recursive: true,
-      }).some((file) => String(file).endsWith('.stories.tsx'))
+/** Design-system slices live in `pkgs/`; product screen views live in `libs/`. */
+const storyDirectories = ['pkgs', 'libs']
+  .flatMap((tier) =>
+    readdirSync(resolve(root, tier))
+      .filter(
+        (name) =>
+          name.endsWith('-client-ts') &&
+          existsSync(resolve(root, tier, name, 'src')) &&
+          readdirSync(resolve(root, tier, name, 'src'), {
+            recursive: true,
+          }).some((file) => String(file).endsWith('.stories.tsx'))
+      )
+      .map((name) => resolve(root, tier, name, 'src'))
   )
-  .sort()
-  .map((name) => resolve(root, 'pkgs', name, 'src'));
+  .sort();
 const config: StorybookConfig = {
   framework: 'storybook-solidjs-vite',
   stories: [
@@ -34,6 +38,7 @@ const config: StorybookConfig = {
     })),
   ],
   addons: [
+    '@chromatic-com/storybook',
     '@storybook/addon-docs',
     '@storybook/addon-a11y',
     '@storybook/addon-mcp',

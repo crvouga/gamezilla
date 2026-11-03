@@ -1,27 +1,16 @@
-import { withdrawPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/withdraw-content-mutation';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { createSignal, type JSX } from 'solid-js';
 
+/** Withdraw a publication from discovery, after a destructive confirm. */
 export function ContentWithdraw(props: {
-  documentId: string;
   disabled: boolean;
+  /** Withdraws the publication; rejects with what to tell the person. */
+  onWithdraw: () => Promise<void>;
 }): JSX.Element {
   const { t } = useLingui();
-  const mutations = useMutationClient();
   const [visible, setVisible] = createSignal(false);
-  const withdraw = async (): Promise<void> => {
-    const result = await mutations.mutate(withdrawPuzzleContentMutation, {
-      documentId: props.documentId,
-    });
-    if (!result.ok)
-      throw new Error(
-        result.failures[0]?.message ??
-          t`The publication could not be withdrawn. Try again.`
-      );
-  };
   return (
     <>
       <Button
@@ -45,7 +34,7 @@ export function ContentWithdraw(props: {
         submitLabel={<Trans>Withdraw</Trans>}
         variant="destructive"
         successTitle={<Trans>Withdrawal saved</Trans>}
-        operation={withdraw}
+        operation={() => props.onWithdraw()}
         submitDataSet={{ testid: 'content-withdraw-confirm' }}
         dismissDataSet={{ testid: 'content-withdraw-dismiss' }}
       />

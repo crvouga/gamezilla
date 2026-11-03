@@ -1,150 +1,96 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  useAppFrameGlobalTrailing,
-  useSetAppFrameHeader,
-} from '@pkgs/ui-root-client-ts/app-frame-chrome';
-import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
-import { ChromeTitle } from '@pkgs/ui-root-client-ts/chrome-title';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import type { JSX, ParentProps } from 'solid-js';
-import { Show } from 'solid-js';
-import {
-  SpaceChromeLeadingActionBar,
-  SpaceChromeTrailingActionBar,
-} from './space-chrome-action-bar';
-import { SpaceHostConnectionStatus } from './space-host-connection-status';
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { NoteActivity } from '@libs/spaces-shared-ts/space-activity';
+import { isViewingSpaceClient } from '@libs/spaces-shared-ts/space-presence-client-id';
+import { useClock } from '@pkgs/clock-client-ts/solid';
+import type { JSX } from 'solid-js';
+import { createSignal } from 'solid-js';
+import type { SpaceDetailStatus } from './space-detail-screen-view';
+import { SpaceDetailScreenView } from './space-detail-screen-view';
+import { useSpaceMembersDialog } from './space-members-dialog-context';
+import { SpaceMembersListModal } from './space-members-list-modal';
+import { SpacePresenceStrip } from './space-presence-strip';
 import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
+import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceTitleText } from './space-title-text';
+import { SpaceShareSheet } from './space-share-sheet';
+import { useSpacesNavBack } from './spaces-nav-context';
+import { useSpaceCan } from './use-space-can';
+import { useSpaceDisplayTitle } from './use-space-display-title';
+import { useSpaceRoomDispatch } from './use-space-room-selector';
 
-export type SpaceActiveLayoutProps = ParentProps<{
+export type SpaceActiveLayoutProps = {
   readonly hostOffline: boolean;
-}>;
+  readonly status: SpaceDetailStatus;
+  readonly children?: JSX.Element;
+};
 
-function SpaceChromeTitle(props: {
-  readonly spaceId: string;
-  readonly size: 'subtitle' | 'navigationTitle';
-}): JSX.Element {
-  return (
-    <StackVertical shrink testId={Handles.spaceTitle}>
-      <ChromeTitle size={props.size}>
-        <SpaceTitleText spaceId={props.spaceId} />
-      </ChromeTitle>
-    </StackVertical>
-  );
+/** Opening the members list also counts as activity in the space. */
+function useOpenMembers(): () => void {
+  const clock = useClock();
+  const membersDialog = useSpaceMembersDialog();
+  const dispatch = useSpaceRoomDispatch();
+  const clientId = useSpaceRoomClientId();
+  return () => {
+    const id = clientId();
+    if (id !== null && isViewingSpaceClient(id)) {
+      dispatch(NoteActivity({ clientId: id, at: clock.now() }));
+    }
+    membersDialog.setOpen(true);
+  };
 }
 
 /**
- * Space actions, the host status, then the global avatar menu at the far
- * edge — same on wide header trailing and compact TopBar trailing. They are
- * the bar's own row items (no wrapper), so the ActionBar sizes itself
- * against the title and collapses into its More menu when the row is short.
- */
-function SpaceTrailingWithGlobal(props: {
-  readonly hostOffline: boolean;
-}): JSX.Element {
-  const globalTrailing = useAppFrameGlobalTrailing();
-  return (
-    <>
-      <SpaceChromeTrailingActionBar />
-      <SpaceHostConnectionStatus offline={props.hostOffline} />
-      {globalTrailing()}
-    </>
-  );
-}
-
-function SpaceActiveLayoutWide(props: {
-  readonly hostOffline: boolean;
-  readonly spaceId: string;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  return (
-    // No clipping here: the header's hairline runs past this column to the
-    // viewport edges. The body below clips its own overflow.
-    <StackVertical grow gap="sm">
-      <AppHeaderIsland
-        leading={
-          <StackHorizontal grow align="center" gap="lg">
-            <SpaceChromeLeadingActionBar />
-            <SpaceChromeTitle spaceId={props.spaceId} size="subtitle" />
-          </StackHorizontal>
-        }
-        trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
-      />
-      <SpaceRefusedChangeNotice />
-      <StackVertical grow overflow="hidden">
-        {props.children}
-      </StackVertical>
-    </StackVertical>
-  );
-}
-
-function SpaceActiveLayoutCompact(props: {
-  readonly hostOffline: boolean;
-  readonly spaceId: string;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  return (
-    <StackVertical grow>
-      <TopBar
-        leading={<SpaceChromeLeadingActionBar />}
-        center={
-          <SpaceChromeTitle spaceId={props.spaceId} size="navigationTitle" />
-        }
-        trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
-        centerPosition="flex"
-      />
-      <SpaceRefusedChangeNotice />
-      <StackVertical grow overflow="hidden">
-        {props.children}
-      </StackVertical>
-    </StackVertical>
-  );
-}
-
-/** Mounted only while wide: hides the default tab header. */
-function HideAppFrameHeaderWhileWide(): null {
-  useSetAppFrameHeader(false);
-  return null;
-}
-
-/**
- * Unified active-space chrome: exit + back, members / manage actions, then
- * the game body.
- *
- * Wide: suppress the AppFrame tab header and paint space chrome as the single
- * top bar (nav · title · actions · avatar); body is a single-column game canvas.
- * Compact: TopBar nests the same chrome, then the full-bleed body.
+ * Wires {@link SpaceDetailScreenView} to the space session: its title,
+ * what the viewer may do, the nav back handler, and the members / share
+ * surfaces it opens.
  */
 export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const sessionUi = useSpaceSessionUi();
-  const mode = useLayoutMode();
+  const title = useSpaceDisplayTitle(() => sessionUi.spaceId);
+  const onPressBack = useSpacesNavBack();
+  const membersDialog = useSpaceMembersDialog();
+  const onPressMembers = useOpenMembers();
+  const [shareOpen, setShareOpen] = createSignal(false);
+  const canRename = useSpaceCan(
+    () => sessionUi.spaceId,
+    PERMISSION.spacesRename
+  );
+  const canEnd = useSpaceCan(() => sessionUi.spaceId, PERMISSION.spacesEnd);
 
   return (
-    <>
-      <Show when={mode() === 'wide'}>
-        <HideAppFrameHeaderWhileWide />
-      </Show>
-      <Show
-        when={mode() === 'wide'}
-        fallback={
-          <SpaceActiveLayoutCompact
+    <SpaceDetailScreenView
+      title={title()}
+      status={props.status}
+      hostOffline={props.hostOffline}
+      canRename={canRename()}
+      canEnd={canEnd()}
+      presence={(size) => (
+        <SpacePresenceStrip spaceId={sessionUi.spaceId} size={size} />
+      )}
+      notice={<SpaceRefusedChangeNotice />}
+      overlays={
+        <>
+          <SpaceMembersListModal
             spaceId={sessionUi.spaceId}
-            hostOffline={props.hostOffline}
-          >
-            {props.children}
-          </SpaceActiveLayoutCompact>
-        }
-      >
-        <SpaceActiveLayoutWide
-          spaceId={sessionUi.spaceId}
-          hostOffline={props.hostOffline}
-        >
-          {props.children}
-        </SpaceActiveLayoutWide>
-      </Show>
-    </>
+            visible={membersDialog.open()}
+            onClose={() => membersDialog.setOpen(false)}
+          />
+          <SpaceShareSheet
+            spaceId={sessionUi.spaceId}
+            open={shareOpen()}
+            onOpenChange={setShareOpen}
+          />
+        </>
+      }
+      onPressHome={sessionUi.onPressHome}
+      onPressBack={onPressBack()}
+      onPressMembers={onPressMembers}
+      onPressShare={() => setShareOpen(true)}
+      onPressRename={sessionUi.onRequestRename}
+      onPressEnd={sessionUi.onRequestEnd}
+      onPressLeave={sessionUi.onRequestLeave}
+    >
+      {props.children}
+    </SpaceDetailScreenView>
   );
 }

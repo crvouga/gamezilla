@@ -12,7 +12,8 @@ import {
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
-import { PongBoard, pongStatus } from './pong-board';
+import { PongBoard } from './pong-board';
+import { pongStatus } from './pong-board-view';
 
 const paddle = (side: GameSide) => (side === 'white' ? 'left' : 'right');
 

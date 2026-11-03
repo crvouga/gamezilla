@@ -70,3 +70,19 @@ test('the Lingui subcommands run as scripts under this Bun, never through bunx',
   expect(command.cmd).not.toContain('bunx');
   expect(command.args).not.toContain('lingui');
 });
+
+// regression: app-env-refusal-copy-outside-lingui-scope
+test('refusal messages moved to app-env remain in the production catalog', () => {
+  expect(
+    macrosOutsideCatalog([
+      {
+        path: 'libs/app-env-client-ts/src/refused-change-copy.tsx',
+        text: MACRO,
+      },
+      {
+        path: 'libs/app-env-client-ts/src/refused-publication-copy.tsx',
+        text: MACRO,
+      },
+    ])
+  ).toEqual([]);
+});

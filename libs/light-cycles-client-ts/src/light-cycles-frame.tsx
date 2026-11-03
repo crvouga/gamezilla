@@ -20,7 +20,8 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
-import { decodeLightCycles, LightCyclesBoard } from './light-cycles-board';
+import { LightCyclesBoard } from './light-cycles-board';
+import { decodeLightCycles } from './light-cycles-board-view';
 import { arenaOverlay } from './light-cycles-view';
 
 /** Each rider's color in the arena: blue, orange, purple and green. */

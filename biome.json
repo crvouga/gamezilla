@@ -202,6 +202,7 @@
       "includes": [
         "**/apps/client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}",
         "**/libs/spaces-harness-ts/src/**/*.{ts,tsx}",
@@ -293,6 +294,7 @@
       "includes": [
         "**/apps/client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}",
         "**/libs/spaces-harness-ts/src/**/*.{ts,tsx}",
@@ -384,6 +386,7 @@
       "includes": [
         "**/apps/client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}"
       ]
@@ -813,6 +816,7 @@
         "**/libs/notifications-client-ts/src/**/*.{ts,tsx}",
         "**/libs/notifications-server-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-server-ts/src/**/*.{ts,tsx}",
         "**/libs/**/use-cases/**/shared/**/*.{ts,tsx}",
@@ -848,9 +852,9 @@
         "!**/libs/app-root-server-ts/src/sync-app.ts",
         "!**/libs/app-root-shared-ts/src/query-auth.ts",
         "!**/libs/app-root-shared-ts/src/upload-rejection-metrics.ts",
-        "!**/libs/app-root-client-ts/src/create-client-pubsub.ts",
-        "!**/libs/app-root-client-ts/src/pubsub-token.ts",
-        "!**/libs/app-root-client-ts/src/sync-api.ts",
+        "!**/libs/app-env-client-ts/src/create-client-pubsub.ts",
+        "!**/libs/app-env-client-ts/src/pubsub-token.ts",
+        "!**/libs/app-env-client-ts/src/sync-api.ts",
         "!**/libs/app-root-shared-ts/src/emqx-url-holder.ts",
         "!**/libs/pubsub-server-ts/src/**",
         "!**/libs/pubsub-server-ts/tests/mint-pubsub-token.test.ts"
@@ -1710,8 +1714,8 @@
         "!**/apps/synthetic-population-worker-ts/src/wall-metrics.ts",
         "!**/apps/server-ts/src/product-server.ts",
         "!**/apps/server-ts/src/worker-telemetry.ts",
-        "!**/libs/app-root-client-ts/src/browser-boundaries.ts",
-        "!**/libs/app-root-client-ts/src/browser-identity.ts",
+        "!**/libs/app-env-client-ts/src/browser-boundaries.ts",
+        "!**/libs/app-env-client-ts/src/browser-identity.ts",
         "!**/libs/app-root-client-ts/src/wall-client-env.ts",
         "!**/libs/observability-server-ts/src/person-trouble-document.ts",
         "!**/libs/observability-server-ts/src/person-trouble-probe.ts",

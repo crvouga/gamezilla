@@ -459,7 +459,7 @@
     },
     "src": {
       "dependsOn": [
-        "@libs/app-root-client-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/friends-shared-ts#src",

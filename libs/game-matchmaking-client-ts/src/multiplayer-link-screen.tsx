@@ -4,52 +4,41 @@
  * stalled — a way to try again or go to Spaces.
  */
 
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from 'solid-js';
+import { MultiplayerLinkScreenView } from './multiplayer-link-screen-view';
 import { useMultiplayerLinkOpening } from './use-multiplayer-link-opening';
 
+/** A placeholder for "no hosting limit", which resolves to nothing shown. */
+const ALLOWED: Decision = { allowed: true, policyVersion: '' };
+
+/** `/multiplayer/:gameId`: wires `MultiplayerLinkScreenView` to opening the link. */
 export function MultiplayerLinkScreen(props: { gameId: string }): JSX.Element {
-  const { t } = useLingui();
   const router = useRouter();
   const link = useMultiplayerLinkOpening(props.gameId);
+  const limited = (): Decision | null => {
+    const current = link.opening();
+    return current.kind === 'spaceLimited' ? current.decision : null;
+  };
+  const denial = useDenialView({
+    get decision() {
+      return limited() ?? ALLOWED;
+    },
+  });
   return (
-    <ContentScreen
-      screenId="multiplayer-link"
-      breadcrumbs={[{ name: <Trans>Multiplayer</Trans> }]}
-      dataSet={{ testid: 'multiplayer-link-screen' }}
-    >
-      <Switch fallback={<LoadingState />}>
-        <Match
-          when={(() => {
-            const current = link.opening();
-            return current.kind === 'spaceLimited' ? current : null;
-          })()}
-          keyed
-        >
-          {(limited) => <DenialSurface decision={limited.decision} />}
-        </Match>
-        <Match when={link.opening().kind === 'failed'}>
-          <ErrorState
-            title={t`Couldn’t open multiplayer`}
-            body={t`Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces.`}
-            retry={{
-              label: t`Try again`,
-              onClick: link.retry,
-              dataSet: { testid: 'multiplayer-link-retry' },
-            }}
-            secondary={{
-              label: t`Go to Spaces`,
-              onClick: () => router.replace('/'),
-            }}
-            dataSet={{ testid: 'multiplayer-link-failed' }}
-          />
-        </Match>
-      </Switch>
-    </ContentScreen>
+    <MultiplayerLinkScreenView
+      status={
+        limited() !== null
+          ? 'limited'
+          : link.opening().kind === 'failed'
+            ? 'failed'
+            : 'opening'
+      }
+      denial={limited() === null ? undefined : denial()}
+      onRetry={link.retry}
+      onGoToSpaces={() => router.replace('/')}
+    />
   );
 }

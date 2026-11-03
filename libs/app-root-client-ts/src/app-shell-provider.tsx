@@ -12,6 +12,7 @@
  * portal so it pushes content instead of covering it.
  */
 
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { i18n } from '@libs/app-root-shared-ts/i18n';
 import { I18nProvider } from '@lingui/solid';
 import {
@@ -21,7 +22,6 @@ import {
 } from '@pkgs/sounds-client-ts/solid';
 import { SpinnerProvider } from '@pkgs/ui-root-client-ts/spinner-context';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
 import { DevicePortsProvider } from './device-ports-context';
 import { PerfRoot } from './perf-root';
 

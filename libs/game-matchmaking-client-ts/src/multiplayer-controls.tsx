@@ -1,113 +1,66 @@
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import { Trans } from '@lingui/solid/macro';
-import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
-import { MultiplayerFindPanel } from './multiplayer-find-panel';
-import { MultiplayerGameActions } from './multiplayer-game-actions';
-import { MultiplayerWaiting } from './multiplayer-waiting';
+import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
+import type {
+  MultiplayerConfirm,
+  MultiplayerNext,
+  MultiplayerStage,
+} from './multiplayer-screen-view';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 import type { MultiplayerData } from './use-multiplayer-data';
+import { useMultiplayerSearch } from './use-multiplayer-search';
 
-type Confirm = 'resign' | 'abort';
-
-function ConfirmTitle(props: { readonly kind: Confirm | null }): JSX.Element {
-  return (
-    <Switch fallback={<Trans>Resign multiplayer game?</Trans>}>
-      <Match when={props.kind === 'abort'}>
-        <Trans>Abort the multiplayer game?</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
-function ConfirmMessage(props: {
-  readonly kind: Confirm | null;
-  readonly game: MultiplayerGame | null;
-}): JSX.Element {
-  return (
-    <Switch fallback={<Trans>Your opponent will win this game.</Trans>}>
-      <Match when={props.kind === 'abort'}>
-        <Trans>The game ends with no result and no rating change.</Trans>
-      </Match>
-      <Match
-        when={props.game !== null && multiplayerSides(props.game).length > 2}
-      >
-        <Trans>The round will end in a draw for all players.</Trans>
-      </Match>
-    </Switch>
-  );
+/** What the stage shows, from the game and search the space's host holds. */
+export function multiplayerStage(data: MultiplayerData): MultiplayerStage {
+  if (data.game() !== null) return 'game';
+  if (data.search() !== null) return 'search';
+  return data.loading() ? 'loading' : 'unavailable';
 }
 
 /**
  * What comes after a game, or before the first: the search under way, or
  * the choice of a time control for a new one. A watcher is offered neither.
  */
-function MultiplayerNextGame(props: {
-  readonly controls: MultiplayerControlsModel;
-  readonly data: MultiplayerData;
-}): JSX.Element {
-  const waiting = () =>
-    props.data.search()?.standing === 'waiting' ? props.data.search() : null;
-  const mayFind = () =>
-    !props.data.loading() &&
-    (props.data.participant() || props.data.hostId() === props.data.myId()) &&
-    props.data.game()?.outcome !== 'ongoing';
-  return (
-    <Switch>
-      <Match when={waiting()}>
-        {(search) => (
-          <MultiplayerWaiting search={search()} onStop={props.controls.stop} />
-        )}
-      </Match>
-      <Match when={mayFind()}>
-        <MultiplayerFindPanel
-          controls={props.controls}
-          gameId={props.data.gameId()}
-        />
-      </Match>
-    </Switch>
-  );
+export function useMultiplayerNext(
+  data: MultiplayerData
+): Accessor<MultiplayerNext> {
+  const rules = useTurnGames();
+  const search = useMultiplayerSearch(data.search);
+  return createMemo((): MultiplayerNext => {
+    const waiting = search();
+    if (waiting !== null) return { kind: 'searching', search: waiting };
+    const mayFind =
+      !data.loading() &&
+      (data.participant() || data.hostId() === data.myId()) &&
+      data.game()?.outcome !== 'ongoing';
+    if (!mayFind) return { kind: 'none' };
+    return {
+      kind: 'find',
+      players: gameSides(rules.byId(data.gameId())).length,
+      timed:
+        rules.capability(data.gameId(), 'matchmaking')?.clockChoices === true,
+    };
+  });
 }
 
-export function MultiplayerControls(props: {
-  readonly controls: MultiplayerControlsModel;
-  readonly data: MultiplayerData;
-}): JSX.Element {
-  const [confirm, setConfirm] = createSignal<Confirm | null>(null);
-  const looking = () => props.data.search()?.standing === 'waiting';
-  const operation = () => {
-    const kind = confirm();
-    if (kind === 'abort') return props.controls.abort();
-    return props.controls.resign();
-  };
-  return (
-    <>
-      <Show when={props.data.game()}>
-        {(game) => (
-          <MultiplayerGameActions
-            game={game()}
-            execution={props.data.execution()}
-            myId={props.data.myId()}
-            controls={props.controls}
-            looking={looking()}
-            onConfirm={setConfirm}
-          />
-        )}
-      </Show>
-      <MultiplayerNextGame data={props.data} controls={props.controls} />
-      <MutationModal
-        visible={confirm() !== null}
-        onClose={() => setConfirm(null)}
-        title={<ConfirmTitle kind={confirm()} />}
-        message={<ConfirmMessage kind={confirm()} game={props.data.game()} />}
-        operation={operation}
-        submitLabel={<Trans>Confirm</Trans>}
-        successTitle={<Trans>Multiplayer command accepted</Trans>}
-        variant="destructive"
-        submitDataSet={{ testid: 'multiplayer-confirm' }}
-        dismissDataSet={{ testid: 'multiplayer-dismiss' }}
-      />
-    </>
+/** The resign or abort waiting to be confirmed, and carrying it out. */
+export function useMultiplayerConfirm(
+  data: MultiplayerData,
+  controls: MultiplayerControlsModel
+) {
+  const [confirming, setConfirming] = createSignal<MultiplayerConfirm | null>(
+    null
   );
+  return {
+    confirming,
+    open: setConfirming,
+    close: () => setConfirming(null),
+    manyPlayers: () => {
+      const game = data.game();
+      return game !== null && multiplayerSides(game).length > 2;
+    },
+    run: () =>
+      confirming() === 'abort' ? controls.abort() : controls.resign(),
+  };
 }

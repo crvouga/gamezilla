@@ -11,62 +11,60 @@ import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  onMount,
-  Show,
-} from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 
 import { AccountSyncErrorNotice } from './account-sync-error-notice';
-import { useAuthClientPort } from './auth-client-provider';
 import { providerName } from './auth-flow-messages';
-import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInMethodRow } from './sign-in-method-row';
 import { UnlinkMethodModal } from './unlink-method-modal';
 import type { LinkedIdentity } from './use-linked-identities';
-import { useLinkedIdentities } from './use-linked-identities';
 
-export function SignInMethodsSection(): JSX.Element {
-  const capabilities = useSignInCapabilities();
-  const port = useAuthClientPort();
-  const linked = useLinkedIdentities();
-  const [removing, setRemoving] = createSignal<SignInMethodId | null>(null);
-  const providers = createMemo<readonly OauthProviderId[]>(() => {
-    const enabled = [
-      ...(capabilities.google ? (['google'] as const) : []),
-      ...(capabilities.apple ? (['apple'] as const) : []),
-    ];
-    // A method linked earlier stays listed even if its provider is now off.
-    const extra = linked
-      .identities()
-      .map((row) => row.provider)
-      .filter(isOauthProviderId)
-      .filter((provider) => !enabled.includes(provider));
-    return [...enabled, ...extra];
-  });
-  // Mint the link ticket now, so tapping "Connect" opens the provider
-  // straight from the gesture (no network wait a popup blocker would punish).
-  onMount(() => {
-    void port.prepareLink().catch(() => undefined);
-  });
+/** The account's sign-in methods as the section shows them. */
+export type SignInMethodsView = {
+  /** Whether the linked identities are still being read. */
+  readonly status: 'loading' | 'ready';
+  /** The first sync failed, so methods may be missing. */
+  readonly syncFailed: boolean;
+  /** Methods on the account, one per provider. */
+  readonly identities: readonly LinkedIdentity[];
+  /**
+   * Providers to list, in display order: the enabled ones, then any linked
+   * earlier whose provider is now off.
+   */
+  readonly providers: readonly OauthProviderId[];
+};
+
+export type SignInMethodsSectionProps = {
+  readonly methods: SignInMethodsView;
+  /** The method whose removal is being confirmed. */
+  readonly removing: SignInMethodId | null;
+  /** Connects a provider; rejects with the message its row shows. */
+  readonly onConnect: (provider: OauthProviderId) => Promise<void>;
+  readonly onRemove: (method: SignInMethodId) => void;
+  readonly onCancelRemove: () => void;
+  /** Removes `removing`; rejects with the message the dialog shows. */
+  readonly onConfirmRemove: () => Promise<void>;
+};
+
+export function SignInMethodsSection(
+  props: SignInMethodsSectionProps
+): JSX.Element {
+  const identities = () => props.methods.identities;
+  const removable = () => identities().length > 1;
   return (
     <StackVertical gap="md" testId={Handles.accountSignInMethods}>
-      <AccountSyncErrorNotice>
+      <AccountSyncErrorNotice failed={props.methods.syncFailed}>
         <Trans>
           Couldn't reach the server yet, so your sign-in methods may be missing.
         </Trans>
       </AccountSyncErrorNotice>
       <Show
-        when={!linked.isLoading()}
+        when={props.methods.status === 'ready'}
         fallback={
           <LoadingState
             variant="compact"
@@ -76,36 +74,34 @@ export function SignInMethodsSection(): JSX.Element {
       >
         <MenuSection title={<Trans>Sign-in methods</Trans>}>
           {/* Only a Synthetic User's account ever holds an email method. */}
-          <Show
-            when={linked.identities().find((row) => row.provider === 'email')}
-          >
+          <Show when={identities().find((row) => row.provider === 'email')}>
             {(identity) => (
               <EmailMethodRow
                 identity={identity()}
-                removable={linked.identities().length > 1}
-                onRemove={() => setRemoving('email')}
+                removable={removable()}
+                onRemove={() => props.onRemove('email')}
               />
             )}
           </Show>
-          <For each={providers()}>
+          <For each={props.methods.providers}>
             {(provider) => (
               <SignInMethodRow
                 provider={provider}
                 identity={
-                  linked
-                    .identities()
-                    .find((row) => row.provider === provider) ?? null
+                  identities().find((row) => row.provider === provider) ?? null
                 }
-                removable={linked.identities().length > 1}
-                onRemove={setRemoving}
+                removable={removable()}
+                onRemove={props.onRemove}
+                onConnect={props.onConnect}
               />
             )}
           </For>
         </MenuSection>
       </Show>
       <UnlinkMethodModal
-        provider={removing()}
-        onClose={() => setRemoving(null)}
+        provider={props.removing}
+        onClose={props.onCancelRemove}
+        onConfirm={props.onConfirmRemove}
       />
     </StackVertical>
   );

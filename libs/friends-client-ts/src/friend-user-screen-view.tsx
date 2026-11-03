@@ -1,98 +1,68 @@
+import type { FriendActionMutations } from '@libs/friends-shared-ts/friend-action-types';
+import type {
+  FriendProfile,
+  FriendshipStatus,
+} from '@libs/friends-shared-ts/friends-types';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
-import { useFirstSyncError } from '@libs/profile-client-ts/use-first-sync-error';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
-import {
-  useLocalSearchParams,
-  useRouter,
-} from '@pkgs/ui-root-client-ts/app-router';
+import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
-import { createMemo, createSignal, Show } from 'solid-js';
-import {
-  createFriendUserDangerHandlers,
-  FriendUserDangerModals,
-} from './friend-user-danger-modals';
+import { createMemo, Show } from 'solid-js';
+import type { FriendRequestOutcome } from './friend-request-feedback-view';
+import { FriendUserDangerModals } from './friend-user-danger-modals';
 import type { FriendUserPresence } from './friend-user-screen-content';
 import {
   FriendUserIdentity,
   FriendUserIdentityActions,
 } from './friend-user-screen-content';
-import { FriendsPermissionGate } from './friends-permission-gate';
-import { useBlockUser } from './use-block-user';
-import { useFriendRequestIdsForUser } from './use-friend-request-ids';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
-import {
-  friendUserBreadcrumbName,
-  readRouteParam,
-  useFriendUserProfile,
-} from './use-friend-user-profile';
-import { useFriendshipStatus } from './use-friendship-status';
-import { useRemoveFriend } from './use-remove-friend';
+import { friendUserBreadcrumbName } from './use-friend-user-profile';
 
-/** Profile › the person, named as moderation lets them be shown. */
-function useFriendUserBreadcrumbs(
-  userProfile: ReturnType<typeof useFriendUserProfile>,
-  userId: () => string
-) {
-  const nav = useBreadcrumbNav();
-  const moderation = useModeration();
-  return createMemo(() => [
-    { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
-    {
-      name: friendUserBreadcrumbName(
-        moderation(),
-        userProfile.profile(),
-        userId()
-      ),
-    },
-  ]);
-}
+/** Which confirm-first danger action is asking, if any. */
+export type FriendUserConfirming = 'remove' | 'block' | null;
 
-/** Loading, unreachable (never synced), withdrawn, or shown. */
-function useFriendUserPresence(
-  userProfile: ReturnType<typeof useFriendUserProfile>
-): () => FriendUserPresence {
-  const firstSyncError = useFirstSyncError();
-  return () => {
-    if (userProfile.loading()) return 'loading';
-    if (!userProfile.unavailable()) return 'shown';
-    return firstSyncError() ? 'unreachable' : 'unavailable';
-  };
-}
+export type FriendUserScreenViewProps = {
+  readonly presence: FriendUserPresence;
+  /** The person as this device knows them (username empty until synced). */
+  readonly profile: FriendProfile;
+  readonly status: FriendshipStatus;
+  /** The last friend request to them, while shared or after it was refused. */
+  readonly requestOutcome: FriendRequestOutcome | null;
+  /** The friend pills' mutations, bound to this person. */
+  readonly actions: FriendActionMutations;
+  /** Why the last Add was refused, so the pill can say so. */
+  readonly addFailureCode: string | null;
+  readonly confirming: FriendUserConfirming;
+  /** Set when the person may not use friends; replaces the whole profile. */
+  readonly denial?: DenialView | undefined;
+  /** Inline notice for a refused friend change, under the identity. */
+  readonly notice?: JSX.Element;
+  readonly onRetry: () => void;
+  /** A pill's mutation succeeded: refresh what the profile shows. */
+  readonly onChanged: () => void;
+  readonly onRequestRemove: () => void;
+  readonly onRequestBlock: () => void;
+  readonly onCancelConfirm: () => void;
+  /** Removes the friend and leaves; rejects to keep the confirm open. */
+  readonly onRemove: () => Promise<void>;
+  /** Blocks the person and leaves; rejects to keep the confirm open. */
+  readonly onBlock: () => Promise<void>;
+};
 
-function useFriendUserDanger(userId: () => string) {
-  const router = useRouter();
-  const [removeOpen, setRemoveOpen] = createSignal(false);
-  const [blockOpen, setBlockOpen] = createSignal(false);
-  const removeFriend = useRemoveFriend();
-  const blockUser = useBlockUser();
-  const handlers = createFriendUserDangerHandlers({
-    removeFriend: () => removeFriend(userId()),
-    blockUser: () => blockUser(userId()),
-    setRemoveOpen,
-    setBlockOpen,
-    routerBack: () => router.back(),
-  });
-  return { removeOpen, setRemoveOpen, blockOpen, setBlockOpen, handlers };
-}
-
-function FriendUserScreenBody(props: { userId: string }): JSX.Element {
-  const userId = () => props.userId;
-  const status = useFriendshipStatus(userId);
-  const requestIds = useFriendRequestIdsForUser(userId);
-  const userProfile = useFriendUserProfile(userId);
-  const presence = useFriendUserPresence(userProfile);
-  const danger = useFriendUserDanger(userId);
+/** Remove friend / Block, in the header overflow, once the profile is shown. */
+function useHeaderActions(props: FriendUserScreenViewProps) {
   const menuActions = useFriendUserOverflowMenu(
-    status,
-    () => danger.setRemoveOpen(true),
-    () => danger.setBlockOpen(true),
-    () => userProfile.profile().username
+    () => props.status,
+    () => props.onRequestRemove(),
+    () => props.onRequestBlock(),
+    () => props.profile.username
   );
-  const headerActions = createMemo((): ScreenBaseAction[] => {
-    if (presence() !== 'shown') return [];
+  return createMemo((): ScreenBaseAction[] => {
+    if (props.presence !== 'shown') return [];
     return menuActions().map((action) => ({
       type: 'default' as const,
       label: action.label,
@@ -102,8 +72,21 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       dataSet: action.dataSet,
     }));
   });
-  const breadcrumbs = useFriendUserBreadcrumbs(userProfile, userId);
+}
 
+function FriendUserProfileView(props: FriendUserScreenViewProps): JSX.Element {
+  const moderation = useModeration();
+  const headerActions = useHeaderActions(props);
+  const breadcrumbs = createMemo(() => [
+    { name: <Trans>Profile</Trans>, href: '/profile' },
+    {
+      name: friendUserBreadcrumbName(
+        moderation(),
+        props.profile,
+        props.profile.userId
+      ),
+    },
+  ]);
   return (
     <ProfileScreenLayout
       screenId="friend-user"
@@ -111,47 +94,62 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       actions={headerActions()}
       identity={
         <FriendUserIdentity
-          presence={presence()}
-          profile={userProfile.profile()}
-          outgoingRequestId={requestIds.outgoingRequestId()}
-          onRetry={userProfile.refreshProfile}
+          presence={props.presence}
+          profile={props.profile}
+          requestOutcome={props.requestOutcome}
+          notice={props.notice}
+          onRetry={() => props.onRetry()}
         />
       }
       identityActions={
-        <Show when={presence() === 'shown'}>
+        <Show when={props.presence === 'shown'}>
           <FriendUserIdentityActions
-            profile={userProfile.profile()}
-            status={status()}
-            incomingRequestId={requestIds.incomingRequestId()}
-            outgoingRequestId={requestIds.outgoingRequestId()}
-            onChanged={userProfile.refreshProfile}
+            profile={props.profile}
+            status={props.status}
+            mutations={props.actions}
+            addFailureCode={props.addFailureCode}
+            onChanged={() => props.onChanged()}
           />
         </Show>
       }
     >
-      <Show when={presence() === 'shown'}>
+      <Show when={props.presence === 'shown'}>
         <FriendUserDangerModals
-          username={userProfile.profile().username}
-          removeOpen={danger.removeOpen()}
-          blockOpen={danger.blockOpen()}
-          onCloseRemove={() => danger.setRemoveOpen(false)}
-          onCloseBlock={() => danger.setBlockOpen(false)}
-          onRemove={danger.handlers.onRemove}
-          onBlock={danger.handlers.onBlock}
+          username={props.profile.username}
+          removeOpen={props.confirming === 'remove'}
+          blockOpen={props.confirming === 'block'}
+          onCloseRemove={() => props.onCancelConfirm()}
+          onCloseBlock={() => props.onCancelConfirm()}
+          onRemove={() => props.onRemove()}
+          onBlock={() => props.onBlock()}
         />
       </Show>
     </ProfileScreenLayout>
   );
 }
 
-export function FriendUserScreen(): JSX.Element {
-  const params = useLocalSearchParams<{ userId: string }>();
-  const userId = () => readRouteParam(params().userId);
+/**
+ * `/profile/user/:userId`, presentational: another person's profile with
+ * their friendship status pills, request outcome, Remove / Block confirms,
+ * and its loading, unreachable, withdrawn and permission-denied states.
+ * `FriendUserScreen` wires it to the sync engine and the friend mutations.
+ */
+export function FriendUserScreenView(
+  props: FriendUserScreenViewProps
+): JSX.Element {
   return (
-    <FriendsPermissionGate>
-      <Show when={userId()} keyed>
-        {(id) => <FriendUserScreenBody userId={id} />}
-      </Show>
-    </FriendsPermissionGate>
+    <Show when={props.denial} fallback={<FriendUserProfileView {...props} />}>
+      {(denial) => (
+        <ContentScreen
+          screenId="friends-permission-gate"
+          breadcrumbs={[
+            { name: <Trans>Profile</Trans>, href: '/profile' },
+            { name: <Trans>Friends</Trans> },
+          ]}
+        >
+          <DenialSurfaceView denial={denial()} />
+        </ContentScreen>
+      )}
+    </Show>
   );
 }

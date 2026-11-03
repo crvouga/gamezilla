@@ -1,0 +1,4 @@
+{
+  "summary": "Moving refusal-copy helpers into app-env-client-ts omitted that package from the Lingui extraction scope. Package lint rejected the moved macro files, and a production extraction would otherwise omit their messages. Include the extracted package and hash that source tree in the i18n gate.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-i18n.test.ts"
+}

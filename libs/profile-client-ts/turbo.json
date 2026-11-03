@@ -73,7 +73,7 @@
     },
     "src": {
       "dependsOn": [
-        "@libs/app-root-client-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/moderation-client-ts#src",
@@ -82,14 +82,12 @@
         "@libs/sub-client-ts#src",
         "@libs/test-ids-shared-ts#src",
         "@pkgs/clock-client-ts#src",
-        "@pkgs/i18n-shared-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
         "@pkgs/solid-context-client-ts#src",
         "@pkgs/sync-engine-client-ts#src",
         "@pkgs/ui-root-client-ts#src",
         "@pkgs/ui-root-shared-ts#src",
-        "@pkgs/uuid-client-ts#src",
-        "@pkgs/uuid-shared-ts#src"
+        "@pkgs/uuid-client-ts#src"
       ]
     }
   }

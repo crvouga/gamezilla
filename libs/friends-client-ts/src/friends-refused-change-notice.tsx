@@ -1,4 +1,4 @@
-import { RefusedChangeNotice } from '@libs/app-root-client-ts/refused-change-notice';
+import { RefusedChangeNotice } from '@libs/app-env-client-ts/refused-change-notice';
 import { blockUserMutation } from '@libs/friends-shared-ts/block-user-mutation';
 import { cancelFriendRequestMutation } from '@libs/friends-shared-ts/cancel-friend-request-mutation';
 import { declineFriendRequestMutation } from '@libs/friends-shared-ts/decline-friend-request-mutation';

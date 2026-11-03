@@ -16,6 +16,11 @@
         "false"
       ],
       "enabled": true
+    },
+    "storybook": {
+      "type": "remote",
+      "url": "http://127.0.0.1:6006/mcp",
+      "enabled": true
     }
   }
 }

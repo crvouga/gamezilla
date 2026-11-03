@@ -6,16 +6,14 @@
 
 import { puzzleIdOfRouteParam } from '@libs/game-puzzle-shared-ts/puzzle-link';
 import { puzzleNamespaceOf } from '@libs/game-puzzle-shared-ts/puzzle-namespace';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { createMemo, type JSX, Match, Show, Switch, untrack } from 'solid-js';
+import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import {
+  PuzzleLinkScreenView,
+  type PuzzleLinkStatus,
+} from './puzzle-link-screen-view';
+import { useDeniedView } from './use-denied-view';
 import type { PuzzleLinkOpening } from './use-puzzle-link-opening';
 import { usePuzzleLinkOpening } from './use-puzzle-link-opening';
 
@@ -38,19 +36,13 @@ export function PuzzleLinkScreen(props: {
   const puzzleId = () => puzzleIdOfRouteParam(params().puzzleId ?? '');
   const gameId = createMemo(() => gameOfPuzzle(props.turnGames, puzzleId()));
   return (
-    <ContentScreen
-      screenId="chess-puzzle-link"
-      breadcrumbs={[{ name: <Trans>Puzzle</Trans> }]}
-      dataSet={{ testid: Handles.chessPuzzleLinkScreen }}
+    <Show
+      when={gameId()}
+      keyed
+      fallback={<PuzzleLinkOutcome opening={() => UNAVAILABLE} />}
     >
-      <Show
-        when={gameId()}
-        keyed
-        fallback={<PuzzleLinkOutcome opening={() => UNAVAILABLE} />}
-      >
-        {(id) => <PuzzleLinkOpener puzzleId={puzzleId} gameId={id} />}
-      </Show>
-    </ContentScreen>
+      {(id) => <PuzzleLinkOpener puzzleId={puzzleId} gameId={id} />}
+    </Show>
   );
 }
 
@@ -67,47 +59,23 @@ function PuzzleLinkOpener(props: {
   return <PuzzleLinkOutcome opening={opening} />;
 }
 
+/** The view's status; a denial carries its own copy. */
+function linkStatus(opening: PuzzleLinkOpening): PuzzleLinkStatus {
+  return opening.kind === 'spaceLimited' ? 'opening' : opening.kind;
+}
+
 /** Opening the link, or why it cannot open. */
 function PuzzleLinkOutcome(props: {
   readonly opening: () => PuzzleLinkOpening;
 }): JSX.Element {
   const opening = () => props.opening();
+  const denial = useDeniedView({
+    get decision() {
+      const current = opening();
+      return current.kind === 'spaceLimited' ? current.decision : null;
+    },
+  });
   return (
-    <Switch fallback={<LoadingState />}>
-      <Match when={opening().kind === 'offline'}>
-        <EmptyState
-          icon={WifiOffIcon}
-          title={<Trans>You're offline</Trans>}
-          body={
-            <Trans>
-              Puzzles need a connection. Reconnect and open the puzzle link
-              again.
-            </Trans>
-          }
-          dataSet={{ testid: Handles.chessPuzzleOffline }}
-        />
-      </Match>
-      <Match when={opening().kind === 'unavailable'}>
-        <EmptyState
-          icon={SearchIcon}
-          title={<Trans>This puzzle is no longer available</Trans>}
-          body={
-            <Trans>
-              It was taken out of the puzzles, so its link no longer opens it.
-            </Trans>
-          }
-          dataSet={{ testid: Handles.chessPuzzleLinkUnavailable }}
-        />
-      </Match>
-      <Match
-        when={(() => {
-          const current = opening();
-          return current.kind === 'spaceLimited' ? current : null;
-        })()}
-        keyed
-      >
-        {(limited) => <DenialSurface decision={limited.decision} />}
-      </Match>
-    </Switch>
+    <PuzzleLinkScreenView status={linkStatus(opening())} denial={denial()} />
   );
 }

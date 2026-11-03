@@ -275,7 +275,15 @@ describe('Verify workflow cancellation', () => {
     });
     expect(
       end.steps.filter((candidate) => candidate['continue-on-error'])
-    ).toHaveLength(1);
+    ).toHaveLength(2);
+    const storybook = end.steps.findIndex(
+      (candidate) => candidate.uses === './.github/actions/publish-storybook'
+    );
+    expect(storybook).toBeGreaterThan(verdict);
+    expect(end.steps[storybook]).toMatchObject({
+      if: "${{ success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}",
+      'continue-on-error': true,
+    });
     // regression: verify-repeated-mise-cache-stall (1jzx5994v8)
     expect(
       workflow.jobs['verify-shards']!.steps.filter(

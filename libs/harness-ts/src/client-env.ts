@@ -3,7 +3,7 @@
  * it never holds a direct handle to a server instance.
  */
 
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
 import { setOriginAvailability } from '@libs/app-root-client-ts/origin-availability-for-env';
 import { createAppBearerTokenStore } from '@libs/app-root-shared-ts/auth-client-storage';

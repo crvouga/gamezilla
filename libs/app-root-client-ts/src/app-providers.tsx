@@ -18,6 +18,7 @@
  * (see README.md).
  */
 
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import type { JSX } from 'solid-js';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
@@ -26,7 +27,6 @@ import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppThemeProvider } from './app-theme-provider';
 import { AppUiPortals } from './app-ui-portals';
-import { useClientEnv } from './client-env-context';
 import { EmbeddedAppProvider } from './embedded-app-context';
 
 export function AppProvidersOuter(props: {

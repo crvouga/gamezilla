@@ -1,4 +1,3 @@
-import type { SchemaField } from '@libs/profile-shared-ts/dicebear-schema';
 import type { StyleKey } from '@libs/profile-shared-ts/dicebear-styles';
 import {
   isStyleKey,
@@ -15,24 +14,22 @@ import { PickerSection } from '@pkgs/ui-root-client-ts/picker-section';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
+import type { AvatarColorField, AvatarEnumField } from './avatar-editor-fields';
 import { buildThumbnailEnumOptions, humanizeOptionKey } from './option-helpers';
 import { ProfileDiceBearAvatar } from './patch-avatar-profile-dicebear-avatar';
-import type { UseAvatarEditor } from './use-avatar-editor';
 
 /** The pickers of the avatar editor: style, each trait, background colors. */
-
-type EnumField = Extract<SchemaField, { kind: 'enum' }>;
-type ColorField = Extract<SchemaField, { kind: 'color' }>;
 
 const PREVIEW_SIZE = 32;
 const RANDOM = '__random__' as const;
 
 export function BackgroundColorPicker(props: {
-  field: ColorField;
-  editor: UseAvatarEditor;
+  field: AvatarColorField;
+  options: Record<string, unknown>;
+  onOptionsChange: (options: Record<string, unknown>) => void;
 }): JSX.Element {
   const current = (): string[] => {
-    const value = props.editor.draft.options[props.field.key];
+    const value = props.options[props.field.key];
     return Array.isArray(value) ? (value as string[]) : props.field.default;
   };
   const palette = (): string[] => [
@@ -49,10 +46,10 @@ export function BackgroundColorPicker(props: {
         allowCustomEntry={false}
         onChange={(next) => {
           const key = props.field.key;
-          props.editor.updateOptions((o) => ({
-            ...o,
+          props.onOptionsChange({
+            ...props.options,
             [key]: next.length <= 1 ? next : [next[next.length - 1]!],
-          }));
+          });
         }}
       />
     </PickerSection>
@@ -88,6 +85,7 @@ export function StyleCombobox(props: {
   return (
     <Combobox
       label={<Trans>Style</Trans>}
+      aria-label={t`Style`}
       options={options()}
       value={props.styleKey}
       onValueChange={(key) => {
@@ -104,7 +102,7 @@ export function StyleCombobox(props: {
 }
 
 export function TraitCombobox(props: {
-  field: EnumField;
+  field: AvatarEnumField;
   styleKey: StyleKey;
   seed: string;
   options: Record<string, unknown>;

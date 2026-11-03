@@ -3,7 +3,7 @@ import {
   isDisposableSqlClient,
   LOCAL_DATABASE_OPEN_DEADLINE_MS,
   openMainSqlClient,
-} from '@libs/app-root-client-ts/open-main-sql-client';
+} from '@libs/app-env-client-ts/open-main-sql-client';
 import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';

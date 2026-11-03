@@ -107,6 +107,7 @@
         "@crvouga/mockingbird-service-openai": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/app-config-shared-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
         "@libs/battleship-harness-ts": "workspace:*",
@@ -375,6 +376,8 @@
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -450,6 +453,8 @@
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -488,16 +493,65 @@
         "typescript": "catalog:",
       },
     },
+    "libs/app-env-client-ts": {
+      "name": "@libs/app-env-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/app-config-shared-ts": "workspace:*",
+        "@libs/app-root-shared-ts": "workspace:*",
+        "@libs/auth-shared-ts": "workspace:*",
+        "@libs/moderation-client-ts": "workspace:*",
+        "@libs/moderation-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
+        "@libs/sub-shared-ts": "workspace:*",
+        "@libs/test-ids-shared-ts": "workspace:*",
+        "@lingui/solid": "catalog:",
+        "@opentelemetry/api": "catalog:",
+        "@pkgs/auth-root-shared-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/device-shared-ts": "workspace:*",
+        "@pkgs/feedback-shared-ts": "workspace:*",
+        "@pkgs/http-client-client-ts": "workspace:*",
+        "@pkgs/http-client-shared-ts": "workspace:*",
+        "@pkgs/kv-root-shared-ts": "workspace:*",
+        "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/object-store-root-shared-ts": "workspace:*",
+        "@pkgs/observability-root-client-ts": "workspace:*",
+        "@pkgs/observability-root-shared-ts": "workspace:*",
+        "@pkgs/pubsub-aedes-shared-ts": "workspace:*",
+        "@pkgs/pubsub-emqx-shared-ts": "workspace:*",
+        "@pkgs/pubsub-root-shared-ts": "workspace:*",
+        "@pkgs/room-root-shared-ts": "workspace:*",
+        "@pkgs/secure-storage-root-shared-ts": "workspace:*",
+        "@pkgs/solid-context-client-ts": "workspace:*",
+        "@pkgs/sounds-shared-ts": "workspace:*",
+        "@pkgs/sql-client-root-shared-ts": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
+        "@pkgs/sql-client-sqlite-web-client-ts": "workspace:*",
+        "@pkgs/sql-root-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-client-ts": "workspace:*",
+        "@pkgs/sync-engine-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "@pkgs/uuid-shared-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/app-root-client-ts": {
       "name": "@libs/app-root-client-ts",
       "version": "0.0.0",
       "dependencies": {
         "@libs/app-config-client-ts": "workspace:*",
-        "@libs/app-config-shared-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
-        "@libs/moderation-client-ts": "workspace:*",
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
@@ -517,7 +571,6 @@
         "@pkgs/device-client-ts": "workspace:*",
         "@pkgs/device-shared-ts": "workspace:*",
         "@pkgs/feedback-client-ts": "workspace:*",
-        "@pkgs/feedback-shared-ts": "workspace:*",
         "@pkgs/git-shared-ts": "workspace:*",
         "@pkgs/harness-console-client-ts": "workspace:*",
         "@pkgs/http-client-client-ts": "workspace:*",
@@ -535,8 +588,6 @@
         "@pkgs/observability-root-client-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/observability-runtime-shared-ts": "workspace:*",
-        "@pkgs/pubsub-aedes-shared-ts": "workspace:*",
-        "@pkgs/pubsub-emqx-shared-ts": "workspace:*",
         "@pkgs/pubsub-root-shared-ts": "workspace:*",
         "@pkgs/room-root-shared-ts": "workspace:*",
         "@pkgs/secure-storage-root-client-ts": "workspace:*",
@@ -575,6 +626,8 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
       },
@@ -716,6 +769,8 @@
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -795,6 +850,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -868,6 +925,8 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1017,6 +1076,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1150,9 +1211,14 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/sounds-client-ts": "workspace:*",
+        "@pkgs/sounds-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1280,6 +1346,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1318,6 +1386,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1405,7 +1475,7 @@
       "name": "@libs/friends-client-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-root-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/friends-shared-ts": "workspace:*",
@@ -1440,6 +1510,8 @@
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1601,6 +1673,8 @@
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1700,6 +1774,8 @@
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1707,7 +1783,7 @@
       "name": "@libs/game-puzzle-client-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-root-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/game-puzzle-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
@@ -1750,6 +1826,8 @@
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1881,6 +1959,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2152,6 +2232,7 @@
         "@crvouga/mockingbird-service-s3": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/app-config-shared-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/app-root-server-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
@@ -2273,6 +2354,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2374,6 +2457,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2437,6 +2522,8 @@
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2485,6 +2572,8 @@
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2562,6 +2651,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2663,6 +2754,8 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2757,6 +2850,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2829,7 +2924,7 @@
       "name": "@libs/profile-client-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-root-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/moderation-client-ts": "workspace:*",
@@ -2840,14 +2935,12 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/clock-client-ts": "workspace:*",
-        "@pkgs/i18n-shared-ts": "workspace:*",
         "@pkgs/secure-storage-root-client-ts": "workspace:*",
         "@pkgs/solid-context-client-ts": "workspace:*",
         "@pkgs/sync-engine-client-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
-        "@pkgs/uuid-shared-ts": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -2858,6 +2951,8 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2976,6 +3071,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3052,6 +3149,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/account-privacy-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/billing-client-ts": "workspace:*",
         "@libs/chess-puzzle-client-ts": "workspace:*",
@@ -3237,6 +3335,7 @@
       "name": "@libs/search-client-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/permissions-client-ts": "workspace:*",
         "@libs/search-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
@@ -3252,6 +3351,8 @@
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3345,6 +3446,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3395,7 +3498,7 @@
       "name": "@libs/spaces-client-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-root-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/moderation-client-ts": "workspace:*",
@@ -3403,6 +3506,7 @@
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/profile-client-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
@@ -3446,6 +3550,8 @@
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3580,7 +3686,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/app-config-client-ts": "workspace:*",
-        "@libs/app-root-client-ts": "workspace:*",
+        "@libs/app-env-client-ts": "workspace:*",
         "@libs/auth-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
@@ -3603,6 +3709,8 @@
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3764,6 +3872,8 @@
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3797,6 +3907,8 @@
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -7326,8 +7438,10 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@chromatic-com/storybook": "catalog:",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
+        "@lingui/message-utils": "catalog:",
         "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
@@ -7349,6 +7463,7 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "axe-core": "catalog:",
+        "chromatic": "catalog:",
         "fast-check": "catalog:",
         "storybook": "catalog:",
         "storybook-solidjs-vite": "catalog:",
@@ -7549,6 +7664,7 @@
     "@babel/preset-typescript": "^7.29.7",
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
+    "@chromatic-com/storybook": "5.6.0",
     "@clack/prompts": "^1.8.1",
     "@crvouga/atlas": "^0.10.2",
     "@crvouga/mockingbird-service-oauth": "^3.9.0",
@@ -7574,6 +7690,7 @@
     "@lingui/conf": "6.6.0",
     "@lingui/core": "6.6.0",
     "@lingui/format-po": "6.6.0",
+    "@lingui/message-utils": "6.6.0",
     "@lingui/solid": "6.6.0",
     "@modelcontextprotocol/server": "2.3.1",
     "@noble/hashes": "^2.4.0",
@@ -7625,6 +7742,7 @@
     "better-sqlite3": "^13.0.3",
     "buffer": "^6.0.3",
     "chess.js": "^1.4.0",
+    "chromatic": "18.13.9",
     "csv-parse": "^7.0.3",
     "esbuild": "^0.28.2",
     "eslint-plugin-solid": "^0.17.1",
@@ -7943,6 +8061,8 @@
 
     "@cacheable/utils": ["@cacheable/utils@2.5.0", "", { "dependencies": { "hashery": "^1.5.1", "keyv": "^5.6.0" } }, "sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA=="],
 
+    "@chromatic-com/storybook": ["@chromatic-com/storybook@5.6.0", "", { "dependencies": { "@neoconfetti/react": "^1.0.0", "chromatic": "^18.12.1", "jsonfile": "^6.1.0", "strip-ansi": "^7.1.0" }, "peerDependencies": { "storybook": "^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0 || ^11.0.0-0" } }, "sha512-Z7YMtr9DVwegQeWcBeQaiK5dLcAvgpX53Qr/eGGYTyAEqTb1meUr5VQNq1wmst0Lj+gT6lQEco0PuFfUuf3jzA=="],
+
     "@clack/core": ["@clack/core@1.5.1", "", { "dependencies": { "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ=="],
 
     "@clack/prompts": ["@clack/prompts@1.8.1", "", { "dependencies": { "@clack/core": "1.5.1", "fast-string-width": "^3.0.2", "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ=="],
@@ -8255,6 +8375,8 @@
 
     "@libs/app-config-shared-ts": ["@libs/app-config-shared-ts@workspace:libs/app-config-shared-ts"],
 
+    "@libs/app-env-client-ts": ["@libs/app-env-client-ts@workspace:libs/app-env-client-ts"],
+
     "@libs/app-root-client-ts": ["@libs/app-root-client-ts@workspace:libs/app-root-client-ts"],
 
     "@libs/app-root-server-ts": ["@libs/app-root-server-ts@workspace:libs/app-root-server-ts"],
@@ -8516,6 +8638,8 @@
     "@napi-rs/lzma-linux-x64-gnu": ["@napi-rs/lzma-linux-x64-gnu@1.5.1", "", { "os": "linux", "cpu": "x64" }, "sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
+
+    "@neoconfetti/react": ["@neoconfetti/react@1.0.0", "", {}, "sha512-klcSooChXXOzIm+SE5IISIAn3bYzYfPjbX7D7HoqZL84oAfgREeSg5vSIaSFH+DaGzzvImTyWe1OyrJ67vik4A=="],
 
     "@noble/ciphers": ["@noble/ciphers@2.4.0", "", {}, "sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw=="],
 
@@ -9695,7 +9819,7 @@
 
     "ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
-    "ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+    "ansi-regex": ["ansi-regex@6.4.0", "", {}, "sha512-KzTVk2tCWAHtYrvvvaP8bJKJq2pVinhLcGEQdtLIYPbmNGNyYe8QwNaTUYQp2J7/vIsUKt5QCqAfUkYyG9DkOw=="],
 
     "ansi-styles": ["ansi-styles@4.3.0", "", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
 
@@ -9796,6 +9920,8 @@
     "chokidar": ["chokidar@5.0.0", "", { "dependencies": { "readdirp": "^5.0.0" } }, "sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw=="],
 
     "chownr": ["chownr@3.0.0", "", {}, "sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g=="],
+
+    "chromatic": ["chromatic@18.13.9", "", { "dependencies": { "semver": "^7.3.5" }, "peerDependencies": { "@chromatic-com/cypress": "^0.*.* || ^1.0.0", "@chromatic-com/playwright": "^0.*.* || ^1.0.0", "@chromatic-com/vitest": "^0.*.* || ^1.0.0" }, "optionalPeers": ["@chromatic-com/cypress", "@chromatic-com/playwright", "@chromatic-com/vitest"], "bin": { "chroma": "dist/bin.cjs", "chromatic": "dist/bin.cjs", "chromatic-cli": "dist/bin.cjs" } }, "sha512-ZOHNPl0PsrJqEYl9mxOXrOWrGyJL7rmDLHQojf0zoxFrurneI1uW81BOI7PYHv6yeyV8NKCif2arYHGAmCR3LQ=="],
 
     "cjs-module-lexer": ["cjs-module-lexer@2.3.0", "", {}, "sha512-lmNyBzi6iYiqyrExTctfmjd8tInx+dHu9PBomTfH5RXS53c27JMFJgzNv5TyAnm3PgGf+MLy0+Ws41/HlVxdKQ=="],
 
@@ -10665,7 +10791,7 @@
 
     "stringify-object": ["stringify-object@3.3.0", "", { "dependencies": { "get-own-enumerable-property-symbols": "^3.0.0", "is-obj": "^1.0.1", "is-regexp": "^1.0.0" } }, "sha512-rHqiFh1elqCQ9WPLIC8I0Q/g/wj5J1eMkyoiD6eoQApWHP0FtlK7rqnhmabL5VUY9JQCcqwwvlOaSuutekgyrw=="],
 
-    "strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+    "strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "strip-comments": ["strip-comments@2.0.1", "", {}, "sha512-ZprKx+bBLXv067WTCALv8SSz5l2+XhpYCsVtSqlMnkAXMWDq+/ekVbl1ghqP9rUHTzv6sm/DwCOiYutU/yp1fw=="],
 
@@ -11057,8 +11183,6 @@
 
     "cliui/string-width": ["string-width@7.2.0", "", { "dependencies": { "emoji-regex": "^10.3.0", "get-east-asian-width": "^1.0.0", "strip-ansi": "^7.1.0" } }, "sha512-tsaTIkKW9b4N+AEj+SVA+WhJzV7/zMhcSu78mLKWSk7cXMOSHsBKFWUs0fWwq8QyK3MgJBQRX6Gbi4kYbdvGkQ=="],
 
-    "cliui/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
-
     "concat-stream/readable-stream": ["readable-stream@3.6.2", "", { "dependencies": { "inherits": "^2.0.3", "string_decoder": "^1.1.1", "util-deprecate": "^1.0.1" } }, "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA=="],
 
     "duplexify/readable-stream": ["readable-stream@2.3.8", "", { "dependencies": { "core-util-is": "~1.0.0", "inherits": "~2.0.3", "isarray": "~1.0.0", "process-nextick-args": "~2.0.0", "safe-buffer": "~5.1.1", "string_decoder": "~1.1.1", "util-deprecate": "~1.0.1" } }, "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA=="],
@@ -11111,6 +11235,8 @@
 
     "storybook/oxc-parser": ["oxc-parser@0.127.0", "", { "dependencies": { "@oxc-project/types": "^0.127.0" }, "optionalDependencies": { "@oxc-parser/binding-android-arm-eabi": "0.127.0", "@oxc-parser/binding-android-arm64": "0.127.0", "@oxc-parser/binding-darwin-arm64": "0.127.0", "@oxc-parser/binding-darwin-x64": "0.127.0", "@oxc-parser/binding-freebsd-x64": "0.127.0", "@oxc-parser/binding-linux-arm-gnueabihf": "0.127.0", "@oxc-parser/binding-linux-arm-musleabihf": "0.127.0", "@oxc-parser/binding-linux-arm64-gnu": "0.127.0", "@oxc-parser/binding-linux-arm64-musl": "0.127.0", "@oxc-parser/binding-linux-ppc64-gnu": "0.127.0", "@oxc-parser/binding-linux-riscv64-gnu": "0.127.0", "@oxc-parser/binding-linux-riscv64-musl": "0.127.0", "@oxc-parser/binding-linux-s390x-gnu": "0.127.0", "@oxc-parser/binding-linux-x64-gnu": "0.127.0", "@oxc-parser/binding-linux-x64-musl": "0.127.0", "@oxc-parser/binding-openharmony-arm64": "0.127.0", "@oxc-parser/binding-wasm32-wasi": "0.127.0", "@oxc-parser/binding-win32-arm64-msvc": "0.127.0", "@oxc-parser/binding-win32-ia32-msvc": "0.127.0", "@oxc-parser/binding-win32-x64-msvc": "0.127.0" } }, "sha512-bkgD4qHlN7WxLdX8bLXdaU54TtQtAIg/ZBAfm0aje/mo3MRDo3P0hZSgr4U7O3xfX+fQmR5AP04JS/TGcZLcFA=="],
 
+    "string-width/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
     "terser/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
     "websocket-stream/readable-stream": ["readable-stream@2.3.8", "", { "dependencies": { "core-util-is": "~1.0.0", "inherits": "~2.0.3", "isarray": "~1.0.0", "process-nextick-args": "~2.0.0", "safe-buffer": "~5.1.1", "string_decoder": "~1.1.1", "util-deprecate": "~1.0.1" } }, "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA=="],
@@ -11122,8 +11248,6 @@
     "wrap-ansi/ansi-styles": ["ansi-styles@6.2.3", "", {}, "sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg=="],
 
     "wrap-ansi/string-width": ["string-width@7.2.0", "", { "dependencies": { "emoji-regex": "^10.3.0", "get-east-asian-width": "^1.0.0", "strip-ansi": "^7.1.0" } }, "sha512-tsaTIkKW9b4N+AEj+SVA+WhJzV7/zMhcSu78mLKWSk7cXMOSHsBKFWUs0fWwq8QyK3MgJBQRX6Gbi4kYbdvGkQ=="],
-
-    "wrap-ansi/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "yargs/string-width": ["string-width@8.3.0", "", { "dependencies": { "get-east-asian-width": "^1.5.0", "strip-ansi": "^7.1.2" } }, "sha512-ZbmZM0JCihQN91dWnxoipT2KOEyHqEyfRXUyjuRhW8b/xnqPDoq4gWEVApTVa9db2wN8mmoikgFBbjh71+cGeQ=="],
 
@@ -11201,6 +11325,8 @@
 
     "@tailwindcss/oxide-wasm32-wasi/@napi-rs/wasm-runtime/@tybys/wasm-util": ["@tybys/wasm-util@0.10.4", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A=="],
 
+    "@testing-library/dom/pretty-format/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
     "@testing-library/dom/pretty-format/ansi-styles": ["ansi-styles@5.2.0", "", {}, "sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA=="],
 
     "@testing-library/dom/pretty-format/react-is": ["react-is@17.0.2", "", {}, "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="],
@@ -11219,8 +11345,6 @@
 
     "cliui/string-width/emoji-regex": ["emoji-regex@10.6.0", "", {}, "sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A=="],
 
-    "cliui/strip-ansi/ansi-regex": ["ansi-regex@6.4.0", "", {}, "sha512-KzTVk2tCWAHtYrvvvaP8bJKJq2pVinhLcGEQdtLIYPbmNGNyYe8QwNaTUYQp2J7/vIsUKt5QCqAfUkYyG9DkOw=="],
-
     "duplexify/readable-stream/safe-buffer": ["safe-buffer@5.1.2", "", {}, "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="],
 
     "duplexify/readable-stream/string_decoder": ["string_decoder@1.1.1", "", { "dependencies": { "safe-buffer": "~5.1.0" } }, "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg=="],
@@ -11228,8 +11352,6 @@
     "eslint/ajv/json-schema-traverse": ["json-schema-traverse@0.4.1", "", {}, "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg=="],
 
     "happy-dom/@types/node/undici-types": ["undici-types@8.9.0", "", {}, "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="],
-
-    "ora/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "protobufjs/@types/node/undici-types": ["undici-types@8.9.0", "", {}, "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="],
 
@@ -11275,21 +11397,23 @@
 
     "storybook/oxc-parser/@oxc-project/types": ["@oxc-project/types@0.127.0", "", {}, "sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ=="],
 
+    "string-width/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
     "websocket-stream/readable-stream/safe-buffer": ["safe-buffer@5.1.2", "", {}, "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="],
 
     "websocket-stream/readable-stream/string_decoder": ["string_decoder@1.1.1", "", { "dependencies": { "safe-buffer": "~5.1.0" } }, "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg=="],
 
     "wrap-ansi/string-width/emoji-regex": ["emoji-regex@10.6.0", "", {}, "sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A=="],
 
-    "wrap-ansi/strip-ansi/ansi-regex": ["ansi-regex@6.4.0", "", {}, "sha512-KzTVk2tCWAHtYrvvvaP8bJKJq2pVinhLcGEQdtLIYPbmNGNyYe8QwNaTUYQp2J7/vIsUKt5QCqAfUkYyG9DkOw=="],
-
-    "yargs/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
-
     "@grpc/grpc-js/@grpc/proto-loader/yargs/cliui": ["cliui@8.0.1", "", { "dependencies": { "string-width": "^4.2.0", "strip-ansi": "^6.0.1", "wrap-ansi": "^7.0.0" } }, "sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ=="],
 
     "@grpc/grpc-js/@grpc/proto-loader/yargs/yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
 
+    "@grpc/proto-loader/yargs/cliui/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
     "@grpc/proto-loader/yargs/cliui/wrap-ansi": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
+
+    "@informalsystems/quint/yargs/cliui/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "@informalsystems/quint/yargs/cliui/wrap-ansi": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
 
@@ -11297,10 +11421,14 @@
 
     "@opentelemetry/instrumentation-fetch/@opentelemetry/sdk-trace-web/@opentelemetry/sdk-trace-base/@opentelemetry/sdk-trace": ["@opentelemetry/sdk-trace@2.11.0", "", { "dependencies": { "@opentelemetry/core": "2.11.0", "@opentelemetry/resources": "2.11.0", "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.3.0 <1.10.0" } }, "sha512-fFnTqGm8/G73GQVnxYi7LXa1ZVYEUvgL6XI1LpvV0bPC7WQ/ZGgKxCSl8FnlZBKto9JHHEFTO6s6CUpvvtwFrA=="],
 
-    "ora/string-width/strip-ansi/ansi-regex": ["ansi-regex@6.4.0", "", {}, "sha512-KzTVk2tCWAHtYrvvvaP8bJKJq2pVinhLcGEQdtLIYPbmNGNyYe8QwNaTUYQp2J7/vIsUKt5QCqAfUkYyG9DkOw=="],
-
-    "yargs/string-width/strip-ansi/ansi-regex": ["ansi-regex@6.4.0", "", {}, "sha512-KzTVk2tCWAHtYrvvvaP8bJKJq2pVinhLcGEQdtLIYPbmNGNyYe8QwNaTUYQp2J7/vIsUKt5QCqAfUkYyG9DkOw=="],
+    "@grpc/grpc-js/@grpc/proto-loader/yargs/cliui/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "@grpc/grpc-js/@grpc/proto-loader/yargs/cliui/wrap-ansi": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
+
+    "@grpc/proto-loader/yargs/cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "@informalsystems/quint/yargs/cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "@grpc/grpc-js/@grpc/proto-loader/yargs/cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
   }
 }

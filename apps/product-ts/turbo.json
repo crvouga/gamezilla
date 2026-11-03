@@ -853,6 +853,7 @@
       "dependsOn": [
         "@apps/server-ts#src",
         "@libs/app-config-shared-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/app-root-client-ts#src",
         "@libs/app-root-shared-ts#src",
         "@libs/auth-shared-ts#src",

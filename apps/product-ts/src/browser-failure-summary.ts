@@ -1,4 +1,4 @@
-import { BROWSER_STARTUP_STAGES } from '@libs/app-root-client-ts/browser-identity';
+import { BROWSER_STARTUP_STAGES } from '@libs/app-env-client-ts/browser-identity';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 
 type BrowserStorageEvidencePorts = {

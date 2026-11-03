@@ -1,3 +1,4 @@
+import type { FriendActionMutations } from '@libs/friends-shared-ts/friend-action-types';
 import type {
   FriendProfile,
   FriendshipStatus,
@@ -10,10 +11,12 @@ import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
-import { FriendActionPills } from './friend-action-pills';
+import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import { FriendProfileHeader } from './friend-profile-header';
-import { FriendRequestFeedback } from './friend-request-feedback';
-import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
+import {
+  FriendRequestFeedbackView,
+  type FriendRequestOutcome,
+} from './friend-request-feedback-view';
 
 /** Where the requested profile stands on this device. */
 export type FriendUserPresence =
@@ -26,7 +29,8 @@ export type FriendUserPresence =
 export function FriendUserIdentity(props: {
   presence: FriendUserPresence;
   profile: FriendProfile;
-  outgoingRequestId: string | null;
+  requestOutcome: FriendRequestOutcome | null;
+  notice?: JSX.Element;
   onRetry: () => void;
 }): JSX.Element {
   return (
@@ -34,11 +38,8 @@ export function FriendUserIdentity(props: {
       fallback={
         <>
           <FriendProfileHeader profile={props.profile} />
-          <FriendRequestFeedback
-            userId={props.profile.userId}
-            outgoingRequestId={props.outgoingRequestId}
-          />
-          <FriendsRefusedChangeNotice />
+          <FriendRequestFeedbackView outcome={props.requestOutcome} />
+          {props.notice}
         </>
       }
     >
@@ -77,19 +78,18 @@ export function FriendUserIdentity(props: {
 export function FriendUserIdentityActions(props: {
   profile: FriendProfile;
   status: FriendshipStatus;
-  incomingRequestId: string | null;
-  outgoingRequestId: string | null;
+  mutations: FriendActionMutations;
+  addFailureCode: string | null;
   onChanged: () => void;
 }): JSX.Element {
   return (
     <StackVertical self="stretch">
-      <FriendActionPills
-        userId={props.profile.userId}
-        username={props.profile.username}
+      <FriendActionPillsForStatus
         status={props.status}
-        incomingRequestId={props.incomingRequestId}
-        outgoingRequestId={props.outgoingRequestId}
+        mutations={props.mutations}
+        addFailureCode={() => props.addFailureCode}
         onChanged={props.onChanged}
+        username={props.profile.username}
       />
     </StackVertical>
   );

@@ -1,27 +1,27 @@
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
-import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 
+/**
+ * Above the game: a command the person may not give (finishing the current
+ * game first, signing in), a refused command, and being offline.
+ */
 export function MultiplayerNotices(props: {
-  controls: MultiplayerControlsModel;
-  online: boolean;
+  readonly denial: DenialView | undefined;
+  readonly error: string | null;
+  readonly online: boolean;
 }): JSX.Element {
   return (
     <>
-      <Show when={props.controls.denial()}>
-        {(denied) => (
-          <DenialSurface
-            decision={denied()}
-            testId="multiplayer-command-denial"
-          />
-        )}
+      <Show when={props.denial}>
+        {(denied) => <DenialSurfaceView denial={denied()} />}
       </Show>
-      <Show when={props.controls.error()}>
+      <Show when={props.error}>
         {(error) => (
           <ErrorState
             variant="compact"

@@ -1,23 +1,23 @@
 /** @jsxImportSource solid-js */
 
 import type {
+  Notification,
   NotificationFilter,
   NotificationSection,
 } from '@libs/notifications-shared-ts/notification';
-import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
-import { NotificationCard } from './notification-card';
 import { NotificationsEmptyState } from './notifications-empty-state';
 
 type NotificationsListProps = {
   readonly sections: readonly NotificationSection[];
   readonly isLoading: boolean;
   readonly filter: NotificationFilter;
-  readonly actions: NotificationCardActions;
+  /** One card per notification: drawn by the sub it came from, or the default. */
+  readonly renderCard: (interaction: Notification) => JSX.Element;
 };
 
 type ListRow =
@@ -33,6 +33,7 @@ type ListRow =
     }
   | { readonly kind: 'loading'; readonly key: 'loading' };
 
+/** The inbox's day sections, a trailing loader while more load, or its empty state. */
 export function NotificationsList(props: NotificationsListProps): JSX.Element {
   const noItems = createMemo(() =>
     props.sections.every((section) => section.items.length === 0)
@@ -70,9 +71,7 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
     if (row.kind === 'loading') {
       return <LoadingState variant="compact" size="sm" />;
     }
-    return (
-      <NotificationCard interaction={row.interaction} actions={props.actions} />
-    );
+    return props.renderCard(row.interaction);
   };
 
   return (
