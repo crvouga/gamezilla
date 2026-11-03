@@ -2,11 +2,15 @@ import { containsBlockedTerm } from '@pkgs/word-filter-shared-ts/match';
 import {
   adjectives,
   animals,
-  NumberDictionary,
   uniqueNamesGenerator,
 } from 'unique-names-generator';
 
-const numbers = NumberDictionary.generate({ length: 3 });
+/**
+ * Every three-digit number, so the seed picks one. `NumberDictionary.generate`
+ * draws a single number with `Math.random` at load, which made every alias
+ * share one number that changed on each launch.
+ */
+const numbers = Array.from({ length: 900 }, (_, i) => String(100 + i));
 const MAX_ATTEMPTS = 8;
 
 function aliasOnce(seed: string): string {

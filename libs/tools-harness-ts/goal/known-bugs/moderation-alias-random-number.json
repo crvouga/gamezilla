@@ -1,0 +1,4 @@
+{
+  "summary": "The stand-in name for a masked username drew its number with Math.random when the alias module loaded (NumberDictionary.generate), so every alias on a launch shared one number and a person's alias changed between launches and devices. Fixed by a fixed dictionary of every three-digit number, picked by the subject seed.",
+  "regressionTest": "libs/moderation-shared-ts/tests/alias.test.ts"
+}
