@@ -11,7 +11,11 @@ import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { ConnectFourBoard } from './connect-four-board';
 
-function Board(props: GameBoardProps): JSX.Element {
+/**
+ * Connect Four as every game screen mounts it: the drop board, with a
+ * column drop sent as the action naming that column.
+ */
+export function ConnectFourGameBoard(props: GameBoardProps): JSX.Element {
   return (
     <ConnectFourBoard
       position={props.position}
@@ -24,7 +28,7 @@ function Board(props: GameBoardProps): JSX.Element {
 export const connectFourPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Connect Four`,
-  Board,
+  Board: ConnectFourGameBoard,
   sideLabel: (side) => (side === 'white' ? t`Red circle` : t`Yellow diamond`),
   frame: {
     players: fixedPlayers(2),
@@ -33,7 +37,7 @@ export const connectFourPresentation: GameClientPresentation = {
     seats: lookOnlySeats((side) =>
       side === 'white' ? { color: 7, mark: '●' } : { color: 5, mark: '◆' }
     ),
-    createBoard: boardOnly(Board),
+    createBoard: boardOnly(ConnectFourGameBoard),
     turnStatus: () => null,
     result: (_position, winner) => ({
       scoreLabel: null,

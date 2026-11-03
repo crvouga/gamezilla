@@ -136,7 +136,9 @@ function Board(props: {
     );
   const rows = () =>
     Array.from({ length: props.board.height }, (_, y) => String(y + 1));
-  const cells = (): readonly CellGridCell[] =>
+  // Memoized: each square reads the list, so computing it inline would
+  // rebuild the whole board once per square on every change.
+  const cells = createMemo((): readonly CellGridCell[] =>
     props.board.squares.map((square, index) => ({
       id: squareName(cellOf(props.board, index)),
       glyph: glyphOf(props.board, index),
@@ -148,7 +150,8 @@ function Board(props: {
             ? 'quiet'
             : 'open',
       enabled: !props.disabled,
-    }));
+    }))
+  );
   return (
     <CellGridBoard
       label={t`Sokoban board being built`}

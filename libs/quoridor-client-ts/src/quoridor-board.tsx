@@ -44,6 +44,11 @@ function QuoridorBoardView(
     !props.interactive || preview() === null || tool() === 'move'
       ? null
       : `${preview()}${tool()}`;
+  // Memoized: each square reads the list, so computing it inline would
+  // rebuild the whole board once per square on every change.
+  const cells = createMemo(() =>
+    quoridorBoardCells(game(), tool(), props.interactive, previewAction())
+  );
   const message = () => {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
@@ -75,12 +80,7 @@ function QuoridorBoardView(
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
         rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
-        cells={quoridorBoardCells(
-          game(),
-          tool(),
-          props.interactive,
-          previewAction()
-        )}
+        cells={cells()}
         cellTestId={(cell) =>
           `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
         }
