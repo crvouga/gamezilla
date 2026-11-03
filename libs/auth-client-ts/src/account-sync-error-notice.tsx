@@ -1,4 +1,3 @@
-import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { type JSX, Show } from 'solid-js';
 
@@ -8,13 +7,12 @@ import { type JSX, Show } from 'solid-js';
  * sign-in methods) has not reached this copy yet.
  */
 export function AccountSyncErrorNotice(props: {
+  /** From `useFirstSyncFailed`. */
+  readonly failed: boolean;
   readonly children: JSX.Element;
 }): JSX.Element {
-  const { status } = useSyncEngine();
-  const failed = (): boolean =>
-    !status().hasEverSynced && status().lastError !== null;
   return (
-    <Show when={failed()}>
+    <Show when={props.failed}>
       <Notice tone="warning">{props.children}</Notice>
     </Show>
   );

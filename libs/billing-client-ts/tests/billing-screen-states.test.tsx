@@ -7,7 +7,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { BillingActions } from '@libs/billing-client-ts/billing-plan-actions';
 import { BillingRequestError } from '@libs/billing-client-ts/billing-request-error';
-import { BillingScreenView } from '@libs/billing-client-ts/billing-screen-view';
+import { BillingScreenBody } from '@libs/billing-client-ts/billing-screen-view';
 import type {
   BillingView,
   BillingViewInput,
@@ -46,7 +46,7 @@ function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {
           colorScheme="light"
           fixedLayout={{ width: 1024, height: 768 }}
         >
-          <BillingScreenView
+          <BillingScreenBody
             view={view}
             offer={PLUS_MEMBERSHIP_OFFER}
             locale="en-US"

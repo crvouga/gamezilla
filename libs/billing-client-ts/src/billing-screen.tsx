@@ -36,7 +36,7 @@ import {
   type JSX,
   untrack,
 } from 'solid-js';
-import { BillingScreenLayout } from './billing-screen-view';
+import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
 import { type CheckoutReturn, useCheckoutReturn } from './checkout-return';
@@ -98,6 +98,7 @@ function useCheckoutReturnTracking(): CheckoutReturn {
   return checkoutReturn;
 }
 
+/** `/more/billing`: wires `BillingScreenView` to membership, permissions and checkout. */
 export function BillingScreen(): JSX.Element {
   const subscribeDecision = useDecision(PERMISSION.billingSubscribe);
   const checkoutReturn = useCheckoutReturnTracking();
@@ -149,7 +150,7 @@ export function BillingScreen(): JSX.Element {
   };
 
   return (
-    <BillingScreenLayout
+    <BillingScreenView
       view={view()}
       offer={PLUS_MEMBERSHIP_OFFER}
       locale={i18n().locale}
