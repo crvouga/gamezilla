@@ -1,7 +1,8 @@
 // @io-wall-ok — generated image freshness and decoded pixel evidence.
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifacts';
 import {
   brandMarkSource,
   renderBrandMark,
@@ -15,6 +16,28 @@ import { renderBrandImage } from './brand-image-artifacts';
 import { BRAND_IMAGE_ARTIFACTS } from './brand-image-catalog';
 
 const ROOT = join(import.meta.dirname, '../../..');
+
+test('every web install image and source icon belongs to the generated catalog', () => {
+  const pwa = 'apps/client-ts/public/pwa';
+  const source = 'apps/client-ts/src';
+  const actual = [
+    ...readdirSync(join(ROOT, pwa))
+      .filter((name) => /\.(png|svg|ico)$/.test(name))
+      .map((name) => `${pwa}/${name}`),
+    ...readdirSync(join(ROOT, source))
+      .filter((name) => name.includes('icon') && name.endsWith('.png'))
+      .map((name) => `${source}/${name}`),
+    'apps/client-ts/public/favicon.ico',
+    'apps/product-ts/public/favicon.ico',
+  ];
+  const declared = [
+    ...BRAND_IMAGE_ARTIFACTS.map((artifact) => artifact.path),
+    ...BRAND_ARTIFACTS.filter((artifact) => artifact.path.endsWith('.svg')).map(
+      (artifact) => artifact.path
+    ),
+  ];
+  expect(actual.sort()).toEqual(declared.sort());
+});
 
 test('generated colors and transparency follow configuration across image variants', async () => {
   await assertProperty(
