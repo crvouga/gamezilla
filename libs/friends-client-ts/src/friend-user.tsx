@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import type { JSX } from 'solid-js';
-import { FriendUserScreen } from './friend-user-screen-view';
+import { FriendUserScreen } from './friend-user-screen';
 
 export default function FriendUserRoute(): JSX.Element {
   return <FriendUserScreen />;

@@ -1,6 +1,5 @@
-import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
+import { AccountAutomationBadge } from './account-automation-badge';
 import { useProfileColumn } from './use-profile-column';
 
 /** Public, server-controlled account classification; never inferred from a name. */
@@ -9,13 +8,9 @@ export function AccountAutomationLabel(props: {
 }): JSX.Element {
   const kind = useProfileColumn(() => props.profileId, 'accountKind');
   return (
-    <Show when={kind() === 'synthetic'}>
-      <Badge
-        label={<Trans>Bot</Trans>}
-        intent="neutral"
-        size="sm"
-        dataSet={{ testid: `account-automation-${props.profileId}` }}
-      />
-    </Show>
+    <AccountAutomationBadge
+      profileId={props.profileId}
+      isBot={kind() === 'synthetic'}
+    />
   );
 }
