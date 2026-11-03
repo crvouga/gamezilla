@@ -1,56 +1,61 @@
-import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
-import { createTimedValue } from '@pkgs/clock-client-ts/solid';
-import {
-  useGamePresentation,
-  useTurnGames,
-} from '@pkgs/turn-game-client-ts/turn-games-context';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
-import { timeControlText } from './time-control-name';
-import type { MultiplayerSearchRow } from './use-multiplayer-data';
-import { useOfflineSince } from './use-offline-since';
+
+/** A search under way, as the person sees it. */
+export type MultiplayerSearchView = {
+  /** How many players a game seats, the person included. */
+  readonly players: number;
+  readonly gameName: string;
+  /** Its time control as people write it (`5+0`); `null` when untimed. */
+  readonly timeControl: string | null;
+  /** How long it has been looking; frozen while offline. */
+  readonly seconds: number;
+};
 
 function WaitingDescription(props: {
-  readonly search: MultiplayerSearchRow;
-  readonly count: number;
-  readonly gameName: string;
+  readonly search: MultiplayerSearchView;
 }): JSX.Element {
-  const timed = () => timeControlOf(props.search.time_control) !== null;
+  const count = () => props.search.players;
   return (
     <P variant="inherit" testId="multiplayer-waiting">
       <Show
-        when={props.count > 2}
+        when={count() > 2}
         fallback={
           <Show
-            when={timed()}
-            fallback={<Trans>Looking for a {props.gameName} opponent.</Trans>}
+            when={props.search.timeControl}
+            fallback={
+              <Trans>Looking for a {props.search.gameName} opponent.</Trans>
+            }
           >
-            <Trans>
-              Looking for a {timeControlText(props.search.time_control)}{' '}
-              {props.gameName} opponent.
-            </Trans>
+            {(control) => (
+              <Trans>
+                Looking for a {control()} {props.search.gameName} opponent.
+              </Trans>
+            )}
           </Show>
         }
       >
         <Show
-          when={timed()}
+          when={props.search.timeControl}
           fallback={
             <Trans>
-              Looking for {props.count - 1} other players for {props.gameName}.
-              A game needs {props.count} players including you.
+              Looking for {count() - 1} other players for{' '}
+              {props.search.gameName}. A game needs {count()} players including
+              you.
             </Trans>
           }
         >
-          <Trans>
-            Looking for {props.count - 1} other players for {props.gameName} at{' '}
-            {timeControlText(props.search.time_control)}. A game needs{' '}
-            {props.count} players including you.
-          </Trans>
+          {(control) => (
+            <Trans>
+              Looking for {count() - 1} other players for{' '}
+              {props.search.gameName} at {control()}. A game needs {count()}{' '}
+              players including you.
+            </Trans>
+          )}
         </Show>
       </Show>
     </P>
@@ -85,54 +90,31 @@ function StopSearch(props: {
 
 /** A waiting search shows its time control and how long it has been looking. */
 export function MultiplayerWaiting(props: {
-  readonly search: MultiplayerSearchRow;
+  readonly search: MultiplayerSearchView;
   readonly onStop: () => Promise<void>;
 }): JSX.Element {
-  const offlineSince = useOfflineSince();
-  const rules = useTurnGames();
-  const presentation = useGamePresentation();
-  const count = () =>
-    gameSides(rules.forControl(props.search.time_control ?? '')).length;
-  const gameName = () =>
-    presentation(
-      rules.forControl(props.search.time_control ?? '').initial()
-    ).name();
-  const seconds = createTimedValue(
-    (now) => {
-      const at = offlineSince() ?? now;
-      return Math.max(
-        0,
-        Math.floor((at - (props.search.joined_at_ms ?? at)) / 1000)
-      );
-    },
-    (value) =>
-      offlineSince() === null
-        ? (props.search.joined_at_ms ?? 0) + (value + 1) * 1000
-        : null
-  );
   return (
     <GameSearchState
       title={
-        <Show when={count() > 2} fallback={<Trans>Finding an opponent</Trans>}>
+        <Show
+          when={props.search.players > 2}
+          fallback={<Trans>Finding an opponent</Trans>}
+        >
           <Trans>Finding players</Trans>
         </Show>
       }
-      description={
-        <WaitingDescription
-          search={props.search}
-          count={count()}
-          gameName={gameName()}
-        />
-      }
+      description={<WaitingDescription search={props.search} />}
       elapsed={
         <>
           <Text variant="inherit" testId="multiplayer-waiting-seconds">
-            {seconds()}
+            {props.search.seconds}
           </Text>{' '}
           <Trans>seconds</Trans>
         </>
       }
-      actions={<StopSearch multiple={count() > 2} onStop={props.onStop} />}
+      actions={
+        <StopSearch multiple={props.search.players > 2} onStop={props.onStop} />
+      }
     />
   );
 }

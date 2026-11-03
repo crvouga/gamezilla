@@ -1,0 +1,232 @@
+import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { fn } from 'storybook/test';
+import {
+  FRAME_NO_NEXT,
+  FRAME_NO_PLAY,
+  FRAME_NO_TABLE,
+} from './game-frame-empty';
+import type { GameFrameScreenViewProps } from './game-frame-screen-view';
+import type {
+  FrameHolder,
+  FramePlaySeat,
+  FrameRecord,
+  FrameSeat,
+  FrameSetup,
+  FrameSetupSeat,
+  FrameStatus,
+} from './game-frame-view-types';
+
+/**
+ * Story-only fixtures for the game frame: Connect Four's two seats (its
+ * side names and discs), people with fixed ids, and the frame's resting
+ * args. Every story starts from `FRAME_ARGS` and sets only its state.
+ */
+
+export const PEOPLE = {
+  avery: '0b6a1c52-0000-4000-8000-000000000001',
+  jordan: '0b6a1c52-0000-4000-8000-000000000002',
+  morgan: '0b6a1c52-0000-4000-8000-000000000003',
+  robin: '0b6a1c52-0000-4000-8000-000000000004',
+} as const;
+
+const LOOKS = {
+  white: { sideLabel: 'Red circle', swatch: { color: 'player7', mark: '●' } },
+  black: {
+    sideLabel: 'Yellow diamond',
+    swatch: { color: 'player5', mark: '◆' },
+  },
+  red: { sideLabel: 'Third seat', swatch: { color: 'player2', mark: '▲' } },
+  blue: { sideLabel: 'Fourth seat', swatch: { color: 'player3', mark: '■' } },
+} as const satisfies Record<GameSide, Pick<FrameSeat, 'sideLabel' | 'swatch'>>;
+
+export function person(name: keyof typeof PEOPLE): FrameHolder {
+  return { kind: 'person', person: PEOPLE[name] };
+}
+
+/** One seat's identity: who holds it, under Connect Four's look for the side. */
+export function seat(
+  side: GameSide,
+  holder: FrameHolder,
+  plainName: string,
+  clock: FrameSeat['clock'] = null
+): FrameSeat {
+  return { side, ...LOOKS[side], holder, plainName, clock };
+}
+
+/** A seat at the table while the game is played. */
+export function playSeat(
+  base: FrameSeat,
+  over: Partial<FramePlaySeat> = {}
+): FramePlaySeat {
+  return {
+    ...base,
+    stat: null,
+    state: null,
+    standIn: false,
+    committed: false,
+    choosing: false,
+    facts: [],
+    deciding: false,
+    reclaim: false,
+    ...over,
+  };
+}
+
+/** A seat while the game is set up, as the host sees it. */
+export function setupSeat(
+  base: FrameSeat,
+  over: Partial<FrameSetupSeat> = {}
+): FrameSetupSeat {
+  return {
+    ...base,
+    host: false,
+    visiting: false,
+    ready: false,
+    invitation: null,
+    canSit: false,
+    canLeave: false,
+    choices: null,
+    ...over,
+  };
+}
+
+export const AVERY = seat('white', person('avery'), 'avery');
+export const JORDAN = seat('black', person('jordan'), 'jordan_plays');
+export const BOT = seat(
+  'black',
+  { kind: 'bot', level: 'medium' },
+  'Bot (medium)'
+);
+
+/** The one line about the game, as the host of a Connect Four game reads it. */
+export function status(over: Partial<FrameStatus> = {}): FrameStatus {
+  return {
+    lineup: 'Red circle: avery. Yellow diamond: jordan_plays.',
+    description: 'Red circle to move.',
+    emphasis: 'yours',
+    tone: 'neutral',
+    sending: false,
+    minutes: 0,
+    increment: 0,
+    ...over,
+  };
+}
+
+/** The record of a game played by turns, at its latest move. */
+export function record(moves: readonly string[]): FrameRecord {
+  return {
+    earlier: [],
+    selection: 'live',
+    turns: true,
+    moves,
+    displayedPly: moves.length,
+    error: '',
+    history: true,
+  };
+}
+
+/** Everything about setting up a game except its seats. */
+export function setup(
+  seats: readonly FrameSetupSeat[],
+  over: Partial<FrameSetup> = {}
+): FrameSetup {
+  return {
+    viewerNotice: null,
+    takeSeat: null,
+    seats,
+    privateSetup: null,
+    options: null,
+    start: {
+      reason: null,
+      hostStarts: false,
+      readiness: { ready: true, blocked: false },
+      canStart: true,
+    },
+    ...over,
+  };
+}
+
+/** A game's own options: a choice and a count, read from the position. */
+export const RULE_OPTIONS: readonly GameOptionGroup[] = [
+  {
+    kind: 'choice',
+    id: 'variant',
+    label: () => 'Variant',
+    options: [
+      { value: 'classic', label: () => 'Classic' },
+      { value: 'pop-out', label: () => 'Pop out' },
+    ],
+    default: 'classic',
+    read: () => 'classic',
+    encode: (value) => `variant:${value}`,
+  },
+  {
+    kind: 'count',
+    id: 'rounds',
+    label: () => 'Rounds',
+    min: 1,
+    max: 5,
+    default: 3,
+    read: () => 3,
+    encode: (value) => `rounds:${String(value)}`,
+  },
+];
+
+/** Moves in column order, from the left (0) to the right (6). */
+export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
+export const MID_GAME_RECORD = ['d1', 'd2', 'e1', 'c1', 'c2', 'e2', 'f1'];
+/** Red circle drops four in column d. */
+export const WON_MOVES = [3, 2, 3, 2, 3, 2, 3];
+/** The four cells of Red circle's line in column d, top row first. */
+export const WON_LINE = [17, 24, 31, 38];
+export const WON_RECORD = ['d1', 'c1', 'd2', 'c2', 'd3', 'c3', 'd4'];
+
+const resolved = () => fn(() => Promise.resolve());
+
+/** The frame at rest: no game yet, a host who may create one. */
+export function frameArgs(): GameFrameScreenViewProps {
+  return {
+    title: 'Connect Four',
+    phase: 'none',
+    viewerSide: 'white',
+    watchers: 0,
+    connection: 'online',
+    error: '',
+    stopped: false,
+    status: null,
+    canCreate: true,
+    playerCount: 2,
+    setup: null,
+    table: FRAME_NO_TABLE,
+    play: FRAME_NO_PLAY,
+    result: null,
+    next: FRAME_NO_NEXT,
+    record: null,
+    onChoose: resolved(),
+    onReady: resolved(),
+    onPlayBot: resolved(),
+    onRandomSetup: resolved(),
+    onBack: fn(),
+    onSeek: fn(),
+    onReturnLive: fn(),
+    onSelectRecord: fn(),
+    onOpenHistory: fn(),
+  };
+}
+
+/** Controls cannot edit slots, callbacks or nested frame data. */
+export const FRAME_CONTROLS_EXCLUDE = [
+  'board',
+  'setupBoard',
+  'boardState',
+  'people',
+  'denial',
+  'setup',
+  'table',
+  'play',
+  'result',
+  'next',
+  'record',
+  'status',
+];

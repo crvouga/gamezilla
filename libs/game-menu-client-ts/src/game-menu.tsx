@@ -7,18 +7,15 @@ import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
-import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
-import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { GameClient } from './game-client';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';
+import { GameMenuScreenView } from './game-menu-screen-view';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 function GameChoices(props: {
@@ -27,31 +24,26 @@ function GameChoices(props: {
   navigation: GameScreen;
   onBackToGames: () => void;
 }): JSX.Element {
-  const items = createMemo((): MainMenuItem[] =>
+  const choices = createMemo(() =>
     gameChoices(props.game, props.offers).map((choice) => ({
-      key: choice.screen,
+      screen: choice.screen,
       title: <Dynamic component={choice.title} />,
       caption: <Dynamic component={choice.caption} />,
-      dataSet: { testid: Handles.gameChoice(choice.screen) },
-      onClick: () => props.navigation.show(choice.screen),
     }))
   );
   return (
     <>
       <DefineBackButton onPress={props.onBackToGames} />
-      <MainMenuScreen
-        screenId="game-choices"
-        dataSet={{ testid: Handles.gameChoices }}
+      <GameMenuScreenView
         title={props.game.title}
         subtitle={<Dynamic component={props.game.subtitle} />}
-        items={items()}
-        helper={
+        instructions={
           props.game.instructions === undefined ? undefined : (
-            <P variant="caption" tone="secondary">
-              <Dynamic component={props.game.instructions} />
-            </P>
+            <Dynamic component={props.game.instructions} />
           )
         }
+        choices={choices()}
+        onChoose={(screen) => props.navigation.show(screen)}
       />
     </>
   );

@@ -1,16 +1,13 @@
 import { expect, test } from 'bun:test';
-import { FrameActions } from '@libs/game-session-client-ts/game-frame-play';
-import type { CustomGameReview } from '@libs/game-session-client-ts/use-custom-game-review';
-import type { CustomGameScreenModel } from '@libs/game-session-client-ts/use-custom-game-screen';
+import { FrameActionsView } from '@libs/game-session-client-ts/game-frame-actions-view';
 import {
-  type CustomGame,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  FRAME_NO_NEXT,
+  FRAME_NO_PLAY,
+} from '@libs/game-session-client-ts/game-frame-empty';
+import type { FramePhase } from '@libs/game-session-client-ts/game-frame-view-types';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
@@ -21,34 +18,20 @@ test.each(['resign', 'cancel'] as const)(
   async (operation) => {
     // regression: game-finish-unmounts-confirmation
     const time = createHarnessClock();
-    const [game, setGame] = createSignal<CustomGame>({
-      ...newCustomGame('game', 'alice', 'initial'),
-      status:
-        operation === 'resign' ? ('active' as const) : ('configuring' as const),
-    });
+    const [phase, setPhase] = createSignal<FramePhase>(
+      operation === 'resign' ? 'active' : 'configuring'
+    );
     let acknowledge: () => void = () => {
       throw new Error('No request to acknowledge');
     };
     const acknowledgment = new Promise<void>((resolve) => {
       acknowledge = resolve;
     });
-    const model = {
-      current: game,
-      mySide: () => 'white',
-      myId: () => 'alice',
-      canPlay: () => game().status === 'active',
-      canCancel: () => operation === 'cancel',
-      canCreate: () => false,
-      sharedAvailable: () => false,
-      choose: async () => {
-        setGame((current) => ({
-          ...current,
-          status: operation === 'resign' ? 'completed' : 'cancelled',
-          outcome: 'black wins by resignation',
-        }));
-        await acknowledgment;
-      },
-    } as unknown as CustomGameScreenModel;
+    // Confirming finishes the game, which takes the command away at once.
+    const choose = async () => {
+      setPhase(operation === 'resign' ? 'completed' : 'cancelled');
+      await acknowledgment;
+    };
     const view = renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
         <ThemeProvider
@@ -56,18 +39,18 @@ test.each(['resign', 'cancel'] as const)(
           fixedLayout={{ width: 390, height: 844 }}
         >
           <SurfaceStackProvider>
-            <TurnGamesProvider rules={createTurnGames([])} presentations={[]}>
-              <FrameActions
-                model={model}
-                board={{
-                  session: () => null,
-                  position: () => game().fen,
-                  interactive: () => false,
-                  orientation: () => 'white',
-                }}
-                review={{} as CustomGameReview}
-              />
-            </TurnGamesProvider>
+            <FrameActionsView
+              phase={phase()}
+              play={{
+                ...FRAME_NO_PLAY,
+                canResign: operation === 'resign' && phase() === 'active',
+                canCancel: operation === 'cancel' && phase() === 'configuring',
+              }}
+              next={FRAME_NO_NEXT}
+              onChoose={choose}
+              onBack={() => undefined}
+              onSeek={() => undefined}
+            />
           </SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>

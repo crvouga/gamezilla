@@ -10,38 +10,59 @@ import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
 
+/** The person's rating in one pool: one game rating, or one per speed. */
+export type MultiplayerRatingView = {
+  readonly pool: MultiplayerRatingPool | 'game';
+  readonly rating: number;
+  readonly games: number;
+};
+
 const NEW_RATING = { rating: 1500, games: 0 };
 
-/** The person's own multiplayer rating and rated games at every speed. */
-export function MultiplayerRatings(props: {
-  readonly gameId: string;
-  readonly ratings: readonly MultiplayerRatingRow[];
-}): JSX.Element {
+/**
+ * The person's own rating in every pool the game rates: one per speed for
+ * a game with clock choices, else one game rating; a pool never played is
+ * the starting rating.
+ */
+export function useMultiplayerRatings(
+  gameId: Accessor<string>,
+  rows: Accessor<readonly MultiplayerRatingRow[]>
+): Accessor<readonly MultiplayerRatingView[]> {
   const rules = useTurnGames();
-  const prefix = () =>
-    rules.capability(props.gameId, 'matchmaking')?.namespace ?? '';
-  const pools = () =>
-    rules.capability(props.gameId, 'matchmaking')?.clockChoices === true
-      ? MULTIPLAYER_SPEEDS
-      : (['game'] as const);
-  const ratingOf = (speed: MultiplayerRatingPool) =>
-    props.ratings.find((row) => row.speed === gameSpeed(prefix(), speed)) ??
-    NEW_RATING;
+  return createMemo(() => {
+    const matchmaking = rules.capability(gameId(), 'matchmaking');
+    const prefix = matchmaking?.namespace ?? '';
+    const pools: readonly (MultiplayerRatingPool | 'game')[] =
+      matchmaking?.clockChoices === true ? MULTIPLAYER_SPEEDS : ['game'];
+    return pools.map((pool) => {
+      const row =
+        rows().find(
+          (candidate) => candidate.speed === gameSpeed(prefix, pool)
+        ) ?? NEW_RATING;
+      return { pool, rating: row.rating, games: row.games };
+    });
+  });
+}
+
+/** The person's own multiplayer rating and rated games in every pool. */
+export function MultiplayerRatings(props: {
+  readonly ratings: readonly MultiplayerRatingView[];
+}): JSX.Element {
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
       <Grid columns={2} gap="lg">
-        <For each={pools()}>
-          {(speed) => (
+        <For each={props.ratings}>
+          {(rating) => (
             <GameStat
-              dataSet={{ testid: `multiplayer-rating-${speed}` }}
+              dataSet={{ testid: `multiplayer-rating-${rating.pool}` }}
               label={
                 <Show
-                  when={speed === 'game'}
-                  fallback={<SpeedName speed={speed} />}
+                  when={rating.pool === 'game'}
+                  fallback={<SpeedName speed={rating.pool} />}
                 >
                   <Trans>Game rating</Trans>
                 </Show>
@@ -49,19 +70,19 @@ export function MultiplayerRatings(props: {
               value={
                 <Text
                   variant="inherit"
-                  testId={`multiplayer-rating-${speed}-value`}
+                  testId={`multiplayer-rating-${rating.pool}-value`}
                 >
-                  {ratingOf(speed).rating}
-                  {isProvisional(ratingOf(speed)) ? '?' : ''}
+                  {rating.rating}
+                  {isProvisional(rating) ? '?' : ''}
                 </Text>
               }
               detail={
                 <Text
                   variant="inherit"
-                  testId={`multiplayer-rating-${speed}-games`}
+                  testId={`multiplayer-rating-${rating.pool}-games`}
                 >
                   <Plural
-                    value={ratingOf(speed).games}
+                    value={rating.games}
                     one="# rated game"
                     other="# rated games"
                   />
