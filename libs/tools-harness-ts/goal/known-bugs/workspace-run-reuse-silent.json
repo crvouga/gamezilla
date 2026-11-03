@@ -1,0 +1,4 @@
+{
+  "summary": "Start stack while this checkout already ran a stack only printed that it was reusing the live boot and exited: no URLs, no logs, no check that the old stack worked, and ports were chosen as if the checkout's own block were foreign. Start stack now stops this checkout's stack by ownership first, then boots fresh on the same ports.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

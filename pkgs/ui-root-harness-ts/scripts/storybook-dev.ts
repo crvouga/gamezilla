@@ -2,24 +2,12 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { networkInterfaces } from 'node:os';
 import { dirname, join } from 'node:path';
 import { storybookNetwork } from '../storybook/network';
 
 const pkg = join(import.meta.dirname, '..');
 const network = storybookNetwork(process.env);
-const addresses = Object.values(networkInterfaces())
-  .flatMap((entries) => entries ?? [])
-  .filter((entry) => !entry.internal && entry.family === 'IPv4')
-  .map((entry) => entry.address);
-const address = ['0.0.0.0', '::'].includes(network.host)
-  ? '127.0.0.1'
-  : network.host;
-const localUrl = `http://${address.includes(':') && !address.startsWith('[') ? `[${address}]` : address}:${network.port}`;
-const lanUrls =
-  network.host === '0.0.0.0'
-    ? addresses.map((address) => `http://${address}:${network.port}`)
-    : [];
+const localUrl = `http://${network.host}:${network.port}`;
 const manifestPath = join(pkg, '.cache/storybook-dev.json');
 mkdirSync(dirname(manifestPath), { recursive: true });
 if (existsSync(manifestPath)) {
@@ -43,16 +31,11 @@ if (existsSync(manifestPath)) {
 function record(status: 'starting' | 'ready' | 'stopped') {
   writeFileSync(
     manifestPath,
-    `${JSON.stringify({ status, pid: process.pid, host: network.host, port: network.port, localUrl, lanUrls, publicUrl: network.origin }, null, 2)}\n`
+    `${JSON.stringify({ status, pid: process.pid, host: network.host, port: network.port, localUrl }, null, 2)}\n`
   );
 }
 record('starting');
 console.log(`[storybook] Local: ${localUrl}`);
-for (const url of lanUrls) console.log(`[storybook] LAN: ${url}`);
-if (network.origin) console.log(`[storybook] Forwarded: ${network.origin}`);
-console.log(
-  `[storybook] From another computer: ssh -N -L ${network.port}:127.0.0.1:${network.port} <user>@<server>; then open ${localUrl}`
-);
 const require = createRequire(import.meta.url);
 const cli = join(
   dirname(require.resolve('storybook/package.json')),

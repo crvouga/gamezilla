@@ -64,8 +64,8 @@ export const ORCHESTRATORS: Orchestrator[] = [
     render: (commands) => ({
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
-      // Exactly two actions: Start stack (app, Storybook and their remote
-      // tunnels) and Bootstrap (tools, dependencies and every login).
+      // Exactly two actions: Start stack (app and Storybook on localhost)
+      // and Bootstrap (tools, dependencies and every login).
       scripts: [
         { name: 'Start stack', command: commands.run, icon: 'play' },
         { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },

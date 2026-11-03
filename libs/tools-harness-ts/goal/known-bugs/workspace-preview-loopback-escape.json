@@ -1,4 +1,0 @@
-{
-  "summary": "Opening the local stack on another device leaves the browser targeting loopback API, OAuth, MQTT and object-store ports on the viewing device. Provisioned previews now resolve the API from the browser origin and proxy only this checkout’s declared local services, including redirects and encoded callback URLs.",
-  "regressionTest": "apps/product-ts/scripts/workspace-preview.test.ts"
-}

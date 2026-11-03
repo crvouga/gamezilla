@@ -12,18 +12,6 @@ workspace_activate_tools
 
 failed=()
 
-# The remote preview is email-protected with the developer's git email: it
-# must be an address that can receive the sign-in PIN.
-email="$(git config user.email || true)"
-case "$email" in
-  '' | *noreply*)
-    echo "==> git user.email '${email}' cannot receive the remote preview sign-in PIN"
-    read -r -p "    Email address to use for git and the remote preview: " email
-    git config --global user.email "$email"
-    ;;
-esac
-echo "==> git email: $email"
-
 # GitHub: pull requests, CI logs and the repository's gh-based tasks. The device
 # flow prints a code, so it works over a remote session.
 if gh auth status >/dev/null 2>&1; then

@@ -64,11 +64,6 @@
       ],
       "outputs": [],
       "env": ["BUN_CHROME_PATH"]
-    },
-    "ci:storybook-remote": {
-      "dependsOn": ["storybook:build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/mise.toml"],
-      "outputs": []
     }
   }
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The main ruleset in OpenTofu required one approval from someone other than the last pusher. The repository has a single maintainer, who cannot approve their own pull requests, so every apply re-locked merging (\"New changes require approval from someone other than the last pusher\") after it had been turned off by hand. The ruleset now requires pull requests, verification and resolved threads, but no approvals.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

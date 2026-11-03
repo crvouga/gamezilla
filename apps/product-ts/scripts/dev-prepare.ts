@@ -12,11 +12,9 @@ import { resolveDevRepoRoot } from './dev-repo-root';
 import { removeManifest } from './manifest';
 import { createStackPlan } from './stack-plan';
 import { syntheticPopulationStackSecrets } from './synthetic-population-sidecars';
-import { previewDeveloperEmails } from './workspace-preview-scope';
 
 const options = devStackOptions();
 const repoRoot = resolveDevRepoRoot(import.meta.dir, existsSync);
-if (options.instanceId === 'dev') previewDeveloperEmails(repoRoot);
 removeManifest(repoRoot, options.instanceId);
 const plan = await createStackPlan(repoRoot, options);
 // Minted once here: the API and the workers each read it, in any order.

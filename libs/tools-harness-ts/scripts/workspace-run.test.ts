@@ -17,6 +17,7 @@ import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 const hooks = join(import.meta.dirname, '../workspace');
 const DEV = 'bun run --silent dev -- --web-port 5800 --keep-data';
 const INSTALL = 'bun install --frozen-lockfile';
+const STOP = 'bun libs/tools-harness-ts/scripts/kill-dev-stack.ts';
 
 const checkouts: string[] = [];
 afterEach(() => {
@@ -143,7 +144,7 @@ test('failed setup is not accepted as a prepared checkout and can be retried', (
   expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).status).not.toBe(0);
   const prepared = setup();
   expect(prepared.status, `${prepared.stdout}\n${prepared.stderr}`).toBe(0);
-  expect(run().calls).toEqual([DEV]);
+  expect(run().calls).toEqual([STOP, DEV]);
 });
 
 // regression: workspace-cold-secrets-pull
@@ -169,10 +170,24 @@ test('run prepares a cold checkout and preserves the caller UI on warm launches'
   const { run } = checkout();
   const cold = run();
   expect(cold.status).toBe(0);
-  expect(cold.calls).toEqual([INSTALL, DEV]);
+  expect(cold.calls).toEqual([INSTALL, STOP, DEV]);
   const result = run({ TURBO_UI: 'stream', WORKSPACE_RUN_TEST_RECORD_UI: '1' });
   expect(result.status).toBe(0);
-  expect(result.calls).toEqual([`${DEV} TURBO_UI=stream`]);
+  expect(result.calls).toEqual([
+    `${STOP} TURBO_UI=stream`,
+    `${DEV} TURBO_UI=stream`,
+  ]);
+});
+
+// regression: workspace-run-reuse-silent
+test('every Start stack replaces this checkout’s stack before choosing ports', () => {
+  const { run } = checkout();
+  run();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const result = run();
+    expect(result.status).toBe(0);
+    expect(result.calls).toEqual([STOP, DEV]);
+  }
 });
 
 // regression: workspace-run-stale-install
@@ -184,7 +199,7 @@ test('setup is repeatable and restores missing or changed dependencies', () => {
     join(dir, 'apps/product-ts/package.json'),
     '{"name":"changed"}'
   );
-  expect(run().calls).toEqual([INSTALL, DEV]);
+  expect(run().calls).toEqual([INSTALL, STOP, DEV]);
   expect(setup().calls).toEqual([]);
   removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
   expect(setup().calls).toEqual([INSTALL]);
@@ -253,7 +268,7 @@ test('run finds mise bootstrapped by setup without a parent PATH change', () => 
   renameReplacing(join(dir, '.bin/mise'), join(dir, 'home/.local/bin/mise'));
   renameReplacing(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
   expect(setup().status).toBe(0);
-  expect(run().calls).toEqual([DEV]);
+  expect(run().calls).toEqual([STOP, DEV]);
 });
 
 // regression: separated-setup-release-policy
@@ -264,7 +279,7 @@ test('a failed tool refresh tells the team and leaves a prepared environment ope
   expect(failed.status).not.toBe(0);
   expect(failed.stderr).toContain('mise install failed');
   expect(run().status).toBe(0);
-  expect(run().calls).toEqual([DEV]);
+  expect(run().calls).toEqual([STOP, DEV]);
 });
 
 // regression: workspace-preparation-split-blocks-opening
@@ -282,7 +297,7 @@ test.each(['WORKSPACE_RUN_TEST_INSTALL', 'WORKSPACE_RUN_TEST_SYSTEM'])(
       existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
     ).toBe(false);
     expect(run({ [failure]: 'fail' }).status).not.toBe(0);
-    expect(run().calls).toEqual([INSTALL, DEV]);
+    expect(run().calls).toEqual([INSTALL, STOP, DEV]);
   }
 );
 
@@ -291,7 +306,7 @@ test('Start stack delegates to the canonical stack without nesting a Storybook s
   const { run } = checkout();
   const result = run();
   expect(result.status).toBe(0);
-  expect(result.calls).toEqual([INSTALL, DEV]);
+  expect(result.calls).toEqual([INSTALL, STOP, DEV]);
 });
 
 // regression: workspace-run-auto-setup
@@ -305,8 +320,8 @@ test('run repairs missing install tools and retries a failed automatic setup', (
   expect(
     existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
   ).toBe(false);
-  expect(run().calls).toEqual([INSTALL, DEV]);
-  expect(run().calls).toEqual([DEV]);
+  expect(run().calls).toEqual([INSTALL, STOP, DEV]);
+  expect(run().calls).toEqual([STOP, DEV]);
 });
 
 // regression: workspace-fixture-git-config-absence

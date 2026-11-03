@@ -17,7 +17,8 @@ const actions = readFileSync(
 );
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
-test('main requires reviewed verified PRs and refuses deletion and force-pushes', () => {
+// regression: repository-ruleset-solo-approval
+test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of ['deletion', 'non_fast_forward']) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
@@ -25,8 +26,8 @@ test('main requires reviewed verified PRs and refuses deletion and force-pushes'
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
   expect(repository).toMatch(/enforcement\s*=\s*"active"/);
   expect(repository).toMatch(/\bpull_request\s*\{/);
-  expect(repository).toMatch(/required_approving_review_count\s*=\s*1/);
-  expect(repository).toMatch(/require_last_push_approval\s*=\s*true/);
+  expect(repository).toMatch(/required_approving_review_count\s*=\s*0/);
+  expect(repository).toMatch(/require_last_push_approval\s*=\s*false/);
   expect(repository).toMatch(/dismiss_stale_reviews_on_push\s*=\s*true/);
   expect(repository).toMatch(/required_review_thread_resolution\s*=\s*true/);
   expect(repository).toMatch(/\brequired_status_checks\s*\{/);

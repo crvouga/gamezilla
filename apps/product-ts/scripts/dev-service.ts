@@ -144,22 +144,6 @@ async function runFrontDoor(plan: StackPlan): Promise<never> {
   const manifestPath = writeManifest(REPO_ROOT, manifest);
   say('stack', `addresses — ${manifestPath}`);
   if (services.web !== null) say('stack', `app: ${services.web.origin}/`);
-  if (services.preview !== null) {
-    say(
-      'stack',
-      `remote app: ${services.preview.origin}/ (${services.preview.workspaceKey})`
-    );
-    say(
-      'stack',
-      services.preview.storybookOrigin === null
-        ? 'remote storybook is unavailable; check the tunnel failure above and Start stack again'
-        : `remote storybook: ${services.preview.storybookOrigin}/`
-    );
-  } else
-    say(
-      'stack',
-      'remote preview is unavailable; check the preview failure above and Start stack again'
-    );
   say('stack', 'Ctrl-C to stop');
   // A manifest must not point at processes that are gone.
   process.on('exit', () => {
