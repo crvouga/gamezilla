@@ -1,21 +1,21 @@
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
-import { Trans } from '@lingui/solid/macro';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
-import { MultiplayerControls } from './multiplayer-controls';
+import {
+  multiplayerStage,
+  useMultiplayerConfirm,
+  useMultiplayerNext,
+} from './multiplayer-controls';
+import { MultiplayerGameActions } from './multiplayer-game-actions';
 import { MultiplayerMoves } from './multiplayer-moves';
-import { MultiplayerNotices } from './multiplayer-notices';
 import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
-import { MultiplayerRatings } from './multiplayer-ratings';
+import { useMultiplayerRatings } from './multiplayer-ratings';
+import { MultiplayerScreenView } from './multiplayer-screen-view';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
@@ -25,123 +25,161 @@ import type { OwnBoard } from './use-own-board';
 import { useOwnBoard } from './use-own-board';
 
 type ScreenProps = {
+  readonly title: string;
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
   readonly view: OwnBoard;
 };
 
-/** The board when there is a game, then what the person can do next. */
-function MultiplayerStage(props: ScreenProps): JSX.Element {
-  const sync = useSyncEngine();
-  const setup = useMultiplayerPrivateSetup(props.data.game, props.data.myId);
-  const hand = useMultiplayerHand(props.data.game, props.data.myId);
-  return (
-    <>
-      <Show when={props.data.game()}>
-        {(game) => (
-          <MultiplayerPrivateSetupPanel
-            game={game()}
-            setup={setup}
-            onChoose={props.controls.chooseSetup}
-          />
-        )}
-      </Show>
-      <Show when={props.data.game()}>
-        {(game) => (
-          <MultiplayerBoard
-            ownSetup={setup.own()}
-            ownHand={hand()}
-            game={game()}
-            room={props.data.room()}
-            myId={props.data.myId()}
-            connected={sync.status().online}
-            moving={props.controls.moving()}
-            syncKey={props.controls.boardSync()}
-            view={props.view}
-            onMove={props.controls.play}
-          />
-        )}
-      </Show>
-      <Show when={props.data.game() === null && props.data.search() === null}>
-        <Show
-          when={!props.data.loading()}
-          fallback={
-            <LoadingState
-              variant="compact"
-              caption={<Trans>Loading the game…</Trans>}
-              dataSet={{ testid: 'multiplayer-loading' }}
-            />
-          }
-        >
-          <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
-            <Text variant="inherit" role="status">
-              <Trans>No multiplayer game is available to you.</Trans>
-            </Text>
-          </Notice>
-        </Show>
-      </Show>
-      <MultiplayerControls data={props.data} controls={props.controls} />
-    </>
+/** A placeholder for "no denial", which resolves to nothing shown. */
+const ALLOWED: Decision = { allowed: true, policyVersion: '' };
+
+/** A decision resolved to the view's denial, or `undefined` while allowed. */
+function useDenial(
+  decision: () => Decision | null,
+  testId: string
+): () => ReturnType<ReturnType<typeof useDenialView>> | undefined {
+  const view = useDenialView({
+    get decision() {
+      return decision() ?? ALLOWED;
+    },
+    testId,
+  });
+  return () => {
+    const current = decision();
+    return current === null || current.allowed ? undefined : view();
+  };
+}
+
+/** Whether the person may see this space's game, or its host's search. */
+function useMultiplayerAccess(data: ScreenProps['data']) {
+  const decision = useDecision(PERMISSION.gameMultiplayerWatch, () => ({
+    spacePresence:
+      data.hostId() === data.myId() ? 'host' : data.hostId() ? 'guest' : null,
+  }));
+  const searchDecision = useDecision(PERMISSION.matchmakingView);
+  return useDenial(
+    () =>
+      data.game() !== null || data.hostId() !== data.myId()
+        ? decision()
+        : searchDecision(),
+    'multiplayer-access-denial'
   );
 }
 
-function MultiplayerContent(props: ScreenProps): JSX.Element {
-  const decision = useDecision(PERMISSION.gameMultiplayerWatch, () => ({
-    spacePresence:
-      props.data.hostId() === props.data.myId()
-        ? 'host'
-        : props.data.hostId()
-          ? 'guest'
-          : null,
-  }));
-  const searchDecision = useDecision(PERMISSION.matchmakingView);
-  const access = () =>
-    props.data.game() !== null || props.data.hostId() !== props.data.myId()
-      ? decision()
-      : searchDecision();
-  const sync = useSyncEngine();
-  useDeadlineSettle({
-    game: props.data.game,
-    stored: props.data.stored,
-    online: () => sync.status().online,
-    settle: props.controls.settle,
-  });
+/** The matched game's commands, the view's `gameActions` slot. */
+function MatchActions(props: {
+  readonly data: ScreenProps['data'];
+  readonly controls: ScreenProps['controls'];
+  readonly onConfirm: (kind: 'resign' | 'abort') => void;
+}): JSX.Element {
   return (
-    <Show
-      when={access().allowed}
-      fallback={
-        <DenialSurface decision={access()} testId="multiplayer-access-denial" />
-      }
-    >
-      <GameSessionLayout
-        notices={
-          <MultiplayerNotices
-            controls={props.controls}
-            online={sync.status().online}
-          />
-        }
-        aside={
-          <>
-            <Show when={props.data.game()}>
-              {(game) => <MultiplayerMoves game={game()} view={props.view} />}
-            </Show>
-            <MultiplayerRatings
-              gameId={props.data.gameId()}
-              ratings={props.data.ratings()}
-            />
-          </>
-        }
-      >
-        <MultiplayerStage
-          data={props.data}
+    <Show when={props.data.game()}>
+      {(game) => (
+        <MultiplayerGameActions
+          game={game()}
+          execution={props.data.execution()}
+          myId={props.data.myId()}
           controls={props.controls}
-          view={props.view}
+          looking={props.data.search()?.standing === 'waiting'}
+          onConfirm={props.onConfirm}
         />
-      </GameSessionLayout>
+      )}
     </Show>
   );
 }
 
+/** The matched game's moves, the view's `moves` slot. */
+function MatchMoves(props: {
+  readonly data: ScreenProps['data'];
+  readonly view: OwnBoard;
+}): JSX.Element {
+  return (
+    <Show when={props.data.game()}>
+      {(game) => <MultiplayerMoves game={game()} view={props.view} />}
+    </Show>
+  );
+}
+
+/** Reads matchmaking for `MultiplayerScreenView`. */
+function MultiplayerContent(props: ScreenProps): JSX.Element {
+  const data = props.data;
+  const controls = props.controls;
+  const sync = useSyncEngine();
+  const denial = useMultiplayerAccess(data);
+  const commandDenial = useDenial(
+    controls.denial,
+    'multiplayer-command-denial'
+  );
+  const next = useMultiplayerNext(data);
+  const confirm = useMultiplayerConfirm(data, controls);
+  const ratings = useMultiplayerRatings(data.gameId, data.ratings);
+  const setup = useMultiplayerPrivateSetup(data.game, data.myId);
+  const hand = useMultiplayerHand(data.game, data.myId);
+  useDeadlineSettle({
+    game: data.game,
+    stored: data.stored,
+    online: () => sync.status().online,
+    settle: controls.settle,
+  });
+  return (
+    <MultiplayerScreenView
+      title={props.title}
+      denial={denial()}
+      stage={multiplayerStage(data)}
+      next={next()}
+      commandDenial={commandDenial()}
+      error={controls.error()}
+      online={sync.status().online}
+      ratings={ratings()}
+      confirming={confirm.confirming()}
+      manyPlayers={confirm.manyPlayers()}
+      setupPanel={
+        <Show when={data.game()}>
+          {(game) => (
+            <MultiplayerPrivateSetupPanel
+              game={game()}
+              setup={setup}
+              onChoose={controls.chooseSetup}
+            />
+          )}
+        </Show>
+      }
+      board={
+        <Show when={data.game()}>
+          {(game) => (
+            <MultiplayerBoard
+              ownSetup={setup.own()}
+              ownHand={hand()}
+              game={game()}
+              room={data.room()}
+              myId={data.myId()}
+              connected={sync.status().online}
+              moving={controls.moving()}
+              syncKey={controls.boardSync()}
+              view={props.view}
+              onMove={controls.play}
+            />
+          )}
+        </Show>
+      }
+      gameActions={
+        <MatchActions
+          data={data}
+          controls={controls}
+          onConfirm={confirm.open}
+        />
+      }
+      moves={<MatchMoves data={data} view={props.view} />}
+      onFind={controls.begin}
+      onStop={controls.stop}
+      onConfirm={confirm.run}
+      onCloseConfirm={confirm.close}
+    />
+  );
+}
+
+/** A game's Find an opponent screen: wires `MultiplayerScreenView` to matchmaking. */
 export default function MultiplayerScreen(props: {
   gameId: string;
   onBack: () => void;
@@ -153,9 +191,12 @@ export default function MultiplayerScreen(props: {
   return (
     <>
       <DefineBackButton onPress={props.onBack} />
-      <GameScreen screenId="multiplayer" title={props.title}>
-        <MultiplayerContent data={data} controls={controls} view={view} />
-      </GameScreen>
+      <MultiplayerContent
+        title={props.title}
+        data={data}
+        controls={controls}
+        view={view}
+      />
     </>
   );
 }

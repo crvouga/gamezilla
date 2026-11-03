@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
-import type { ClientPubSubArgs } from '@libs/app-root-client-ts/create-client-pubsub';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
+import type { ClientPubSubArgs } from '@libs/app-env-client-ts/create-client-pubsub';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
 import { createOfflineClientEnv } from '@libs/app-root-client-ts/offline-client-env';
 import { createOfflineNetworkController } from '@libs/app-root-client-ts/offline-network-controller';

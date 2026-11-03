@@ -15,7 +15,7 @@
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
-    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/moderation-client-ts": "workspace:*",
@@ -26,14 +26,12 @@
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
-    "@pkgs/i18n-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-client-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
-    "@pkgs/uuid-shared-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -44,6 +42,8 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

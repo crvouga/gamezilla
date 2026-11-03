@@ -5,13 +5,13 @@
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
+import { ClientEnvProvider } from '@libs/app-env-client-ts/client-env-context';
+import type { AppSyncEnginePool } from '@libs/app-env-client-ts/sync-engine-pool';
+import { createAppSyncEnginePool } from '@libs/app-env-client-ts/sync-engine-pool';
 import { AppCompositionProvider } from '@libs/app-root-client-ts/app-subs-context';
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
-import { ClientEnvProvider } from '@libs/app-root-client-ts/client-env-context';
 import { LocalIdentityProvider } from '@libs/app-root-client-ts/identity-context';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
-import type { AppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
-import { createAppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
 import { useSyncEngineBootViews } from '@libs/app-root-client-ts/use-sync-engine-boot-views';
 import { createAppBearerTokenStore } from '@libs/app-root-shared-ts/auth-client-storage';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';

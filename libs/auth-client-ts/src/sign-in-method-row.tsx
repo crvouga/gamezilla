@@ -11,8 +11,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 
-import { useAuthClientPort } from './auth-client-provider';
-import { authFlowErrorMessage, providerName } from './auth-flow-messages';
+import { providerName } from './auth-flow-messages';
 import type { LinkedIdentity } from './use-linked-identities';
 
 const ICON_SIZE = 20;
@@ -41,18 +40,11 @@ function AddressCaption(props: {
  */
 function ConnectableMethodRow(props: {
   readonly provider: OauthProviderId;
+  readonly onConnect: (provider: OauthProviderId) => Promise<void>;
 }): JSX.Element {
   const { i18n, t } = useLingui();
-  const port = useAuthClientPort();
   const connect = useMutationButton({
-    operation: async () => {
-      try {
-        await port.linkProvider(props.provider);
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        throw new Error(authFlowErrorMessage(i18n(), err));
-      }
-    },
+    operation: () => props.onConnect(props.provider),
     labels: {
       idle: t`Connect`,
       loading: t`Connecting…`,
@@ -127,11 +119,18 @@ export function SignInMethodRow(props: {
   /** False for the account's only method: it cannot be removed. */
   readonly removable: boolean;
   readonly onRemove: (provider: OauthProviderId) => void;
+  /** Connects the provider; rejects with the message the row shows. */
+  readonly onConnect: (provider: OauthProviderId) => Promise<void>;
 }): JSX.Element {
   return (
     <Show
       when={props.identity}
-      fallback={<ConnectableMethodRow provider={props.provider} />}
+      fallback={
+        <ConnectableMethodRow
+          provider={props.provider}
+          onConnect={props.onConnect}
+        />
+      }
     >
       {(identity) => (
         <LinkedMethodRow

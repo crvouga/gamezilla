@@ -9,13 +9,15 @@ The sidebar's **Start here** page documents the project workflow, commands,
 virtual time and agent discovery. Design-system branding and this guide replace
 Storybook's generic onboarding checklist. All [Essentials](#essentials-review-and-usage) features and Interactions
 are built into the pinned Storybook version; Bun and Playwright own automated
-verification, so no Vitest or hosted visual-testing addon is required.
+verification. Chromatic adds hosted Storybook, visual review and cloud testing;
+see [Chromatic publishing and agent access](CHROMATIC.md) for setup, coverage
+and account-dependent features.
 
 `bun dev` starts Storybook alongside the app servers on port 6006, under the same boot owner. To run Storybook alone, use `bun storybook`.
 A checkout has one boot: stop an existing app boot with `bun kill` first.
 Use `bun kill` to clean up Storybook too. Build with `bun storybook:build`.
-Share the resulting `pkgs/ui-root-harness-ts/.cache/storybook/` directory as a
-static site, including its assets, index and manifests. This build does not
+Chromatic publishes the resulting `pkgs/ui-root-harness-ts/.cache/storybook/` directory as a
+static site through `bun storybook:publish`, including its assets, index and manifests. The build alone does not
 publish anything or require a backend. Story links retain their `?path=` query.
 Run `bun storybook:coverage` to write `.cache/storybook-coverage.json` and
 `.cache/storybook-coverage.md` in this package. The inventory derives component
@@ -63,15 +65,41 @@ availability is optional, never a reason to invent APIs or block the task.
 | Change | Work in Storybook | Verification ownership |
 | --- | --- | --- |
 | Component or variant | Extend its colocated CSF story using the real production component and documented props. | The owning UI harness covers component contracts. |
-| Screen or layout | Compose existing production components; extend a reusable template story for representative screen states. Keep domain queries, mutations and permissions in their owning product packages. | Product specs and their harness cover behavior; UI contracts cover presentation and interaction. |
+| Screen or layout | Compose existing production components in a presentational `*ScreenView` beside its container, and give every state its own story. Keep domain queries, mutations and permissions in the container. | Product specs and their harness cover behavior; screen stories cover presentation and interaction. |
 | Visual defect | Add the literal failing state to the appropriate story and pin the regression in its owning automated verification. | Follow the repository regression registration rule in [AGENTS.md](../../AGENTS.md#hard-rules). |
 
 Develop the reusable presentation in Storybook before wiring its product consumer.
-Keep actual screen compositions in their owning product package. The current
-Storybook discovers `pkgs/*-client-ts` slices; it does not import product `libs/`
-screens. Use their existing shared template stories and product harness coverage;
-do not copy a screen into a demo or pretend its domain behavior is covered by a
-component story.
+Keep actual screen compositions in their owning product package. Storybook
+discovers `pkgs/*-client-ts` design-system slices and `libs/*-client-ts`
+product screens; never copy a screen into a demo.
+
+### Screens: smart containers, presentational views
+
+Every routed screen and distinct full-screen state is split in two, and the
+`Screens` sidebar section is the catalogue of every screen in every state:
+
+- **View** — `<name>-screen-view.tsx` exports `<Name>ScreenView`. It takes plain
+  data, a status union (loading, failed, empty, ready, saving…), callbacks and
+  `JSX.Element` slots for orthogonal smart widgets. It renders design-system
+  components and may read Lingui and pure policy contexts a story decorator
+  supplies (moderation, clock, theme). It never calls queries, mutations, the
+  sync engine, the router, permission or identity hooks, or device ports.
+  Breadcrumbs stay declarative `href` crumbs; other navigation is a callback.
+- **Container** — the route component keeps the hooks and renders the view.
+  A permission gate is a `DecisionGate`, which hands the view a resolved
+  `DenialView` for its denied state.
+- **Stories** — `<name>-screen-view.stories.tsx` beside the view, with
+  `id: 'screens-<area>-<screen>'`, `title: 'Screens/<Area>/<Screen>'`,
+  `parameters: { appRouter: true }` (navigation spies through a static app
+  router) and one args-based story per branch the view renders. Story-only
+  decorators and fixtures live in `<name>.example.tsx`; production never
+  imports them.
+
+`bun storybook:coverage` requires a story and source JSDoc for every exported
+`*ScreenView`; other `libs/` exports are inventoried for discovery only.
+Screen stories get phone and desktop baselines, like templates. When adding a
+story-owning `libs/` package, name it in the brace lists of this package's and
+`ui-codegen-server-ts`'s `turbo.json`, like `pkgs/` owners.
 
 For each changed surface, choose meaningful states from its contract: loading,
 empty, populated, success, failure with a recovery action, disabled and permission
@@ -104,6 +132,11 @@ files while another task is reading them.
    browser comparisons and accessibility checks. See [Browser checks and baselines](#browser-checks-and-baselines)
    for the pinned renderer and intentional baseline authoring.
 4. `bun verify` runs the whole release gate. A focused pass does not replace it.
+5. For a published PR, inspect the `Publish PR Storybook` step and link its hosted build
+   and review results. Use [Chromatic publishing](CHROMATIC.md) for credentials,
+   cloud modes and feature prerequisites. Report missing credentials or cloud
+   access explicitly; never claim an upload or unapproved diff is a passing
+   review, and never auto-accept baselines to turn a build green.
 
 In a review or handoff, report changed components and story IDs, reuse or API
 choices, covered states, automated commands and their actual results, and any
@@ -280,7 +313,9 @@ stay untracked; source types, JSDoc, token documents and stories remain authorit
 
 Foundations introduces the tokens. Atoms holds basic controls and visual roles;
 Molecules combines them into fields, rows and choices; Organisms groups complete
-interactive regions; Templates holds screen and layout compositions.
+interactive regions; Templates holds screen and layout compositions. Screens
+holds the product's own screen views from `libs/`, a folder per area
+(`Screens/Settings`, `Screens/Friends`, `Screens/Games/<Game>`).
 `Games` separates game-specific surfaces into a folder per game, such as
 `Games/Chess/Board` and `Games/Connect Four/Board`. Reusable game screens and
 layouts live in `Games/Shared/Screens`; reusable game regions live in

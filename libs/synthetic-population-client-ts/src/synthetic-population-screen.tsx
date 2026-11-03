@@ -1,24 +1,22 @@
+import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
-import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import {
+  type AppPermission,
+  PERMISSION,
+} from '@libs/permissions-shared-ts/permission-catalog';
+import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
+import { useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { FormActionsFooter } from '@pkgs/ui-root-client-ts/form-actions-footer';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { createResource, type JSX, Show } from 'solid-js';
+import { createResource, type JSX } from 'solid-js';
 import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
-  SyntheticPopulationConfiguration,
+  toConfigurationDraft,
   useSyntheticPopulationConfiguration,
 } from './synthetic-population-configuration';
-import { SyntheticPopulationDenial } from './synthetic-population-denial';
-import { SyntheticPopulationEventTimeline } from './synthetic-population-event-timeline';
-import { SyntheticPopulationSummary } from './synthetic-population-summary';
+import { SyntheticPopulationScreenView } from './synthetic-population-screen-view';
 import { SyntheticPopulationUsers } from './synthetic-population-users';
-import { SyntheticPopulationWorkers } from './synthetic-population-workers';
 import { useSyntheticPopulationUpdates } from './use-synthetic-population-updates';
 
 function SyntheticPopulationContent(): JSX.Element {
@@ -43,109 +41,83 @@ function SyntheticPopulationContent(): JSX.Element {
     await refetch();
   };
   return (
-    <ContentScreen
-      screenId="synthetic-population"
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: <Trans>Settings</Trans>, href: '/more' },
-        { name: <Trans>Bot Observatory</Trans> },
-      ]}
-      footer={
-        <Show when={configure()}>
-          <FormActionsFooter
-            submit={{
-              label: t`Save synthetic population`,
-              loadingLabel: t`Saving…`,
-              successLabel: t`Saved`,
-              operation: save,
-              get disabled() {
-                return candidate() === null;
-              },
-              dataSet: { testid: 'synthetic-population-save' },
-            }}
-          />
-        </Show>
-      }
-    >
-      <Show when={overview.loading}>
-        <LoadingState
-          variant="compact"
-          caption={<Trans>Reading Synthetic Population…</Trans>}
+    <SyntheticPopulationScreenView
+      loading={overview.loading}
+      failed={Boolean(overview.error)}
+      overview={resourceValue(overview)}
+      canConfigure={configure()}
+      fields={draft.fields()}
+      canSave={candidate() !== null}
+      onChangeField={draft.change}
+      onSave={save}
+      onRefresh={() => {
+        void refetch();
+      }}
+      directory={(observedAtMs) => (
+        <SyntheticPopulationUsers
+          observedAtMs={observedAtMs}
+          canInspect={inspect()}
+          inspect={(id) =>
+            router.push(`/admin/synthetic-population/users/${id}`)
+          }
         />
-      </Show>
-      <Show when={overview.error}>
-        <ErrorState
-          variant="compact"
-          title={<Trans>Bot Observatory could not be loaded.</Trans>}
-          body={<Trans>Refresh to try again.</Trans>}
-        />
-      </Show>
-      <Button
-        title={t`Refresh`}
-        onClick={() => {
-          void refetch();
-        }}
-      />
-      <Show when={resourceValue(overview)} keyed>
-        {(value) => (
-          <>
-            <SyntheticPopulationSummary overview={value} />
-            <Show when={configure()}>
-              <SyntheticPopulationConfiguration
-                fields={draft.fields()}
-                change={draft.change}
-              />
-            </Show>
-            <SyntheticPopulationUsers
-              observedAtMs={value.observedAtMs}
-              canInspect={inspect()}
-              inspect={(id) =>
-                router.push(`/admin/synthetic-population/users/${id}`)
-              }
-            />
-            <SyntheticPopulationWorkers overview={value} />
-            <SyntheticPopulationEventTimeline
-              events={value.events.filter(
-                (event) => event.event !== 'UiDriverAction'
-              )}
-            />
-          </>
-        )}
-      </Show>
-    </ContentScreen>
+      )}
+    />
   );
 }
 
+const INERT_FIELDS = toConfigurationDraft(DEFAULT_SYNTHETIC_POPULATION_CONFIG);
+
+/** The view in its denied state: nothing behind the denial is read. */
+function DeniedSyntheticPopulation(props: { denial: DenialView }): JSX.Element {
+  return (
+    <SyntheticPopulationScreenView
+      denial={props.denial}
+      loading={false}
+      failed={false}
+      overview={undefined}
+      canConfigure={false}
+      fields={INERT_FIELDS}
+      canSave={false}
+      onChangeField={() => undefined}
+      onSave={async () => undefined}
+      onRefresh={() => undefined}
+    />
+  );
+}
+
+function SyntheticPopulationRoute(props: {
+  permission: AppPermission;
+  testId: string;
+}): JSX.Element {
+  const decision = useDecision(props.permission);
+  return (
+    <DecisionGate
+      decision={decision()}
+      testId={props.testId}
+      denied={(denial) => <DeniedSyntheticPopulation denial={denial} />}
+    >
+      <SyntheticPopulationContent />
+    </DecisionGate>
+  );
+}
+
+/** `/admin/synthetic-population`: wires `SyntheticPopulationScreenView`. */
 export function SyntheticPopulationScreen(): JSX.Element {
-  const decision = useDecision(PERMISSION.syntheticPopulationView);
   return (
-    <Show
-      when={decision().allowed}
-      fallback={
-        <SyntheticPopulationDenial
-          permission={PERMISSION.syntheticPopulationView}
-          testId="synthetic-population-denied"
-        />
-      }
-    >
-      <SyntheticPopulationContent />
-    </Show>
+    <SyntheticPopulationRoute
+      permission={PERMISSION.syntheticPopulationView}
+      testId="synthetic-population-denied"
+    />
   );
 }
 
+/** `/admin/synthetic-population/config`: the same screen, gated on configure. */
 export function SyntheticPopulationConfigurationScreen(): JSX.Element {
-  const decision = useDecision(PERMISSION.syntheticPopulationConfigure);
   return (
-    <Show
-      when={decision().allowed}
-      fallback={
-        <SyntheticPopulationDenial
-          permission={PERMISSION.syntheticPopulationConfigure}
-          testId="synthetic-population-config-denied"
-        />
-      }
-    >
-      <SyntheticPopulationContent />
-    </Show>
+    <SyntheticPopulationRoute
+      permission={PERMISSION.syntheticPopulationConfigure}
+      testId="synthetic-population-config-denied"
+    />
   );
 }

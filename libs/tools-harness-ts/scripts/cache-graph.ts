@@ -9,7 +9,9 @@
  *
  * - the package itself,
  * - every package whose `src` inherits its `src`, transitively, and
- * - every package that declares one of those, for its own three tasks.
+ * - every package that declares one of those, for its own three tasks, and
+ * - every package whose three tasks wait, through tasks of its own (such as
+ *   Storybook's build), on the `src` of one of those.
  *
  * That count is the package's blast radius. It is what a cache-friendly
  * structure keeps small, and the one number every rule in
@@ -27,6 +29,11 @@ export type GraphPackage = {
   readonly declared: ReadonlySet<string>;
   /** Workspace packages its `src` hash inherits. */
   readonly srcEdges: ReadonlySet<string>;
+  /**
+   * Workspace packages whose `src` its `lint`, `tc` or `test` wait on through
+   * its own tasks' explicit `<package>#src` dependencies.
+   */
+  readonly taskSrcEdges: ReadonlySet<string>;
   /** Repo-relative non-test files under `src/`. */
   readonly srcFiles: readonly string[];
 };
@@ -57,7 +64,10 @@ function reverse(
 export function blastRadii(
   packages: readonly GraphPackage[]
 ): Map<string, Blast> {
-  const declaredBy = reverse(packages, (pkg) => pkg.declared);
+  const declaredBy = reverse(
+    packages,
+    (pkg) => new Set([...pkg.declared, ...pkg.taskSrcEdges])
+  );
   const srcBy = reverse(packages, (pkg) => pkg.srcEdges);
   const result = new Map<string, Blast>();
   for (const { name } of packages) {
@@ -107,6 +117,29 @@ function declaredDependencies(manifest: Manifest): string[] {
   );
 }
 
+type TurboTasks = Record<string, { dependsOn?: string[] } | undefined>;
+
+function turboTasks(root: string, dir: string): TurboTasks | undefined {
+  const file = join(root, dir, 'turbo.json');
+  if (!existsSync(file)) return undefined;
+  return (JSON.parse(readFileSync(file, 'utf8')) as { tasks?: TurboTasks })
+    .tasks;
+}
+
+/** `<package>#src` the three tasks wait on through the package's own tasks. */
+function taskSrcEdges(root: string, dir: string): Set<string> {
+  const tasks = turboTasks(root, dir) ?? {};
+  const edges = new Set<string>();
+  const visited = new Set(['lint', 'tc', 'test']);
+  for (const task of visited)
+    for (const edge of tasks[task]?.dependsOn ?? []) {
+      const external = /^(@[^#]+)#src$/.exec(edge);
+      if (external?.[1] !== undefined) edges.add(external[1]);
+      else if (!edge.includes('#') && !edge.startsWith('^')) visited.add(edge);
+    }
+  return edges;
+}
+
 function listedSrcEdges(root: string, dir: string): string[] | undefined {
   const file = join(root, dir, 'turbo.json');
   if (!existsSync(file)) return undefined;
@@ -139,6 +172,7 @@ export function readGraph(root: string): GraphPackage[] {
       dir,
       declared: new Set(declared),
       srcEdges: new Set(listedSrcEdges(root, dir) ?? declared),
+      taskSrcEdges: taskSrcEdges(root, dir),
       srcFiles: productionFilesUnder(join(root, dir, 'src'))
         .filter((file) => !file.endsWith('.md'))
         .map((file) => toRepoPath(root, file)),

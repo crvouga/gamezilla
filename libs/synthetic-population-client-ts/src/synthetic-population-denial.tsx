@@ -1,15 +1,16 @@
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
-import { useDecision } from '@libs/permissions-client-ts/use-can';
-import type { AppPermission } from '@libs/permissions-shared-ts/permission-catalog';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import type { JSX } from 'solid-js';
 
+/**
+ * The Bot Observatory's denied screen, shared by every admin route: a person
+ * without the route's permission sees the resolved denial and nothing else.
+ */
 export function SyntheticPopulationDenial(props: {
-  permission: AppPermission;
-  testId: string;
+  denial: DenialView;
 }): JSX.Element {
-  const decision = useDecision(props.permission);
   return (
     <ContentScreen
       screenId="synthetic-population-permission"
@@ -19,7 +20,7 @@ export function SyntheticPopulationDenial(props: {
         { name: <Trans>Bot Observatory</Trans> },
       ]}
     >
-      <DenialSurface decision={decision()} testId={props.testId} />
+      <DenialSurfaceView denial={props.denial} />
     </ContentScreen>
   );
 }

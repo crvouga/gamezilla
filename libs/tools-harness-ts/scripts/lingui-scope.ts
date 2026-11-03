@@ -11,6 +11,7 @@
 export const LINGUI_CATALOG_SOURCES = [
   'libs/account-privacy-client-ts/src',
   'libs/app-root-client-ts/src',
+  'libs/app-env-client-ts/src',
   'libs/app-config-client-ts/src',
   'libs/auth-client-ts/src',
   'libs/billing-client-ts/src',

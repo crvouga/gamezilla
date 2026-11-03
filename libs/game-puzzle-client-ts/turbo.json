@@ -4,7 +4,7 @@
   "tasks": {
     "src": {
       "dependsOn": [
-        "@libs/app-root-client-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/game-puzzle-shared-ts#src",
         "@libs/permissions-client-ts#src",

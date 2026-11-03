@@ -1,19 +1,37 @@
 import { Trans } from '@lingui/solid/macro';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
-import { AccountDeviceAppText } from './account-device-app-text';
-import { AccountDeviceCreatedText } from './account-device-created-text';
-import { AccountDeviceFirstSeenText } from './account-device-first-seen-text';
-import { AccountDeviceLastSeenText } from './account-device-last-seen-text';
 import { AccountDeviceMetaPair } from './account-device-meta-pair';
-import { AccountDeviceModelText } from './account-device-model-text';
-import { AccountDeviceNameText } from './account-device-name-text';
-import { AccountDeviceOsText } from './account-device-os-text';
-import { AccountDevicePlatformText } from './account-device-platform-text';
+import type { AccountDeviceView } from './account-device-view';
+import { EM_DASH, formatOsLine, formatTimestamp } from './device-parsers';
 
 export type AccountDeviceMetaGridProps = {
-  deviceId: string;
+  readonly device: AccountDeviceView;
 };
+
+/** App version, then its build number in parentheses. */
+function appLabel(device: AccountDeviceView): string {
+  const version = device.appVersion;
+  const build = device.appBuildNumber;
+  return version === null && build === null
+    ? EM_DASH
+    : [version, build !== null ? `(${build})` : null]
+        .filter((v) => v !== null)
+        .join(' ');
+}
+
+function MetaPair(props: {
+  readonly label: JSX.Element;
+  readonly value: string;
+}): JSX.Element {
+  return (
+    <AccountDeviceMetaPair
+      label={props.label}
+      valueAtom={<Text variant="inherit">{props.value}</Text>}
+    />
+  );
+}
 
 /** Detail rows for a device's meta attributes. */
 export function AccountDeviceMetaGrid(
@@ -22,39 +40,36 @@ export function AccountDeviceMetaGrid(
   return (
     <>
       <MenuSection title={<Trans>Device</Trans>}>
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>Platform</Trans>}
-          valueAtom={<AccountDevicePlatformText deviceId={props.deviceId} />}
+          value={props.device.platform ?? EM_DASH}
         />
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>OS</Trans>}
-          valueAtom={<AccountDeviceOsText deviceId={props.deviceId} />}
+          value={formatOsLine(props.device.osName, props.device.osVersion)}
         />
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>Device name</Trans>}
-          valueAtom={<AccountDeviceNameText deviceId={props.deviceId} />}
+          value={props.device.deviceName ?? EM_DASH}
         />
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>Model</Trans>}
-          valueAtom={<AccountDeviceModelText deviceId={props.deviceId} />}
+          value={props.device.deviceModelName ?? EM_DASH}
         />
-        <AccountDeviceMetaPair
-          label={<Trans>App</Trans>}
-          valueAtom={<AccountDeviceAppText deviceId={props.deviceId} />}
-        />
+        <MetaPair label={<Trans>App</Trans>} value={appLabel(props.device)} />
       </MenuSection>
       <MenuSection title={<Trans>Activity</Trans>}>
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>First seen</Trans>}
-          valueAtom={<AccountDeviceFirstSeenText deviceId={props.deviceId} />}
+          value={formatTimestamp(props.device.firstSeenAt)}
         />
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>Last seen</Trans>}
-          valueAtom={<AccountDeviceLastSeenText deviceId={props.deviceId} />}
+          value={formatTimestamp(props.device.lastSeenAt)}
         />
-        <AccountDeviceMetaPair
+        <MetaPair
           label={<Trans>Created</Trans>}
-          valueAtom={<AccountDeviceCreatedText deviceId={props.deviceId} />}
+          value={formatTimestamp(props.device.createdAt)}
         />
       </MenuSection>
     </>

@@ -5,8 +5,8 @@
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
-import type { CreateAppLocalSyncEngineArgs } from '@libs/app-root-client-ts/create-local-sync-engine';
-import { createAppLocalSyncEngine } from '@libs/app-root-client-ts/create-local-sync-engine';
+import type { CreateAppLocalSyncEngineArgs } from '@libs/app-env-client-ts/create-local-sync-engine';
+import { createAppLocalSyncEngine } from '@libs/app-env-client-ts/create-local-sync-engine';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';

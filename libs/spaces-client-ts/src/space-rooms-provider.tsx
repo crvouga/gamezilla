@@ -4,7 +4,7 @@
  * registry every space screen and the miniplayer read.
  */
 
-import { useClientEnv } from '@libs/app-root-client-ts/client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import type { JSX } from 'solid-js';
 import { HostingAccount } from './hosting-invite';
 import { RoomTransportFactoryProvider } from './room-transport-factory';

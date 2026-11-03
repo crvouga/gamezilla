@@ -1,9 +1,7 @@
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { searchResultPhase } from '@libs/search-shared-ts/search-result-phase';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  UserSearchDenied,
-  useDebouncedUserSearchEffect,
-} from '@libs/user-search-client-ts/use-user-search';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
@@ -17,31 +15,71 @@ import {
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { SearchRecentQueries } from './search-recent-queries';
-import { SearchUserResultRow } from './search-user-result-row';
-import { useSearchHistory } from './use-search-history';
 
 const FIELD_ICON_SIZE = 18;
 
+/** Where the people search for the typed query stands. */
+export type PeopleSearchState = {
+  /** The query is debouncing, or its answer is still on its way. */
+  readonly searching: boolean;
+  /** The search went out offline; shown results are only people on this device. */
+  readonly needsConnection: boolean;
+  /** The server reported why it could not answer. */
+  readonly failed: boolean;
+  readonly results: readonly UserSearchResult[];
+};
+
+export type SearchScreenViewProps = {
+  /** The text in the search field, as typed. */
+  readonly query: string;
+  /** Completed searches, newest first; shown while the field is empty. */
+  readonly recentQueries: readonly string[];
+  readonly search: PeopleSearchState;
+  /** Set when the person may not search people; shown once they type. */
+  readonly denial?: DenialView | undefined;
+  /** One result's row content, such as a person with friend pills. */
+  readonly renderUserRow: (user: UserSearchResult) => JSX.Element;
+  readonly onQueryChange: (query: string) => void;
+  readonly onSelectRecent: (query: string) => void;
+  readonly onClearRecent: () => void;
+};
+
+function SearchResultRow(props: {
+  readonly user: UserSearchResult;
+  readonly render: (user: UserSearchResult) => JSX.Element;
+}): JSX.Element {
+  return (
+    <StackVertical testId={Handles.searchResultRow}>
+      <StackVertical
+        self="stretch"
+        paddingX="lg"
+        testId={Handles.searchUserResult(props.user.username)}
+      >
+        {props.render(props.user)}
+      </StackVertical>
+    </StackVertical>
+  );
+}
+
 function SearchResults(props: {
-  query: string;
-  searching: boolean;
-  needsConnection: boolean;
-  failed: boolean;
-  results: readonly UserSearchResult[];
+  readonly query: string;
+  readonly search: PeopleSearchState;
+  readonly renderUserRow: (user: UserSearchResult) => JSX.Element;
 }): JSX.Element {
   const { t } = useLingui();
   const phase = () =>
     searchResultPhase({
-      searching: props.searching,
-      needsConnection: props.needsConnection,
-      resultCount: props.results.length,
+      searching: props.search.searching,
+      needsConnection: props.search.needsConnection,
+      resultCount: props.search.results.length,
     });
   return (
     <Switch>
-      <Match when={phase() === 'needs-connection' && props.failed}>
+      <Match when={phase() === 'needs-connection' && props.search.failed}>
         <ErrorState
           variant="compact"
           title={<Trans>Search needs a connection</Trans>}
@@ -82,7 +120,7 @@ function SearchResults(props: {
         />
       </Match>
       <Match when={phase() === 'results'}>
-        <Show when={props.needsConnection}>
+        <Show when={props.search.needsConnection}>
           <Notice
             tone="info"
             icon={WifiOffIcon}
@@ -96,11 +134,13 @@ function SearchResults(props: {
         </Show>
         <ScreenBodyVirtualList
           dataSet={{ testid: Handles.searchResults }}
-          items={props.results}
+          items={props.search.results}
           keyExtractor={(user) => user.userId}
           estimateSize={60}
           edgeInset={false}
-          renderItem={(user) => <SearchUserResultRow user={user} />}
+          renderItem={(user) => (
+            <SearchResultRow user={user} render={props.renderUserRow} />
+          )}
         />
       </Match>
     </Switch>
@@ -121,27 +161,24 @@ function SearchIdleState(): JSX.Element {
   );
 }
 
-export function SearchScreen(): JSX.Element {
+/**
+ * `/search`, presentational: the people search field, recent searches or
+ * the idle invitation while it is empty, and for a typed query its
+ * searching, results, nobody-found, offline, failed and denied states.
+ * `SearchScreen` wires the debounced search, history and permission.
+ */
+export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const { queries, touch, clear } = useSearchHistory();
-  const [query, setQuery] = createSignal('');
-  const recordSearch = (completedQuery: string) => {
-    touch(completedQuery);
-  };
-  const state = useDebouncedUserSearchEffect(query, recordSearch);
-  const trimmed = () => query().trim();
+  const trimmed = () => props.query.trim();
   const showRecent = () => trimmed().length === 0;
-  const showDenied = () => !state.canSearch && trimmed().length > 0;
-  const showResults = () => state.canSearch && trimmed().length > 0;
-
   return (
     <CollectionScreen
       screenId="search"
       breadcrumbs={[{ name: t`Search` }]}
       controls={
         <TextInput
-          value={query()}
-          onChangeText={setQuery}
+          value={props.query}
+          onChangeText={(query) => props.onQueryChange(query)}
           placeholder={t`Search by username or name`}
           aria-label={t`Search people`}
           startAdornment={
@@ -154,26 +191,24 @@ export function SearchScreen(): JSX.Element {
         />
       }
     >
-      <Show when={showRecent() && queries.length === 0}>
+      <Show when={showRecent() && props.recentQueries.length === 0}>
         <SearchIdleState />
       </Show>
-      <Show when={showRecent() && queries.length > 0}>
+      <Show when={showRecent() && props.recentQueries.length > 0}>
         <SearchRecentQueries
-          queries={queries}
-          onSelect={setQuery}
-          onClear={clear}
+          queries={props.recentQueries}
+          onSelect={(query) => props.onSelectRecent(query)}
+          onClear={() => props.onClearRecent()}
         />
       </Show>
-      <Show when={showDenied()}>
-        <UserSearchDenied />
+      <Show when={!showRecent() ? props.denial : undefined}>
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
       </Show>
-      <Show when={showResults()}>
+      <Show when={!showRecent() && props.denial === undefined}>
         <SearchResults
           query={trimmed()}
-          searching={state.searching}
-          needsConnection={state.needsConnection}
-          failed={state.failed}
-          results={state.results}
+          search={props.search}
+          renderUserRow={props.renderUserRow}
         />
       </Show>
     </CollectionScreen>

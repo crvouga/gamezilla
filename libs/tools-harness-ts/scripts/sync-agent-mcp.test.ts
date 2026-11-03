@@ -7,6 +7,7 @@ import {
   renderCodexToml,
   renderJson,
   SENTRY_MCP,
+  STORYBOOK_MCP_URL,
   serenaArgs,
   syncAgentMcp,
 } from './sync-agent-mcp';
@@ -75,7 +76,12 @@ describe('renderJson', () => {
       servers: { Sentry: SENTRY_MCP },
     });
     const servers = (JSON.parse(next) as { mcpServers: object }).mcpServers;
-    expect(Object.keys(servers)).toEqual(['Sentry', 'other', 'serena']);
+    expect(Object.keys(servers)).toEqual([
+      'Sentry',
+      'other',
+      'storybook',
+      'serena',
+    ]);
     expect(servers).toMatchObject({ Sentry: SENTRY_MCP });
   });
 });
@@ -87,6 +93,11 @@ describe('renderCodexToml', () => {
     expect(renderCodexToml(once)).toBe(once);
     const edited = `${once}[features]\nmulti_agent = true\n`;
     expect(renderCodexToml(edited)).toBe(edited);
+    const separated = once.replace(
+      '# END serena',
+      '# END serena\n\n[features]\nx = true'
+    );
+    expect(renderCodexToml(separated)).toBe(separated);
   });
 });
 
@@ -108,4 +119,24 @@ test('Serena is a pinned mise tool, never a hand-installed one', () => {
     readFileSync(join(ROOT, 'mise.toml'), 'utf8')
   ) as { tools: Record<string, { version?: string }> };
   expect(tools['pipx:serena-agent']?.version).toMatch(/^\d+\.\d+\.\d+$/);
+});
+
+test('all generated clients receive Storybook with their native HTTP transport', () => {
+  const read = (path: string) =>
+    JSON.parse(readFileSync(join(ROOT, path), 'utf8'));
+  expect(read('.mcp.json')).toMatchObject({
+    mcpServers: { storybook: { type: 'http', url: STORYBOOK_MCP_URL } },
+  });
+  expect(read('.gemini/settings.json')).toMatchObject({
+    mcpServers: { storybook: { httpUrl: STORYBOOK_MCP_URL } },
+  });
+  expect(read('opencode.json')).toMatchObject({
+    mcp: {
+      storybook: { type: 'remote', url: STORYBOOK_MCP_URL, enabled: true },
+    },
+  });
+  const codex = Bun.TOML.parse(
+    readFileSync(join(ROOT, '.codex/config.toml'), 'utf8')
+  ) as { mcp_servers: { storybook: { url: string } } };
+  expect(codex.mcp_servers.storybook.url).toBe(STORYBOOK_MCP_URL);
 });

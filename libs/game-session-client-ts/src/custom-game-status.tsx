@@ -16,28 +16,30 @@ import { usernameText } from '@libs/moderation-shared-ts/display';
 import type { AppModeration } from '@libs/moderation-shared-ts/policy';
 import { useProfileColumn } from '@libs/profile-client-ts/use-profile-column';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import type {
   GameTurnPillEmphasis,
   GameTurnPillTone,
 } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
-import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, type JSX, Show } from 'solid-js';
-import { botName, useBotLevel } from './custom-game-person';
+import { type Accessor, createMemo } from 'solid-js';
+import { botName } from './custom-game-bot-name';
+import { useBotLevel } from './custom-game-person';
+import type {
+  FrameClock,
+  FrameConnection,
+  FrameStatus,
+} from './game-frame-view-types';
 import { sideNames } from './side-names';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
+
+/**
+ * The words and clocks the frame shows about the custom game, read from
+ * the screen's model for `GameFrameScreenView`.
+ */
 
 /** Moderated name for display, or `null` while it is unknown. */
 function shownName(
@@ -117,89 +119,6 @@ function gameStateDescription(
     : t`Waiting for participants and readiness.`;
 }
 
-function clockLabel(seconds: number): string {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-}
-
-/** What `side`'s clock shows now (`4:59`), ticking while it runs. */
-export function useClockLabel(props: {
-  readonly game: CustomGame;
-  readonly side: CustomGameSide;
-}): () => string {
-  const seconds = createTimedValue(
-    (now) =>
-      props.game.status === 'configuring'
-        ? props.game.minutes * 60
-        : Math.ceil(customGameTimeLeft(props.game, props.side, now) / 1000),
-    (left, now) =>
-      props.game.minutes > 0 &&
-      props.game.status === 'active' &&
-      props.game.turn === props.side &&
-      left > 0
-        ? now +
-          customGameTimeLeft(props.game, props.side, now) -
-          (left - 1) * 1000
-        : null
-  );
-  return () => clockLabel(seconds());
-}
-
-/** One side's clock. An untimed game has none: its status line says so. */
-export function CustomGameClock(props: {
-  game: CustomGame;
-  side: CustomGameSide;
-}): JSX.Element {
-  const gameSideLabel = useGameSideLabel();
-  const label = useClockLabel(props);
-  return (
-    <Show when={props.game.minutes > 0}>
-      <GameClock
-        active={
-          props.game.status === 'active' && props.game.turn === props.side
-        }
-        label={gameSideLabel(props.game.fen, props.side)}
-        value={label()}
-        dataSet={{ testid: `custom-game-${props.side}-clock` }}
-        ariaLabel={gameSideLabel(props.game.fen, props.side)}
-      />
-    </Show>
-  );
-}
-
-/** The agreed clock: minutes + added seconds. */
-function TimeControlBadge(props: { game: CustomGame }): JSX.Element {
-  return (
-    <Badge
-      intent="neutral"
-      label={
-        <Show when={props.game.minutes > 0} fallback={<Trans>Untimed</Trans>}>
-          {props.game.minutes}+{props.game.increment}
-        </Show>
-      }
-    />
-  );
-}
-
-/** The viewer's own turn (or their own choice still awaited) is theirs. */
-function statusEmphasis(
-  game: CustomGame,
-  mySide: CustomGameSide | null
-): GameTurnPillEmphasis {
-  return game.status === 'active' &&
-    mySide !== null &&
-    (game.awaiting.length > 0
-      ? game.awaiting.includes(mySide)
-      : game.turn === mySide)
-    ? 'yours'
-    : 'neutral';
-}
-
-function statusTone(game: CustomGame): GameTurnPillTone {
-  return game.status === 'configuring' && customGameStartable(game)
-    ? 'success'
-    : 'neutral';
-}
-
 /** Who holds the side, in plain words: as a listener hears it, and on a chip. */
 export function useSeatName(
   model: CustomGameScreenModel,
@@ -244,98 +163,6 @@ function useLineupDescription(model: CustomGameScreenModel): () => string {
   });
 }
 
-/**
- * Where the game stands, in one line: the eye reads the state beside the
- * seats; a listener, who cannot see the seats, first hears who holds them.
- */
-export function CustomGameStatus(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
-  const lineup = useLineupDescription(props.model);
-  const presentation = useGamePresentation();
-  return (
-    <Show
-      when={props.model.current()}
-      fallback={
-        <VisuallyHidden
-          role="status"
-          aria-live="polite"
-          testId="custom-game-status"
-        >
-          <Trans>No Custom Game.</Trans>
-        </VisuallyHidden>
-      }
-    >
-      {(game) => (
-        <GameTurnPill
-          live
-          emphasis={statusEmphasis(game(), props.model.mySide())}
-          tone={statusTone(game())}
-          dataSet={{ testid: 'custom-game-status' }}
-          title={
-            <>
-              <VisuallyHidden>{lineup()} </VisuallyHidden>
-              {gameStateDescription(
-                game(),
-                presentation(game().fen),
-                props.model.mySide()
-              )}
-            </>
-          }
-          detail={
-            props.model.submitting() ? (
-              <Trans>Sending choice…</Trans>
-            ) : undefined
-          }
-          trailing={
-            <StackHorizontal align="center" gap="sm">
-              <Badge
-                intent="neutral"
-                label={<Trans>Unrated</Trans>}
-                dataSet={{ testid: 'custom-game-unrated' }}
-              />
-              <TimeControlBadge game={game()} />
-            </StackHorizontal>
-          }
-        />
-      )}
-    </Show>
-  );
-}
-
-export function CustomGameConnectionNotice(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
-  return (
-    <Show when={!props.model.connected()}>
-      <Notice
-        icon={WifiOffIcon}
-        dataSet={{ testid: 'custom-game-connection-needed' }}
-      >
-        <Text variant="inherit" role="status">
-          <Show
-            when={!props.model.waiting()}
-            fallback={
-              <Trans>
-                Your move will be played when the connection returns.
-              </Trans>
-            }
-          >
-            <Show
-              when={props.model.canSubmit()}
-              fallback={
-                <Trans>Connection needed to change or play this game.</Trans>
-              }
-            >
-              <Trans>You are offline. Your local game can continue.</Trans>
-            </Show>
-          </Show>
-        </Text>
-      </Notice>
-    </Show>
-  );
-}
-
 function completedGameDescription(
   game: CustomGame,
   presentation: GamePresentation
@@ -354,4 +181,117 @@ function completedGameDescription(
   }
   const winner = presentation.sideLabel(winners[0] ?? 'white');
   return t`${winner} wins by ${reason}.`;
+}
+
+function clockLabel(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+/** Seconds left on `side`'s clock now; the full time while set up. */
+function secondsLeft(
+  game: CustomGame | null,
+  side: CustomGameSide,
+  now: number
+): number {
+  if (game === null || game.minutes <= 0 || !game.sides.includes(side))
+    return 0;
+  return game.status === 'configuring'
+    ? game.minutes * 60
+    : Math.ceil(customGameTimeLeft(game, side, now) / 1000);
+}
+
+/** What `side`'s clock shows now (`4:59`), ticking while it runs. */
+export function useSideClock(
+  model: CustomGameScreenModel,
+  side: CustomGameSide
+): Accessor<FrameClock | null> {
+  const seconds = createTimedValue(
+    (now) => secondsLeft(model.current(), side, now),
+    (left, now) => {
+      const game = model.current();
+      return game !== null &&
+        game.minutes > 0 &&
+        game.status === 'active' &&
+        game.turn === side &&
+        left > 0
+        ? now + customGameTimeLeft(game, side, now) - (left - 1) * 1000
+        : null;
+    }
+  );
+  return () => {
+    const game = model.current();
+    if (game === null || game.minutes <= 0) return null;
+    return {
+      value: clockLabel(seconds()),
+      active: game.status === 'active' && game.turn === side,
+    };
+  };
+}
+
+/** Every side's clock, ticking while it runs. */
+export function useSideClocks(
+  model: CustomGameScreenModel
+): Readonly<Record<CustomGameSide, Accessor<FrameClock | null>>> {
+  return Object.fromEntries(
+    CUSTOM_GAME_SIDES.map((side) => [side, useSideClock(model, side)])
+  ) as Record<CustomGameSide, Accessor<FrameClock | null>>;
+}
+
+/** Where the game stands, in one line; `null` with no game. */
+export function useFrameStatus(
+  model: CustomGameScreenModel
+): Accessor<FrameStatus | null> {
+  const lineup = useLineupDescription(model);
+  const presentation = useGamePresentation();
+  return createMemo(() => {
+    const game = model.current();
+    if (game === null) return null;
+    return {
+      lineup: lineup(),
+      description: gameStateDescription(
+        game,
+        presentation(game.fen),
+        model.mySide()
+      ),
+      emphasis: statusEmphasis(game, model.mySide()),
+      tone: statusTone(game),
+      sending: model.submitting(),
+      minutes: game.minutes,
+      increment: game.increment,
+    };
+  });
+}
+
+/** The connection, as the offline notice words it. */
+export function frameConnection(model: CustomGameScreenModel): FrameConnection {
+  if (model.connected()) return 'online';
+  if (model.waiting()) return 'waiting';
+  return model.canSubmit() ? 'offline-local' : 'needed';
+}
+
+/** The viewer's own turn (or their own choice still awaited) is theirs. */
+function statusEmphasis(
+  game: CustomGame,
+  mySide: CustomGameSide | null
+): GameTurnPillEmphasis {
+  return game.status === 'active' &&
+    mySide !== null &&
+    (game.awaiting.length > 0
+      ? game.awaiting.includes(mySide)
+      : game.turn === mySide)
+    ? 'yours'
+    : 'neutral';
+}
+
+function statusTone(game: CustomGame): GameTurnPillTone {
+  return game.status === 'configuring' && customGameStartable(game)
+    ? 'success'
+    : 'neutral';
+}
+
+/** A person's moderated username, or `''` while it is unknown. */
+export function usePersonName(person: () => string): () => string {
+  const name = useProfileColumn(person, 'username');
+  const moderation = useModeration();
+  return () => shownName(moderation(), name(), person()) ?? '';
 }

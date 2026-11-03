@@ -1,9 +1,5 @@
-import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { NoteActivity } from '@libs/spaces-shared-ts/space-activity';
-import { isViewingSpaceClient } from '@libs/spaces-shared-ts/space-presence-client-id';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
-import { useClock } from '@pkgs/clock-client-ts/solid';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
 import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
@@ -18,28 +14,22 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
-import { createMemo, createSignal } from 'solid-js';
-import { useSpaceMembersDialog } from './space-members-dialog-context';
-import { SpaceMembersListModal } from './space-members-list-modal';
-import { SpacePresenceStrip } from './space-presence-strip';
-import { useSpaceRoomClientId } from './space-room-context';
-import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceShareSheet } from './space-share-sheet';
-import { useSpacesNavBack } from './spaces-nav-context';
-import { useSpaceCan } from './use-space-can';
-import { useSpaceRoomDispatch } from './use-space-room-selector';
+import { createMemo } from 'solid-js';
 
-type SpaceChromeNavCallbacks = {
-  onPressHome: () => void;
-  onPressBack: (() => void) | null;
+/** Leaving the space's screen, and going back inside it when there is a way. */
+export type SpaceChromeNavCallbacks = {
+  readonly onPressHome: () => void;
+  /** Back inside the space; null at the games menu, where it would be Close. */
+  readonly onPressBack: (() => void) | null;
 };
 
-type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
-  onPressMembers: () => void;
-  onPressShare: () => void;
-  onPressRename: () => void;
-  onPressEnd: () => void;
-  onPressLeave: () => void;
+/** What each space action does when pressed. */
+export type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
+  readonly onPressMembers: () => void;
+  readonly onPressShare: () => void;
+  readonly onPressRename: () => void;
+  readonly onPressEnd: () => void;
+  readonly onPressLeave: () => void;
 };
 
 function buildLeadingItems(args: {
@@ -120,8 +110,7 @@ function exitItems(args: {
 function buildTrailingItems(args: {
   canRename: boolean;
   canEndSpace: boolean;
-  spaceId: string;
-  avatarSize: number;
+  presence: JSX.Element;
   labels: {
     members: JSX.Element;
     invite: JSX.Element;
@@ -131,8 +120,7 @@ function buildTrailingItems(args: {
   };
   callbacks: SpaceChromeTrailingCallbacks;
 }): ActionBarItem[] {
-  const { canRename, canEndSpace, spaceId, avatarSize, labels, callbacks } =
-    args;
+  const { canRename, canEndSpace, presence, labels, callbacks } = args;
   const items: ActionBarItem[] = [
     {
       id: 'members',
@@ -144,7 +132,7 @@ function buildTrailingItems(args: {
       dataSet: { testid: Handles.spaceMembersButton },
       children: (
         <StackHorizontal align="center" testId={Handles.spacePresenceStrip}>
-          <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />
+          {presence}
         </StackHorizontal>
       ),
     },
@@ -182,17 +170,18 @@ function buildTrailingItems(args: {
   return items;
 }
 
-export function SpaceChromeLeadingActionBar(): JSX.Element {
-  const { onPressHome } = useSpaceSessionUi();
-  const onPressBack = useSpacesNavBack();
+/** Close (and Back inside the space) at the leading edge of the space bar. */
+export function SpaceChromeLeadingActionBar(
+  props: SpaceChromeNavCallbacks
+): JSX.Element {
   const chrome = useActionBarChrome();
   const items = createMemo(() =>
     buildLeadingItems({
       close: <Trans>Close</Trans>,
       back: <Trans>Back</Trans>,
       callbacks: {
-        onPressHome,
-        onPressBack: onPressBack(),
+        onPressHome: props.onPressHome,
+        onPressBack: props.onPressBack,
       },
     })
   );
@@ -208,49 +197,28 @@ export function SpaceChromeLeadingActionBar(): JSX.Element {
   );
 }
 
-export function SpaceChromeTrailingActionBar(): JSX.Element {
-  const clock = useClock();
-  const sessionUi = useSpaceSessionUi();
-  const membersDialog = useSpaceMembersDialog();
-  const dispatch = useSpaceRoomDispatch();
-  const clientId = useSpaceRoomClientId();
-  const [shareOpen, setShareOpen] = createSignal(false);
+export type SpaceChromeTrailingActionBarProps = {
+  readonly canRename: boolean;
+  /** The host ends the space; everyone else only leaves. */
+  readonly canEnd: boolean;
+  /** Faces on the members button, at the bar's avatar size. */
+  readonly presence: (size: number) => JSX.Element;
+  readonly callbacks: SpaceChromeTrailingCallbacks;
+};
+
+/** Members, share, rename and end / leave, collapsing into More when short. */
+export function SpaceChromeTrailingActionBar(
+  props: SpaceChromeTrailingActionBarProps
+): JSX.Element {
   const chrome = useActionBarChrome();
-  const onPressBack = useSpacesNavBack();
-  const canRename = useSpaceCan(
-    () => sessionUi.spaceId,
-    PERMISSION.spacesRename
-  );
-  const canEndSpace = useSpaceCan(
-    () => sessionUi.spaceId,
-    PERMISSION.spacesEnd
-  );
   const avatarSize = createMemo(() =>
     iconButtonAvatarContentSize(chrome().buttonSize)
   );
-  const callbacks = createMemo(
-    (): SpaceChromeTrailingCallbacks => ({
-      onPressHome: sessionUi.onPressHome,
-      onPressBack: onPressBack(),
-      onPressMembers: () => {
-        const id = clientId();
-        if (id !== null && isViewingSpaceClient(id)) {
-          dispatch(NoteActivity({ clientId: id, at: clock.now() }));
-        }
-        membersDialog.setOpen(true);
-      },
-      onPressShare: () => setShareOpen(true),
-      onPressRename: sessionUi.onRequestRename,
-      onPressEnd: sessionUi.onRequestEnd,
-      onPressLeave: sessionUi.onRequestLeave,
-    })
-  );
   const items = createMemo(() =>
     buildTrailingItems({
-      canRename: canRename(),
-      canEndSpace: canEndSpace(),
-      spaceId: sessionUi.spaceId,
-      avatarSize: avatarSize(),
+      canRename: props.canRename,
+      canEndSpace: props.canEnd,
+      presence: props.presence(avatarSize()),
       labels: {
         members: <Trans>People in this space</Trans>,
         invite: <Trans>Share</Trans>,
@@ -258,28 +226,16 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
         end: <Trans>End space</Trans>,
         leave: <Trans>Leave space</Trans>,
       },
-      callbacks: callbacks(),
+      callbacks: props.callbacks,
     })
   );
 
   return (
-    <>
-      <ActionBar
-        items={items()}
-        buttonSize={chrome().buttonSize}
-        gap={chrome().gap}
-        overflowDataSet={{ testid: Handles.spaceChromeOverflow }}
-      />
-      <SpaceMembersListModal
-        spaceId={sessionUi.spaceId}
-        visible={membersDialog.open()}
-        onClose={() => membersDialog.setOpen(false)}
-      />
-      <SpaceShareSheet
-        spaceId={sessionUi.spaceId}
-        open={shareOpen()}
-        onOpenChange={setShareOpen}
-      />
-    </>
+    <ActionBar
+      items={items()}
+      buttonSize={chrome().buttonSize}
+      gap={chrome().gap}
+      overflowDataSet={{ testid: Handles.spaceChromeOverflow }}
+    />
   );
 }

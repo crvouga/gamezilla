@@ -1,0 +1,29 @@
+name: Publish Storybook to Chromatic
+description: Build the canonical Storybook and publish using Infisical shared credentials
+inputs:
+  secrets-identity-id:
+    description: Infisical machine identity for GitHub OIDC
+    required: true
+  secrets-project-id:
+    description: Infisical project slug
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Build Storybook
+      shell: bash
+      run: bun run storybook:build
+    - name: Load shared publishing credentials
+      uses: ./.github/actions/secrets-auth
+      with:
+        identity-id: ${{ inputs.secrets-identity-id }}
+        project-id: ${{ inputs.secrets-project-id }}
+        environment: shared
+    - name: Publish and await Chromatic results
+      shell: bash
+      run: |
+        if [ -z "${CHROMATIC_PROJECT_TOKEN:-}" ]; then
+          echo '::error::Set CHROMATIC_PROJECT_TOKEN in Infisical shared, then rerun this job.'
+          exit 1
+        fi
+        bun run storybook:publish

@@ -1,31 +1,28 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
-import { SpaceJoinEndedState } from './space-join-ended-state';
-import { SpaceTitleText } from './space-title-text';
+import { SpaceEndedScreenView } from './space-ended-screen-view';
+import { useSpaceDisplayTitle } from './use-space-display-title';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
+import { useSpacePerson } from './use-space-people';
 
 export type SpaceEndedScreenProps = {
   spaceId: string;
 };
 
-/** Terminal screen after a space ends (host end or deep-link to ended space). */
+/** Terminal screen after a space ends: wires `SpaceEndedScreenView`. */
 export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
   const nav = useBreadcrumbNav();
-
+  const title = useSpaceDisplayTitle(() => props.spaceId);
+  const host = useSpaceHostMembershipDisplay(() => props.spaceId);
+  const hostPerson = useSpacePerson(() => {
+    const id = host()?.profileId;
+    return id !== undefined && id.length > 0 ? id : null;
+  });
   return (
-    <ContentScreen
-      screenId="space-ended"
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onClick: nav('/') },
-        {
-          name: <SpaceTitleText spaceId={props.spaceId} />,
-        },
-      ]}
-      dataSet={{ testid: Handles.spaceEnded }}
-    >
-      <SpaceJoinEndedState spaceId={props.spaceId} />
-    </ContentScreen>
+    <SpaceEndedScreenView
+      title={title()}
+      hostName={hostPerson()?.name ?? ''}
+      onBackToSpaces={nav('/')}
+    />
   );
 }

@@ -12,6 +12,8 @@
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
 
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
+import { GlobalMenuIdentityRoot } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { openAppAt } from '@libs/app-root-shared-ts/reload-app';
 import { OriginAvailabilityProvider } from '@pkgs/http-client-client-ts/solid';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -26,10 +28,8 @@ import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
 import { useAppSubs } from './app-subs-context';
 import { AppThemeProvider } from './app-theme-provider';
-import { useClientEnv } from './client-env-context';
 import { ConnectionNotice } from './connection-notice';
 import { EmbeddedHrefPersistence } from './embedded-href-persistence';
-import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
 import { RootErrorBoundary } from './root-error-boundary';
 import { SyncStatusRoot } from './sync-status-context';

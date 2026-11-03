@@ -219,6 +219,9 @@
     "storybook:test": {
       "cache": false
     },
+    "storybook:publish": {
+      "cache": false
+    },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -1156,6 +1159,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/libs/account-privacy-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/app-config-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/auth-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/billing-client-ts/src/**/*.{ts,tsx}",

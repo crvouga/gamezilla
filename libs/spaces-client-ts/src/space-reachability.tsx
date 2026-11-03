@@ -1,10 +1,6 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import {
   type Accessor,
@@ -16,7 +12,8 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import { SpaceTitleText } from './space-title-text';
+import { SpaceUnreachableScreenView } from './space-unreachable-screen-view';
+import { useSpaceDisplayTitle } from './use-space-display-title';
 import { useSpaceRoomSelector } from './use-space-room-selector';
 
 /**
@@ -75,32 +72,14 @@ export function ReachableSpace(props: {
 }): JSX.Element {
   const reach = useSpaceReach();
   const nav = useBreadcrumbNav();
-  const { t } = useLingui();
+  const title = useSpaceDisplayTitle(() => props.spaceId);
   return (
     <Show when={reach.unreachable()} fallback={props.children}>
-      <ContentScreen
-        screenId="space-unreachable"
-        breadcrumbs={[
-          { name: <Trans>Spaces</Trans>, onClick: nav('/') },
-          { name: <SpaceTitleText spaceId={props.spaceId} /> },
-        ]}
-      >
-        <ErrorState
-          title={t`This space can't be reached right now`}
-          body={t`It may no longer exist. Try again, or go back to Spaces.`}
-          retry={{
-            label: t`Try again`,
-            onClick: reach.tryAgain,
-            dataSet: { testid: Handles.spaceUnreachableRetry },
-          }}
-          secondary={{
-            label: t`Back to Spaces`,
-            onClick: nav('/'),
-            dataSet: { testid: Handles.spaceUnreachableBack },
-          }}
-          dataSet={{ testid: Handles.spaceUnreachable }}
-        />
-      </ContentScreen>
+      <SpaceUnreachableScreenView
+        title={title()}
+        onRetry={reach.tryAgain}
+        onBackToSpaces={nav('/')}
+      />
     </Show>
   );
 }

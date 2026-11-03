@@ -12,7 +12,7 @@ import type { AuthProviderModule } from '@pkgs/auth-root-shared-ts/auth-provider
  * subs change.
  */
 
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import type { SubClient } from '@libs/sub-client-ts/client';
 import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
 import type { RoomGrantsCtx, SubServer } from '@libs/sub-shared-ts/server';

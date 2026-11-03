@@ -1,12 +1,10 @@
 import { MULTIPLAYER_LINK_ROUTE } from '@libs/game-matchmaking-shared-ts/multiplayer-link';
 import { defineSubClient } from '@libs/sub-client-ts/client';
-import { Trans } from '@lingui/solid/macro';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerLinkScreen } from './multiplayer-link-screen';
+import { MultiplayerLinkScreenView } from './multiplayer-link-screen-view';
 
 function RegisteredGameLink(props: { rules: TurnGames }): JSX.Element {
   const params = useLocalSearchParams<{ gameId?: string }>();
@@ -21,16 +19,11 @@ function RegisteredGameLink(props: { rules: TurnGames }): JSX.Element {
       when={gameId()}
       keyed
       fallback={
-        <ContentScreen screenId="multiplayer-link-unavailable" breadcrumbs={[]}>
-          <ErrorState
-            title={<Trans>This game is unavailable.</Trans>}
-            body={
-              <Trans>
-                The link may be out of date. Pick a game from your list.
-              </Trans>
-            }
-          />
-        </ContentScreen>
+        <MultiplayerLinkScreenView
+          status="unavailable"
+          onRetry={() => undefined}
+          onGoToSpaces={() => undefined}
+        />
       }
     >
       {(id) => <MultiplayerLinkScreen gameId={id} />}

@@ -1,0 +1,185 @@
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
+import type { FriendProfile } from '@libs/friends-shared-ts/friends-types';
+import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import { expect, fn, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { FriendUserScreenView } from './friend-user-screen-view';
+
+const PROFILE: FriendProfile = {
+  userId: '9f1c2a4e-0000-4000-8000-000000000003',
+  username: 'morgan',
+  avatarConfig: JSON.stringify({
+    style: 'funEmoji',
+    seed: '9f1c2a4e-0000-4000-8000-000000000003',
+    options: {},
+  }),
+};
+
+const resolved = () => fn(() => Promise.resolve());
+
+const meta = {
+  id: 'screens-friends-user',
+  title: 'Screens/Friends/Friend profile',
+  component: FriendUserScreenView,
+  tags: ['autodocs'],
+  decorators: [withShippedModeration],
+  parameters: {
+    appRouter: true,
+    controls: {
+      exclude: ['profile', 'requestOutcome', 'actions', 'denial', 'notice'],
+    },
+  },
+  args: {
+    presence: 'shown',
+    profile: PROFILE,
+    status: 'none',
+    requestOutcome: null,
+    actions: {
+      addFriend: resolved(),
+      confirmRequest: resolved(),
+      deleteRequest: resolved(),
+      cancelRequest: resolved(),
+      unblock: resolved(),
+    },
+    addFailureCode: null,
+    confirming: null,
+    onRetry: fn(),
+    onChanged: fn(),
+    onRequestRemove: fn(),
+    onRequestBlock: fn(),
+    onCancelConfirm: fn(),
+    onRemove: resolved(),
+    onBlock: resolved(),
+  },
+} satisfies Meta<typeof FriendUserScreenView>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/** A stranger: their face and name, and Add Friend. Block is in the menu. */
+export const Stranger: Story = {};
+
+/** The person's row has not arrived yet: placeholders hold the identity's place. */
+export const Loading: Story = { args: { presence: 'loading' } };
+
+/** This device has never synced and the last attempt failed; retry asks again. */
+export const Unreachable: Story = { args: { presence: 'unreachable' } };
+
+/** The account was deleted: the profile says so instead of showing nobody. */
+export const Unavailable: Story = { args: { presence: 'unavailable' } };
+
+/** A request is out: Requested, which cancels it. */
+export const RequestSent: Story = { args: { status: 'pending_outgoing' } };
+
+/** The request is still being shared with the server. */
+export const RequestSharing: Story = {
+  args: {
+    status: 'pending_outgoing',
+    requestOutcome: { status: 'pending', online: true },
+  },
+};
+
+/** Offline, the request waits for the connection to return. */
+export const RequestWaitingForConnection: Story = {
+  args: {
+    status: 'pending_outgoing',
+    requestOutcome: { status: 'pending', online: false },
+  },
+};
+
+/** The server refused the request and says why. */
+export const RequestRefused: Story = {
+  args: { requestOutcome: { status: 'rejected', code: 'FRIENDS_COOLDOWN' } },
+};
+
+/** They asked first: Confirm or Delete their request. */
+export const RequestReceived: Story = { args: { status: 'pending_incoming' } };
+
+/** Already friends: the status pill, with Remove friend in the menu. */
+export const Friends: Story = { args: { status: 'friends' } };
+
+/** Blocked by me: Unblock is the only action left. */
+export const BlockedByMe: Story = { args: { status: 'blocked_by_me' } };
+
+/** They blocked me: nothing can be done here. */
+export const BlockedByThem: Story = { args: { status: 'blocked_by_them' } };
+
+/** Removing a friend asks first. */
+export const ConfirmRemove: Story = {
+  args: { status: 'friends', confirming: 'remove' },
+};
+
+/** Blocking asks first, and says what it stops. */
+export const ConfirmBlock: Story = { args: { confirming: 'block' } };
+
+/** A refused friend change (an unblock, say) is told under the identity. */
+export const RefusedChange: Story = {
+  render: (args) => (
+    <FriendUserScreenView
+      {...args}
+      notice={
+        <RefusedChangeCard
+          refusal={{
+            mutationId: '3b9f0c2e-0000-4000-8000-000000000003',
+            mutationName: 'unblockUser',
+            code: 'FORBIDDEN',
+            message: 'Forbidden',
+            meta: null,
+          }}
+          onDismiss={() => undefined}
+        />
+      }
+    />
+  ),
+  args: {
+    status: 'blocked_by_me',
+  },
+};
+
+/** Long names truncate to one line. */
+export const LongName: Story = {
+  args: {
+    profile: {
+      ...PROFILE,
+      username: 'a_really_long_username_that_keeps_going_and_going',
+    },
+  },
+};
+
+/** Their username is no longer allowed: the profile shows their stable stand-in name. */
+export const MaskedName: Story = {
+  args: { profile: { ...PROFILE, username: 'support_staff' } },
+};
+
+/** An anonymous person sees the sign-in way forward instead of the profile. */
+export const Denied: Story = {
+  args: {
+    denial: {
+      icon: UsersIcon,
+      title: 'Sign in to add friends',
+      body: 'Friends let you find each other and jump into shared spaces.',
+      action: { label: 'Sign in', onPress: fn() },
+      dataSet: { testid: 'permission-denial', reason: 'requires_account' },
+    },
+  },
+};
+
+/** A failed remove keeps the confirmation open with a retryable error. */
+export const RemoveFailed: Story = {
+  args: {
+    status: 'friends',
+    confirming: 'remove',
+    onRemove: fn(() => Promise.reject(new Error('offline'))),
+  },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveConfirm('morgan'))
+    );
+    await expect(
+      await body.findByText('This friend could not be removed. Try again.')
+    ).toBeVisible();
+    await expect(args.onRemove).toHaveBeenCalledOnce();
+  },
+};

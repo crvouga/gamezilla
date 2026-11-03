@@ -1,20 +1,19 @@
-import type { ContentDraft } from '@libs/game-puzzle-shared-ts/content-types';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import type {
+  ContentDocument,
+  ContentDraft,
+} from '@libs/game-puzzle-shared-ts/content-types';
+import { withdrawPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/withdraw-content-mutation';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import { useLingui } from '@lingui/solid/macro';
+import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
+import type { JSX } from 'solid-js';
 import { useContentGame } from './content-game-context';
-import { ContentPublicationStatus } from './content-publication-status';
-import { ContentWithdraw } from './content-withdraw';
-import {
-  type ContentPublicationProps,
-  useContentPublication,
-} from './use-content-publication';
+import { ContentPublicationControlsView } from './content-publication-controls-view';
+import { useContentPublicationStatus } from './content-publication-status';
+import type { useContentDraftSave } from './use-content-draft-save';
+import { useContentPublication } from './use-content-publication';
+import { useDeniedView } from './use-denied-view';
 
 function validationMessage(draft: ContentDraft | undefined): string {
   if (draft?.validation_status !== 'invalid') return '';
@@ -37,109 +36,59 @@ function validationMessage(draft: ContentDraft | undefined): string {
   }
 }
 
-export function ContentPublicationControls(
-  props: ContentPublicationProps
-): JSX.Element {
+/** Withdraws the document's publication; rejects with what to say. */
+function useWithdraw(documentId: () => string): () => Promise<void> {
   const { t } = useLingui();
+  const mutations = useMutationClient();
+  return async () => {
+    const result = await mutations.mutate(withdrawPuzzleContentMutation, {
+      documentId: documentId(),
+    });
+    if (!result.ok)
+      throw new Error(
+        result.failures[0]?.message ??
+          t`The publication could not be withdrawn. Try again.`
+      );
+  };
+}
+
+/** Validation and publication wired to the draft, permissions and sync. */
+export function ContentPublicationControls(props: {
+  document: ContentDocument;
+  writer: ReturnType<typeof useContentDraftSave>;
+  disabled: boolean;
+}): JSX.Element {
   const tools = useContentPublication(props);
   const game = useContentGame();
+  const status = useContentPublicationStatus(() => props.document.id);
+  const withdraw = useWithdraw(() => props.document.id);
   const decision = useDecision(PERMISSION.puzzlesPublishContent, () => ({
     puzzleOwnerId: props.document.owner_id,
   }));
+  const publishDenial = useDeniedView({
+    get decision() {
+      return decision();
+    },
+  });
   return (
-    <StackVertical gap="md">
-      <ContentPublicationStatus documentId={props.document.id} />
-      <Show when={tools.draft()?.validation_status === 'valid'}>
-        <Notice
-          tone="success"
-          dataSet={{ testid: 'content-validation-passed' }}
-        >
-          <Trans>
-            This draft passed validation. Publication checks it again.
-          </Trans>
-        </Notice>
-      </Show>
-      <Show when={tools.draft()?.validation_status === 'invalid'}>
-        <Notice tone="error">
-          {validationMessage(tools.draft()) ||
-            t`Complete the required details and validate again.`}
-        </Notice>
-      </Show>
-      <Show when={props.document.kind === 'puzzle'}>
-        <Notice
-          tone={tools.proven() ? 'success' : 'neutral'}
-          dataSet={{
-            testid: 'content-proof',
-            proven: String(tools.proven()),
-          }}
-        >
-          <Show
-            when={tools.proven()}
-            fallback={
-              <Trans>
-                No completed playtest of this version yet. Complete a playtest
-                to prove it can be finished.
-              </Trans>
-            }
-          >
-            <Trans>
-              A completed playtest proves this version can be finished.
-            </Trans>
-          </Show>
-        </Notice>
-      </Show>
-      <StackHorizontal gap="sm" wrap>
-        <Button
-          {...tools.validate.buttonProps}
-          dataSet={{ testid: 'content-validate' }}
-        />
-        <Show
-          when={decision().allowed}
-          fallback={<DenialSurface decision={decision()} variant="compact" />}
-        >
-          <Button
-            {...tools.publish.buttonProps}
-            dataSet={{ testid: 'content-publish' }}
-          />
-        </Show>
-      </StackHorizontal>
-      <Show when={tools.validate.error() ?? tools.publish.error()}>
-        {(error) => (
-          <ErrorState
-            variant="compact"
-            title={t`The draft needs your attention`}
-            body={error().message}
-            retry={{
-              onClick: () => {
-                void (tools.publish.error()
-                  ? tools.publish.run()
-                  : tools.validate.run());
-              },
-            }}
-          />
-        )}
-      </Show>
-      <Show
-        when={
-          decision().allowed && props.document.published_revision_id !== null
-        }
-      >
-        <Button
-          title={t`View published edition`}
-          intent="neutral"
-          variant="outline"
-          onClick={() => {
-            const revisionId = props.document.published_revision_id;
-            if (revisionId !== null)
-              game.open({ kind: 'edition', revisionId, packRevisionId: null });
-          }}
-          dataSet={{ testid: 'content-view-publication' }}
-        />
-        <ContentWithdraw
-          documentId={props.document.id}
-          disabled={props.disabled}
-        />
-      </Show>
-    </StackVertical>
+    <ContentPublicationControlsView
+      kind={props.document.kind}
+      validation={tools.draft()?.validation_status ?? null}
+      validationMessage={validationMessage(tools.draft())}
+      proven={tools.proven()}
+      pending={status.pending()}
+      refusal={status.refusal()}
+      publishDenial={publishDenial()}
+      published={props.document.published_revision_id !== null}
+      disabled={props.disabled}
+      onValidate={tools.validate}
+      onPublish={tools.publish}
+      onViewPublication={() => {
+        const revisionId = props.document.published_revision_id;
+        if (revisionId !== null)
+          game.open({ kind: 'edition', revisionId, packRevisionId: null });
+      }}
+      onWithdraw={withdraw}
+    />
   );
 }

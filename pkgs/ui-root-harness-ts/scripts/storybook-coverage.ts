@@ -18,9 +18,10 @@ import {
 const root = slashPath(resolve(import.meta.dirname, '../../..'));
 const harness = 'pkgs/ui-root-harness-ts/';
 const packageFiles = files(resolve(root, 'pkgs'));
+const libraryFiles = files(resolve(root, 'libs'));
 const all = [
   ...packageFiles,
-  ...files(resolve(root, 'libs')),
+  ...libraryFiles,
   ...files(resolve(root, 'apps')),
 ].filter((f) => /\.[cm]?tsx?$/.test(f));
 const parsed = all
@@ -41,7 +42,7 @@ const references = all
     }))
   );
 const stories = all.filter((f) =>
-  /pkgs\/[^/]+-client-ts\/src\/.+\.stories\.tsx$/.test(f)
+  /(?:pkgs|libs)\/[^/]+-client-ts\/src\/.+\.stories\.tsx$/.test(f)
 );
 type IndexedStory = {
   id: string;
@@ -118,6 +119,7 @@ function indexedCoverage(coverage: string[]) {
       slashPath(path)
         .replace(`${root}/${harness}`, '')
         .replace(`${root}/pkgs/`, '../')
+        .replace(`${root}/libs/`, '../../libs/')
     )
   );
   return indexedStories.filter((entry) =>
@@ -150,7 +152,10 @@ function componentEntry(path: string, ast: ts.SourceFile, name: string) {
     (node) => ts.isFunctionDeclaration(node) && node.name?.text === name
   );
   const docs = documentation(ast, declaration);
-  if (!coverage.length && !name.endsWith('Provider'))
+  // Product libraries catalogue their presentational screens; their other
+  // exports are inventoried for discovery but need no story of their own.
+  const required = path.startsWith('pkgs/') || name.endsWith('ScreenView');
+  if (required && !coverage.length && !name.endsWith('Provider'))
     errors.push(
       `${path}: ${name} is exported but has no story. Import the production component in a CSF story or fixture.`
     );
@@ -159,7 +164,7 @@ function componentEntry(path: string, ast: ts.SourceFile, name: string) {
     errors.push(
       `${path}: ${name} has source stories but no usable Storybook index entry. Rebuild Storybook and fix the CSF exports.`
     );
-  if (!docs && !name.endsWith('Provider'))
+  if (required && !docs && !name.endsWith('Provider'))
     errors.push(
       `${path}: document ${name}'s purpose and contract with source JSDoc.`
     );
@@ -274,7 +279,7 @@ const expectedBaselines = new Set(
   )
 );
 const actualBaselines = new Set(
-  packageFiles
+  [...packageFiles, ...libraryFiles]
     .filter(
       (file) => file.includes('/baselines/chromium/') && file.endsWith('.png')
     )

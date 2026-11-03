@@ -1,4 +1,4 @@
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import type { TestDevicePorts } from '@libs/app-root-client-ts/test-device-ports';
 import { TEST_DEVICE_PORTS_GLOBAL } from '@libs/app-root-client-ts/test-device-ports';
 import type { MutableMotionPreferencePort } from '@pkgs/device-shared-ts/motion-preference';

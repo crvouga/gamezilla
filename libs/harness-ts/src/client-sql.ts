@@ -1,4 +1,4 @@
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import type { OpenSqlClient } from '@libs/sub-shared-ts/sync';
 import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared-ts/fault-injecting-sql-client';

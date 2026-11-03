@@ -28,6 +28,7 @@
         "./libs/account-privacy-shared-ts/src/*"
       ],
       "@libs/app-root-client-ts/*": ["./libs/app-root-client-ts/src/*"],
+      "@libs/app-env-client-ts/*": ["./libs/app-env-client-ts/src/*"],
       "@libs/app-config-client-ts/*": ["./libs/app-config-client-ts/src/*"],
       "@libs/app-config-server-ts/*": ["./libs/app-config-server-ts/src/*"],
       "@libs/app-config-shared-ts/*": ["./libs/app-config-shared-ts/src/*"],

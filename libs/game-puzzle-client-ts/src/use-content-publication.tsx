@@ -4,7 +4,6 @@ import { publishPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/publis
 import { validatePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/validate-content-mutation';
 import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import type { useContentDraftSave } from './use-content-draft-save';
@@ -12,9 +11,9 @@ import type { useContentDraftSave } from './use-content-draft-save';
 export type ContentPublicationProps = {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
-  disabled: boolean;
 };
 
+/** Validate or publish the saved working copy, and whether it is proven. */
 export function useContentPublication(props: ContentPublicationProps) {
   const { t } = useLingui();
   const game = useContentGame();
@@ -63,34 +62,10 @@ export function useContentPublication(props: ContentPublicationProps) {
           t`The draft could not be checked. Try again.`
       );
   };
-  const validate = useMutationButton({
-    operation: () => run(false),
-    labels: {
-      idle: t`Validate`,
-      loading: t`Checking…`,
-      success: t`Check finished`,
-      error: t`Check again`,
-    },
-    get disabled() {
-      return props.disabled;
-    },
-  });
-  const publish = useMutationButton({
-    operation: () => run(true),
-    labels: {
-      idle: t`Publish`,
-      loading: t`Publishing…`,
-      success: t`Publication saved`,
-      error: t`Try publishing again`,
-    },
-    get disabled() {
-      return props.disabled;
-    },
-  });
   return {
     draft,
-    validate,
-    publish,
+    validate: () => run(false),
+    publish: () => run(true),
     proven: () => currentProof() !== null,
   };
 }

@@ -5,6 +5,7 @@
  * screens never need to guard on provider presence.
  */
 
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { createAuthenticatedFetch } from '@libs/app-root-shared-ts/create-authenticated-fetch';
 import { useClientRequestAuth } from '@libs/auth-client-ts/use-client-request-auth';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
@@ -13,7 +14,6 @@ import { LlmContextProvider } from '@pkgs/llm-root-client-ts/solid';
 import { ObjectStoreProvider } from '@pkgs/object-store-root-client-ts/solid';
 import { TtsProvider } from '@pkgs/tts-root-client-ts/solid';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
 
 function AppLlm(props: { readonly children: JSX.Element }): JSX.Element {
   const env = useClientEnv();

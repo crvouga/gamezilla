@@ -1,17 +1,11 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
-import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
 import { LobbyRefusedChangeNotice } from './space-refused-change-notice';
 import { openSpaceDetail } from './space-routes';
-import { SpacesLobby } from './spaces-lobby';
+import { SpacesScreenView } from './spaces-screen-view';
 import { useCreateSpace } from './use-create-space';
 import { useSpacesListReady } from './use-spaces-list-ready';
+import { useSpacesLobby } from './use-spaces-lobby';
 
 /**
  * Start locally, or show the hosting limit's invitation to Plus.
@@ -27,40 +21,20 @@ function useStartSpace(): () => Promise<void> {
   return start;
 }
 
+/** `/`: wires `SpacesScreenView` to local data, creation and navigation. */
 export function SpacesScreen(): JSX.Element {
-  const { t } = useLingui();
+  const router = useRouter();
   const startSpace = useStartSpace();
   const listReady = useSpacesListReady();
-
-  const primaryAction = createMemo((): ScreenBasePrimaryAction => {
-    return {
-      labels: {
-        idle: t`New space`,
-        loading: t`Opening…`,
-        success: t`Ready`,
-        error: t`Couldn't open`,
-      },
-      operation: startSpace,
-      successHoldMs: 0,
-      icon: PlusIcon,
-      dataSet: { testid: Handles.spaceCreate },
-    };
-  });
-
-  const onCreateSpace = (): void => {
-    void startSpace();
-  };
-
+  const lobby = useSpacesLobby();
   return (
-    <CollectionScreen
-      screenId="spaces"
-      breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
-      primaryAction={primaryAction()}
-      controls={<LobbyRefusedChangeNotice />}
-    >
-      <Show when={listReady()} fallback={<LoadingState />}>
-        <SpacesLobby onCreateSpace={onCreateSpace} />
-      </Show>
-    </CollectionScreen>
+    <SpacesScreenView
+      status={listReady() ? lobby.status() : 'loading'}
+      hostedCount={lobby.hostedCount()}
+      spaces={lobby.spaces()}
+      notice={<LobbyRefusedChangeNotice />}
+      onCreateSpace={startSpace}
+      onOpenSpace={(spaceId) => openSpaceDetail(router, spaceId)}
+    />
   );
 }

@@ -15,7 +15,7 @@
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
-    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/auth-client-ts": "workspace:*",
     "@libs/game-puzzle-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",
@@ -58,6 +58,8 @@
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

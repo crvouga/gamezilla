@@ -7,7 +7,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { BillingActions } from '@libs/billing-client-ts/billing-plan-actions';
 import {
-  BillingScreenLayout,
+  BillingScreenBody,
   BillingScreenView,
 } from '@libs/billing-client-ts/billing-screen-view';
 import type { BillingView } from '@libs/billing-client-ts/billing-view-model';
@@ -50,7 +50,7 @@ function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {
           colorScheme="light"
           fixedLayout={{ width: 1024, height: 768 }}
         >
-          <BillingScreenView
+          <BillingScreenBody
             view={view}
             offer={PLUS_MEMBERSHIP_OFFER}
             locale="en-US"
@@ -194,7 +194,7 @@ describe('billing screen layout', () => {
             fixedLayout={{ width: 390, height: 640 }}
           >
             <StaticAppRouterProvider router={STILL_ROUTER}>
-              <BillingScreenLayout
+              <BillingScreenView
                 view={view}
                 offer={PLUS_MEMBERSHIP_OFFER}
                 locale="en-US"

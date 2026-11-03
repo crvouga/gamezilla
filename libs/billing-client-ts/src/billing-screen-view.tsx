@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * The billing screen's body as a function of its view model: no queries, no
- * network, so every tier × membership combination renders in a test.
+ * The billing screen as a function of its view model: no queries, no
+ * network, so every tier × membership combination renders in a test and a
+ * story.
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -19,14 +20,19 @@ import type { BillingView } from './billing-view-model';
 import { formatMinorUnits, summarizeOffer } from './billing-view-model';
 
 export type BillingScreenViewProps = {
+  /** What to show, from `buildBillingView`. */
   readonly view: BillingView;
   readonly offer: PlusMembershipOffer;
+  /** Locale for prices and credit. */
   readonly locale: string;
+  /** Formats a membership date for the status line. */
   readonly formatDate: (ms: number) => string;
+  /** Subscribe and manage return promises: their buttons show progress. */
   readonly actions: BillingActions;
 };
 
-export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
+/** The billing screen's body: plan card, then the offer's prices and benefits. */
+export function BillingScreenBody(props: BillingScreenViewProps): JSX.Element {
   const prices = createMemo(() => summarizeOffer(props.offer));
   const trialDays = (): number =>
     props.offer.prices[props.offer.defaultPriceKey]?.trialPeriodDays ?? 0;
@@ -65,13 +71,12 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
 }
 
 /**
- * The billing screen's shell around its body: the Settings breadcrumb and a
- * whole-body scroll, so the plan, pricing and benefits never clip on a short
- * phone. While the membership is being checked the plan card says so.
+ * `/more/billing`, presentational: the Settings breadcrumb and a whole-body
+ * scroll around the plan, pricing and benefits, so they never clip on a short
+ * phone. Every membership state is a `BillingView`; `BillingScreen` builds it
+ * from the synced membership row and the permission system's decisions.
  */
-export function BillingScreenLayout(
-  props: BillingScreenViewProps
-): JSX.Element {
+export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   return (
     <ContentScreen
       screenId="billing"
@@ -81,7 +86,7 @@ export function BillingScreenLayout(
         { name: <Trans>Billing</Trans> },
       ]}
     >
-      <BillingScreenView
+      <BillingScreenBody
         view={props.view}
         offer={props.offer}
         locale={props.locale}

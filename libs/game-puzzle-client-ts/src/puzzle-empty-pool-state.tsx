@@ -1,9 +1,11 @@
 import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared-ts/feed-config';
 import { puzzleFeedHasNarrowingFilters } from '@libs/game-puzzle-shared-ts/feed-config';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import {
+  DenialSurfaceView,
+  type DenialView,
+} from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
-import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
@@ -23,8 +25,8 @@ export type PuzzleEmptyPoolStateProps = {
   /** Drop history / theme filters so every synced puzzle is eligible. */
   onIncludeAllPuzzles: () => void;
   onOpenFeedSettings: () => void;
-  /** The permission decision behind `'limited'` (null otherwise). */
-  denial: Decision | null;
+  /** The resolved denial behind `'limited'` (undefined otherwise). */
+  denial?: DenialView | undefined;
 };
 
 function OfflineBlock(): JSX.Element {
@@ -131,7 +133,10 @@ function ExhaustedBlock(props: {
   );
 }
 
-/** Fills the board well when the feed cannot place a puzzle. */
+/**
+ * Fills the board well when the feed cannot place a puzzle: offline,
+ * waiting for the host, the rated limit's denial, or an exhausted feed.
+ */
 export function PuzzleEmptyPoolState(
   props: PuzzleEmptyPoolStateProps
 ): JSX.Element {
@@ -155,13 +160,8 @@ export function PuzzleEmptyPoolState(
               </Show>
             }
           >
-            <Show when={props.denial} keyed>
-              {(decision) => (
-                <DenialSurface
-                  decision={decision}
-                  testId="chess-puzzle-limit"
-                />
-              )}
+            <Show when={props.denial}>
+              {(denial) => <DenialSurfaceView denial={denial()} />}
             </Show>
           </Show>
         }
