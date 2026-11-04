@@ -105,6 +105,14 @@ function ConfirmModal(props: Props): JSX.Element {
   );
 }
 
+/**
+ * Before any game, the search and the person's ratings are one card: the
+ * choice and its command, then (beside them when wide) what they bring.
+ */
+function ratingsInSearch(props: Props): boolean {
+  return props.stage !== 'game' && props.next.kind === 'find';
+}
+
 /** The search under way, or the choice of a time control for a new one. */
 function NextGame(props: Props): JSX.Element {
   return (
@@ -120,6 +128,11 @@ function NextGame(props: Props): JSX.Element {
             players={next().players}
             timed={next().timed}
             onFind={props.onFind}
+            aside={
+              <Show when={ratingsInSearch(props)}>
+                <MultiplayerRatings ratings={props.ratings} framed={false} />
+              </Show>
+            }
           />
         )}
       </Match>
@@ -191,13 +204,12 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
             aside={
               <>
                 <Show when={props.stage === 'game'}>{props.moves}</Show>
-                {/* Beside the search (or the board) when wide, so the
-                    screen is two columns at the frame's width; under it
-                    on a phone. */}
-                <MultiplayerRatings
-                  ratings={props.ratings}
-                  fill={props.stage !== 'game'}
-                />
+                {/* Beside the board (or a search under way) when wide;
+                    under it on a phone. Before a search the search's own
+                    card holds them. */}
+                <Show when={!ratingsInSearch(props)}>
+                  <MultiplayerRatings ratings={props.ratings} />
+                </Show>
               </>
             }
           >

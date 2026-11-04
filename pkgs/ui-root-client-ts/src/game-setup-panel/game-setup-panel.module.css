@@ -1,0 +1,31 @@
+/* A setup panel with an aside: the choices and commands, then what the
+   person brings to them, under a hairline in a narrow column and beside
+   it, past a hairline, in a wide one. */
+.setupSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-5);
+}
+.setupMain,
+.setupAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.setupAside {
+  border-top: 1px solid var(--ui-color-border);
+  padding-top: var(--ui-space-5);
+}
+@container game-column (min-width: 640px) {
+  .setupSplit {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    gap: var(--ui-space-6);
+  }
+  .setupAside {
+    border-top: 0;
+    padding-top: 0;
+    border-left: 1px solid var(--ui-color-border);
+    padding-left: var(--ui-space-6);
+  }
+}

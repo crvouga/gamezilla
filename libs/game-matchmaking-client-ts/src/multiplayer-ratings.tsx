@@ -7,11 +7,15 @@ import {
   gameSpeed,
   MULTIPLAYER_SPEEDS,
 } from '@libs/game-matchmaking-shared-ts/time-control';
+import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H3 } from '@pkgs/ui-root-client-ts/heading';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
@@ -52,9 +56,9 @@ export function useMultiplayerRatings(
 }
 
 /**
- * Under the number, in one compact line: how many rated games stand
- * behind it and, while the "?" marks it provisional, how many settle it
- * (`Provisional · 7 of 12 rated games`).
+ * Under the number: how many rated games stand behind it and, while it is
+ * provisional, how many of the games that settle it are played
+ * (`7 of 12 rated games`), over a bar showing the same.
  */
 function RatingGames(props: {
   readonly rating: MultiplayerRatingView;
@@ -75,53 +79,98 @@ function RatingGames(props: {
         }
       >
         <Trans>
-          Provisional · {props.rating.games} of {MULTIPLAYER_SETTLED_GAMES}{' '}
-          rated games
+          {props.rating.games} of {MULTIPLAYER_SETTLED_GAMES} rated games
         </Trans>
       </Show>
     </Text>
   );
 }
 
+/** One pool's rating: the number, its "Provisional" tag and how far it is from settling. */
+function RatingStat(props: {
+  readonly rating: MultiplayerRatingView;
+}): JSX.Element {
+  const provisional = (): boolean => isProvisional(props.rating);
+  return (
+    <GameStat
+      dataSet={{ testid: `multiplayer-rating-${props.rating.pool}` }}
+      label={
+        <Show
+          when={props.rating.pool === 'game'}
+          fallback={<SpeedName speed={props.rating.pool} />}
+        >
+          <Trans>Game rating</Trans>
+        </Show>
+      }
+      value={
+        <Text
+          variant="inherit"
+          testId={`multiplayer-rating-${props.rating.pool}-value`}
+        >
+          {props.rating.rating}
+          {provisional() ? '?' : ''}
+        </Text>
+      }
+      tag={
+        <Show when={provisional()}>
+          <Badge
+            intent="neutral"
+            label={<Trans>Provisional</Trans>}
+            dataSet={{
+              testid: `multiplayer-rating-${props.rating.pool}-provisional`,
+            }}
+          />
+        </Show>
+      }
+      progress={
+        provisional()
+          ? props.rating.games / MULTIPLAYER_SETTLED_GAMES
+          : undefined
+      }
+      progressLabel={t`Rated games toward a settled rating`}
+      detail={<RatingGames rating={props.rating} />}
+    />
+  );
+}
+
+/** Every pool's rating: one takes the row; a rating per speed, two a row. */
+function RatingGrid(props: {
+  readonly ratings: readonly MultiplayerRatingView[];
+}): JSX.Element {
+  return (
+    <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
+      <For each={props.ratings}>
+        {(rating) => <RatingStat rating={rating} />}
+      </For>
+    </Grid>
+  );
+}
+
 /**
- * The person's own multiplayer rating and rated games in every pool. With
- * `fill` (beside the search, nothing else in the rail) it ends level with
- * the search's panel.
+ * The person's own multiplayer rating and rated games in every pool. A
+ * provisional rating keeps its "?" and says so in a tag, with how many of
+ * the games that settle it are played. `framed={false}` draws it without
+ * a card of its own, under a heading, for the search's card to hold.
  */
 export function MultiplayerRatings(props: {
   readonly ratings: readonly MultiplayerRatingView[];
-  readonly fill?: boolean | undefined;
+  readonly framed?: boolean | undefined;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Your ratings</Trans>} fill={props.fill}>
-      {/* One game rating takes the row; a rating per speed, two a row. */}
-      <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
-        <For each={props.ratings}>
-          {(rating) => (
-            <GameStat
-              dataSet={{ testid: `multiplayer-rating-${rating.pool}` }}
-              label={
-                <Show
-                  when={rating.pool === 'game'}
-                  fallback={<SpeedName speed={rating.pool} />}
-                >
-                  <Trans>Game rating</Trans>
-                </Show>
-              }
-              value={
-                <Text
-                  variant="inherit"
-                  testId={`multiplayer-rating-${rating.pool}-value`}
-                >
-                  {rating.rating}
-                  {isProvisional(rating) ? '?' : ''}
-                </Text>
-              }
-              detail={<RatingGames rating={rating} />}
-            />
-          )}
-        </For>
-      </Grid>
-    </GameSection>
+    <Show
+      when={props.framed !== false}
+      fallback={
+        <StackVertical gap="md">
+          <H3 size="label">
+            <Trans>Your ratings</Trans>
+          </H3>
+          <RatingGrid ratings={props.ratings} />
+        </StackVertical>
+      }
+    >
+      <GameSection title={<Trans>Your ratings</Trans>}>
+        <RatingGrid ratings={props.ratings} />
+      </GameSection>
+    </Show>
   );
 }

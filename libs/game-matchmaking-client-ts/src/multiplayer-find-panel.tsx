@@ -51,6 +51,8 @@ export function MultiplayerFindPanel(props: {
   readonly timed: boolean;
   /** Starts the search, at the chosen time control when timed. */
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
+  /** The person's ratings, in the same card as the search. */
+  readonly aside?: JSX.Element | undefined;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const count = () => props.players;
@@ -60,7 +62,7 @@ export function MultiplayerFindPanel(props: {
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
-      fill
+      aside={props.aside}
       description={
         <>
           <Show when={count() > 2}>

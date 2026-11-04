@@ -2,7 +2,9 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
+import { ProgressBar } from '../progress-bar/index';
 import { createScreenSlot } from '../screen-slot';
+import statStyles from './game-stat.module.css';
 
 /**
  * One number a person tracks: what it is, the number in the `stat` role
@@ -15,6 +17,13 @@ export function GameStat(props: {
   /** Beside the number: one `Badge` that qualifies it ("Provisional"). */
   tag?: JSX.Element | undefined;
   detail?: JSX.Element | undefined;
+  /**
+   * How far the number is toward something it is working to (a rating's
+   * placement games), 0..1: a thin bar between the number and `detail`,
+   * named by `progressLabel`.
+   */
+  progress?: number | undefined;
+  progressLabel?: string | undefined;
   dataSet?: ComponentDataSet;
 }): JSX.Element {
   // A tag that resolves to nothing (a false `<Show>`) takes no room.
@@ -29,6 +38,15 @@ export function GameStat(props: {
         <strong class="text textStat">{props.value}</strong>
         <Show when={tag.present()}>{tag.content()}</Show>
       </span>
+      <Show when={props.progress !== undefined}>
+        <div class={statStyles['statProgress']}>
+          <ProgressBar
+            size="sm"
+            progress={props.progress}
+            accessibleLabel={props.progressLabel}
+          />
+        </div>
+      </Show>
       <Show when={props.detail}>
         <span class="text textFootnote">{props.detail}</span>
       </Show>
