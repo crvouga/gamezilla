@@ -8,41 +8,48 @@ import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { Accessor, JSX } from 'solid-js';
+import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import {
   ConfirmDeletePills,
   SingleActionPill,
 } from './friend-action-pill-buttons';
 
+const STATUS_ICON_SIZE = 16;
+
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
-/** A relationship, not an action: a tag, never a button that does nothing. */
-function RelationshipBadge(props: {
+/**
+ * A relationship, not an action: words in the row's trailing slot (a check
+ * and "Friends" in the success ink, "Unavailable" in the secondary ink),
+ * never a pill. Actions are outlined pills, so the two never read alike,
+ * and both end at the row's trailing edge, centred on it.
+ */
+function RelationshipStatus(props: {
   readonly label: JSX.Element;
   readonly intent: 'neutral' | 'success';
   readonly testId?: string | undefined;
 }): JSX.Element {
-  // Its own box, so the tag centers on the row like a button would (a
-  // badge keeps to the start of its parent's cross axis).
   return (
-    <StackVertical>
-      <Badge
-        label={props.label}
-        intent={props.intent}
-        dataSet={
-          props.testId === undefined ? undefined : { testid: props.testId }
-        }
-      />
-    </StackVertical>
+    <StackHorizontal align="center" gap="xs" testId={props.testId}>
+      <Show when={props.intent === 'success'}>
+        <CheckIcon size={STATUS_ICON_SIZE} color="success" />
+      </Show>
+      <Text
+        variant="label"
+        tone={props.intent === 'success' ? 'success' : 'secondary'}
+      >
+        {props.label}
+      </Text>
+    </StackHorizontal>
   );
 }
 
 function renderBlockedByThem(): JSX.Element {
   return (
-    <RelationshipBadge label={<Trans>Unavailable</Trans>} intent="neutral" />
+    <RelationshipStatus label={<Trans>Unavailable</Trans>} intent="neutral" />
   );
 }
 
@@ -118,7 +125,7 @@ function renderPendingOutgoing(
 
 function renderFriends(username: string | undefined): JSX.Element {
   return (
-    <RelationshipBadge
+    <RelationshipStatus
       label={<Trans>Friends</Trans>}
       intent="success"
       testId={
