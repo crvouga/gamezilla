@@ -1,15 +1,17 @@
 /** @jsxImportSource solid-js */
 /**
- * One canvas and one column on wide layouts: the frame paints the
- * `background` tone edge to edge, a capped column keeps the centered frame
- * column's leading edge (the edge game stages and a space's top bar use),
- * and its page title sits in that same column. Compact hosts wider than a
- * measure (tablets) center it.
+ * One canvas and centered reading columns on wide layouts: the frame paints
+ * the `background` tone edge to edge, a capped column sits in the middle of
+ * the frame column, and its page title sits in that same column. Inside an
+ * open space a capped column keeps the space bar's leading edge instead.
  */
 
 import { describe, expect, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
-import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
+import {
+  AppFrameChromeProvider,
+  useSetAppFrameHeader,
+} from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
@@ -48,7 +50,7 @@ describe('wide layout canvas and centered measure', () => {
   });
 
   // regression: wide-layout-canvas-and-centered-measure
-  test('a menu screen keeps the frame column edge and holds its title to the same column', () => {
+  test('a menu screen centers its column and holds its title to the same column', () => {
     renderUi(
       framed(() => (
         <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
@@ -57,18 +59,36 @@ describe('wide layout canvas and centered measure', () => {
       )),
       WIDE
     );
-    expect(classes('[data-region="column"]')).toMatch(/\bmx-auto\b/);
-    expect(classes('[data-component="ScreenBaseHeader"]')).not.toMatch(
+    expect(classes('[data-component="ScreenBaseHeader"]')).toMatch(
       /\bmx-auto\b/
     );
-    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
-      /\bmx-auto\b/
-    );
+    expect(classes('[data-component="ScreenColumn"]')).toMatch(/\bmx-auto\b/);
     expect(style('[data-component="ScreenBaseHeader"]').maxWidth).toBe(
       SCREEN_MAX_WIDTH.menu
     );
     expect(style('[data-component="ScreenColumn"]').maxWidth).toBe(
       SCREEN_MAX_WIDTH.menu
+    );
+  });
+
+  test('inside a space a capped column keeps the space bar edge', () => {
+    function InSpace(): JSX.Element {
+      useSetAppFrameHeader(<p class="text">{'Space bar'}</p>);
+      return (
+        <MenuScreen screenId="games" breadcrumbs={[{ name: 'Games' }]}>
+          <p class="text">{'rows'}</p>
+        </MenuScreen>
+      );
+    }
+    renderUi(
+      framed(() => <InSpace />),
+      WIDE
+    );
+    expect(classes('[data-component="ScreenBaseHeader"]')).not.toMatch(
+      /\bmx-auto\b/
+    );
+    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
+      /\bmx-auto\b/
     );
   });
 

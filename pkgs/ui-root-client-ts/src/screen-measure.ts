@@ -1,6 +1,6 @@
 /**
  * The measure a screen's column is capped at. Every page column is the same
- * 640px (the prose token), so moving between tabs and screens never makes the
+ * 720px, so moving between tabs and screens never makes the
  * column jump; the names say which template family a screen belongs to:
  *
  * - `menu`: menus, settings, forms, profiles, game menus, history / stats.
@@ -10,17 +10,17 @@
  * - `full`: the whole frame column — explorers and game stages with a side
  *   rail.
  *
- * A capped column keeps the frame column's leading edge (the frame column
- * itself is centered), so a list, a settings page and a game stage all start
- * at one x; the page's title block sits in the same column so the title
- * lines up with the content. Narrow layouts retain the 16px page inset.
+ * A capped column is centered (tabs, settings, lists, on tablets and beside
+ * the desktop sidebar), except inside an open space, where it keeps the
+ * space bar's leading edge. The page's title block sits in the same column
+ * so the title lines up with the content. Narrow layouts retain the 16px page inset.
  */
 
 export type ScreenMeasure = 'menu' | 'prose' | 'list' | 'full';
 
 export const SCREEN_MAX_WIDTH: Readonly<Record<ScreenMeasure, string>> = {
-  menu: '640px',
-  prose: '640px',
-  list: '640px',
+  menu: '720px',
+  prose: '720px',
+  list: '720px',
   full: '100%',
 };

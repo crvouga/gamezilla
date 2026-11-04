@@ -22,6 +22,7 @@ import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
 import { useScreenFocus } from '../screen-focus/index';
 import { SCREEN_MAX_WIDTH } from '../screen-measure';
+import { useMeasureCentered } from '../use-measure-centered';
 import { ScreenTitleProvider } from '../screen-title-context/index';
 import { ScrollView } from '../scroll-view/index';
 
@@ -48,10 +49,14 @@ function WidePageHeader(
     partitionScreenBaseActions(props.actions ?? [])
   );
   const measure = (): string | undefined => measureWidth(props.measure);
+  const centered = useMeasureCentered();
   return (
     <header
       class="box flex-row items-end gap-3 shrink-0 min-h-13 py-2"
-      classList={{ 'w-full': measure() !== undefined }}
+      classList={{
+        'w-full': measure() !== undefined,
+        'mx-auto': measure() !== undefined && centered(),
+      }}
       style={{ 'max-width': measure() }}
       data-component="ScreenBaseHeader"
     >
@@ -112,6 +117,7 @@ function WideBodyContent(props: BodyProps): JSX.Element {
 }
 
 function WideCanvasBody(props: BodyProps): JSX.Element {
+  const centered = useMeasureCentered();
   const inner = (
     <ContentEdgePaddingProvider step={0}>
       <WideBodyContent {...props} />
@@ -123,7 +129,10 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       fallback={
         <div
           class="box flex-1 min-h-0 gap-2"
-          classList={{ 'w-full': props.measure !== undefined }}
+          classList={{
+            'w-full': props.measure !== undefined,
+            'mx-auto': props.measure !== undefined && centered(),
+          }}
           style={{ 'max-width': measureWidth(props.measure) }}
         >
           {inner}

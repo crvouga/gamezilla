@@ -162,16 +162,17 @@ protocol. Import each from its matching kebab-case module export.
 
 Every page sits on one canvas, `background`, edge to edge at every width;
 only wells (inputs, tags, notices) take a `surface` tone. Every page column
-shares one 640px measure (`screen-measure.ts`), so the column never jumps
+shares one 720px measure (`screen-measure.ts`), so the column never jumps
 between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`,
 `GameHistoryScreen` and Storybook; `prose` for `ContentScreen`; `list` for
 `CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
-sections); `full` for game stages with a rail. On wide layouts every screen shares
-one centered frame column (`max-w-ui-space`, the same column an open space's
-top bar uses), and a capped column keeps that column's leading edge instead
-of re-centering, so lists, settings and game stages all start at one x. The
-title block (the wide page header, or `ScreenIntro`) sits in the same
-column, so the title lines up with the content. Narrow layouts retain the 16px page inset.
+sections); `full` for game stages with a rail. On wide layouts every screen sits in
+one centered frame column (`max-w-ui-space`, the column an open space's top
+bar uses). Reading screens center their capped measure in it; inside an
+open space a capped measure keeps the space bar's leading edge instead, so
+the bar and every screen under it line up (`useMeasureCentered`). The title
+block (the wide page header, or `ScreenIntro`) sits in the same column, so
+the title lines up with the content. Narrow layouts retain the 16px page inset.
 `ScreenColumn` gives routed reading bodies and form footers that measure and
 section rhythm. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide
