@@ -1,19 +1,19 @@
 /**
- * The measure a screen's column is capped at. Every page column is the same
- * 720px, so moving between tabs and screens never makes the
- * column jump; the names say which template family a screen belongs to:
+ * The measure a screen's column is capped at on compact hosts (phones and
+ * tablets), where a capped column is centered. Every family shares 720px, so
+ * moving between screens never makes the column jump; the names say which
+ * template family a screen belongs to:
  *
  * - `menu`: menus, settings, forms, profiles, game menus, history / stats.
  * - `prose`: readable details and documents.
- * - `list`: collections — spaces, people, search results, the inbox. Rows
- *   keep a scannable line length instead of stretching across a monitor.
+ * - `list`: collections — spaces, people, search results, the inbox.
  * - `full`: the whole frame column — explorers and game stages with a side
  *   rail.
  *
- * A capped column is centered (tabs, settings, lists, on tablets and beside
- * the desktop sidebar), except inside an open space, where it keeps the
- * space bar's leading edge. The page's title block sits in the same column
- * so the title lines up with the content. Narrow layouts retain the 16px page inset.
+ * On desktop every screen starts at the frame column's leading edge and
+ * `menu` / `list` take the whole column, composing it instead (sections
+ * put their label beside their rows; collections add a context column);
+ * only `prose` keeps its reading measure. See `useScreenMeasure`.
  */
 
 export type ScreenMeasure = 'menu' | 'prose' | 'list' | 'full';

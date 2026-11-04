@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
- * One canvas and centered reading columns on wide layouts: the frame paints
- * the `background` tone edge to edge, a capped column sits in the middle of
- * the frame column, and its page title sits in that same column. Inside an
- * open space a capped column keeps the space bar's leading edge instead.
+ * One canvas and one leading edge on wide layouts: the frame paints the
+ * `background` tone edge to edge, every screen starts at the frame column's
+ * edge with its title in the same column, menus and collections take the
+ * whole column, and only prose keeps a reading measure. Compact hosts wider
+ * than a measure (tablets) center it.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -12,9 +13,12 @@ import {
   AppFrameChromeProvider,
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client-ts/app-frame-chrome';
+import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client-ts/screen-measure';
 import type { JSX } from 'solid-js';
 import { mustQuery, renderUi } from './render';
@@ -50,45 +54,69 @@ describe('wide layout canvas and centered measure', () => {
   });
 
   // regression: wide-layout-canvas-and-centered-measure
-  test('a menu screen centers its column and holds its title to the same column', () => {
+  test('a desktop menu screen takes the whole column from its leading edge, title included', () => {
     renderUi(
       framed(() => (
         <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
-          <p class="text">{'rows'}</p>
+          <MenuSection title="Preferences">
+            <MenuRow title="Sound" />
+          </MenuSection>
         </MenuScreen>
       )),
       WIDE
     );
-    expect(classes('[data-component="ScreenBaseHeader"]')).toMatch(
-      /\bmx-auto\b/
-    );
-    expect(classes('[data-component="ScreenColumn"]')).toMatch(/\bmx-auto\b/);
-    expect(style('[data-component="ScreenBaseHeader"]').maxWidth).toBe(
-      SCREEN_MAX_WIDTH.menu
-    );
-    expect(style('[data-component="ScreenColumn"]').maxWidth).toBe(
-      SCREEN_MAX_WIDTH.menu
-    );
+    for (const selector of [
+      '[data-component="ScreenBaseHeader"]',
+      '[data-component="ScreenColumn"]',
+    ]) {
+      expect(classes(selector)).not.toMatch(/\bmx-auto\b/);
+      expect(style(selector).maxWidth).toBe('');
+    }
   });
 
-  test('inside a space a capped column keeps the space bar edge', () => {
-    function InSpace(): JSX.Element {
-      useSetAppFrameHeader(<p class="text">{'Space bar'}</p>);
-      return (
-        <MenuScreen screenId="games" breadcrumbs={[{ name: 'Games' }]}>
-          <p class="text">{'rows'}</p>
-        </MenuScreen>
-      );
-    }
+  test('a desktop menu screen puts each section label beside its rows', () => {
     renderUi(
-      framed(() => <InSpace />),
+      framed(() => (
+        <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
+          <MenuSection title="Preferences">
+            <MenuRow title="Sound" />
+          </MenuSection>
+        </MenuScreen>
+      )),
       WIDE
     );
-    expect(classes('[data-component="ScreenBaseHeader"]')).not.toMatch(
-      /\bmx-auto\b/
+    expect(
+      mustQuery('[data-component="MenuSection"]').getAttribute('data-layout')
+    ).toBe('aside');
+  });
+
+  test('a menu section outside a menu screen stays stacked on desktop', () => {
+    renderUi(
+      framed(() => (
+        <MenuSection title="Preferences">
+          <MenuRow title="Sound" />
+        </MenuSection>
+      )),
+      WIDE
     );
-    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
-      /\bmx-auto\b/
+    expect(
+      mustQuery('[data-component="MenuSection"]').getAttribute('data-layout')
+    ).toBeNull();
+  });
+
+  test('a desktop collection shows its aside beside the list; a phone does not', () => {
+    const screenUnderTest = () => (
+      <CollectionScreen
+        screenId="friends"
+        breadcrumbs={[{ name: 'Friends' }]}
+        aside={<p class="text">{'Playing now'}</p>}
+      >
+        <p class="text">{'rows'}</p>
+      </CollectionScreen>
+    );
+    renderUi(framed(screenUnderTest), WIDE);
+    expect(mustQuery('[data-component="CollectionAside"]').textContent).toBe(
+      'Playing now'
     );
   });
 

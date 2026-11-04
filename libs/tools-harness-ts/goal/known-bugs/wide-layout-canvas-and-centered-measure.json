@@ -1,4 +1,4 @@
 {
-  "summary": "Wide layouts painted two page tones (a surface backdrop behind background-toned screens and space bodies) and left limited-measure columns (menus, settings, forms, profile, content, game menus, history, explorer) pinned to the left of the frame with their titles out of line; the frame now paints one background canvas and every capped reading column is centered with its title block in the same column (inside an open space it keeps the space bar's edge).",
+  "summary": "Wide layouts painted two page tones (a surface backdrop behind background-toned screens and space bodies) and left limited-measure columns (menus, settings, forms, profile, content, game menus, history, explorer) pinned to the left of the frame with their titles out of line; the frame now paints one background canvas, every screen starts at the frame column's leading edge with its title block in the same column, and menus and collections compose the whole column (only prose keeps a reading measure).",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/wide-layout-regression.test.tsx"
 }

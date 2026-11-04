@@ -21,10 +21,9 @@ import {
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
 import { useScreenFocus } from '../screen-focus/index';
-import { SCREEN_MAX_WIDTH } from '../screen-measure';
 import { ScreenTitleProvider } from '../screen-title-context/index';
 import { ScrollView } from '../scroll-view/index';
-import { useMeasureCentered } from '../use-measure-centered';
+import { useScreenMeasure } from '../use-screen-measure';
 
 type BodyProps = Pick<
   ScreenBaseProps,
@@ -32,11 +31,6 @@ type BodyProps = Pick<
 > & {
   scroll: boolean;
 };
-
-/** The measure is a CSS width, not a token class: a dynamic value. */
-function measureWidth(measure: ScreenBaseProps['measure']): string | undefined {
-  return measure === undefined ? undefined : SCREEN_MAX_WIDTH[measure];
-}
 
 function WidePageHeader(
   props: ScreenBaseProps & {
@@ -48,16 +42,12 @@ function WidePageHeader(
   const partition = createMemo(() =>
     partitionScreenBaseActions(props.actions ?? [])
   );
-  const measure = (): string | undefined => measureWidth(props.measure);
-  const centered = useMeasureCentered();
+  const measure = useScreenMeasure(() => props.measure);
   return (
     <header
       class="box flex-row items-end gap-3 shrink-0 min-h-13 pt-2 pb-4"
-      classList={{
-        'w-full': measure() !== undefined,
-        'mx-auto': measure() !== undefined && centered(),
-      }}
-      style={{ 'max-width': measure() }}
+      classList={{ 'w-full': props.measure !== undefined }}
+      style={{ 'max-width': measure().maxWidth }}
       data-component="ScreenBaseHeader"
     >
       {props.leading}
@@ -117,7 +107,7 @@ function WideBodyContent(props: BodyProps): JSX.Element {
 }
 
 function WideCanvasBody(props: BodyProps): JSX.Element {
-  const centered = useMeasureCentered();
+  const measure = useScreenMeasure(() => props.measure);
   const inner = (
     <ContentEdgePaddingProvider step={0}>
       <WideBodyContent {...props} />
@@ -129,11 +119,8 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       fallback={
         <div
           class="box flex-1 min-h-0 gap-2"
-          classList={{
-            'w-full': props.measure !== undefined,
-            'mx-auto': props.measure !== undefined && centered(),
-          }}
-          style={{ 'max-width': measureWidth(props.measure) }}
+          classList={{ 'w-full': props.measure !== undefined }}
+          style={{ 'max-width': measure().maxWidth }}
         >
           {inner}
         </div>

@@ -264,3 +264,47 @@
     grid-column: 1 / -1;
   }
 }
+
+/* A desktop menu section: its label in a column of its own beside the
+   rows (the desktop settings idiom), the label's first line level with the
+   first row's title. */
+.sectionAside {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  column-gap: var(--ui-space-8);
+  align-items: start;
+  min-width: 0;
+}
+.sectionAsideLabel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: var(--ui-space-4);
+}
+
+/* A collection and, on desktop, its context column. */
+.collectionSplit {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.collectionSplitAside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  column-gap: var(--ui-space-8);
+  align-items: start;
+}
+.collectionSplitAside > .collection {
+  align-self: stretch;
+}
+.collectionAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}

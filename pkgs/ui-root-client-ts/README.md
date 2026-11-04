@@ -166,13 +166,15 @@ shares one 720px measure (`screen-measure.ts`), so the column never jumps
 between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`,
 `GameHistoryScreen` and Storybook; `prose` for `ContentScreen`; `list` for
 `CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
-sections); `full` for game stages with a rail. On wide layouts every screen sits in
-one centered frame column (`max-w-ui-space`, the column an open space's top
-bar uses). Reading screens center their capped measure in it; inside an
-open space a capped measure keeps the space bar's leading edge instead, so
-the bar and every screen under it line up (`useMeasureCentered`). The title
-block (the wide page header, or `ScreenIntro`) sits in the same column, so
-the title lines up with the content. Narrow layouts retain the 16px page inset.
+sections); `full` for game stages with a rail. Compact hosts cap and center the
+column. On desktop every screen starts at the frame column's leading edge
+(the edge an open space's top bar uses), so content never jumps sideways
+between screens, and `menu` / `list` screens use the whole column on
+purpose: a `MenuScreen`'s sections put their label beside their rows, and a
+`CollectionScreen` can add a 320px `aside` of context. Only `prose` keeps a
+720px reading measure (`useScreenMeasure`). The title block (the wide page
+header, or `ScreenIntro`) sits in the same column, so the title lines up
+with the content. Narrow layouts retain the 16px page inset.
 `ScreenColumn` gives routed reading bodies and form footers that measure and
 section rhythm. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide

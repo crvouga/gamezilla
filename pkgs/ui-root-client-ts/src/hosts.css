@@ -192,15 +192,13 @@
   }
 
   /* Section labels above a group: the `label` style in the muted ink. */
-  /* Section labels name a group without outranking its rows: tracked
-     small caps in the muted ink, a step lighter than the rows' titles. */
+  /* Section labels name a group without outranking its rows: sentence
+     case in the muted ink, semibold rather than bold. */
   .textSectionLabel {
     font-family: var(--ui-text-label-family);
     font-size: var(--ui-text-label-size);
     line-height: var(--ui-text-label-leading);
     font-weight: var(--ui-font-weight-semibold);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ui-color-text-secondary);
   }
 
