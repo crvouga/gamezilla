@@ -55,7 +55,8 @@ export function MultiplayerRatings(props: {
 }): JSX.Element {
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
-      <Grid columns={2} gap="lg">
+      {/* One game rating takes the row, so its tag sits beside it. */}
+      <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
         <For each={props.ratings}>
           {(rating) => (
             <GameStat
