@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four's seat swatches used the player colors player7 and player5, which in light mode are a dark maroon and a dark amber, while the discs on the board are the board's own bright red and yellow, so the legend beside each name did not match the pieces. Fixed by a board paint for seat looks (disc-one / disc-two) that the swatch draws with the disc-drop board's own disc tokens in every theme.",
+  "regressionTest": "libs/connect-four-harness-ts/tests/connect-four-seat-paint-regression.test.ts"
+}

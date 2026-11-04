@@ -56,9 +56,11 @@ export function ConnectFourStoryBoard(props: {
       interactive={props.interactive === true && props.winning === undefined}
       label="Connect Four board, seven columns and six rows"
       prompt={
-        props.interactive === true && props.winning === undefined
-          ? 'Choose a column'
-          : ''
+        props.winning !== undefined
+          ? undefined
+          : props.interactive === true
+            ? 'Choose a column'
+            : ''
       }
       cellLabel={(column, row, disc) => {
         const identity =

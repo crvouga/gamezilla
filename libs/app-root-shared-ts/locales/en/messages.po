@@ -1143,6 +1143,10 @@ msgstr "Avatar"
 msgid "Back"
 msgstr "Back"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Back to live"
+msgstr "Back to live"
+
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
@@ -1225,6 +1229,10 @@ msgstr "Blue"
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Blue fleet"
 msgstr "Blue fleet"
+
+#: libs/game-session-client-ts/src/game-frame-screen-view.tsx
+msgid "Board preview"
+msgstr "Board preview"
 
 #. placeholder {0}: cellName(112)
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
@@ -5484,6 +5492,21 @@ msgstr "Review position"
 msgid "Review your games, wins and draws"
 msgstr "Review your games, wins and draws"
 
+#. placeholder {0}: record().displayedPly
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Reviewing an earlier game, move {0}"
+msgstr "Reviewing an earlier game, move {0}"
+
+#. placeholder {0}: record().displayedPly
+#. placeholder {1}: record().moves.length
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Reviewing move {0} of {1}"
+msgstr "Reviewing move {0} of {1}"
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Reviewing the starting position"
+msgstr "Reviewing the starting position"
+
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
@@ -6644,6 +6667,14 @@ msgstr "That username is not allowed"
 #: libs/game-puzzle-client-ts/src/puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "The ? means provisional: each rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games at its speed."
+msgstr "The ? means provisional: each rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games at its speed."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "The ? means provisional: the rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games."
+msgstr "The ? means provisional: the rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "The {name} cannot go there: it would overlap the {other}."

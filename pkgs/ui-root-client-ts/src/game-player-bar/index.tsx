@@ -104,23 +104,23 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
           >
             {props.name}
           </span>
+          {/* The turn on the name's own line: the strip gains no row. */}
+          <Show when={turn()}>
+            <span
+              class={`${styles['playerTurn']} text textLabel rounded-full shrink-0`}
+              {...dataAttrs({ component: 'GamePlayerTurn' })}
+            >
+              {props.turnLabel}
+            </span>
+          </Show>
         </span>
         <Show
           when={
             tags.present() ||
-            (props.state !== undefined && props.state !== null) ||
-            turn()
+            (props.state !== undefined && props.state !== null)
           }
         >
           <span class={styles['playerTags']}>
-            <Show when={turn()}>
-              <span
-                class={`${styles['playerTurn']} text textLabel rounded-full`}
-                {...dataAttrs({ component: 'GamePlayerTurn' })}
-              >
-                {props.turnLabel}
-              </span>
-            </Show>
             <Show when={props.state}>
               {(state) => <GamePlayerStateBadge state={state()} />}
             </Show>
@@ -143,7 +143,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
  * - `state`: out or reconnecting, as a word in a tag; an out seat is dimmed.
  * - `active`: the seat to move, in the soft tint (`tintSubtle`) with an
  *   accent edge and `aria-current="step"`, never color alone; `turnLabel`
- *   says it in words inside the strip ("Your move"). Every other seat sits
+ *   says it in words on the name's line ("Your move"). Every other seat sits
  *   on the same panel in the surface tone, so the seats around a board match.
  * - `onPress`: the identity becomes a real button (named by the seat's
  *   name and facts), for opening the player.
@@ -170,14 +170,12 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
   const compact = (): boolean => props.density === 'compact';
   return (
     <section
-      class={`${styles['player']} rounded-card`}
+      class={`${styles['player']} rounded-card py-1`}
       classList={{
         'bg-surface': !active(),
         'bg-tint-subtle': active(),
         'px-3': !compact(),
-        'py-2': !compact(),
         'px-1': compact(),
-        'py-1': compact(),
       }}
       data-density={compact() ? 'compact' : 'regular'}
       aria-current={active() ? 'step' : undefined}

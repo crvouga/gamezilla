@@ -33,6 +33,22 @@
     var(--game-rail-measure)
   );
 }
+/* The title and the game's facts share one line; the facts wrap under the
+   title only when the line is too short for both. */
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--ui-space-3);
+  min-width: 0;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -84,9 +100,19 @@
   border-radius: var(--ui-radius-sm);
   overflow: hidden;
 }
-/* Before play on a phone: a thumbnail that names the board, centred. */
+/* Before play: a dimmed thumbnail under its label that names the board,
+   centred; it shows which board, never where to play. */
 .boardStage[data-preview="true"] {
   max-width: var(--game-board-preview-measure, 176px);
+  gap: var(--ui-space-2);
+}
+.boardStage[data-preview="true"] > .board {
+  opacity: var(--ui-opacity-muted);
+}
+.previewLabel {
+  margin: 0;
+  color: var(--ui-color-text-secondary);
+  text-align: center;
 }
 .section {
   display: flex;
@@ -404,12 +430,29 @@
     grid-column: 1;
     grid-row: 1 / -1;
   }
+  /* While the game is set up the setup is the main column and the board a
+     modest preview beside it, at its top. */
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"] {
+    --game-board-preview-measure: 256px;
+    grid-template-columns:
+      minmax(0, 1fr)
+      var(--game-board-preview-measure);
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > .stage {
+    grid-column: 2;
+    max-width: var(--game-board-preview-measure);
+  }
   /* In document order, each in the next free row of the rail. */
   .layout[data-has-stage="true"][data-has-aside="true"]
   > :is(.setup, .controls, .rail),
   .layout[data-has-stage="true"][data-has-setup="true"]
     > :is(.setup, .controls, .rail) {
     grid-column: 2;
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > :is(.setup, .controls, .rail) {
+    grid-column: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

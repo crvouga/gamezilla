@@ -5,12 +5,22 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 
-/** A seat's look: its player color, its mark, or both. */
-export type GameSeatLook =
-  | { color: AvatarSeatColor; mark?: string | undefined }
-  | { color?: AvatarSeatColor | undefined; mark: string };
+/**
+ * A seat's paint: a player color (`player1`..`player8`), or the paint of a
+ * board whose pieces are not drawn in player colors, so the swatch matches
+ * the pieces on it in both themes: `disc-one` and `disc-two` are the first
+ * and second disc of the disc-drop board.
+ */
+export type GameSeatColor = AvatarSeatColor | 'disc-one' | 'disc-two';
 
-const DOT: Readonly<Record<AvatarSeatColor, string>> = {
+/** A seat's look: its paint, its mark, or both. */
+export type GameSeatLook =
+  | { color: GameSeatColor; mark?: string | undefined }
+  | { color?: GameSeatColor | undefined; mark: string };
+
+const DOT: Readonly<Record<GameSeatColor, string>> = {
+  'disc-one': 'bg-game-connect-four-one',
+  'disc-two': 'bg-game-connect-four-two',
   player1: 'bg-player1',
   player2: 'bg-player2',
   player3: 'bg-player3',
@@ -31,7 +41,8 @@ export type GameSeatSwatchProps = {
 
 /**
  * `GameSeatSwatch` -- how a seat looks on the board, as one token: a disc in
- * the seat's player color (`player1`..`player8`) carrying its short mark
+ * the seat's paint (a player color, or the board's own disc paint, so the
+ * legend matches the pieces) carrying its short mark
  * glyph (`●`, `◆`, `X`) in the canvas ink, like a piece on the board; a mark
  * alone without a color. A seat with a mark never relies on hue alone.
  *
@@ -47,7 +58,11 @@ export type GameSeatSwatchProps = {
 export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   const labelled = (): boolean =>
     props.label !== undefined && props.label.length > 0;
-  const color = (): AvatarSeatColor | undefined => props.look.color;
+  const color = (): GameSeatColor | undefined => props.look.color;
+  // A board's own paint carries its mark in the board's canvas ink, as
+  // the pieces on it do; a player color in the screen's canvas ink.
+  const boardPaint = (): boolean =>
+    color() === 'disc-one' || color() === 'disc-two';
   return (
     <span
       class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
@@ -67,7 +82,8 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
           <span
             class="text textLabel whitespace-nowrap"
             classList={{
-              'text-background': color() !== undefined,
+              'text-background': color() !== undefined && !boardPaint(),
+              'text-game-connect-four-canvas': boardPaint(),
               'text-text': color() === undefined,
             }}
           >

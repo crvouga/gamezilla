@@ -38,8 +38,11 @@ export const GAME_TILE_MOTIFS: readonly GameTileMotif[] = [
   'trails',
 ];
 
-/** `md` 40px beside a row's title; `lg` 56px above a game's own choices. */
-export type GameTileSize = 'md' | 'lg';
+/**
+ * `md` 40px beside a row's title; `lg` 56px beside a game's name; `xl`
+ * 96px heading a game's own menu on a wide screen.
+ */
+export type GameTileSize = 'md' | 'lg' | 'xl';
 
 export type GameTileProps = {
   motif: GameTileMotif;
@@ -289,7 +292,11 @@ function Trails(): JSX.Element {
 export function GameTile(props: GameTileProps): JSX.Element {
   return (
     <span
-      class={`${styles['tile']} rounded-control`}
+      class={`${styles['tile']}`}
+      classList={{
+        'rounded-control': props.size !== 'xl',
+        'rounded-card': props.size === 'xl',
+      }}
       data-motif={props.motif}
       data-size={props.size ?? 'md'}
       aria-hidden="true"

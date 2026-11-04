@@ -7,6 +7,7 @@ import {
   type JSX,
   Show,
 } from 'solid-js';
+import { useGameBoardPreview } from '../game-board-stage/board-preview';
 import { ChevronDownIcon } from '../icons';
 import styles from './disc-drop-board.module.css';
 export type DiscDropBoardProps = {
@@ -20,8 +21,10 @@ export type DiscDropBoardProps = {
   readonly label: string;
   /**
    * One line above the columns saying what to do while the board takes a
-   * drop (`Choose a column`); empty otherwise. Its line keeps its height
-   * either way, so the board never moves when the turn changes.
+   * drop (`Choose a column`); `''` while someone else is to move, so the
+   * line (and the chevrons' band) keeps its height and the board never
+   * moves when the turn changes. Leave it out when nobody is to move (the
+   * game is over): then neither the line nor the chevrons' band is drawn.
    */
   readonly prompt?: string | undefined;
   readonly testId: string;
@@ -80,24 +83,35 @@ function discMark(disc: number): string {
 }
 
 /**
- * Above a column, where its disc is let go: while the board takes a drop,
- * a chevron over every open column, in the dropping side's color over the
- * one pointed at or focused (whose landing cell holds that side's ghost
- * disc). The band keeps its height when empty.
+ * Above a column: its number, as the record writes its moves (counted from
+ * 1), and while the board takes a drop a chevron under it over every open
+ * column, in the dropping side's color over the one pointed at or focused
+ * (whose landing cell holds that side's ghost disc). While someone is to
+ * move the chevron's band keeps its height when empty; a board nobody is
+ * to move on draws only the numbers. A preview draws neither.
  */
 function DropMarker(props: {
   board: DiscDropBoardProps;
+  column: number;
   previewed: boolean;
   full: boolean;
 }): JSX.Element {
+  const turnTaken = (): boolean => props.board.prompt !== undefined;
   return (
     <span
       class={styles['drop']}
       data-disc={props.previewed ? props.board.active : 0}
       aria-hidden="true"
     >
-      <Show when={props.board.interactive && !props.full}>
-        <ChevronDownIcon size={20} />
+      <span class={`${styles['number']} text textCaption`}>
+        {props.column + 1}
+      </span>
+      <Show when={turnTaken()}>
+        <span class={styles['chevron']}>
+          <Show when={props.board.interactive && !props.full}>
+            <ChevronDownIcon size={16} />
+          </Show>
+        </span>
       </Show>
     </span>
   );
@@ -106,6 +120,8 @@ function DropMarker(props: {
 function Column(props: {
   board: DiscDropBoardProps;
   column: number;
+  /** Drawn as a `GameBoardStage` preview: the discs alone. */
+  thumbnail: boolean;
   target: number | null;
   preview: (column: number | null) => void;
   navigate: (event: KeyboardEvent, column: number) => void;
@@ -144,7 +160,14 @@ function Column(props: {
             props.board.onDrop(props.column);
         }}
       >
-        <DropMarker board={props.board} previewed={previewed()} full={full()} />
+        <Show when={!props.thumbnail}>
+          <DropMarker
+            board={props.board}
+            column={props.column}
+            previewed={previewed()}
+            full={full()}
+          />
+        </Show>
         <For each={rows()}>
           {(row) => (
             <DiscCell
@@ -172,14 +195,19 @@ function Column(props: {
 }
 /**
  * A board of columns a disc drops down. Each column is one native,
- * full-height button (also a practical touch target); a prompt line above
- * them says what to do, and while the board takes a drop each open column
- * carries a chevron, the one pointed at or focused in the dropping side's
- * color, with that side's ghost disc in the cell where it would land.
+ * full-height button (also a practical touch target) headed by its number;
+ * a prompt line above them says what to do, and while the board takes a
+ * drop each open column carries a chevron, the one pointed at or focused in
+ * the dropping side's color, with that side's ghost disc in the cell where
+ * it would land. As a `GameBoardStage` preview (a game still being set up)
+ * it draws only its discs: no prompt line, numbers or chevrons.
  */
 export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   const promptId = createUniqueId();
+  const thumbnail = useGameBoardPreview();
   const prompting = (): boolean => (props.prompt ?? '').length > 0;
+  // The prompt's line is drawn while someone is to move, never on a preview.
+  const promptLine = (): boolean => props.prompt !== undefined && !thumbnail();
   const [preview, setPreview] = createSignal<number | null>(null);
   const columns = createMemo(() =>
     Array.from({ length: props.columns }, (_, n) => n)
@@ -209,24 +237,27 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       {...dataAttrs({ component: 'DiscDropBoard' })}
       role="group"
       aria-label={props.label}
-      aria-describedby={prompting() ? promptId : undefined}
+      aria-describedby={prompting() && promptLine() ? promptId : undefined}
       data-testid={props.testId}
       data-preview-cell={target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
       style={{ '--disc-columns': props.columns }}
     >
-      <p
-        id={promptId}
-        class={`${styles['prompt']} text textCaption`}
-        data-testid={`${props.testId}-prompt`}
-      >
-        {props.prompt ?? ''}
-      </p>
+      <Show when={promptLine()}>
+        <p
+          id={promptId}
+          class={`${styles['prompt']} text textCaption`}
+          data-testid={`${props.testId}-prompt`}
+        >
+          {props.prompt ?? ''}
+        </p>
+      </Show>
       <For each={columns()}>
         {(column) => (
           <Column
             board={props}
             column={column}
+            thumbnail={thumbnail()}
             target={target()}
             preview={setPreview}
             navigate={navigate}

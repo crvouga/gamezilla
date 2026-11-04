@@ -16,10 +16,26 @@ export type FrameSeatCount = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /** A seat's player color, `n` for the design token `player<n>`. */
 export type FramePlayerColor = FrameSeatCount;
 
-/** How a seat is told apart: its player color, the board's own mark, or both. */
+/**
+ * The paint of a board whose pieces are not drawn in player colors, named
+ * for what is drawn: the first and second disc of a disc-drop board. A seat
+ * painted with it matches its pieces on the board in every theme.
+ */
+export type FrameBoardPaint = 'disc-one' | 'disc-two';
+
+/** Every board paint, in a stable order. */
+export const FRAME_BOARD_PAINTS: readonly FrameBoardPaint[] = [
+  'disc-one',
+  'disc-two',
+];
+
+/** A seat's paint: a player color, or its board's own piece paint. */
+export type FrameSeatPaint = FramePlayerColor | FrameBoardPaint;
+
+/** How a seat is told apart: its paint, the board's own mark, or both. */
 export type GameSeatLook =
-  | { readonly color: FramePlayerColor; readonly mark?: string }
-  | { readonly color?: FramePlayerColor; readonly mark: string };
+  | { readonly color: FrameSeatPaint; readonly mark?: string }
+  | { readonly color?: FrameSeatPaint; readonly mark: string };
 
 /**
  * How many people a game seats. A game whose rules seat a fixed number has

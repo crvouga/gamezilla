@@ -379,3 +379,21 @@ test("a frame's options are ones its rules apply, and its seats look apart", () 
     withFrame({ seats: lookOnlySeats(() => ({ color: 1 })) })
   ).toThrow('race: two seats share one look');
 });
+
+test("a frame's seats may take a board's own paint, never an unknown one", () => {
+  expect(() =>
+    withFrame({
+      seats: lookOnlySeats((side) => ({
+        color: side === 'white' ? 'disc-one' : 'disc-two',
+      })),
+    })
+  ).not.toThrow();
+  expect(() =>
+    withFrame({
+      // A paint no board draws, as an untyped game might send it.
+      seats: lookOnlySeats((side) => ({
+        color: (side === 'white' ? 'disc-one' : 'disc-three') as 'disc-one',
+      })),
+    })
+  ).toThrow("race: the black seat's color is player1 to player8");
+});

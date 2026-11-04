@@ -3,9 +3,11 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 function requiredAttribute(element: Element, name: string): string {
@@ -125,4 +127,86 @@ test('the board says what to do and marks where the disc would be let go', () =>
   expect(board.hasAttribute('aria-describedby')).toBe(false);
   expect(board.querySelector('[data-testid$="-prompt"]')).not.toBeNull();
   view.unmount();
+});
+
+/** A 4×3 board drawn directly, with `prompt` as given (left out: nobody is to move). */
+function bareBoard(options: {
+  readonly prompt?: string | undefined;
+  readonly preview?: boolean | undefined;
+}) {
+  const board = (): JSX.Element => (
+    <DiscDropBoard
+      cells={[1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0]}
+      columns={4}
+      rows={3}
+      active={1}
+      winning={[]}
+      interactive={options.prompt !== undefined && options.prompt !== ''}
+      label="Drop board"
+      prompt={options.prompt}
+      testId="bare-board"
+      columnTestId={(column) => `bare-column-${column + 1}`}
+      cellLabel={(column, row) => `Column ${column + 1}, row ${row + 1}`}
+      columnLabel={(column) => `Column ${column + 1}`}
+      onDrop={() => undefined}
+    />
+  );
+  return render(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 844 }}
+    >
+      <Show when={options.preview === true} fallback={board()}>
+        <GameBoardStage preview previewLabel="Board preview">
+          {board()}
+        </GameBoardStage>
+      </Show>
+    </ThemeProvider>
+  ));
+}
+
+/** The numbers heading the columns, left to right. */
+function columnNumbers(root: ParentNode): readonly string[] {
+  return [...root.querySelectorAll('button[data-column]')].map(
+    (column) =>
+      column.querySelector('[data-disc][aria-hidden="true"]')?.textContent ?? ''
+  );
+}
+
+// regression: connect-four-columns-unnumbered
+test('every column is headed by its number, as the record writes its moves', () => {
+  const view = bareBoard({ prompt: 'Choose a column' });
+  expect(columnNumbers(view.container)).toEqual(['1', '2', '3', '4']);
+  // On the person's turn the number carries the drop chevron under it.
+  const second = view.getByTestId('bare-column-2');
+  expect(second.querySelector('svg')).not.toBeNull();
+  view.unmount();
+});
+
+// regression: setup-preview-reserves-turn-rows
+test('a board nobody is to move on, or a setup preview, reserves no turn rows', () => {
+  const over = bareBoard({});
+  // Over: the numbers stay, but no prompt line and no chevron band.
+  expect(over.queryByTestId('bare-board-prompt')).toBeNull();
+  expect(columnNumbers(over.container)).toEqual(['1', '2', '3', '4']);
+  expect(
+    over
+      .getByTestId('bare-column-1')
+      .querySelectorAll(':scope > [aria-hidden="true"] > span')
+  ).toHaveLength(1);
+  over.unmount();
+  // Someone else to move: the prompt's line keeps its height, empty.
+  const waiting = bareBoard({ prompt: '' });
+  expect(waiting.getByTestId('bare-board-prompt').textContent).toBe('');
+  waiting.unmount();
+  // A preview while the game is set up draws only its discs, under its label.
+  const preview = bareBoard({ prompt: '', preview: true });
+  expect(preview.queryByTestId('bare-board-prompt')).toBeNull();
+  expect(
+    preview.container.querySelector(
+      'button[data-column] > [aria-hidden="true"]'
+    )
+  ).toBeNull();
+  expect(preview.getByText('Board preview')).toBeTruthy();
+  preview.unmount();
 });

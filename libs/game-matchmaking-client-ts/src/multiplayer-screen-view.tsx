@@ -158,11 +158,6 @@ function Stage(props: Props): JSX.Element {
         </Show>
       </Show>
       <NextGame {...props} />
-      {/* With no board, the ratings follow the search in the one column,
-          at its width, rather than a rail beside an empty board. */}
-      <Show when={props.stage !== 'game'}>
-        <MultiplayerRatings ratings={props.ratings} />
-      </Show>
       <ConfirmModal {...props} />
     </>
   );
@@ -194,10 +189,13 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
               <Show when={props.stage === 'game'}>{props.gameActions}</Show>
             }
             aside={
-              <Show when={props.stage === 'game'}>
-                {props.moves}
+              <>
+                <Show when={props.stage === 'game'}>{props.moves}</Show>
+                {/* Beside the search (or the board) when wide, so the
+                    screen is two columns at the frame's width; under it
+                    on a phone. */}
                 <MultiplayerRatings ratings={props.ratings} />
-              </Show>
+              </>
             }
           >
             <Stage {...props} />

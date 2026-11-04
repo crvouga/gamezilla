@@ -13,6 +13,10 @@
   width: 56px;
   height: 56px;
 }
+.tile[data-size="xl"] {
+  width: 96px;
+  height: 96px;
+}
 .art {
   display: block;
   width: 100%;

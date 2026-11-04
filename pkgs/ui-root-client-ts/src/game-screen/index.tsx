@@ -21,9 +21,16 @@ export function GameScreen(props: {
   screenId: string;
   title: JSX.Element;
   subtitle?: JSX.Element | undefined;
+  /**
+   * The game's facts on the title's own line, after it (`Unrated`, the
+   * clock, how many watch), so they cost the board no row of their own;
+   * they wrap under the title only when the line is too short.
+   */
+  facts?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
   children: JSX.Element;
 }): JSX.Element {
+  const facts = createScreenSlot(() => props.facts);
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -31,7 +38,20 @@ export function GameScreen(props: {
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
       <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
-        <ScreenIntro title={props.title} subtitle={props.subtitle} />
+        <Show
+          when={facts.present()}
+          fallback={
+            <ScreenIntro title={props.title} subtitle={props.subtitle} />
+          }
+        >
+          <div
+            class={styles['heading']}
+            {...dataAttrs({ component: 'GameHeading' })}
+          >
+            <ScreenIntro title={props.title} subtitle={props.subtitle} />
+            <div class={styles['facts']}>{facts.content()}</div>
+          </div>
+        </Show>
         {props.children}
       </div>
     </EmbeddedScreen>
@@ -58,6 +78,12 @@ export function GameLayout(props: {
    */
   controls?: JSX.Element | undefined;
   aside?: JSX.Element | undefined;
+  /**
+   * The stage is only a preview (a game still being set up): on wide
+   * screens setup takes the main column and the stage sits beside it, at
+   * its top, at a preview's size.
+   */
+  stagePreview?: boolean | undefined;
 }): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
@@ -82,6 +108,7 @@ export function GameLayout(props: {
         data-has-stage={stage.present()}
         data-has-setup={setup.present()}
         data-has-aside={aside.present()}
+        data-stage-preview={props.stagePreview === true}
         {...dataAttrs({ component: 'GameLayout' })}
       >
         <Show when={setup.present()}>

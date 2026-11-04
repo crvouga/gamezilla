@@ -85,20 +85,33 @@
   color: var(--ui-color-text);
   text-align: center;
 }
-/* Where a column's disc is let go: a chevron over an open column, in the
-   dropping side's color over the one pointed at; empty, it keeps its
-   height. */
+/* Where a column's disc is let go: its number, then a chevron over an
+   open column, in the dropping side's color over the one pointed at;
+   empty, the chevron's band keeps its height. */
 .drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+.number {
+  color: var(--ui-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.chevron {
   display: grid;
   place-items: center;
-  min-height: var(--ui-space-5);
-  --ui-on-icon: var(--ui-color-text-secondary);
+  min-height: var(--ui-space-4);
 }
 .drop[data-disc="1"] {
   --ui-on-icon: var(--ui-color-destructive);
 }
 .drop[data-disc="2"] {
   --ui-on-icon: var(--ui-color-warning);
+}
+.drop[data-disc="1"] .number,
+.drop[data-disc="2"] .number {
+  color: var(--ui-color-text);
 }
 .cell {
   display: grid;
