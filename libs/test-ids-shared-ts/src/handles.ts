@@ -40,6 +40,8 @@ export const Handles = {
   /** Version row on the About screen. */
   aboutSecurityContact: 'about-security-contact',
   aboutVersion: 'about-version',
+  /** Settings' Troubleshooting disclosure; opening it shows Connection and the rest. */
+  settingsTroubleshooting: 'settings-troubleshooting',
   /** "Connection" row in Settings (→ the connection status screen). */
   settingsConnection: 'settings-server-status',
   /** Connection status screen: whether the app is connected right now. */

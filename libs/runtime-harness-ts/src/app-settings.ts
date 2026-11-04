@@ -140,12 +140,21 @@ export async function versionShownInAbout(
   return nodeText(s, actorId, [Handles.aboutVersion]);
 }
 
-/** Settings → Connection: whether the app is connected and what works without it. */
+/**
+ * Settings → Troubleshooting → Connection: whether the app is connected and
+ * what works without it. Connection sits behind the Troubleshooting
+ * disclosure, so a person opens that first.
+ */
 export const openConnectionInSettings = scenarioAction({
   name: 'openConnectionInSettings',
   act: async (s, actorId: string) => {
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
+    const disclosure = ui.get(Handles.settingsTroubleshooting);
+    await disclosure.expect.visible({ timeoutMs: WAIT_MS });
+    if ((await disclosure.attribute('aria-expanded')) !== 'true') {
+      await disclosure.tap({ timeoutMs: WAIT_MS });
+    }
     await ui.get(Handles.settingsConnection).tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
   },

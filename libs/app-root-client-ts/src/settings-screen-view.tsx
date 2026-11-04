@@ -4,6 +4,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
+  ActivityIcon,
   CreditCardIcon,
   GaugeIcon,
   InfoIcon,
@@ -22,7 +23,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type Accessor, For, type JSX } from 'solid-js';
+import { type Accessor, createSignal, For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 const ROW_ICON_SIZE = 20;
@@ -163,81 +164,51 @@ function usePreferencesGroup(
   });
 }
 
-/** Diagnostics, last: for when something is not working. */
-function useTroubleshootingGroup(
+/** Diagnostics, behind the Troubleshooting disclosure: for when something is not working. */
+function useTroubleshootingRows(
   props: SettingsScreenViewProps
-): Accessor<SettingsGroup> {
+): Accessor<readonly SettingsRow[]> {
   const { t } = useLingui();
-  return () => ({
-    key: 'troubleshooting',
-    title: t`Troubleshooting`,
-    footer: t`Details to check when something isn't working.`,
-    rows: [
-      {
-        title: t`Connection`,
-        caption: t`Status, and what works offline`,
-        icon: WifiIcon,
-        href: '/more/server-status',
-        testid: Handles.settingsConnection,
-      },
-      {
-        title: t`Sync`,
-        caption: t`Changes waiting to send`,
-        icon: RefreshCwIcon,
-        href: '/more/sync',
-        testid: 'settings-sync',
-      },
-      {
-        title: t`Client config`,
-        caption: t`Settings from the server`,
-        icon: SlidersHorizontalIcon,
-        href: '/more/client-config',
-        testid: 'settings-client-config',
-      },
-      {
-        title: t`Performance`,
-        caption: t`Frame rate and responsiveness`,
-        value: props.perfEnabled ? t`On` : t`Off`,
-        icon: GaugeIcon,
-        href: '/more/performance',
-        testid: 'settings-performance',
-      },
-    ],
-  });
-}
-
-function useAboutGroup(
-  props: SettingsScreenViewProps
-): Accessor<SettingsGroup> {
-  const { t } = useLingui();
-  return () => ({
-    key: 'about',
-    title: t`About`,
-    rows: [
-      {
-        title: t`About`,
-        value: props.version,
-        icon: InfoIcon,
-        href: '/more/about',
-        testid: Handles.settingsAbout,
-      },
-    ],
-  });
+  return () => [
+    {
+      title: t`Connection`,
+      caption: t`Status, and what works offline`,
+      icon: WifiIcon,
+      href: '/more/server-status',
+      testid: Handles.settingsConnection,
+    },
+    {
+      title: t`Sync`,
+      caption: t`Changes waiting to send`,
+      icon: RefreshCwIcon,
+      href: '/more/sync',
+      testid: 'settings-sync',
+    },
+    {
+      title: t`Client config`,
+      caption: t`Settings from the server`,
+      icon: SlidersHorizontalIcon,
+      href: '/more/client-config',
+      testid: 'settings-client-config',
+    },
+    {
+      title: t`Performance`,
+      caption: t`Frame rate and responsiveness`,
+      value: props.perfEnabled ? t`On` : t`Off`,
+      icon: GaugeIcon,
+      href: '/more/performance',
+      testid: 'settings-performance',
+    },
+  ];
 }
 
 /** Everyday groups lead; About and Troubleshooting follow the subs' sections. */
 function useSettingsGroups(props: SettingsScreenViewProps): {
   readonly everyday: Accessor<readonly SettingsGroup[]>;
-  readonly closing: Accessor<readonly SettingsGroup[]>;
 } {
   const account = useAccountGroup(props);
   const preferences = usePreferencesGroup(props);
-  const about = useAboutGroup(props);
-  const troubleshooting = useTroubleshootingGroup(props);
-  return {
-    everyday: () => [account(), preferences()],
-    closing: () => [about(), troubleshooting()],
-  };
+  return { everyday: () => [account(), preferences()] };
 }
 
 function SettingsGroupView(props: {
@@ -249,6 +220,48 @@ function SettingsGroupView(props: {
       <For each={props.group.rows}>
         {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
       </For>
+    </MenuSection>
+  );
+}
+
+/**
+ * About, then one Troubleshooting row, closed until it is opened: the
+ * diagnostics (connection, sync, client config, performance) are one tap
+ * away without taking the screen from everyday settings.
+ */
+function AboutSection(props: SettingsScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const troubleshooting = useTroubleshootingRows(props);
+  const [open, setOpen] = createSignal(false);
+  return (
+    <MenuSection
+      footer={
+        open() ? t`Details to check when something isn't working.` : undefined
+      }
+    >
+      <SettingsRowItem
+        row={{
+          title: t`About`,
+          value: props.version,
+          icon: InfoIcon,
+          href: '/more/about',
+          testid: Handles.settingsAbout,
+        }}
+        onNavigate={props.onNavigate}
+      />
+      <MenuRow
+        title={t`Troubleshooting`}
+        caption={t`Connection, sync and diagnostics`}
+        leading={<ActivityIcon size={ROW_ICON_SIZE} color="icon" />}
+        expanded={open()}
+        onClick={() => setOpen((value) => !value)}
+        dataSet={{ testid: Handles.settingsTroubleshooting }}
+      />
+      <Show when={open()}>
+        <For each={troubleshooting()}>
+          {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
+        </For>
+      </Show>
     </MenuSection>
   );
 }
@@ -295,9 +308,10 @@ function SettingsRowItem(props: {
 /**
  * `/more`, presentational: the settings index — everyday account and
  * preference groups first, then whatever settings the composed subs
- * contribute, then About, and last a Troubleshooting group of diagnostics
- * (connection, sync, client config, performance). `SettingsScreen` wires
- * preferences, permissions and navigation.
+ * contribute, then About with a Troubleshooting disclosure (closed until
+ * opened) over the diagnostics: connection, sync, client config and
+ * performance. `SettingsScreen` wires preferences, permissions and
+ * navigation.
  */
 export function SettingsScreenView(
   props: SettingsScreenViewProps
@@ -317,11 +331,7 @@ export function SettingsScreenView(
         )}
       </For>
       {props.subSettings}
-      <For each={groups.closing()}>
-        {(group) => (
-          <SettingsGroupView group={group} onNavigate={props.onNavigate} />
-        )}
-      </For>
+      <AboutSection {...props} />
     </MenuScreen>
   );
 }
