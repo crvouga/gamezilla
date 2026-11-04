@@ -12,6 +12,8 @@ export type SpaceGameOption = {
   readonly id: string;
   readonly title: JSX.Element | string;
   readonly caption?: JSX.Element | string | undefined;
+  /** The game's picture beside its title (a `GameTile`). */
+  readonly Tile: (props: { readonly size?: 'md' | 'lg' }) => JSX.Element;
 };
 
 export type SpaceGamesScreenViewProps = {
@@ -44,6 +46,7 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       key: game.id,
       title: game.title,
       ...(game.caption !== undefined ? { caption: game.caption } : {}),
+      leading: <game.Tile />,
       dataSet: { testid: `game-menu-${game.id}` },
       selected: props.shownGame === game.id,
       ...(props.canSelectGame

@@ -216,6 +216,8 @@ export type GameClientDefinition = {
   readonly title: JSX.Element | string;
   /** One-line description under the title in the games picker. */
   readonly caption?: JSX.Element | string;
+  /** The game's picture beside its title wherever it is picked. */
+  readonly Tile: (props: { readonly size?: 'md' | 'lg' }) => JSX.Element;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /** Account-owned effects observe open rooms even while another screen is shown. */

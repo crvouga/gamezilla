@@ -1,4 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import {
+  GameTile,
+  type GameTileMotif,
+  GameTitleLockup,
+} from '@pkgs/ui-root-client-ts/game-tile';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -15,6 +20,8 @@ export type GameMenuChoiceView = {
 export type GameMenuScreenViewProps = {
   /** The game's name. */
   readonly title: string;
+  /** The game's picture (its `GameTile` motif), before its name. */
+  readonly tile: GameTileMotif;
   /** One line under the name. */
   readonly subtitle: JSX.Element;
   /** How to play, under the choices. */
@@ -46,7 +53,11 @@ export function GameMenuScreenView(
     <MainMenuScreen
       screenId="game-choices"
       dataSet={{ testid: Handles.gameChoices }}
-      title={props.title}
+      title={
+        <GameTitleLockup tile={<GameTile motif={props.tile} size="lg" />}>
+          {props.title}
+        </GameTitleLockup>
+      }
       subtitle={props.subtitle}
       items={items()}
       helper={

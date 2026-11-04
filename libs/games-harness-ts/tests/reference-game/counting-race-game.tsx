@@ -423,6 +423,7 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
   shared: COUNTING_RACE_SHARED,
   title: 'Counting race',
   caption: 'Count to seven first',
+  tile: 'paths',
   subtitle: () => 'Take turns counting on.',
   presentation: {
     canFlip: false,

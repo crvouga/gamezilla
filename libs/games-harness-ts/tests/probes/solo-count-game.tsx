@@ -236,6 +236,7 @@ export const SOLO_COUNT_GAME = assertHarnessGame({
     shared: SHARED,
     title: 'Solo count',
     caption: 'Reach seven in the moves allowed',
+    tile: 'paths',
     subtitle: () => 'Count on by one, two or three, alone.',
     presentation: probePresentation(SOLO_COUNT_RULES, {
       name: 'Solo count',

@@ -36,6 +36,7 @@ function GameChoices(props: {
       <DefineBackButton onPress={props.onBackToGames} />
       <GameMenuScreenView
         title={props.game.title}
+        tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
         instructions={
           props.game.instructions === undefined ? undefined : (

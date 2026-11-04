@@ -49,6 +49,7 @@ const meta = {
   },
   args: {
     title: 'Connect Four',
+    tile: 'discs',
     subtitle: 'Drop discs and line up four',
     instructions:
       'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
@@ -66,6 +67,7 @@ export const SharedChoices: Story = {};
 export const WithPuzzlesAndSettings: Story = {
   args: {
     title: 'Chess',
+    tile: 'checkered',
     subtitle: 'The classic game of kings',
     instructions: undefined,
     choices: PUZZLE_CHOICES,
@@ -76,6 +78,7 @@ export const WithPuzzlesAndSettings: Story = {
 export const ManyPlayers: Story = {
   args: {
     title: 'Hearts',
+    tile: 'cards',
     subtitle: 'Avoid hearts and the queen of spades',
     choices: [
       {
@@ -96,6 +99,7 @@ export const ManyPlayers: Story = {
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
+    tile: 'paths',
     subtitle: 'Connect every pair of numbers',
     instructions: undefined,
     choices: [

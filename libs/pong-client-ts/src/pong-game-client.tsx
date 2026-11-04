@@ -9,6 +9,7 @@ export const pongGameClient = defineGameClient({
   shared: pongGameShared,
   title: 'Pong',
   caption: 'Keep the rally alive with friends or bots',
+  tile: 'court',
   subtitle: () => <Trans>Two paddles. One ball. Every return counts.</Trans>,
   instructions: () => (
     <Trans>

@@ -7,6 +7,7 @@ export const battleshipGameClient = defineGameClient({
   shared: battleshipGameShared,
   title: 'Battleship',
   caption: 'Sink the hidden fleet, play friends or bots',
+  tile: 'fleet',
   subtitle: () => (
     <Trans>Hide your fleet. Call your shots. Sink theirs first.</Trans>
   ),
