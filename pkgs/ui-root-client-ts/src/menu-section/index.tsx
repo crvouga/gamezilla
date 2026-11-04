@@ -17,6 +17,12 @@ export type MenuSectionProps = {
   title?: JSX.Element | undefined;
   /** Explanatory note under the rows. */
   footer?: JSX.Element | undefined;
+  /**
+   * What the group is for, in one short line under its label. Shown only
+   * where the label has a column of its own (a desktop menu screen); a
+   * phone keeps to the label, so nothing here may be needed to use a row.
+   */
+  description?: JSX.Element | undefined;
   children: JSX.Element;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
@@ -86,6 +92,11 @@ export function MenuSection(props: MenuSectionProps): JSX.Element {
         <div class={styles['sectionAsideLabel']}>
           <Show when={hasTitle()}>
             <h3 class="text textBody font-semibold">{props.title}</h3>
+          </Show>
+          <Show
+            when={props.description !== undefined && props.description !== null}
+          >
+            <p class="text textCaption">{props.description}</p>
           </Show>
         </div>
         <div class="box gap-2 min-w-0">{rows()}</div>

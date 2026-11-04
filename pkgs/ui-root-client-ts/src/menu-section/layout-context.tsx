@@ -19,13 +19,16 @@ export function MenuSectionLayoutProvider(props: {
   layout: Accessor<MenuSectionLayout>;
   children: JSX.Element;
 }): JSX.Element {
+  // A stable accessor that reads the prop each time, so a provider set once
+  // still follows the layout as the screen resizes.
+  const layout: Accessor<MenuSectionLayout> = () => props.layout();
   return (
-    <MenuSectionLayoutContext.Provider value={props.layout}>
+    <MenuSectionLayoutContext.Provider value={layout}>
       {props.children}
     </MenuSectionLayoutContext.Provider>
   );
 }
 
 export function useMenuSectionLayout(): Accessor<MenuSectionLayout> {
-  return useContext(MenuSectionLayoutContext) ?? stacked;
+  return useContext(MenuSectionLayoutContext);
 }

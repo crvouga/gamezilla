@@ -54,6 +54,7 @@ export function highlightSegments(
 
 const ROLE_CLASS: Readonly<Record<TextRole, string>> = {
   body: 'textBody',
+  rowTitle: 'textBody textRowTitle',
   bodyBold: 'textBodyBold',
   label: 'textLabel',
   caption: 'textCaption',

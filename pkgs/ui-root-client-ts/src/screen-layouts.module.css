@@ -79,6 +79,22 @@
     background: var(--ui-color-surface);
   }
 }
+/* A desktop column (the whole frame column) has room for the sections
+   side by side: the first (the most timely, such as who is playing now)
+   down the left, the rest stacked beside it, so the page is one composed
+   block level with the identity card instead of a long strip. */
+@container (min-width: 56rem) {
+  .profile[data-split="true"] > .profileSections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--ui-space-6);
+    row-gap: var(--ui-space-section);
+    align-items: start;
+  }
+  .profile[data-split="true"] > .profileSections > :first-child {
+    grid-row: span 2;
+  }
+}
 /* The puzzle's frame: what the wide template measures, filling the screen. */
 .puzzleFrame {
   container: puzzle-frame / inline-size;
@@ -278,6 +294,7 @@
 .sectionAsideLabel {
   display: flex;
   flex-direction: column;
+  gap: var(--ui-space-1);
   min-width: 0;
   padding-top: var(--ui-space-4);
 }

@@ -53,9 +53,12 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    (`palette-contrast.test.ts` holds neutrals quiet and the accent to one
    hue).
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
-   (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
-   `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
-   `heading`, `subtitle`, `navigationTitle`, `label`, `stat`). Each role wears
+   (`body`, `rowTitle`, `bodyBold`, `label`, `caption`, `footnote`,
+   `sectionLabel`, `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`,
+   `title`, `heading`, `subtitle`, `navigationTitle`, `label`, `stat`).
+   `rowTitle` is the title of a row or card a screen lays out itself (body at
+   medium weight, as `MenuRow` sets its own), so the thing never weighs less
+   than the action beside it. Each role wears
    one of the eight text styles; the mapping is in `hosts.css` and
    `docs/ui-overhaul/DECISIONS.md`. `numeral` (Manrope 600, tabular) for
    ratings, clocks, prices and counts; counts from 1,000 are compact
@@ -170,8 +173,11 @@ sections); `full` for game stages with a rail. Compact hosts cap and center the
 column. On desktop every screen starts at the frame column's leading edge
 (the edge an open space's top bar uses), so content never jumps sideways
 between screens, and `menu` / `list` screens use the whole column on
-purpose: a `MenuScreen`'s sections put their label beside their rows, and a
-`CollectionScreen` can add a 320px `aside` of context. Only `prose` keeps a
+purpose: a `MenuScreen`'s sections put their label beside their rows (with
+an optional one-line `description` under the label there; a phone shows the
+label alone), and a `CollectionScreen` can add a 320px `aside` of context. A
+`ProfileScreenLayout` that wide sets its sections in two columns beside the
+identity card, the first (the most timely) down the left. Only `prose` keeps a
 720px reading measure (`useScreenMeasure`). The title block (the wide page
 header, or `ScreenIntro`) sits in the same column, so the title lines up
 with the content. Narrow layouts retain the 16px page inset.
