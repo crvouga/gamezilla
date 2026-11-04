@@ -4,7 +4,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { InfoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { CompassIcon, InfoIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import type { JSX } from 'solid-js';
 
@@ -41,13 +41,19 @@ export function RouteStubScreenView(
   return (
     <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
       <EmptyState
-        icon={InfoIcon}
+        icon={props.notFound === true ? CompassIcon : InfoIcon}
         title={
-          props.notFound === true ? <Trans>Page not found</Trans> : props.title
+          props.notFound === true ? (
+            <Trans>There's nothing at this address</Trans>
+          ) : (
+            props.title
+          )
         }
         body={
           props.notFound === true ? (
-            <Trans>There is nothing at this address.</Trans>
+            <Trans>
+              The link may be old or mistyped. Your spaces are one tap away.
+            </Trans>
           ) : (
             <Trans>This screen has not been ported to the web app yet.</Trans>
           )
