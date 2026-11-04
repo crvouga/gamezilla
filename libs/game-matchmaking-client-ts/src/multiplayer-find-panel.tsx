@@ -9,7 +9,6 @@ import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
@@ -56,9 +55,6 @@ export function MultiplayerFindPanel(props: {
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const count = () => props.players;
-  // A phone's button spans its column; beside a wide board it is sized to
-  // its words, never stretched across the whole column.
-  const mode = useLayoutMode();
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
@@ -111,7 +107,8 @@ export function MultiplayerFindPanel(props: {
             props.onFind(props.timed ? timeControl() : undefined)
           }
           variant="solid"
-          fullWidth={mode() !== 'wide'}
+          // The search's one command spans its card on every size.
+          fullWidth
           dataSet={{ testid: 'multiplayer-find' }}
         />
       }
