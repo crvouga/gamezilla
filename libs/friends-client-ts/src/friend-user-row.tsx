@@ -143,7 +143,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
           >
             <FriendUserRowIdentity
               profile={props.profile}
-                highlight={props.highlight}
+              highlight={props.highlight}
             />
           </Pressable>
           {trailing()}
