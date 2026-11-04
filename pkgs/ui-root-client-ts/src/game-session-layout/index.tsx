@@ -16,17 +16,35 @@ export type GameSessionLayoutProps = {
   actions?: JSX.Element | undefined;
   /** Record, spectators, ratings, or other supporting information. */
   aside?: JSX.Element | undefined;
+  /**
+   * On wide screens, `status` and `actions` head the rail beside the board
+   * (above `aside`) instead of following the board, so a game's commands
+   * stay in view beside a board that fills the window's height. Phones
+   * keep them right under the board either way.
+   */
+  actionsBeside?: boolean | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
   footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
+/** What is said about the game in play, then its commands. */
+function SessionControls(props: GameSessionLayoutProps): JSX.Element {
+  return (
+    <>
+      {props.status}
+      <GameActions>{props.actions}</GameActions>
+    </>
+  );
+}
+
 function SessionStage(props: GameSessionLayoutProps): JSX.Element {
   return (
     <>
       {props.children}
-      {props.status}
-      <GameActions>{props.actions}</GameActions>
+      <Show when={props.actionsBeside !== true}>
+        <SessionControls {...props} />
+      </Show>
     </>
   );
 }
@@ -35,7 +53,8 @@ function SessionStage(props: GameSessionLayoutProps): JSX.Element {
  * Shared custom / matched game composition, including setup and results:
  * the board column holds the play surface with its status and actions
  * directly under it; setup and the aside share the rail beside it on wide
- * screens (`GameLayout`).
+ * screens (`GameLayout`). With `actionsBeside` the status and actions head
+ * that rail instead, while phones keep them under the board.
  * `header` and `footer` resolve their content first: an empty slot (a false
  * `<Show>`, `null`, an empty fragment) draws nothing and takes no room.
  */
@@ -49,7 +68,15 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
     >
       <Show when={header.present()}>{header.content()}</Show>
       {props.notices}
-      <GameLayout setup={props.setup} aside={props.aside}>
+      <GameLayout
+        setup={props.setup}
+        controls={
+          <Show when={props.actionsBeside === true}>
+            <SessionControls {...props} />
+          </Show>
+        }
+        aside={props.aside}
+      >
         <SessionStage {...props} />
       </GameLayout>
       <Show when={footer.present()}>{footer.content()}</Show>

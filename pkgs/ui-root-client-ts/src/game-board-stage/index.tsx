@@ -10,6 +10,9 @@ import { createScreenSlot } from '../screen-slot';
  * in reading order: the other players above it (one `GamePlayerBar`, or a
  * `GamePlayerRail` at a bigger table), then the board, then the turn
  * (`GameTurnPill`), then the person's own strip. An empty slot takes no room.
+ * `preview` shows the board as a small thumbnail instead, for a phone
+ * while the game is still being set up: it says which board, not where to
+ * play, so it never pushes the setup off the screen.
  */
 export function GameBoardStage(props: {
   /** The other players, above the board. */
@@ -19,6 +22,8 @@ export function GameBoardStage(props: {
   /** The person holding the device, below the board. */
   own?: JSX.Element;
   children: JSX.Element;
+  /** A thumbnail of the board, before there is play to show. */
+  preview?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
@@ -27,6 +32,7 @@ export function GameBoardStage(props: {
   return (
     <div
       class={styles['boardStage']}
+      data-preview={props.preview === true}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>

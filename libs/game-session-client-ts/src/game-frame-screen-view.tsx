@@ -157,10 +157,11 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board: the record strip on a phone, what a player is told
- * during play, and the result once the game is over (once it is played the
- * turn line sits between the board and the person's own seat). Play
- * actions follow it, so on every screen they sit right under the board.
+ * Under the board on a phone, heading the rail beside a wide one: the
+ * record strip on a phone, what a player is told during play, and the
+ * result once the game is over (once it is played the turn line sits
+ * between the board and the person's own seat). Play actions follow it, so
+ * they stay in view with the board on every screen.
  */
 function FrameStatusRow(props: Props): JSX.Element {
   return (
@@ -249,12 +250,16 @@ function turnInSeats(props: Props): boolean {
 /**
  * The board and the people around it. Once the game is under way the seats
  * sit around it (the other seats above, the person's own nearest them, the
- * turn between); while it is set up the seats are in the Players section.
+ * turn between); while it is set up the seats are in the Players section,
+ * and a phone shows the board only as a thumbnail under them.
  */
 function FrameBoardStage(props: Props): JSX.Element {
   const seated = (): boolean => props.phase !== 'configuring';
+  // While a phone's screen is the setup, the board is only a thumbnail.
+  const mode = useLayoutMode();
   return (
     <GameBoardStage
+      preview={!seated() && mode() !== 'wide'}
       dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
       others={
         <Show when={seated()}>
@@ -330,6 +335,7 @@ function FrameContent(props: Props): JSX.Element {
       }
       setup={<FrameSetupSlot {...props} />}
       aside={<FrameRecordAside {...props} />}
+      actionsBeside
       status={<FrameStatusRow {...props} />}
       actions={
         <FrameActionsView

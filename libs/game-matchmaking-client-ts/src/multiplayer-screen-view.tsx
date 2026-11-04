@@ -127,7 +127,11 @@ function NextGame(props: Props): JSX.Element {
   );
 }
 
-/** The board when there is a game, then what the person can do next. */
+/**
+ * The board when there is a game, then what the person can do next. The
+ * game's own commands follow the board on a phone and head the rail beside
+ * it when wide (`actionsBeside`).
+ */
 function Stage(props: Props): JSX.Element {
   return (
     <>
@@ -153,7 +157,6 @@ function Stage(props: Props): JSX.Element {
           </Notice>
         </Show>
       </Show>
-      <Show when={props.stage === 'game'}>{props.gameActions}</Show>
       <NextGame {...props} />
       {/* With no board, the ratings follow the search in the one column,
           at its width, rather than a rail beside an empty board. */}
@@ -185,6 +188,10 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
                 error={props.error}
                 online={props.online}
               />
+            }
+            actionsBeside
+            status={
+              <Show when={props.stage === 'game'}>{props.gameActions}</Show>
             }
             aside={
               <Show when={props.stage === 'game'}>
