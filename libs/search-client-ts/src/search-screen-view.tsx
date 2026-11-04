@@ -165,12 +165,8 @@ function SearchIdleState(): JSX.Element {
   return (
     <EmptyState
       icon={UsersIcon}
-      title={<Trans>Find people</Trans>}
-      body={
-        <Trans>
-          Search by username to add friends and invite them to spaces.
-        </Trans>
-      }
+      title={<Trans>Search by username</Trans>}
+      body={<Trans>Add friends and invite them to spaces.</Trans>}
     />
   );
 }
@@ -188,7 +184,7 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
   return (
     <CollectionScreen
       screenId="search"
-      breadcrumbs={[{ name: t`Search` }]}
+      breadcrumbs={[{ name: t`Find people` }]}
       controls={
         <TextInput
           value={props.query}
