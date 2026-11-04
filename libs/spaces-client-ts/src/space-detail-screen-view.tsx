@@ -32,8 +32,13 @@ export type SpaceDetailScreenViewProps = SpaceChromeTrailingCallbacks & {
   readonly canRename: boolean;
   /** The host ends the space; everyone else only leaves. */
   readonly canEnd: boolean;
-  /** Faces on the members button; the people glyph when omitted. */
-  readonly presence?: ((size: number) => JSX.Element) | undefined;
+  /**
+   * Faces on the members button; the people glyph when omitted. `compact`
+   * asks for the phone's one-button form (the glyph and a count).
+   */
+  readonly presence?:
+    | ((size: number, compact: boolean) => JSX.Element)
+    | undefined;
   /** Inline notice for a refused change, under the bar. */
   readonly notice?: JSX.Element;
   /** Sheets and modals the screen owns (members, share, rename). */
@@ -64,7 +69,9 @@ function SpaceChromeTitle(props: {
  * edge — the bar's own row items (no wrapper), so the ActionBar sizes itself
  * against the title and collapses into its More menu when the row is short.
  */
-function SpaceTrailing(props: LayoutProps): JSX.Element {
+function SpaceTrailing(
+  props: LayoutProps & { readonly compact: boolean }
+): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
     <>
@@ -72,7 +79,7 @@ function SpaceTrailing(props: LayoutProps): JSX.Element {
         canRename={props.canRename}
         canEnd={props.canEnd}
         presence={(size) =>
-          props.presence?.(size) ?? (
+          props.presence?.(size, props.compact) ?? (
             <SpacePresenceStripView faces={[]} size={size} />
           )
         }
@@ -99,7 +106,7 @@ function SpaceLayoutWide(props: LayoutProps): JSX.Element {
             <SpaceChromeTitle title={props.title} size="subtitle" />
           </StackHorizontal>
         }
-        trailing={<SpaceTrailing {...props} />}
+        trailing={<SpaceTrailing {...props} compact={false} />}
       />
       {props.notice}
       <StackVertical grow overflow="hidden">
@@ -120,7 +127,7 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
           />
         }
         center={<SpaceChromeTitle title={props.title} size="navigationTitle" />}
-        trailing={<SpaceTrailing {...props} />}
+        trailing={<SpaceTrailing {...props} compact />}
         centerPosition="flex"
       />
       {props.notice}
