@@ -1,0 +1,4 @@
+{
+  "summary": "The main way into a game's menu (\"Play with friends or bots\") wore the accent's soft selection fill, so on a phone it read as a row already chosen or hovered rather than the suggested one. The primary row now keeps the ordinary surface and title ink and leads only with a tinted chevron.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/main-menu-item-emphasis.test.tsx"
+}
