@@ -4,6 +4,7 @@
  */
 
 import Activity from 'lucide-solid/icons/activity';
+import Archive from 'lucide-solid/icons/archive';
 import ArrowUpLeft from 'lucide-solid/icons/arrow-up-left';
 import Bell from 'lucide-solid/icons/bell';
 import Bold from 'lucide-solid/icons/bold';
@@ -88,6 +89,7 @@ import WifiOff from 'lucide-solid/icons/wifi-off';
 import X from 'lucide-solid/icons/x';
 
 import { createIcon } from './create-icon/index';
+export const ArchiveIcon = createIcon(Archive);
 export const CreditCardIcon = createIcon(CreditCard);
 
 export const HouseIcon = createIcon(House);

@@ -18,6 +18,21 @@ export type HighlightedTextProps = {
 
 export type HighlightedSegment = { text: string; bold: boolean };
 
+/**
+ * The run of `text` after the first case-insensitive match of `query`, as a
+ * range to emphasise: once a shared prefix is typed ("jor"), what follows it
+ * ("dan_plays", "dy") is what tells similar names apart. Empty when `query`
+ * is blank, absent from `text`, or reaches its end.
+ */
+export function rangesAfterMatch(text: string, query: string): MatchRange[] {
+  const needle = query.trim().toLowerCase();
+  if (needle.length === 0) return [];
+  const at = text.toLowerCase().indexOf(needle);
+  if (at < 0) return [];
+  const start = at + needle.length;
+  return start < text.length ? [[start, text.length - 1]] : [];
+}
+
 /** Split `text` into plain / bold segments. Exported for tests. */
 export function highlightSegments(
   text: string,
