@@ -193,8 +193,11 @@ Then(
 Then(
   '{actor} still has {int} rated matched game at {word}',
   async (w, actor: string, games: number, speed: string) => {
+    // A provisional rating says how many rated games settle it.
     expect(await shown(w, actor, speed, 'games')).toBe(
-      `${String(games)} rated game${games === 1 ? '' : 's'}`
+      games < MULTIPLAYER_SETTLED_GAMES
+        ? `Provisional · ${String(games)} of ${String(MULTIPLAYER_SETTLED_GAMES)} rated games`
+        : `${String(games)} rated game${games === 1 ? '' : 's'}`
     );
   }
 );

@@ -60,6 +60,7 @@ export function MultiplayerFindPanel(props: {
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
+      fill
       description={
         <>
           <Show when={count() > 2}>
