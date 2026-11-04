@@ -2959,6 +2959,10 @@ msgstr "Getting ready"
 msgid "Give your space a name"
 msgstr "Give your space a name"
 
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
+msgid "Go back"
+msgstr "Go back"
+
 #. placeholder {0}: node.title
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Go to {0}"
@@ -4238,8 +4242,8 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Offline. What you do stays on this device until you turn this off."
-msgstr "Offline. What you do stays on this device until you turn this off."
+msgid "Offline — nothing syncs"
+msgstr "Offline — nothing syncs"
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4266,13 +4270,13 @@ msgstr "online"
 msgid "Online"
 msgstr "Online"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Online — changes sync"
+msgstr "Online — changes sync"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
 msgstr "Online Synthetic Users"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Online. Turn on to use the app without a connection; nothing syncs until you turn it off."
-msgstr "Online. Turn on to use the app without a connection; nothing syncs until you turn it off."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only a participant can make this choice."
@@ -4281,6 +4285,10 @@ msgstr "Only a participant can make this choice."
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only another participant can answer a draw offer."
 msgstr "Only another participant can answer a draw offer."
+
+#: libs/auth-client-ts/src/sign-in-method-row.tsx
+msgid "Only sign-in"
+msgstr "Only sign-in"
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only the creator can make this choice."
@@ -4302,6 +4310,7 @@ msgstr "Only the puzzle team can load puzzles"
 msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
+#: libs/notifications-client-ts/src/notification-card-default.tsx
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open"
 msgstr "Open"
@@ -5199,7 +5208,6 @@ msgid "Rematch"
 msgstr "Rematch"
 
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
-#: libs/auth-client-ts/src/sign-in-methods-section.tsx
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 #: libs/friends-client-ts/src/friend-user-danger-modals.tsx
@@ -5212,10 +5220,8 @@ msgstr "Remove"
 msgid "Remove {0} from pack"
 msgstr "Remove {0} from pack"
 
-#. placeholder {0}: providerName(i18n(), 'email')
-#. placeholder {0}: providerName(i18n(), props.provider)
+#. placeholder {0}: providerName(i18n(), props.method)
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
-#: libs/auth-client-ts/src/sign-in-methods-section.tsx
 msgid "Remove {0} sign-in"
 msgstr "Remove {0} sign-in"
 
@@ -5358,6 +5364,10 @@ msgstr "Resign<0> multiplayer game</0>"
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "resignation"
 msgstr "resignation"
+
+#: libs/friends-client-ts/src/friend-request-notification-card.tsx
+msgid "Respond"
+msgstr "Respond"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
@@ -5656,12 +5666,8 @@ msgid "Search by username"
 msgstr "Search by username"
 
 #: libs/search-client-ts/src/search-screen-view.tsx
-msgid "Search by username or name"
-msgstr "Search by username or name"
-
-#: libs/search-client-ts/src/search-screen-view.tsx
-msgid "Search by username or name to add friends and invite them to spaces."
-msgstr "Search by username or name to add friends and invite them to spaces."
+msgid "Search by username to add friends and invite them to spaces."
+msgstr "Search by username to add friends and invite them to spaces."
 
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 msgid "Search for people by username to send a friend request."
@@ -5674,6 +5680,10 @@ msgstr "Search needs a connection"
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "Search people"
 msgstr "Search people"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Search people by username"
+msgstr "Search people by username"
 
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 msgid "Search styles…"

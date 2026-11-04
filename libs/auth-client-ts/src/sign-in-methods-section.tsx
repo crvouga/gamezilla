@@ -11,7 +11,6 @@ import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -20,7 +19,7 @@ import { For, type JSX, Show } from 'solid-js';
 
 import { AccountSyncErrorNotice } from './account-sync-error-notice';
 import { providerName } from './auth-flow-messages';
-import { SignInMethodRow } from './sign-in-method-row';
+import { RemoveMethodControl, SignInMethodRow } from './sign-in-method-row';
 import { UnlinkMethodModal } from './unlink-method-modal';
 import type { LinkedIdentity } from './use-linked-identities';
 
@@ -140,22 +139,17 @@ function EmailMethodRow(props: {
   readonly removable: boolean;
   readonly onRemove: () => void;
 }): JSX.Element {
-  const { i18n, t } = useLingui();
+  const { i18n } = useLingui();
   return (
     <MenuRow
       title={providerName(i18n(), 'email')}
       caption={props.identity.email ?? ''}
       hideChevron
       trailing={
-        <Button
-          title={t`Remove`}
-          aria-label={t`Remove ${providerName(i18n(), 'email')} sign-in`}
-          variant="ghost"
-          intent="danger"
-          size="sm"
-          disabled={!props.removable}
-          onClick={props.onRemove}
-          dataSet={{ testid: Handles.accountUnlinkProvider('email') }}
+        <RemoveMethodControl
+          method="email"
+          removable={props.removable}
+          onRemove={props.onRemove}
         />
       }
       dataSet={{ testid: Handles.accountSignInMethod('email') }}

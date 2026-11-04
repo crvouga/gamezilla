@@ -2,6 +2,7 @@ import { NotificationCardDefault } from '@libs/notifications-client-ts/notificat
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -18,6 +19,7 @@ type FriendRequestNotificationCardProps = {
 export function FriendRequestNotificationCard(
   props: FriendRequestNotificationCardProps
 ): JSX.Element {
+  const { t } = useLingui();
   const decision = useFriendRequestDecisionOptional();
   const [localOpen, setLocalOpen] = createSignal(false);
   const profile = createMemo(() =>
@@ -61,6 +63,7 @@ export function FriendRequestNotificationCard(
         actions={props.actions}
         showInlineActions={false}
         onPress={onPress}
+        openLabel={t`Respond`}
         {...(leading() !== undefined ? { leading: leading() } : {})}
         {...(profile().username.length > 0
           ? {

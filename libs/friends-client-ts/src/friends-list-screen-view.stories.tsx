@@ -85,7 +85,8 @@ const HOSTING = new Set(['9f1c2a4e-0000-4000-8000-000000000002']);
  * Friends are known: one row each, newest-first order as the container gives
  * it. Each row is the friend's face, name and since when, and opens their
  * profile; a friend hosting a live space ends in the Live tag that joins it
- * (a profile not yet on this device shows its initials).
+ * (a profile not yet on this device shows its initials). Find friends sits
+ * in the header as the page's next step.
  */
 export const Populated: Story = {
   args: {
@@ -134,11 +135,17 @@ export const Denied: Story = {
   },
 };
 
-/** Pressing a friend opens that friend; the empty state's action opens search. */
+/**
+ * Pressing a friend opens that friend; Find friends in the header (like the
+ * empty state's action) opens search.
+ */
 export const OpenFriend: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByText('@morgan'));
     await expect(args.onOpenFriend).toHaveBeenCalledWith(FRIENDS[2]);
+    const find = await canvas.findByRole('button', { name: 'Find friends' });
+    await userEvent.click(find);
+    await expect(args.onFindFriends).toHaveBeenCalled();
   },
 };

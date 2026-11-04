@@ -168,7 +168,7 @@ function SearchIdleState(): JSX.Element {
       title={<Trans>Find people</Trans>}
       body={
         <Trans>
-          Search by username or name to add friends and invite them to spaces.
+          Search by username to add friends and invite them to spaces.
         </Trans>
       }
     />
@@ -193,7 +193,7 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
         <TextInput
           value={props.query}
           onChangeText={(query) => props.onQueryChange(query)}
-          placeholder={t`Search by username or name`}
+          placeholder={t`Search people by username`}
           aria-label={t`Search people`}
           startAdornment={
             <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />

@@ -9,8 +9,10 @@ import type {
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { useLingui } from '@lingui/solid/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -157,13 +159,8 @@ function everyAnswerUnavailable(
   );
 }
 
-/**
- * The card's answers on their own row under its words: the main answer
- * first, other choices beside it. An answer that is unavailable for a
- * stated reason shows that reason instead. Nothing is drawn when the card
- * has no answers, so such a card stays one compact block.
- */
-function CardActionsRow(props: {
+/** Each published answer: a mutation pill, or the reason it is unavailable. */
+function CardAnswers(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
   readonly inline: readonly NotificationAction[];
@@ -173,35 +170,52 @@ function CardActionsRow(props: {
 }): JSX.Element {
   const primaryId = createMemo(() => primaryNotificationActionId(props.inline));
   return (
-    <Show when={props.inline.length > 0}>
-      <StackHorizontal align="center" gap="sm" wrap>
-        <For each={props.inline}>
-          {(action) => (
-            <Show
-              when={
-                action.disabled === true ? action.disabledReason : undefined
-              }
-              keyed
-              fallback={
-                <NotificationActionButton
-                  interaction={props.interaction}
-                  action={action}
-                  actions={props.actions}
-                  emphasis={action.id === primaryId() ? 'primary' : 'secondary'}
-                  testID={props.actionTestID?.(action)}
-                />
-              }
-            >
-              {(reason) => <UnavailableAnswer reason={reason} />}
-            </Show>
+    <For each={props.inline}>
+      {(action) => (
+        <Show
+          when={action.disabled === true ? action.disabledReason : undefined}
+          keyed
+          fallback={
+            <NotificationActionButton
+              interaction={props.interaction}
+              action={action}
+              actions={props.actions}
+              emphasis={action.id === primaryId() ? 'primary' : 'secondary'}
+              testID={props.actionTestID?.(action)}
+            />
+          }
+        >
+          {(reason) => <UnavailableAnswer reason={reason} />}
+        </Show>
+      )}
+    </For>
+  );
+}
+
+/**
+ * The card's one explicit next step when it waits on the person but
+ * publishes no answers of its own (a turn waiting on you): the same thing
+ * pressing its words does, said as a solid pill so the card reads as
+ * actionable at a glance.
+ */
+function CardOpenAnswer(props: {
+  readonly label: string | undefined;
+  readonly onOpen: (() => void) | undefined;
+}): JSX.Element {
+  return (
+    <Show when={props.onOpen} keyed>
+      {(open) => (
+        <Show when={props.label} keyed>
+          {(label) => (
+            <Button title={label} size="sm" intent="primary" onClick={open} />
           )}
-        </For>
-      </StackHorizontal>
+        </Show>
+      )}
     </Show>
   );
 }
 
-/** Archive, in the card's trailing corner beside its words. */
+/** Archive, at the trailing end of the card's action row. */
 function CardArchive(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
@@ -217,6 +231,52 @@ function CardArchive(props: {
           }}
         />
       )}
+    </Show>
+  );
+}
+
+/**
+ * The card's action row under its words: its answers first (the main one
+ * as the solid pill, other choices as outlines, an unavailable one as its
+ * reason in a neutral tag), or its one explicit open step, then Archive as
+ * a quiet labelled ghost button at the trailing end. Nothing is drawn when
+ * the card has neither answers nor Archive, so it stays one compact block.
+ */
+function CardActionsRow(props: {
+  readonly interaction: Notification;
+  readonly actions: NotificationCardActions;
+  readonly inline: readonly NotificationAction[];
+  readonly openLabel: string | undefined;
+  readonly onOpen: (() => void) | undefined;
+  readonly cardTestID: string | undefined;
+  readonly actionTestID?:
+    | ((action: NotificationAction) => string | undefined)
+    | undefined;
+}): JSX.Element {
+  const openStep = (): string | undefined =>
+    props.inline.length === 0 ? props.openLabel : undefined;
+  const hasRow = (): boolean =>
+    props.inline.length > 0 ||
+    (openStep() !== undefined && props.onOpen !== undefined) ||
+    props.cardTestID !== undefined;
+  return (
+    <Show when={hasRow()}>
+      <StackHorizontal align="center" justify="between" gap="sm">
+        <StackHorizontal align="center" gap="sm" wrap>
+          <CardAnswers
+            interaction={props.interaction}
+            actions={props.actions}
+            inline={props.inline}
+            actionTestID={props.actionTestID}
+          />
+          <CardOpenAnswer label={openStep()} onOpen={props.onOpen} />
+        </StackHorizontal>
+        <CardArchive
+          interaction={props.interaction}
+          actions={props.actions}
+          cardTestID={props.cardTestID}
+        />
+      </StackHorizontal>
     </Show>
   );
 }
@@ -242,18 +302,24 @@ export type NotificationCardDefaultProps = {
     | undefined;
   /** Addresses the card; also gives it the Archive action. */
   readonly testID?: string | undefined;
+  /**
+   * The explicit next step's label on a card that waits on the person but
+   * shows no answers ("Respond"). Defaults to "Open" for such a card.
+   */
+  readonly openLabel?: string | undefined;
 };
 
 /**
  * The inbox's card for one notification, in one anatomy: the face, then a
- * column whose words wrap (and open the notification), with Archive as a
- * quiet icon button in the trailing corner beside them, and the card's own
- * answers on a row beneath — the main answer as the solid pill, other
- * choices as outlines, an unavailable answer as its reason in a neutral tag.
- * A card whose every answer is unavailable (a full space) is plainly
- * inactive: its words drop to the secondary ink and lose their unread
- * weight. A card without answers is one compact block. Only the small Archive button sits beside
- * the words, so a long title never pushes a control off the edge.
+ * column whose words wrap (and open the notification), and an action row
+ * beneath — the card's answers first (the main answer as the solid pill,
+ * other choices as outlines, an unavailable answer as its reason in a
+ * neutral tag), or, when it waits on the person without answers of its own,
+ * one explicit Open pill; then Archive as a quiet labelled ghost button at
+ * the row's trailing end. A card whose every answer is unavailable (a full
+ * space) is plainly inactive: its words drop to the secondary ink and lose
+ * their unread weight. Nothing sits beside the words, so a long title never
+ * pushes a control off the edge.
  *
  * A card with no answers of its own is pressed by its `testID`; a card with
  * answers is addressed by `testID` and opened by `${testID}-open`.
@@ -261,6 +327,7 @@ export type NotificationCardDefaultProps = {
 export function NotificationCardDefault(
   props: NotificationCardDefaultProps
 ): JSX.Element {
+  const { t } = useLingui();
   const moderation = useModeration();
   // Copy as the reader may see it now (snapshot usernames moderated).
   const shown = createMemo(() =>
@@ -279,6 +346,10 @@ export function NotificationCardDefault(
     if (props.testID === undefined || open() === undefined) return undefined;
     return idOnWords() ? props.testID : `${props.testID}-open`;
   };
+  const openLabel = (): string | undefined =>
+    props.interaction.category === 'action_required'
+      ? (props.openLabel ?? t`Open`)
+      : undefined;
   const state = (): ComponentDataSet | undefined =>
     props.testID === undefined
       ? undefined
@@ -294,24 +365,20 @@ export function NotificationCardDefault(
     >
       {props.leading ?? <DefaultLeading interaction={shown()} />}
       <StackVertical grow gap="md">
-        <StackHorizontal align="start" gap="xs">
-          <CardHeadline
-            interaction={shown()}
-            inactive={inactive()}
-            onOpen={open()}
-            testId={wordsTestId()}
-            dataSet={idOnWords() ? state() : undefined}
-          />
-          <CardArchive
-            interaction={props.interaction}
-            actions={props.actions}
-            cardTestID={props.testID}
-          />
-        </StackHorizontal>
+        <CardHeadline
+          interaction={shown()}
+          inactive={inactive()}
+          onOpen={open()}
+          testId={wordsTestId()}
+          dataSet={idOnWords() ? state() : undefined}
+        />
         <CardActionsRow
           interaction={props.interaction}
           actions={props.actions}
           inline={inline()}
+          openLabel={openLabel()}
+          onOpen={open()}
+          cardTestID={props.testID}
           actionTestID={props.actionTestID}
         />
       </StackVertical>

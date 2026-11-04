@@ -2,6 +2,7 @@
 
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
+  CompassIcon,
   HouseIcon,
   SearchIcon,
   UsersIcon,
@@ -30,6 +31,21 @@ export default function EmptyStateExample(): JSX.Element {
             title="No live spaces"
             body="Start one and invite your friends."
             action={{ label: 'New space', onClick: () => undefined }}
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
+      <SectionLabel label="Fill, with a quieter way out" />
+      <SchemePreview>
+        <div class="box h-70">
+          <EmptyState
+            icon={CompassIcon}
+            title="There's nothing at this address"
+            body="The link may be old or mistyped."
+            action={{ label: 'Go to Spaces', onClick: () => undefined }}
+            secondaryAction={{ label: 'Go back', onClick: () => undefined }}
           />
         </div>
       </SchemePreview>
