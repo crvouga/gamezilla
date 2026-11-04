@@ -60,7 +60,8 @@
   min-width: 0;
   font-size: var(--ui-font-size-xs);
   line-height: 1;
-  color: var(--ui-color-board-card-ink);
+  /* Row and column numbers sit on the tray, not on a tile: its muted ink. */
+  color: var(--ui-color-game-word-tiles-muted);
   font-variant-numeric: tabular-nums;
 }
 .cell {
