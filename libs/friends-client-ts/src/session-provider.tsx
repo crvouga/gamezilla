@@ -19,6 +19,7 @@ import { createMemo, type JSX } from 'solid-js';
 import { FriendRequestDecisionProvider } from './friend-request-decision-state';
 import { createFriendsNotificationProvider } from './friends-notification-provider';
 import { ProfileFriendsActions } from './profile-friends-actions-view';
+import { ProfileFriendsPlaying } from './profile-friends-playing';
 import { ProfileFriendsStats } from './profile-friends-stats-view';
 import { SearchFriendResultRow } from './search-friend-result-row';
 import { useFriendsClientDeps } from './use-friends-client-deps';
@@ -26,6 +27,7 @@ import { useFriendsClientDeps } from './use-friends-client-deps';
 const PROFILE_SLOTS = {
   stats: () => <ProfileFriendsStats />,
   actions: () => <ProfileFriendsActions />,
+  playing: () => <ProfileFriendsPlaying />,
 };
 
 const SEARCH_SLOTS = {
