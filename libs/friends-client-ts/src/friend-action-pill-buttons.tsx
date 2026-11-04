@@ -90,6 +90,11 @@ export function SingleActionPill(props: {
   variant?: 'solid' | 'outline' | 'ghost';
   /** A row's trailing control: the small secondary pill. */
   compact?: boolean;
+  /**
+   * A row's quieter control beside a status: the small ghost pill, so the
+   * status reads first.
+   */
+  quiet?: boolean;
   icon?: IconComponent;
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
@@ -119,11 +124,16 @@ export function SingleActionPill(props: {
     },
     onPhaseChange,
   });
+  const small = (): boolean => props.compact === true || props.quiet === true;
+  const variant = (): 'solid' | 'outline' | 'ghost' => {
+    if (props.quiet === true) return 'ghost';
+    return props.compact === true ? 'outline' : (props.variant ?? 'solid');
+  };
   return (
     <Button
-      variant={props.compact === true ? 'outline' : (props.variant ?? 'solid')}
-      intent={props.compact === true ? 'neutral' : undefined}
-      size={props.compact === true ? 'sm' : undefined}
+      variant={variant()}
+      intent={small() ? 'neutral' : undefined}
+      size={small() ? 'sm' : undefined}
       icon={props.icon}
       {...mutation.buttonProps}
       {...(props.testID !== undefined

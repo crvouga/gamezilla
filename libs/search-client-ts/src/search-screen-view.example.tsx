@@ -9,7 +9,11 @@ import {
   HighlightedText,
   rangesAfterMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
-import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CheckIcon,
+  ClockIcon,
+  UserPlusIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -43,7 +47,8 @@ const STORY_RELATIONS: Readonly<
 /**
  * Stand-in for the friends sub's relationship: one trailing control per row,
  * "Friends" as words with a check in the success ink (a status, not a
- * control) or one small secondary pill ("Add friend", "Cancel request").
+ * control), "Request sent" as words with a clock beside a quiet ghost
+ * "Cancel", or one small secondary pill ("Add friend").
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
@@ -59,13 +64,21 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
         </StackHorizontal>
       </Match>
       <Match when={relation() === 'requested'}>
-        <Button
-          title="Cancel request"
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          onClick={() => undefined}
-        />
+        <StackHorizontal align="center" gap="xs">
+          <StackHorizontal align="center" gap="xs">
+            <ClockIcon size={16} color="textSecondary" />
+            <Text variant="label" tone="secondary" lines={1}>
+              Request sent
+            </Text>
+          </StackHorizontal>
+          <Button
+            title="Cancel"
+            intent="neutral"
+            variant="ghost"
+            size="sm"
+            onClick={() => undefined}
+          />
+        </StackHorizontal>
       </Match>
       <Match when={relation() === 'add'}>
         <Button

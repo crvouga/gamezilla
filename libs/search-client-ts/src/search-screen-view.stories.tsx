@@ -56,8 +56,9 @@ export const Searching: Story = {
  * People whose username starts with the query, in one panel: each face, and
  * what follows the typed "jor" emphasised so similar handles read apart
  * (a profile not yet on this device shows its initials). Each row ends in
- * one control: a Friends tag, or one small pill for what the viewer can do
- * (Add friend, Cancel request). The panel sits on the search field's inset.
+ * one control: a Friends tag, Request sent with a quiet Cancel beside it,
+ * or one small pill for what the viewer can do (Add friend). The panel sits
+ * on the search field's inset.
  */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },

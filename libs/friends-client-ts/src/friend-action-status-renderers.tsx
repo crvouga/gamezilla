@@ -8,7 +8,11 @@ import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CheckIcon,
+  ClockIcon,
+  UserPlusIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, type JSX, Show } from 'solid-js';
@@ -21,15 +25,19 @@ const STATUS_ICON_SIZE = 16;
 
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
+/** How a relationship status reads: its ink, and the glyph before it. */
+type RelationshipIntent = 'neutral' | 'pending' | 'success';
+
 /**
  * A relationship, not an action: words in the row's trailing slot (a check
- * and "Friends" in the success ink, "Unavailable" in the secondary ink),
- * never a pill. Actions are outlined pills, so the two never read alike,
- * and both end at the row's trailing edge, centred on it.
+ * and "Friends" in the success ink, a clock and "Request sent" or
+ * "Unavailable" in the secondary ink), never a pill. Actions are pills, so
+ * the two never read alike, and both end at the row's trailing edge,
+ * centred on it.
  */
 function RelationshipStatus(props: {
   readonly label: JSX.Element;
-  readonly intent: 'neutral' | 'success';
+  readonly intent: RelationshipIntent;
   readonly testId?: string | undefined;
 }): JSX.Element {
   return (
@@ -37,9 +45,13 @@ function RelationshipStatus(props: {
       <Show when={props.intent === 'success'}>
         <CheckIcon size={STATUS_ICON_SIZE} color="success" />
       </Show>
+      <Show when={props.intent === 'pending'}>
+        <ClockIcon size={STATUS_ICON_SIZE} color="textSecondary" />
+      </Show>
       <Text
         variant="label"
         tone={props.intent === 'success' ? 'success' : 'secondary'}
+        lines={1}
       >
         {props.label}
       </Text>
@@ -97,8 +109,9 @@ function renderPendingIncoming(
 }
 
 /**
- * A request is out: one control that says so and what it does, "Cancel
- * request", never a tag with a second button beside it.
+ * A request is out: the status says so ("Request sent"), and cancelling is
+ * the quieter control beside it — a ghost "Cancel" at a row's end, or the
+ * outlined "Cancel request" under the status on a profile.
  */
 function renderPendingOutgoing(
   wrap: WrapMutation,
@@ -107,19 +120,32 @@ function renderPendingOutgoing(
   compact: boolean
 ): JSX.Element {
   const { t } = useLingui();
-  return (
+  const named = username !== undefined && username.length > 0;
+  const cancel = (
     <SingleActionPill
-      compact={compact}
+      quiet={compact}
       operation={wrap(mutations.cancelRequest)}
-      idle={<Trans>Cancel request</Trans>}
+      idle={compact ? <Trans>Cancel</Trans> : <Trans>Cancel request</Trans>}
       loading={t`Cancelling…`}
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
       variant="outline"
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendCancel(username) }
-        : {})}
+      {...(named ? { testID: Handles.friendCancel(username) } : {})}
     />
+  );
+  const status = (
+    <RelationshipStatus label={<Trans>Request sent</Trans>} intent="pending" />
+  );
+  return compact ? (
+    <StackHorizontal align="center" gap="xs">
+      {status}
+      {cancel}
+    </StackHorizontal>
+  ) : (
+    <StackVertical align="center" gap="sm" self="stretch">
+      {status}
+      <StackVertical self="stretch">{cancel}</StackVertical>
+    </StackVertical>
   );
 }
 
