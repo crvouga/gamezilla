@@ -266,8 +266,9 @@ function SpaceCardActionLabel(props: {
 
 /**
  * One row in the lobby panel, in one anatomy for every space: the host's
- * face; the name over one line of who hosts it and who else is in it;
- * and, centred at the trailing edge, what pressing it does: Resume where the
+ * face; the name, with what pressing it does at the end of the name's line,
+ * over one full-width line of who hosts it and who else is in it. The
+ * action is Resume where the
  * viewer already is, Open for their own, Join for someone else's. Every
  * space listed is live, so the row names the next step instead of tagging
  * it "Live", and says "Resume" once instead of tagging it "Current" too.
@@ -307,13 +308,19 @@ export function SpaceCardView(props: {
           vividBackdrop
         />
         <StackVertical grow shrink gap="xs">
-          {/* The list-row title: body weight, as in every panel of rows. */}
-          <Text variant="body" lines={1}>
-            {props.space.title}
-          </Text>
+          {/* The action shares the title's line, so the line under it can
+              run the card's full width and still name who is in it. */}
+          <StackHorizontal align="center" justify="between" gap="sm">
+            <StackVertical shrink>
+              {/* The list-row title: body weight, as in every panel of rows. */}
+              <Text variant="body" lines={1}>
+                {props.space.title}
+              </Text>
+            </StackVertical>
+            <SpaceCardActionLabel action={spaceCardAction(props.space)} />
+          </StackHorizontal>
           <SpaceCardMetaLine space={props.space} />
         </StackVertical>
-        <SpaceCardActionLabel action={spaceCardAction(props.space)} />
       </StackHorizontal>
     </Pressable>
   );
