@@ -52,7 +52,7 @@ function WidePageHeader(
   const centered = useMeasureCentered();
   return (
     <header
-      class="box flex-row items-end gap-3 shrink-0 min-h-13 py-2"
+      class="box flex-row items-end gap-3 shrink-0 min-h-13 pt-2 pb-4"
       classList={{
         'w-full': measure() !== undefined,
         'mx-auto': measure() !== undefined && centered(),
