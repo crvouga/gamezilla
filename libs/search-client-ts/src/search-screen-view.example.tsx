@@ -4,15 +4,14 @@ import {
   serializeDefaultAvatarConfig,
 } from '@libs/profile-shared-ts/avatar-config';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   HighlightedText,
   rangesAfterMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 /**
@@ -41,8 +40,8 @@ const STORY_RELATIONS: Readonly<
 
 /**
  * Stand-in for the friends sub's relationship: one trailing control per row,
- * a "Friends" tag or one small secondary pill ("Add friend",
- * "Cancel request").
+ * "Friends" as words with a check in the success ink (a status, not a
+ * control) or one small secondary pill ("Add friend", "Cancel request").
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
@@ -50,9 +49,12 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   return (
     <Switch>
       <Match when={relation() === 'friends'}>
-        <StackVertical>
-          <Badge label="Friends" intent="success" />
-        </StackVertical>
+        <StackHorizontal align="center" gap="xs">
+          <CheckIcon size={16} color="success" />
+          <Text variant="label" tone="success">
+            Friends
+          </Text>
+        </StackHorizontal>
       </Match>
       <Match when={relation() === 'requested'}>
         <Button
