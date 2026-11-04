@@ -1,4 +1,4 @@
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { UserPlusIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -28,6 +28,7 @@ export function StoryFriendsStats(props: {
 }): JSX.Element {
   return (
     <MenuRow
+      leading={<UsersIcon size={20} color="icon" />}
       title={
         <>
           <Text variant="bodyBold" numeral>

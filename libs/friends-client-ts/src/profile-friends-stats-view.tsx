@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural } from '@lingui/solid/macro';
+import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -16,6 +17,7 @@ export function ProfileFriendsStats(): JSX.Element {
   // A bare row: the profile groups it with Find friends in one panel.
   return (
     <MenuRow
+      leading={<UsersIcon size={20} color="icon" />}
       title={
         <>
           <Text variant="bodyBold" numeral testId={Handles.profileFriendsCount}>
