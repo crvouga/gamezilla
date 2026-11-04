@@ -10,6 +10,7 @@ import { SpaceMembersSheetView } from './space-members-sheet-view';
 import { SpacePresenceStripView } from './space-presence-strip-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { GameAreaExample } from './space-story-game-area.example';
+import { SpaceWhoIsHereView } from './space-who-is-here-view';
 import {
   AVERY,
   faces,
@@ -34,6 +35,13 @@ function gamesList(canSelectGame: boolean): JSX.Element {
       present={1 + GUESTS.length}
       hostChoosesNotice={false}
       onSelectGame={fn()}
+      whoIsHere={
+        <SpaceWhoIsHereView
+          faces={faces([AVERY, ...GUESTS])}
+          host={AVERY}
+          hostIsYou={canSelectGame}
+        />
+      }
     />
   );
 }
@@ -95,6 +103,8 @@ type Story = StoryObj<typeof meta>;
  * The host in their space: every action, choosing what to play. Wide, the
  * members button is everyone's faces; on a phone it is the people glyph
  * with how many are here, one button wide, so it stays beside the title.
+ * Under the Games title, who is here and who hosts ("5 here · you host"),
+ * so the room stays in view while the game is chosen.
  */
 export const HostChoosingGame: Story = {};
 

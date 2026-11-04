@@ -447,6 +447,10 @@
     background: var(--ui-color-info);
   }
 
+  .statusDot[data-status="unread"] {
+    background: var(--ui-color-tint-active);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .btn,
     .fab,

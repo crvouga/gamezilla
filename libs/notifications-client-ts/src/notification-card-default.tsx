@@ -16,6 +16,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
@@ -29,6 +30,9 @@ import { displayNotification } from './notification-display';
 
 /** The default face: `md`, so every card's text column starts at one x. */
 const LEADING_SIZE = 40;
+
+/** The unread dot before a title: about the height of its lowercase letters. */
+const UNREAD_DOT_SIZE = 8;
 
 /** What a person can see: still waiting to be opened, or already opened. */
 function cardState(unread: boolean): ComponentDataSet {
@@ -60,36 +64,71 @@ function DefaultLeading(props: {
   );
 }
 
+/** When it came, then what kind it is: one line ("1h ago · Space invite"). */
+function metaLine(parts: readonly (string | undefined)[]): string {
+  return parts
+    .filter((part): part is string => part !== undefined && part.length > 0)
+    .join(' · ');
+}
+
+/**
+ * The card's title. Waiting on the person (unread, with something still
+ * to answer), it leads with the accent unread dot and takes the bold
+ * weight; once opened it is plain body text with no dot.
+ */
+function CardTitle(props: {
+  readonly title: string;
+  readonly waiting: boolean;
+  readonly inactive: boolean;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <P
+      variant={props.waiting ? 'bodyBold' : 'body'}
+      tone={props.inactive ? 'secondary' : undefined}
+      lines={3}
+    >
+      <Show when={props.waiting}>
+        <StatusDot
+          status="unread"
+          size={UNREAD_DOT_SIZE}
+          label={t`Unread`}
+          dataSet={{ 'inbox-unread': 'true' }}
+        />{' '}
+      </Show>
+      {props.title}
+    </P>
+  );
+}
+
 function InteractionRowText(props: {
   readonly interaction: Notification;
   /** Nothing can be answered any more: the words step back. */
   readonly inactive: boolean;
 }): JSX.Element {
   const relative = useRelativeTimeLabel(() => props.interaction.createdAt);
-  const detailParts = createMemo(() =>
-    [props.interaction.subtitle, props.interaction.body].filter(
-      (part): part is string => part !== undefined && part.length > 0
-    )
+  const meta = createMemo(() =>
+    metaLine([relative(), props.interaction.subtitle])
   );
+  const body = (): string | undefined =>
+    props.interaction.body !== undefined && props.interaction.body.length > 0
+      ? props.interaction.body
+      : undefined;
   return (
-    <StackVertical grow gap="xs">
-      <P
-        variant={
-          props.interaction.isUnread && !props.inactive ? 'bodyBold' : 'body'
-        }
-        tone={props.inactive ? 'secondary' : undefined}
-        lines={3}
-      >
-        {props.interaction.title}
-      </P>
-      <P variant="caption">{relative()}</P>
-      <For each={detailParts()}>
-        {(part) => (
+    <StackVertical grow>
+      <CardTitle
+        title={props.interaction.title}
+        waiting={props.interaction.isUnread && !props.inactive}
+        inactive={props.inactive}
+      />
+      <P variant="caption">{meta()}</P>
+      <Show when={body()} keyed>
+        {(text) => (
           <P variant="caption" lines={2}>
-            {part}
+            {text}
           </P>
         )}
-      </For>
+      </Show>
     </StackVertical>
   );
 }
@@ -215,7 +254,7 @@ function CardOpenAnswer(props: {
   );
 }
 
-/** Archive, at the trailing end of the card's action row. */
+/** Archive, the quiet icon at the card's top trailing corner. */
 function CardArchive(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
@@ -224,23 +263,26 @@ function CardArchive(props: {
   return (
     <Show when={props.cardTestID} keyed>
       {(cardTestID) => (
-        <InboxArchiveButton
-          testId={Handles.notificationsArchive(cardTestID)}
-          onArchive={() => {
-            void props.actions.archive(props.interaction.id);
-          }}
-        />
+        // A column of its own, so the button keeps to the top corner
+        // instead of centring on a tall card.
+        <StackVertical>
+          <InboxArchiveButton
+            testId={Handles.notificationsArchive(cardTestID)}
+            onArchive={() => {
+              void props.actions.archive(props.interaction.id);
+            }}
+          />
+        </StackVertical>
       )}
     </Show>
   );
 }
 
 /**
- * The card's action row under its words: its answers first (the main one
- * as the solid pill, other choices as outlines, an unavailable one as its
- * reason in a neutral tag), or its one explicit open step, then Archive as
- * a quiet labelled ghost button at the trailing end. Nothing is drawn when
- * the card has neither answers nor Archive, so it stays one compact block.
+ * The card's answers under its words: the main one as the solid pill,
+ * other choices as outlines, an unavailable one as its reason in a neutral
+ * tag, or its one explicit open step. Nothing is drawn when the card has
+ * neither, so an update stays one compact block.
  */
 function CardActionsRow(props: {
   readonly interaction: Notification;
@@ -248,7 +290,6 @@ function CardActionsRow(props: {
   readonly inline: readonly NotificationAction[];
   readonly openLabel: string | undefined;
   readonly onOpen: (() => void) | undefined;
-  readonly cardTestID: string | undefined;
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
@@ -257,25 +298,17 @@ function CardActionsRow(props: {
     props.inline.length === 0 ? props.openLabel : undefined;
   const hasRow = (): boolean =>
     props.inline.length > 0 ||
-    (openStep() !== undefined && props.onOpen !== undefined) ||
-    props.cardTestID !== undefined;
+    (openStep() !== undefined && props.onOpen !== undefined);
   return (
     <Show when={hasRow()}>
-      <StackHorizontal align="center" justify="between" gap="sm">
-        <StackHorizontal align="center" gap="sm" wrap>
-          <CardAnswers
-            interaction={props.interaction}
-            actions={props.actions}
-            inline={props.inline}
-            actionTestID={props.actionTestID}
-          />
-          <CardOpenAnswer label={openStep()} onOpen={props.onOpen} />
-        </StackHorizontal>
-        <CardArchive
+      <StackHorizontal align="center" gap="sm" wrap>
+        <CardAnswers
           interaction={props.interaction}
           actions={props.actions}
-          cardTestID={props.cardTestID}
+          inline={props.inline}
+          actionTestID={props.actionTestID}
         />
+        <CardOpenAnswer label={openStep()} onOpen={props.onOpen} />
       </StackHorizontal>
     </Show>
   );
@@ -310,16 +343,18 @@ export type NotificationCardDefaultProps = {
 };
 
 /**
- * The inbox's card for one notification, in one anatomy: the face, then a
- * column whose words wrap (and open the notification), and an action row
- * beneath — the card's answers first (the main answer as the solid pill,
- * other choices as outlines, an unavailable answer as its reason in a
- * neutral tag), or, when it waits on the person without answers of its own,
- * one explicit Open pill; then Archive as a quiet labelled ghost button at
- * the row's trailing end. A card whose every answer is unavailable (a full
- * space) is plainly inactive: its words drop to the secondary ink and lose
- * their unread weight. Nothing sits beside the words, so a long title never
- * pushes a control off the edge.
+ * The inbox's card for one notification, in one compact anatomy: the face;
+ * a column whose words wrap (and open the notification) — the title, led
+ * by the accent unread dot while it waits on the person, then one caption
+ * line saying when and what ("1h ago · Space invite") — and, beneath, the
+ * card's answers (the main answer as the solid pill, other choices as
+ * outlines, an unavailable answer as its reason in a neutral tag) or, when
+ * it waits on the person without answers of its own, one explicit Open
+ * pill; and Archive as a quiet icon at the top trailing corner. A card
+ * whose every answer is unavailable (a full space) is plainly inactive:
+ * its words drop to the secondary ink and lose their unread dot and
+ * weight. The words take the width left beside the fixed-size Archive, so
+ * a long title wraps instead of pushing a control off the edge.
  *
  * A card with no answers of its own is pressed by its `testID`; a card with
  * answers is addressed by `testID` and opened by `${testID}-open`.
@@ -359,12 +394,12 @@ export function NotificationCardDefault(
     <StackHorizontal
       align="start"
       gap="md"
-      paddingY="lg"
+      paddingY="md"
       testId={idOnWords() ? undefined : props.testID}
       dataSet={idOnWords() ? undefined : state()}
     >
       {props.leading ?? <DefaultLeading interaction={shown()} />}
-      <StackVertical grow gap="md">
+      <StackVertical grow gap="sm">
         <CardHeadline
           interaction={shown()}
           inactive={inactive()}
@@ -378,10 +413,14 @@ export function NotificationCardDefault(
           inline={inline()}
           openLabel={openLabel()}
           onOpen={open()}
-          cardTestID={props.testID}
           actionTestID={props.actionTestID}
         />
       </StackVertical>
+      <CardArchive
+        interaction={props.interaction}
+        actions={props.actions}
+        cardTestID={props.testID}
+      />
     </StackHorizontal>
   );
 }

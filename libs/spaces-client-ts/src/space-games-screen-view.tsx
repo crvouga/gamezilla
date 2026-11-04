@@ -4,6 +4,7 @@ import { Plural, Trans } from '@lingui/solid/macro';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
@@ -33,6 +34,11 @@ export type SpaceGamesScreenViewProps = {
   /** A guest tried to go back: say that the host picks the game. */
   readonly hostChoosesNotice: boolean;
   readonly onSelectGame: (gameId: string) => void;
+  /**
+   * Who is in the space, under the list's title ("5 here · avery hosts"):
+   * the header folds them into its members button.
+   */
+  readonly whoIsHere?: JSX.Element | undefined;
   /** The shown game's own menu; games live outside spaces. */
   readonly renderGameMenu?: ((gameId: string) => JSX.Element) | undefined;
 };
@@ -76,6 +82,20 @@ function PlayersTag(props: {
   );
 }
 
+/** Above the list: who is here, and for a guest that the host picks. */
+function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
+  return (
+    <Show when={props.whoIsHere !== undefined || !props.canSelectGame}>
+      <StackVertical gap="sm">
+        {props.whoIsHere}
+        <Show when={!props.canSelectGame}>
+          <HostChoosesNotice />
+        </Show>
+      </StackVertical>
+    </Show>
+  );
+}
+
 function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
   const items = createMemo((): MainMenuItem[] =>
     props.games.map((game) => ({
@@ -101,7 +121,7 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       wideLayout="grid"
       title={<Trans>Games</Trans>}
       subtitle={<Trans>Pick a game to play.</Trans>}
-      helper={!props.canSelectGame ? <HostChoosesNotice /> : undefined}
+      helper={<ListHelper {...props} />}
       items={items()}
     />
   );

@@ -6,13 +6,8 @@ import {
   type Meta,
   type StoryObj,
 } from 'storybook-solidjs-vite';
+import { STORY_SIGNED_IN_IDENTITY } from './account-face-story.example';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-
-const SIGNED_IN = {
-  usernameLabel: '@avery',
-  email: 'avery@example.test',
-  avatar: null,
-};
 
 /** The menu sits at the header's end; the frame leaves room for it to open. */
 const withHeaderEnd = createJSXDecorator((Story) => (
@@ -33,7 +28,7 @@ const meta = {
     controls: { exclude: ['identity'] },
   },
   args: {
-    identity: SIGNED_IN,
+    identity: STORY_SIGNED_IN_IDENTITY,
     connectivity: 'online',
     theme: 'system',
     muted: false,
@@ -54,7 +49,7 @@ async function openMenu(canvasElement: HTMLElement, status: string) {
   await expect(connectivity).toBeVisible();
 }
 
-/** Closed: only the account face shows in the header. */
+/** Closed: only the person's face shows in the header. */
 export const Closed: Story = {};
 
 /** Open for a named account: the header names them, rows show live status. */

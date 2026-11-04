@@ -1,0 +1,4 @@
+{
+  "summary": "The Settings Work offline row said only \"Online — changes sync\" / \"Offline — nothing syncs\", so a person could not tell what working offline does to playing with others. The caption now says it in one line: \"Online — games and changes sync\" / \"Offline — games with others pause\".",
+  "regressionTest": "libs/app-root-client-ts/tests/work-offline-caption.test.tsx"
+}

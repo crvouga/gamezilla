@@ -1,0 +1,4 @@
+{
+  "summary": "At the foot of the wide sidebar the account menu was a bare face under a Profile row, so it read as a second Profile link rather than who is signed in. In the sidebar the trigger now shows the person's name beside their face (\"@avery\") and is named by it (\"@avery, account menu\", WCAG 2.5.3); the top bars keep the face alone.",
+  "regressionTest": "libs/app-root-client-ts/tests/sidebar-account-name.test.tsx"
+}

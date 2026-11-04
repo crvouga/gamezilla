@@ -51,6 +51,11 @@ msgid "{0, plural, one {# earlier move} other {# earlier moves}}"
 msgstr "{0, plural, one {# earlier move} other {# earlier moves}}"
 
 #. placeholder {0}: count()
+#: libs/spaces-client-ts/src/space-room-context-view.tsx
+msgid "{0, plural, one {# here} other {# here}}"
+msgstr "{0, plural, one {# here} other {# here}}"
+
+#. placeholder {0}: count()
 #: libs/spaces-client-ts/src/miniplayer-space-summary.tsx
 msgid "{0, plural, one {# person here} other {# people here}}"
 msgstr "{0, plural, one {# person here} other {# people here}}"
@@ -423,6 +428,10 @@ msgstr "{name} {score}"
 msgid "{name} has crashed in this round. Watch until the next round."
 msgstr "{name} has crashed in this round. Watch until the next round."
 
+#: libs/spaces-client-ts/src/space-room-context-view.tsx
+msgid "{name} hosts"
+msgstr "{name} hosts"
+
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "{name} ran out of time. Game drawn."
 msgstr "{name} ran out of time. Game drawn."
@@ -539,6 +548,10 @@ msgstr "{shooter} fired at {cell} and missed."
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "{shooter} fired at {cell} and sank the {ship}."
 msgstr "{shooter} fired at {cell} and sank the {ship}."
+
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+msgid "{shown}, account menu"
+msgstr "{shown}, account menu"
 
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
@@ -933,6 +946,10 @@ msgstr "Add a published puzzle"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Add friend"
 msgstr "Add friend"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Add friends and invite them to spaces."
+msgstr "Add friends and invite them to spaces."
 
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Add hex (6 chars, no #)"
@@ -3343,6 +3360,10 @@ msgstr "Jump to start"
 msgid "just now"
 msgstr "just now"
 
+#: libs/spaces-client-ts/src/space-room-context-view.tsx
+msgid "Just you here"
+msgstr "Just you here"
+
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
@@ -4273,8 +4294,8 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Offline — nothing syncs"
-msgstr "Offline — nothing syncs"
+msgid "Offline — games with others pause"
+msgstr "Offline — games with others pause"
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4302,8 +4323,8 @@ msgid "Online"
 msgstr "Online"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Online — changes sync"
-msgstr "Online — changes sync"
+msgid "Online — games and changes sync"
+msgstr "Online — games and changes sync"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
@@ -5693,7 +5714,6 @@ msgstr "Scores {total} points. Checking the words…"
 msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
-#: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
 msgid "Search"
 msgstr "Search"
@@ -5703,13 +5723,10 @@ msgid "Search by name"
 msgstr "Search by name"
 
 #: libs/friends-client-ts/src/profile-friends-actions-view.tsx
+#: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Search by username"
 msgstr "Search by username"
-
-#: libs/search-client-ts/src/search-screen-view.tsx
-msgid "Search by username to add friends and invite them to spaces."
-msgstr "Search by username to add friends and invite them to spaces."
 
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 msgid "Search for people by username to send a friend request."
@@ -7513,6 +7530,10 @@ msgstr "Unrated · already played"
 msgid "Unreachable"
 msgstr "Unreachable"
 
+#: libs/notifications-client-ts/src/notification-card-default.tsx
+msgid "Unread"
+msgstr "Unread"
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Unseen"
@@ -7982,6 +8003,10 @@ msgstr "You have played every puzzle that matches your history and theme filters
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
+
+#: libs/spaces-client-ts/src/space-room-context-view.tsx
+msgid "you host"
+msgstr "you host"
 
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "You left the space"
