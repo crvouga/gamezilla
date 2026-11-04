@@ -174,13 +174,18 @@ export const RULE_OPTIONS: readonly GameOptionGroup[] = [
 ];
 
 /** Moves in column order, from the left (0) to the right (6). */
+/** Connect Four writes a move as its column, counted from 1. */
+function columnRecord(moves: readonly number[]): readonly string[] {
+  return moves.map((column) => String(column + 1));
+}
+
 export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
-export const MID_GAME_RECORD = ['d1', 'd2', 'e1', 'c1', 'c2', 'e2', 'f1'];
-/** Red circle drops four in column d. */
+export const MID_GAME_RECORD = columnRecord(MID_GAME_MOVES);
+/** Red circle drops four in column 4. */
 export const WON_MOVES = [3, 2, 3, 2, 3, 2, 3];
-/** The four cells of Red circle's line in column d, top row first. */
-export const WON_LINE = [17, 24, 31, 38];
-export const WON_RECORD = ['d1', 'c1', 'd2', 'c2', 'd3', 'c3', 'd4'];
+/** The four cells of Red circle's line in column 4, bottom row first. */
+export const WON_LINE = [3, 10, 17, 24];
+export const WON_RECORD = columnRecord(WON_MOVES);
 
 const resolved = () => fn(() => Promise.resolve());
 

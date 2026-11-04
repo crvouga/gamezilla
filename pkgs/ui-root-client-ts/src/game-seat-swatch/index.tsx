@@ -30,9 +30,10 @@ export type GameSeatSwatchProps = {
 };
 
 /**
- * `GameSeatSwatch` -- how a seat looks on the board: a round dot in the
- * seat's player color (`player1`..`player8`) and / or a short mark glyph
- * (`●`, `◆`, `X`). A seat with a mark never relies on hue alone.
+ * `GameSeatSwatch` -- how a seat looks on the board, as one token: a disc in
+ * the seat's player color (`player1`..`player8`) carrying its short mark
+ * glyph (`●`, `◆`, `X`) in the canvas ink, like a piece on the board; a mark
+ * alone without a color. A seat with a mark never relies on hue alone.
  *
  * Decorative by default, because the seat's name sits beside it; with a
  * `label` it is an image with that accessible name.
@@ -46,9 +47,14 @@ export type GameSeatSwatchProps = {
 export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   const labelled = (): boolean =>
     props.label !== undefined && props.label.length > 0;
+  const color = (): AvatarSeatColor | undefined => props.look.color;
   return (
     <span
-      class="box inline-flex flex-row shrink-0 items-center gap-1 h-5"
+      class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
+      classList={{
+        'rounded-full': color() !== undefined,
+        [DOT[color() ?? 'player1']]: color() !== undefined,
+      }}
       role={labelled() ? 'img' : undefined}
       aria-label={labelled() ? props.label : undefined}
       aria-hidden={labelled() ? undefined : 'true'}
@@ -56,17 +62,15 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
       data-seat-color={props.look.color}
       data-mark={props.look.mark}
     >
-      <Show when={props.look.color}>
-        {(color) => (
-          <span
-            class={`box size-3 rounded-full ${DOT[color()]}`}
-            data-swatch-part="dot"
-          />
-        )}
-      </Show>
       <Show when={props.look.mark}>
         {(mark) => (
-          <span class="text textLabel text-text whitespace-nowrap">
+          <span
+            class="text textLabel whitespace-nowrap"
+            classList={{
+              'text-background': color() !== undefined,
+              'text-text': color() === undefined,
+            }}
+          >
             {mark()}
           </span>
         )}
