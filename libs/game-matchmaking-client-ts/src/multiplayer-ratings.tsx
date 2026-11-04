@@ -1,4 +1,7 @@
-import { isProvisional } from '@libs/game-matchmaking-shared-ts/multiplayer-rating';
+import {
+  isProvisional,
+  MULTIPLAYER_SETTLED_GAMES,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-rating';
 import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
 import {
   gameSpeed,
@@ -10,7 +13,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
@@ -47,6 +50,40 @@ export function useMultiplayerRatings(
       return { pool, rating: row.rating, games: row.games };
     });
   });
+}
+
+/**
+ * What the "?" after a provisional rating means, in one line under the
+ * ratings: it stays until enough rated games settle the rating.
+ */
+function ProvisionalNote(props: {
+  readonly ratings: readonly MultiplayerRatingView[];
+}): JSX.Element {
+  const provisional = (): boolean => props.ratings.some(isProvisional);
+  return (
+    <Show when={provisional()}>
+      <P
+        variant="caption"
+        tone="secondary"
+        dataSet={{ testid: 'multiplayer-rating-provisional-note' }}
+      >
+        <Show
+          when={props.ratings.length > 1}
+          fallback={
+            <Trans>
+              The ? means provisional: the rating settles after{' '}
+              {MULTIPLAYER_SETTLED_GAMES} rated games.
+            </Trans>
+          }
+        >
+          <Trans>
+            The ? means provisional: each rating settles after{' '}
+            {MULTIPLAYER_SETTLED_GAMES} rated games at its speed.
+          </Trans>
+        </Show>
+      </P>
+    </Show>
+  );
 }
 
 /** The person's own multiplayer rating and rated games in every pool. */
@@ -105,6 +142,7 @@ export function MultiplayerRatings(props: {
           )}
         </For>
       </Grid>
+      <ProvisionalNote ratings={props.ratings} />
     </GameSection>
   );
 }
