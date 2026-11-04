@@ -112,15 +112,19 @@ function useAccountGroup(
 
 /**
  * The Work offline row's caption: one short line, the mode the app is in now
- * and what that means. "Online" / "Offline" lead, so the row says where the
- * person stands; the switch beside it says what turning it does.
+ * and what it means for playing with others — online, games and changes
+ * sync; offline, games with others pause until the person works online
+ * again. "Online" / "Offline" lead, so the row says where the person
+ * stands; the switch beside it says what turning it does.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
 ): Accessor<string> {
   const { t } = useLingui();
   return () =>
-    props.offline ? t`Offline — nothing syncs` : t`Online — changes sync`;
+    props.offline
+      ? t`Offline — games with others pause`
+      : t`Online — games and changes sync`;
 }
 
 function usePreferencesGroup(
