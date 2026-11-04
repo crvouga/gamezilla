@@ -8,7 +8,6 @@ import type {
 } from '@libs/notifications-shared-ts/notification-action';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -21,7 +20,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
-import { InboxArchiveButton } from './inbox-archive-button';
+import { InboxCardMenu } from './inbox-card-menu';
 import {
   NotificationActionButton,
   primaryNotificationActionId,
@@ -254,8 +253,8 @@ function CardOpenAnswer(props: {
   );
 }
 
-/** Archive, the quiet icon at the card's top trailing corner. */
-function CardArchive(props: {
+/** The card's "…" menu (Archive), quiet at its top trailing corner. */
+function CardMenu(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
   readonly cardTestID: string | undefined;
@@ -263,11 +262,11 @@ function CardArchive(props: {
   return (
     <Show when={props.cardTestID} keyed>
       {(cardTestID) => (
-        // A column of its own, so the button keeps to the top corner
+        // A column of its own, so the trigger keeps to the top corner
         // instead of centring on a tall card.
         <StackVertical>
-          <InboxArchiveButton
-            testId={Handles.notificationsArchive(cardTestID)}
+          <InboxCardMenu
+            cardTestId={cardTestID}
             onArchive={() => {
               void props.actions.archive(props.interaction.id);
             }}
@@ -333,7 +332,7 @@ export type NotificationCardDefaultProps = {
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
-  /** Addresses the card; also gives it the Archive action. */
+  /** Addresses the card; also gives it the "…" menu with Archive. */
   readonly testID?: string | undefined;
   /**
    * The explicit next step's label on a card that waits on the person but
@@ -350,10 +349,10 @@ export type NotificationCardDefaultProps = {
  * card's answers (the main answer as the solid pill, other choices as
  * outlines, an unavailable answer as its reason in a neutral tag) or, when
  * it waits on the person without answers of its own, one explicit Open
- * pill; and Archive as a quiet icon at the top trailing corner. A card
+ * pill; and a quiet "…" menu holding Archive at the top trailing corner. A card
  * whose every answer is unavailable (a full space) is plainly inactive:
  * its words drop to the secondary ink and lose their unread dot and
- * weight. The words take the width left beside the fixed-size Archive, so
+ * weight. The words take the width left beside the fixed-size menu, so
  * a long title wraps instead of pushing a control off the edge.
  *
  * A card with no answers of its own is pressed by its `testID`; a card with
@@ -416,7 +415,7 @@ export function NotificationCardDefault(
           actionTestID={props.actionTestID}
         />
       </StackVertical>
-      <CardArchive
+      <CardMenu
         interaction={props.interaction}
         actions={props.actions}
         cardTestID={props.testID}

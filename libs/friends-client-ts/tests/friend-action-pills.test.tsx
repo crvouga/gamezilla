@@ -36,25 +36,30 @@ function renderPills(status: FriendshipStatus, compact: boolean): void {
   ));
 }
 
-test('a request that is out is one Cancel request control, not a tag and a button', () => {
+test('a request that is out says Request sent, with Cancel as the quiet control beside it', () => {
   renderPills('pending_outgoing', true);
+  expect(screen.getByText('Request sent')).toBeTruthy();
   const cancel = screen.getByTestId(Handles.friendCancel(USERNAME));
-  expect(cancel.textContent).toContain('Cancel request');
-  expect(screen.queryByText('Requested')).toBeNull();
+  expect(cancel.textContent).toContain('Cancel');
+  expect(cancel.textContent).not.toContain('Cancel request');
+  expect(cancel.getAttribute('data-size')).toBe('sm');
+  expect(cancel.getAttribute('data-face')).toBe('neutral-ghost');
   expect(screen.getAllByRole('button')).toHaveLength(1);
 });
 
-test('a row ends in the same small secondary pill for every action', () => {
+test('on a profile a request that is out says Request sent over Cancel request', () => {
+  renderPills('pending_outgoing', false);
+  expect(screen.getByText('Request sent')).toBeTruthy();
+  const cancel = screen.getByTestId(Handles.friendCancel(USERNAME));
+  expect(cancel.textContent).toContain('Cancel request');
+});
+
+test('a row ends in the small secondary pill for its main action', () => {
   renderPills('none', true);
   const add = screen.getByTestId(Handles.friendAdd(USERNAME));
   expect(add.textContent).toContain('Add friend');
   expect(add.getAttribute('data-size')).toBe('sm');
   expect(add.getAttribute('data-face')).toBe('neutral-outline');
-  cleanup();
-  renderPills('pending_outgoing', true);
-  const cancel = screen.getByTestId(Handles.friendCancel(USERNAME));
-  expect(cancel.getAttribute('data-size')).toBe('sm');
-  expect(cancel.getAttribute('data-face')).toBe('neutral-outline');
 });
 
 test('on a profile the main action keeps its full-size solid pill', () => {

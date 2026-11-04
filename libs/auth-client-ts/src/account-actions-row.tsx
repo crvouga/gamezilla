@@ -41,6 +41,8 @@ export function SignOutRow(props: {
       caption={t`This device only`}
       leading={<LogOutIcon size={ROW_ICON_SIZE} color="icon" />}
       onClick={() => props.onOpen()}
+      // It asks first, in place: no chevron, since it opens no screen.
+      hideChevron
       dataSet={{ testid: Handles.accountSignOut }}
     />
   );

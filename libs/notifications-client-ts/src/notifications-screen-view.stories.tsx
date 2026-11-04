@@ -15,12 +15,16 @@ import {
 
 /**
  * Who a notification is about, with the default face every profile is
- * seeded with.
+ * seeded with. The id is the one the space fixtures
+ * (`spaces-story.example.tsx`) give the same person, so they wear the same
+ * face in every story.
  */
-function person(username: string, id: string) {
+function person(username: string, suffix: string) {
   return {
     fallbackLabel: `@${username}`,
-    avatarConfig: serializeDefaultAvatarConfig(id),
+    avatarConfig: serializeDefaultAvatarConfig(
+      `5a1e0000-0000-4000-8000-0000000000${suffix}`
+    ),
   };
 }
 
@@ -29,7 +33,7 @@ const INVITE = storyNotification({
   category: 'action_required',
   title: '@jordan_plays invited you to Friday chess',
   subtitle: 'Space invite',
-  avatar: person('jordan_plays', '9f1c2a4e-0000-4000-8000-000000000002'),
+  avatar: person('jordan_plays', '02'),
   isUnread: true,
   actions: [
     { id: 'accept', label: 'Join', variant: 'ghost' },
@@ -42,7 +46,7 @@ const STARTED = storyNotification({
   sourceType: 'space_started',
   title: '@morgan started a space',
   body: 'Tap to watch or join the next game.',
-  avatar: person('morgan', '9f1c2a4e-0000-4000-8000-000000000003'),
+  avatar: person('morgan', '03'),
   createdAt: '2023-11-14T18:30:00.000Z',
   isUnread: true,
   deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'friday-chess' } },
@@ -53,7 +57,7 @@ const DISABLED = storyNotification({
   category: 'action_required',
   title: '@sam invited you to Quick connect four',
   subtitle: 'Space invite',
-  avatar: person('sam', '9f1c2a4e-0000-4000-8000-000000000005'),
+  avatar: person('sam', '05'),
   createdAt: '2023-11-13T20:00:00.000Z',
   actions: [
     {
@@ -72,7 +76,7 @@ const TURN = storyNotification({
   sourceType: 'multiplayer_turn',
   category: 'action_required',
   title: 'Your move against @robin_42',
-  avatar: { fallbackLabel: '@robin_42' },
+  avatar: person('robin_42', '04'),
   createdAt: '2023-11-13T21:40:00.000Z',
   isUnread: true,
   deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'robin-game' } },

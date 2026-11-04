@@ -1,20 +1,20 @@
 import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import type { FriendProfile } from '@libs/friends-shared-ts/friends-types';
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendUserScreenView } from './friend-user-screen-view';
 
+/** Morgan's id in the space fixtures (`spaces-story.example.tsx`): one face everywhere. */
+const MORGAN_ID = '5a1e0000-0000-4000-8000-000000000003';
+
 const PROFILE: FriendProfile = {
-  userId: '9f1c2a4e-0000-4000-8000-000000000003',
+  userId: MORGAN_ID,
   username: 'morgan',
-  avatarConfig: JSON.stringify({
-    style: 'funEmoji',
-    seed: '9f1c2a4e-0000-4000-8000-000000000003',
-    options: {},
-  }),
+  avatarConfig: serializeDefaultAvatarConfig(MORGAN_ID),
 };
 
 const resolved = () => fn(() => Promise.resolve());

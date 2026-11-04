@@ -22,8 +22,6 @@ export type FriendUserRowProps = {
   readonly profile: FriendProfile;
   readonly onPress?: (() => void) | undefined;
   readonly trailing?: JSX.Element;
-  /** A line under the name, such as how long you have been friends. */
-  readonly caption?: JSX.Element;
   /**
    * A typed search: the part of the name after it is emphasised, so
    * similar names ("@jordan", "@jordan_plays") read apart at a glance.
@@ -63,7 +61,7 @@ function FriendUserRowName(props: {
     <Show
       when={ranges().length > 0}
       fallback={
-        <P variant="bodyBold" lines={1}>
+        <P variant="body" lines={1}>
           {props.label}
         </P>
       }
@@ -81,7 +79,6 @@ function FriendUserRowName(props: {
 
 function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
-  readonly caption?: JSX.Element;
   readonly highlight?: string | undefined;
 }): JSX.Element {
   const moderation = useModeration();
@@ -91,11 +88,6 @@ function FriendUserRowIdentity(props: {
       <FriendProfileAvatar profile={props.profile} name={label()} size={44} />
       <StackVertical grow>
         <FriendUserRowName label={label()} highlight={props.highlight} />
-        <Show when={props.caption !== undefined}>
-          <P variant="caption" lines={1}>
-            {props.caption}
-          </P>
-        </Show>
       </StackVertical>
     </>
   );
@@ -131,7 +123,6 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
         >
           <FriendUserRowIdentity
             profile={props.profile}
-            caption={props.caption}
             highlight={props.highlight}
           />
           {trailing()}
@@ -152,7 +143,6 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
           >
             <FriendUserRowIdentity
               profile={props.profile}
-              caption={props.caption}
               highlight={props.highlight}
             />
           </Pressable>

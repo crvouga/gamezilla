@@ -1060,6 +1060,7 @@ msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
 #: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "App"
 msgstr "App"
@@ -1088,7 +1089,7 @@ msgstr "Apple"
 msgid "Application version"
 msgstr "Application version"
 
-#: libs/notifications-client-ts/src/inbox-archive-button.tsx
+#: libs/notifications-client-ts/src/inbox-card-menu.tsx
 msgid "Archive"
 msgstr "Archive"
 
@@ -1354,6 +1355,7 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
@@ -3790,6 +3792,7 @@ msgstr "Model"
 msgid "Monthly"
 msgstr "Monthly"
 
+#: libs/notifications-client-ts/src/inbox-card-menu.tsx
 #: pkgs/ui-root-client-ts/src/action-bar-parts/index.tsx
 msgid "More"
 msgstr "More"
@@ -5364,6 +5367,10 @@ msgstr "Report a security problem"
 msgid "Request personal-data export"
 msgstr "Request personal-data export"
 
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
+msgid "Request sent"
+msgstr "Request sent"
+
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Requesting…"
 msgstr "Requesting…"
@@ -6086,10 +6093,6 @@ msgstr "Signing in…"
 #: libs/auth-client-ts/src/use-sign-out-confirmation.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
-
-#: libs/friends-client-ts/src/friends-list-screen-view.tsx
-msgid "Since {month}"
-msgstr "Since {month}"
 
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Sit here"
@@ -8129,6 +8132,10 @@ msgstr "You've used this for now"
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Your account"
+msgstr "Your account"
 
 #: libs/app-root-client-ts/src/identity-boot-screen-view.tsx
 msgid "Your account could not be loaded. Check your connection and reload the app."

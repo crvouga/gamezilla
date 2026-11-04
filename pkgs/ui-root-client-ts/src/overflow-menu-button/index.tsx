@@ -77,8 +77,11 @@ export type OverflowMenuRenderProps = {
 export type OverflowMenuButtonProps = {
   /** Actions rendered inside the dropdown. */
   actions: readonly OverflowMenuAction[];
-  /** Panel header (title + optional subtitle). */
-  header: OverflowMenuHeader;
+  /**
+   * Panel header (title + optional subtitle). Omit for a small menu of a
+   * row or two whose trigger already says what it is for.
+   */
+  header?: OverflowMenuHeader | undefined;
   /** Trigger diameter in px. Defaults to 40. Ignored when `trigger` is set. */
   size?: number | undefined;
   /** Trigger icon. Defaults to the hamburger `MenuIcon`. Ignored when `trigger`. */

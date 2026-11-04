@@ -77,3 +77,36 @@ test('before anyone is connected the line is not drawn', () => {
   ));
   expect(container.textContent).toBe('');
 });
+
+/** A px length from an inline style, or 0 when it is unset. */
+function px(value: string): number {
+  return value === '' ? 0 : Number.parseFloat(value);
+}
+
+// regression: game-chooser-faces-cropped-to-slivers
+test('every face shows whole: inside its ring, overlapped by nothing but a ring', () => {
+  const container = mount(() => (
+    <SpaceWhoIsHereView
+      faces={faces([AVERY, ...GUESTS])}
+      host={AVERY}
+      hostIsYou={false}
+    />
+  ));
+  const group = container.querySelector('[data-component="AvatarGroup"]');
+  const avatars = [
+    ...(group?.querySelectorAll<HTMLElement>('[data-component="Avatar"]') ??
+      []),
+  ];
+  expect(avatars.length).toBeGreaterThan(1);
+  for (const [index, avatar] of avatars.entries()) {
+    const slot = avatar.parentElement as HTMLElement;
+    const ring = px(slot.style.borderWidth);
+    const face = px(avatar.style.width);
+    // The face fits inside its ring, so the ring never crops it.
+    expect(face + ring * 2).toBeLessThanOrEqual(px(slot.style.width));
+    // A neighbour reaches no further than the ring around this face.
+    if (index > 0) expect(-px(slot.style.marginLeft)).toBeLessThanOrEqual(ring);
+    // Big enough to tell people apart.
+    expect(face).toBeGreaterThanOrEqual(28);
+  }
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "Every notifications inbox card carried its own archive icon button beside Join, Decline and Open, so the same glyph repeated down the inbox and competed with the card's answers. Archive now waits in a quiet per-card \"More\" (…) menu at the card's top corner; the menu item keeps the card's archive test id.",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

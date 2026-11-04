@@ -23,6 +23,8 @@ export function SignOutEverywhereRow(props: {
       caption={t`Ends every session on this account, this device included`}
       leading={<LogOutIcon size={ROW_ICON_SIZE} color="icon" />}
       onClick={() => props.onOpen()}
+      // It asks first, in place: no chevron, since it opens no screen.
+      hideChevron
       dataSet={{ testid: Handles.accountSignOutEverywhere }}
     />
   );
