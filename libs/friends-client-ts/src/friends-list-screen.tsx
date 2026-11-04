@@ -3,7 +3,10 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useFirstSyncError } from '@libs/profile-client-ts/use-first-sync-error';
-import { FriendLiveSpaceBadge } from '@libs/spaces-client-ts/friend-live-space-badge';
+import {
+  FriendLiveSpaceJoin,
+  FriendLiveSpaceStatus,
+} from '@libs/spaces-client-ts/friend-live-space';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -43,8 +46,11 @@ function FriendsListContainer(): JSX.Element {
       status={status()}
       friends={friendsState.friends()}
       notice={<FriendsRefusedChangeNotice />}
+      friendStatus={(friend) => (
+        <FriendLiveSpaceStatus hostAccountId={friend.userId} />
+      )}
       friendTrailing={(friend) => (
-        <FriendLiveSpaceBadge hostAccountId={friend.userId} />
+        <FriendLiveSpaceJoin hostAccountId={friend.userId} />
       )}
       onOpenFriend={navigation.onOpenFriend}
       onFindFriends={navigation.onFindFriends}
