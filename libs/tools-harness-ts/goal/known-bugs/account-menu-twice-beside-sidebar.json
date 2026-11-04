@@ -1,0 +1,4 @@
+{
+  "summary": "Inside an open space on desktop the account menu showed twice: at the foot of the sidebar and again at the end of the space's top bar, because every header drew the frame's global chrome. Headers in the column beside a sidebar now leave it to the sidebar.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/app-sidebar.test.tsx"
+}

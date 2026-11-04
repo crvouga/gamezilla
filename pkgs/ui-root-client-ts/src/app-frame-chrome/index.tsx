@@ -4,6 +4,7 @@ import {
   type Accessor,
   createContext,
   createEffect,
+  createMemo,
   createSignal,
   type JSX,
   onCleanup,
@@ -78,9 +79,31 @@ export function useSetAppFrameHeader(node: AppFrameHeaderOverride): void {
   onCleanup(() => ctx.setHeaderOverride(null));
 }
 
+/** True inside a column whose sidebar already carries the global chrome. */
+const GlobalTrailingInRailContext = createContext<Accessor<boolean>>(
+  () => false
+);
+
+/**
+ * Marks content beside a sidebar that shows the global chrome (the account
+ * menu), so headers inside it do not draw it a second time.
+ */
+export function GlobalTrailingInRail(props: {
+  readonly when: boolean;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const when = createMemo(() => props.when);
+  return (
+    <GlobalTrailingInRailContext.Provider value={when}>
+      {props.children}
+    </GlobalTrailingInRailContext.Provider>
+  );
+}
+
 export function useAppFrameGlobalTrailing(): Accessor<JSX.Element | null> {
   const ctx = useContext(AppFrameChromeContext);
-  return ctx?.globalTrailing ?? (() => null);
+  const inRail = useContext(GlobalTrailingInRailContext);
+  return () => (inRail() ? null : (ctx?.globalTrailing() ?? null));
 }
 
 /** Resolved header: an override when registered, else `defaultHeader`. */

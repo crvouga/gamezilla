@@ -4,6 +4,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import {
   AppFrameChromeProvider,
+  useAppFrameGlobalTrailing,
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
@@ -142,5 +143,39 @@ describe('AppFrame rail', () => {
     setInSpace(true);
     expect(column().className).toMatch(/\bmax-w-ui-space\b/);
     expect(column().className).not.toMatch(/\bmax-w-ui-wide\b/);
+  });
+
+  // regression: account-menu-twice-beside-sidebar
+  test('beside the sidebar, screen headers do not repeat the global chrome', () => {
+    function ScreenHeaderTrailing(): JSX.Element {
+      const trailing = useAppFrameGlobalTrailing();
+      return <>{trailing()}</>;
+    }
+    renderUi(
+      () => (
+        <AppFrameChromeProvider
+          globalTrailing={<p class="text">{'Account menu'}</p>}
+        >
+          <AppFrame
+            rail={
+              <AppHeaderIsland
+                orientation="vertical"
+                leading={<p class="text">{'Logo'}</p>}
+                items={[]}
+              />
+            }
+          >
+            <ScreenHeaderTrailing />
+          </AppFrame>
+        </AppFrameChromeProvider>
+      ),
+      WIDE
+    );
+    expect(screen.getAllByText('Account menu')).toHaveLength(1);
+    expect(
+      mustQuery('[data-region="rail"]').contains(
+        screen.getByText('Account menu')
+      )
+    ).toBe(true);
   });
 });

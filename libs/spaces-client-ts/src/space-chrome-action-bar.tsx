@@ -7,11 +7,11 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { iconButtonAvatarContentSize } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronLeftIcon,
+  CircleStopIcon,
   DoorOpenIcon,
   LogOutIcon,
   ShareIcon,
   SquarePenIcon,
-  XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
@@ -99,7 +99,8 @@ function exitItems(args: {
     {
       id: 'end-space',
       label: args.end,
-      icon: XIcon,
+      // A stop, not an ✕: ending is not another way to close this screen.
+      icon: CircleStopIcon,
       onClick: args.callbacks.onPressEnd,
       overflow: 'never',
       priority: 95,

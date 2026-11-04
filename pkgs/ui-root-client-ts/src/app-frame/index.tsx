@@ -2,6 +2,7 @@
 
 import { type JSX, Show } from 'solid-js';
 import {
+  GlobalTrailingInRail,
   useAppFrameHeader,
   useAppFrameHeaderOverridden,
 } from '../app-frame-chrome/index';
@@ -80,7 +81,9 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
             class="box flex-1 min-h-0 min-w-0"
             classList={{ 'pt-4': rail() !== undefined }}
           >
-            <AppFrameWideColumn {...props} />
+            <GlobalTrailingInRail when={rail() !== undefined}>
+              <AppFrameWideColumn {...props} />
+            </GlobalTrailingInRail>
           </div>
         </div>
       </DismissibleBannerPortalProvider>
