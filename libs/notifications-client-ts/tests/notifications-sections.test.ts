@@ -9,10 +9,7 @@ import {
 const NOW_MS = Date.parse('2023-11-14T22:00:00.000Z');
 const now = (): number => NOW_MS;
 
-function item(
-  id: string,
-  overrides: Partial<Notification> = {}
-): Notification {
+function item(id: string, overrides: Partial<Notification> = {}): Notification {
   return {
     id,
     sourceNamespace: 'spaces',

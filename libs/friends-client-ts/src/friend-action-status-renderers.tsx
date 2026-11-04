@@ -149,9 +149,9 @@ function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   addFailureCode: Accessor<string | null>,
-  username: string | undefined,
-  compact: boolean
+  row: { readonly username: string | undefined; readonly compact: boolean }
 ): JSX.Element {
+  const { username, compact } = row;
   const { t } = useLingui();
   const sendFailureLabel = useSendFailureLabel();
   return (
@@ -207,6 +207,6 @@ export function renderFriendActionPillsForStatus({
     case 'friends':
       return renderFriends(username);
     default:
-      return renderNone(wrap, mutations, addFailureCode, username, compact);
+      return renderNone(wrap, mutations, addFailureCode, { username, compact });
   }
 }

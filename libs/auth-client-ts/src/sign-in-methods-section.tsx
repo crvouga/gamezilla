@@ -122,8 +122,8 @@ function RemoveMethodFooter(props: {
       when={props.removable}
       fallback={
         <Trans>
-          Your account needs at least one way to sign in. Connect another
-          before removing this one.
+          Your account needs at least one way to sign in. Connect another before
+          removing this one.
         </Trans>
       }
     >

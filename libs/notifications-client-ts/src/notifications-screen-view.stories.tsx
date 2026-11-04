@@ -68,14 +68,14 @@ const DISABLED = storyNotification({
 
 const TURN = storyNotification({
   id: 'b51c7a90-0000-4000-8000-000000000006',
-  sourceNamespace: 'chess',
+  sourceNamespace: 'game-session',
   sourceType: 'multiplayer_turn',
   category: 'action_required',
   title: 'Your move against @robin_42',
   avatar: { fallbackLabel: '@robin_42' },
   createdAt: '2023-11-13T21:40:00.000Z',
   isUnread: true,
-  deepLink: { path: '/chess/[gameId]', params: { gameId: 'robin-game' } },
+  deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'robin-game' } },
 });
 
 const SYSTEM = storyNotification({

@@ -114,7 +114,9 @@ test('a card whose every answer is unavailable is plainly inactive', () => {
       },
     ])
   );
-  const reason = screen.getByText('Space is full').closest('[data-component="Badge"]');
+  const reason = screen
+    .getByText('Space is full')
+    .closest('[data-component="Badge"]');
   expect(reason?.getAttribute('data-intent')).toBe('neutral');
   // Unread, but nothing waits: the words lose their unread weight.
   const title = screen.getByText('@sam invited you to Quick connect four');

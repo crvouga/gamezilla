@@ -129,7 +129,11 @@ describe('Avatar initials ring', () => {
     const tone = avatarTone('robin');
     renderUi(() => (
       <>
-        <Avatar initials="R" tintKey="robin" dataSet={{ component: 'Tinted' }} />
+        <Avatar
+          initials="R"
+          tintKey="robin"
+          dataSet={{ component: 'Tinted' }}
+        />
         <Avatar initials="R" dataSet={{ component: 'Plain' }} />
         <Avatar initials="ME" you dataSet={{ component: 'You' }} />
       </>

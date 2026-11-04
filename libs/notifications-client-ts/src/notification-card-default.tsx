@@ -2,12 +2,12 @@
 
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
-import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
-import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import type {
   NotificationAction,
   NotificationCardActions,
 } from '@libs/notifications-shared-ts/notification-action';
+import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
+import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
