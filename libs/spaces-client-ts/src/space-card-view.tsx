@@ -279,7 +279,8 @@ export function SpaceCardView(props: {
           vividBackdrop
         />
         <StackVertical grow shrink gap="xs">
-          <Text variant="bodyBold" lines={1}>
+          {/* The list-row title: body weight, as in every panel of rows. */}
+          <Text variant="body" lines={1}>
             {props.space.title}
           </Text>
           <SpaceHostLine space={props.space} />

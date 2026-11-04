@@ -107,7 +107,7 @@ export function StoryUserRow(props: {
         <Show
           when={ranges().length > 0}
           fallback={
-            <P variant="bodyBold" lines={1}>
+            <P variant="body" lines={1}>
               {name()}
             </P>
           }
