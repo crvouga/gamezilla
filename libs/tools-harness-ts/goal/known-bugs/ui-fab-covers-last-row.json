@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the floating New space button covered the last space card's guest list, because the scrolling body kept no room for it. Fixed in the design system: screen-body scrollers end with the room the FAB covers (its margin, 52px height and a 16px gap) whenever one floats.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/floating-action-clearance.test.tsx"
+}

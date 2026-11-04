@@ -1,4 +1,5 @@
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
@@ -42,13 +43,14 @@ export function StoryFriendsStats(props: {
   );
 }
 
-/** Stand-in for the friends actions slot: the Find friends pill. */
+/** Stand-in for the friends actions slot: the solid Find friends call to action. */
 export function StoryFriendsActions(): JSX.Element {
   return (
     <Button
       title="Find friends"
-      intent="neutral"
-      variant="outline"
+      intent="primary"
+      variant="solid"
+      icon={UserPlusIcon}
       flex={1}
       onClick={() => undefined}
     />

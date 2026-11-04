@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -42,7 +43,7 @@ export type ProfileScreenViewProps = {
   readonly notice?: JSX.Element;
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
   readonly friendsStats?: JSX.Element | undefined;
-  /** Second action pill beside Edit profile (e.g. Find friends). */
+  /** The friends section's call to action, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
   readonly onChooseUsername: () => void;
@@ -135,11 +136,14 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
         </>
       }
       identityActions={
+        // A compact pill under the name: editing is part of who you are,
+        // not the page's main call to action.
         <Button
           title={t`Edit profile`}
           intent="neutral"
           variant="outline"
-          fullWidth
+          size="sm"
+          icon={SquarePenIcon}
           onClick={() => props.onEditProfile()}
           dataSet={{ testid: Handles.profileEdit }}
         />

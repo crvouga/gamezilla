@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import type { JSX } from 'solid-js';
+import { FloatingActionClearance } from '../floating-action-clearance/index';
 import type { ScrollViewProps } from '../scroll-view/index';
 import { ScrollView } from '../scroll-view/index';
 
@@ -16,7 +17,9 @@ export type ScreenBodyScrollViewProps = Omit<
  * Relies on `ContentEdgePaddingProvider` from the body shell so the
  * scrollbar sits flush with the screen edge. Prefer `ScreenBase` `scroll`
  * when the whole body scrolls; use this when sticky chrome sits above a
- * scrolling list. It always grows into the body's leftover height.
+ * scrolling list. It always grows into the body's leftover height, and
+ * ends with the room a floating action button covers, so its last row is
+ * never hidden under the FAB.
  */
 export function ScreenBodyScrollView(
   props: ScreenBodyScrollViewProps
@@ -27,7 +30,10 @@ export function ScreenBodyScrollView(
         {...props}
         grow
         dataSet={{ component: 'ScreenBodyScrollView', ...props.dataSet }}
-      />
+      >
+        {props.children}
+        <FloatingActionClearance />
+      </ScrollView>
     </div>
   );
 }

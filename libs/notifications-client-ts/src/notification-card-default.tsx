@@ -7,134 +7,29 @@ import type {
   NotificationCardActions,
 } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
-import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
-import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
-import { isSoundId, Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import {
-  ChevronRightIcon,
-  CircleCheckIcon,
-  Trash2Icon,
-} from '@pkgs/ui-root-client-ts/icons';
-import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
+import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
+import { Spacer } from '@pkgs/ui-root-client-ts/spacer';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
-import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 
 import { InboxArchiveButton } from './inbox-archive-button';
+import {
+  NotificationActionButton,
+  primaryNotificationActionId,
+} from './notification-action-button';
 import { displayNotification } from './notification-display';
 
-const LEADING_SIZE = 48;
+/** The default face: `md`, so every card's text column starts at one x. */
+const LEADING_SIZE = 40;
 
 /** What a person can see: still waiting to be opened, or already opened. */
 function cardState(unread: boolean): ComponentDataSet {
   return { 'inbox-state': unread ? 'waiting' : 'opened' };
-}
-
-type NotificationActionButtonProps = {
-  readonly interaction: Notification;
-  readonly action: NotificationAction;
-  readonly actions: NotificationCardActions;
-  readonly testID?: string | undefined;
-};
-
-function actionStartIcon(action: NotificationAction): JSX.Element | undefined {
-  if (action.id === 'accept' || action.id === 'confirm') {
-    return <CircleCheckIcon />;
-  }
-  if (
-    action.id === 'decline' ||
-    action.id === 'delete' ||
-    action.id === 'dismiss' ||
-    action.destructive === true
-  ) {
-    return <Trash2Icon />;
-  }
-  return undefined;
-}
-
-type MutationSoundIds = {
-  readonly success?: SoundId | undefined;
-  readonly error?: SoundId | undefined;
-};
-
-function useMutationPhaseSounds(
-  sounds: () => MutationSoundIds
-): (transition: MutationStateTransition) => void {
-  const engine = useOptionalSoundEngine();
-  return (transition) => {
-    const current = engine?.();
-    if (current === undefined) return;
-    if (transition.to === 'success') {
-      current.play(sounds().success ?? Sounds.feedback.success);
-    } else if (transition.to === 'error') {
-      current.play(sounds().error ?? Sounds.feedback.error);
-    }
-  };
-}
-
-function NotificationActionButton(
-  props: NotificationActionButtonProps
-): JSX.Element {
-  const { t } = useLingui();
-  const successSound = (): SoundId | undefined => {
-    const soundKey = props.action.soundKey;
-    return soundKey !== undefined && isSoundId(soundKey) ? soundKey : undefined;
-  };
-  const onPhaseChange = useMutationPhaseSounds(() => ({
-    ...(successSound() !== undefined ? { success: successSound() } : {}),
-    error: Sounds.feedback.error,
-  }));
-  const mutation = useMutationButton({
-    operation: () =>
-      props.actions.performAction(props.interaction.id, props.action.id),
-    labels: {
-      get idle() {
-        return props.action.label;
-      },
-      get loading() {
-        return t`Working…`;
-      },
-      get success() {
-        return t`Done`;
-      },
-      get error() {
-        return t`Failed`;
-      },
-    },
-    successHoldMs: 0,
-    get disabled() {
-      return props.action.disabled === true;
-    },
-    onPhaseChange,
-  });
-  const startIcon = createMemo(() => actionStartIcon(props.action));
-
-  return (
-    <Button
-      {...mutation.buttonProps}
-      variant="ghost"
-      size="sm"
-      intent={props.action.destructive === true ? 'danger' : 'primary'}
-      startIcon={startIcon()}
-      dataSet={
-        props.testID !== undefined ? { testid: props.testID } : undefined
-      }
-    />
-  );
-}
-
-function avatarInitials(fallbackLabel: string): string {
-  const trimmed = fallbackLabel.trim().replace(/^@/, '');
-  if (trimmed.length === 0) return '?';
-  return trimmed.slice(0, 2).toUpperCase();
 }
 
 function DefaultLeading(props: {
@@ -147,7 +42,11 @@ function DefaultLeading(props: {
       fallback={<Avatar size={LEADING_SIZE} />}
     >
       {(label) => (
-        <Avatar size={LEADING_SIZE} initials={avatarInitials(label)} />
+        <Avatar
+          size={LEADING_SIZE}
+          initials={avatarInitials(label)}
+          tintKey={label.replace(/^@/, '')}
+        />
       )}
     </Show>
   );
@@ -179,49 +78,91 @@ function InteractionRowText(props: {
   );
 }
 
-function InteractionRowTrailing(props: {
+/** The words of the card; pressing them opens it, with a chevron to say so. */
+function CardHeadline(props: {
+  readonly interaction: Notification;
+  readonly onOpen: (() => void) | undefined;
+  readonly testId: string | undefined;
+  readonly dataSet: ComponentDataSet | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.onOpen}
+      keyed
+      fallback={<InteractionRowText interaction={props.interaction} />}
+    >
+      {(open) => (
+        <Pressable
+          direction="horizontal"
+          align="start"
+          gap="sm"
+          radius="control"
+          onPress={open}
+          testId={props.testId}
+          dataSet={props.dataSet}
+        >
+          <InteractionRowText interaction={props.interaction} />
+          <ChevronRightIcon size={20} color="icon" />
+        </Pressable>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * The card's answers on their own row under its words: the main answer
+ * first, other choices beside it, and Archive always at the far end.
+ */
+function CardActionsRow(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
-  readonly showInlineActions: boolean;
-  readonly showChevron: boolean;
+  readonly inline: readonly NotificationAction[];
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
+  readonly archiveTestID: string | undefined;
 }): JSX.Element {
-  const theme = useTheme();
+  const primaryId = createMemo(() => primaryNotificationActionId(props.inline));
   return (
-    <Switch>
-      <Match
-        when={props.showInlineActions && props.interaction.actions.length > 0}
-      >
-        <StackHorizontal align="center" gap="xs">
-          <For each={props.interaction.actions}>
-            {(action) => (
-              <NotificationActionButton
-                interaction={props.interaction}
-                action={action}
-                actions={props.actions}
-                testID={props.actionTestID?.(action)}
+    <Show when={props.inline.length > 0 || props.archiveTestID !== undefined}>
+      <StackHorizontal align="center" gap="sm" wrap>
+        <For each={props.inline}>
+          {(action) => (
+            <NotificationActionButton
+              interaction={props.interaction}
+              action={action}
+              actions={props.actions}
+              emphasis={action.id === primaryId() ? 'primary' : 'secondary'}
+              testID={props.actionTestID?.(action)}
+            />
+          )}
+        </For>
+        <Show when={props.archiveTestID} keyed>
+          {(cardTestID) => (
+            <>
+              <Spacer />
+              <InboxArchiveButton
+                testId={Handles.notificationsArchive(cardTestID)}
+                onArchive={() => {
+                  void props.actions.archive(props.interaction.id);
+                }}
               />
-            )}
-          </For>
-        </StackHorizontal>
-      </Match>
-      <Match when={props.showChevron}>
-        <ChevronRightIcon size={18} color={theme.colors.icon} />
-      </Match>
-    </Switch>
+            </>
+          )}
+        </Show>
+      </StackHorizontal>
+    </Show>
   );
 }
 
 export type NotificationCardDefaultProps = {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
-  /** Opens the deep-link / profile when the row (or text area) is pressed. */
+  /** Opens the deep-link / profile when the card's words are pressed. */
   readonly onOpen?: (() => void) | undefined;
   /**
-   * Whole-row press (summary mode). Takes precedence over {@link onOpen}.
-   * Prefer this when inline actions are hidden and the row has a custom handler.
+   * What pressing the card's words does instead of {@link onOpen}, for a sub
+   * that handles its own cards (a decision dialog, say).
    */
   readonly onPress?: (() => void) | undefined;
   /**
@@ -233,106 +174,70 @@ export type NotificationCardDefaultProps = {
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
+  /** Addresses the card; also gives it the Archive action. */
   readonly testID?: string | undefined;
 };
 
+/**
+ * The inbox's card for one notification, in one anatomy: the face, then a
+ * column whose words wrap (and open the notification, ending in a chevron),
+ * with the card's answers on their own row beneath — the main answer as the
+ * solid pill, other choices as outlines, Archive always at the far end. On a
+ * phone nothing sits beside the words, so a long title never pushes a
+ * control off the edge.
+ *
+ * A card with no answers of its own is pressed by its `testID`; a card with
+ * answers is addressed by `testID` and opened by `${testID}-open`.
+ */
 export function NotificationCardDefault(
   props: NotificationCardDefaultProps
 ): JSX.Element {
   const moderation = useModeration();
-  const hasInlineActions = createMemo(
-    () =>
-      (props.showInlineActions ?? true) && props.interaction.actions.length > 0
-  );
-  // Whole row like MenuRow when no inline buttons compete for presses.
-  // With inline actions, only the text area opens so Accept/Decline stay tappable.
-  const rowPress = createMemo<(() => void) | undefined>(() =>
-    props.onPress !== undefined
-      ? props.onPress
-      : hasInlineActions()
-        ? undefined
-        : props.onOpen
-  );
   // Copy as the reader may see it now (snapshot usernames moderated).
   const shown = createMemo(() =>
     displayNotification(moderation(), props.interaction)
   );
-  const textPress = createMemo<(() => void) | undefined>(() =>
-    rowPress() === undefined && props.onOpen !== undefined
-      ? props.onOpen
-      : undefined
+  const inline = createMemo((): readonly NotificationAction[] =>
+    (props.showInlineActions ?? true) ? props.interaction.actions : []
   );
-
-  const main = (): JSX.Element => (
-    <StackHorizontal align="center" gap="md" paddingY="lg">
-      {props.leading ?? <DefaultLeading interaction={shown()} />}
-      <Show
-        when={textPress()}
-        keyed
-        fallback={<InteractionRowText interaction={shown()} />}
-      >
-        {(press) => (
-          <Pressable
-            grow
-            onPress={press}
-            testId={
-              props.testID !== undefined ? `${props.testID}-open` : undefined
-            }
-          >
-            <InteractionRowText interaction={shown()} />
-          </Pressable>
-        )}
-      </Show>
-      <InteractionRowTrailing
-        interaction={props.interaction}
-        actions={props.actions}
-        showInlineActions={props.showInlineActions ?? true}
-        showChevron={rowPress() !== undefined}
-        actionTestID={props.actionTestID}
-      />
-    </StackHorizontal>
-  );
-
-  const archive = (testID: string): JSX.Element => (
-    <InboxArchiveButton
-      testId={Handles.notificationsArchive(testID)}
-      onArchive={() => {
-        void props.actions.archive(props.interaction.id);
-      }}
-    />
-  );
+  const open = (): (() => void) | undefined => props.onPress ?? props.onOpen;
+  // The id goes on what a driver presses: the words, unless the card has
+  // answers of its own (then the words are `-open`) or cannot be opened.
+  const idOnWords = (): boolean =>
+    open() !== undefined && inline().length === 0;
+  const wordsTestId = (): string | undefined => {
+    if (props.testID === undefined || open() === undefined) return undefined;
+    return idOnWords() ? props.testID : `${props.testID}-open`;
+  };
+  const state = (): ComponentDataSet | undefined =>
+    props.testID === undefined
+      ? undefined
+      : cardState(props.interaction.isUnread);
 
   return (
-    <Switch>
-      <Match when={rowPress() !== undefined && props.testID !== undefined}>
-        <StackHorizontal align="center">
-          <Pressable
-            grow
-            testId={props.testID}
-            dataSet={cardState(props.interaction.isUnread)}
-            onPress={() => rowPress()?.()}
-          >
-            {main()}
-          </Pressable>
-          {archive(props.testID ?? '')}
-        </StackHorizontal>
-      </Match>
-      <Match when={rowPress() !== undefined}>
-        <Pressable onPress={() => rowPress()?.()}>{main()}</Pressable>
-      </Match>
-      <Match when={props.testID} keyed>
-        {(testID) => (
-          <StackHorizontal
-            align="center"
-            testId={testID}
-            dataSet={cardState(props.interaction.isUnread)}
-          >
-            {main()}
-            {archive(testID)}
-          </StackHorizontal>
-        )}
-      </Match>
-      <Match when={true}>{main()}</Match>
-    </Switch>
+    <StackHorizontal
+      align="start"
+      gap="md"
+      paddingY="lg"
+      testId={idOnWords() ? undefined : props.testID}
+      dataSet={idOnWords() ? undefined : state()}
+    >
+      {props.leading ?? <DefaultLeading interaction={shown()} />}
+      <StackVertical grow gap="md">
+        <CardHeadline
+          interaction={shown()}
+          onOpen={open()}
+          testId={wordsTestId()}
+          dataSet={idOnWords() ? state() : undefined}
+        />
+        <CardActionsRow
+          interaction={props.interaction}
+          actions={props.actions}
+          inline={inline()}
+          actionTestID={props.actionTestID}
+          archiveTestID={props.testID}
+        />
+      </StackVertical>
+    </StackHorizontal>
   );
 }

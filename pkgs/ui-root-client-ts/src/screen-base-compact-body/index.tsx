@@ -6,6 +6,12 @@ import {
   CONTENT_EDGE_PADDING_STEP as SCREEN_BODY_PADDING_STEP,
 } from '../content-edge-padding/index';
 import {
+  FLOATING_ACTION_MARGIN,
+  FloatingActionClearance,
+  FloatingActionClearanceProvider,
+  floatingActionClearance,
+} from '../floating-action-clearance/index';
+import {
   bodyNeedsSafeBottom,
   buildBodyContentProps,
 } from '../screen-base-logic';
@@ -18,9 +24,6 @@ import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenLargeTitle } from '../screen-large-title/index';
 import { ScrollView } from '../scroll-view/index';
 import type { ScreenTitleScrollProps } from '../use-screen-title-scroll';
-
-/** The FAB's inset from the body's bottom-end corner (px), above any bar. */
-const FLOATING_ACTION_MARGIN = 16;
 
 export type ScreenBaseCompactBodyProps = {
   scroll: boolean;
@@ -137,6 +140,7 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
         dataSet={{ component: 'ScreenBodyScroll' }}
       >
         {inner}
+        <FloatingActionClearance />
         <Show when={needsSafeBottom()}>
           <SafeBottomSpacer />
         </Show>
@@ -155,7 +159,17 @@ export function ScreenBaseCompactBody(
 ): JSX.Element {
   return (
     <div class="box flex-1 min-h-0 relative">
-      <ScrollableBody {...props} />
+      {/* Scrollers in the body end with room the FAB covers, so the last
+          row always scrolls clear of it. */}
+      <FloatingActionClearanceProvider
+        clearance={
+          primaryActionVisible(props.primary)
+            ? floatingActionClearance(props.primaryActionBottomInset)
+            : 0
+        }
+      >
+        <ScrollableBody {...props} />
+      </FloatingActionClearanceProvider>
       <Show when={props.footer}>
         {(footer) => (
           <PinnedFooter safeBottom={props.bottomBar === undefined}>

@@ -51,7 +51,7 @@ export function FriendRequestNotificationCard(
 
   const leading = () =>
     profile().userId.length > 0 ? (
-      <FriendProfileAvatar profile={profile()} size={48} />
+      <FriendProfileAvatar profile={profile()} size={40} />
     ) : undefined;
 
   return (

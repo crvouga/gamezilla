@@ -33,6 +33,7 @@ export function SpacePersonAvatar(props: {
         <DeviceAvatar
           avatarConfig={parseAvatarConfig(person.avatarConfig)}
           seedFallback={person.id}
+          name={person.name}
           size={props.size}
           vividBackdrop={props.vividBackdrop ?? false}
         />

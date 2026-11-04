@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import type { JSX } from 'solid-js';
+import { FloatingActionClearance } from '../floating-action-clearance/index';
 import type { VirtualListProps } from '../virtual-list/index';
 import { VirtualList } from '../virtual-list/index';
 
@@ -28,6 +29,12 @@ export function ScreenBodyVirtualList<ItemT>(
       <VirtualList
         {...props}
         grow
+        footer={
+          <>
+            {props.footer}
+            <FloatingActionClearance />
+          </>
+        }
         dataSet={{ component: 'ScreenBodyVirtualList', ...props.dataSet }}
       />
     </div>

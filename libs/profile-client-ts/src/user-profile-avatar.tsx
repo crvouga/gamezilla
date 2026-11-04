@@ -8,6 +8,8 @@ export type UserProfileAvatarProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
   profileId: string | null;
   size: number;
+  /** The name shown beside the face; its initials stand in for a missing picture. */
+  name?: string | null | undefined;
   vividBackdrop?: boolean | undefined;
 };
 
@@ -22,6 +24,7 @@ export function UserProfileAvatar(props: UserProfileAvatarProps): JSX.Element {
       {(id) => (
         <UserProfileAvatarInner
           profileId={id}
+          name={props.name}
           size={props.size}
           vividBackdrop={props.vividBackdrop ?? false}
         />
@@ -32,6 +35,7 @@ export function UserProfileAvatar(props: UserProfileAvatarProps): JSX.Element {
 
 function UserProfileAvatarInner(props: {
   profileId: string;
+  name: string | null | undefined;
   size: number;
   vividBackdrop: boolean;
 }): JSX.Element {
@@ -41,6 +45,7 @@ function UserProfileAvatarInner(props: {
     <DeviceAvatar
       avatarConfig={avatarConfig()}
       seedFallback={props.profileId}
+      name={props.name}
       size={props.size}
       vividBackdrop={props.vividBackdrop}
     />

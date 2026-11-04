@@ -33,6 +33,9 @@ import {
   useActionBarController,
 } from '../use-action-bar-controller';
 
+/** How much faster a measuring bar gives up room than its row-mates. */
+const ACTION_BAR_SHRINK = 1_000_000;
+
 export type ActionBarProps = {
   items: readonly ActionBarItem[];
   /** Icon-less actions that render as compact text buttons when inline. */
@@ -198,15 +201,18 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
         {...dataAttrs({ component: 'ActionBar', ...props.dataSet })}
         style={{
           // A measuring bar asks for its full row and gives room up before
-          // its row-mates do (shrink 1000), down to the More trigger. Its
-          // size never depends on what it renders, so collapsing is stable.
+          // its row-mates do, down to the More trigger. Shrink is weighted
+          // by width, so the weight must be large enough that a title beside
+          // it loses less than a layout unit (1/64px) — a fraction of a
+          // pixel is enough to wrap a clamped title's last word. Its size
+          // never depends on what it renders, so collapsing is stable.
           ...(bar.measures()
             ? {
                 width: cssPx(bar.naturalWidth()),
                 'max-width': '100%',
                 'min-width': cssPx(bar.minWidth()),
                 'flex-grow': 0,
-                'flex-shrink': 1000,
+                'flex-shrink': ACTION_BAR_SHRINK,
                 'align-self': 'stretch',
               }
             : {}),

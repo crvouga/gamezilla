@@ -129,7 +129,7 @@ function Field(
         props.hasAdornment ? 'pl-11' : 'pl-4',
         props.hasError ? 'inputError' : undefined,
         props.variant === 'embedded'
-          ? 'border-0 rounded-none bg-transparent textBodyBold'
+          ? 'inputEmbedded border-0 rounded-none bg-transparent textBodyBold'
           : undefined,
       ])}
       type={fieldType(props)}

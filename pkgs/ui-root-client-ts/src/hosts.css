@@ -451,10 +451,19 @@
     opacity: 1;
   }
 
-  /* The same ring as every control; flat, so no glow around the field. */
+  /* A field's ring is its own edge: the border turns `focus-ring` and a 1px
+     outline thickens it to the same 2px as every control. No gap, so a
+     bordered field never reads as two rings; flat, so no glow. */
   .input:focus-visible {
-    outline: 2px solid var(--ui-color-focus-ring);
-    outline-offset: 2px;
+    border-color: var(--ui-color-focus-ring);
+    outline: 1px solid var(--ui-color-focus-ring);
+    outline-offset: 0;
+  }
+
+  /* A borderless field set into an editor has no edge to thicken: it takes
+     the full 2px ring, still without a gap. */
+  .inputEmbedded:focus-visible {
+    outline-width: 2px;
   }
 
   /* Error is the destructive edge plus the message and `aria-invalid`;
