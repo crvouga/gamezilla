@@ -12,7 +12,10 @@ import { type JSX, Show } from 'solid-js';
 import { AccountActionsRow } from './account-actions-row';
 import type { SignInMethodsView } from './sign-in-methods-section';
 import { SignInMethodsSection } from './sign-in-methods-section';
-import { SignOutEverywhereButton } from './sign-out-everywhere';
+import {
+  SignOutEverywhereConfirm,
+  SignOutEverywhereRow,
+} from './sign-out-everywhere';
 
 const ROW_ICON_SIZE = 20;
 
@@ -44,8 +47,9 @@ export type AccountScreenViewProps = {
 };
 
 /**
- * `/more/account`, presentational: sign-in methods, devices, the privacy
- * entry and sign in / out. A guest sees devices (which asks them to sign in)
+ * `/more/account`, presentational: sign-in methods, security (devices and
+ * the quieter sign out of all devices, with its scope spelled out), the
+ * privacy entry, and one Sign out for this device. A guest sees devices (which asks them to sign in)
  * and Sign in only. `AccountScreen` wires it to the session and auth port.
  */
 export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
@@ -78,6 +82,9 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           onClick={() => props.onOpenDevices()}
           dataSet={{ testid: Handles.accountDevices }}
         />
+        <Show when={props.signedIn}>
+          <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
+        </Show>
       </MenuSection>
       <Show when={props.signedIn}>
         <MenuSection title={<Trans>Your data</Trans>}>
@@ -96,9 +103,8 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         onSignOut={props.onSignOut}
       />
       <Show when={props.signedIn}>
-        <SignOutEverywhereButton
+        <SignOutEverywhereConfirm
           confirming={props.signingOutEverywhere}
-          onOpen={props.onSignOutEverywhere}
           onClose={props.onCancelSignOutEverywhere}
           onConfirm={props.onConfirmSignOutEverywhere}
         />
