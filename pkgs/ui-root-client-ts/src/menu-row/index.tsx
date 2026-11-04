@@ -42,6 +42,12 @@ export type MenuRowProps = {
   /** Render the row in its "current selection" state. */
   selected?: boolean | undefined;
   /**
+   * `destructive` paints the title in the destructive ink: an action that
+   * ends or removes something (sign out everywhere, delete). The row stays
+   * calm otherwise; its confirmation carries the weight. Default `default`.
+   */
+  tone?: 'default' | 'destructive' | undefined;
+  /**
    * Announce a static row as the current item of its set
    * (`aria-current="true"`), e.g. the plan a person is on. Interactive rows
    * announce `selected` instead.
@@ -124,6 +130,7 @@ function MenuRowBody(
   props: MenuRowProps & { interactive: boolean }
 ): JSX.Element {
   const selected = () => props.selected === true;
+  const destructive = () => props.tone === 'destructive';
   return (
     <div class="box flex-row items-stretch pl-4 min-h-13">
       <Show when={props.leading !== undefined}>
@@ -138,7 +145,11 @@ function MenuRowBody(
               may not contain one. A long title ends in an ellipsis. */}
           <div
             class="text textBody line-clamp-1 max-w-full"
-            classList={{ 'text-tint': selected(), 'text-text': !selected() }}
+            classList={{
+              'text-tint': selected(),
+              'text-destructive': !selected() && destructive(),
+              'text-text': !selected() && !destructive(),
+            }}
           >
             {props.title}
           </div>
@@ -229,7 +240,8 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
  * Interactive rows use native buttons and links. Static detail rows and rows
  * whose trailing control owns the interaction use plain boxes. `MenuList`
  * groups these mixed controls without imposing command-menu keyboard semantics.
- * Pass `selected` to opt into a `tintSubtle` row fill. `submit` carries
+ * Pass `selected` to opt into a `tintSubtle` row fill; `tone="destructive"`
+ * paints the title in the destructive ink. `submit` carries
  * `name=value` into the surrounding form. `expanded` makes the row a
  * disclosure for the rows after it (a down / up chevron, `aria-expanded`).
  *

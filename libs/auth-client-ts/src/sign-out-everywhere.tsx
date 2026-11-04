@@ -10,8 +10,10 @@ import type { JSX } from 'solid-js';
 const ROW_ICON_SIZE = 20;
 
 /**
- * A quiet row under Sign out (this device only): its caption says what it
- * ends, and {@link SignOutEverywhereConfirm} asks before anything happens.
+ * The account's one destructive row, in a panel of its own at the foot of
+ * the screen, apart from Sign out (this device only): its title is in the
+ * destructive ink, its caption says what it ends, and
+ * {@link SignOutEverywhereConfirm} asks before anything happens.
  */
 export function SignOutEverywhereRow(props: {
   readonly onOpen: () => void;
@@ -21,7 +23,8 @@ export function SignOutEverywhereRow(props: {
     <MenuRow
       title={t`Sign out of all devices`}
       caption={t`Ends every session on this account, this device included`}
-      leading={<LogOutIcon size={ROW_ICON_SIZE} color="icon" />}
+      leading={<LogOutIcon size={ROW_ICON_SIZE} color="destructive" />}
+      tone="destructive"
       onClick={() => props.onOpen()}
       // It asks first, in place: no chevron, since it opens no screen.
       hideChevron
