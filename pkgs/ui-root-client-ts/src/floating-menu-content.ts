@@ -26,6 +26,8 @@ export type FloatingMenuItemRow = {
   trailing?: JSX.Element | undefined;
   onClick?: (() => void) | undefined;
   disabled?: boolean | undefined;
+  /** `destructive` paints the icon and label red (end, leave, delete). */
+  tone?: 'default' | 'destructive' | undefined;
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers for the row button. */
   dataSet?: ComponentDataSet | undefined;

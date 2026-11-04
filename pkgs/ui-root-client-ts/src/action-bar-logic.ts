@@ -45,6 +45,8 @@ type ActionBarItemBase = {
   disabled?: boolean | undefined;
   loading?: boolean | undefined;
   endsGroup?: boolean | undefined;
+  /** `destructive` paints the overflow-menu row red (end, leave, delete). */
+  tone?: 'default' | 'destructive' | undefined;
   /** Higher values stay visible longer when space is tight. */
   priority?: number | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;

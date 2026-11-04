@@ -31,6 +31,7 @@ export function actionBarItemToOverflowAction(
     disabled:
       item.disabled === true || item.loading === true ? true : undefined,
     endsGroup: item.endsGroup === true ? true : undefined,
+    tone: item.tone,
     trailing: item.trailing,
     leading: isActionBarAvatarItem(item) ? item.children : undefined,
     'aria-label': ariaLabel,
