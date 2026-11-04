@@ -82,27 +82,39 @@ function SpaceChromeStandIn(): JSX.Element {
   return null;
 }
 
-/**
- * The story mounts once and moves with the frame's compact / wide switch
- * (a second `<Story />` would render empty).
- */
+/** Fills the viewport with the app's chrome provider and frame. */
 function StoryAppViewport(props: {
   story: () => JSX.Element;
   asRail: boolean;
   inSpace: boolean;
 }): JSX.Element {
-  const screen = children(() => props.story());
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
       <AppFrameChromeProvider>
         <Show when={props.inSpace}>
           <SpaceChromeStandIn />
         </Show>
-        <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
-          <AppFrame rail={screen()}>{null}</AppFrame>
-        </Show>
+        <StoryFrame story={props.story} asRail={props.asRail} />
       </AppFrameChromeProvider>
     </div>
+  );
+}
+
+/**
+ * Resolves the story inside the chrome provider, so a screen that replaces
+ * the frame's header (an open space) reaches it. The story mounts once and
+ * moves with the frame's compact / wide switch (a second `<Story />` would
+ * render empty).
+ */
+function StoryFrame(props: {
+  story: () => JSX.Element;
+  asRail: boolean;
+}): JSX.Element {
+  const screen = children(() => props.story());
+  return (
+    <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
+      <AppFrame rail={screen()}>{null}</AppFrame>
+    </Show>
   );
 }
 
