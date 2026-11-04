@@ -79,3 +79,9 @@ export const SidebarProfileCurrent: Story = {
   ...SidebarSpacesCurrent,
   args: { orientation: 'vertical', pathname: '/profile/friends' },
 };
+
+/** The sidebar on a page outside every tab (a missing page): none current. */
+export const SidebarNoneCurrent: Story = {
+  ...SidebarSpacesCurrent,
+  args: { orientation: 'vertical', pathname: '/no-such-page' },
+};

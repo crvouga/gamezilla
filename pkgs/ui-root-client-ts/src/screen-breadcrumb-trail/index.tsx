@@ -51,7 +51,7 @@ function AncestorCrumb(props: {
  * Visible breadcrumb trail for wide `ScreenBase` page headers.
  *
  * Ancestors render as a quiet caption row (14px, secondary) above the page
- * title so the hierarchy reads top-down (`Settings › Sound` over a 24px
+ * title so the hierarchy reads top-down (`Settings › Sound` over a 26px
  * `Sound`).
  * Ancestors with `onClick` / `href` are links; the current crumb is the
  * `h1` title.
@@ -104,7 +104,7 @@ export function ScreenBreadcrumbTrail(
           </Show>
           <Show when={trail().current}>
             {(current) => (
-              <h1 class="text textHeading line-clamp-1">{current().name}</h1>
+              <h1 class="text textTitle line-clamp-1">{current().name}</h1>
             )}
           </Show>
         </nav>

@@ -22,7 +22,8 @@ export type MainMenuScreenProps = {
    * Wide layouts only. `list` (default): one panel of rows in the page
    * column. `grid`: each destination is its own card in a three-column grid
    * across the frame — for menus of places to go (games, ways to play), not
-   * settings.
+   * settings. Two or four destinations take two columns so none is left
+   * alone on a row.
    */
   wideLayout?: 'list' | 'grid' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -52,6 +53,9 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
   const footer = createScreenSlot(() => props.footer);
   const mode = useLayoutMode();
   const grid = (): boolean => props.wideLayout === 'grid' && mode() === 'wide';
+  // Two or four destinations fill two columns evenly; never strand one card.
+  const twoColumns = (): boolean =>
+    props.items.length === 2 || props.items.length === 4;
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -78,7 +82,11 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
         }
       >
         <div
-          class="grid grid-cols-3 gap-3 self-stretch"
+          class="grid gap-3 self-stretch"
+          classList={{
+            'grid-cols-2': twoColumns(),
+            'grid-cols-3': !twoColumns(),
+          }}
           role="list"
           data-layout="grid"
         >
