@@ -82,7 +82,10 @@
   z-index: 2;
   /* A fixed-size leaf: its style, layout and paint never reach past it. */
   contain: strict;
-  background-size: 100% 100%;
+  /* The figure fills 88% of its square, centred, so the edge coordinates in
+     the squares' outer corners never sit under a piece. */
+  background-size: 88% 88%;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
