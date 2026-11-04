@@ -95,7 +95,9 @@ function StoryAppViewport(props: {
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
       <AppFrameChromeProvider
-        globalTrailing={<Avatar size={STORY_ACCOUNT_FACE} you />}
+        globalTrailing={
+          <Avatar size={STORY_ACCOUNT_FACE} you initials="A" alt="avery" />
+        }
       >
         <Show when={props.inSpace}>
           <SpaceChromeStandIn />
