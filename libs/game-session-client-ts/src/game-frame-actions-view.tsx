@@ -30,8 +30,10 @@ export function FrameConfirmView(props: {
       <Trans>Cancel game</Trans>
     </Show>
   );
-  // The row sits with the board, so the button need not repeat "game";
-  // it wears the other commands' outline, in the destructive tone.
+  // The row sits with the board, so the button need not repeat "game".
+  // Resigning is the quiet last command: destructive words, no border, so
+  // it never competes with playing on; the dialog confirms it. Cancelling
+  // a game nobody has played yet keeps the outline.
   const action = (): JSX.Element => (
     <Show
       when={props.operation === 'cancel'}
@@ -50,7 +52,7 @@ export function FrameConfirmView(props: {
         <Button
           title={action()}
           intent="danger"
-          variant="outline"
+          variant={props.operation === 'resign' ? 'ghost' : 'outline'}
           onClick={() => setDialogSession((current) => current + 1)}
           dataSet={{ testid: `custom-game-${props.operation}` }}
         />
@@ -130,9 +132,10 @@ function FrameNextActions(props: {
   readonly onChoose: Choose;
   readonly onBack: () => void;
   readonly onSeek: (ply: number) => void;
+  readonly width: 'full' | 'content';
 }): JSX.Element {
   return (
-    <GameActionBar aria-label={t`What next`} items={[]}>
+    <GameActionBar aria-label={t`What next`} items={[]} width={props.width}>
       <Show
         when={props.next.plays}
         fallback={
@@ -175,7 +178,8 @@ function FrameNextActions(props: {
 /**
  * The game's commands: while it is set up or played, the board's actions
  * and the frame's own (draw offers, claiming the win, resigning,
- * cancelling); once it is over, what comes next.
+ * cancelling); once it is over, what comes next. `width="content"` lets
+ * them share a row with the record's own command in its panel.
  */
 export function FrameActionsView(props: {
   readonly phase: FramePhase;
@@ -184,6 +188,7 @@ export function FrameActionsView(props: {
   readonly onChoose: Choose;
   readonly onBack: () => void;
   readonly onSeek: (ply: number) => void;
+  readonly width?: 'full' | 'content' | undefined;
 }): JSX.Element {
   const unfinished = () =>
     props.phase === 'configuring' || props.phase === 'active';
@@ -194,6 +199,7 @@ export function FrameActionsView(props: {
       <GameActionBar
         aria-label={t`Game actions`}
         items={unfinished() ? props.play.boardActions : []}
+        width={props.width}
       >
         <Show when={props.phase === 'active'}>
           <FrameDrawActions play={props.play} onChoose={props.onChoose} />
@@ -215,6 +221,7 @@ export function FrameActionsView(props: {
           onChoose={props.onChoose}
           onBack={props.onBack}
           onSeek={props.onSeek}
+          width={props.width ?? 'full'}
         />
       </Show>
     </Show>

@@ -27,6 +27,12 @@ export type GameActionBarProps = {
   children?: JSX.Element | undefined;
   /** Names the group of actions. */
   'aria-label'?: string | undefined;
+  /**
+   * `full` (default): a row of its own. `content`: only as wide as its
+   * buttons, so it can share a wrapping row with another command (the
+   * record's "History and stats").
+   */
+  width?: 'full' | 'content' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -83,7 +89,8 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
-        class="box flex-row flex-wrap items-center gap-2 w-full min-w-0"
+        class="box flex-row flex-wrap items-center gap-2 min-w-0"
+        classList={{ 'w-full': props.width !== 'content' }}
         role="group"
         aria-label={props['aria-label']}
         {...dataAttrs({ component: 'GameActionBar', ...props.dataSet })}
