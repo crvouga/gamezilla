@@ -129,7 +129,7 @@ export function notificationRows(
 }
 
 /** A group's heading: larger than a day's, with how many need the person. */
-function GroupHeading(props: {
+export function GroupHeading(props: {
   readonly title: JSX.Element;
   readonly count: number | null;
   readonly leading: boolean;
