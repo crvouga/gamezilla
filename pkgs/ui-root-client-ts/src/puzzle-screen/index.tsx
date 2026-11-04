@@ -60,8 +60,8 @@ function PuzzleFixedRegion(props: {
  * bar. On a phone one column: the header (feed, coaching), the board, the
  * legend, the move list, the actions. Wide, the game screens' template:
  * the title over everything, the board on the left, and beside it one
- * panel column, top to bottom: the header (feed, the prompt), the actions
- * right under the prompt, the move list, the legend.
+ * panel card, as a game's record is, top to bottom: the header (feed, the
+ * prompt), the actions right under the prompt, the move list, the legend.
  */
 export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
   const ratio = createMemo(() =>
@@ -89,6 +89,9 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
             <ScreenIntro title={props.title} />
           </Show>
         </PuzzleFixedRegion>
+        {/* Wide: the card the panel column sits on, the game record's
+            look; drawn under the panel's regions, never in a phone's flow. */}
+        <div class={styles['panelCard']} aria-hidden="true" />
         <PuzzleFixedRegion name="PuzzleHeader" area="header">
           {props.header}
         </PuzzleFixedRegion>

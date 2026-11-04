@@ -13,6 +13,13 @@ export type MoveStripProps = {
   /** Controls after the moves (step forward, jump to end). */
   trailing?: JSX.Element | undefined;
   pointer?: PointerHandlers | undefined;
+  /**
+   * `fill` (default): the moves take the row between the controls, which
+   * stay at its ends. `content`: the row is as wide as its moves, centred,
+   * so a short line keeps its step controls right beside its moves instead
+   * of across an empty gap; it still scrolls once the moves fill the row.
+   */
+  fit?: 'fill' | 'content' | undefined;
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
 };
@@ -43,6 +50,7 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
       class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0 h-ui-control-md"
       data-testid={props.testId}
       data-component={componentId('MoveStrip')}
+      data-fit={props.fit ?? 'fill'}
       onPointerDown={(event) => props.pointer?.onPointerDown?.(event)}
       onPointerUp={(event) => props.pointer?.onPointerUp?.(event)}
       onPointerCancel={() => props.pointer?.onPointerCancel?.()}
@@ -51,7 +59,7 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
         {props.leading}
       </div>
       <ScrollView
-        grow
+        grow={props.fit !== 'content'}
         align="center"
         paddingX="md"
         gap="sm"
