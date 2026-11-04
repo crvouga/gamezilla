@@ -34,11 +34,15 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   return (
     <Switch>
       <Match when={relation() === 'friends'}>
-        <Badge label="Friends" intent="success" />
+        <StackVertical>
+          <Badge label="Friends" intent="success" />
+        </StackVertical>
       </Match>
       <Match when={relation() === 'requested'}>
         <StackHorizontal align="center" gap="sm">
-          <Badge label="Requested" intent="neutral" />
+          <StackVertical>
+            <Badge label="Requested" intent="neutral" />
+          </StackVertical>
           <Button title="Cancel" variant="ghost" onClick={() => undefined} />
         </StackHorizontal>
       </Match>

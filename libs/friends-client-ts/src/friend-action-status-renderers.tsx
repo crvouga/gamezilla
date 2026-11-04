@@ -24,14 +24,18 @@ function RelationshipBadge(props: {
   readonly intent: 'neutral' | 'success';
   readonly testId?: string | undefined;
 }): JSX.Element {
+  // Its own box, so the tag centers on the row like a button would (a
+  // badge keeps to the start of its parent's cross axis).
   return (
-    <Badge
-      label={props.label}
-      intent={props.intent}
-      dataSet={
-        props.testId === undefined ? undefined : { testid: props.testId }
-      }
-    />
+    <StackVertical>
+      <Badge
+        label={props.label}
+        intent={props.intent}
+        dataSet={
+          props.testId === undefined ? undefined : { testid: props.testId }
+        }
+      />
+    </StackVertical>
   );
 }
 
