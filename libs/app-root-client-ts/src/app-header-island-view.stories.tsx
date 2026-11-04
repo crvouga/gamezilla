@@ -1,6 +1,7 @@
-import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { STORY_SIGNED_IN_IDENTITY } from './account-face-story.example';
+import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
 import { AppHeaderIslandView } from './app-header-island-view';
 import { STORY_APP_TABS, STORY_LONG_APP_TABS } from './app-tabs-story.example';
 
@@ -33,10 +34,28 @@ export const NotificationsCurrent: Story = {
 /** A nested route keeps its tab's pill current. */
 export const ProfileCurrent: Story = { args: { pathname: '/profile/friends' } };
 
-/** The account face sits at the end, as the global menu's trigger. */
+/**
+ * The global account menu as the shell mounts it: the signed-in person's
+ * face (their name too, in the sidebar) opening Settings, Connectivity,
+ * Account, Theme and Sound.
+ */
+function accountMenu(showName: boolean) {
+  return (
+    <AppHeaderGlobalMenuView
+      identity={STORY_SIGNED_IN_IDENTITY}
+      connectivity="online"
+      theme="system"
+      muted={false}
+      onNavigate={fn()}
+      showName={showName}
+    />
+  );
+}
+
+/** The person's face sits at the end, as the global menu's trigger. */
 export const WithAccountMenu: Story = {
   render: (args) => (
-    <AppHeaderIslandView {...args} trailing={<Avatar size={32} you />} />
+    <AppHeaderIslandView {...args} trailing={accountMenu(false)} />
   ),
 };
 
@@ -53,13 +72,25 @@ export const SelectProfile: Story = {
   },
 };
 
-/** Wide layouts: the sidebar, Spaces current, the account face at its foot. */
+/**
+ * Wide layouts: the sidebar, Spaces current, and at its foot the account
+ * menu as the person's face and name ("@avery"), so it reads as who is
+ * signed in rather than a second Profile row. The menu is named by the name
+ * it shows (WCAG 2.5.3).
+ */
 export const SidebarSpacesCurrent: Story = {
   parameters: { appFrame: 'rail' },
   args: { orientation: 'vertical' },
   render: (args) => (
-    <AppHeaderIslandView {...args} trailing={<Avatar size={32} you />} />
+    <AppHeaderIslandView {...args} trailing={accountMenu(true)} />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const menu = await canvas.findByRole('button', {
+      name: '@avery, account menu',
+    });
+    await expect(menu).toBeVisible();
+  },
 };
 
 /** The sidebar on Search. */

@@ -9,8 +9,12 @@ import { usePathname, useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import type { JSX } from 'solid-js';
 import { AppHeaderIslandView } from './app-header-island-view';
 import { useAppTabs } from './app-tabs';
+import { GlobalMenuInSidebar } from './global-menu-in-sidebar';
 
-/** Wires `AppHeaderIslandView` to the router, the tabs and the global menu. */
+/**
+ * Wires `AppHeaderIslandView` to the router, the tabs and the global menu;
+ * in the sidebar the global menu names the person beside their face.
+ */
 export function AppHeaderIslandHost(props: {
   readonly orientation?: 'horizontal' | 'vertical' | undefined;
 }): JSX.Element {
@@ -23,7 +27,13 @@ export function AppHeaderIslandHost(props: {
       tabs={tabs()}
       pathname={pathname()}
       onSelect={(tab) => router.push(tab.href)}
-      trailing={trailing()}
+      trailing={
+        props.orientation === 'vertical' ? (
+          <GlobalMenuInSidebar>{trailing()}</GlobalMenuInSidebar>
+        ) : (
+          trailing()
+        )
+      }
       orientation={props.orientation}
     />
   );
