@@ -67,7 +67,7 @@ const SCREENS: readonly {
   {
     title: 'host whose End is in the ⋯ menu',
     handles: [Handles.spaceClose, Handles.spaceChromeOverflow],
-    menu: [Handles.spaceLeave, Handles.spaceEnd],
+    menu: [Handles.spaceShare, Handles.spaceLeave, Handles.spaceEnd],
     expected: 'space',
   },
   {
@@ -78,7 +78,7 @@ const SCREENS: readonly {
   {
     title: 'guest whose ⋯ menu offers only Leave',
     handles: [Handles.spaceClose, Handles.spaceChromeOverflow],
-    menu: [Handles.spaceLeave],
+    menu: [Handles.spaceShare, Handles.spaceLeave],
     expected: 'droppedOut',
   },
 ];
@@ -104,7 +104,7 @@ test('looking for End in the ⋯ menu closes the menu again', async () => {
       Handles.spaceClose,
       Handles.spaceChromeOverflow,
     ],
-    [Handles.spaceLeave, Handles.spaceEnd]
+    [Handles.spaceShare, Handles.spaceLeave, Handles.spaceEnd]
   );
   expect(await spaceScreenOf(s, 'bob')).toBe('space');
   const ui = s.actors.get('bob')?.ui;
