@@ -125,34 +125,35 @@ export function storyTile(
 }
 
 /**
- * Games a space offers, as the composition root would register them. Ids
- * are made up: platform code never names a real game.
+ * Games a space offers, as the composition root would register them: real
+ * games' names and lines, so a story reads as the product does. Ids are
+ * made up: platform code never spells a registered game's id.
  */
 export const GAMES = [
   {
     id: 'example-board',
-    title: 'Board duel',
+    title: 'Chess',
     caption: 'Two players, one board, turn by turn.',
     players: 2,
     Tile: storyTile('checkered'),
   },
   {
     id: 'example-cards',
-    title: 'Card table',
-    caption: 'Four players pass and play tricks.',
+    title: 'Hearts',
+    caption: 'Avoid hearts and the queen of spades.',
     players: 4,
     Tile: storyTile('cards'),
   },
   {
     id: 'example-race',
-    title: 'Light race',
-    caption: 'Steer, turn and outlast everyone.',
+    title: 'Light Cycles',
+    caption: 'Steer your trail and outlast everyone.',
     players: 4,
     Tile: storyTile('trails'),
   },
   {
     id: 'example-puzzle',
-    title: 'Path puzzle',
+    title: 'Numberlink',
     caption: 'Join each pair of dots without crossing a line.',
     players: 1,
     Tile: storyTile('paths'),
