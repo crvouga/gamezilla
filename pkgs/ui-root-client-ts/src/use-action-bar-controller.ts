@@ -15,6 +15,7 @@ import type {
 import {
   ACTION_BAR_DEFAULT_GAP,
   actionBarHasContent,
+  actionBarMinWidth,
   actionBarRowWidth,
   partitionActionBarItems,
   partitionTextActions,
@@ -176,7 +177,7 @@ export type ActionBarController = {
   widths: KeyedWidths;
   /** Room the bar asks for with every action inline. */
   naturalWidth: Accessor<number>;
-  /** Room the bar never gives up: the More trigger. */
+  /** Room the bar never gives up: its `never` items and the More trigger. */
   minWidth: Accessor<number>;
 };
 
@@ -237,6 +238,13 @@ export function useActionBarController(
     setEndSlot: (el) => setEndSlot(el),
     widths,
     naturalWidth: natural,
-    minWidth: () => moreWidth(widths, resolved()),
+    minWidth: () =>
+      actionBarMinWidth({
+        items: input.items,
+        widthOf: (item) =>
+          widths.width(itemKey(item.id)) ?? resolved().slotWidth,
+        moreWidth: moreWidth(widths, resolved()),
+        gap: resolved().gap,
+      }),
   };
 }
