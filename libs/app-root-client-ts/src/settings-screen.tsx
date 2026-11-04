@@ -13,7 +13,6 @@ import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { For, type JSX } from 'solid-js';
 import { useAppSubs } from './app-subs-context';
 import { useOfflinePreference } from './offline-preference';
-import { usePerfHudPreference } from './perf-hud-preference';
 import { SettingsScreenView } from './settings-screen-view';
 
 /** `/more`: wires `SettingsScreenView` to preferences, permissions and subs. */
@@ -23,13 +22,11 @@ export function SettingsScreen(): JSX.Element {
   const canViewBilling = useCan(PERMISSION.billingView);
   const { preference } = useThemePreference();
   const { muted } = useSoundsPreference();
-  const { enabled: perfEnabled } = usePerfHudPreference();
   const { offline, setOffline } = useOfflinePreference();
   return (
     <SettingsScreenView
       theme={preference()}
       muted={muted()}
-      perfEnabled={perfEnabled()}
       offline={offline()}
       canViewBilling={canViewBilling()}
       version={APP_VERSION}

@@ -16,6 +16,7 @@ const SHELL_PATHS: readonly string[] = [
   '/more/sound',
   '/more/about',
   '/more/sync',
+  '/more/troubleshooting',
   '/more/server-status',
   '/more/client-config',
   '/more/account',

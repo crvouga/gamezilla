@@ -6,11 +6,8 @@ import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   ActivityIcon,
   CreditCardIcon,
-  GaugeIcon,
   InfoIcon,
   PaintbrushIcon,
-  RefreshCwIcon,
-  SlidersHorizontalIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -23,7 +20,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type Accessor, createSignal, For, type JSX, Show } from 'solid-js';
+import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 const ROW_ICON_SIZE = 20;
@@ -59,8 +56,6 @@ export type SettingsScreenViewProps = {
   readonly theme: ThemePreference;
   /** Whether in-app sound effects are muted. */
   readonly muted: boolean;
-  /** Whether the performance monitor is on. */
-  readonly perfEnabled: boolean;
   /** Whether the person chose to work offline. */
   readonly offline: boolean;
   /** Whether the Billing row is offered (a permission decision). */
@@ -115,11 +110,9 @@ function useAccountGroup(
 }
 
 /**
- * The Work offline row's caption: one short line, the mode the app is in now
- * and what it means for playing with others — online, games and changes
- * sync; offline, games with others pause until the person works online
- * again. "Online" / "Offline" lead, so the row says where the person
- * stands; the switch beside it says what turning it does.
+ * The Work offline row's caption: where the person stands ("Online" /
+ * "Offline" lead), then what flipping the switch beside it does to playing
+ * with others, so the label and the state never read as opposites.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -127,8 +120,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Offline — games with others pause`
-      : t`Online — games and changes sync`;
+      ? t`Offline — turn off to sync and play with others again`
+      : t`Online — turn on to pause syncing and games with others`;
 }
 
 function usePreferencesGroup(
@@ -170,44 +163,6 @@ function usePreferencesGroup(
   });
 }
 
-/** Diagnostics, behind the Troubleshooting disclosure: for when something is not working. */
-function useTroubleshootingRows(
-  props: SettingsScreenViewProps
-): Accessor<readonly SettingsRow[]> {
-  const { t } = useLingui();
-  return () => [
-    {
-      title: t`Connection`,
-      caption: t`Status, and what works offline`,
-      icon: WifiIcon,
-      href: '/more/server-status',
-      testid: Handles.settingsConnection,
-    },
-    {
-      title: t`Sync`,
-      caption: t`Changes waiting to send`,
-      icon: RefreshCwIcon,
-      href: '/more/sync',
-      testid: 'settings-sync',
-    },
-    {
-      title: t`Client config`,
-      caption: t`Settings from the server`,
-      icon: SlidersHorizontalIcon,
-      href: '/more/client-config',
-      testid: 'settings-client-config',
-    },
-    {
-      title: t`Performance`,
-      caption: t`Frame rate and responsiveness`,
-      value: props.perfEnabled ? t`On` : t`Off`,
-      icon: GaugeIcon,
-      href: '/more/performance',
-      testid: 'settings-performance',
-    },
-  ];
-}
-
 /** Everyday groups lead; About and Troubleshooting follow the subs' sections. */
 function useSettingsGroups(props: SettingsScreenViewProps): {
   readonly everyday: Accessor<readonly SettingsGroup[]>;
@@ -231,21 +186,14 @@ function SettingsGroupView(props: {
 }
 
 /**
- * The App group: About, then one Troubleshooting row, closed until it is
- * opened: the diagnostics (connection, sync, client config, performance)
- * are one tap away without taking the screen from everyday settings.
+ * The App group: About, then Troubleshooting, a page of diagnostics
+ * (connection, sync, client config, performance) for when something is not
+ * working. Both open a page, like every other row with a right chevron.
  */
 function AboutSection(props: SettingsScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const troubleshooting = useTroubleshootingRows(props);
-  const [open, setOpen] = createSignal(false);
   return (
-    <MenuSection
-      title={t`App`}
-      footer={
-        open() ? t`Details to check when something isn't working.` : undefined
-      }
-    >
+    <MenuSection title={t`App`}>
       <SettingsRowItem
         row={{
           title: t`About`,
@@ -256,19 +204,16 @@ function AboutSection(props: SettingsScreenViewProps): JSX.Element {
         }}
         onNavigate={props.onNavigate}
       />
-      <MenuRow
-        title={t`Troubleshooting`}
-        caption={t`Connection, sync and diagnostics`}
-        leading={<ActivityIcon size={ROW_ICON_SIZE} color="icon" />}
-        expanded={open()}
-        onClick={() => setOpen((value) => !value)}
-        dataSet={{ testid: Handles.settingsTroubleshooting }}
+      <SettingsRowItem
+        row={{
+          title: t`Troubleshooting`,
+          caption: t`Connection, sync and diagnostics`,
+          icon: ActivityIcon,
+          href: '/more/troubleshooting',
+          testid: Handles.settingsTroubleshooting,
+        }}
+        onNavigate={props.onNavigate}
       />
-      <Show when={open()}>
-        <For each={troubleshooting()}>
-          {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
-        </For>
-      </Show>
     </MenuSection>
   );
 }
@@ -315,9 +260,8 @@ function SettingsRowItem(props: {
 /**
  * `/more`, presentational: the settings index — everyday account and
  * preference groups first, then whatever settings the composed subs
- * contribute, then About with a Troubleshooting disclosure (closed until
- * opened) over the diagnostics: connection, sync, client config and
- * performance. `SettingsScreen` wires preferences, permissions and
+ * contribute, then About and Troubleshooting (a page of diagnostics:
+ * connection, sync, client config and performance). `SettingsScreen` wires preferences, permissions and
  * navigation.
  */
 export function SettingsScreenView(

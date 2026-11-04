@@ -13,7 +13,6 @@ const meta = {
   args: {
     theme: 'system',
     muted: false,
-    perfEnabled: false,
     offline: false,
     canViewBilling: false,
     version: '1.0.0',
@@ -26,8 +25,8 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * Defaults: online, system appearance, sound on, monitor off, no billing.
- * Everyday groups lead; About closes the page, with the diagnostics behind
- * one Troubleshooting row, closed until it is opened.
+ * Everyday groups lead; About and Troubleshooting close the page, each a
+ * page of its own behind a right chevron.
  */
 export const Default: Story = {};
 
@@ -36,7 +35,7 @@ export const WithBilling: Story = { args: { canViewBilling: true } };
 
 /** Every preference away from its default, as its row values say. */
 export const PreferencesChanged: Story = {
-  args: { theme: 'dark', muted: true, perfEnabled: true, offline: true },
+  args: { theme: 'dark', muted: true, offline: true },
 };
 
 /** Sections the composed subs contribute follow the everyday groups. */
@@ -73,23 +72,11 @@ export const OpenAppearance: Story = {
   },
 };
 
-/**
- * Opening Troubleshooting shows the diagnostics in the same panel:
- * Connection, Sync, Client config and Performance, each one tap from its
- * screen.
- */
-export const TroubleshootingOpen: Story = {
+/** Troubleshooting opens its page of diagnostics, like every other row. */
+export const OpenTroubleshooting: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const disclosure = await canvas.findByRole('button', {
-      name: /Troubleshooting/,
-    });
-    await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
-    await expect(canvas.queryByText('Connection')).toBeNull();
-    await userEvent.click(disclosure);
-    await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-    const connection = await canvas.findByText('Connection');
-    await userEvent.click(connection);
-    await expect(args.onNavigate).toHaveBeenCalledWith('/more/server-status');
+    await userEvent.click(await canvas.findByText('Troubleshooting'));
+    await expect(args.onNavigate).toHaveBeenCalledWith('/more/troubleshooting');
   },
 };
