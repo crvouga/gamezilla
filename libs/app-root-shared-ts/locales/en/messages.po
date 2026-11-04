@@ -1418,13 +1418,13 @@ msgstr "Carrier"
 msgid "Central hill"
 msgstr "Central hill"
 
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+msgid "Change"
+msgstr "Change"
+
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Change game"
 msgstr "Change game"
-
-#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
-msgid "Change player"
-msgstr "Change player"
 
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
@@ -1509,10 +1509,6 @@ msgstr "Choose"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Choose a bot difficulty offered by this game."
 msgstr "Choose a bot difficulty offered by this game."
-
-#: libs/connect-four-client-ts/src/connect-four-board.tsx
-msgid "Choose a column"
-msgstr "Choose a column"
 
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Choose a game with a puzzle editor."
@@ -3858,6 +3854,7 @@ msgid "Move your paddle to return the ball. A ball past the other paddle scores 
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Moves"
 msgstr "Moves"
@@ -4636,6 +4633,10 @@ msgstr "Permanently delete account?"
 msgid "Person"
 msgstr "Person"
 
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Pick a column to drop your disc"
+msgstr "Pick a column to drop your disc"
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Pick a fixed target rating for the puzzle feed."
 msgstr "Pick a fixed target rating for the puzzle feed."
@@ -5193,6 +5194,10 @@ msgstr "Recent"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Recent failure"
 msgstr "Recent failure"
+
+#: libs/game-menu-client-ts/src/game-menu-screen-view.tsx
+msgid "Recommended"
+msgstr "Recommended"
 
 #: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Reconnect"
@@ -6704,6 +6709,10 @@ msgstr "That username is not allowed"
 #: libs/game-puzzle-client-ts/src/puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "the “?” goes once your rating settles"
+msgstr "the “?” goes once your rating settles"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "The {name} cannot go there: it would overlap the {other}."
