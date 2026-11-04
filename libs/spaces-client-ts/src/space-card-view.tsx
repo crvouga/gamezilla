@@ -31,6 +31,8 @@ export type SpaceCardData = {
 const HOST_AVATAR_SIZE = 44;
 const GUEST_AVATAR_SIZE = 24;
 const GUEST_AVATAR_MAX_VISIBLE = 6;
+/** Names spelled out under the faces; the rest are counted. */
+const GUEST_NAMES_SHOWN = 3;
 
 /** "Current" when this device has the space open, otherwise LIVE. */
 export function SpaceBadgeView(props: {
@@ -77,8 +79,44 @@ export function SpaceSummaryView(props: {
 }
 
 /**
- * Count line, avatar stack and joined names for a space's guests. Renders
- * nothing when the space has no guests — no placeholder, no spacer.
+ * The first few guests by name on one line, then how many more: a long name
+ * ends in an ellipsis, and the count always shows after it.
+ */
+function SpaceGuestNames(props: {
+  readonly guests: readonly SpacePerson[];
+}): JSX.Element {
+  const { t } = useLingui();
+  const named = (): readonly SpacePerson[] =>
+    props.guests.slice(0, GUEST_NAMES_SHOWN);
+  const more = (): number =>
+    Math.max(0, props.guests.length - GUEST_NAMES_SHOWN);
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <StackVertical shrink>
+        <P variant="caption" lines={1}>
+          <Index each={named()}>
+            {(guest, index) => (
+              <>
+                {index > 0 ? ', ' : null}
+                <SpacePersonName person={guest()} variant="caption" />
+              </>
+            )}
+          </Index>
+        </P>
+      </StackVertical>
+      <Show when={more() > 0}>
+        <StackVertical>
+          <P variant="caption">{t`+${more()} more`}</P>
+        </StackVertical>
+      </Show>
+    </StackHorizontal>
+  );
+}
+
+/**
+ * Count line, avatar stack and the first guests' names for a space's
+ * guests. Renders nothing when the space has no guests — no placeholder, no
+ * spacer.
  */
 export function SpaceGuestsView(props: {
   readonly guests: readonly SpacePerson[];
@@ -103,16 +141,7 @@ export function SpaceGuestsView(props: {
             )}
           </Index>
         </AvatarGroup>
-        <P variant="caption" lines={1}>
-          <Index each={props.guests}>
-            {(guest, index) => (
-              <>
-                {index > 0 ? ', ' : null}
-                <SpacePersonName person={guest()} variant="caption" />
-              </>
-            )}
-          </Index>
-        </P>
+        <SpaceGuestNames guests={props.guests} />
       </StackVertical>
     </Show>
   );
