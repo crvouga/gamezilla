@@ -425,9 +425,9 @@
         "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5647, 0.0706, 0.2784],
+          "components": [0.5725, 0.102, 0.102],
           "alpha": 1.0,
-          "hex": "#901247"
+          "hex": "#921a1a"
         }
       },
       "player8": {
@@ -1517,9 +1517,9 @@
         "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9608, 0.4863, 0.7333],
+          "components": [0.9843, 0.4902, 0.4902],
           "alpha": 1.0,
-          "hex": "#f57cbb"
+          "hex": "#fb7d7d"
         }
       },
       "player8": {
