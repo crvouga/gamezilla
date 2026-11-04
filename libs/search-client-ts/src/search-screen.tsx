@@ -3,6 +3,7 @@ import {
   useUserSearchDenial,
 } from '@libs/user-search-client-ts/use-user-search';
 import { createSignal, type JSX } from 'solid-js';
+import { useSearchResultSlots } from './search-result-slots';
 import { SearchScreenView } from './search-screen-view';
 import { SearchUserResultRow } from './search-user-result-row';
 import { useSearchHistory } from './use-search-history';
@@ -13,8 +14,10 @@ export function SearchScreen(): JSX.Element {
   const [query, setQuery] = createSignal('');
   const state = useDebouncedUserSearchEffect(query, touch);
   const denial = useUserSearchDenial();
+  const slots = useSearchResultSlots();
   return (
     <SearchScreenView
+      aside={slots.aside?.()}
       query={query()}
       recentQueries={queries}
       search={state}

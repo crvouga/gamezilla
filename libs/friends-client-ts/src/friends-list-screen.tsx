@@ -7,12 +7,18 @@ import {
   FriendLiveSpaceJoin,
   FriendLiveSpaceStatus,
 } from '@libs/spaces-client-ts/friend-live-space';
+import { useLiveSpacesByPerson } from '@libs/spaces-client-ts/use-live-spaces-by-person';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import { createMemo, type JSX } from 'solid-js';
 import { FriendRowDisclosure } from './friend-user-row';
 import { FriendsListScreenView } from './friends-list-screen-view';
+import {
+  FriendsPlayingNowView,
+  liveFriendsFirst,
+  usePlayingRooms,
+} from './friends-playing-now';
 import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
 import { useFriends } from './use-friends';
 
@@ -38,6 +44,18 @@ function FriendsListContainer(): JSX.Element {
   const firstSyncError = useFirstSyncError();
   const friendsState = useFriends();
   const navigation = useFriendsListNavigation();
+  const live = useLiveSpacesByPerson();
+  // Who you can play with now leads the list: hosts, then guests, then the
+  // rest, each in the list's own order.
+  const ordered = createMemo(() =>
+    liveFriendsFirst(friendsState.friends(), live())
+  );
+  const rooms = usePlayingRooms(friendsState.friends);
+  // Built once per appearance: the column is read more than once per render.
+  const playing = createMemo(() => rooms().length > 0);
+  const aside = createMemo(() =>
+    playing() ? <FriendsPlayingNowView rooms={rooms()} /> : undefined
+  );
   const status = () => {
     if (friendsState.isLoading()) return 'loading';
     return firstSyncError() ? 'failed' : 'ready';
@@ -45,8 +63,9 @@ function FriendsListContainer(): JSX.Element {
   return (
     <FriendsListScreenView
       status={status()}
-      friends={friendsState.friends()}
+      friends={ordered()}
       notice={<FriendsRefusedChangeNotice />}
+      aside={aside()}
       friendStatus={(friend) => (
         <FriendLiveSpaceStatus hostAccountId={friend.userId} />
       )}

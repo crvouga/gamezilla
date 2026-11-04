@@ -11,6 +11,8 @@ import {
   rangesOfMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
 import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -44,9 +46,9 @@ const STORY_RELATIONS: Readonly<
 /**
  * Stand-in for the friends sub's relationship: one trailing control per row,
  * every one ending on the same edge: "Friends" as words with a check in the
- * success ink (a status, not a control), "Cancel request" for one that is out
- * (the row says "Request sent" under the name), or "Add friend", each a
- * small outlined pill.
+ * success ink (a status, not a control), a quiet ghost "Cancel request" for
+ * one that is out (the row's "Request sent" status under the name reads
+ * first), or "Add friend", a small outlined pill.
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
@@ -65,7 +67,7 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
         <Button
           title="Cancel request"
           intent="neutral"
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => undefined}
         />
@@ -129,5 +131,34 @@ export function StoryUserRow(props: {
       </StackVertical>
       <StoryRelationPill username={props.user.username} />
     </StackHorizontal>
+  );
+}
+
+/**
+ * Stand-in for the friends sub's desktop column: morgan asked to be
+ * friends (the row opens their profile, where it is answered), and the
+ * request to jordy is still waiting.
+ */
+export function StoryRequestsAside(): JSX.Element {
+  const morgan = storyResult('03', 'morgan');
+  return (
+    <MenuSection
+      title="Friend requests"
+      footer="You sent 1 request that is still waiting."
+    >
+      <MenuRow
+        leading={
+          <DeviceAvatar
+            avatarConfig={parseAvatarConfig(morgan.avatarConfig)}
+            seedFallback={morgan.userId}
+            name={morgan.username}
+            size={32}
+          />
+        }
+        title="@morgan"
+        caption="Wants to be friends"
+        onClick={() => undefined}
+      />
+    </MenuSection>
   );
 }

@@ -114,10 +114,10 @@ export function FriendRequestSentTag(): JSX.Element {
 
 /**
  * A request is out. At a row's end, "Cancel request" is the row's one
- * control (said in full, so it never reads as dismissing the screen): the
- * same small outlined pill as Add friend, so every row's control ends on one
- * edge (the row says "Request sent" under the name). On a profile, the
- * status sits over the outlined "Cancel request".
+ * control (said in full, so it never reads as dismissing the screen): a
+ * quiet ghost pill, so the row's "Request sent" status under the name reads
+ * first and taking a request back never looks like the row's main action.
+ * On a profile, the status sits over the outlined "Cancel request".
  */
 function renderPendingOutgoing(
   wrap: WrapMutation,
@@ -136,6 +136,7 @@ function renderPendingOutgoing(
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
       variant="outline"
+      quiet={compact}
       {...(named ? { testID: Handles.friendCancel(username) } : {})}
     />
   );

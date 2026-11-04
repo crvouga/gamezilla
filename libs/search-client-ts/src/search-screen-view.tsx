@@ -7,6 +7,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   SearchIcon,
   UsersIcon,
@@ -16,6 +17,8 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { SearchRecentQueries } from './search-recent-queries';
@@ -49,6 +52,11 @@ export type SearchScreenViewProps = {
     user: UserSearchResult,
     query: string
   ) => JSX.Element;
+  /**
+   * What another sub adds to the desktop column, above the search's own
+   * note on how to find people (such as friend requests waiting).
+   */
+  readonly aside?: JSX.Element | undefined;
   readonly onQueryChange: (query: string) => void;
   readonly onSelectRecent: (query: string) => void;
   readonly onClearRecent: () => void;
@@ -161,6 +169,44 @@ function SearchResults(props: {
   );
 }
 
+/**
+ * How finding someone works, beside the search on a desktop: what to type,
+ * and what to do once they are found. Nothing here is the only way to do
+ * anything; it explains the field next to it.
+ */
+function SearchHowTo(): JSX.Element {
+  return (
+    <Surface tone="surface" radius="card" border padding="lg" gap="sm">
+      <H2 size="label">
+        <Trans>How to find people</Trans>
+      </H2>
+      <P variant="caption">
+        <Trans>
+          Every username is unique. Ask a friend for theirs and type the start
+          of it.
+        </Trans>
+      </P>
+      <P variant="caption">
+        <Trans>
+          Add them as a friend, then invite them to a space to play together.
+        </Trans>
+      </P>
+    </Surface>
+  );
+}
+
+/** The desktop column: what another sub adds, then how finding people works. */
+function SearchAside(props: {
+  readonly extra: JSX.Element | undefined;
+}): JSX.Element {
+  return (
+    <StackVertical gap="xl">
+      {props.extra}
+      <SearchHowTo />
+    </StackVertical>
+  );
+}
+
 function SearchIdleState(): JSX.Element {
   return (
     <EmptyState
@@ -181,10 +227,13 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const trimmed = () => props.query.trim();
   const showRecent = () => trimmed().length === 0;
+  // Built once: the column is read more than once per render.
+  const aside = <SearchAside extra={props.aside} />;
   return (
     <CollectionScreen
       screenId="search"
       breadcrumbs={[{ name: t`Find people` }]}
+      aside={aside}
       controls={
         <TextInput
           value={props.query}

@@ -6,9 +6,15 @@ import {
   FriendLiveSpaceStatusView,
 } from '@libs/spaces-client-ts/friend-live-space';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import { Show } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendsListScreenView } from './friends-list-screen-view';
+import {
+  FriendsPlayingNowView,
+  liveFriendsFirst,
+  type PlayingRoom,
+} from './friends-playing-now';
 
 /**
  * Story people share one id each with the space fixtures
@@ -67,6 +73,7 @@ const meta = {
         'notice',
         'friendStatus',
         'friendTrailing',
+        'aside',
       ],
     },
   },
@@ -81,27 +88,75 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Who is hosting a live space right now: the app's live-space tag. */
-const HOSTING = new Set([personId('02'), personId('05')]);
+/**
+ * Who is in a live space right now, and the room's own name: jordan_plays
+ * hosts "Friday chess" and sam "Quick connect four" (the rooms their
+ * invites in the inbox name); robin_42 is a guest in jordan_plays's.
+ */
+const LIVE = new Map([
+  [personId('02'), { hosting: true, title: 'Friday chess' }],
+  [personId('05'), { hosting: true, title: 'Quick connect four' }],
+  [personId('04'), { hosting: false, title: 'Friday chess' }],
+]);
+
+/** The list as the container orders it: hosts, then guests, then the rest. */
+const LIVE_FIRST: readonly Friend[] = liveFriendsFirst(FRIENDS, LIVE);
+
+function friendNamed(username: string): Friend {
+  const found = FRIENDS.find((entry) => entry.username === username);
+  if (found === undefined) throw new Error(`no story friend ${username}`);
+  return found;
+}
+
+/** The same people by room, for the desktop "Playing now" column. */
+function storyRooms(): readonly PlayingRoom[] {
+  return [
+    {
+      spaceId: 'story-friday-chess',
+      title: 'Friday chess',
+      friends: [
+        { friend: friendNamed('jordan_plays'), hosting: true },
+        { friend: friendNamed('robin_42'), hosting: false },
+      ],
+      action: 'join',
+      onJoin: fn(),
+    },
+    {
+      spaceId: 'story-quick-connect-four',
+      title: 'Quick connect four',
+      friends: [{ friend: friendNamed('sam'), hosting: true }],
+      action: 'join',
+      onJoin: fn(),
+    },
+  ];
+}
 
 /**
- * Friends are known: one row each, newest-first order as the container gives
- * it. Each row is the friend's face and name, and opens their profile; a
- * friend hosting a live space says so under their name ("Hosting a space",
- * with the online dot) and ends in Join, which goes in; every other row
- * ends in the chevron, so a row never offers two targets (a profile not yet
- * on this device shows its initials). No friendship date: the row says what
- * helps you play now. Find friends sits in the header as the page's next
- * step.
+ * Friends are known: one row each, whoever you can play with now first
+ * (hosts, then guests, then the rest). Each row is the friend's face and
+ * name, and opens their profile; a friend in a live space says which room
+ * under their name ("Hosting Friday chess", with the online dot) and ends
+ * in Join, which goes in; every other row ends in the chevron, so a row
+ * never offers two targets (a profile not yet on this device shows its
+ * initials). On a desktop the same rooms sit in a "Playing now" column
+ * beside the list, each by its name with who of your friends is there.
+ * Find friends sits in the header as the page's next step.
  */
 export const Populated: Story = {
   args: {
-    friendStatus: (item) =>
-      HOSTING.has(item.userId) ? (
-        <FriendLiveSpaceStatusView hosting />
-      ) : undefined,
+    friends: LIVE_FIRST,
+    friendStatus: (item) => (
+      <Show when={LIVE.get(item.userId)}>
+        {(live) => (
+          <FriendLiveSpaceStatusView
+            hosting={live().hosting}
+            title={live().title}
+          />
+        )}
+      </Show>
+    ),
     friendTrailing: (item) =>
-      HOSTING.has(item.userId) ? (
+      LIVE.has(item.userId) ? (
         <FriendLiveSpaceJoinView
           action="join"
           onPress={fn()}
@@ -109,6 +164,12 @@ export const Populated: Story = {
         />
       ) : undefined,
   },
+  render: (args) => (
+    <FriendsListScreenView
+      {...args}
+      aside={<FriendsPlayingNowView rooms={storyRooms()} />}
+    />
+  ),
 };
 
 /** The first read has not finished; the list shows one activity indicator. */

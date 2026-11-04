@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
@@ -9,24 +9,52 @@ import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { openSpaceDetail } from './space-routes';
 import { useFriendLiveSpace } from './use-friend-live-space';
+import { useLiveSpaceTitles } from './use-live-space-titles';
 import { useIsSpaceOpenLocally } from './use-open-space-session-ids';
 
 const STATUS_DOT_SIZE = 8;
 
-/**
- * What a friend is doing in a live space, under their name: "Hosting a
- * space" or "In a space", with the online dot (words and color together).
- */
-export function FriendLiveSpaceStatusView(props: {
+/** The live space a friend is in, as their status line names it. */
+export type FriendLiveSpaceSummary = {
   readonly hosting: boolean;
-}): JSX.Element {
+  /** The space's own name, when it has one (not the "<host>'s space" default). */
+  readonly title?: string | null | undefined;
+};
+
+/** "Hosting Friday game night", "In a space": what the friend is doing. */
+function FriendLiveSpaceWhat(props: FriendLiveSpaceSummary): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Show
+      when={props.title}
+      fallback={
+        <Show when={props.hosting} fallback={<Trans>In a space</Trans>}>
+          <Trans>Hosting a space</Trans>
+        </Show>
+      }
+    >
+      {(title) => (
+        <Show when={props.hosting} fallback={t`In ${title()}`}>
+          {t`Hosting ${title()}`}
+        </Show>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * What a friend is doing in a live space, under their name: the room by its
+ * name when it has one ("Hosting Friday game night"), with the online dot
+ * (words and color together).
+ */
+export function FriendLiveSpaceStatusView(
+  props: FriendLiveSpaceSummary
+): JSX.Element {
   return (
     <StackHorizontal align="center" gap="xs">
       <StatusDot status="online" size={STATUS_DOT_SIZE} />
       <P variant="caption" lines={1}>
-        <Show when={props.hosting} fallback={<Trans>In a space</Trans>}>
-          <Trans>Hosting a space</Trans>
-        </Show>
+        <FriendLiveSpaceWhat {...props} />
       </P>
     </StackHorizontal>
   );
@@ -75,9 +103,27 @@ export function FriendLiveSpaceStatus(props: {
 }): JSX.Element {
   const live = useFriendLiveSpace(() => props.hostAccountId);
   return (
-    <Show when={live()}>
-      {(space) => <FriendLiveSpaceStatusView hosting={space().hosting} />}
+    <Show when={live()?.spaceId} keyed>
+      {(spaceId) => (
+        <FriendLiveSpaceStatusFor
+          spaceId={spaceId}
+          hosting={live()?.hosting ?? false}
+        />
+      )}
     </Show>
+  );
+}
+
+function FriendLiveSpaceStatusFor(props: {
+  readonly spaceId: string;
+  readonly hosting: boolean;
+}): JSX.Element {
+  const titles = useLiveSpaceTitles();
+  return (
+    <FriendLiveSpaceStatusView
+      hosting={props.hosting}
+      title={titles().get(props.spaceId) ?? null}
+    />
   );
 }
 

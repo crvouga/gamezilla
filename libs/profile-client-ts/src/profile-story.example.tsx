@@ -102,13 +102,15 @@ export function StoryFriendsActions(): JSX.Element {
 }
 
 /**
- * Stand-in for the playing slot: friends in a live space right now, each
- * with what they are doing and Join (the friends sub draws the same rows).
+ * Stand-in for the playing slot: friends in a live space right now, hosts
+ * first, each with the room they are in and Join (the friends sub draws the
+ * same rows).
  */
 export function StoryFriendsPlaying(): JSX.Element {
   const playing = [
-    { ...STORY_FRIENDS[0], doing: 'Hosting a space' },
-    { ...STORY_FRIENDS[3], doing: 'In a space' },
+    { ...STORY_FRIENDS[0], doing: 'Hosting Friday chess' },
+    { ...STORY_FRIENDS[3], doing: 'Hosting Quick connect four' },
+    { ...STORY_FRIENDS[2], doing: 'In Friday chess' },
   ];
   return (
     <MenuSection title="Playing now">

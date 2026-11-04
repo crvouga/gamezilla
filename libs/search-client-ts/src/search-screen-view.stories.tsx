@@ -2,7 +2,11 @@ import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SearchScreenView } from './search-screen-view';
-import { StoryUserRow, storyResult } from './search-screen-view.example';
+import {
+  StoryRequestsAside,
+  StoryUserRow,
+  storyResult,
+} from './search-screen-view.example';
 
 const RESULTS = [
   storyResult('10', 'jordan'),
@@ -24,7 +28,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['search', 'denial', 'renderUserRow'] },
+    controls: { exclude: ['search', 'denial', 'renderUserRow', 'aside'] },
   },
   args: {
     query: '',
@@ -58,10 +62,15 @@ export const Searching: Story = {
  * (a profile not yet on this device shows its initials). Each row ends in
  * one control on one shared edge: a Friends tag, Cancel request for one that
  * is out (a Request sent tag under the name), or Add friend. The panel sits
- * on the search field's inset.
+ * on the search field's inset. On a desktop a column beside it holds the
+ * friend requests waiting (filled by the friends sub) over how finding
+ * people works.
  */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },
+  render: (args) => (
+    <SearchScreenView {...args} aside={<StoryRequestsAside />} />
+  ),
 };
 
 /** Nobody matched: the query is repeated and a next step suggested. */

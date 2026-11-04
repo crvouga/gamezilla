@@ -34,6 +34,11 @@ export type FriendsListScreenViewProps = {
    * one ends in a chevron instead.
    */
   readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
+  /**
+   * Desktop context beside the list, such as who is playing now by room.
+   * A phone shows the list alone, so every way in here is also on a row.
+   */
+  readonly aside?: JSX.Element | undefined;
   readonly onOpenFriend: (friend: Friend) => void;
   readonly onFindFriends: () => void;
   readonly onRetry: () => void;
@@ -143,8 +148,9 @@ function useFindFriendsAction(
 
 /**
  * `/profile/friends`, presentational: the accepted friends list with Find
- * friends in the header, and its loading, failed, empty and
- * permission-denied states. Data and navigation arrive as props;
+ * friends in the header (friends in a live space first, as the container
+ * orders them), a desktop column of who is playing now, and its loading,
+ * failed, empty and permission-denied states. Data and navigation arrive as props;
  * `FriendsListScreen` wires them to the sync engine.
  */
 export function FriendsListScreenView(
@@ -160,6 +166,7 @@ export function FriendsListScreenView(
           breadcrumbs={BREADCRUMBS()}
           actions={headerActions()}
           controls={props.notice}
+          aside={props.aside}
         >
           <ScreenBodyVirtualList
             items={props.friends}

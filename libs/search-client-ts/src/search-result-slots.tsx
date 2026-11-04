@@ -21,6 +21,12 @@ export type SearchResultSlots = {
    * was typed, so the row can emphasise where it matched.
    */
   readonly userRow?: (user: UserSearchResult, query: string) => JSX.Element;
+  /**
+   * Context for the desktop column beside the search, such as the friend
+   * requests waiting on the person. Desktop only: everything in it must be
+   * reachable elsewhere too.
+   */
+  readonly aside?: () => JSX.Element;
 };
 
 const SearchResultSlotsContext =
