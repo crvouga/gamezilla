@@ -1,5 +1,8 @@
 import { withBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
@@ -63,6 +66,20 @@ function useGameLibrary(
     withBundledContent(stored.library(), gameId(), game())
   );
   return { library, isLoading: stored.isLoading };
+}
+
+/** Back from the library names the game's choices it returns to. */
+function ContentBack(props: {
+  onPress: () => void;
+  atLibrary: boolean;
+}): JSX.Element {
+  const choices = useGameChoicesName();
+  return (
+    <DefineBackButton
+      onPress={props.onPress}
+      label={props.atLibrary ? choices() : undefined}
+    />
+  );
 }
 
 /** One shared content experience for both independent and turn-based games. */
@@ -151,7 +168,7 @@ export function ContentExperience(props: {
           pages,
         }}
       >
-        <DefineBackButton onPress={back} />
+        <ContentBack onPress={back} atLibrary={view().kind === 'library'} />
         <ContentConnectionStatus loading={started() && fetching()} />
         <Show
           when={started() && !content.isLoading() && !play.isLoading()}

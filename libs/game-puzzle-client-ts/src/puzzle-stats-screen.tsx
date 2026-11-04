@@ -1,6 +1,9 @@
 import { SelectReviewPuzzle } from '@libs/game-puzzle-shared-ts/puzzle-review-selection';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client-ts/use-space-room-selector';
 import type { JSX } from 'solid-js';
@@ -10,6 +13,7 @@ import { PuzzleStatsBody } from './puzzle-stats-body';
 export function PuzzleStatsScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const gameScreen = useGameScreen();
+  const choices = useGameChoicesName();
 
   const backToRoot = (): void => {
     gameScreen.showChoices();
@@ -27,7 +31,7 @@ export function PuzzleStatsScreen(): JSX.Element {
 
   return (
     <>
-      <DefineBackButton onPress={backToRoot} />
+      <DefineBackButton onPress={backToRoot} label={choices()} />
       <PuzzleStatsBody onSelectEntry={openReview} />
     </>
   );

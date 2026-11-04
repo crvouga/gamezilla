@@ -3,7 +3,10 @@ import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-clien
 import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  GameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
@@ -146,9 +149,12 @@ export function GameMenu(props: {
   return (
     <GameFrame game={props.game}>
       <StackVertical grow self="stretch">
-        <FadeSwitch stateKey={navigation.screen()}>
-          <Dynamic component={shown()} />
-        </FadeSwitch>
+        {/* A Back from a screen the choices open names them by the game. */}
+        <GameChoicesName name={props.game.title}>
+          <FadeSwitch stateKey={navigation.screen()}>
+            <Dynamic component={shown()} />
+          </FadeSwitch>
+        </GameChoicesName>
       </StackVertical>
     </GameFrame>
   );

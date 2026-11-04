@@ -155,3 +155,28 @@ export function DefineBackButton(props: DefineBackButtonProps): null {
 
   return null;
 }
+
+const GameChoicesNameContext = createContext<Accessor<string | undefined>>(
+  () => undefined
+);
+
+/**
+ * Names the selected game's choices (the game's own menu, titled with its
+ * name) for every screen they open, so a Back that returns there says
+ * where it goes ("‹ Connect Four"), as the menu's own Back says "Games".
+ */
+export function GameChoicesName(props: {
+  readonly name: string;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  return (
+    <GameChoicesNameContext.Provider value={() => props.name}>
+      {props.children}
+    </GameChoicesNameContext.Provider>
+  );
+}
+
+/** The game's choices' name, for a Back that returns to them; else none. */
+export function useGameChoicesName(): Accessor<string | undefined> {
+  return useContext(GameChoicesNameContext);
+}

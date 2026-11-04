@@ -1,7 +1,10 @@
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
@@ -144,9 +147,10 @@ export function CustomGameScreen(props: {
     props.onHistory
   );
   const title = (): JSX.Element => props.title ?? <Trans>Custom game</Trans>;
+  const choices = useGameChoicesName();
   return (
     <>
-      <DefineBackButton onPress={model.back} />
+      <DefineBackButton onPress={model.back} label={choices()} />
       <DecisionGate
         decision={model.watchDecision()}
         testId="custom-game-denial"

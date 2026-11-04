@@ -1,0 +1,4 @@
+{
+  "summary": "Inside a space, only a game's menu named its Back (\"Games\"); custom setup, matchmaking, history, puzzles and settings offered a bare Back, so the way back towards the space's games read like any other step. Each screen a game's choices open now names them by the game (\"Connect Four\"), whose own Back says \"Games\".",
+  "regressionTest": "libs/spaces-client-ts/tests/spaces-nav-back-label.test.tsx"
+}

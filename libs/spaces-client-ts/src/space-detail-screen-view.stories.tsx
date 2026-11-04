@@ -135,6 +135,20 @@ export const GameInProgress: Story = {
     }),
 };
 
+/**
+ * A screen a game's choices open (custom setup, finding an opponent, a
+ * board, puzzles): ‹ Connect Four names the game's own menu it returns to,
+ * whose Back says ‹ Games, so the way back to the space's games is always
+ * in view.
+ */
+export const InsideAGame: Story = {
+  args: { onPressBack: fn(), backLabel: 'Connect Four' },
+  render: (args) =>
+    withSlots(args, {
+      body: () => <GameAreaExample title="Connect Four" />,
+    }),
+};
+
 /** Alone in the space: the members button shows the people glyph. */
 export const NobodyElse: Story = {
   args: {

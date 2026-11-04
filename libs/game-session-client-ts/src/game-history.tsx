@@ -3,7 +3,10 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSpaceDecision } from '@libs/spaces-client-ts/use-space-decision';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
@@ -78,6 +81,7 @@ function AllowedGameHistory(props: {
   const model = useGameRecords(() => props.gameId);
   const recordLabel = useGameRecordLabel();
   const [selected, select] = createSignal<GameHistoryRecord | null>(null);
+  const choices = useGameChoicesName();
   const rows = createMemo((): readonly GameHistoryRow[] =>
     model.records().map((record) => ({
       id: record.id,
@@ -96,7 +100,7 @@ function AllowedGameHistory(props: {
       keyed
       fallback={
         <>
-          <DefineBackButton onPress={props.onBack} />
+          <DefineBackButton onPress={props.onBack} label={choices()} />
           <GameHistoryScreenView
             loading={model.isLoading()}
             statistics={model.statistics()}
