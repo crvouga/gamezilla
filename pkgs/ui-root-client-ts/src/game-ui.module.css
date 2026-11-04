@@ -1,6 +1,37 @@
+/* A game screen's one column, centered in the frame with its title block
+   at the start edge. Its width follows what it holds: the board and its
+   rail as one group, a game menu's measure when no board sits beside a
+   rail, the whole frame for a screen with no game layout. The game layout
+   inside answers to this column's width, not the window's, so a frame
+   narrowed by the host's own chrome never squeezes a rail beside the board. */
+.column,
 .layout {
   /* A board's width: the stage column, and the seats around the board. */
   --game-board-measure: 560px;
+  /* The rail beside the board on wide screens. */
+  --game-rail-measure: 360px;
+}
+.column {
+  container: game-column / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-lg);
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+.column:has(.layout) {
+  max-width: var(--ui-max-width-prose);
+}
+.column:has(.layout[data-has-stage="true"][data-has-aside="true"]),
+.column:has(.layout[data-has-stage="true"][data-has-setup="true"]) {
+  max-width: calc(
+    var(--game-board-measure) +
+    var(--ui-space-6) +
+    var(--game-rail-measure)
+  );
+}
+.layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ui-space-4);
@@ -29,6 +60,11 @@
   width: 100%;
   max-width: var(--game-board-measure);
   justify-self: start;
+}
+/* With nothing beside it, the one column fills the game menu's measure. */
+.column .layout:not([data-has-stage="true"]) > .setup,
+.column .layout[data-has-aside="false"][data-has-setup="false"] > .stage {
+  max-width: none;
 }
 /* The seats hug the board: one column, the board the widest thing in it. */
 .boardStage {
@@ -324,13 +360,14 @@
   }
 }
 /* Wide: the board column and one rail beside it (setup above the record),
-   starting at the screen's title edge, as the body lines up with it. */
-@media (min-width: 960px) {
+   as one group as wide as the game column, which centers it. Measured on
+   the game column, so it holds wherever the host's chrome leaves room. */
+@container game-column (min-width: 880px) {
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
     grid-template-columns:
       minmax(0, var(--game-board-measure))
-      minmax(280px, 360px);
+      minmax(280px, var(--game-rail-measure));
     grid-template-rows: auto 1fr;
     justify-content: start;
     column-gap: var(--ui-space-6);

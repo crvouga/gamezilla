@@ -3,12 +3,19 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import styles from '../game-ui.module.css';
+import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
  * control and the space; the game names itself once in the body and then
  * gets out of the way of the board. Never a second bar.
+ *
+ * Every game screen is one column centered in the frame, its title block
+ * at the column's start edge: as wide as the board and its rail together
+ * when there is a rail (`GameLayout`), as wide as a game menu when there is
+ * no board beside a rail (a search, a choice), and the whole frame for
+ * anything else. The title therefore lines up with what is under it.
  */
 export function GameScreen(props: {
   screenId: string;
@@ -20,12 +27,13 @@ export function GameScreen(props: {
   return (
     <EmbeddedScreen
       screenId={props.screenId}
-      title={props.title}
-      subtitle={props.subtitle}
       width="full"
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
-      {props.children}
+      <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
+        <ScreenIntro title={props.title} subtitle={props.subtitle} />
+        {props.children}
+      </div>
     </EmbeddedScreen>
   );
 }

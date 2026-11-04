@@ -8,8 +8,8 @@ import {
 const CHOICES: readonly GameMenuChoiceView[] = [
   {
     screen: 'custom-game',
-    title: 'Custom games',
-    caption: 'Choose people or bots for each of the 2 places',
+    title: 'Play with friends or bots',
+    caption: 'Choose who plays each of the 2 places',
   },
   {
     screen: 'multiplayer',
@@ -83,8 +83,8 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Custom games',
-        caption: 'Choose people or bots for each of the 4 places',
+        title: 'Play with friends or bots',
+        caption: 'Choose who plays each of the 4 places',
       },
       {
         screen: 'multiplayer',
@@ -119,9 +119,9 @@ export const LongContent: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Custom games with friends, family and bots of every level',
+        title: 'Play with friends, family and bots of every level',
         caption:
-          'Choose people or bots for each of the 2 places, then agree the clock and the rules before anyone moves',
+          'Choose who plays each of the 2 places, then agree the clock and the rules before anyone moves',
       },
       ...CHOICES.slice(1),
     ],

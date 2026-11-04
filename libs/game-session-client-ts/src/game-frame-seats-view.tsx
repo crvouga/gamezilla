@@ -7,6 +7,7 @@ import {
   GAME_PLAYER_COMPACT_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
+import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { Index, type JSX, Show } from 'solid-js';
@@ -30,14 +31,22 @@ type SeatProps = {
   readonly onChoose: Choose;
 };
 
+/** Holders whose readiness the seat shows: a person, a guest here, a bot. */
+function showsReadiness(seat: FrameSetupSeat): boolean {
+  const kind = seat.holder.kind;
+  return kind === 'person' || kind === 'local' || kind === 'bot';
+}
+
 /**
- * The seat's colour, the host's tag on the host's own seat, the viewer's
- * own seat at someone else's table, and whether its holder is ready.
+ * The seat's facts in one line: the side's name in words (the swatch shows
+ * its look), one tag for the host's own seat or the viewer's seat at
+ * someone else's table, and whether its holder is ready as a dot and a
+ * word. Open, closed and invited seats show no readiness.
  */
 function SetupSeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
   return (
     <>
-      <Badge intent="neutral" label={props.seat.sideLabel} />
+      <Text variant="caption">{props.seat.sideLabel}</Text>
       <Show when={props.seat.host}>
         <HostBadge
           dataSet={{ testid: `custom-game-${props.seat.side}-host` }}
@@ -50,13 +59,17 @@ function SetupSeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
           dataSet={{ testid: `custom-game-${props.seat.side}-you` }}
         />
       </Show>
-      <Show
-        when={props.seat.ready}
-        fallback={
-          <Badge intent="neutral" label={<Trans>Getting ready</Trans>} />
-        }
-      >
-        <Badge intent="success" label={<Trans>Ready</Trans>} />
+      <Show when={showsReadiness(props.seat)}>
+        <GameSeatReadiness
+          ready={props.seat.ready}
+          label={
+            props.seat.ready ? (
+              <Trans>Ready</Trans>
+            ) : (
+              <Trans>Getting ready</Trans>
+            )
+          }
+        />
       </Show>
     </>
   );

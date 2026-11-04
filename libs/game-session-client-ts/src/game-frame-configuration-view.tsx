@@ -205,7 +205,8 @@ export function FrameOptionsView(props: {
 }
 
 /**
- * Starting the game: why it cannot start yet (or "Ready to start."), the
+ * Starting the game, directly under the board where every game's play
+ * actions sit: why it cannot start yet (or "Ready to start."), the
  * person's own readiness, and Start for whoever may start it, always shown
  * and held back until the game can start.
  */
@@ -215,7 +216,7 @@ export function FrameStartView(props: {
   readonly onReady: () => Promise<void>;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Start</Trans>}>
+    <StackVertical gap="sm">
       <P variant="body" role="status" testId="custom-game-startable">
         {frameStartLine(props.start.reason)}
       </P>
@@ -257,6 +258,6 @@ export function FrameStartView(props: {
           />
         </Show>
       </GameActions>
-    </GameSection>
+    </StackVertical>
   );
 }
