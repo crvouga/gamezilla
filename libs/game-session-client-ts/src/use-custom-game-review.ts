@@ -23,6 +23,14 @@ export function useCustomGameReview(model: CustomGameScreenModel) {
       ? ''
       : (customGamePositionAt(chosen, displayedPly(), rules) ?? chosen.fen);
   });
+  /** The move that reached the shown position; `null` at the start. */
+  const lastAction = createMemo((): string | null => {
+    const chosen = game();
+    const shown = displayedPly();
+    return chosen === null || shown === 0
+      ? null
+      : (chosen.moves[shown - 1]?.uci ?? null);
+  });
   const live = createMemo(
     () =>
       selection() === 'live' &&
@@ -48,6 +56,7 @@ export function useCustomGameReview(model: CustomGameScreenModel) {
   return {
     game,
     fen,
+    lastAction,
     live,
     displayedPly,
     selection,

@@ -14,6 +14,12 @@ export type GameSimulationControls = {
 export type GameBoardProps = {
   readonly simulation?: GameSimulationControls | undefined;
   readonly position: string;
+  /**
+   * The action that reached `position`, as the game writes it, so a board
+   * can mark the last move even when it opens part-way through a game;
+   * `null` or absent before the first move or where it is not known.
+   */
+  readonly lastAction?: string | null | undefined;
   readonly orientation: GameSide;
   readonly interactive: boolean;
   readonly sound: boolean;

@@ -57,6 +57,9 @@
   gap: var(--ui-space-3);
   align-self: stretch;
 }
+/* A choice's picture on a neutral chip that stands off the card in both
+   themes: a shade darker on a light card, a step lighter on a dark one,
+   never the near-black well that vanished on a dark card. */
 .icon {
   display: grid;
   place-items: center;
@@ -64,7 +67,7 @@
   width: 48px;
   height: 48px;
   border-radius: var(--ui-radius-control);
-  background: var(--ui-color-surface-muted);
+  background: var(--ui-color-interactive-press);
   --ui-on-icon: var(--ui-color-text);
 }
 .icon[data-size="row"] {
@@ -106,5 +109,48 @@
 }
 /* A look back or a setting says less: a secondary picture. */
 .icon[data-emphasis="quiet"] {
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+/* The quiet choices under the tiles: compact rows, up to three across,
+   outlined on the page rather than raised like a way to play. */
+.links {
+  display: grid;
+  grid-template-columns: repeat(
+      var(--game-menu-link-columns, 3),
+      minmax(0, 1fr)
+    );
+  gap: var(--ui-space-3);
+  margin-top: var(--ui-space-2);
+}
+.link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--ui-space-3) var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: transparent;
+  color: var(--ui-color-text);
+  text-align: start;
+}
+.link:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.linkWords {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.linkCaption {
+  color: var(--ui-color-text-secondary);
+}
+.linkChevron {
+  display: flex;
+  flex-shrink: 0;
   --ui-on-icon: var(--ui-color-text-secondary);
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "A chessboard opened part-way through a game (a reload, a reviewed position, a story) marked no last move, although the game's record highlighted it, because the board only knew moves it saw happen. The board now takes the move that reached its position from its parent (`lastMove`), and the game frame passes the move from the record.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/last-move-supplied.contract.test.ts"
+}

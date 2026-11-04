@@ -32,6 +32,7 @@ import { PuzzleTestProbes } from './puzzle-test-probes';
 import { useDeniedView } from './use-denied-view';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
 import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
+import { usePuzzleHistory } from './use-puzzle-history';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 import { usePuzzlePlayerState } from './use-puzzle-player-state';
@@ -96,6 +97,18 @@ function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
   );
 }
 
+/** The solver's own run so far; nothing for a spectator. */
+function usePlayProgress(p: PuzzlePlayerChromeModel) {
+  const history = usePuzzleHistory();
+  return () =>
+    p.isSpectator()
+      ? undefined
+      : {
+          streak: history.stats().currentStreak,
+          solved: history.stats().totalSolved,
+        };
+}
+
 function PuzzlePlayerChrome(props: {
   model: PuzzlePlayerChromeModel;
   probe: JSX.Element;
@@ -108,6 +121,7 @@ function PuzzlePlayerChrome(props: {
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
   const presentation = useGamePresentation();
   const choices = useGameChoicesName();
+  const progress = usePlayProgress(p);
   /** The solver's side as the game names it, once a position is shown. */
   const solverSide = (): string | null => {
     const position = p.boardPosition();
@@ -135,6 +149,7 @@ function PuzzlePlayerChrome(props: {
         elapsedMs={p.clockElapsedMs()}
         spectator={p.isSpectator()}
         allowanceLabel={allowance.label()}
+        progress={progress()}
         shareLink={
           <Show when={p.puzzleId()} keyed>
             {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}

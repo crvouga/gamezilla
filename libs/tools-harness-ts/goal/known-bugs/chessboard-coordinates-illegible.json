@@ -1,0 +1,4 @@
+{
+  "summary": "Chessboard coordinates were a fixed sixth of a square at 80% opacity, so a phone-wide board drew them near 7.6px, and the label on a dark square was cream barely lighter than the square. Labels now aim for 11px on a desktop board, grow to the most a corner holds beside a piece on a smaller one, are semibold, and take an ink that contrasts with their square.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/marking-geometry.contract.test.ts"
+}

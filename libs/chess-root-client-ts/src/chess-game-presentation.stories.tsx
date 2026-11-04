@@ -48,25 +48,30 @@ export const Opening: Story = {};
 
 /** Mid-game on White's turn, the last move highlighted. */
 export const YourTurn: Story = {
-  args: { position: ITALIAN },
+  args: { position: ITALIAN, lastAction: 'f8c5' },
   parameters: { table: { turn: 'white', moves: ITALIAN_MOVES } },
 };
 
 /** Black's side, board turned, while White decides. */
 export const WaitingForOpponent: Story = {
-  args: { position: ITALIAN, orientation: 'black', interactive: false },
+  args: {
+    position: ITALIAN,
+    lastAction: 'f8c5',
+    orientation: 'black',
+    interactive: false,
+  },
   parameters: { table: { turn: 'white', moves: ITALIAN_MOVES } },
 };
 
 /** Black to move out of check from the bishop. */
 export const InCheck: Story = {
-  args: { position: CHECK, orientation: 'black' },
+  args: { position: CHECK, lastAction: 'f1b5', orientation: 'black' },
   parameters: { table: { turn: 'black' } satisfies GameTableStory },
 };
 
 /** A watcher follows from White's side; nothing can be moved. */
 export const Watching: Story = {
-  args: { position: ITALIAN, interactive: false },
+  args: { position: ITALIAN, lastAction: 'f8c5', interactive: false },
   parameters: {
     table: { viewer: null, turn: 'white', moves: ITALIAN_MOVES },
   },
@@ -74,7 +79,7 @@ export const Watching: Story = {
 
 /** Black checkmated White: White's side, beaten. */
 export const Checkmated: Story = {
-  args: { position: FOOLS_MATE, interactive: false },
+  args: { position: FOOLS_MATE, lastAction: 'd8h4', interactive: false },
   parameters: {
     table: {
       moves: FOOLS_MATE_MOVES,

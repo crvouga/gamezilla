@@ -13,6 +13,11 @@ export function GameSection(props: {
   children: JSX.Element;
   footer?: JSX.Element;
   /**
+   * A quiet control at the title's far end: a way out of the section
+   * (`History and stats`), kept apart from the commands in its footer.
+   */
+  trailing?: JSX.Element;
+  /**
    * Beside a wide board (`GameLayout`), the section stretches to the foot
    * of its column, so the board and the rail end on one line; a move table
    * in it takes the extra room and scrolls inside. Phones keep its own
@@ -24,6 +29,7 @@ export function GameSection(props: {
   const id = createUniqueId();
   const description = createScreenSlot(() => props.description);
   const footer = createScreenSlot(() => props.footer);
+  const trailing = createScreenSlot(() => props.trailing);
   return (
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
@@ -32,9 +38,16 @@ export function GameSection(props: {
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1">
-        <h2 id={id} class="text textNavigationTitle">
-          {props.title}
-        </h2>
+        <div class="box flex-row items-center justify-between gap-2 min-w-0">
+          <h2 id={id} class="text textNavigationTitle min-w-0">
+            {props.title}
+          </h2>
+          <Show when={trailing.present()}>
+            <div class="box flex-row items-center shrink-0">
+              {trailing.content()}
+            </div>
+          </Show>
+        </div>
         <Show when={description.present()}>
           <p class="text textBody text-text-secondary">
             {description.content()}

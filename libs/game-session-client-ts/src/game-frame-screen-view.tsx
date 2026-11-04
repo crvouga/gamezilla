@@ -13,6 +13,7 @@ import { type JSX, Show } from 'solid-js';
 import { FrameActionsView } from './game-frame-actions-view';
 import {
   FrameOptionsView,
+  FrameOwnReadinessView,
   FramePrivateSetupView,
   FrameStarterView,
   FrameStartView,
@@ -112,10 +113,17 @@ function FrameStartSlot(
   );
 }
 
+/** The setup card that closes the setup, which Start is the foot of. */
+function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
+  if (setup.options !== null) return 'options';
+  return setup.privateSetup === null ? 'seats' : 'private';
+}
+
 /**
  * Before a game, the starter; while one is set up, its seats and options,
- * then starting it, so Start sits right under the players it starts with
- * on every size (the board preview is only a thumbnail beside them).
+ * then starting it as the foot of the last of those cards, so Start sits
+ * with the players it starts with on every size (the board preview is
+ * only a thumbnail beside them).
  */
 function FrameSetupSlot(props: Props): JSX.Element {
   return (
@@ -134,34 +142,49 @@ function FrameSetupSlot(props: Props): JSX.Element {
       }
     >
       <Show when={props.phase === 'configuring' ? props.setup : null}>
-        {(setup) => (
-          <>
-            <FrameSetupSeatsView
-              setup={setup()}
-              people={props.people}
-              onChoose={props.onChoose}
-            />
-            <Show when={setup().privateSetup}>
-              {(own) => (
-                <FramePrivateSetupView
-                  complete={own().complete}
-                  locked={own().locked}
-                  board={props.setupBoard}
-                  onRandom={props.onRandomSetup}
-                />
-              )}
-            </Show>
-            <Show when={setup().options}>
-              {(options) => (
-                <FrameOptionsView
-                  options={options()}
-                  onChoose={props.onChoose}
-                />
-              )}
-            </Show>
-            <FrameStartSlot {...props} setup={setup()} />
-          </>
-        )}
+        {(setup) => {
+          const footer = (card: ReturnType<typeof lastSetupCard>) =>
+            lastSetupCard(setup()) === card ? (
+              <FrameStartSlot {...props} setup={setup()} />
+            ) : undefined;
+          return (
+            <>
+              <FrameSetupSeatsView
+                setup={setup()}
+                people={props.people}
+                onChoose={props.onChoose}
+                ownReadiness={
+                  <FrameOwnReadinessView
+                    start={setup().start}
+                    onChoose={props.onChoose}
+                    onReady={props.onReady}
+                  />
+                }
+                footer={footer('seats')}
+              />
+              <Show when={setup().privateSetup}>
+                {(own) => (
+                  <FramePrivateSetupView
+                    complete={own().complete}
+                    locked={own().locked}
+                    board={props.setupBoard}
+                    onRandom={props.onRandomSetup}
+                    footer={footer('private')}
+                  />
+                )}
+              </Show>
+              <Show when={setup().options}>
+                {(options) => (
+                  <FrameOptionsView
+                    options={options()}
+                    onChoose={props.onChoose}
+                    footer={footer('options')}
+                  />
+                )}
+              </Show>
+            </>
+          );
+        }}
       </Show>
     </Show>
   );
@@ -242,8 +265,8 @@ function asideRecord(
 }
 
 /**
- * Beside a wide board the game's commands close the record's panel, on
- * one row with "History and stats", instead of floating above it.
+ * Beside a wide board the game's commands close the record's panel, in one
+ * row pinned to the board's foot, instead of floating above it.
  */
 function commandsInRecord(
   props: Props,

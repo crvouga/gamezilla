@@ -31,9 +31,13 @@ function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
   }
 }
 
-/** §5 prompt once the setup move has played: the solver is to move. */
+/**
+ * §5 prompt once the setup move has played: the solver's side is to move,
+ * in the board's own words; the coach beside it adds the one hint worth
+ * saying, so the two never repeat each other.
+ */
 function yourTurnLabel(side: string): JSX.Element {
-  return <Trans>Your turn — find the best move for {side}</Trans>;
+  return <Trans>{side} to move</Trans>;
 }
 
 export type PuzzleStatusHeaderProps = {

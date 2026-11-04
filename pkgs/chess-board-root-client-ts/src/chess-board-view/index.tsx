@@ -8,7 +8,11 @@ import {
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core-shared-ts/probe';
 import { speakMove } from '@pkgs/chess-board-core-shared-ts/speak-move';
-import type { Position, Square } from '@pkgs/chess-board-core-shared-ts/types';
+import type {
+  Move,
+  Position,
+  Square,
+} from '@pkgs/chess-board-core-shared-ts/types';
 import { boardThemeToCssVars } from '@pkgs/chess-board-root-shared-ts/board-theme';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -70,6 +74,27 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
   return liveMessage;
 }
 
+/** The placement and side to move of a FEN: what a position shows. */
+function shownPosition(fen: string): string {
+  return fen.split(' ').slice(0, 2).join(' ');
+}
+
+/**
+ * The move to mark: the board's own, else the parent's `lastMove` while the
+ * board still shows the position the parent gave.
+ */
+function markedLastMove(
+  props: ChessBoardProps,
+  ctrl: BoardController
+): Pick<Move, 'from' | 'to'> | null {
+  const g = ctrl.model.game();
+  if (g.lastMove !== null) return g.lastMove;
+  const given = props.lastMove ?? null;
+  const fen = props.fen;
+  if (given === null || fen === undefined) return null;
+  return shownPosition(g.fen) === shownPosition(fen) ? given : null;
+}
+
 /** Square washes: selection (or the dragged piece's origin), check, premoves, last move. */
 function useWashes(
   props: ChessBoardProps,
@@ -79,7 +104,7 @@ function useWashes(
     const g = ctrl.model.game();
     const ix = ctrl.model.interaction();
     return squareWashes({
-      lastMove: g.lastMove,
+      lastMove: markedLastMove(props, ctrl),
       selected: ix.selected ?? ix.dragFrom,
       checkSquare: g.inCheck ? findKingSquare(g.position, g.turn) : null,
       highlightLastMove: props.highlightLastMove !== false,
@@ -129,6 +154,7 @@ function BoardBody(args: {
         captureTargets={args.ctrl.model.captureTargets}
         cellHighlights={() => args.props.cellHighlights}
         showCoordinates={() => args.props.showCoordinates !== false}
+        boardPx={args.ctrl.boardPx}
         highlightLegalMoves={() => args.props.highlightLegalMoves !== false}
         setHover={args.ctrl.setHover}
       />

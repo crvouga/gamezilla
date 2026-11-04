@@ -41,6 +41,7 @@ export function ConnectFourBoard(props: {
             ? t`Pick a column to drop your disc`
             : ''
       }
+      previewPrompt={(column) => t`Drop in column ${column + 1}`}
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1

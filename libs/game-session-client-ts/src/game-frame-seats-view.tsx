@@ -10,6 +10,8 @@ import {
 import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { Index, type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import {
@@ -29,6 +31,8 @@ type SeatProps = {
   readonly seat: FrameSetupSeat;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
+  /** Under the viewer's own seat: their readiness, when they may start. */
+  readonly ownReadiness?: JSX.Element | undefined;
 };
 
 /** Holders whose readiness the seat shows: a person, a guest here, a bot. */
@@ -136,6 +140,33 @@ function SetupSeatOptions(props: SeatProps): JSX.Element {
 }
 
 /**
+ * What the seat's toggle changes: the player, said in full where the row
+ * has room for it; a phone's row keeps the holder's name whole and says
+ * "Change" with the rest for assistive technology.
+ */
+function SeatOptionsLabel(props: {
+  readonly seat: FrameSetupSeat;
+}): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show
+      when={mode() === 'wide'}
+      fallback={
+        <Trans>
+          Change
+          <VisuallyHidden> player: {props.seat.sideLabel}</VisuallyHidden>
+        </Trans>
+      }
+    >
+      <Trans>
+        Change player
+        <VisuallyHidden>: {props.seat.sideLabel}</VisuallyHidden>
+      </Trans>
+    </Show>
+  );
+}
+
+/**
  * One seat while the game is set up, as one compact row: who holds it, its
  * look and facts, and one trailing control; its other choices wait behind
  * that control. Once the game is played the board's seats show it.
@@ -170,7 +201,7 @@ function SetupSeatView(props: SeatProps): JSX.Element {
       tags={<SetupSeatTags seat={props.seat} />}
       trailing={<SetupSeatTrailing {...props} />}
       options={<SetupSeatOptions {...props} />}
-      optionsLabel={<Trans>Change</Trans>}
+      optionsLabel={<SeatOptionsLabel seat={props.seat} />}
       optionsDataSet={{ testid: `custom-game-${props.seat.side}-choices` }}
     >
       <Show when={props.seat.invitation}>
@@ -178,6 +209,7 @@ function SetupSeatView(props: SeatProps): JSX.Element {
           <FrameInvitationView {...props} invitation={invitation()} />
         )}
       </Show>
+      <Show when={props.seat.own}>{props.ownReadiness}</Show>
     </GamePlayerBar>
   );
 }
@@ -191,9 +223,13 @@ export function FrameSetupSeatsView(props: {
   readonly setup: FrameSetup;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
+  /** Under the viewer's own seat: their readiness, when they may start. */
+  readonly ownReadiness?: JSX.Element | undefined;
+  /** Starting the game, when this is the last setup card. */
+  readonly footer?: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Players</Trans>}>
+    <GameSection title={<Trans>Players</Trans>} footer={props.footer}>
       <Show when={props.setup.viewerNotice}>
         {(text) => (
           <P tone="secondary" testId="custom-game-viewer">
@@ -224,6 +260,7 @@ export function FrameSetupSeatsView(props: {
               seat={seat()}
               people={props.people}
               onChoose={props.onChoose}
+              ownReadiness={props.ownReadiness}
             />
           </>
         )}

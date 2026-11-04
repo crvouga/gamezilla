@@ -18,6 +18,7 @@ import type {
   Square,
 } from '@pkgs/chess-board-core-shared-ts/types';
 import {
+  BOARD_UNITS,
   BOARD_VIEW_BOX,
   CELL_UNITS,
   cellTransform,
@@ -30,7 +31,7 @@ import { HtmlPaintToken } from '../paint-token/index';
 export type SquareWashKind = 'selected' | 'check' | 'premove' | 'last-move';
 
 export type SquareWashInput = {
-  readonly lastMove: Move | null;
+  readonly lastMove: Pick<Move, 'from' | 'to'> | null;
   readonly selected: Square | null;
   readonly checkSquare: Square | null;
   readonly highlightLastMove: boolean;
@@ -67,6 +68,8 @@ export type ChessBoardSquaresProps = {
     Partial<Record<Square, CellHighlight>> | undefined
   >;
   readonly showCoordinates: Accessor<boolean>;
+  /** The board's drawn width, which sizes its coordinate labels. */
+  readonly boardPx: Accessor<number>;
   readonly highlightLegalMoves: Accessor<boolean>;
   readonly setHover: (el: HTMLElement) => void;
 };
@@ -143,38 +146,62 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
 /**
- * Label size in board units (100 per square): a sixth of a square, so a
- * desktop board (a 67px square) sets it near 11px and a phone-wide one (a
- * 44px square) near 7px, small and quiet beside the pieces. Each label sits
- * in its square's outer corner, which a piece's figure (84% of its square,
- * centred) never reaches. The insets keep a glyph's overhang and descent
- * inside the square on every platform.
+ * Labels aim for {@link LABEL_TARGET_PX} on screen, so a desktop board (a
+ * 67px square) reads them at about 11px. A smaller board's labels grow in
+ * board units toward {@link LABEL_MAX_UNITS}, the most a square's outer
+ * corner holds beside a piece's figure (84% of its square, centred), so a
+ * phone-wide board's labels stay as large as that corner allows. Sizes are
+ * board units (100 per square).
  */
-const LABEL_SIZE = '17';
-/** A file label's right edge, in from its square's right side. */
-const LABEL_INSET = 8;
-/** A file label's baseline above the board's bottom, room left for descenders. */
-const FILE_BASELINE_INSET = 10;
-/** A rank label's left edge and baseline within its square. */
-const RANK_INSET = 5;
-const RANK_BASELINE = 19;
+const LABEL_TARGET_PX = 11;
+/** The largest label any piece's figure leaves room for, on every edge square. */
+const LABEL_MAX_UNITS = 20;
+/** A huge board's labels stop shrinking here, so they stay in proportion. */
+const LABEL_MIN_UNITS = 12;
+
+/** Label size for a board drawn `boardPx` wide; an unmeasured board gets the largest. */
+export function coordinateLabelUnits(boardPx: number): number {
+  if (!(boardPx > 0)) return LABEL_MAX_UNITS;
+  const units = (LABEL_TARGET_PX * BOARD_UNITS) / boardPx;
+  return Math.round(
+    Math.min(LABEL_MAX_UNITS, Math.max(LABEL_MIN_UNITS, units))
+  );
+}
+
+/**
+ * Where a label sits in its square, for a label `size` units tall: a file
+ * label's right edge and baseline (room left under it for a `g`'s
+ * descender), a rank label's left edge and baseline (one cap height down).
+ * The insets keep a glyph's overhang and descent inside the square on
+ * every platform.
+ */
+function labelPlacement(size: number) {
+  return {
+    fileInset: 8,
+    fileBaselineInset: 10,
+    rankInset: 5,
+    rankBaseline: Math.round(size * 1.12),
+  };
+}
 
 /**
  * Edge labels inside the corner squares, chess.com-style: on a light square
- * the board's deeper border walnut (stronger than the dark square's own
- * colour), on a dark square the light square's cream, so each reads.
+ * a deep walnut darker than the board's border, on a dark square a cream
+ * lighter than the light square, so each label contrasts with the square it
+ * sits on.
  */
 function Coordinates(props: {
   readonly orientation: BoardOrientation;
+  readonly boardPx: number;
 }): JSX.Element {
   const white = () => props.orientation === 'white';
   const files = () => (white() ? [...FILES] : [...FILES].reverse());
   const ranks = () => (white() ? [...RANKS].reverse() : [...RANKS]);
+  const size = () => coordinateLabelUnits(props.boardPx);
+  const at = () => labelPlacement(size());
   // Display cell (col, row) is light when col + row is even.
   const ink = (col: number, row: number) =>
-    (col + row) % 2 === 0
-      ? 'var(--chess-border, var(--chess-sq-dark))'
-      : 'var(--chess-sq-light)';
+    (col + row) % 2 === 0 ? 'on-light' : 'on-dark';
   return (
     <svg
       class={`${styles['layer']} ${styles['svgLayer']} ${styles['coords']}`}
@@ -188,10 +215,10 @@ function Coordinates(props: {
       <For each={files()}>
         {(file, col) => (
           <text
-            x={col() * CELL_UNITS + CELL_UNITS - LABEL_INSET}
-            y={8 * CELL_UNITS - FILE_BASELINE_INSET}
-            fill={ink(col(), 7)}
-            font-size={LABEL_SIZE}
+            x={col() * CELL_UNITS + CELL_UNITS - at().fileInset}
+            y={8 * CELL_UNITS - at().fileBaselineInset}
+            data-ink={ink(col(), 7)}
+            font-size={String(size())}
             text-anchor="end"
           >
             {file}
@@ -201,10 +228,10 @@ function Coordinates(props: {
       <For each={ranks()}>
         {(rank, row) => (
           <text
-            x={RANK_INSET}
-            y={row() * CELL_UNITS + RANK_BASELINE}
-            fill={ink(0, row())}
-            font-size={LABEL_SIZE}
+            x={at().rankInset}
+            y={row() * CELL_UNITS + at().rankBaseline}
+            data-ink={ink(0, row())}
+            font-size={String(size())}
           >
             {rank}
           </text>
@@ -260,7 +287,10 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
         class={`${styles['cell']} ${styles['hover']}`}
       />
       <Show when={props.showCoordinates()}>
-        <Coordinates orientation={props.orientation()} />
+        <Coordinates
+          orientation={props.orientation()}
+          boardPx={props.boardPx()}
+        />
       </Show>
     </div>
   );

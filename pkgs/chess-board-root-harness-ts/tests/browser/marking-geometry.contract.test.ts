@@ -183,3 +183,56 @@ test('no coordinate label touches the figure of the piece on its square', async 
           ).toBe(0);
       }
 });
+
+type LabelInk = { px: number; ink: string; fill: string; square: string };
+/** Each label's drawn size in px, its ink and the colour of the square under it. */
+const LABEL_INKS = `(() => {
+  const board=document.querySelector('[data-testid="browser-board"]');
+  const vars=getComputedStyle(board);
+  return [...board.querySelectorAll('svg text')].map(label=>{
+    const svg=label.ownerSVGElement, unit=svg.getBoundingClientRect().width/svg.viewBox.baseVal.width;
+    const ink=label.dataset.ink;
+    return {px:Number(label.getAttribute('font-size'))*unit, ink, fill:getComputedStyle(label).fill,
+      square:vars.getPropertyValue(ink==='on-light'?'--chess-sq-light':'--chess-sq-dark').trim()};
+  });
+})()`;
+
+/** WCAG relative luminance of `rgb(…)` or `#rrggbb`. */
+function luminance(color: string): number {
+  const hex = /^#([0-9a-f]{6})$/i.exec(color)?.[1];
+  const parts = hex
+    ? [0, 2, 4].map((at) => Number.parseInt(hex.slice(at, at + 2), 16))
+    : (color.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+  const [r = 0, g = 0, b = 0] = parts.map((channel) => {
+    const c = channel / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+}
+
+// regression: chessboard-coordinates-illegible — 17-unit labels at 80% opacity read at ~7.6px on a 358px phone board, in an ink barely off the square's.
+test('coordinate labels read at about 11px on a desktop board, larger on a phone one, in an ink that contrasts with their square', async () => {
+  const sizes: Record<number, number> = {};
+  for (const width of [358, 536, 640]) {
+    await prepare(width, 1, 'white', false);
+    const labels = await browser.view.evaluate<LabelInk[]>(LABEL_INKS);
+    expect(labels).toHaveLength(16);
+    sizes[width] = labels[0]?.px ?? 0;
+    for (const label of labels)
+      expect(
+        contrast(label.fill, label.square),
+        JSON.stringify({ width, label })
+      ).toBeGreaterThanOrEqual(label.ink === 'on-light' ? 4.5 : 2.6);
+  }
+  expect(sizes[536]).toBeGreaterThanOrEqual(10.5);
+  expect(sizes[536]).toBeLessThanOrEqual(11.5);
+  expect(sizes[640]).toBeGreaterThanOrEqual(10.5);
+  // A phone board's labels take the most its corners hold: well past the
+  // 7.6px a fixed sixth of a square gave.
+  expect(sizes[358]).toBeGreaterThanOrEqual(8.8);
+});

@@ -179,7 +179,7 @@
    then the move list and the legend. */
 @container puzzle-frame (min-width: 880px) {
   .puzzle {
-    --puzzle-panel-measure: 400px;
+    --puzzle-panel-measure: var(--ui-max-width-panel);
     --puzzle-board-block: clamp(
       320px,
       calc(

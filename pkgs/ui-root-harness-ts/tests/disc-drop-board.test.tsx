@@ -158,6 +158,7 @@ function bareBoard(options: {
   readonly prompt?: string | undefined;
   readonly preview?: boolean | undefined;
   readonly winning?: readonly number[] | undefined;
+  readonly previewPrompt?: ((column: number) => string) | undefined;
 }) {
   const board = (): JSX.Element => (
     <DiscDropBoard
@@ -169,6 +170,7 @@ function bareBoard(options: {
       interactive={options.prompt !== undefined && options.prompt !== ''}
       label="Drop board"
       prompt={options.prompt}
+      previewPrompt={options.previewPrompt}
       testId="bare-board"
       columnTestId={(column) => `bare-column-${column + 1}`}
       cellLabel={(column, row) => `Column ${column + 1}, row ${row + 1}`}
@@ -251,4 +253,19 @@ test('once four connect, the board says it is won and marks the winning discs', 
     'false'
   );
   won.unmount();
+});
+
+test('while a column would take the disc, the prompt names it', () => {
+  const view = bareBoard({
+    prompt: 'Choose a column',
+    previewPrompt: (column) => `Drop in column ${column + 1}`,
+  });
+  const prompt = view.getByTestId('bare-board-prompt');
+  const second = view.getByRole('button', { name: 'Column 2' });
+  expect(prompt.textContent).toBe('Choose a column');
+  fireEvent.pointerEnter(second);
+  expect(prompt.textContent).toBe('Drop in column 2');
+  fireEvent.pointerLeave(second);
+  expect(prompt.textContent).toBe('Choose a column');
+  view.unmount();
 });

@@ -26,6 +26,12 @@ export type DiscDropBoardProps = {
    * changes. Leave it out when nobody is to move (the game is over).
    */
   readonly prompt?: string | undefined;
+  /**
+   * The prompt while a column is pointed at or focused and would take the
+   * disc (`Drop in column 6`), so the person reads where it will go before
+   * they let go. Leave it out to keep `prompt` throughout.
+   */
+  readonly previewPrompt?: ((column: number) => string) | undefined;
   readonly testId: string;
   readonly columnTestId: (column: number) => string;
   readonly cellLabel: (column: number, row: number, disc: number) => string;
@@ -78,9 +84,9 @@ function discMark(disc: number): string {
 
 /**
  * Above a column: its number, as the record writes its moves (counted from
- * 1). It is the column's only mark: the column pointed at or focused is
- * told by its tint and by the disc waiting in its landing cell, never by a
- * second token or chevron above it. A preview draws no numbers.
+ * 1). The column pointed at or focused sets its number in a chip of the
+ * dropping side's colour, over the column's tint and the see-through disc
+ * waiting in its landing cell. A preview draws no numbers.
  */
 function DropMarker(props: {
   board: DiscDropBoardProps;
@@ -182,9 +188,10 @@ function Column(props: {
  * The prompt (`Pick a column to drop your disc`) says what to do in one
  * line under the columns while it is the viewer's move, and describes the
  * board to assistive technology. While the board takes a drop the column
- * pointed at or focused takes one quiet tint, and its landing cell shows
- * the dropping side's disc as a see-through, dashed preview with no mark:
- * two signals, each saying one thing, neither a disc already played.
+ * pointed at or focused takes a tint and its number a chip in the dropping
+ * side's colour, its landing cell shows that side's disc see-through and
+ * with no mark (never a disc already played), and the prompt names the
+ * column (`Drop in column 6`).
  * The last disc played falls into place (not under reduced motion), and
  * once four connect the rest of the board steps back behind them. As a
  * `GameBoardStage` preview (a game still being set up) it draws only its
@@ -203,6 +210,13 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   const target = () => {
     const column = preview();
     return props.interactive && column !== null ? landing(props, column) : null;
+  };
+  const promptText = (): string => {
+    const at = target();
+    const named = props.previewPrompt;
+    return at !== null && named !== undefined && prompting()
+      ? named(at % props.columns)
+      : (props.prompt ?? '');
   };
   let root: HTMLDivElement | undefined;
   const navigate = (event: KeyboardEvent, column: number): void => {
@@ -238,7 +252,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
           class={`${styles['prompt']} text textCaption`}
           data-testid={`${props.testId}-prompt`}
         >
-          {props.prompt ?? ''}
+          {promptText()}
         </p>
       </Show>
       <For each={columns()}>

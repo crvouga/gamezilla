@@ -259,7 +259,7 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
         <StackHorizontal self="stretch" align="center" gap="sm">
           <StackHorizontal wrap grow align="center" gap="sm">
             <P variant="bodyBold" wrap="nowrap">
-              <Trans>Puzzle</Trans>
+              <Trans>This puzzle</Trans>
             </P>
             <FeedBarPuzzleFacts
               rating={props.rating ?? 0}

@@ -111,6 +111,7 @@ export function setupSeat(
     ...base,
     host: false,
     visiting: false,
+    own: false,
     ready: false,
     invitation: null,
     canSit: false,

@@ -52,9 +52,10 @@ type Story = StoryObj<typeof meta>;
 export const Opening: Story = {};
 
 /**
- * Mid-game on the person's turn: every open column offers a drop, and the
- * one pointed at (column 6) takes a quiet tint, with Red's ring and mark
- * in the hole where the disc would land.
+ * Mid-game on the person's turn: every open column offers a drop. The one
+ * pointed at (column 6) takes a tint and a red chip on its number, a
+ * see-through red disc waits where it would land, and the line under the
+ * board says `Drop in column 6`.
  */
 export const YourTurn: Story = {
   args: { position: after(MID_GAME) },
@@ -66,6 +67,9 @@ export const YourTurn: Story = {
     const column = await canvas.findByTestId('custom-game-board-column-6');
     await userEvent.hover(column);
     await expect(column).toHaveAttribute('data-previewed', 'true');
+    await expect(
+      await canvas.findByTestId('custom-game-board-prompt')
+    ).toHaveTextContent('Drop in column 6');
   },
 };
 

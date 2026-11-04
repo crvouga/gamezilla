@@ -256,11 +256,21 @@
   background-color: var(--chess-legal-dot);
 }
 
-/* Quiet labels: present for reading a square, never louder than a piece. */
+/* Labels read at a glance and never outshout a piece: semibold, in an ink
+   that contrasts with the square under it — a walnut deeper than the
+   border on a light square, a cream paler than the light square on a dark
+   one. */
 .coords {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-weight: 700;
-  opacity: 0.8;
+  font-weight: 600;
+}
+
+.coords text[data-ink="on-light"] {
+  fill: var(--chess-coord-on-light);
+}
+
+.coords text[data-ink="on-dark"] {
+  fill: var(--chess-coord-on-dark);
 }
 
 /* -- hit grid ------------------------------------------------------------ */

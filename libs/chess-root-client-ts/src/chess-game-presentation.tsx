@@ -13,7 +13,20 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { ComponentProps, JSX } from 'solid-js';
+
+const UCI = /^([a-h][1-8])([a-h][1-8])[qrbn]?$/;
+
+type BoardMove = NonNullable<ComponentProps<typeof ChessBoard>['lastMove']>;
+
+/** A move as its from and to squares, read from the UCI the game writes. */
+export function chessMoveSquares(
+  action: string | null | undefined
+): BoardMove | null {
+  const match = UCI.exec(action ?? '');
+  if (match === null) return null;
+  return { from: match[1], to: match[2] } as BoardMove;
+}
 
 /**
  * Chess as every game screen mounts it: the shared chess board in the
@@ -25,6 +38,7 @@ export function ChessGameBoard(props: GameBoardProps): JSX.Element {
       theme={BOARD_THEME}
       fen={props.position}
       fenSyncKey={props.syncKey}
+      lastMove={chessMoveSquares(props.lastAction)}
       orientation={requireTwoPlayerSide(props.orientation)}
       interactive={props.interactive}
       sound={props.sound}
