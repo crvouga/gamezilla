@@ -1,4 +1,5 @@
-.board {
+/* The battleship palette by default; a checkered board keeps the app's own. */
+.board:not([data-board-theme="checkered"]) {
   --ui-color-background: var(--ui-color-game-battleship-canvas);
   --color-background: var(--ui-color-background);
   --ui-color-surface: var(--ui-color-game-battleship-surface);
@@ -214,4 +215,58 @@
   --color-on-warning: var(--ui-color-on-warning);
   --ui-color-on-info: var(--ui-color-game-quoridor-canvas);
   --color-on-info: var(--ui-color-on-info);
+}
+/* A wooden board: squares meet edge to edge in the board's two tones, the
+   glyph fills most of its square, and the labels stand in the margin
+   outside the squares, so they can never cover a piece. */
+.board[data-board-theme="checkered"] {
+  --ui-color-text: var(--ui-color-board-card-ink);
+  --color-text: var(--ui-color-text);
+  container-type: inline-size;
+  grid-template-columns: 1rem repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  grid-template-rows: 1rem;
+  max-width: none;
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.board[data-board-theme="checkered"] .header {
+  color: var(--ui-color-text-secondary);
+}
+.board[data-board-theme="checkered"] .cell {
+  border: 0;
+  border-radius: 0;
+  background: var(--ui-color-board-light);
+}
+.board[data-board-theme="checkered"] .cell[data-shade="dark"] {
+  background: var(--ui-color-board-dark);
+}
+.board[data-board-theme="checkered"] .glyph {
+  /* About four fifths of a square: the board less its label margin, per column. */
+  font-size: calc((100cqw - 1rem) / var(--cell-grid-columns) * 0.82);
+  line-height: 1;
+}
+.board[data-board-theme="checkered"] .cell[data-identity="one"] {
+  color: var(--ui-color-board-card-face);
+  -webkit-text-stroke: 0.06em var(--ui-color-board-card-ink);
+  paint-order: stroke fill;
+}
+.board[data-board-theme="checkered"] .cell[data-identity="two"] {
+  color: var(--ui-color-board-card-ink);
+}
+.board[data-board-theme="checkered"] .cell[data-emphasis="pending"],
+.board[data-board-theme="checkered"] .cell[data-emphasis="preview"] {
+  outline: 0;
+  background-image: linear-gradient(
+    var(--ui-color-board-highlight),
+    var(--ui-color-board-highlight)
+  );
+}
+.board[data-board-theme="checkered"] .cell[data-tone="critical"] {
+  background: var(--ui-color-destructive);
+}
+.board[data-board-theme="checkered"] .cell[data-emphasis="refused"] {
+  outline: 3px solid var(--ui-color-board-card-face);
+  outline-offset: -3px;
 }

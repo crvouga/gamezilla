@@ -2,7 +2,7 @@
  * Story-only fixtures for the puzzle play and review screen views: the
  * presentational widgets their containers put in the views' slots (feed
  * strip, result overlay, move list) and a game-agnostic board drawing a
- * fixed puzzle line (Legal's mate) on the design system's cell grid. The
+ * fixed puzzle line (Legal's mate) on the design system's checkered board. The
  * platform knows no game, so the stories use no game's own board.
  * Production never imports this module.
  */
@@ -197,19 +197,25 @@ export const STORY_PLIES: readonly PuzzleHistoryPly[] = [
   { plyIndex: 5, solveIdxAfter: 6, label: 'Nd5#', before: STORY_LINE.afterKe7 },
 ];
 
-const PIECES: Readonly<Record<string, { glyph: string; name: string }>> = {
-  K: { glyph: '♔', name: 'white king' },
-  Q: { glyph: '♕', name: 'white queen' },
-  R: { glyph: '♖', name: 'white rook' },
-  B: { glyph: '♗', name: 'white bishop' },
-  N: { glyph: '♘', name: 'white knight' },
-  P: { glyph: '♙', name: 'white pawn' },
-  k: { glyph: '♚', name: 'black king' },
-  q: { glyph: '♛', name: 'black queen' },
-  r: { glyph: '♜', name: 'black rook' },
-  b: { glyph: '♝', name: 'black bishop' },
-  n: { glyph: '♞', name: 'black knight' },
-  p: { glyph: '♟', name: 'black pawn' },
+/**
+ * Each piece as one filled figure (text presentation, never emoji), its side
+ * told by the board's light and dark piece inks and by its label.
+ */
+const PIECES: Readonly<
+  Record<string, { glyph: string; name: string; side: 'one' | 'two' }>
+> = {
+  K: { glyph: '\u265A\uFE0E', name: 'white king', side: 'one' },
+  Q: { glyph: '\u265B\uFE0E', name: 'white queen', side: 'one' },
+  R: { glyph: '\u265C\uFE0E', name: 'white rook', side: 'one' },
+  B: { glyph: '\u265D\uFE0E', name: 'white bishop', side: 'one' },
+  N: { glyph: '\u265E\uFE0E', name: 'white knight', side: 'one' },
+  P: { glyph: '\u265F\uFE0E', name: 'white pawn', side: 'one' },
+  k: { glyph: '\u265A\uFE0E', name: 'black king', side: 'two' },
+  q: { glyph: '\u265B\uFE0E', name: 'black queen', side: 'two' },
+  r: { glyph: '\u265C\uFE0E', name: 'black rook', side: 'two' },
+  b: { glyph: '\u265D\uFE0E', name: 'black bishop', side: 'two' },
+  n: { glyph: '\u265E\uFE0E', name: 'black knight', side: 'two' },
+  p: { glyph: '\u265F\uFE0E', name: 'black pawn', side: 'two' },
 };
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -238,6 +244,7 @@ function cellOf(
     label: `${square}, ${piece?.name ?? 'empty'}${wrong ? ', wrong move' : ''}${hinted ? ', hint' : ''}`,
     tone: wrong ? 'critical' : piece === undefined ? 'open' : 'occupied',
     emphasis: wrong ? 'refused' : hinted ? 'pending' : 'none',
+    identity: piece?.side,
     enabled: false,
   };
 }
@@ -258,7 +265,10 @@ function positionCells(
 
 const NO_MARKS: PuzzleBoardMarks = { wrong: null, hint: null, solution: null };
 
-/** A puzzle position on the design system's cell grid, standing in for a game's board. */
+/**
+ * A puzzle position on the design system's checkered board, standing in for
+ * a game's board: wooden squares, pieces filling most of a square.
+ */
 export function StoryPuzzleBoard(props: {
   readonly position: string;
   readonly testId: string;
@@ -266,6 +276,7 @@ export function StoryPuzzleBoard(props: {
 }): JSX.Element {
   return (
     <CellGridBoard
+      boardTheme="checkered"
       label="Puzzle position"
       testId={props.testId}
       columnLabels={FILES}

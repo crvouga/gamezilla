@@ -30,12 +30,20 @@ export type CellGridCell = {
   /** Boundaries between cells; consecutive edges form a continuous barrier. */
   readonly edges?: readonly CellGridEdge[] | undefined;
   readonly previewEdges?: readonly CellGridEdge[] | undefined;
-  /** Four visual identities, also named by the cell's label and glyph. */
+  /**
+   * Four visual identities, also named by the cell's label and glyph. On a
+   * `checkered` board, `one` is a light piece and `two` a dark piece.
+   */
   readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
-  /** Playing-surface palette; never themes the surrounding application. */
-  readonly boardTheme?: 'battleship' | 'quoridor' | undefined;
+  /**
+   * Playing-surface palette; never themes the surrounding application.
+   * `checkered` is a wooden board of alternating light and dark squares
+   * (`boardLight` / `boardDark`) whose glyphs fill most of a square and
+   * whose labels sit outside the squares, so they never cover a piece.
+   */
+  readonly boardTheme?: 'battleship' | 'quoridor' | 'checkered' | undefined;
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -88,11 +96,18 @@ function GridCell(props: {
 }): JSX.Element {
   const cell = () => props.board.cells[props.index];
   const id = () => cell()?.id ?? '';
+  // Squares alternate from a light top-left corner, as a board's do.
+  const shade = (): 'light' | 'dark' => {
+    const columns = Math.max(1, props.board.columnLabels.length);
+    const row = Math.floor(props.index / columns);
+    return (row + (props.index % columns)) % 2 === 0 ? 'light' : 'dark';
+  };
   return (
     <button
       type="button"
       class={styles['cell']}
       data-index={props.index}
+      data-shade={shade()}
       data-cell={id()}
       data-testid={
         props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`

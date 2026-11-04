@@ -31,11 +31,20 @@
   min-width: 0;
   gap: var(--ui-space-3);
 }
+/* One column as wide as a board can use, centered: the feed, the board, the
+   move list and the actions stay together instead of spanning a wide frame.
+   A wider-than-square board widens the column by its aspect ratio. */
 .puzzle {
   display: flex;
   flex: 1;
   flex-direction: column;
   align-self: stretch;
+  width: 100%;
+  max-width: calc(
+    var(--ui-max-width-prose) *
+    max(1, var(--ui-puzzle-column-ratio, 1))
+  );
+  margin-inline: auto;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
