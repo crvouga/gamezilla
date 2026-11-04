@@ -8,6 +8,7 @@ import type { NotificationAction } from '@libs/notifications-shared-ts/notificat
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 
@@ -55,26 +56,32 @@ function mountCard(interaction: Notification) {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="light">
-        <ModerationProvider rules={shippedModerationRules()}>
-          <NotificationCardDefault
-            interaction={interaction}
-            actions={actions}
-            onOpen={() => undefined}
-            testID={CARD}
-            actionTestID={(action) => `${CARD}-${action.id}`}
-          />
-        </ModerationProvider>
+        <SurfaceStackProvider>
+          <ModerationProvider rules={shippedModerationRules()}>
+            <NotificationCardDefault
+              interaction={interaction}
+              actions={actions}
+              onOpen={() => undefined}
+              testID={CARD}
+              actionTestID={(action) => `${CARD}-${action.id}`}
+            />
+          </ModerationProvider>
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
   return actions;
 }
 
-test('Archive is one named button that sets the card aside', () => {
+test("Archive waits in the card's More menu and sets the card aside", () => {
   const actions = mountCard(
     invite([{ id: 'accept', label: 'Join', variant: 'ghost' }])
   );
-  const archive = screen.getByRole('button', { name: 'Archive' });
+  expect(screen.queryByTestId(Handles.notificationsArchive(CARD))).toBeNull();
+  const more = screen.getByRole('button', { name: 'More' });
+  expect(more).toBe(screen.getByTestId(Handles.notificationsCardMenu(CARD)));
+  fireEvent.click(more);
+  const archive = screen.getByRole('menuitem', { name: 'Archive' });
   expect(archive).toBe(screen.getByTestId(Handles.notificationsArchive(CARD)));
   fireEvent.click(archive);
   expect(actions.archive).toHaveBeenCalledWith('invite-1');
@@ -129,18 +136,20 @@ test('a card that waits on you without answers says its next step', () => {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="light">
-        <ModerationProvider rules={shippedModerationRules()}>
-          <NotificationCardDefault
-            interaction={invite([])}
-            actions={{
-              performAction: () => Promise.resolve(),
-              markRead: () => Promise.resolve(),
-              archive: () => Promise.resolve(),
-            }}
-            onOpen={opened}
-            testID={CARD}
-          />
-        </ModerationProvider>
+        <SurfaceStackProvider>
+          <ModerationProvider rules={shippedModerationRules()}>
+            <NotificationCardDefault
+              interaction={invite([])}
+              actions={{
+                performAction: () => Promise.resolve(),
+                markRead: () => Promise.resolve(),
+                archive: () => Promise.resolve(),
+              }}
+              onOpen={opened}
+              testID={CARD}
+            />
+          </ModerationProvider>
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -150,10 +159,10 @@ test('a card that waits on you without answers says its next step', () => {
   expect(screen.getByTestId(CARD).textContent).toContain('@sam invited you');
 });
 
-test('an informational card offers no open step, only Archive', () => {
+test('an informational card offers no open step, only its More menu', () => {
   mountCard({ ...invite([]), category: 'informational' });
   expect(screen.queryByRole('button', { name: 'Open' })).toBeNull();
-  expect(screen.getByRole('button', { name: 'Archive' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'More' })).toBeTruthy();
 });
 
 // regression: inbox-unread-only-a-heavier-title
@@ -176,9 +185,18 @@ test('when and what share one caption line', () => {
 });
 
 // regression: inbox-archive-full-weight-text
-test('Archive is a quiet icon with no visible word', () => {
+test('the card menu is a quiet icon with no visible word', () => {
   mountCard(invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]));
-  const archive = screen.getByRole('button', { name: 'Archive' });
-  expect(archive.getAttribute('data-component')).toBe('IconButton');
-  expect(archive.textContent ?? '').not.toContain('Archive');
+  const more = screen.getByRole('button', { name: 'More' });
+  expect(more.getAttribute('data-component')).toBe('IconButton');
+  expect(more.textContent ?? '').not.toContain('More');
+  expect(screen.queryByText('Archive')).toBeNull();
+});
+
+// regression: inbox-archive-icon-on-every-card
+test('Archive is not a control on the card face; it waits in the menu', () => {
+  mountCard(invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]));
+  expect(screen.queryByRole('button', { name: 'Archive' })).toBeNull();
+  expect(screen.queryByTestId(Handles.notificationsArchive(CARD))).toBeNull();
+  expect(screen.getByRole('button', { name: 'More' })).toBeTruthy();
 });

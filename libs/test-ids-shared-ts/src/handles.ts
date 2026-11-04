@@ -326,7 +326,9 @@ export const Handles = {
   /** Notifications friend-request summary card (fromUsername). */
   notificationsFriendRequestCard: (fromUsername: string) =>
     `notifications-friend-request-card-${fromUsername}`,
-  /** Set that inbox item aside. The id is the card's test id. */
+  /** An inbox card's "…" menu. The id is the card's test id. */
+  notificationsCardMenu: (cardTestId: string) => `${cardTestId}-menu`,
+  /** Set that inbox item aside, from its card's menu. */
   notificationsArchive: (cardTestId: string) => `${cardTestId}-archive`,
   /** Inbox lists: everything, what still needs a choice, and what was set aside. */
   notificationsFilterAll: 'notifications-filter-all',
