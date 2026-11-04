@@ -286,8 +286,10 @@
    first row's title. */
 .sectionAside {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  column-gap: var(--ui-space-8);
+  /* The label stays near its rows, and short rows don't stretch across the
+     whole desktop column. */
+  grid-template-columns: 168px minmax(0, 640px);
+  column-gap: var(--ui-space-6);
   align-items: start;
   min-width: 0;
 }

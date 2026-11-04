@@ -18,7 +18,10 @@ import { useThemeTokens } from '../theme-context/index';
 export type AvatarGroupProps = {
   /** Avatar diameter in px; used for slot size and default overlap. */
   size?: number | undefined;
-  /** Horizontal overlap in px; defaults to ~40% of `size`. */
+  /**
+   * Horizontal overlap in px; defaults to a quarter of `size`, so each face
+   * stays whole enough to recognise (eyes and glasses never collide).
+   */
   overlap?: number | undefined;
   /** Max avatars before showing an overflow pill. Omit for no limit. */
   maxVisible?: number | undefined;
@@ -102,7 +105,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     const ringToken = props.ringColor ?? DEFAULT_RING_COLOR;
     return {
       size,
-      overlap: props.overlap ?? Math.round(size * 0.4),
+      overlap: props.overlap ?? Math.round(size * 0.25),
       ringBorderWidth: props.ringBorderWidth ?? DEFAULT_RING_WIDTH,
       ringColor:
         resolveColor(ringToken, tokens.colors) ?? colorVar('background'),

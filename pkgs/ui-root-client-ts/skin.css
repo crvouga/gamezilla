@@ -320,10 +320,11 @@
   /* A neutral tag sits on cards as often as on the canvas. The sunken
      `surface-muted` well reads as a hole on a dark card, so the tag takes
      the raised hairline tone: a step lighter than the card in dark, a step
-     darker than it in light. */
+     darker than it in light. Its ink is full text, never the muted grey that
+     reads as a disabled chip. */
   .badge[data-intent="neutral"][data-tone="subtle"] {
     background: var(--ui-color-border);
-    color: var(--ui-color-text-secondary);
+    color: var(--ui-color-text);
   }
 
   .badge[data-intent="neutral"][data-tone="solid"] {
