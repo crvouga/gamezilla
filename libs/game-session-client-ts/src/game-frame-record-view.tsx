@@ -299,8 +299,8 @@ function RecordPanel(props: RecordProps): JSX.Element {
 }
 
 /**
- * The record under a phone's board, its one history control: the shown
- * turn, whole and centred between the steps (to the start and back a move
+ * The record under a phone's board, its one history control, labelled
+ * "Moves": the shown turn, whole and centred between the steps (to the start and back a move
  * on one side, forward a move and to the current position on the other),
  * and the rest of the record (every move as a table, a move by number,
  * earlier games, the space's history) behind one disclosure. The strip keeps its height
@@ -309,6 +309,14 @@ function RecordPanel(props: RecordProps): JSX.Element {
 function RecordStrip(props: RecordProps): JSX.Element {
   return (
     <StackVertical gap="xs" dataSet={{ component: 'CustomGameReview' }}>
+      {/* Named, so moving through the moves never reads as playing one. */}
+      <P
+        variant="caption"
+        tone="secondary"
+        testId="custom-game-move-strip-label"
+      >
+        <Trans>Moves</Trans>
+      </P>
       <MoveStrip
         testId="custom-game-move-strip"
         leading={
