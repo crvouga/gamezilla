@@ -129,7 +129,6 @@ function useFindFriendsAction(
           {
             type: 'default',
             label: t`Find friends`,
-            icon: UserPlusIcon,
             onClick: () => props.onFindFriends(),
             overflow: 'never',
           },
