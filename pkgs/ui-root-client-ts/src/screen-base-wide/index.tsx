@@ -49,9 +49,11 @@ function WidePageHeader(
   );
   const measure = (): string | undefined => measureWidth(props.measure);
   return (
+    // Actions sit on the title's line, not centered against the caption
+    // trail above it.
     <header
-      class="box flex-row items-center gap-3 shrink-0 min-h-13 py-2"
-      classList={{ 'w-full mx-auto': measure() !== undefined }}
+      class="box flex-row items-end gap-3 shrink-0 min-h-13 py-2"
+      classList={{ 'w-full': measure() !== undefined }}
       style={{ 'max-width': measure() }}
       data-component="ScreenBaseHeader"
     >
@@ -117,7 +119,7 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       fallback={
         <div
           class="box flex-1 min-h-0 gap-2"
-          classList={{ 'w-full mx-auto': props.measure !== undefined }}
+          classList={{ 'w-full': props.measure !== undefined }}
           style={{ 'max-width': measureWidth(props.measure) }}
         >
           {inner}

@@ -1,8 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
- * One canvas and centered measures on wide layouts: the frame paints the
- * `background` tone edge to edge, a capped column sits in the middle of the
- * frame, and its page title sits in that same column.
+ * One canvas and one column on wide layouts: the frame paints the
+ * `background` tone edge to edge, a capped column keeps the centered frame
+ * column's leading edge (the edge game stages and a space's top bar use),
+ * and its page title sits in that same column. Compact hosts wider than a
+ * measure (tablets) center it.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -46,7 +48,7 @@ describe('wide layout canvas and centered measure', () => {
   });
 
   // regression: wide-layout-canvas-and-centered-measure
-  test('a menu screen centers its column and holds its title to the same column', () => {
+  test('a menu screen keeps the frame column edge and holds its title to the same column', () => {
     renderUi(
       framed(() => (
         <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
@@ -55,10 +57,13 @@ describe('wide layout canvas and centered measure', () => {
       )),
       WIDE
     );
-    expect(classes('[data-component="ScreenBaseHeader"]')).toMatch(
+    expect(classes('[data-region="column"]')).toMatch(/\bmx-auto\b/);
+    expect(classes('[data-component="ScreenBaseHeader"]')).not.toMatch(
       /\bmx-auto\b/
     );
-    expect(classes('[data-component="ScreenColumn"]')).toMatch(/\bmx-auto\b/);
+    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
+      /\bmx-auto\b/
+    );
     expect(style('[data-component="ScreenBaseHeader"]').maxWidth).toBe(
       SCREEN_MAX_WIDTH.menu
     );
@@ -112,8 +117,9 @@ describe('wide layout canvas and centered measure', () => {
   );
 
   // regression: compact-menus-not-centered
-  test.each([390, 768, 1024])(
-    'a routed menu centers its column at width %i',
+  // 1024 and up is the wide layout: the measure keeps the frame column edge.
+  test.each([390, 768])(
+    'a routed menu centers its column at compact width %i',
     (width) => {
       renderUi(
         framed(() => (

@@ -10,9 +10,10 @@
  * - `full`: the whole frame column — explorers and game stages with a side
  *   rail.
  *
- * A capped column is centered in the frame at every width, and the page's
- * title block sits in the same column so the title lines up with the
- * content. Narrow layouts retain the 16px page inset.
+ * A capped column keeps the frame column's leading edge (the frame column
+ * itself is centered), so a list, a settings page and a game stage all start
+ * at one x; the page's title block sits in the same column so the title
+ * lines up with the content. Narrow layouts retain the 16px page inset.
  */
 
 export type ScreenMeasure = 'menu' | 'prose' | 'list' | 'full';

@@ -124,7 +124,7 @@ describe('AppFrame rail', () => {
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
   });
 
-  test('an open space narrows the column so its chrome and screen share edges', () => {
+  test('an open space and a tab screen share one column, so their edges match', () => {
     const [inSpace, setInSpace] = createSignal(false);
     renderUi(
       () => (
@@ -139,10 +139,11 @@ describe('AppFrame rail', () => {
       WIDE
     );
     const column = () => mustQuery('[data-region="column"]');
-    expect(column().className).toMatch(/\bmax-w-ui-wide\b/);
+    const before = column();
+    expect(before.className).toMatch(/\bmax-w-ui-space\b/);
     setInSpace(true);
+    expect(column()).toBe(before);
     expect(column().className).toMatch(/\bmax-w-ui-space\b/);
-    expect(column().className).not.toMatch(/\bmax-w-ui-wide\b/);
   });
 
   // regression: account-menu-twice-beside-sidebar

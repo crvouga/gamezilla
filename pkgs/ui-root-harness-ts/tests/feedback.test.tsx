@@ -469,7 +469,7 @@ describe('DismissibleBanner', () => {
     expect(banner).toHaveTextContent('Update available');
     // Full-bleed sheet; content row is max-width constrained on wide layouts.
     expect(banner.innerHTML).toMatch(/bg-surface[\s"]/);
-    expect(banner.innerHTML).toMatch(/max-w-ui-wide/);
+    expect(banner.innerHTML).toMatch(/max-w-ui-space/);
     const host = banner.closest(
       '[data-component="DismissibleBannerPortalHost"]'
     );
