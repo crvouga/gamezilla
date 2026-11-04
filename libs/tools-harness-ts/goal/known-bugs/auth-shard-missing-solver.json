@@ -1,0 +1,4 @@
+{
+  "summary": "The hosted auth harness test shard lacked pinned Apalache and Java, so the default solver regression failed before checking its model. Uncached model consumers now request the pinned solver toolchain before verification.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-browser-tasks.test.ts"
+}

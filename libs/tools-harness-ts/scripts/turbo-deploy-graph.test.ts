@@ -418,7 +418,7 @@ describe('turbo verify/deploy graph invariants', () => {
     // One entry program; the profile is the only thing that differs.
     for (const profile of ['release', 'nightly'])
       expect(scripts[profile === 'release' ? 'verify' : 'verify-nightly']).toBe(
-        `VERIFY_PROFILE=${profile} bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts`
+        `VERIFY_PROFILE=${profile} bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture --isolated -- bun run libs/tools-harness-ts/scripts/verify-local.ts`
       );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
       '//#deploy',
@@ -576,4 +576,15 @@ test('all three product code-test shards keep the same complete scope in the gat
     expect(body.replace(`--shard=${part + 1}/3`, '--shard=1/3')).toBe(first);
     expect(MAIN_VERIFY_TASKS).toContain(task);
   }
+});
+
+// regression: cold-variant-generation-inputs
+test('cold feature variants wait for the generated modules their probes import', () => {
+  const graph = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'libs/games-harness-ts/turbo.json'), 'utf8')
+  ) as { tasks: Tasks };
+  const dependencies = graph.tasks['generate:feature-variants']?.dependsOn;
+  expect(dependencies).toContain('//#task:sounds:generate');
+  expect(dependencies).toContain('//#task:tokens:generate');
+  expect(dependencies).toContain('@libs/tools-harness-ts#generate:identity');
 });

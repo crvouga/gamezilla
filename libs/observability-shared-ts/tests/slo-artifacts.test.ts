@@ -1,4 +1,4 @@
-// @io-wall-ok — reads the committed generated artifacts, OpenTofu sources and docs.
+// @io-wall-ok — reads the generated build artifacts, OpenTofu sources and docs.
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';

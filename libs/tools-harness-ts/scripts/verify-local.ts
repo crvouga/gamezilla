@@ -71,6 +71,9 @@ async function runSnapshot(
   mkdirSync(temporary, { recursive: true });
   const env = {
     ...localVerifyEnv(process.env),
+    // Verification always uses its neutral fixture, never deployment settings.
+    PRODUCT_IDENTITY_JSON: undefined,
+    PRODUCT_IDENTITY_MODE: 'fixture',
     TMPDIR: temporary,
     TMP: temporary,
     TEMP: temporary,

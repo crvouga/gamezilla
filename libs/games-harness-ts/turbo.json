@@ -610,7 +610,12 @@
       ]
     },
     "generate:feature-variants": {
-      "dependsOn": ["^src"],
+      "dependsOn": [
+        "^src",
+        "//#task:sounds:generate",
+        "//#task:tokens:generate",
+        "@libs/tools-harness-ts#generate:identity"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",

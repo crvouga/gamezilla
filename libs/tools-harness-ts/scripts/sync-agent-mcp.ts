@@ -261,3 +261,5 @@ export function syncAgentMcp(verify: boolean): string[] {
   }
   return drift;
 }
+
+if (import.meta.main) syncAgentMcp(false);

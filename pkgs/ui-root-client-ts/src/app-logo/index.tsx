@@ -12,9 +12,11 @@ const mark = new URL('./mark.svg', import.meta.url).href;
 export type AppLogoProps = {
   /** Product wordmark supplied by the host. */
   name: string;
+  /** Host-configured artwork. The default is a neutral application mark. */
+  markSrc?: string | undefined;
   /** Pixel size of the mark (the wordmark scales proportionally). Defaults to 28. */
   size?: number | undefined;
-  /** Show the wordmark alongside the monster mark. Defaults to true. */
+  /** Show the wordmark alongside the mark. Defaults to true. */
   wordmark?: boolean | undefined;
   /** Semantic color token for the wordmark. Defaults to text. */
   color?: ColorTokenName | undefined;
@@ -25,14 +27,14 @@ export type AppLogoProps = {
 const WORDMARK_HEIGHT_RATIO = 0.7;
 
 /**
- * `AppLogo` — emerald monster mark and Unbounded wordmark. The intrinsic
+ * `AppLogo` — host-supplied artwork and a product wordmark. The intrinsic
  * brand artwork is a scoped color exception; surrounding chrome stays neutral.
  * Mark-only instances retain the accessible product name. This is branding,
  * not a page heading.
  *
  * @example
  * ```tsx
- * <AppLogo name="acme" />                  // monster mark + wordmark
+ * <AppLogo name="acme" markSrc="/mark.svg" /> // configured mark + wordmark
  * <AppLogo name="acme" size={48} />        // larger for splash / hero
  * ```
  */
@@ -51,7 +53,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       style={{ gap: `${Math.max(1, Math.round(size() / 16)) * 4}px` }}
     >
       <img
-        src={mark}
+        src={props.markSrc ?? mark}
         width={size()}
         height={size()}
         alt=""

@@ -1,0 +1,4 @@
+{
+  "summary": "Organization-scoped agent configuration preserves local user entries. Including that file among cached branding outputs could capture or overwrite those entries. A separate uncached generation task now prepares agent settings, and deterministic brand-asset caches exclude them.",
+  "regressionTest": "libs/tools-harness-ts/scripts/task-runner-policy.test.ts"
+}

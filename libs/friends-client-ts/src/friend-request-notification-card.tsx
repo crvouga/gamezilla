@@ -14,6 +14,7 @@ type FriendRequestNotificationCardProps = {
   readonly actions: NotificationCardActions;
 };
 
+/** A friendship request in the inbox, with actions to accept or decline it. */
 export function FriendRequestNotificationCard(
   props: FriendRequestNotificationCardProps
 ): JSX.Element {

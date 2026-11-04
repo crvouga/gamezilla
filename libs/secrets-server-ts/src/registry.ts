@@ -58,6 +58,7 @@ import {
   OBSERVABILITY_LOGS_URL,
   OBSERVABILITY_METRICS_URL,
 } from './observability-secrets';
+import { PRODUCT_IDENTITY_JSON } from './product-identity-secret';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
@@ -71,6 +72,7 @@ import {
  * are reported, never deleted (a human-entered value cannot be recovered).
  */
 export const SECRETS: readonly Secret[] = [
+  PRODUCT_IDENTITY_JSON,
   CHROMATIC_PROJECT_TOKEN,
   FEEDBACK_GITHUB_TOKEN,
   FEEDBACK_GITHUB_REPOSITORY,

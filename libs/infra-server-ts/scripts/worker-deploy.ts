@@ -23,6 +23,8 @@ import {
   renderAuthRelayWranglerConfig,
   renderWranglerConfig,
 } from '@libs/infra-shared-ts/wrangler';
+import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 export function activeEnvFile(): EnvFile {
   const name = (process.env['SECRETS_ENV'] ?? '').trim();
@@ -106,6 +108,7 @@ export function deployWorker(options: {
   readonly secrets: Readonly<Record<string, string>>;
   readonly resources?: WorkerResources;
 }): void {
+  requireConfiguredIdentity(process.env['PRODUCT_IDENTITY_JSON'], PRODUCT);
   runWrangler({
     appDir: options.appDir,
     label: 'app',
@@ -119,6 +122,7 @@ export function deployWorker(options: {
 export function deployAuthRelayWorker(options: {
   readonly appDir: string;
 }): void {
+  requireConfiguredIdentity(process.env['PRODUCT_IDENTITY_JSON'], PRODUCT);
   runWrangler({
     appDir: options.appDir,
     label: 'auth-relay',

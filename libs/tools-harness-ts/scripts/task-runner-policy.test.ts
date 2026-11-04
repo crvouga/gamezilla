@@ -220,13 +220,15 @@ describe('this repository', () => {
 
   test('files generated at install are cached by what they are made from', () => {
     expect(scripts['generate']).toBe(
-      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources'
+      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources @libs/tools-harness-ts#generate:brand-artifacts @libs/observability-shared-ts#generate:slo @libs/tools-harness-ts#generate:identity-agents'
     );
     for (const id of [
       '//#task:tokens:generate',
       '//#task:sounds:generate',
       '@pkgs/object-store-s3-server-ts#generate:browser',
       '@libs/infra-shared-ts#generate:infra-map',
+      '@libs/tools-harness-ts#generate:brand-artifacts',
+      '@libs/observability-shared-ts#generate:slo',
       '//#task:i18n:compile',
       '//#task:spec:catalog',
       '//#task:spec:inputs',
@@ -236,4 +238,18 @@ describe('this repository', () => {
       expect(tasks[id]?.outputs?.length).toBeGreaterThan(0);
     }
   });
+});
+
+// regression: identity-agent-settings-cache
+test('local agent settings are generated without caching user-authored entries', () => {
+  const tasks = json<{ tasks: TurboTasks }>('turbo.json').tasks;
+  expect(tasks['@libs/tools-harness-ts#generate:identity-agents']?.cache).toBe(
+    false
+  );
+  expect(
+    tasks['@libs/tools-harness-ts#generate:identity-agents']?.outputs ?? []
+  ).toEqual([]);
+  expect(
+    tasks['@libs/tools-harness-ts#generate:brand-artifacts']?.outputs
+  ).not.toContain('$TURBO_ROOT$/.cursor/mcp.json');
 });

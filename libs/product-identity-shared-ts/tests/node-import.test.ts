@@ -10,8 +10,8 @@ const SRC = join(import.meta.dirname, '../src');
 // Vite loads `vite.config.mts` with Node (`brandHtmlPlugin`), which resolves
 // a relative import only with its extension and imports JSON only with a
 // `type: 'json'` attribute. Either one missing broke `vite build`.
-test('every module loads under Node, which needs extensions and JSON attributes', () => {
-  for (const file of readdirSync(SRC).filter((name) => name.endsWith('.ts'))) {
+for (const file of readdirSync(SRC).filter((name) => name.endsWith('.ts')))
+  test(`${file} loads under Node with native extensions and JSON attributes`, () => {
     const run = spawnSync(
       'node',
       ['-e', `import(${JSON.stringify(pathToFileURL(join(SRC, file)).href)})`],
@@ -19,5 +19,4 @@ test('every module loads under Node, which needs extensions and JSON attributes'
     );
     expect(run.stderr, file).not.toContain('ERR_MODULE_NOT_FOUND');
     expect(run.status, `${file}: ${run.stderr}`).toBe(0);
-  }
-});
+  });

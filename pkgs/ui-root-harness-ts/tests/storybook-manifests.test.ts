@@ -29,6 +29,14 @@ test('every generated component has its production purpose available to agents',
     .filter(([, component]) => !component.description?.trim())
     .map(([id]) => id);
   expect(missing).toEqual([]);
+  // regression: screen-purpose-missing
+  for (const id of [
+    'screens-notifications-friends',
+    'screens-games-numberlink-puzzle',
+    'screens-games-numberlink-preview',
+    'screens-games-sokoban-puzzle',
+  ])
+    expect(components[id]?.description?.trim()).toBeTruthy();
   const button = components['components-inputs-button'];
   if (!button) throw new Error('Button is missing from the manifest');
   expect(button.jsDocTags.summary).toContain(

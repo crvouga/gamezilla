@@ -63,6 +63,8 @@ import {
   stateBackendExists,
   tofuEnvironment,
 } from '@libs/infra-shared-ts/tofu-command';
+import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import { resolveAwsSession } from './aws-session';
 import {
   dropLocalBackend,
@@ -332,6 +334,8 @@ async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
 async function main(): Promise<void> {
   const cli = parseCli(process.argv.slice(2));
   const { command, stack } = cli;
+  if (command === 'apply' || command === 'destroy')
+    requireConfiguredIdentity(process.env['PRODUCT_IDENTITY_JSON'], PRODUCT);
   const target = targetFor(stack);
   // TF_PLUGIN_CACHE_DIR must exist; a fresh CI checkout has no .cache.
   mkdirSync(join(PATHS.cacheDir, 'plugins'), { recursive: true });

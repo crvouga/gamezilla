@@ -1,108 +1,118 @@
 # Branding and identity
 
-The product's brand is configuration, not code. One file says what the
-product is called and where it lives; everything else reads it, so a rebrand
-is an edit to that file plus regenerating artifacts, and it replaces no
-infrastructure.
+Deployment identity belongs in an external configuration store, not Git.
+A rebrand changes external configuration and rebuilds/redeploys the same source commit. No source, native
+project, image, manifest or alert-rule edit is required.
 
-## The one source
+## Source of truth
 
-[`libs/product-identity/product-identity.json`](../libs/product-identity/product-identity.json)
-(schema beside it, language-neutral):
+`PRODUCT_IDENTITY_JSON` is public deployment configuration, not an application
+credential. Store it as a GitHub repository variable; an explicitly injected
+value (including an optional shared Infisical key) takes precedence. Its
+shape is [the language-neutral schema](../libs/product-identity/product-identity.schema.json).
+Validation runs before generation; absent, malformed or stale configured input
+stops a deployment instead of silently shipping the verification fixture.
 
-| Section | What | Changes on a rebrand? |
+| Section | Meaning | Rebrand treatment |
 | --- | --- | --- |
-| `brand` | Display name, short name, domain, colors, security contact | Yes: every surface and generated artifact follows |
-| `technical.namespace` | Immutable technical namespace | **Never.** Resource, telemetry, storage and runtime identifiers derive from it |
-| `external` | Identifiers registered elsewhere: deep-link scheme, Apple bundle id, source repository, vendor accounts, GitHub environments | Only through an explicit, authorized migration |
-| `aliases` | Every spelling the brand has had | Grows; the brand policy refuses each one |
+| `brand` | Display name, short name, public domain, colors, security contact and trusted SVG artwork | Edit these values in the external store |
+| `technical.namespace` | Stable resource, telemetry and persisted-client-key namespace | Preserve for an existing deployment |
+| `external` | Registered deep links, bundle ID, repository, vendor accounts and GitHub environments | Preserve unless performing a separate compatibility migration |
+| `aliases` | Previous brand spellings used by the brand-isolation gate | Add previous spellings to external configuration |
 
-The namespace is not the brand. It happens to equal the brand's first slug
-because the infrastructure was created under that name; it stays that value
-forever so no deployed resource, stored session, dashboard or alert is
-renamed when the brand changes.
+The build-local `libs/product-identity/product-identity.json` is generated and
+ignored. Other languages can read it; TypeScript uses
+`@libs/product-identity-shared-ts/product-identity`. It is never an editable,
+committed source of deployment values.
 
-## Reading it
+## Rebrand without a source change
 
-- **TypeScript:** `@libs/product-identity-shared-ts`
-  - `product-identity`: `PRODUCT`, `PRODUCT_NAME`, `NAMESPACE`
-  - `brand-hosts`: `brandHost(label)`, `brandOrigin(label)`, `webOrigin()`, `apiHost()`
-  - `technical-names`: `technicalName(parts)` (`<ns>-api-production`),
-    `technicalKey(key, sep)` (`<ns>.auth.bearer`), `serviceName(component)`
-  - `identity-placeholders`: resolve `{namespace}`, `{domain}`, `{brand}`
-  - `brand-html`: `%BRAND_NAME%` / `%BRAND_THEME_COLOR%` in `index.html`
-    (`brandHtmlPlugin()` for Vite)
-  - `synthetic-identity`: a synthetic brand for rebrand tests
-- **Configuration that cannot import code** (OpenTofu variable files,
-  `wrangler.toml`, HTML): `{namespace}`, `{domain}`, `{brand}` placeholders,
-  resolved by the tooling that reads the file (the OpenTofu wrapper writes
-  resolved variable files; tofu itself sees the same values as before).
-- **Other languages** read `product-identity.json` directly, or a generated
-  artifact (Swift reads `product-identity.generated.swift`).
-- **`pkgs/`** stay product-agnostic: they never import the identity and use
-  neutral examples (`example.com`, `acme`) in code and tests.
-- **Copy:** the brand in user-facing text is a placeholder
-  (``t`${productName} can’t be reached` ``), never a literal.
-- **Tests** compute expected values from the accessor or use the synthetic
-  identity; a brand string in a test is a violation like any other.
+1. Update the repository variable with
+   `gh variable set PRODUCT_IDENTITY_JSON < /path/to/local-identity.json`.
+   For an Infisical override, the existing
+   `bun run secrets:seed --env dev PRODUCT_IDENTITY_JSON` command accepts a
+   document over stdin and routes this optional shared key to `shared`;
+   `--force` explicitly replaces an existing override. Do not put the document
+   into Git, a command argument or a log.
+2. Run the normal release workflow against the same source commit. Its secrets
+   wrapper loads the selected identity from injected configuration or the
+   repository variable, validates/materializes it, then regenerates web/native
+   artwork, platform metadata, operational rules and organization-scoped agent configuration before the command imports
+   product modules.
+3. For a local configured build, run
+   `bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run identity:configure`,
+   then the desired build through that same secrets wrapper. Production secret
+   fetching follows the existing live-only policy; verification needs no login.
+4. Review the infrastructure plan. A brand-only change may change hostnames,
+   DNS records and custom domains; it must preserve stateful resources.
 
-## Generated artifacts
+Web changes take effect on rebuild/deploy. Installed native app names/icons
+require a new signed app release. Domain registration, DNS cutover, OAuth
+redirect registrations and vendor approvals remain external configuration or
+infrastructure operations; changing text does not provision them.
 
-Files a platform needs as static data (web manifest, `security.txt`, the
-Swift identity) are rendered from the identity by
-`@libs/product-identity-shared-ts` (`BRAND_ARTIFACTS`) and written by
-`bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts`.
-`tests/brand-artifacts.test.ts` fails while a committed artifact differs from
-what the generator writes, and checks that every artifact follows a synthetic
-rebrand. Other generators that embed identity-derived values (the Grafana
-alert rules) are listed in `libs/product-identity/generated-artifacts.json`
-with their own freshness test.
+## Generated outputs
 
-## Enforcement
+`bun install` / `bun run generate` prepare an offline development checkout.
+Without configured input, a cold checkout uses the explicitly neutral
+[verification fixture](../libs/product-identity/fixtures/verification-identity.json).
+It is test data, never the source of deployed branding. Run configured local
+builds through the secrets wrapper so the selected external input is supplied
+on every rebuild.
 
-`@libs/tools-harness-ts#verify:brand-policy` runs on every pull request. It
-reads every tracked or new file (content and path) and fails on any spelling
-of the brand's names, domain, namespace, external identifiers or aliases,
-case-insensitively, outside `libs/product-identity/` and the verified
-generated artifacts. There is no other exemption: a generated file is exempt
-only while its freshness test proves it came from the identity.
+The brand generator writes install icons, favicons, launch images, web
+manifest, security contact and native Swift/xcconfig. A separate uncached task
+prepares organization-scoped agent settings. The SLO generator writes the derived observability JSON.
+All identity-bearing outputs are ignored and untracked. Organization-scoped
+agent settings are generated in a separate uncached task because they preserve
+local user entries; those entries never enter a build cache. Image dimensions and
+variants live in `libs/tools-harness-ts/brand/web-image-artifacts/`; the SVG and
+colors come only from configuration. Sharp stays in tooling, outside client
+runtime dependencies. Product-independent design-system examples and visual
+references use neutral fixture artwork.
 
-## The rebrand test
+`secrets-run` prepares configuration through Turbo before starting its command.
+Configured builds also check source isolation against the selected real identity;
+fixture verification cannot hide a hardcoded deployment brand.
+`bun run identity:configure` is the same task graph for an already injected
+environment. Infrastructure applies and Worker uploads also reject a loaded
+identity that differs from `PRODUCT_IDENTITY_JSON`. GitHub Actions passes public configuration through declared setup inputs,
+exports it after secret injection and materializes it for deployment/Health; local configured commands can
+read it through the authenticated GitHub CLI. An invalid injected override
+fails instead of being silently replaced by a different source.
 
-`@libs/tools-harness-ts#verify:rebrand` runs a rebrand end to end on every
-pull request, in an isolated copy of the repository:
+## Verification
 
-1. Copy every file; link dependencies so workspace imports resolve inside the
-   copy.
-2. Give the copy a brand nobody spelled (derived from a hash of the current
-   one), with the same namespace and external identifiers.
-3. Regenerate everything: `bun run generate`, the brand artifacts, the SLO
-   artifacts.
-4. Require that the old brand's name and domain appear nowhere outside the
-   identity (external identifiers aside), that the brand policy passes for
-   the new brand, that the brand-sensitive suites pass (including the
-   OpenTofu inputs keeping every resource name, so a rebrand replaces no
-   infrastructure), and that the web client builds.
+Local full verification explicitly selects `PRODUCT_IDENTITY_MODE=fixture`
+and lets its private snapshot generate outputs, preserving the configured
+caller checkout;
+hosted verification uses the secrets wrapper's `--fixture` option, independent
+of deployment settings. Hosted read-only infrastructure plans use configured
+mode instead.
+Release and Health use configured mode by default.
 
-## Infrastructure names
+- `verify:brand-policy` refuses configured brand spellings outside the identity
+  schema/fixture package and proven generated artifacts.
+- Input properties prove external values survive parsing; regression examples
+  reject absent, malformed and stale configuration.
+- Artifact tests prove every generated file follows configuration and every
+  image has the expected pixels. A repository test refuses tracked or
+  non-ignored deployment identity and brand artifacts.
+- `verify:rebrand` supplies a synthetic identity through the external input,
+  regenerates from a cold copy, runs affected suites and builds the web app.
+  It then requires no tracked-file diff. A future brand may not require a PR.
 
-Resource names are deterministic: a pure function of the namespace (and the
-environment), never of the brand and never random.
-`@pkgs/resource-naming-shared-ts` holds each provider's rules (length,
-characters, case, global uniqueness) and the naming algorithm (deterministic
-truncation with a stable hash, a stable scope suffix for globally unique
-kinds). Hostnames are the only infrastructure values that follow the brand
-(they sit under `brand.domain`); a domain change adds new DNS records and
-custom domains and leaves every stateful resource in place.
+## Adopting an existing deployment
 
-## Rebranding
+Move the current identity into the external store without changing its technical
+namespace or registered identifiers. Preserve existing encrypted state,
+resources, client storage keys and registrations. The neutral verification
+fixture does not rename production resources.
 
-1. Edit `brand` in `product-identity.json`; add the old spellings to
-   `aliases`.
-2. Run the brand artifact generator and the SLO generator; commit.
-3. `verify:rebrand` and `verify:brand-policy` must pass; review the
-   infrastructure plan: only hostnames, DNS records and custom domains may
-   change.
-4. External identifiers (`external`) stay as they are. Changing one (a new
-   bundle id, deep-link scheme or repository) is a separate migration with
-   its own compatibility plan and explicit authorization.
+If a technical namespace or external identifier must change, plan and verify
+that migration separately. In particular, the state bucket resolves from
+`{namespace}-tofu-state`: credentials must read the existing encrypted state
+and backups before any plan or apply. A new inaccessible backend can fail S3
+`HeadObject` with 403. Never replace it with empty state or bypass the plan
+gate. Infrastructure bootstrap and state protections are documented in
+[README.md](../README.md#infrastructure).

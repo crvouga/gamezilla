@@ -26,23 +26,27 @@ import {
   readFileSync,
   statSync,
   symlinkSync,
-  writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { ScannedFile } from './brand-policy';
 import { oldBrandTraces } from './rebrand';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const COPY_ROOT = { path: '' };
-const IDENTITY = 'libs/product-identity/product-identity.json';
+const PROBE_CONFIG = { json: '' };
 
 /** Brand-sensitive suites, run inside the copy (package dir, command). */
 const SUITES: readonly (readonly [string, readonly string[]])[] = [
   ['libs/product-identity-shared-ts', ['bun', 'test', 'tests/']],
+  [
+    'libs/tools-harness-ts',
+    ['bun', 'test', 'scripts/brand-image-artifacts.test.ts'],
+  ],
   ['libs/infra-shared-ts', ['bun', 'test', 'tests']],
   ['libs/infra-server-ts', ['bun', 'test', 'tests']],
   ['libs/observability-shared-ts', ['bun', 'test', 'tests']],
@@ -77,6 +81,8 @@ function run(cwd: string, command: readonly string[], label: string): void {
       TURBO_CACHE: 'local:rw',
       TURBO_TOKEN: '',
       TURBO_TEAM: '',
+      PRODUCT_IDENTITY_JSON: PROBE_CONFIG.json,
+      PRODUCT_IDENTITY_MODE: 'configured',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
     encoding: 'utf8',
@@ -155,7 +161,7 @@ function probeIdentity(identity: ProductIdentity): ProductIdentity {
   return {
     ...identity,
     brand: {
-      ...identity.brand,
+      ...syntheticIdentity(identity).brand,
       name: `Probe ${tag}`,
       shortName: `P${tag}`,
       domain: `probe-${tag}.example`,
@@ -170,14 +176,7 @@ COPY_ROOT.path = copy;
 try {
   copyRepository(files, copy);
   const synthetic = probeIdentity(PRODUCT);
-  writeFileSync(
-    join(copy, IDENTITY),
-    `${JSON.stringify(
-      { $schema: './product-identity.schema.json', ...synthetic },
-      null,
-      2
-    )}\n`
-  );
+  PROBE_CONFIG.json = JSON.stringify(synthetic);
   console.log(
     `rebrand: ${PRODUCT.brand.domain} → ${synthetic.brand.domain} in ${copy}`
   );
@@ -188,17 +187,28 @@ try {
   run(copy, ['bun', 'run', 'generate'], 'regenerate install-time outputs');
   run(
     copy,
-    [
-      'bun',
-      'run',
-      'libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts',
-    ],
+    ['bun', 'run', 'libs/tools-harness-ts/scripts/generate-brand-artifacts.ts'],
     'regenerate brand artifacts'
   );
   run(
     copy,
     ['bun', 'run', 'libs/observability-shared-ts/scripts/slo-generate.ts'],
     'regenerate SLO artifacts'
+  );
+
+  run(
+    copy,
+    [
+      'bun',
+      'run',
+      'libs/secrets-server-ts/scripts/configured-command.ts',
+      'bun',
+      '--cwd',
+      'libs/secrets-server-ts',
+      '-e',
+      'import { PRODUCT, parseProductIdentity } from "@libs/product-identity-shared-ts/product-identity"; const expected=parseProductIdentity(JSON.parse(process.env.PRODUCT_IDENTITY_JSON)); if(JSON.stringify(PRODUCT)!==JSON.stringify(expected)) throw new Error("configured identity did not reach child");',
+    ],
+    'configured command supplies identity before product imports'
   );
 
   const traces = oldBrandTraces(scan(copy, files), PRODUCT);
@@ -225,8 +235,13 @@ try {
     ['bun', 'x', 'vite', 'build', '--logLevel', 'error'],
     'web client build'
   );
+  run(
+    copy,
+    ['git', 'diff', '--exit-code'],
+    'configuration-only rebrand leaves tracked files unchanged'
+  );
   console.log(
-    'rebrand: the synthetic rebrand regenerates, verifies and builds'
+    'rebrand: external configuration regenerates, verifies and builds without source changes'
   );
 } finally {
   removeTree(copy);

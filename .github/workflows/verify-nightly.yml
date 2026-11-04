@@ -54,6 +54,10 @@ on:
         type: choice
         options: [all, gate, random, browser, visual, coverage, performance, storybook]
         default: all
+      storybook-pattern:
+        description: Optional story-id regex for explicit Storybook diagnostics; empty runs every state
+        type: string
+        default: ''
       update-storybook-baselines:
         description: Explicitly author Ubuntu Storybook references (group must be storybook); compare them again and retain a patch for review
         type: boolean
@@ -74,6 +78,7 @@ concurrency:
 defaults:
   run:
     shell: bash
+
 
 jobs:
   verify-nightly-gate:
@@ -109,6 +114,7 @@ jobs:
       - &setup
         uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -120,7 +126,7 @@ jobs:
         env:
           TURBO_CONCURRENCY: '1'
           PBT_CONCURRENCY: '1'
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:random
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:random
       - name: Retain seeds and the run summary
         if: always() && !cancelled()
         run: >-
@@ -143,7 +149,7 @@ jobs:
         timeout-minutes: 2
       - name: verify-nightly:browser
         timeout-minutes: 320
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
       # Step timelines, screenshots, recordings and traces of every scenario.
       - name: Retain browser reports and traces
         if: always() && !cancelled()
@@ -159,6 +165,8 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      STORYBOOK_PATTERN: ${{ inputs.storybook-pattern }}
     permissions:
       contents: read # check out the code; the job never pushes references
       id-token: write # mint the OIDC token Infisical trusts
@@ -172,16 +180,16 @@ jobs:
         run: bun run storybook:build
       - name: Author references explicitly
         if: ${{ inputs.update-storybook-baselines }}
-        run: bun run storybook:test --update-snapshots
+        run: bun run storybook:test --grep "$STORYBOOK_PATTERN" --update-snapshots
+      - name: Collect reference changes for review
+        if: always() && !cancelled()
+        run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
       - name: Compare every authored Storybook state
         if: ${{ inputs.update-storybook-baselines }}
-        run: bun run storybook:test
+        run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
       - name: Compare PR Storybook states
         if: ${{ !inputs.update-storybook-baselines }}
         run: bunx turbo run ci:storybook --filter=@pkgs/ui-root-harness-ts --concurrency=1
-      - name: Collect reference changes for review
-        if: always() && !cancelled()
-        run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts
       - name: Retain Storybook comparisons and reference patch
         if: always() && !cancelled()
         run: >-
@@ -206,10 +214,10 @@ jobs:
       # The pinned model is larger than the remote cache's artifact limit.
       - name: Prepare the visual model
         timeout-minutes: 20
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @apps/product-ts#prepare:ui-quality-model
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @apps/product-ts#prepare:ui-quality-model
       - name: verify-nightly:visual
         timeout-minutes: 150
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:visual
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:visual
       # Scores, failing screenshots and context clips.
       - name: Retain the visual report
         if: always() && !cancelled()
@@ -230,7 +238,7 @@ jobs:
       - *setup
       - name: verify-nightly:coverage
         timeout-minutes: 110
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
       - name: Retain the coverage report
         if: always() && !cancelled()
         run: >-
@@ -257,7 +265,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p .cache/verify-nightly
-          bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
+          bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
       - name: Retain the benchmark results
         if: always() && !cancelled()
         run: >-
@@ -293,6 +301,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun gh
       - name: verify-nightly:end
         run: bun run libs/tools-harness-ts/scripts/verify-nightly-verdict.ts

@@ -1,0 +1,4 @@
+{
+  "summary": "Hosted verification rejected vars.PRODUCT_IDENTITY_JSON inside a composite action because vars is unavailable in that context. Workflows now pass public configuration through declared setup inputs; deployment and Health setup explicitly materialize configured identity before commands load product modules.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-identity.test.ts"
+}

@@ -208,7 +208,7 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 293 | 19295 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 294 | 19299 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/clock-shared-ts | 258 | 19173 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/assert-root-shared-ts | 253 | 19140 s | @libs/games-harness-ts#test:spec:49 213 s |
 

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./render": "./src/render.tsx",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",

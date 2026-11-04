@@ -105,6 +105,7 @@ defaults:
   run:
     shell: bash
 
+
 jobs:
   verify-start:
     name: verify:start
@@ -133,6 +134,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun node gh opentofu
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -156,7 +158,7 @@ jobs:
           restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
       - name: Plan all owners once
         id: plan
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
       - name: Export immutable plan
         run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
       # Transfer artifacts carry state between this run's jobs and are not
@@ -182,7 +184,7 @@ jobs:
       # other failure.
       - name: Build shared prerequisites and warm their cache
         continue-on-error: true
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
       - name: Transfer prerequisite outputs
         if: always() && !cancelled()
         run: >-
@@ -227,6 +229,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -235,16 +238,19 @@ jobs:
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
       - name: Restore immutable plan and required prerequisites
         run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
-      - name: Select browser tasks
+      - name: Select task toolchains
         id: browser
         run: bun run libs/tools-harness-ts/scripts/verify-browser-tasks.ts
+      - name: Install pinned solver for model checks
+        if: steps.browser.outputs.solver == 'true'
+        run: mise install java http:apalache
       - name: Install renderer for browser tasks
         if: steps.browser.outputs.needed == 'true'
         timeout-minutes: 2
         uses: ./.github/actions/visual-renderer
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
       # Reports are the nightly profile's; the `release` profile keeps none. One
       # artifact per shard every night, kept for the bucket's week.
       - name: Upload queryable trace artifacts
@@ -298,6 +304,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -307,7 +314,7 @@ jobs:
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       # What Release would apply, planned against the real state for this merge
       # result, on a pull request that changes the infrastructure. Some
       # configuration errors only a plan finds (a `removed` block whose
@@ -388,7 +395,7 @@ jobs:
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         continue-on-error: true
         timeout-minutes: 40
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-reports.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
