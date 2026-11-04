@@ -123,3 +123,35 @@ test('a card whose every answer is unavailable is plainly inactive', () => {
   expect(title.className).not.toContain('textBodyBold');
   expect(title.className).toContain('text-text-secondary');
 });
+
+test('a card that waits on you without answers says its next step', () => {
+  const opened = mock(() => undefined);
+  renderWithI18n(() => (
+    <ClockProvider clock={STILL.clock} timers={STILL.timers}>
+      <ThemeProvider colorScheme="light">
+        <ModerationProvider rules={shippedModerationRules()}>
+          <NotificationCardDefault
+            interaction={invite([])}
+            actions={{
+              performAction: () => Promise.resolve(),
+              markRead: () => Promise.resolve(),
+              archive: () => Promise.resolve(),
+            }}
+            onOpen={opened}
+            testID={CARD}
+          />
+        </ModerationProvider>
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+  expect(opened).toHaveBeenCalledTimes(1);
+  // The words still open it by the card's own id.
+  expect(screen.getByTestId(CARD).textContent).toContain('@sam invited you');
+});
+
+test('an informational card offers no open step, only Archive', () => {
+  mountCard({ ...invite([]), category: 'informational' });
+  expect(screen.queryByRole('button', { name: 'Open' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Archive' })).toBeTruthy();
+});
