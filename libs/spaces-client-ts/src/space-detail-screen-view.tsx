@@ -39,6 +39,8 @@ export type SpaceDetailScreenViewProps = SpaceChromeTrailingCallbacks & {
   readonly presence?:
     | ((size: number, compact: boolean) => JSX.Element)
     | undefined;
+  /** How many people are here: the phone's members badge, and its name. */
+  readonly presenceCount?: number | undefined;
   /** Inline notice for a refused change, under the bar. */
   readonly notice?: JSX.Element;
   /** Sheets and modals the screen owns (members, share, rename). */
@@ -76,6 +78,7 @@ function SpaceTrailing(
   return (
     <>
       <SpaceChromeTrailingActionBar
+        shownCount={props.compact ? props.presenceCount : undefined}
         canRename={props.canRename}
         canEnd={props.canEnd}
         presence={(size) =>

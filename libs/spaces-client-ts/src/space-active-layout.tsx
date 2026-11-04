@@ -8,7 +8,10 @@ import type { SpaceDetailStatus } from './space-detail-screen-view';
 import { SpaceDetailScreenView } from './space-detail-screen-view';
 import { useSpaceMembersDialog } from './space-members-dialog-context';
 import { SpaceMembersListModal } from './space-members-list-modal';
-import { SpacePresenceStrip } from './space-presence-strip';
+import {
+  SpacePresenceStrip,
+  useSpacePresenceCount,
+} from './space-presence-strip';
 import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
@@ -51,6 +54,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const membersDialog = useSpaceMembersDialog();
   const onPressMembers = useOpenMembers();
   const [shareOpen, setShareOpen] = createSignal(false);
+  const presenceCount = useSpacePresenceCount();
   const canRename = useSpaceCan(
     () => sessionUi.spaceId,
     PERMISSION.spacesRename
@@ -64,6 +68,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
       hostOffline={props.hostOffline}
       canRename={canRename()}
       canEnd={canEnd()}
+      presenceCount={presenceCount()}
       presence={(size, compact) => (
         <SpacePresenceStrip
           spaceId={sessionUi.spaceId}

@@ -35,6 +35,13 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
           'max-w-ui-space': ownChrome(),
           'max-w-ui-wide': !ownChrome(),
         }}
+        // The screen's own top bar (52px) and the column gap under it: what a
+        // board fitting the window height leaves for that chrome.
+        style={{
+          '--ui-host-chrome-block-size': ownChrome()
+            ? 'calc(var(--ui-control-size-lg) + var(--ui-space-sm))'
+            : undefined,
+        }}
         data-region="column"
       >
         <Show when={header()}>

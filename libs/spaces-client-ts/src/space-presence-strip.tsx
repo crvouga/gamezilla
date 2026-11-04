@@ -20,20 +20,29 @@ export type SpacePresenceStripProps = {
   onPress?: () => void;
 };
 
-/** {@link SpacePresenceStripView} for the space room this device holds. */
-export function SpacePresenceStrip(
-  props: SpacePresenceStripProps
-): JSX.Element {
+/** One per participant: a member connected from two tabs is one person. */
+function useSpaceParticipants() {
   const roster = useConnectedSpaceRoster();
-  const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
-
-  // One face per participant: a member connected from two tabs is one person.
-  const clients = createMemo(() =>
+  return createMemo(() =>
     groupRosterByParticipant(roster(), selfClientId()).flatMap((participant) =>
       participant.clients.slice(0, 1)
     )
   );
+}
+
+/** How many people the strip shows: the phone badge's number. */
+export function useSpacePresenceCount(): () => number {
+  const clients = useSpaceParticipants();
+  return () => clients().length;
+}
+
+/** {@link SpacePresenceStripView} for the space room this device holds. */
+export function SpacePresenceStrip(
+  props: SpacePresenceStripProps
+): JSX.Element {
+  const colors = useSpaceParticipantColors(props.spaceId);
+  const clients = useSpaceParticipants();
   const people = useSpacePeople(() => clients().map((client) => client.id));
   const faces = createMemo((): readonly SpacePresenceFace[] =>
     clients().map((actor) => ({

@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
 import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
@@ -198,6 +198,11 @@ export function SpaceChromeLeadingActionBar(
 }
 
 export type SpaceChromeTrailingActionBarProps = {
+  /**
+   * How many people the members button shows as a number (the phone's
+   * badge); its name then says that number too, as a sighted person reads it.
+   */
+  readonly shownCount?: number | undefined;
   readonly canRename: boolean;
   /** The host ends the space; everyone else only leaves. */
   readonly canEnd: boolean;
@@ -220,7 +225,16 @@ export function SpaceChromeTrailingActionBar(
       canEndSpace: props.canEnd,
       presence: props.presence(avatarSize()),
       labels: {
-        members: <Trans>People in this space</Trans>,
+        members:
+          props.shownCount === undefined || props.shownCount === 0 ? (
+            <Trans>People in this space</Trans>
+          ) : (
+            <Plural
+              value={props.shownCount}
+              one="# person in this space"
+              other="# people in this space"
+            />
+          ),
         invite: <Trans>Share</Trans>,
         rename: <Trans>Rename</Trans>,
         end: <Trans>End space</Trans>,
