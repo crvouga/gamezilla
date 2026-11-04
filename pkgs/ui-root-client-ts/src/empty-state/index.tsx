@@ -4,7 +4,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
-import type { StateBlockVariant } from '../state-block/index';
+import type { StateBlockAlign, StateBlockVariant } from '../state-block/index';
 import {
   StateBlock,
   StateBlockActions,
@@ -32,6 +32,11 @@ export type EmptyStateProps = {
   secondaryAction?: EmptyStateAction | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
+  /**
+   * `start` lines the block up on its column's leading edge, under a page
+   * title on the same edge. Defaults to `center`.
+   */
+  align?: StateBlockAlign | undefined;
   /** Live-region role when the empty block replaces a loading status. */
   role?: 'status' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -85,9 +90,11 @@ export function emptyStateActionDataSet(
 export function EmptyState(props: EmptyStateProps): JSX.Element {
   const variant = (): StateBlockVariant => props.variant ?? 'fill';
   const isFill = (): boolean => variant() === 'fill';
+  const centered = (): boolean => (props.align ?? 'center') === 'center';
   return (
     <StateBlock
       variant={variant()}
+      align={props.align}
       role={props.role}
       dataSet={{ component: 'EmptyState', ...props.dataSet }}
     >
@@ -95,20 +102,28 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
         {(icon) => <StateBlockIcon icon={icon()} variant={variant()} />}
       </Show>
       <p
-        class="text text-center w-full"
-        classList={{ textSubtitle: isFill(), textLabel: !isFill() }}
+        class="text w-full"
+        classList={{
+          textSubtitle: isFill(),
+          textLabel: !isFill(),
+          'text-center': centered(),
+        }}
       >
         {props.title}
       </p>
       <p
-        class="text text-text-secondary text-center w-full"
-        classList={{ textBody: isFill(), textCaption: !isFill() }}
+        class="text text-text-secondary w-full"
+        classList={{
+          textBody: isFill(),
+          textCaption: !isFill(),
+          'text-center': centered(),
+        }}
       >
         {props.body}
       </p>
       <Show when={props.action}>
         {(action) => (
-          <StateBlockActions>
+          <StateBlockActions align={props.align}>
             <Button
               title={action().label}
               intent="primary"
