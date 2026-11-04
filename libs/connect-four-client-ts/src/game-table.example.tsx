@@ -1,4 +1,8 @@
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
+import {
+  StoryTableAvatar,
+  storyTableName,
+} from '@libs/game-menu-client-ts/game-table-people.example';
 import type {
   GameSeatLook as FrameSeatLook,
   GameFrameSeat,
@@ -11,7 +15,10 @@ import type {
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
-import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
+import {
+  GAME_PLAYER_AVATAR_SIZE,
+  GamePlayerBar,
+} from '@pkgs/ui-root-client-ts/game-player-bar';
 import {
   GameResultHeadline,
   GameStandings,
@@ -102,14 +109,17 @@ function GameTable(props: GameTableProps): JSX.Element {
     });
     return frame().createBoard(board);
   });
+  // A seat names its person, as the frame does: the side is the swatch's
+  // name, the person's own picture leads the strip.
   const seat = (side: GameSide) => {
-    const name = props.presentation.sideLabel(side);
     const position = props.board.position;
     const seats = frame().seats;
     return (
       <GamePlayerBar
-        name={side === viewer() ? `${name} (you)` : name}
+        name={storyTableName(side)}
+        avatar={<StoryTableAvatar side={side} size={GAME_PLAYER_AVATAR_SIZE} />}
         swatch={swatch(seats.look(side))}
+        swatchLabel={props.presentation.sideLabel(side)}
         stat={seats.stat(position, side)}
         state={seats.out(position, side) ? { kind: 'out', label: 'Out' } : null}
         active={props.ending === undefined && side === props.turn}
@@ -203,7 +213,7 @@ function GameResult(
     if (winners().length === props.sides.length) return 'Draw';
     const own = viewer();
     if (own !== null && winners().includes(own)) return 'You win';
-    return `${winners().map(props.presentation.sideLabel).join(' and ')} ${winners().length === 1 ? 'wins' : 'win'}`;
+    return `${winners().map(storyTableName).join(' and ')} ${winners().length === 1 ? 'wins' : 'win'}`;
   };
   return (
     <StackVertical gap="md">
@@ -217,7 +227,7 @@ function GameResult(
         rows={summary().standings.map((standing) => ({
           id: standing.side,
           place: standing.place,
-          name: props.presentation.sideLabel(standing.side),
+          name: storyTableName(standing.side),
           score: standing.score,
           you: standing.side === viewer(),
         }))}

@@ -1,3 +1,13 @@
+import {
+  type SpacePerson,
+  SpacePersonAvatar,
+} from '@libs/spaces-client-ts/space-person-view';
+import {
+  AVERY as AVERY_PERSON,
+  JORDAN as JORDAN_PERSON,
+  MORGAN as MORGAN_PERSON,
+  ROBIN as ROBIN_PERSON,
+} from '@libs/spaces-client-ts/spaces-story.example';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
@@ -9,6 +19,7 @@ import {
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import type {
   FrameHolder,
+  FramePeople,
   FramePlaySeat,
   FrameRecord,
   FrameSeat,
@@ -29,6 +40,24 @@ export const PEOPLE = {
   morgan: '0b6a1c52-0000-4000-8000-000000000003',
   robin: '0b6a1c52-0000-4000-8000-000000000004',
 } as const;
+
+/** Each frame person as the space stories show them, with a seeded avatar. */
+const SPACE_PEOPLE: ReadonlyMap<string, SpacePerson> = new Map([
+  [PEOPLE.avery, AVERY_PERSON],
+  [PEOPLE.jordan, JORDAN_PERSON],
+  [PEOPLE.morgan, MORGAN_PERSON],
+  [PEOPLE.robin, ROBIN_PERSON],
+]);
+
+/**
+ * How the stories show a person, as the app does with the live profile:
+ * their own avatar (the plain name stays the shown name).
+ */
+export const STORY_PEOPLE: FramePeople = {
+  avatar: (person, size) => (
+    <SpacePersonAvatar person={SPACE_PEOPLE.get(person) ?? null} size={size} />
+  ),
+};
 
 const LOOKS = {
   white: { sideLabel: 'Red circle', swatch: { color: 'player7', mark: '●' } },
@@ -209,6 +238,7 @@ export function frameArgs(): GameFrameScreenViewProps {
     result: null,
     next: FRAME_NO_NEXT,
     record: null,
+    people: STORY_PEOPLE,
     onChoose: resolved(),
     onReady: resolved(),
     onPlayBot: resolved(),
