@@ -5,23 +5,28 @@ import {
   GameMenuScreenView,
 } from './game-menu-screen-view';
 
-const CHOICES: readonly GameMenuChoiceView[] = [
-  {
-    screen: 'custom-game',
-    title: 'Play with friends or bots',
-    caption: 'Choose who plays each of the 2 places',
-  },
-  {
-    screen: 'multiplayer',
-    title: 'Find an opponent',
-    caption: 'Meet another Connect Four player',
-  },
-  {
-    screen: 'history',
-    title: 'History and stats',
-    caption: 'Review your games, wins and draws',
-  },
-];
+/** The shared choices of a two-player game named `name`. */
+function sharedChoices(name: string): readonly GameMenuChoiceView[] {
+  return [
+    {
+      screen: 'custom-game',
+      title: 'Play with friends or bots',
+      caption: 'With the people in this space, or bots',
+    },
+    {
+      screen: 'multiplayer',
+      title: 'Find an opponent',
+      caption: `Meet another ${name} player`,
+    },
+    {
+      screen: 'history',
+      title: 'History and stats',
+      caption: 'Review your games, wins and draws',
+    },
+  ];
+}
+
+const CHOICES = sharedChoices('Connect Four');
 
 const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
   {
@@ -34,7 +39,7 @@ const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
     title: 'Puzzle stats',
     caption: 'Puzzle rating trend and game log',
   },
-  ...CHOICES,
+  ...sharedChoices('Chess'),
   { screen: 'settings', title: 'Settings', caption: 'Board and pieces' },
 ];
 
@@ -84,7 +89,7 @@ export const ManyPlayers: Story = {
       {
         screen: 'custom-game',
         title: 'Play with friends or bots',
-        caption: 'Choose who plays each of the 4 places',
+        caption: 'With the people in this space, or bots',
       },
       {
         screen: 'multiplayer',
@@ -121,7 +126,7 @@ export const LongContent: Story = {
         screen: 'custom-game',
         title: 'Play with friends, family and bots of every level',
         caption:
-          'Choose who plays each of the 2 places, then agree the clock and the rules before anyone moves',
+          'With the people in this space, or bots, then agree the clock and the rules before anyone moves',
       },
       ...CHOICES.slice(1),
     ],

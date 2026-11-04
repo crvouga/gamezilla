@@ -20,7 +20,7 @@ const meta = {
       {
         key: 'custom-game',
         title: 'Play with friends or bots',
-        caption: 'Choose who plays each of the 2 places',
+        caption: 'With the people in this space, or bots',
         icon: UsersIcon,
         emphasis: 'primary',
         dataSet: { testid: 'choice-custom-game' },
