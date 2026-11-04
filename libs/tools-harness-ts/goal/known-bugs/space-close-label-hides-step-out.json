@@ -1,0 +1,4 @@
+{
+  "summary": "The space's exit said Close (✕), which read like leaving the space. It steps out to the lobby while the space goes on in the miniplayer, so it now says Minimize, beside Back named for where it goes.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+}
