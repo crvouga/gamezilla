@@ -247,6 +247,7 @@ function RecordPanel(props: RecordProps): JSX.Element {
   return (
     <GameSection
       title={<Trans>Game record</Trans>}
+      fill
       dataSet={{ component: 'CustomGameReview' }}
     >
       <RecordSelect {...props} />

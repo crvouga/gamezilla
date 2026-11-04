@@ -8,6 +8,8 @@ export type GameSetupPanelProps = {
   children?: JSX.Element | undefined;
   actions?: JSX.Element | undefined;
   details?: JSX.Element | undefined;
+  /** Stretch to the foot of its column beside a wide board (`GameSection`). */
+  fill?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -19,6 +21,7 @@ export function GameSetupPanel(props: GameSetupPanelProps): JSX.Element {
       description={props.description}
       dataSet={{ component: 'GameSetupPanel', ...props.dataSet }}
       footer={props.details}
+      fill={props.fill}
     >
       {props.children}
       <GameActions>{props.actions}</GameActions>

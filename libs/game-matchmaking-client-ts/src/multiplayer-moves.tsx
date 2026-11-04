@@ -179,6 +179,7 @@ export function MultiplayerMoves(props: {
     <Show when={hasTurns() || isFinished(props.game.outcome)}>
       <GameSection
         title={hasTurns() ? <Trans>Moves</Trans> : <Trans>Game record</Trans>}
+        fill
         footer={
           isFinished(props.game.outcome) ? (
             <MultiplayerGameRecord game={props.game} />

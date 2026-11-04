@@ -12,6 +12,13 @@ export function GameSection(props: {
   description?: JSX.Element;
   children: JSX.Element;
   footer?: JSX.Element;
+  /**
+   * Beside a wide board (`GameLayout`), the section stretches to the foot
+   * of its column, so the board and the rail end on one line; a move table
+   * in it takes the extra room and scrolls inside. Phones keep its own
+   * height.
+   */
+  fill?: boolean | undefined;
   dataSet?: ComponentDataSet;
 }): JSX.Element {
   const id = createUniqueId();
@@ -21,6 +28,7 @@ export function GameSection(props: {
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
+      data-fill={props.fill === true}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1">
