@@ -10,6 +10,7 @@ import {
   GameSessionLayout,
 } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameActionsView } from './game-frame-actions-view';
 import {
@@ -18,6 +19,7 @@ import {
   FrameStarterView,
   FrameStartView,
 } from './game-frame-configuration-view';
+import { FrameMoveStripView } from './game-frame-move-strip-view';
 import {
   FrameRecordView,
   type FrameReviewHandlers,
@@ -138,11 +140,6 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 />
               )}
             </Show>
-            <FrameStartView
-              start={setup().start}
-              onChoose={props.onChoose}
-              onReady={props.onReady}
-            />
           </>
         )}
       </Show>
@@ -151,20 +148,32 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board: the line about a game being set up (once it is played
- * the line sits between the board and the person's own seat), what a
- * player is told during play, and the result once the game is over.
+ * Under the board: the line about a game being set up and starting it
+ * (once it is played the line sits between the board and the person's own
+ * seat), what a player is told during play, and the result once the game
+ * is over. Play actions follow it, so on every screen they sit right under
+ * the board.
  */
 function FrameStatusRow(props: Props): JSX.Element {
   return (
     <>
       <Show when={props.phase === 'configuring'}>
-        {/* The Start section says whether the game can start. */}
+        {/* The start line says whether the game can start. */}
         <FrameStatusView
           status={props.status}
           spokenOnly={props.setup !== null}
         />
+        <Show when={props.setup}>
+          {(setup) => (
+            <FrameStartView
+              start={setup().start}
+              onChoose={props.onChoose}
+              onReady={props.onReady}
+            />
+          )}
+        </Show>
       </Show>
+      <FrameMoveStripSlot {...props} />
       <Show when={props.phase === 'active'}>
         <FramePlayNoticesView play={props.play} people={props.people} />
       </Show>
@@ -174,6 +183,27 @@ function FrameStatusRow(props: Props): JSX.Element {
         )}
       </Show>
     </>
+  );
+}
+
+/**
+ * On a narrow screen the record falls below the play actions, so the
+ * latest moves ride right under the board as well, once there are any.
+ */
+function FrameMoveStripSlot(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  const record = (): FrameRecord | null =>
+    mode() !== 'wide' &&
+    (props.phase === 'active' || props.phase === 'completed') &&
+    props.record !== null &&
+    props.record.turns &&
+    props.record.moves.length > 0
+      ? props.record
+      : null;
+  return (
+    <Show when={record()}>
+      {(shown) => <FrameMoveStripView record={shown()} onSeek={props.onSeek} />}
+    </Show>
   );
 }
 
