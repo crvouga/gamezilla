@@ -1,3 +1,4 @@
+import { createDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { UserPlusIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
@@ -14,7 +15,7 @@ const STORY_AVATAR_SEED = '5a1e0000-0000-4000-8000-000000000001';
 export const STORY_IDENTITY: ProfileIdentity = {
   profileId: STORY_PROFILE_ID,
   username: 'avery',
-  avatarConfig: { style: 'funEmoji', seed: STORY_AVATAR_SEED, options: {} },
+  avatarConfig: createDefaultAvatarConfig(STORY_AVATAR_SEED),
   isBot: false,
 };
 

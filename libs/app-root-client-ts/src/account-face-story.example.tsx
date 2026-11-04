@@ -12,13 +12,17 @@ import type { GlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-ide
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import type { JSX } from 'solid-js';
 
-/** Avery's friendly default face, at `size`. */
+/**
+ * Avery's default face, at `size`: the same seed and the expression the
+ * default avatar config draws for it, so the shell shows the face every
+ * other story shows for Avery.
+ */
 export function storyAccountFace(size: number): JSX.Element {
   const svg = createAvatar(funEmoji, {
-    seed: 'avery',
+    seed: '5a1e0000-0000-4000-8000-000000000001',
     size,
-    mouth: ['wideSmile'],
-    eyes: ['cute'],
+    mouth: ['cute'],
+    eyes: ['plain'],
     randomizeIds: true,
   }).toString();
   return <Avatar size={size} background="surface" svg={svg} />;

@@ -21,6 +21,7 @@ import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
+import { STORY_ACCOUNT_FACE_SVG } from './account-face';
 import { backgrounds, chromaticModes, viewports } from './preview-options';
 import { trackStoryReadiness } from './story-readiness';
 
@@ -96,7 +97,12 @@ function StoryAppViewport(props: {
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
       <AppFrameChromeProvider
         globalTrailing={
-          <Avatar size={STORY_ACCOUNT_FACE} you initials="A" alt="avery" />
+          <Avatar
+            size={STORY_ACCOUNT_FACE}
+            svg={STORY_ACCOUNT_FACE_SVG}
+            background="surface"
+            alt="avery"
+          />
         }
       >
         <Show when={props.inSpace}>
