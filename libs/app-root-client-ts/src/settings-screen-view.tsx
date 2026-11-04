@@ -44,7 +44,8 @@ type SettingsRow = {
 
 type SettingsGroup = {
   readonly key: string;
-  readonly title: string;
+  /** The group's label; omitted where its one row already says it. */
+  readonly title?: string | undefined;
   /** A note under the group's rows. */
   readonly footer?: string | undefined;
   readonly rows: readonly SettingsRow[];
@@ -86,7 +87,6 @@ function useAccountGroup(
   const { t } = useLingui();
   return () => ({
     key: 'account',
-    title: t`Account`,
     rows: [
       {
         title: t`Account`,
