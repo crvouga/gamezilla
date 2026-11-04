@@ -47,10 +47,10 @@ export type AccountScreenViewProps = {
 };
 
 /**
- * `/more/account`, presentational: sign-in methods, security (devices, Sign
- * out for this device and Sign out of all devices, each with its scope
- * spelled out, as calm rows whose confirmations carry the destructive tone)
- * and the privacy entry. A guest sees devices (which asks them to sign in)
+ * `/more/account`, presentational: sign-in methods, security (devices and
+ * Sign out for this device), the privacy entry, and Sign out of all devices
+ * apart at the foot in the destructive ink; each sign-out spells out its
+ * scope and asks first. A guest sees devices (which asks them to sign in)
  * and Sign in only. `AccountScreen` wires it to the session and auth port.
  */
 export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
@@ -85,7 +85,6 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         />
         <Show when={props.signedIn}>
           <SignOutRow onOpen={props.onSignOut} />
-          <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
         </Show>
       </MenuSection>
       <Show when={props.signedIn}>
@@ -97,6 +96,10 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
             onClick={() => props.onOpenPrivacy()}
             dataSet={{ testid: 'account-privacy' }}
           />
+        </MenuSection>
+        {/* The one destructive choice, in its own panel at the foot. */}
+        <MenuSection>
+          <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
         </MenuSection>
       </Show>
       <Show when={!props.signedIn}>

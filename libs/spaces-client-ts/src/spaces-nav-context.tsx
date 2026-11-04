@@ -30,15 +30,19 @@ export type SpacesNavBackHandler = () => void;
 type Entry = {
   readonly id: string;
   readonly handler: SpacesNavBackHandler;
+  readonly label: string | undefined;
 };
 
 type SpacesNavContextValue = {
   /** Active back handler, or `null` when no screen has registered one. */
   readonly current: SpacesNavBackHandler | null;
+  /** The active back control's destination name, when it gave one. */
+  readonly label: string | undefined;
   /** Pass a non-null handler to register/replace, `null` to clear. */
   readonly setHandler: (
     id: string,
-    handler: SpacesNavBackHandler | null
+    handler: SpacesNavBackHandler | null,
+    label?: string | undefined
   ) => void;
 };
 
@@ -51,22 +55,30 @@ export type SpacesNavProviderProps = {
 export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   const [entries, setEntries] = createSignal<readonly Entry[]>([]);
 
-  const setHandler: SpacesNavContextValue['setHandler'] = (id, handler) => {
+  const setHandler: SpacesNavContextValue['setHandler'] = (
+    id,
+    handler,
+    label
+  ) => {
     setEntries((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
       if (handler === null) return filtered;
-      return [...filtered, { id, handler }];
+      return [...filtered, { id, handler, label }];
     });
   };
 
-  const current = createMemo<SpacesNavBackHandler | null>(() => {
-    const list = entries();
-    return list.length > 0 ? (list[list.length - 1]?.handler ?? null) : null;
-  });
+  const top = createMemo<Entry | null>(() => entries().at(-1) ?? null);
+  // Keyed on the handler alone, so a label change never rebuilds the bar.
+  const current = createMemo<SpacesNavBackHandler | null>(
+    () => top()?.handler ?? null
+  );
 
   const value: SpacesNavContextValue = {
     get current() {
       return current();
+    },
+    get label() {
+      return top()?.label;
     },
     setHandler,
   };
@@ -94,9 +106,20 @@ export function useSpacesNavBack(): Accessor<SpacesNavBackHandler | null> {
   return () => nav.current;
 }
 
+/** The chrome back control's destination name, when the screen gave one. */
+export function useSpacesNavBackLabel(): Accessor<string | undefined> {
+  const nav = useSpacesNavContext();
+  return () => nav.label;
+}
+
 export type DefineBackButtonProps = {
   /** Invoked when the user taps the chrome-rendered back button. */
   onPress: () => void;
+  /**
+   * Where back goes, named for the chrome ("Games"), so leaving the room
+   * and moving within it never read alike. "Back" when omitted.
+   */
+  label?: string | undefined;
 };
 
 /**
@@ -124,7 +147,7 @@ export function DefineBackButton(props: DefineBackButtonProps): null {
   const id = createUniqueId();
 
   createEffect(() => {
-    setHandler(id, () => confirmNavigation(() => props.onPress()));
+    setHandler(id, () => confirmNavigation(() => props.onPress()), props.label);
     onCleanup(() => {
       setHandler(id, null);
     });

@@ -20,6 +20,8 @@ export type ProfileScreenProps = {
   readonly friendsStats?: JSX.Element | undefined;
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
+  /** Friends playing now, above the friends panel. */
+  readonly friendsPlaying?: JSX.Element | undefined;
 };
 
 /**
@@ -60,6 +62,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
       notice={<AvatarRefusedChangeNotice />}
       friendsStats={props.friendsStats}
       friendsActions={props.friendsActions}
+      friendsPlaying={props.friendsPlaying}
       onEditProfile={() => router.push('/profile/edit')}
       onOpenSettings={() => router.push('/more')}
       onChooseUsername={() => router.push('/profile/handle')}

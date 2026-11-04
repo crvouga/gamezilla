@@ -13,7 +13,6 @@ function mountSettings(offline: boolean): void {
     <SettingsScreenView
       theme="system"
       muted={false}
-      perfEnabled={false}
       offline={offline}
       canViewBilling={false}
       version="1.0.0"
@@ -24,13 +23,17 @@ function mountSettings(offline: boolean): void {
 }
 
 // regression: work-offline-silent-on-multiplayer
-test('online, the row says games and changes sync', () => {
+test('online, the row says turning it on pauses games with others', () => {
   mountSettings(false);
-  expect(screen.getByText('Online — games and changes sync')).toBeTruthy();
+  expect(
+    screen.getByText('Online — turn on to pause syncing and games with others')
+  ).toBeTruthy();
 });
 
 // regression: work-offline-silent-on-multiplayer
-test('offline, the row says games with others pause', () => {
+test('offline, the row says turning it off plays with others again', () => {
   mountSettings(true);
-  expect(screen.getByText('Offline — games with others pause')).toBeTruthy();
+  expect(
+    screen.getByText('Offline — turn off to sync and play with others again')
+  ).toBeTruthy();
 });

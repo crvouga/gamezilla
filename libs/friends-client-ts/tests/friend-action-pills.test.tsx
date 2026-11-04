@@ -36,14 +36,13 @@ function renderPills(status: FriendshipStatus, compact: boolean): void {
   ));
 }
 
-test('a request that is out says Request sent, with Cancel as the quiet control beside it', () => {
+test('a row with a request out ends in Cancel, the same small pill as Add friend', () => {
   renderPills('pending_outgoing', true);
-  expect(screen.getByText('Request sent')).toBeTruthy();
   const cancel = screen.getByTestId(Handles.friendCancel(USERNAME));
   expect(cancel.textContent).toContain('Cancel');
   expect(cancel.textContent).not.toContain('Cancel request');
   expect(cancel.getAttribute('data-size')).toBe('sm');
-  expect(cancel.getAttribute('data-face')).toBe('neutral-ghost');
+  expect(cancel.getAttribute('data-face')).toBe('neutral-outline');
   expect(screen.getAllByRole('button')).toHaveLength(1);
 });
 

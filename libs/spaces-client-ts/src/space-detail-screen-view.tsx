@@ -67,8 +67,8 @@ function SpaceChromeTitle(props: {
 }
 
 /**
- * Space actions, the host status, then the global avatar menu at the far
- * edge — the bar's own row items (no wrapper), so the ActionBar sizes itself
+ * Space actions, the host status (a guest's), then the global avatar menu at
+ * the far edge — the bar's own row items (no wrapper), so the ActionBar sizes itself
  * against the title and collapses into its More menu when the row is short.
  */
 function SpaceTrailing(
@@ -88,7 +88,10 @@ function SpaceTrailing(
         }
         callbacks={props}
       />
-      <SpaceHostConnectionStatus offline={props.hostOffline} />
+      {/* Only a guest's host can go offline: the host's bar keeps the room. */}
+      <Show when={!props.canEnd}>
+        <SpaceHostConnectionStatus offline={props.hostOffline} />
+      </Show>
       {globalTrailing()}
     </>
   );
@@ -105,6 +108,7 @@ function SpaceLayoutWide(props: LayoutProps): JSX.Element {
             <SpaceChromeLeadingActionBar
               onPressHome={props.onPressHome}
               onPressBack={props.onPressBack}
+              backLabel={props.backLabel}
             />
             <SpaceChromeTitle title={props.title} size="subtitle" />
           </StackHorizontal>
@@ -127,6 +131,7 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
           <SpaceChromeLeadingActionBar
             onPressHome={props.onPressHome}
             onPressBack={props.onPressBack}
+            backLabel={props.backLabel}
           />
         }
         center={<SpaceChromeTitle title={props.title} size="navigationTitle" />}

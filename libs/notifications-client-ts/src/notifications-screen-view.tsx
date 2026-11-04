@@ -9,9 +9,10 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
-import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { type JSX, Show } from 'solid-js';
 import type { InboxChoiceFailure } from './inbox-choice-failure';
 import { InboxChoiceFailureNotice } from './inbox-choice-failure-notice';
 import { NotificationsFilterBar } from './notifications-filter-bar';
@@ -35,42 +36,52 @@ export type NotificationsScreenViewProps = {
   readonly onMarkAllRead: () => void;
 };
 
+/**
+ * The filters, with Mark all read at the row's far end while anything is
+ * unread: it acts on the list the filters choose, so it sits with them, and
+ * the header keeps to the title.
+ */
+function InboxControls(
+  props: NotificationsScreenViewProps & { readonly hasUnread: boolean }
+): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackHorizontal align="center" justify="between" gap="sm" wrap>
+      <NotificationsFilterBar
+        filter={props.filter}
+        onFilterChange={props.onFilterChange}
+      />
+      <Show when={props.hasUnread}>
+        {/* Words, not a glyph: a double check alone does not say what it does. */}
+        <Button
+          title={t`Mark all read`}
+          variant="ghost"
+          size="sm"
+          loading={props.markingAllRead}
+          onClick={() => props.onMarkAllRead()}
+          dataSet={{ testid: Handles.notificationsMarkAllRead }}
+        />
+      </Show>
+    </StackHorizontal>
+  );
+}
+
 function InboxView(props: NotificationsScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const hasUnread = (): boolean =>
     props.sections.some((section) =>
       section.items.some((item) => item.isUnread)
     );
-  const headerActions = createMemo((): readonly ScreenBaseAction[] =>
-    hasUnread()
-      ? [
-          {
-            type: 'default',
-            // Words, not a glyph: a double check alone does not say what it
-            // does, and a text action never clips its label.
-            label: t`Mark all read`,
-            loading: props.markingAllRead,
-            onClick: () => props.onMarkAllRead(),
-            overflow: 'never',
-            dataSet: { testid: Handles.notificationsMarkAllRead },
-          },
-        ]
-      : []
-  );
   return (
     <CollectionScreen
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
-      actions={headerActions()}
       controls={
         <>
           <Show when={props.failure} keyed>
             {(current) => <InboxChoiceFailureNotice failure={current} />}
           </Show>
-          <NotificationsFilterBar
-            filter={props.filter}
-            onFilterChange={props.onFilterChange}
-          />
+          <InboxControls {...props} hasUnread={hasUnread()} />
         </>
       }
     >
@@ -87,8 +98,8 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
 /**
  * `/notifications`, presentational: the inbox with its filters, day
  * sections, Mark all read, a failed choice's notice, and its loading, empty
- * and permission-denied states. Marking everything read is a screen action,
- * so it is handed to the header rather than squeezed beside the filters.
+ * and permission-denied states. Mark all read ends the filter row, so the
+ * header keeps to the title on a phone.
  * `NotificationsScreen` wires it to the inbox and its actions.
  */
 export function NotificationsScreenView(

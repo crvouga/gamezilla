@@ -11,6 +11,7 @@ const meta = {
   args: {
     screenId: 'not-found',
     title: 'Not found',
+    parent: { name: 'Spaces', href: '/' },
     notFound: true,
     onGoToSpaces: fn(),
     onGoBack: fn(),
@@ -22,7 +23,8 @@ type Story = StoryObj<typeof meta>;
 /**
  * An address with nothing at it, reached from another screen: say so, offer
  * the way home, and the way back (offered only when the app has a screen to
- * return to).
+ * return to). Spaces is its parent, so the header leads back there too (a
+ * back chevron on a phone, a breadcrumb beside the sidebar).
  */
 export const NotFound: Story = {};
 

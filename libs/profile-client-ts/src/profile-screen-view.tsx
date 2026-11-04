@@ -52,6 +52,12 @@ export type ProfileScreenViewProps = {
   readonly friendsStats?: JSX.Element | undefined;
   /** The friends panel's action rows, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
+  /**
+   * Friends in a live space right now, each with Join: its own titled
+   * section above the friends panel, drawn by the friends sub (nothing while
+   * nobody is playing).
+   */
+  readonly friendsPlaying?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
   /** Opens Settings (appearance, sound, account and the rest). */
   readonly onOpenSettings: () => void;
@@ -148,8 +154,9 @@ function ProfileFriendsSection(props: {
 
 /**
  * `/profile`, presentational: the person's own avatar, name, username and
- * avatar notices, Edit profile, the friends panel (count, then Find friends)
- * and the way to Settings. On a wide screen the identity is a card in its
+ * avatar notices, Edit profile, the friends playing now (each with Join),
+ * the friends panel (count and faces, then Find friends) and the way to
+ * Settings. On a wide screen the identity is a card in its
  * own column, its top level with the sections beside it.
  * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
@@ -198,6 +205,7 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
         />
       }
     >
+      {props.friendsPlaying}
       <ProfileFriendsSection
         stats={props.friendsStats}
         actions={props.friendsActions}

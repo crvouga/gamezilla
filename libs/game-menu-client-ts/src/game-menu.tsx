@@ -7,6 +7,7 @@ import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
+import { useLingui } from '@lingui/solid/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -24,6 +25,7 @@ function GameChoices(props: {
   navigation: GameScreen;
   onBackToGames: () => void;
 }): JSX.Element {
+  const { t } = useLingui();
   const choices = createMemo(() =>
     gameChoices(props.game, props.offers).map((choice) => ({
       screen: choice.screen,
@@ -33,7 +35,8 @@ function GameChoices(props: {
   );
   return (
     <>
-      <DefineBackButton onPress={props.onBackToGames} />
+      {/* Back names where it goes: the space's list of games. */}
+      <DefineBackButton onPress={props.onBackToGames} label={t`Games`} />
       <GameMenuScreenView
         title={props.game.title}
         tile={props.game.tile}

@@ -1,7 +1,10 @@
 import type { Friend } from '@libs/friends-shared-ts/friends-types';
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { LiveBadge } from '@pkgs/ui-root-client-ts/badge';
+import {
+  FriendLiveSpaceJoinView,
+  FriendLiveSpaceStatusView,
+} from '@libs/spaces-client-ts/friend-live-space';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -57,7 +60,15 @@ const meta = {
   decorators: [withShippedModeration],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['friends', 'denial', 'notice', 'friendTrailing'] },
+    controls: {
+      exclude: [
+        'friends',
+        'denial',
+        'notice',
+        'friendStatus',
+        'friendTrailing',
+      ],
+    },
   },
   args: {
     status: 'ready',
@@ -76,15 +87,26 @@ const HOSTING = new Set([personId('02'), personId('05')]);
 /**
  * Friends are known: one row each, newest-first order as the container gives
  * it. Each row is the friend's face and name, and opens their profile; a
- * friend hosting a live space ends in the Live tag that joins it (a profile
- * not yet on this device shows its initials). No friendship date: the row
- * says what helps you play now. Find friends sits in the header as the
- * page's next step.
+ * friend hosting a live space says so under their name ("Hosting a space",
+ * with the online dot) and ends in Join, which goes in (a profile not yet on
+ * this device shows its initials). No friendship date: the row says what
+ * helps you play now. Find friends sits in the header as the page's next
+ * step.
  */
 export const Populated: Story = {
   args: {
+    friendStatus: (item) =>
+      HOSTING.has(item.userId) ? (
+        <FriendLiveSpaceStatusView hosting />
+      ) : undefined,
     friendTrailing: (item) =>
-      HOSTING.has(item.userId) ? <LiveBadge /> : undefined,
+      HOSTING.has(item.userId) ? (
+        <FriendLiveSpaceJoinView
+          action="join"
+          onPress={fn()}
+          hostAccountId={item.userId}
+        />
+      ) : undefined,
   },
 };
 

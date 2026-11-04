@@ -32,11 +32,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The viewer's own space (open here, so "Current" and "Resume") under
- * "Hosting 1 space", then a friend's live space nobody has joined yet ("No
- * guests yet") and a crowded one (faces, two names, "+5 more") under
- * "Shared with you", each "Join". Every card has the same rows: name and
- * tag, host, guests, and what pressing it does.
+ * The viewer's own space (open here, so "Resume") under "Hosting 1 space",
+ * then a friend's live space nobody has joined yet ("No guests yet") and a
+ * crowded one (two names, "+5 more") under "Shared with you", each "Join".
+ * Every row has the same anatomy: name, host and guests, with what pressing
+ * it does centred at its trailing edge.
  */
 export const Populated: Story = {};
 

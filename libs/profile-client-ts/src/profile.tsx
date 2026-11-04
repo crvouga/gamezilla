@@ -18,6 +18,11 @@ export default function ProfileRoute(): JSX.Element {
           {(Actions) => <Actions />}
         </Show>
       }
+      friendsPlaying={
+        <Show when={slots.playing} keyed>
+          {(Playing) => <Playing />}
+        </Show>
+      }
     />
   );
 }

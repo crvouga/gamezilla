@@ -134,9 +134,11 @@ type Story = StoryObj<typeof meta>;
  * Join is unavailable (an inactive card: "Space is full" as a tag and its
  * words stepped back, instead of a dead button), and a system note. Each
  * card says when and what in one caption line ("1h ago · Space invite");
- * unread items lead with the accent dot, read ones stay plain. Archive is
- * the quiet icon at each card's top trailing corner. Unread
- * items put Mark all read in the header.
+ * unread items lead with the named accent dot, read ones have none, and
+ * every title keeps the body weight. Only a card's own main answer (Join)
+ * is solid; Open is an outline. Archive is the quiet icon at each card's top
+ * trailing corner. While anything is unread, Mark all read ends the filter
+ * row.
  */
 export const Populated: Story = {};
 
@@ -152,7 +154,7 @@ export const LoadingMore: Story = { args: { isLoading: true } };
 /** Nothing in the inbox at all. */
 export const Empty: Story = { args: { sections: [] } };
 
-/** Nothing waits for a reply under Action required. */
+/** Nothing waits for a reply under Needs you. */
 export const EmptyActionRequired: Story = {
   args: { sections: [], filter: 'action_required' },
 };
@@ -162,7 +164,7 @@ export const EmptyArchived: Story = {
   args: { sections: [], filter: 'archived' },
 };
 
-/** Mark all read is in flight: the header action shows it. */
+/** Mark all read is in flight: its button at the filter row's end shows it. */
 export const MarkingAllRead: Story = { args: { markingAllRead: true } };
 
 /** A choice failed because the device could not reach the inbox. */
@@ -215,7 +217,8 @@ export const Denied: Story = {
 export const ChangeFilter: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Action required'));
+    const needsYou = await canvas.findByRole('radio', { name: 'Needs you' });
+    await userEvent.click(needsYou);
     await expect(args.onFilterChange).toHaveBeenCalledWith('action_required');
   },
 };

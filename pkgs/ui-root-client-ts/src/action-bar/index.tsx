@@ -40,6 +40,11 @@ export type ActionBarProps = {
   items: readonly ActionBarItem[];
   /** Icon-less actions that render as compact text buttons when inline. */
   textActions?: readonly ActionBarTextAction[] | undefined;
+  /**
+   * Where inline text actions sit: before the icon items (`'start'`, the
+   * default) or after them, just before More (`'end'`).
+   */
+  textPlacement?: 'start' | 'end' | undefined;
   /** Always-visible trailing slot after overflow-managed items. */
   endSlot?: JSX.Element | undefined;
   /** Main-axis packing. Defaults to `'end'` (trailing chrome). */
@@ -71,6 +76,7 @@ export type ActionBarProps = {
 
 function ActionBarItemsRow(props: {
   bar: ActionBarController;
+  textPlacement: 'start' | 'end';
   showInlineLabels: boolean | undefined;
   overflowTrigger: ActionBarOverflowTriggerSpec;
   overflowDataSet: ComponentDataSet | undefined;
@@ -80,15 +86,18 @@ function ActionBarItemsRow(props: {
     props.bar.menu.openMenu();
     props.onOpenMenu?.();
   };
+  const text = (): JSX.Element => (
+    <ActionBarTextItems
+      actions={props.bar.layout().inlineText}
+      track={(id, el) => props.bar.widths.track(textKey(id), el)}
+    />
+  );
   return (
     <div
       class="box flex-row items-center min-w-0"
       style={{ gap: `${(props.bar.resolved().gap / 4) * 4}px` }}
     >
-      <ActionBarTextItems
-        actions={props.bar.layout().inlineText}
-        track={(id, el) => props.bar.widths.track(textKey(id), el)}
-      />
+      <Show when={props.textPlacement === 'start'}>{text()}</Show>
       <ActionBarIconItems
         items={props.bar.layout().partition.visible}
         buttonSize={props.bar.resolved().buttonSize}
@@ -96,6 +105,7 @@ function ActionBarItemsRow(props: {
         slotWidth={props.bar.resolved().slotWidth}
         track={(id, el) => props.bar.widths.track(itemKey(id), el)}
       />
+      <Show when={props.textPlacement === 'end'}>{text()}</Show>
       <Show when={props.bar.layout().overflowActions.length > 0}>
         <ActionBarOverflowTrigger
           buttonSize={props.bar.resolved().buttonSize}
@@ -224,6 +234,7 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
       >
         <ActionBarItemsRow
           bar={bar}
+          textPlacement={props.textPlacement ?? 'start'}
           showInlineLabels={props.showInlineLabels}
           overflowTrigger={props.overflowTrigger}
           overflowDataSet={props.overflowDataSet}

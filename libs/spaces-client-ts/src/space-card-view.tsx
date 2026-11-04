@@ -242,8 +242,11 @@ function SpaceCardActionLabel(props: {
 /**
  * One row in the lobby panel, in one anatomy for every space: the host's
  * face; the name, who hosts it and who else is in it (or "No guests yet");
- * and a trailing column with the status tag over what pressing it does
- * (Resume, Open or Join). Pressing anywhere on the row does that.
+ * and, centred at the trailing edge, what pressing it does: Resume where the
+ * viewer already is, Open for their own, Join for someone else's. Every
+ * space listed is live, so the row names the next step instead of tagging
+ * it "Live", and says "Resume" once instead of tagging it "Current" too.
+ * Pressing anywhere on the row does that.
  */
 export function SpaceCardView(props: {
   readonly space: SpaceCardData;
@@ -286,10 +289,7 @@ export function SpaceCardView(props: {
           <SpaceHostLine space={props.space} />
           <SpaceGuestsLine guests={props.space.guests} />
         </StackVertical>
-        <StackVertical self="stretch" align="end" justify="between" gap="sm">
-          <SpaceBadgeView badge={props.space.badge} />
-          <SpaceCardActionLabel action={spaceCardAction(props.space)} />
-        </StackVertical>
+        <SpaceCardActionLabel action={spaceCardAction(props.space)} />
       </StackHorizontal>
     </Pressable>
   );

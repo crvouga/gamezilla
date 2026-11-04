@@ -7,6 +7,7 @@ import { ProfileScreenView } from './profile-screen-view';
 import {
   STORY_IDENTITY,
   StoryFriendsActions,
+  StoryFriendsPlaying,
   StoryFriendsStats,
 } from './profile-story.example';
 
@@ -25,6 +26,7 @@ const meta = {
         'notice',
         'friendsStats',
         'friendsActions',
+        'friendsPlaying',
       ],
     },
   },
@@ -43,6 +45,7 @@ const meta = {
   render: (args) => (
     <ProfileScreenView
       {...args}
+      friendsPlaying={<StoryFriendsPlaying />}
       friendsStats={<StoryFriendsStats count={5} />}
       friendsActions={<StoryFriendsActions />}
     />
@@ -52,7 +55,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The person's own profile: avatar, name, Edit profile, the friends row and
+ * The person's own profile: avatar, name, Edit profile, the friends playing
+ * now (what each is doing, and Join), the friends row with their faces, and
  * the way to Settings — identity beside the sections on a wide screen.
  */
 export const Ready: Story = {};
@@ -123,6 +127,7 @@ export const RefusedAvatarChange: Story = {
           onDismiss={() => undefined}
         />
       }
+      friendsPlaying={<StoryFriendsPlaying />}
       friendsStats={<StoryFriendsStats count={5} />}
       friendsActions={<StoryFriendsActions />}
     />

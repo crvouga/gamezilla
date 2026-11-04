@@ -88,6 +88,13 @@ function StatesSection(): JSX.Element {
         onClick={noop}
       />
       <MenuRow title="Static" caption="Not a destination, so no chevron" />
+      <MenuRow
+        title="Destructive"
+        caption="Ends or removes something; it asks first"
+        tone="destructive"
+        hideChevron
+        onClick={noop}
+      />
       <MenuRow title="Link" href="#menu-row" />
     </MenuSection>
   );

@@ -27,7 +27,9 @@ export type FriendsListScreenViewProps = {
   readonly denial?: DenialView | undefined;
   /** Inline notice for a refused friend change, above the list. */
   readonly notice?: JSX.Element;
-  /** Trailing content per row, such as a live-space badge. */
+  /** What the friend is doing, under their name (hosting a space). */
+  readonly friendStatus?: ((friend: Friend) => JSX.Element) | undefined;
+  /** Trailing control per row, such as Join for their live space. */
   readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
   readonly onOpenFriend: (friend: Friend) => void;
   readonly onFindFriends: () => void;
@@ -55,13 +57,15 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
 }
 
 /**
- * One friend in the list's panel: face, name, the Live tag while they host
- * a live space (what helps you play now), and the way in. How long you have
- * been friends is record-keeping, not a reason to tap, so the row leaves it
- * out.
+ * One friend in the list's panel: face and name, what they are doing while
+ * they are in a live space ("Hosting a space", under the name) with Join at
+ * the row's end (what helps you play now), and the way to their profile.
+ * How long you have been friends is record-keeping, not a reason to tap, so
+ * the row leaves it out.
  */
 function FriendsListRow(props: {
   readonly friend: Friend;
+  readonly status: JSX.Element | undefined;
   readonly trailing: JSX.Element | undefined;
   readonly onOpen: () => void;
 }): JSX.Element {
@@ -72,6 +76,7 @@ function FriendsListRow(props: {
         onPress={() => props.onOpen()}
         friendsListHandle
         disclosure
+        subtitle={props.status}
         trailing={props.trailing}
       />
     </StackVertical>
@@ -161,6 +166,7 @@ export function FriendsListScreenView(
             renderItem={(item) => (
               <FriendsListRow
                 friend={item}
+                status={props.friendStatus?.(item)}
                 trailing={props.friendTrailing?.(item)}
                 onOpen={() => props.onOpenFriend(item)}
               />
