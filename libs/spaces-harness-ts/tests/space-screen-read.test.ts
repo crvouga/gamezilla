@@ -61,7 +61,11 @@ const SCREENS: readonly {
   { title: 'another screen', handles: [], expected: 'elsewhere' },
   {
     title: 'host in their space',
-    handles: [Handles.spaceClose, Handles.spaceEnd],
+    handles: [
+      Handles.spaceClose,
+      Handles.spaceChromeOverflow,
+      Handles.spaceEnd,
+    ],
     expected: 'space',
   },
   {
@@ -72,7 +76,25 @@ const SCREENS: readonly {
   },
   {
     title: 'guest in a space',
-    handles: [Handles.spaceClose],
+    handles: [Handles.spaceClose, Handles.spaceChromeOverflow],
+    menu: [Handles.spaceShare, Handles.spaceLeave],
+    expected: 'droppedOut',
+  },
+  {
+    title: 'host on a phone game screen, Minimize in the ⋯ menu',
+    handles: [Handles.navBack, Handles.spaceChromeOverflow],
+    menu: [
+      Handles.spaceClose,
+      Handles.spaceShare,
+      Handles.spaceLeave,
+      Handles.spaceEnd,
+    ],
+    expected: 'space',
+  },
+  {
+    title: 'guest on a phone game screen, Minimize in the ⋯ menu',
+    handles: [Handles.navBack, Handles.spaceChromeOverflow],
+    menu: [Handles.spaceClose, Handles.spaceShare, Handles.spaceLeave],
     expected: 'droppedOut',
   },
   {

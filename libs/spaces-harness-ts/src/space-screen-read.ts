@@ -36,13 +36,15 @@ export async function spaceScreenOf(
   // when it decides the screen: a guest without a connection, in the space.
   if (
     connectionMissing &&
-    (await visible(s, actorId, [Handles.spaceClose])) &&
+    (await visible(s, actorId, [Handles.spaceChromeOverflow])) &&
     !(await endOffered(s, actorId))
   )
     return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
-  if (await visible(s, actorId, [Handles.spaceClose])) return 'space';
+  // Its ⋯ is on the space's bar on every screen (Minimize is in it on a
+  // phone showing Back).
+  if (await visible(s, actorId, [Handles.spaceChromeOverflow])) return 'space';
   if (await visible(s, actorId, [Handles.spaceCreate])) return 'lobby';
   if (await visible(s, actorId, [Handles.spaceJoin])) return 'left';
   return 'elsewhere';

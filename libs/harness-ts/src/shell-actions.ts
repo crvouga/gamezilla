@@ -5,11 +5,35 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, scenarioAction } from './actor-ui';
 import { openGlobalMenu } from './driver-gestures';
 
 const WAIT_MS = 15_000;
+
+/**
+ * Inside an open space: its top bar is up. Its ⋯ menu is on that bar on
+ * every screen and size (Minimize is not: a phone showing Back keeps
+ * Minimize in ⋯).
+ */
+export async function spaceBarShown(ui: Driver): Promise<boolean> {
+  return ui.get(Handles.spaceChromeOverflow).isVisible();
+}
+
+/**
+ * Minimize the open space, as a person would: ⌄ on its bar, or the first
+ * item in its ⋯ menu where the bar shows Back instead.
+ */
+export async function minimizeSpace(
+  ui: Driver,
+  timeoutMs: number = WAIT_MS
+): Promise<void> {
+  if (!(await ui.get(Handles.spaceClose).isVisible())) {
+    await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs });
+  }
+  await ui.get(Handles.spaceClose).tap({ timeoutMs });
+}
 
 /**
  * Global menu → Settings (`/more`). Settings is a stack route outside the
@@ -61,11 +85,11 @@ export const backToTabs = scenarioAction({
       .expect.visible({ timeoutMs: WAIT_MS });
     for (let pops = 0; pops < 4; pops++) {
       if (await ui.get(Handles.tabProfile).isVisible()) break;
-      const back = (await ui.get(Handles.navBack).isVisible())
-        ? Handles.navBack
-        : Handles.spaceClose;
-      if (!(await ui.get(back).isVisible())) break;
-      await ui.get(back).tap({ timeoutMs: WAIT_MS });
+      if (await ui.get(Handles.navBack).isVisible()) {
+        await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+      } else if (await spaceBarShown(ui)) {
+        await minimizeSpace(ui);
+      } else break;
       await s.session.waitForIdle();
     }
     await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });

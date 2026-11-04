@@ -44,6 +44,6 @@ export async function ownSpaceShown(
   const ui = await actorUi(s, actorId);
   return (
     (await s.actors.get(actorId)?.currentPath()) === link &&
-    (await ui.get(Handles.spaceClose).isVisible())
+    (await ui.get(Handles.spaceChromeOverflow).isVisible())
   );
 }

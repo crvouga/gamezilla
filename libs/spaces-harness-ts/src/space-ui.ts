@@ -1,7 +1,11 @@
 import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorHtml } from '@libs/harness-ts/observations';
-import { backToTabs } from '@libs/harness-ts/shell-actions';
+import {
+  backToTabs,
+  minimizeSpace,
+  spaceBarShown,
+} from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 export const SPACE_WAIT_MS = 10_000;
@@ -17,8 +21,8 @@ export async function showSpacesTab(
   });
   // Out of an open space (still in it) or a stacked screen, as a person
   // would, before reaching for the tab.
-  if (await ui.get(Handles.spaceClose).isVisible()) {
-    await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
+  if (await spaceBarShown(ui)) {
+    await minimizeSpace(ui, SPACE_WAIT_MS);
     await s.session.waitForIdle();
   }
   if (!(await ui.get(Handles.tabSpaces).isVisible())) {
@@ -35,7 +39,10 @@ export async function waitActiveSpace(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.spaceClose).expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  // The space's bar is up: its ⋯ is on it on every screen and size.
+  await ui
+    .get(Handles.spaceChromeOverflow)
+    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
 }
 
 export async function waitForLobbyCard(
@@ -119,7 +126,7 @@ export async function reenterOwnSpace(
   await ui
     .get(Handles.statusCurrentUser)
     .expect.visible({ timeoutMs: OWN_SPACE_WAIT_MS });
-  if (!(await ui.get(Handles.spaceClose).isVisible())) {
+  if (!(await spaceBarShown(ui))) {
     const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
       maxMs: OWN_SPACE_WAIT_MS,
       stepMs: OWN_SPACE_POLL_MS,
@@ -141,7 +148,7 @@ export async function tryReenterOwnSpace(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  if (await ui.get(Handles.spaceClose).isVisible()) return;
+  if (await spaceBarShown(ui)) return;
   const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
     maxMs: TRY_RETURN_MS,
     stepMs: OWN_SPACE_POLL_MS,
@@ -161,7 +168,7 @@ export async function reenterSpace(
   await ui.get(Handles.statusCurrentUser).expect.visible({
     timeoutMs: SPACE_WAIT_MS,
   });
-  if (await ui.get(Handles.spaceClose).isVisible()) {
+  if (await spaceBarShown(ui)) {
     await waitActiveSpace(s, actorId);
     return;
   }
@@ -197,7 +204,8 @@ export async function confirmSpaceMutation(
 /** Every screen a space link or a start can settle on. */
 const SPACE_OUTCOMES = [
   Handles.spaceJoin,
-  Handles.spaceClose,
+  // Inside: the space's bar, whose ⋯ is on it on every screen and size.
+  Handles.spaceChromeOverflow,
   Handles.spaceEnded,
   Handles.spaceHostOffline,
   Handles.spaceNotFound,
@@ -249,7 +257,7 @@ export async function tapChromeOrOverflow(
     return;
   }
   await ui
-    .get(Handles.spaceClose)
+    .get(Handles.spaceChromeOverflow)
     .expect.visible({ timeoutMs: SPACE_WAIT_MS })
     .catch(async (error) => {
       const live = await s.harness.spawnClient(actorId);

@@ -20,7 +20,7 @@ export async function offeredInSpaceMenu(
   const menu = ui.get(Handles.spaceChromeOverflow);
   if (!(await menu.isVisible())) return false;
   await menu.tap({ timeoutMs: MENU_WAIT_MS });
-  // Share heads every space's ⋯ menu: the menu is open once it shows.
+  // Share is in every space's ⋯ menu: the menu is open once it shows.
   const share = ui.get(Handles.spaceShare);
   await share.expect.visible({ timeoutMs: MENU_WAIT_MS });
   const offered = await target.isVisible();

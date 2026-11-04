@@ -3,6 +3,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql, deviceMemberIdOf } from '@libs/harness-ts/identity';
 import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
 import { otherDevice } from '@libs/harness-ts/platform';
+import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { offeredInSpaceMenu } from './space-menu-ui-reads';
@@ -78,7 +79,7 @@ export async function activeSpaceVisible(
 ): Promise<boolean> {
   try {
     const ui = await frontUi(s, actorId);
-    return await ui.get(Handles.spaceClose).isVisible();
+    return await spaceBarShown(ui);
   } catch {
     return false;
   }

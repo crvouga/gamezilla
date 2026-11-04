@@ -125,8 +125,9 @@ export const Guest: Story = {
 
 /**
  * A game in progress: after Minimize, ‹ Games goes back to the space's
- * games, named so moving within the room never reads like leaving it. The
- * game area is a slot.
+ * games, named so moving within the room never reads like leaving it. A
+ * phone shows ‹ alone, so the room's name keeps its room; Minimize is then
+ * the first item in ⋯. The game area is a slot.
  */
 export const GameInProgress: Story = {
   args: { onPressBack: fn(), backLabel: 'Games' },

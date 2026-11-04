@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, an open space's top bar showed Minimize (⌄) and Back (‹) side by side with the room's name, members, ⋯ and the avatar, so two look-alike chevrons crowded and truncated the name. A phone now shows one leading glyph: Back while there is one (Minimize leads the ⋯ menu), otherwise Minimize.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+}

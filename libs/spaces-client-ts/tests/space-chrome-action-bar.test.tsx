@@ -19,6 +19,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
+import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -37,14 +38,19 @@ const CALLBACKS = {
 
 function renderBar(
   layout: { width: number; height: number },
-  canEnd: boolean
+  canEnd: boolean,
+  back: () => (() => void) | null = () => CALLBACKS.onPressBack
 ): HTMLElement {
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={layout}>
         <SurfaceStackProvider>
-          <SpaceChromeLeadingActionBar {...CALLBACKS} backLabel="Games" />
+          <SpaceChromeLeadingActionBar
+            {...CALLBACKS}
+            onPressBack={back()}
+            backLabel="Games"
+          />
           <SpaceChromeTrailingActionBar
             canRename
             canEnd={canEnd}
@@ -54,7 +60,13 @@ function renderBar(
                 size={size}
               />
             )}
-            callbacks={{ ...CALLBACKS, backLabel: 'Games' }}
+            callbacks={{
+              ...CALLBACKS,
+              get onPressBack() {
+                return back();
+              },
+              backLabel: 'Games',
+            }}
           />
         </SurfaceStackProvider>
       </ThemeProvider>
@@ -88,14 +100,53 @@ test('beside the sidebar Minimize and Back say what they do, side by side', () =
 });
 
 // regression: space-close-label-hides-step-out
-test('on a phone Minimize and Back are glyphs named for what they do', () => {
-  const container = renderBar(PHONE, true);
+test("on a phone without Back, the bar's one glyph is Minimize, named so", () => {
+  const container = renderBar(PHONE, true, () => null);
   expect(
     byHandle(container, Handles.spaceClose)?.getAttribute('aria-label')
   ).toBe('Minimize space');
+  expect(byHandle(container, Handles.navBack)).toBeNull();
+  openMenu(container);
+  // Once on the bar, never a second time in ⋯.
+  expect(
+    document.querySelectorAll(`[data-testid="${Handles.spaceClose}"]`).length
+  ).toBe(1);
+});
+
+// regression: space-close-label-hides-step-out
+// regression: space-phone-bar-crowds-title
+test("on a phone showing Back, the bar's one glyph is Back and Minimize leads ⋯", () => {
+  const container = renderBar(PHONE, true);
   expect(byHandle(container, Handles.navBack)?.getAttribute('aria-label')).toBe(
     'Games'
   );
+  // No second chevron beside Back to crowd the room's name.
+  expect(byHandle(container, Handles.spaceClose)).toBeNull();
+  openMenu(container);
+  const minimize = inPage(Handles.spaceClose);
+  expect(minimize?.textContent).toContain('Minimize space');
+  expect(minimize?.textContent).not.toContain('Close');
+  // The first item, before Share.
+  const items = [
+    ...document.querySelectorAll(
+      `[data-testid="${Handles.spaceClose}"], [data-testid="${Handles.spaceShare}"]`
+    ),
+  ];
+  expect(items[0]).toBe(minimize ?? undefined);
+});
+
+// regression: space-phone-bar-crowds-title
+test('the members button keeps its element while Back comes and goes', () => {
+  const [back, setBack] = createSignal<(() => void) | null>(null);
+  const container = renderBar(PHONE, true, back);
+  const before = byHandle(container, Handles.spaceMembersButton);
+  expect(before).not.toBeNull();
+  setBack(() => () => undefined);
+  expect(byHandle(container, Handles.navBack)).not.toBeNull();
+  expect(byHandle(container, Handles.spaceMembersButton)).toBe(before);
+  setBack(null);
+  expect(byHandle(container, Handles.spaceClose)).not.toBeNull();
+  expect(byHandle(container, Handles.spaceMembersButton)).toBe(before);
 });
 
 // regression: space-end-beside-everyday-controls
