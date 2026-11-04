@@ -231,10 +231,11 @@ export const reopenLiveSpace = scenarioAction({
   },
 });
 
+/** End sits in the space's ⋯ menu, set apart from everyday controls. */
 export const endSpace = scenarioAction({
   name: 'endSpace',
   act: async (s, actorId: string) => {
-    await tapChromeAction(s, actorId, Handles.spaceEnd);
+    await tapChromeOrOverflow(s, actorId, Handles.spaceEnd);
     await confirmSpaceMutation(s, actorId, Handles.spaceEndConfirm);
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceEnded).expect.visible({
@@ -255,8 +256,8 @@ export const openSpaceMembers = scenarioAction({
 });
 
 /**
- * Leave the space from its chrome (a host's Leave sits in the ⋯ menu, and
- * ends the space for everyone) and confirm.
+ * Leave the space from its ⋯ menu (a host's Leave ends the space for
+ * everyone) and confirm.
  */
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',

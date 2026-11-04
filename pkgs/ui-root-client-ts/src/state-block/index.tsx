@@ -9,11 +9,20 @@ import type { IconComponent } from '../create-icon/index';
 
 export type StateBlockVariant = 'fill' | 'compact';
 
+/**
+ * Where the block lines up: `center` (the default) on its own, or `start`
+ * on the leading edge of a column whose page title sits above it, so the
+ * title and the state share one edge.
+ */
+export type StateBlockAlign = 'center' | 'start';
+
 /** Glyph color inside the disc: quiet by default, the status hue otherwise. */
 export type StateBlockTone = 'neutral' | 'destructive' | 'success';
 
 export type StateBlockProps = {
   variant?: StateBlockVariant | undefined;
+  /** Defaults to `center`. */
+  align?: StateBlockAlign | undefined;
   children: JSX.Element;
   /** ARIA role for the block (`status`, `alert`, …). */
   role?: 'status' | 'alert' | 'region' | undefined;
@@ -39,21 +48,31 @@ export type StateBlockProps = {
  */
 export function StateBlock(props: StateBlockProps): JSX.Element {
   const isFill = (): boolean => (props.variant ?? 'fill') === 'fill';
+  const centered = (): boolean => (props.align ?? 'center') === 'center';
   return (
     <div
-      class="box w-full items-center justify-center px-4"
+      class="box w-full"
       classList={{
-        'flex-1 py-12': isFill(),
-        'py-8': !isFill(),
+        'items-center justify-center px-4': centered(),
+        'items-start justify-start': !centered(),
+        'flex-1 py-12': isFill() && centered(),
+        'py-8': !(isFill() && centered()),
       }}
       {...dataAttrs({
         component: 'StateBlock',
         variant: props.variant ?? 'fill',
+        align: props.align ?? 'center',
         ...props.dataSet,
       })}
       role={props.role}
     >
-      <div class="box w-full max-w-ui-prose items-center justify-center gap-2 text-center">
+      <div
+        class="box w-full max-w-ui-prose gap-2"
+        classList={{
+          'items-center justify-center text-center': centered(),
+          'items-start text-left': !centered(),
+        }}
+      >
         {props.children}
       </div>
     </div>
@@ -100,9 +119,17 @@ export function StateBlockIcon(props: StateBlockIconProps): JSX.Element {
 /** The action row under a state's copy, a step below the body. */
 export function StateBlockActions(props: {
   children: JSX.Element;
+  /** Follows the block's {@link StateBlockAlign}. Defaults to `center`. */
+  align?: StateBlockAlign | undefined;
 }): JSX.Element {
   return (
-    <div class="box mt-2 flex-row flex-wrap items-center justify-center gap-2">
+    <div
+      class="box mt-2 flex-row flex-wrap items-center gap-2"
+      classList={{
+        'justify-center': (props.align ?? 'center') === 'center',
+        'justify-start': props.align === 'start',
+      }}
+    >
       {props.children}
     </div>
   );

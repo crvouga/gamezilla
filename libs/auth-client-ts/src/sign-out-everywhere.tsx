@@ -10,10 +10,10 @@ import type { JSX } from 'solid-js';
 const ROW_ICON_SIZE = 20;
 
 /**
- * The account's one destructive row, in a panel of its own at the foot of
- * the screen, apart from Sign out (this device only): its title is in the
- * destructive ink, its caption says what it ends, and
- * {@link SignOutEverywhereConfirm} asks before anything happens.
+ * A destructive row in the account's danger zone at the foot of the screen,
+ * apart from Sign out (this device only): its title is in the destructive
+ * ink, its caption says what it ends, and {@link SignOutEverywhereConfirm}
+ * asks before anything happens.
  */
 export function SignOutEverywhereRow(props: {
   readonly onOpen: () => void;

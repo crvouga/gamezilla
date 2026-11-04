@@ -153,7 +153,7 @@ function HideAppFrameHeaderWhileWide(): null {
 }
 
 /**
- * `/space/:id` in a space, presentational: Close (and Back), the title, the
+ * `/space/:id` in a space, presentational: Minimize (and Back), the title, the
  * members / share / rename / end-or-leave actions and the host status over
  * the space's body. Wide paints this chrome as the single top bar; compact
  * nests it in a TopBar. `SpaceActiveLayout` wires it to the space session.

@@ -2,10 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural, Trans, useLingui } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
-import type {
-  ActionBarItem,
-  ActionBarTextAction,
-} from '@pkgs/ui-root-client-ts/action-bar-logic';
+import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
 import { actionBarGlyphSize } from '@pkgs/ui-root-client-ts/action-bar-logic';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
@@ -13,12 +10,12 @@ import {
   iconButtonAvatarContentSize,
 } from '@pkgs/ui-root-client-ts/icon-button';
 import {
+  ChevronDownIcon,
   ChevronLeftIcon,
   CircleStopIcon,
   LogOutIcon,
   ShareIcon,
   SquarePenIcon,
-  XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
@@ -44,10 +41,12 @@ export type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
 };
 
 /**
- * Close and Back at the leading edge of the space bar, in that order on
- * every size: ✕ leaves the room's screen (the space goes on, in the
- * miniplayer), ‹ moves within it. Wide has room to say each in words; a
- * phone shows the two glyphs, each named for assistive tech and on hover.
+ * Minimize and Back at the leading edge of the space bar, in that order on
+ * every size. Minimize steps out to the Spaces lobby: the person stays in
+ * the space, which goes on in the miniplayer, so it says that instead of a
+ * bare Close. ‹ moves within the space and names where it goes ("Games").
+ * Wide has room to say each in words; a phone shows the two glyphs, each
+ * named for assistive tech and on hover.
  */
 export function SpaceChromeLeadingActionBar(
   props: SpaceChromeNavCallbacks
@@ -63,12 +62,12 @@ export function SpaceChromeLeadingActionBar(
       fallback={
         <StackHorizontal align="center" gap="xs">
           <IconButton
-            label={<Trans>Close</Trans>}
+            label={t`Minimize space`}
             size={chrome().buttonSize}
             onClick={() => props.onPressHome()}
             dataSet={{ testid: Handles.spaceClose }}
           >
-            <XIcon size={glyph()} color="icon" />
+            <ChevronDownIcon size={glyph()} color="icon" />
           </IconButton>
           <Show when={props.onPressBack}>
             {(onPressBack) => (
@@ -87,8 +86,9 @@ export function SpaceChromeLeadingActionBar(
     >
       <StackHorizontal align="center" gap="xs">
         <Button
-          title={<Trans>Close</Trans>}
-          icon={XIcon}
+          title={<Trans>Minimize</Trans>}
+          aria-label={t`Minimize space`}
+          icon={ChevronDownIcon}
           intent="neutral"
           variant="ghost"
           size="sm"
@@ -143,7 +143,6 @@ type TrailingLabels = {
 };
 
 type TrailingArgs = {
-  readonly wide: boolean;
   readonly canRename: boolean;
   readonly canEnd: boolean;
   readonly presence: JSX.Element;
@@ -172,52 +171,42 @@ function membersItem(args: TrailingArgs): ActionBarItem {
 
 /**
  * How someone gets out of the space for good: the host ends it, everyone
- * else leaves. Wide says it in words on the bar (`exitText`); on a phone it
- * is an item that gives up its place to the members button and folds into
- * ⋯ when the row is short. It never sits in ⋯ by policy (`always`): the
- * host's way to end is offered wherever the bar has the room.
+ * else leaves. Never on the bar beside everyday controls, where one stray
+ * click would end the game for everybody: always in ⋯, after a divider, in
+ * red, and each asks to confirm before it does anything.
  */
-function exitItem(args: TrailingArgs): ActionBarItem {
-  return args.canEnd
-    ? {
-        id: 'end-space',
-        label: args.labels.end,
-        icon: CircleStopIcon,
-        onClick: args.callbacks.onPressEnd,
-        overflow: 'auto',
-        priority: 50,
-        dataSet: { testid: Handles.spaceEnd },
-      }
-    : {
-        id: 'leave-space',
-        label: args.labels.leave,
-        icon: LogOutIcon,
-        onClick: args.callbacks.onPressLeave,
-        overflow: 'auto',
-        priority: 50,
-        dataSet: { testid: Handles.spaceLeave },
-      };
-}
-
-/**
- * The host may also leave, which ends the space for everyone too (the leave
- * confirm says so), so leaving never strands people in a space nobody runs.
- */
-function hostLeaveItem(args: TrailingArgs): ActionBarItem {
-  return {
+function exitItems(args: TrailingArgs): ActionBarItem[] {
+  const leave: ActionBarItem = {
     id: 'leave-space',
     label: args.labels.leave,
     icon: LogOutIcon,
     onClick: args.callbacks.onPressLeave,
     overflow: 'always',
+    tone: 'destructive',
     priority: 40,
     dataSet: { testid: Handles.spaceLeave },
   };
+  if (!args.canEnd) return [leave];
+  // The host may also leave, which ends the space for everyone too (the
+  // leave confirm says so), so leaving never strands people in a space
+  // nobody runs.
+  return [
+    leave,
+    {
+      id: 'end-space',
+      label: args.labels.end,
+      icon: CircleStopIcon,
+      onClick: args.callbacks.onPressEnd,
+      overflow: 'always',
+      tone: 'destructive',
+      priority: 30,
+      dataSet: { testid: Handles.spaceEnd },
+    },
+  ];
 }
 
 function buildTrailingItems(args: TrailingArgs): ActionBarItem[] {
-  const items: ActionBarItem[] = [
-    membersItem(args),
+  const everyday: ActionBarItem[] = [
     {
       id: 'share',
       label: args.labels.invite,
@@ -229,7 +218,7 @@ function buildTrailingItems(args: TrailingArgs): ActionBarItem[] {
     },
   ];
   if (args.canRename) {
-    items.push({
+    everyday.push({
       id: 'rename',
       label: args.labels.rename,
       icon: SquarePenIcon,
@@ -239,35 +228,14 @@ function buildTrailingItems(args: TrailingArgs): ActionBarItem[] {
       dataSet: { testid: Handles.spaceRename },
     });
   }
-  if (!args.wide) items.push(exitItem(args));
-  if (args.canEnd) items.push(hostLeaveItem(args));
-  return items;
-}
-
-/** Wide: End space (or Leave space) in words, before ⋯. */
-function buildExitText(args: TrailingArgs): ActionBarTextAction[] {
-  if (!args.wide) return [];
-  return args.canEnd
-    ? [
-        {
-          id: 'end-space',
-          label: args.labels.end,
-          onClick: args.callbacks.onPressEnd,
-          intent: 'danger',
-          variant: 'ghost',
-          dataSet: { testid: Handles.spaceEnd },
-        },
-      ]
-    : [
-        {
-          id: 'leave-space',
-          label: args.labels.leave,
-          onClick: args.callbacks.onPressLeave,
-          intent: 'neutral',
-          variant: 'ghost',
-          dataSet: { testid: Handles.spaceLeave },
-        },
-      ];
+  const last = everyday.length - 1;
+  return [
+    membersItem(args),
+    ...everyday.map((item, index) =>
+      index === last ? { ...item, endsGroup: true } : item
+    ),
+    ...exitItems(args),
+  ];
 }
 
 export type SpaceChromeTrailingActionBarProps = {
@@ -285,17 +253,16 @@ export type SpaceChromeTrailingActionBarProps = {
 };
 
 /**
- * Members, then the way out of the space, then ⋯ at the far edge with the
- * rest (share, rename, and the host's leave). The same order on every size.
+ * Members, then ⋯ at the far edge with the rest: share and rename, then,
+ * set apart in red, the way out (leave, and the host's end). The same on
+ * every size.
  */
 export function SpaceChromeTrailingActionBar(
   props: SpaceChromeTrailingActionBarProps
 ): JSX.Element {
   const chrome = useActionBarChrome();
-  const mode = useLayoutMode();
   const args = createMemo(
     (): TrailingArgs => ({
-      wide: mode() === 'wide',
       canRename: props.canRename,
       canEnd: props.canEnd,
       // Each face's own ring adds to it; the stack stays the bar's height.
@@ -315,12 +282,11 @@ export function SpaceChromeTrailingActionBar(
   // Built once per change of size or rights, so the members button keeps its
   // element while people come and go.
   const items = createMemo(() => buildTrailingItems(args()));
-  const exitText = createMemo(() => buildExitText(args()));
   return (
     <ActionBar
       items={items()}
-      textActions={exitText()}
-      textPlacement="end"
+      // The members button stays on the bar: the title truncates first.
+      holdPinned
       buttonSize={chrome().buttonSize}
       gap={chrome().gap}
       overflowDataSet={{ testid: Handles.spaceChromeOverflow }}

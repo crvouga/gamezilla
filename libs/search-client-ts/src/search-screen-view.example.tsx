@@ -8,7 +8,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   HighlightedText,
-  rangesAfterMatch,
+  rangesOfMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
 import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -44,7 +44,7 @@ const STORY_RELATIONS: Readonly<
 /**
  * Stand-in for the friends sub's relationship: one trailing control per row,
  * every one ending on the same edge: "Friends" as words with a check in the
- * success ink (a status, not a control), "Cancel" for a request that is out
+ * success ink (a status, not a control), "Cancel request" for one that is out
  * (the row says "Request sent" under the name), or "Add friend", each a
  * small outlined pill.
  */
@@ -63,7 +63,7 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
       </Match>
       <Match when={relation() === 'requested'}>
         <Button
-          title="Cancel"
+          title="Cancel request"
           intent="neutral"
           variant="outline"
           size="sm"
@@ -89,7 +89,7 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
  * with the person and their status pill; otherwise avatar + username from
  * the device's data): the same shape, drawn from the result itself — the
  * person's face (their initials when their profile has not synced), the part
- * of the name after the typed query emphasised so similar names read apart,
+ * of the name the typed query matched emphasised,
  * a request that is out as a tag under the name, and the pill.
  */
 export function StoryUserRow(props: {
@@ -97,7 +97,7 @@ export function StoryUserRow(props: {
   readonly query: string;
 }): JSX.Element {
   const name = (): string => `@${props.user.username}`;
-  const ranges = () => rangesAfterMatch(name(), props.query);
+  const ranges = () => rangesOfMatch(name(), props.query);
   return (
     <StackHorizontal align="center" gap="sm" paddingY="sm">
       <DeviceAvatar

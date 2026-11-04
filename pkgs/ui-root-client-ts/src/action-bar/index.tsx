@@ -64,6 +64,12 @@ export type ActionBarProps = {
   slotWidth?: number | undefined;
   /** When true, shows a caption under each inline action. */
   showInlineLabels?: boolean | undefined;
+  /**
+   * When true, `never` items hold their room: a title beside the bar
+   * truncates before they fold into More. By default the bar gives up its
+   * room down to the More trigger before any row-mate gives up any.
+   */
+  holdPinned?: boolean | undefined;
   /** Overrides the default `FloatingMenu` overflow dropdown. */
   renderMenu?: ((menu: OverflowMenuRenderProps) => JSX.Element) | undefined;
   /** Notified when the More trigger is clicked (after the menu opens). */
@@ -201,6 +207,9 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
     },
     get showInlineLabels() {
       return props.showInlineLabels;
+    },
+    get holdPinned() {
+      return props.holdPinned;
     },
   });
 

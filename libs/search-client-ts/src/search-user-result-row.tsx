@@ -7,7 +7,7 @@ import { useSearchResultSlots } from './search-result-slots';
 /** One person's result row: the slot another sub fills, or avatar + username. */
 export function SearchUserResultRow(props: {
   readonly user: UserSearchResult;
-  /** What was typed, for the row to emphasise what sets the name apart. */
+  /** What was typed, for the row to emphasise where it matched. */
   readonly query: string;
 }): JSX.Element {
   const slots = useSearchResultSlots();

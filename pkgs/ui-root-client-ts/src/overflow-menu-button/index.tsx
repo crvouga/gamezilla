@@ -30,6 +30,8 @@ export type OverflowMenuAction = {
   disabled?: boolean | undefined;
   /** When true, inserts a divider row after this action. */
   endsGroup?: boolean | undefined;
+  /** `destructive` paints the row red (end, leave, delete). */
+  tone?: 'default' | 'destructive' | undefined;
   'aria-label'?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -53,6 +55,7 @@ export type OverflowMenuContentRow =
       leading?: JSX.Element | undefined;
       trailing?: JSX.Element | undefined;
       disabled?: boolean | undefined;
+      tone?: 'default' | 'destructive' | undefined;
       'aria-label'?: string | undefined;
       dataSet?: ComponentDataSet | undefined;
     }
@@ -139,6 +142,7 @@ export function buildOverflowMenuContent(
       leading: a.leading,
       trailing: a.trailing,
       disabled: a.disabled,
+      tone: a.tone,
       'aria-label': a['aria-label'],
       dataSet: a.dataSet,
     });

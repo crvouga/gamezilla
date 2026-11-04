@@ -52,6 +52,22 @@ export default function EmptyStateExample(): JSX.Element {
 
       <div class="divider" role="separator" />
 
+      <SectionLabel label="On the page title's edge (align start)" />
+      <SchemePreview>
+        <div class="box h-70">
+          <EmptyState
+            align="start"
+            icon={CompassIcon}
+            title="There's nothing at this address"
+            body="The link may be old or mistyped."
+            action={{ label: 'Go to Spaces', onClick: () => undefined }}
+            secondaryAction={{ label: 'Go back', onClick: () => undefined }}
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
       <SectionLabel label="Fill, guidance only" />
       <SchemePreview>
         <div class="box h-70">

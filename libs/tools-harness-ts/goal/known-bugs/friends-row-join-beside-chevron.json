@@ -1,0 +1,4 @@
+{
+  "summary": "A friends-list row for someone in a live space ended in a Join button and then a chevron, two targets side by side that each looked like the row's action. A row now ends in exactly one thing: Join while the friend is in a live space, otherwise the chevron that says the row opens their profile.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-list-row-target.test.tsx"
+}

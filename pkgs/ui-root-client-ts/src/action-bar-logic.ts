@@ -45,6 +45,8 @@ type ActionBarItemBase = {
   disabled?: boolean | undefined;
   loading?: boolean | undefined;
   endsGroup?: boolean | undefined;
+  /** `destructive` paints the overflow-menu row red (end, leave, delete). */
+  tone?: 'default' | 'destructive' | undefined;
   /** Higher values stay visible longer when space is tight. */
   priority?: number | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;
@@ -149,6 +151,23 @@ export function actionBarRowWidth(
 ): number {
   if (widths.length === 0) return 0;
   return widths.reduce((sum, w) => sum + w, 0) + gap * (widths.length - 1);
+}
+
+/**
+ * Room the bar never gives up: every `never` item and the More trigger.
+ * The bar shrinks before its row-mates do, so without this floor a title
+ * beside it would push a pinned item into the menu instead of truncating.
+ */
+export function actionBarMinWidth(args: {
+  readonly items: readonly ActionBarItem[];
+  readonly widthOf: (item: ActionBarItem) => number;
+  readonly moreWidth: number;
+  readonly gap: number;
+}): number {
+  const pinned = args.items
+    .filter((item) => item.overflow === 'never')
+    .map(args.widthOf);
+  return actionBarRowWidth([...pinned, args.moreWidth], args.gap);
 }
 
 /** The longest prefix of `order` whose row fits in `budget`. */

@@ -18,7 +18,7 @@ import type { JSX } from 'solid-js';
 export type SearchResultSlots = {
   /**
    * One whole result row, including what pressing it does. `query` is what
-   * was typed, so the row can emphasise what sets this name apart.
+   * was typed, so the row can emphasise where it matched.
    */
   readonly userRow?: (user: UserSearchResult, query: string) => JSX.Element;
 };

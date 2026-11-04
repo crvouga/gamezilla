@@ -1,0 +1,4 @@
+{
+  "summary": "An ActionBar item marked overflow 'never' (a space's members button) folded into ⋯ on a phone when the row was a few pixels short, because the bar shrank before the title beside it. A bar can now hold its never items (holdPinned): its minimum width keeps their room beside the More trigger, so the title truncates instead. The space's top bar opts in; other bars keep giving up room first.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/action-bar.test.tsx"
+}

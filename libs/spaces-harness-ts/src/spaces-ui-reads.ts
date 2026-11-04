@@ -5,6 +5,7 @@ import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
 import { otherDevice } from '@libs/harness-ts/platform';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { offeredInSpaceMenu } from './space-menu-ui-reads';
 
 /** Each person's own retained space, including changes made offline. */
 export async function openSpaceHosts(
@@ -259,12 +260,16 @@ export function spaceHostOfflineShown(
   return shows(s, actorId, Handles.spaceHostOffline);
 }
 
-/** A joined person can remove their own account's membership. */
-export function leaveOffered(
+/**
+ * A joined person can remove their own account's membership: Leave on the
+ * screen (a link's join prompt) or in the space's ⋯ menu.
+ */
+export async function leaveOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return shows(s, actorId, Handles.spaceLeave);
+  if (await shows(s, actorId, Handles.spaceLeave)) return true;
+  return offeredInSpaceMenu(s, actorId, Handles.spaceLeave);
 }
 
 /** A refused join stays available as an explicit retry. */

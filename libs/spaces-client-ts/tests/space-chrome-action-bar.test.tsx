@@ -16,8 +16,9 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup } from '@solidjs/testing-library';
+import { cleanup, fireEvent } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
@@ -42,18 +43,20 @@ function renderBar(
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={layout}>
-        <SpaceChromeLeadingActionBar {...CALLBACKS} backLabel="Games" />
-        <SpaceChromeTrailingActionBar
-          canRename
-          canEnd={canEnd}
-          presence={(size) => (
-            <SpacePresenceStripView
-              faces={faces([AVERY, ...GUESTS])}
-              size={size}
-            />
-          )}
-          callbacks={{ ...CALLBACKS, backLabel: 'Games' }}
-        />
+        <SurfaceStackProvider>
+          <SpaceChromeLeadingActionBar {...CALLBACKS} backLabel="Games" />
+          <SpaceChromeTrailingActionBar
+            canRename
+            canEnd={canEnd}
+            presence={(size) => (
+              <SpacePresenceStripView
+                faces={faces([AVERY, ...GUESTS])}
+                size={size}
+              />
+            )}
+            callbacks={{ ...CALLBACKS, backLabel: 'Games' }}
+          />
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -64,41 +67,74 @@ function byHandle(container: HTMLElement, handle: string): Element | null {
   return container.querySelector(`[data-testid="${handle}"]`);
 }
 
-test('beside the sidebar Close, Back and End space say what they do in words', () => {
+function openMenu(container: HTMLElement): void {
+  const trigger = byHandle(container, Handles.spaceChromeOverflow);
+  if (!(trigger instanceof HTMLElement)) throw new Error('no ⋯ menu');
+  fireEvent.click(trigger);
+}
+
+function inPage(handle: string): Element | null {
+  return document.querySelector(`[data-testid="${handle}"]`);
+}
+
+// regression: space-close-label-hides-step-out
+test('beside the sidebar Minimize and Back say what they do, side by side', () => {
   const container = renderBar(WIDE, true);
-  expect(byHandle(container, Handles.spaceClose)?.textContent).toContain(
-    'Close'
-  );
+  const minimize = byHandle(container, Handles.spaceClose);
+  expect(minimize?.textContent).toContain('Minimize');
+  expect(minimize?.getAttribute('aria-label')).toBe('Minimize space');
+  expect(minimize?.textContent).not.toContain('Close');
   expect(byHandle(container, Handles.navBack)?.textContent).toContain('Games');
-  expect(byHandle(container, Handles.spaceEnd)?.textContent).toContain(
-    'End space'
-  );
 });
 
-test('on a phone Close and Back are glyphs named for what they do', () => {
+// regression: space-close-label-hides-step-out
+test('on a phone Minimize and Back are glyphs named for what they do', () => {
   const container = renderBar(PHONE, true);
   expect(
     byHandle(container, Handles.spaceClose)?.getAttribute('aria-label')
-  ).toBe('Close');
+  ).toBe('Minimize space');
   expect(byHandle(container, Handles.navBack)?.getAttribute('aria-label')).toBe(
     'Games'
   );
 });
 
-// End is never parked in ⋯ by policy: the host's way to end the space stays
-// on the bar wherever the bar has room for it.
-test('the host is offered End on the bar on every size', () => {
-  expect(byHandle(renderBar(PHONE, true), Handles.spaceEnd)).not.toBeNull();
-  cleanup();
-  expect(byHandle(renderBar(WIDE, true), Handles.spaceEnd)).not.toBeNull();
+// regression: space-end-beside-everyday-controls
+test('End and Leave never sit on the bar beside everyday controls', () => {
+  for (const layout of [PHONE, WIDE]) {
+    for (const canEnd of [true, false]) {
+      const container = renderBar(layout, canEnd);
+      expect(byHandle(container, Handles.spaceEnd)).toBeNull();
+      expect(byHandle(container, Handles.spaceLeave)).toBeNull();
+      expect(byHandle(container, Handles.spaceMembersButton)).not.toBeNull();
+      cleanup();
+    }
+  }
 });
 
-test('a guest is offered Leave on the bar, and no End', () => {
-  const container = renderBar(WIDE, false);
-  expect(byHandle(container, Handles.spaceLeave)?.textContent).toContain(
-    'Leave space'
-  );
-  expect(byHandle(container, Handles.spaceEnd)).toBeNull();
+// regression: space-end-beside-everyday-controls
+test('the host finds End and Leave in ⋯, in red, after a divider', () => {
+  for (const layout of [PHONE, WIDE]) {
+    openMenu(renderBar(layout, true));
+    const end = inPage(Handles.spaceEnd);
+    const leave = inPage(Handles.spaceLeave);
+    expect(end?.textContent).toContain('End space');
+    expect(leave?.textContent).toContain('Leave space');
+    expect(end?.querySelector('.text-destructive')).not.toBeNull();
+    expect(leave?.querySelector('.text-destructive')).not.toBeNull();
+    // Everyday actions first, then a divider, then the ways out.
+    const rename = inPage(Handles.spaceRename);
+    const divider = rename?.nextElementSibling;
+    expect(divider?.getAttribute('role')).toBe('separator');
+    expect(divider?.nextElementSibling).toBe(leave);
+    expect(leave?.nextElementSibling).toBe(end);
+    cleanup();
+  }
+});
+
+test('a guest finds Leave in ⋯, and no End', () => {
+  openMenu(renderBar(WIDE, false));
+  expect(inPage(Handles.spaceLeave)?.textContent).toContain('Leave space');
+  expect(inPage(Handles.spaceEnd)).toBeNull();
 });
 
 test('the members button draws no ring of its own around the faces', () => {

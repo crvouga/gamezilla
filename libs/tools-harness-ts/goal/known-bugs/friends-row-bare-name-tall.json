@@ -1,0 +1,4 @@
+{
+  "summary": "A friends-list row with only a username was as tall as a two-line row (a 44px face plus extra padding around the row), so most of the list was empty space beside one short name. Rows now use a 40px face and no extra padding, so a bare name sits in a compact row.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-list-row-target.test.tsx"
+}

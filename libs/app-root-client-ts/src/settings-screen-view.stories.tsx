@@ -52,11 +52,11 @@ export const WithSubSettings: Story = {
   ),
 };
 
-/** The Work offline switch asks to stop every connection. */
+/** The Offline mode switch asks to stop every connection. */
 export const WorkOffline: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const target = await canvas.findByRole('switch', { name: 'Work offline' });
+    const target = await canvas.findByRole('switch', { name: 'Offline mode' });
     await userEvent.click(target);
     await expect(args.onOfflineChange).toHaveBeenCalledWith(true);
   },
