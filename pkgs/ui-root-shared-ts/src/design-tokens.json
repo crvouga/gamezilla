@@ -2,15 +2,15 @@
   "$description": "The look of the product: every color, distance, type size, radius and motion, in the W3C Design Tokens format. This file is the source. Language projections are generated from it.",
   "color": {
     "$type": "color",
-    "$description": "Achromatic application chrome and feedback. Game-prefixed tokens are scoped to their playing surfaces; paths retain named colors.",
+    "$description": "Quiet slate chrome with one indigo accent for links, the primary fill, selection and focus; feedback keeps its named hues. Game-prefixed tokens are scoped to their playing surfaces; paths retain named colors.",
     "light": {
       "background": {
-        "$description": "The screen canvas (`surface` in the design brief): #111111 / #fafafa.",
+        "$description": "The screen canvas (`surface` in the design brief): #0f1115 / #f5f6f8.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9804, 0.9804, 0.9804],
+          "components": [0.9608, 0.9647, 0.9725],
           "alpha": 1.0,
-          "hex": "#fafafa"
+          "hex": "#f5f6f8"
         }
       },
       "surface": {
@@ -26,9 +26,9 @@
         "$description": "Sunken well (`surface-sunken`): inputs, media wells, empty board cells, tags, inactive stat pills.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9569, 0.9569, 0.9569],
+          "components": [0.9333, 0.9412, 0.9569],
           "alpha": 1.0,
-          "hex": "#f4f4f4"
+          "hex": "#eef0f4"
         }
       },
       "surfaceElevated": {
@@ -53,80 +53,80 @@
         "$description": "Primary text (`ink`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0824, 0.0941, 0.1294],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#151821"
         }
       },
       "textSecondary": {
         "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3255, 0.3255, 0.3255],
+          "components": [0.3373, 0.3765, 0.4471],
           "alpha": 1.0,
-          "hex": "#535353"
+          "hex": "#566072"
         }
       },
       "icon": {
         "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3255, 0.3255, 0.3255],
+          "components": [0.3373, 0.3765, 0.4471],
           "alpha": 1.0,
-          "hex": "#535353"
+          "hex": "#566072"
         }
       },
       "tint": {
         "$description": "Primary as text (`primary-ink`): links and selected labels. Never a fill.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1882, 0.1882, 0.1882],
+          "components": [0.3098, 0.2745, 0.898],
           "alpha": 1.0,
-          "hex": "#303030"
+          "hex": "#4f46e5"
         }
       },
       "tintHover": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.2627, 0.2196, 0.7922],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#4338ca"
         }
       },
       "tintActive": {
         "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1882, 0.1882, 0.1882],
+          "components": [0.3098, 0.2745, 0.898],
           "alpha": 1.0,
-          "hex": "#303030"
+          "hex": "#4f46e5"
         }
       },
       "tintSubtle": {
         "$description": "Selected chip, active turn, active player, your avatar (`primary-soft`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9098, 0.9098, 0.9098],
+          "components": [0.9255, 0.9333, 0.9961],
           "alpha": 1.0,
-          "hex": "#e8e8e8"
+          "hex": "#eceefe"
         }
       },
       "primaryStrong": {
         "$description": "Selected borders, active indicators, your own pieces (`primary-strong`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.251, 0.251, 0.251],
+          "components": [0.3098, 0.2745, 0.898],
           "alpha": 1.0,
-          "hex": "#404040"
+          "hex": "#4f46e5"
         }
       },
       "onPrimarySoft": {
         "$description": "Text and initials on `tintSubtle` (`on-primary-soft`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1882, 0.1882, 0.1882],
+          "components": [0.2157, 0.1882, 0.6392],
           "alpha": 1.0,
-          "hex": "#303030"
+          "hex": "#3730a3"
         }
       },
       "onPrimary": {
@@ -180,128 +180,128 @@
       "interactiveHover": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0, 0.0, 0.0],
-          "alpha": 0.0392,
-          "hex": "#000000"
+          "components": [0.0824, 0.0941, 0.1294],
+          "alpha": 0.04,
+          "hex": "#151821"
         }
       },
       "interactivePress": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0, 0.0, 0.0],
-          "alpha": 0.0784,
-          "hex": "#000000"
+          "components": [0.0824, 0.0941, 0.1294],
+          "alpha": 0.08,
+          "hex": "#151821"
         }
       },
       "border": {
         "$description": "Decorative dividers only (`line`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8941, 0.8941, 0.8941],
+          "components": [0.8863, 0.898, 0.9216],
           "alpha": 1.0,
-          "hex": "#e4e4e4"
+          "hex": "#e2e5eb"
         }
       },
       "outline": {
         "$description": "Borders that carry meaning (`line-strong`): inputs, secondary buttons, unselected chips. Held to 3:1.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.4471, 0.4471, 0.4471],
+          "components": [0.4784, 0.5137, 0.5843],
           "alpha": 1.0,
-          "hex": "#727272"
+          "hex": "#7a8395"
         }
       },
       "focusRing": {
         "$description": "The 2px focus ring, 2px offset, on every interactive control (`focus`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.3098, 0.2745, 0.898],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#4f46e5"
         }
       },
       "destructive": {
         "$description": "Resign, errors, destructive actions as text (`danger`); always with a word or icon.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.7843, 0.1176, 0.1176],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#c81e1e"
         }
       },
       "destructiveActive": {
         "$description": "Solid danger fill under a white label.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.8627, 0.149, 0.149],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#dc2626"
         }
       },
       "destructiveSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.302, 0.302, 0.302],
-          "alpha": 0.102,
-          "hex": "#4d4d4d"
+          "components": [0.8627, 0.149, 0.149],
+          "alpha": 0.09,
+          "hex": "#dc2626"
         }
       },
       "success": {
         "$description": "Success (`success`); always with a word or icon.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.0745, 0.4392, 0.2275],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#13703a"
         }
       },
       "successSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3765, 0.3765, 0.3765],
-          "alpha": 0.102,
-          "hex": "#606060"
+          "components": [0.0863, 0.6392, 0.2902],
+          "alpha": 0.1,
+          "hex": "#16a34a"
         }
       },
       "warning": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.6039, 0.2902, 0.0235],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#9a4a06"
         }
       },
       "warningSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.651, 0.651, 0.651],
-          "alpha": 0.1608,
-          "hex": "#a6a6a6"
+          "components": [0.9608, 0.6196, 0.0431],
+          "alpha": 0.14,
+          "hex": "#f59e0b"
         }
       },
       "info": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.1137, 0.3059, 0.8471],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#1d4ed8"
         }
       },
       "infoSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3765, 0.3765, 0.3765],
-          "alpha": 0.102,
-          "hex": "#606060"
+          "components": [0.1451, 0.3882, 0.9216],
+          "alpha": 0.09,
+          "hex": "#2563eb"
         }
       },
       "live": {
         "$description": "Only the LIVE pill and the recording dot, under white text.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.8627, 0.149, 0.149],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#dc2626"
         }
       },
       "onLive": {
@@ -371,108 +371,108 @@
         "$description": "Seat 1 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3412, 0.3412, 0.3412],
+          "components": [0.0745, 0.298, 0.7922],
           "alpha": 1.0,
-          "hex": "#575757"
+          "hex": "#134cca"
         }
       },
       "player2": {
         "$description": "Seat 2 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.498, 0.498, 0.498],
+          "components": [0.8824, 0.2941, 0.0549],
           "alpha": 1.0,
-          "hex": "#7f7f7f"
+          "hex": "#e14b0e"
         }
       },
       "player3": {
         "$description": "Seat 3 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3961, 0.3961, 0.3961],
+          "components": [0.0549, 0.4431, 0.4118],
           "alpha": 1.0,
-          "hex": "#656565"
+          "hex": "#0e7169"
         }
       },
       "player4": {
         "$description": "Seat 4 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2431, 0.2431, 0.2431],
+          "components": [0.2863, 0.0627, 0.6745],
           "alpha": 1.0,
-          "hex": "#3e3e3e"
+          "hex": "#4910ac"
         }
       },
       "player5": {
         "$description": "Seat 5 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.549, 0.549, 0.549],
+          "components": [0.7843, 0.4784, 0.0353],
           "alpha": 1.0,
-          "hex": "#8c8c8c"
+          "hex": "#c87a09"
         }
       },
       "player6": {
         "$description": "Seat 6 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1922, 0.1922, 0.1922],
+          "components": [0.1922, 0.1922, 0.2118],
           "alpha": 1.0,
-          "hex": "#313131"
+          "hex": "#313136"
         }
       },
       "player7": {
         "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2902, 0.2902, 0.2902],
+          "components": [0.5647, 0.0706, 0.2784],
           "alpha": 1.0,
-          "hex": "#4a4a4a"
+          "hex": "#901247"
         }
       },
       "player8": {
         "$description": "Seat 8 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.4471, 0.4471, 0.4471],
+          "components": [0.3098, 0.498, 0.0588],
           "alpha": 1.0,
-          "hex": "#727272"
+          "hex": "#4f7f0f"
         }
       },
       "boardLight": {
         "$description": "Light squares of a checkered board. Neutral; the same role in both schemes.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9176, 0.9176, 0.9176],
+          "components": [0.9412, 0.851, 0.7098],
           "alpha": 1.0,
-          "hex": "#eaeaea"
+          "hex": "#f0d9b5"
         }
       },
       "boardDark": {
         "$description": "Dark squares of a checkered board.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5961, 0.5961, 0.5961],
+          "components": [0.7098, 0.5333, 0.3882],
           "alpha": 1.0,
-          "hex": "#989898"
+          "hex": "#b58863"
         }
       },
       "boardHighlight": {
         "$description": "Last-move and selected-square wash over a board square.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3765, 0.3765, 0.3765],
-          "alpha": 0.2784,
-          "hex": "#606060"
+          "components": [0.9098, 0.7725, 0.2784],
+          "alpha": 0.55,
+          "hex": "#e8c547"
         }
       },
       "boardCell": {
         "$description": "An empty board cell or slot (the `surface-sunken` value).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9569, 0.9569, 0.9569],
+          "components": [0.9608, 0.9647, 0.9725],
           "alpha": 1.0,
-          "hex": "#f4f4f4"
+          "hex": "#f5f6f8"
         }
       },
       "boardCardFace": {
@@ -488,43 +488,43 @@
         "$description": "Black suits and card text on `boardCardFace`.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0824, 0.0941, 0.1294],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#151821"
         }
       },
       "boardCardInkRed": {
         "$description": "Red suits on `boardCardFace`.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2588, 0.2588, 0.2588],
+          "components": [0.7843, 0.1176, 0.1176],
           "alpha": 1.0,
-          "hex": "#424242"
+          "hex": "#c81e1e"
         }
       },
       "disabled": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9569, 0.9569, 0.9569],
+          "components": [0.9333, 0.9412, 0.9569],
           "alpha": 1.0,
-          "hex": "#f4f4f4"
+          "hex": "#eef0f4"
         }
       },
       "scrim": {
         "$description": "Behind sheets and dialogs.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0, 0.0, 0.0],
-          "alpha": 0.4,
-          "hex": "#000000"
+          "components": [0.0431, 0.051, 0.0706],
+          "alpha": 0.42,
+          "hex": "#0b0d12"
         }
       },
       "shadowColor": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0, 0.0, 0.0],
-          "alpha": 0.1216,
-          "hex": "#000000"
+          "components": [0.0588, 0.0902, 0.1647],
+          "alpha": 0.1,
+          "hex": "#0f172a"
         }
       },
       "gameConnectFourCanvas": {
@@ -532,7 +532,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0902, 0.2353, 0.4706],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#173c78"
         }
       },
@@ -541,7 +541,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.3294, 0.6078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#24549b"
         }
       },
@@ -550,7 +550,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffffff"
         }
       },
@@ -559,7 +559,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8314, 0.8941, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#d4e4ff"
         }
       },
@@ -568,7 +568,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffffff"
         }
       },
@@ -577,7 +577,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7843, 0.2235, 0.2196],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#c83938"
         }
       },
@@ -586,7 +586,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.7922, 0.3137],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5ca50"
         }
       },
@@ -595,7 +595,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0353, 0.1725, 0.251],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#092c40"
         }
       },
@@ -604,7 +604,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0706, 0.2471, 0.3294],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#123f54"
         }
       },
@@ -613,7 +613,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.898, 0.9608, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e5f5ff"
         }
       },
@@ -622,7 +622,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6196, 0.7882, 0.8627],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#9ec9dc"
         }
       },
@@ -631,7 +631,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.451, 0.8353, 0.9569],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#73d5f4"
         }
       },
@@ -640,7 +640,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9686, 0.5725, 0.4471],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f79272"
         }
       },
@@ -649,7 +649,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8039, 0.4627],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5cd76"
         }
       },
@@ -658,7 +658,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8549, 0.7725, 0.6235],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#dac59f"
         }
       },
@@ -667,7 +667,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9373, 0.8824, 0.7725],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#efe1c5"
         }
       },
@@ -676,7 +676,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1882, 0.1608, 0.1216],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#30291f"
         }
       },
@@ -685,7 +685,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.3765, 0.302, 0.2078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#604d35"
         }
       },
@@ -694,7 +694,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2784, 0.2157, 0.3412],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#473757"
         }
       },
@@ -703,7 +703,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6118, 0.1882, 0.1686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#9c302b"
         }
       },
@@ -712,7 +712,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1765, 0.4, 0.3373],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#2d6656"
         }
       },
@@ -721,7 +721,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.1765, 0.2157],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#242d37"
         }
       },
@@ -730,7 +730,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2235, 0.2824, 0.3294],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#394854"
         }
       },
@@ -739,7 +739,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.949, 0.8941, 0.7686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f2e4c4"
         }
       },
@@ -748,7 +748,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7294, 0.7882, 0.8078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bac9ce"
         }
       },
@@ -757,7 +757,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8118, 0.4157],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5cf6a"
         }
       },
@@ -766,7 +766,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9216, 0.6941, 0.4745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ebb179"
         }
       },
@@ -775,7 +775,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.5255, 0.8431, 0.6745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#86d7ac"
         }
       },
@@ -784,7 +784,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9882, 0.9725, 0.9333],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#fcf8ee"
         }
       },
@@ -793,7 +793,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9294, 0.898, 0.8314],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ede5d4"
         }
       },
@@ -802,7 +802,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2, 0.1882, 0.1686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#33302b"
         }
       },
@@ -811,7 +811,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.4196, 0.3843, 0.3333],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#6b6255"
         }
       },
@@ -820,7 +820,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.3294, 0.2667, 0.5686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#544491"
         }
       },
@@ -829,7 +829,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6471, 0.2392, 0.1882],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#a53d30"
         }
       },
@@ -838,7 +838,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1922, 0.4235, 0.2824],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#316c48"
         }
       },
@@ -847,7 +847,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1255, 0.2941, 0.251],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#204b40"
         }
       },
@@ -856,7 +856,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8627, 0.9098, 0.8392],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#dce8d6"
         }
       },
@@ -865,7 +865,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.9647, 0.8549],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#fff6da"
         }
       },
@@ -874,7 +874,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7451, 0.8314, 0.7647],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bed4c3"
         }
       },
@@ -883,7 +883,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.8824, 0.6392],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffe1a3"
         }
       },
@@ -892,7 +892,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.7765, 0.7216],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5c6b8"
         }
       },
@@ -901,7 +901,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7176, 0.8471, 0.9412],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#b7d8f0"
         }
       },
@@ -910,7 +910,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0902, 0.2431, 0.2039],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#173e34"
         }
       },
@@ -919,7 +919,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.3333, 0.2745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#245546"
         }
       },
@@ -928,7 +928,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.9647, 0.8706],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#fff6de"
         }
       },
@@ -937,7 +937,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.749, 0.8275, 0.7765],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bfd3c6"
         }
       },
@@ -946,7 +946,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.851, 0.5804],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5d994"
         }
       },
@@ -955,7 +955,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7412, 0.2039, 0.2353],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bd343c"
         }
       },
@@ -964,7 +964,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.851, 0.5804],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5d994"
         }
       },
@@ -973,7 +973,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1569, 0.1098, 0.2745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#281c46"
         }
       },
@@ -982,7 +982,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2863, 0.2118, 0.4196],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#49366b"
         }
       },
@@ -991,7 +991,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9725, 0.9294, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f8edff"
         }
       },
@@ -1000,7 +1000,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8, 0.7294, 0.8902],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ccbae3"
         }
       },
@@ -1009,7 +1009,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.902, 0.7137, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e6b6ff"
         }
       },
@@ -1018,7 +1018,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.902, 0.7137, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e6b6ff"
         }
       },
@@ -1027,7 +1027,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9686, 0.9059, 0.5961],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f7e798"
         }
       },
@@ -1036,7 +1036,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0314, 0.1137, 0.1686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#081d2b"
         }
       },
@@ -1045,7 +1045,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0863, 0.2314, 0.2941],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#163b4b"
         }
       },
@@ -1054,7 +1054,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9255, 0.9804, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ecfaff"
         }
       },
@@ -1063,7 +1063,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.5765, 0.7451, 0.7961],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#93becb"
         }
       },
@@ -1072,7 +1072,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.4431, 0.902, 0.9333],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#71e6ee"
         }
       },
@@ -1081,7 +1081,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.6824, 0.502],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffae80"
         }
       },
@@ -1090,175 +1090,175 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7255, 0.6275, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#b9a0ff"
         }
       }
     },
     "dark": {
       "background": {
-        "$description": "The screen canvas (`surface` in the design brief): #111111 / #fafafa.",
+        "$description": "The screen canvas (`surface` in the design brief): #0f1115 / #f5f6f8.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0667, 0.0667, 0.0667],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#111111"
+          "hex": "#0f1115"
         }
       },
       "surface": {
         "$description": "Raised paper (`surface-raised`): cards, list panels, sheets and menus.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1098, 0.1098, 0.1098],
+          "components": [0.0902, 0.102, 0.1294],
           "alpha": 1.0,
-          "hex": "#1c1c1c"
+          "hex": "#171a21"
         }
       },
       "surfaceMuted": {
         "$description": "Sunken well (`surface-sunken`): inputs, media wells, empty board cells, tags, inactive stat pills.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0431, 0.0431, 0.0431],
+          "components": [0.0431, 0.051, 0.0627],
           "alpha": 1.0,
-          "hex": "#0b0b0b"
+          "hex": "#0b0d10"
         }
       },
       "surfaceElevated": {
         "$description": "Raised above the canvas: dialogs and sheets (`surface-raised`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1098, 0.1098, 0.1098],
+          "components": [0.1098, 0.1255, 0.1608],
           "alpha": 1.0,
-          "hex": "#1c1c1c"
+          "hex": "#1c2029"
         }
       },
       "surfaceOverlay": {
         "$description": "Floating above content: popovers, menus, tooltips (`surface-raised`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1098, 0.1098, 0.1098],
+          "components": [0.1176, 0.1333, 0.1686],
           "alpha": 1.0,
-          "hex": "#1c1c1c"
+          "hex": "#1e222b"
         }
       },
       "text": {
         "$description": "Primary text (`ink`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9294, 0.9294, 0.9294],
+          "components": [0.9098, 0.9176, 0.9373],
           "alpha": 1.0,
-          "hex": "#ededed"
+          "hex": "#e8eaef"
         }
       },
       "textSecondary": {
         "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6353, 0.6353, 0.6353],
+          "components": [0.6118, 0.6431, 0.702],
           "alpha": 1.0,
-          "hex": "#a2a2a2"
+          "hex": "#9ca4b3"
         }
       },
       "icon": {
         "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6353, 0.6353, 0.6353],
+          "components": [0.6118, 0.6431, 0.702],
           "alpha": 1.0,
-          "hex": "#a2a2a2"
+          "hex": "#9ca4b3"
         }
       },
       "tint": {
         "$description": "Primary as text (`primary-ink`): links and selected labels. Never a fill.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8314, 0.8314, 0.8314],
+          "components": [0.6471, 0.7059, 0.9882],
           "alpha": 1.0,
-          "hex": "#d4d4d4"
+          "hex": "#a5b4fc"
         }
       },
       "tintHover": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9333, 0.9333, 0.9333],
+          "components": [0.7804, 0.8235, 0.9961],
           "alpha": 1.0,
-          "hex": "#eeeeee"
+          "hex": "#c7d2fe"
         }
       },
       "tintActive": {
         "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8706, 0.8706, 0.8706],
+          "components": [0.5451, 0.5922, 0.9804],
           "alpha": 1.0,
-          "hex": "#dedede"
+          "hex": "#8b97fa"
         }
       },
       "tintSubtle": {
         "$description": "Selected chip, active turn, active player, your avatar (`primary-soft`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1882, 0.1882, 0.1882],
+          "components": [0.1529, 0.1686, 0.2824],
           "alpha": 1.0,
-          "hex": "#303030"
+          "hex": "#272b48"
         }
       },
       "primaryStrong": {
         "$description": "Selected borders, active indicators, your own pieces (`primary-strong`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7686, 0.7686, 0.7686],
+          "components": [0.6471, 0.7059, 0.9882],
           "alpha": 1.0,
-          "hex": "#c4c4c4"
+          "hex": "#a5b4fc"
         }
       },
       "onPrimarySoft": {
         "$description": "Text and initials on `tintSubtle` (`on-primary-soft`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8706, 0.8706, 0.8706],
+          "components": [0.8784, 0.898, 1.0],
           "alpha": 1.0,
-          "hex": "#dedede"
+          "hex": "#e0e5ff"
         }
       },
       "onPrimary": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#0f1115"
         }
       },
       "onDestructive": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#0f1115"
         }
       },
       "onSuccess": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#0f1115"
         }
       },
       "onWarning": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#0f1115"
         }
       },
       "onInfo": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0588, 0.0667, 0.0824],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#0f1115"
         }
       },
       "onTintScrim": {
@@ -1273,7 +1273,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 0.0588,
+          "alpha": 0.05,
           "hex": "#ffffff"
         }
       },
@@ -1281,7 +1281,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 0.1216,
+          "alpha": 0.1,
           "hex": "#ffffff"
         }
       },
@@ -1289,111 +1289,111 @@
         "$description": "Decorative dividers only (`line`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1725, 0.1725, 0.1725],
+          "components": [0.149, 0.1686, 0.2078],
           "alpha": 1.0,
-          "hex": "#2c2c2c"
+          "hex": "#262b35"
         }
       },
       "outline": {
         "$description": "Borders that carry meaning (`line-strong`): inputs, secondary buttons, unselected chips. Held to 3:1.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.4471, 0.4471, 0.4471],
+          "components": [0.4196, 0.4549, 0.5255],
           "alpha": 1.0,
-          "hex": "#727272"
+          "hex": "#6b7486"
         }
       },
       "focusRing": {
         "$description": "The 2px focus ring, 2px offset, on every interactive control (`focus`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7686, 0.7686, 0.7686],
+          "components": [0.6471, 0.7059, 0.9882],
           "alpha": 1.0,
-          "hex": "#c4c4c4"
+          "hex": "#a5b4fc"
         }
       },
       "destructive": {
         "$description": "Resign, errors, destructive actions as text (`danger`); always with a word or icon.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7216, 0.7216, 0.7216],
+          "components": [0.9725, 0.4431, 0.4431],
           "alpha": 1.0,
-          "hex": "#b8b8b8"
+          "hex": "#f87171"
         }
       },
       "destructiveActive": {
         "$description": "Solid danger fill under a white label.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7216, 0.7216, 0.7216],
+          "components": [0.9725, 0.4431, 0.4431],
           "alpha": 1.0,
-          "hex": "#b8b8b8"
+          "hex": "#f87171"
         }
       },
       "destructiveSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5569, 0.5569, 0.5569],
-          "alpha": 0.1608,
-          "hex": "#8e8e8e"
+          "components": [0.9725, 0.4431, 0.4431],
+          "alpha": 0.13,
+          "hex": "#f87171"
         }
       },
       "success": {
         "$description": "Success (`success`); always with a word or icon.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7216, 0.7216, 0.7216],
+          "components": [0.2902, 0.8706, 0.502],
           "alpha": 1.0,
-          "hex": "#b8b8b8"
+          "hex": "#4ade80"
         }
       },
       "successSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6863, 0.6863, 0.6863],
-          "alpha": 0.1412,
-          "hex": "#afafaf"
+          "components": [0.2902, 0.8706, 0.502],
+          "alpha": 0.11,
+          "hex": "#4ade80"
         }
       },
       "warning": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7216, 0.7216, 0.7216],
+          "components": [0.9843, 0.749, 0.1412],
           "alpha": 1.0,
-          "hex": "#b8b8b8"
+          "hex": "#fbbf24"
         }
       },
       "warningSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7569, 0.7569, 0.7569],
-          "alpha": 0.1412,
-          "hex": "#c1c1c1"
+          "components": [0.9843, 0.749, 0.1412],
+          "alpha": 0.11,
+          "hex": "#fbbf24"
         }
       },
       "info": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7216, 0.7216, 0.7216],
+          "components": [0.3765, 0.6471, 0.9804],
           "alpha": 1.0,
-          "hex": "#b8b8b8"
+          "hex": "#60a5fa"
         }
       },
       "infoSurface": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6118, 0.6118, 0.6118],
-          "alpha": 0.1412,
-          "hex": "#9c9c9c"
+          "components": [0.3765, 0.6471, 0.9804],
+          "alpha": 0.12,
+          "hex": "#60a5fa"
         }
       },
       "live": {
         "$description": "Only the LIVE pill and the recording dot, under white text.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.3137, 0.3137, 0.3137],
+          "components": [0.8627, 0.149, 0.149],
           "alpha": 1.0,
-          "hex": "#505050"
+          "hex": "#dc2626"
         }
       },
       "onLive": {
@@ -1463,143 +1463,143 @@
         "$description": "Seat 1 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5216, 0.5216, 0.5216],
+          "components": [0.2314, 0.5098, 0.9647],
           "alpha": 1.0,
-          "hex": "#858585"
+          "hex": "#3b82f6"
         }
       },
       "player2": {
         "$description": "Seat 2 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.702, 0.702, 0.702],
+          "components": [0.9843, 0.6157, 0.3098],
           "alpha": 1.0,
-          "hex": "#b3b3b3"
+          "hex": "#fb9d4f"
         }
       },
       "player3": {
         "$description": "Seat 3 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.7608, 0.7608, 0.7608],
+          "components": [0.2471, 0.8471, 0.7725],
           "alpha": 1.0,
-          "hex": "#c2c2c2"
+          "hex": "#3fd8c5"
         }
       },
       "player4": {
         "$description": "Seat 4 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5843, 0.5843, 0.5843],
+          "components": [0.6235, 0.5059, 0.9804],
           "alpha": 1.0,
-          "hex": "#959595"
+          "hex": "#9f81fa"
         }
       },
       "player5": {
         "$description": "Seat 5 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8824, 0.8824, 0.8824],
+          "components": [0.9882, 0.8784, 0.4431],
           "alpha": 1.0,
-          "hex": "#e1e1e1"
+          "hex": "#fce071"
         }
       },
       "player6": {
         "$description": "Seat 6 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.949, 0.949, 0.949],
+          "components": [0.949, 0.949, 0.9529],
           "alpha": 1.0,
-          "hex": "#f2f2f2"
+          "hex": "#f2f2f3"
         }
       },
       "player7": {
         "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6471, 0.6471, 0.6471],
+          "components": [0.9608, 0.4863, 0.7333],
           "alpha": 1.0,
-          "hex": "#a5a5a5"
+          "hex": "#f57cbb"
         }
       },
       "player8": {
         "$description": "Seat 8 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8196, 0.8196, 0.8196],
+          "components": [0.6314, 0.898, 0.1882],
           "alpha": 1.0,
-          "hex": "#d1d1d1"
+          "hex": "#a1e530"
         }
       },
       "boardLight": {
         "$description": "Light squares of a checkered board. Neutral; the same role in both schemes.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8431, 0.8431, 0.8431],
+          "components": [0.9098, 0.8275, 0.6902],
           "alpha": 1.0,
-          "hex": "#d7d7d7"
+          "hex": "#e8d3b0"
         }
       },
       "boardDark": {
         "$description": "Dark squares of a checkered board.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5255, 0.5255, 0.5255],
+          "components": [0.6588, 0.498, 0.3647],
           "alpha": 1.0,
-          "hex": "#868686"
+          "hex": "#a87f5d"
         }
       },
       "boardHighlight": {
         "$description": "Last-move and selected-square wash over a board square.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.4824, 0.4824, 0.4824],
-          "alpha": 0.349,
-          "hex": "#7b7b7b"
+          "components": [0.9098, 0.7725, 0.2784],
+          "alpha": 0.5,
+          "hex": "#e8c547"
         }
       },
       "boardCell": {
         "$description": "An empty board cell or slot (the `surface-sunken` value).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0431, 0.0431, 0.0431],
+          "components": [0.0431, 0.051, 0.0627],
           "alpha": 1.0,
-          "hex": "#0b0b0b"
+          "hex": "#0b0d10"
         }
       },
       "boardCardFace": {
         "$description": "A playing card face.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9569, 0.9569, 0.9569],
+          "components": [0.9569, 0.9608, 0.9686],
           "alpha": 1.0,
-          "hex": "#f4f4f4"
+          "hex": "#f4f5f7"
         }
       },
       "boardCardInk": {
         "$description": "Black suits and card text on `boardCardFace`.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0941, 0.0941, 0.0941],
+          "components": [0.0824, 0.0941, 0.1294],
           "alpha": 1.0,
-          "hex": "#181818"
+          "hex": "#151821"
         }
       },
       "boardCardInkRed": {
         "$description": "Red suits on `boardCardFace`.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2588, 0.2588, 0.2588],
+          "components": [0.7843, 0.1176, 0.1176],
           "alpha": 1.0,
-          "hex": "#424242"
+          "hex": "#c81e1e"
         }
       },
       "disabled": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.149, 0.149, 0.149],
+          "components": [0.149, 0.1647, 0.1961],
           "alpha": 1.0,
-          "hex": "#262626"
+          "hex": "#262a32"
         }
       },
       "scrim": {
@@ -1607,7 +1607,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0, 0.0, 0.0],
-          "alpha": 0.6667,
+          "alpha": 0.6,
           "hex": "#000000"
         }
       },
@@ -1615,7 +1615,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0, 0.0, 0.0],
-          "alpha": 0.6,
+          "alpha": 0.5,
           "hex": "#000000"
         }
       },
@@ -1624,7 +1624,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0902, 0.2353, 0.4706],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#173c78"
         }
       },
@@ -1633,7 +1633,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.3294, 0.6078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#24549b"
         }
       },
@@ -1642,7 +1642,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffffff"
         }
       },
@@ -1651,7 +1651,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8314, 0.8941, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#d4e4ff"
         }
       },
@@ -1660,7 +1660,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 1.0, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffffff"
         }
       },
@@ -1669,7 +1669,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7843, 0.2235, 0.2196],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#c83938"
         }
       },
@@ -1678,7 +1678,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.7922, 0.3137],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5ca50"
         }
       },
@@ -1687,7 +1687,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0353, 0.1725, 0.251],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#092c40"
         }
       },
@@ -1696,7 +1696,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0706, 0.2471, 0.3294],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#123f54"
         }
       },
@@ -1705,7 +1705,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.898, 0.9608, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e5f5ff"
         }
       },
@@ -1714,7 +1714,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6196, 0.7882, 0.8627],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#9ec9dc"
         }
       },
@@ -1723,7 +1723,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.451, 0.8353, 0.9569],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#73d5f4"
         }
       },
@@ -1732,7 +1732,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9686, 0.5725, 0.4471],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f79272"
         }
       },
@@ -1741,7 +1741,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8039, 0.4627],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5cd76"
         }
       },
@@ -1750,7 +1750,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8549, 0.7725, 0.6235],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#dac59f"
         }
       },
@@ -1759,7 +1759,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9373, 0.8824, 0.7725],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#efe1c5"
         }
       },
@@ -1768,7 +1768,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1882, 0.1608, 0.1216],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#30291f"
         }
       },
@@ -1777,7 +1777,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.3765, 0.302, 0.2078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#604d35"
         }
       },
@@ -1786,7 +1786,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2784, 0.2157, 0.3412],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#473757"
         }
       },
@@ -1795,7 +1795,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6118, 0.1882, 0.1686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#9c302b"
         }
       },
@@ -1804,7 +1804,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1765, 0.4, 0.3373],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#2d6656"
         }
       },
@@ -1813,7 +1813,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.1765, 0.2157],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#242d37"
         }
       },
@@ -1822,7 +1822,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2235, 0.2824, 0.3294],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#394854"
         }
       },
@@ -1831,7 +1831,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.949, 0.8941, 0.7686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f2e4c4"
         }
       },
@@ -1840,7 +1840,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7294, 0.7882, 0.8078],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bac9ce"
         }
       },
@@ -1849,7 +1849,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8118, 0.4157],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5cf6a"
         }
       },
@@ -1858,7 +1858,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9216, 0.6941, 0.4745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ebb179"
         }
       },
@@ -1867,7 +1867,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.5255, 0.8431, 0.6745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#86d7ac"
         }
       },
@@ -1876,7 +1876,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1255, 0.1176, 0.149],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#201e26"
         }
       },
@@ -1885,7 +1885,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2196, 0.2, 0.2392],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#38333d"
         }
       },
@@ -1894,7 +1894,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9569, 0.9412, 0.9098],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f4f0e8"
         }
       },
@@ -1903,7 +1903,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7529, 0.7216, 0.6745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#c0b8ac"
         }
       },
@@ -1912,7 +1912,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8157, 0.7373, 0.9412],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#d0bcf0"
         }
       },
@@ -1921,7 +1921,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.6471, 0.2392, 0.1882],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#a53d30"
         }
       },
@@ -1930,7 +1930,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1922, 0.4235, 0.2824],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#316c48"
         }
       },
@@ -1939,7 +1939,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1255, 0.2941, 0.251],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#204b40"
         }
       },
@@ -1948,7 +1948,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8627, 0.9098, 0.8392],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#dce8d6"
         }
       },
@@ -1957,7 +1957,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.9647, 0.8549],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#fff6da"
         }
       },
@@ -1966,7 +1966,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7451, 0.8314, 0.7647],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bed4c3"
         }
       },
@@ -1975,7 +1975,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.8824, 0.6392],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffe1a3"
         }
       },
@@ -1984,7 +1984,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.7765, 0.7216],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5c6b8"
         }
       },
@@ -1993,7 +1993,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7176, 0.8471, 0.9412],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#b7d8f0"
         }
       },
@@ -2002,7 +2002,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0902, 0.2431, 0.2039],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#173e34"
         }
       },
@@ -2011,7 +2011,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1412, 0.3333, 0.2745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#245546"
         }
       },
@@ -2020,7 +2020,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.9647, 0.8706],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#fff6de"
         }
       },
@@ -2029,7 +2029,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.749, 0.8275, 0.7765],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bfd3c6"
         }
       },
@@ -2038,7 +2038,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.851, 0.5804],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5d994"
         }
       },
@@ -2047,7 +2047,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7412, 0.2039, 0.2353],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#bd343c"
         }
       },
@@ -2056,7 +2056,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.851, 0.5804],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f5d994"
         }
       },
@@ -2065,7 +2065,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.1569, 0.1098, 0.2745],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#281c46"
         }
       },
@@ -2074,7 +2074,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.2863, 0.2118, 0.4196],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#49366b"
         }
       },
@@ -2083,7 +2083,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9725, 0.9294, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f8edff"
         }
       },
@@ -2092,7 +2092,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.8, 0.7294, 0.8902],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ccbae3"
         }
       },
@@ -2101,7 +2101,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.902, 0.7137, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e6b6ff"
         }
       },
@@ -2110,7 +2110,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.902, 0.7137, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#e6b6ff"
         }
       },
@@ -2119,7 +2119,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9686, 0.9059, 0.5961],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#f7e798"
         }
       },
@@ -2128,7 +2128,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0314, 0.1137, 0.1686],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#081d2b"
         }
       },
@@ -2137,7 +2137,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.0863, 0.2314, 0.2941],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#163b4b"
         }
       },
@@ -2146,7 +2146,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9255, 0.9804, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ecfaff"
         }
       },
@@ -2155,7 +2155,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.5765, 0.7451, 0.7961],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#93becb"
         }
       },
@@ -2164,7 +2164,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.4431, 0.902, 0.9333],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#71e6ee"
         }
       },
@@ -2173,7 +2173,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [1.0, 0.6824, 0.502],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#ffae80"
         }
       },
@@ -2182,7 +2182,7 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [0.7255, 0.6275, 1.0],
-          "alpha": 1,
+          "alpha": 1.0,
           "hex": "#b9a0ff"
         }
       }
@@ -2688,7 +2688,12 @@
       "$type": "cubicBezier",
       "$description": "Ease-out for everything that answers a person.",
       "standard": {
-        "$value": [0.2, 0, 0, 1]
+        "$value": [
+          0.2,
+          0,
+          0,
+          1
+        ]
       }
     }
   },

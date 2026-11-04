@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <link rel="manifest" href="/pwa/manifest.webmanifest" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <meta name="theme-color" content="#111111" />
+  <meta name="theme-color" content="#0f1115" />
   <script>
     // The theme the app mounts with (`ThemePreferenceProvider`), set before
     // first paint so boot never flashes from one scheme to the other.
@@ -35,15 +35,15 @@
 
     html,
     body {
-      background: var(--ui-color-background, #111111);
-      color: var(--ui-color-text, #ededed);
+      background: var(--ui-color-background, #0f1115);
+      color: var(--ui-color-text, #e8eaef);
       color-scheme: dark;
     }
 
     html[data-theme="light"],
     html[data-theme="light"] body {
-      background: var(--ui-color-background, #fafafa);
-      color: var(--ui-color-text, #181818);
+      background: var(--ui-color-background, #f5f6f8);
+      color: var(--ui-color-text, #151821);
       color-scheme: light;
     }
 
@@ -62,11 +62,11 @@
 
     .activity-indicator {
       animation: activity-step 1000ms steps(12, end) infinite;
-      color: var(--ui-color-text-secondary, #a2a2a2);
+      color: var(--ui-color-text-secondary, #9ca4b3);
     }
 
     html[data-theme="light"] .activity-indicator {
-      color: var(--ui-color-text-secondary, #535353);
+      color: var(--ui-color-text-secondary, #566072);
     }
 
     .startup-shell-failed {
@@ -75,9 +75,9 @@
 
     .startup-shell-mark {
       align-items: center;
-      background: var(--ui-color-destructive-surface, #8e8e8e29);
+      background: var(--ui-color-destructive-surface, #f8717121);
       border-radius: 9999px;
-      color: var(--ui-color-destructive, #b8b8b8);
+      color: var(--ui-color-destructive, #f87171);
       display: flex;
       font-size: 20px;
       font-weight: 700;
@@ -87,21 +87,21 @@
     }
 
     .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #a2a2a2);
+      color: var(--ui-color-text-secondary, #9ca4b3);
     }
 
     .startup-shell-detail {
-      color: var(--ui-color-destructive, #b8b8b8);
+      color: var(--ui-color-destructive, #f87171);
       max-width: min(640px, calc(100vw - 32px));
       overflow-wrap: anywhere;
       text-align: center;
     }
 
     .startup-shell-reload {
-      background: var(--ui-color-tint-active, #dedede);
+      background: var(--ui-color-tint-active, #8b97fa);
       border: 0;
       border-radius: 9999px;
-      color: var(--ui-color-on-primary, #181818);
+      color: var(--ui-color-on-primary, #0f1115);
       cursor: pointer;
       font: inherit;
       font-weight: 600;
@@ -111,20 +111,20 @@
     }
 
     html[data-theme="light"] .startup-shell-mark {
-      background: var(--ui-color-destructive-surface, #4d4d4d1a);
-      color: var(--ui-color-destructive, #505050);
+      background: var(--ui-color-destructive-surface, #dc262617);
+      color: var(--ui-color-destructive, #c81e1e);
     }
 
     html[data-theme="light"] .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #535353);
+      color: var(--ui-color-text-secondary, #566072);
     }
 
     html[data-theme="light"] .startup-shell-detail {
-      color: var(--ui-color-destructive, #505050);
+      color: var(--ui-color-destructive, #c81e1e);
     }
 
     html[data-theme="light"] .startup-shell-reload {
-      background: var(--ui-color-tint-active, #303030);
+      background: var(--ui-color-tint-active, #4f46e5);
       color: var(--ui-color-on-primary, #ffffff);
     }
 
