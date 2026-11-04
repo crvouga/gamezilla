@@ -1,13 +1,16 @@
-/* A game's record as numbered turns. `row` runs along one line inside a
-   MoveStrip; `table` gives each turn a line, its moves in seat columns. */
+/* A game's record as numbered turns. `turn` is the one shown turn, whole
+   and centred inside a MoveStrip; `table` gives each turn a line, its moves
+   in seat columns. */
 .list {
   display: flex;
   min-width: 0;
 }
-.list[data-layout="row"] {
+.list[data-layout="turn"] {
   flex-direction: row;
   align-items: center;
-  gap: var(--ui-space-3);
+  justify-content: center;
+  /* Centred in the strip while it fits; a long turn starts at the edge. */
+  margin-inline: auto;
 }
 .list[data-layout="table"] {
   flex-direction: column;
@@ -23,10 +26,12 @@
   list-style: none;
   min-width: 0;
 }
-.list[data-layout="row"] .turns {
+.list[data-layout="turn"] .turns {
   flex-direction: row;
   align-items: center;
-  gap: var(--ui-space-3);
+}
+.list[data-layout="turn"] .turn {
+  gap: var(--ui-space-2);
 }
 .list[data-layout="table"] .turns {
   flex-direction: column;

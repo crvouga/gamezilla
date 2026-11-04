@@ -75,12 +75,17 @@ export async function customGameShownUnrated(
   return ui.get('custom-game-unrated').isVisible();
 }
 
-/** At most as many moves as the board lists after its earlier ones. */
-const LISTED_MOVES_STRIDE = 40;
+/** The moves played so far, as the board stage tells observers. */
+async function playedPly(ui: Awaited<ReturnType<typeof actorUi>>) {
+  const raw = await ui.get('custom-game-public').attribute('data-ply');
+  const ply = Number(raw ?? '0');
+  return Number.isInteger(ply) ? ply : 0;
+}
 
 /**
  * The moves the person's move list shows, in order, as the game writes them:
- * a long game's latest moves only.
+ * a long game's latest moves beside a wide board, the shown turn in the
+ * strip under a phone's.
  */
 export async function readCustomGameMoveList(
   s: ProductHarness,
@@ -90,13 +95,11 @@ export async function readCustomGameMoveList(
   await bringToFront(s, actor);
   const listed = (ply: number) =>
     ui.get(`custom-game-review-move-${String(ply)}`);
-  // A long game lists only its latest moves, a run shorter than the stride:
-  // stepping by it lands on one of them.
+  // The list shows one run of moves, not always from the first: find where
+  // it starts among the moves played.
+  const played = await playedPly(ui);
   let first = 1;
-  if (await ui.get('custom-game-earlier-moves').isVisible()) {
-    while (!(await listed(first).isVisible())) first += LISTED_MOVES_STRIDE;
-    while (first > 1 && (await listed(first - 1).isVisible())) first -= 1;
-  }
+  while (first < played && !(await listed(first).isVisible())) first += 1;
   const shown: string[] = [];
   for (let ply = first; ; ply += 1) {
     const move = listed(ply);

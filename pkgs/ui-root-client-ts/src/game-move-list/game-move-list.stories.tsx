@@ -10,7 +10,7 @@ const meta = {
 } satisfies Meta;
 export default meta;
 
-/** Numbered turns with each mover's swatch, as a strip row and as a table. */
+/** Numbered turns with each mover's swatch, as the strip's one turn and as a table. */
 export const States: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,

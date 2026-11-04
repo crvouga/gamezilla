@@ -46,11 +46,11 @@ describe('GameMoveList', () => {
   });
 
   test('choosing a move moves the mark to it', () => {
-    const [current, setCurrent] = createSignal(3);
+    const [current, setCurrent] = createSignal(2);
     const chosen: number[] = [];
     renderUi(() => (
       <GameMoveList
-        layout="row"
+        layout="turn"
         aria-label="Moves played"
         perTurn={2}
         current={current()}
@@ -67,5 +67,38 @@ describe('GameMoveList', () => {
       'aria-current',
       'step'
     );
+  });
+
+  // regression: phone-move-strip-cuts-a-move
+  test('the strip shows the whole turn holding the shown move, and only it', () => {
+    const [current, setCurrent] = createSignal(3);
+    renderUi(() => (
+      <GameMoveList
+        layout="turn"
+        aria-label="Moves played"
+        perTurn={2}
+        current={current()}
+        moves={MOVES}
+        onSelect={setCurrent}
+      />
+    ));
+    const list = screen.getByRole('list', { name: 'Moves played' });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(1);
+    expect(within(list).getAllByRole('button')).toHaveLength(1);
+    expect(screen.getByTestId('move-3')).toHaveAttribute(
+      'aria-current',
+      'step'
+    );
+    expect(screen.queryByTestId('move-1')).toBeNull();
+    setCurrent(2);
+    expect(screen.getByTestId('move-1').textContent).toBe('e4');
+    expect(screen.getByTestId('move-2')).toHaveAttribute(
+      'aria-current',
+      'step'
+    );
+    expect(screen.queryByTestId('move-3')).toBeNull();
+    // The opening position shows the first turn, nothing marked.
+    setCurrent(0);
+    expect(screen.getByTestId('move-1')).not.toHaveAttribute('aria-current');
   });
 });

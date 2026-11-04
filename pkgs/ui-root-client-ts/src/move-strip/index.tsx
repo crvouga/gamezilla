@@ -18,9 +18,10 @@ export type MoveStripProps = {
 };
 
 /**
- * `MoveStrip` -- a game's move list as one control-height row under the
- * board: `leading` and `trailing` controls (jump, step) at the ends and the
- * moves scrolling sideways between them, with no scrollbar. The row keeps
+ * `MoveStrip` -- a game's move list as one control-height (44px) row under
+ * the board: `leading` and `trailing` controls (jump, step) at the ends,
+ * spaced so each is its own target, and the moves between them, scrolling
+ * sideways with no scrollbar when they do not fit. The row keeps
  * its height with no moves at all, so the board above never resizes when
  * the first move lands. `pointer` receives the raw press events over the
  * whole row, for a swipe recognizer.
@@ -39,14 +40,16 @@ export type MoveStripProps = {
 export function MoveStrip(props: MoveStripProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0 h-ui-control-sm"
+      class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0 h-ui-control-md"
       data-testid={props.testId}
       data-component={componentId('MoveStrip')}
       onPointerDown={(event) => props.pointer?.onPointerDown?.(event)}
       onPointerUp={(event) => props.pointer?.onPointerUp?.(event)}
       onPointerCancel={() => props.pointer?.onPointerCancel?.()}
     >
-      <div class="box flex-row items-center shrink-0">{props.leading}</div>
+      <div class="box flex-row items-center gap-1 shrink-0">
+        {props.leading}
+      </div>
       <ScrollView
         grow
         align="center"
@@ -57,7 +60,9 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
       >
         {props.children}
       </ScrollView>
-      <div class="box flex-row items-center shrink-0">{props.trailing}</div>
+      <div class="box flex-row items-center gap-1 shrink-0">
+        {props.trailing}
+      </div>
     </div>
   );
 }
