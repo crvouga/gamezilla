@@ -167,6 +167,11 @@ msgstr "{0} of {1} puzzles completed"
 msgid "{0} of {1} puzzles match."
 msgstr "{0} of {1} puzzles match."
 
+#. placeholder {0}: props.rating.games
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
+msgstr "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
+
 #. placeholder {0}: position.scoreless
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "{0} of 6 scoreless turns"
@@ -4871,10 +4876,9 @@ msgstr "Progress saved on this device. Changes share when connected."
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
-#. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Provisional · {0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
-msgstr "Provisional · {0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
+msgid "Provisional"
+msgstr "Provisional"
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
@@ -5044,6 +5048,7 @@ msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-settings.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-play-screen-view.tsx
 msgid "Puzzles"
 msgstr "Puzzles"
 
@@ -5120,6 +5125,10 @@ msgstr "Randomize"
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Rapid"
 msgstr "Rapid"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "Rated games toward a settled rating"
+msgstr "Rated games toward a settled rating"
 
 #: libs/game-puzzle-client-ts/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"
