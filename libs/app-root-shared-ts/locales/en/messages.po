@@ -51,7 +51,7 @@ msgid "{0, plural, one {# earlier move} other {# earlier moves}}"
 msgstr "{0, plural, one {# earlier move} other {# earlier moves}}"
 
 #. placeholder {0}: count()
-#: libs/spaces-client-ts/src/space-room-context-view.tsx
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "{0, plural, one {# here} other {# here}}"
 msgstr "{0, plural, one {# here} other {# here}}"
 
@@ -428,7 +428,7 @@ msgstr "{name} {score}"
 msgid "{name} has crashed in this round. Watch until the next round."
 msgstr "{name} has crashed in this round. Watch until the next round."
 
-#: libs/spaces-client-ts/src/space-room-context-view.tsx
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "{name} hosts"
 msgstr "{name} hosts"
 
@@ -3360,7 +3360,7 @@ msgstr "Jump to start"
 msgid "just now"
 msgstr "just now"
 
-#: libs/spaces-client-ts/src/space-room-context-view.tsx
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Just you here"
 msgstr "Just you here"
 
@@ -8004,7 +8004,7 @@ msgstr "You have played every puzzle that matches your history and theme filters
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
-#: libs/spaces-client-ts/src/space-room-context-view.tsx
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "you host"
 msgstr "you host"
 
