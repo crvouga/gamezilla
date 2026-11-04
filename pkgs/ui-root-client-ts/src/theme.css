@@ -122,6 +122,7 @@
   --container-ui-form: var(--ui-max-width-form);
   --container-ui-content: var(--ui-max-width-content);
   --container-ui-wide: var(--ui-max-width-wide);
+  --container-ui-space: var(--ui-max-width-space);
   --opacity-muted: var(--ui-opacity-muted);
   --opacity-disabled: var(--ui-opacity-disabled);
   --z-index-harness-browser: var(--ui-layer-harness-browser);

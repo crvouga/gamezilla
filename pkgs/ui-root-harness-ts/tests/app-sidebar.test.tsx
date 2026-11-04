@@ -122,4 +122,25 @@ describe('AppFrame rail', () => {
     setInSpace(false);
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
   });
+
+  test('an open space narrows the column so its chrome and screen share edges', () => {
+    const [inSpace, setInSpace] = createSignal(false);
+    renderUi(
+      () => (
+        <AppFrameChromeProvider>
+          <AppFrame rail={<Sidebar />}>
+            <Show when={inSpace()} fallback={<p class="text">{'Lobby'}</p>}>
+              <OwnChrome />
+            </Show>
+          </AppFrame>
+        </AppFrameChromeProvider>
+      ),
+      WIDE
+    );
+    const column = () => mustQuery('[data-region="column"]');
+    expect(column().className).toMatch(/\bmax-w-ui-wide\b/);
+    setInSpace(true);
+    expect(column().className).toMatch(/\bmax-w-ui-space\b/);
+    expect(column().className).not.toMatch(/\bmax-w-ui-wide\b/);
+  });
 });

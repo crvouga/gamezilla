@@ -24,10 +24,17 @@ export type AppFrameProps = {
 
 function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
   const header = useAppFrameHeader(() => props.header ?? null);
+  // A screen drawing its own chrome (an open space) narrows the column so its
+  // top bar and everything under it share one pair of edges.
+  const ownChrome = useAppFrameHeaderOverridden();
   return (
     <ContentEdgePaddingProvider step={0}>
       <div
-        class="box flex-1 min-h-0 min-w-0 w-full max-w-ui-wide mx-auto px-4 pb-4 gap-2"
+        class="box flex-1 min-h-0 min-w-0 w-full mx-auto px-4 pb-4 gap-2"
+        classList={{
+          'max-w-ui-space': ownChrome(),
+          'max-w-ui-wide': !ownChrome(),
+        }}
         data-region="column"
       >
         <Show when={header()}>
@@ -109,6 +116,9 @@ function AppFrameCompact(props: AppFrameProps): JSX.Element {
  *   menu, over one hairline. A screen may replace or hide it for its
  *   lifetime (`useSetAppFrameHeader`). Compact ignores it: each routed
  *   screen draws its own `TopBar`.
+ * - **column** (wide) -- the centered column (`max-w-ui-wide`); while a
+ *   screen draws its own chrome it narrows to `max-w-ui-space`, so that
+ *   chrome and the screen under it share edges.
  * - **content** -- `children`, the routed screen. It owns its own scrolling
  *   and, on compact, its 16px page edge.
  * - **tab bar** (compact only) -- the bottom `TabBar`, the compact form of

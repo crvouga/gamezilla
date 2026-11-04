@@ -2778,6 +2778,13 @@
           "value": 1200,
           "unit": "px"
         }
+      },
+      "space": {
+        "$description": "The desktop column inside an open space: its top bar and every screen in it share these edges.",
+        "$value": {
+          "value": 1040,
+          "unit": "px"
+        }
       }
     }
   },
