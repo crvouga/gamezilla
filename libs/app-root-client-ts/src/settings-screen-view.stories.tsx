@@ -76,7 +76,8 @@ export const OpenAppearance: Story = {
 export const OpenTroubleshooting: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Troubleshooting'));
+    const troubleshooting = await canvas.findByText('Troubleshooting');
+    await userEvent.click(troubleshooting);
     await expect(args.onNavigate).toHaveBeenCalledWith('/more/troubleshooting');
   },
 };

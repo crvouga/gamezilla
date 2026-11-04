@@ -26,7 +26,8 @@ export const MonitorOn: Story = { args: { perfEnabled: true } };
 export const OpenConnection: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Connection'));
+    const connection = await canvas.findByText('Connection');
+    await userEvent.click(connection);
     await expect(args.onNavigate).toHaveBeenCalledWith('/more/server-status');
   },
 };
