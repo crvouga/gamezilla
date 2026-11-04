@@ -28,6 +28,9 @@ type Story = StoryObj<typeof meta>;
 /** The host picks what the space plays from the registered games. */
 export const HostChoosing: Story = {};
 
+/** Five people in the space: each game says who plays and that the others watch. */
+export const FullRoom: Story = { args: { present: 5 } };
+
 /** A guest sees the same list, told the host picks; rows are not pressable. */
 export const GuestWaiting: Story = { args: { canSelectGame: false } };
 

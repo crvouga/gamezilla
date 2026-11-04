@@ -31,6 +31,7 @@ function gamesList(canSelectGame: boolean): JSX.Element {
       games={GAMES}
       shownGame={null}
       canSelectGame={canSelectGame}
+      present={1 + GUESTS.length}
       hostChoosesNotice={false}
       onSelectGame={fn()}
     />
