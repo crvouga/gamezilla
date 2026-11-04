@@ -3,7 +3,12 @@
 import { describe, expect, test } from 'bun:test';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
-import { Badge, HostBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
+import {
+  Badge,
+  CurrentBadge,
+  HostBadge,
+  LiveBadge,
+} from '@pkgs/ui-root-client-ts/badge';
 import { BadgedIcon } from '@pkgs/ui-root-client-ts/badged-icon';
 import { List, ListItem } from '@pkgs/ui-root-client-ts/list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -113,14 +118,24 @@ describe('Avatar kinds', () => {
 });
 
 describe('Fixed tags', () => {
-  test('LIVE says the word Live (caps are styling) on the live fill with a dot', () => {
+  test('Live is a sentence-case status tag on the live wash with a dot in its ink', () => {
     renderUi(() => <LiveBadge />);
     const live = avatar('Badge');
     expect(live).toHaveTextContent(/^Live$/);
     expect(live).toHaveAttribute('data-intent', 'live');
-    expect(live).toHaveAttribute('data-tone', 'solid');
+    expect(live).toHaveAttribute('data-tone', 'subtle');
     const dot = inside(live, '[data-component="StatusDot"]');
-    expect(cssOf(dot)).toContain('background-color:var(--ui-color-on-live)');
+    expect(cssOf(dot)).toContain('background-color:currentcolor');
+  });
+
+  test('Current is the same tag on the brand wash', () => {
+    renderUi(() => <CurrentBadge />);
+    const current = avatar('Badge');
+    expect(current).toHaveTextContent(/^Current$/);
+    expect(current).toHaveAttribute('data-intent', 'brand');
+    expect(current).toHaveAttribute('data-tone', 'subtle');
+    const dot = inside(current, '[data-component="StatusDot"]');
+    expect(cssOf(dot)).toContain('background-color:currentcolor');
   });
 
   test('Host is a neutral tag', () => {

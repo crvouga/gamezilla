@@ -89,7 +89,9 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
 8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never
-   strings joined with `·`.
+   strings joined with `·`. Every tag is one shape, one type size and
+   sentence case; only the tone changes: a status is the `subtle` wash
+   (`Live`, `Current`, `Friends`, `Host`), a count the `solid` fill.
 9. **Motion answers a person.** Hover and press fade in 150ms, a control
    changes state in 200ms, a surface enters in 250ms. Press is a tone shift
    and a 0.97 scale; nothing bounces. `prefers-reduced-motion` (and the app's

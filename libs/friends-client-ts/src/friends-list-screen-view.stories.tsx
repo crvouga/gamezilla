@@ -1,12 +1,30 @@
 import type { Friend } from '@libs/friends-shared-ts/friends-types';
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
+import { LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendsListScreenView } from './friends-list-screen-view';
 
-function friend(userId: string, username: string, since: string): Friend {
-  return { userId, username, avatarConfig: null, friendsSince: since };
+/**
+ * A friend with the default face every profile is seeded with
+ * (`synced: false` for one whose profile has not reached this device, which
+ * shows their initials).
+ */
+function friend(
+  userId: string,
+  username: string,
+  since: string,
+  options: { readonly synced?: boolean } = {}
+): Friend {
+  return {
+    userId,
+    username,
+    avatarConfig:
+      options.synced === false ? null : serializeDefaultAvatarConfig(userId),
+    friendsSince: since,
+  };
 }
 
 /** Friends made over the past year and more, newest first. */
@@ -29,7 +47,8 @@ const FRIENDS: readonly Friend[] = [
   friend(
     '9f1c2a4e-0000-4000-8000-000000000004',
     'robin_42',
-    '2026-01-15T12:00:00.000Z'
+    '2026-01-15T12:00:00.000Z',
+    { synced: false }
   ),
   friend(
     '9f1c2a4e-0000-4000-8000-000000000005',
@@ -59,8 +78,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Friends are known: one row each, newest-first order as the container gives it. */
-export const Populated: Story = {};
+/** Who is hosting a live space right now: the app's live-space tag. */
+const HOSTING = new Set(['9f1c2a4e-0000-4000-8000-000000000002']);
+
+/**
+ * Friends are known: one row each, newest-first order as the container gives
+ * it. Each row is the friend's face, name and since when, and opens their
+ * profile; a friend hosting a live space ends in the Live tag that joins it
+ * (a profile not yet on this device shows its initials).
+ */
+export const Populated: Story = {
+  args: {
+    friendTrailing: (item) =>
+      HOSTING.has(item.userId) ? <LiveBadge /> : undefined,
+  },
+};
 
 /** The first read has not finished; the list shows one activity indicator. */
 export const Loading: Story = { args: { status: 'loading', friends: [] } };

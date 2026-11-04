@@ -310,11 +310,11 @@
     padding: 0 var(--ui-space-xs);
   }
 
-  /* LIVE: the only all-caps word and the only use of the `live` fill. */
+  /* Live: a status tag like any other (a wash, its ink, a dot in that ink,
+     sentence case), on the red wash. */
   .badge[data-intent="live"] {
-    background: var(--ui-color-live);
-    color: var(--ui-color-on-live);
-    text-transform: uppercase;
+    background: var(--ui-color-destructive-surface);
+    color: var(--ui-color-destructive);
   }
 
   .badge[data-intent="neutral"][data-tone="subtle"] {

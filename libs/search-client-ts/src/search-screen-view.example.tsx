@@ -1,21 +1,36 @@
+import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
+import {
+  parseAvatarConfig,
+  serializeDefaultAvatarConfig,
+} from '@libs/profile-shared-ts/avatar-config';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
-import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   HighlightedText,
   rangesAfterMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
+import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
-/** Story fixture: a person found by search, with a fixed id. */
-export function storyResult(index: number, username: string): UserSearchResult {
+/**
+ * Story fixture: a person found by search, with a fixed id and the default
+ * face every profile is seeded with (`synced: false` for one whose profile
+ * has not reached this device, which shows their initials).
+ */
+export function storyResult(
+  index: number,
+  username: string,
+  options: { readonly synced?: boolean } = {}
+): UserSearchResult {
+  const userId = `4a8d6b20-0000-4000-8000-00000000000${index}`;
   return {
-    userId: `4a8d6b20-0000-4000-8000-00000000000${index}`,
+    userId,
     username,
-    avatarConfig: null,
+    avatarConfig:
+      options.synced === false ? null : serializeDefaultAvatarConfig(userId),
   };
 }
 
@@ -25,8 +40,9 @@ const STORY_RELATIONS: Readonly<
 > = { jordan: 'add', jordan_plays: 'friends', jordy: 'requested' };
 
 /**
- * Stand-in for the friends sub's relationship: "Add Friend" is the one
- * button; "Friends" and "Requested" are tags, with Cancel beside a request.
+ * Stand-in for the friends sub's relationship: one trailing control per row,
+ * a "Friends" tag or one small secondary pill ("Add friend",
+ * "Cancel request").
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
@@ -39,15 +55,23 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
         </StackVertical>
       </Match>
       <Match when={relation() === 'requested'}>
-        <StackHorizontal align="center" gap="sm">
-          <StackVertical>
-            <Badge label="Requested" intent="neutral" />
-          </StackVertical>
-          <Button title="Cancel" variant="ghost" onClick={() => undefined} />
-        </StackHorizontal>
+        <Button
+          title="Cancel request"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          onClick={() => undefined}
+        />
       </Match>
       <Match when={relation() === 'add'}>
-        <Button title="Add Friend" onClick={() => undefined} />
+        <Button
+          title="Add friend"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          icon={UserPlusIcon}
+          onClick={() => undefined}
+        />
       </Match>
     </Switch>
   );
@@ -56,9 +80,10 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
 /**
  * Stand-in for the result row the app composes (the friends sub fills it
  * with the person and their status pill; otherwise avatar + username from
- * the device's data): the same shape, drawn from the result itself —
- * tinted initials for a person without a picture, the part of the name after
- * the typed query emphasised so similar names read apart, and the pill.
+ * the device's data): the same shape, drawn from the result itself — the
+ * person's face (their initials when their profile has not synced), the part
+ * of the name after the typed query emphasised so similar names read apart,
+ * and the pill.
  */
 export function StoryUserRow(props: {
   readonly user: UserSearchResult;
@@ -68,10 +93,11 @@ export function StoryUserRow(props: {
   const ranges = () => rangesAfterMatch(name(), props.query);
   return (
     <StackHorizontal align="center" gap="sm" paddingY="sm">
-      <Avatar
+      <DeviceAvatar
+        avatarConfig={parseAvatarConfig(props.user.avatarConfig)}
+        seedFallback={props.user.userId}
+        name={props.user.username}
         size={44}
-        initials={avatarInitials(props.user.username)}
-        tintKey={props.user.userId}
       />
       <StackVertical grow>
         <Show

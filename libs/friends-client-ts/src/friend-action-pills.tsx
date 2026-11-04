@@ -3,7 +3,10 @@ import type { JSX } from 'solid-js';
 import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import { useFriendActionMutations } from './use-friend-action-mutations';
 
-/** The friend action pills for one person, wired to the friend mutations. */
+/**
+ * The friend action pills for one person, wired to the friend mutations: a
+ * list row's compact trailing control.
+ */
 export function FriendActionPills(props: FriendActionPillsProps): JSX.Element {
   const actions = useFriendActionMutations({
     userId: () => props.userId,
@@ -16,6 +19,7 @@ export function FriendActionPills(props: FriendActionPillsProps): JSX.Element {
       mutations={actions.mutations}
       addFailureCode={actions.addFailureCode}
       onChanged={props.onChanged}
+      compact
       {...(props.username !== undefined ? { username: props.username } : {})}
     />
   );

@@ -14,6 +14,8 @@ import { useSpacePeople } from './use-space-people';
 export type SpacePresenceStripProps = {
   spaceId: string;
   size: number;
+  /** See {@link SpacePresenceStripViewProps.compact}. */
+  compact?: boolean | undefined;
   /** See {@link SpacePresenceStripViewProps.onPress}. */
   onPress?: () => void;
 };
@@ -45,6 +47,7 @@ export function SpacePresenceStrip(
     <SpacePresenceStripView
       faces={faces()}
       size={props.size}
+      compact={props.compact}
       onPress={props.onPress}
     />
   );

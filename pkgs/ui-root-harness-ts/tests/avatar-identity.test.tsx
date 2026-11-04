@@ -6,6 +6,7 @@ import {
   Avatar,
   avatarInitials,
   avatarTone,
+  YOUR_AVATAR_TONE,
 } from '@pkgs/ui-root-client-ts/avatar';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
@@ -18,6 +19,22 @@ import { parseCssColor, rgbaToRgb8 } from '@pkgs/ui-root-shared-ts/css-color';
 import { cssOf, mustQuery, renderUi } from './render';
 
 const TEXT = 4.5;
+const NON_TEXT = 3;
+
+/** An opaque ring against the surface under it. */
+function ringContrast(
+  scheme: 'light' | 'dark',
+  ring: ColorTokenName,
+  under: ColorTokenName
+): number {
+  const colors = COLOR_PALETTE[scheme];
+  const front = parseColor(colors[ring]);
+  const back = parseColor(colors[under]);
+  if (front === null || back === null) {
+    throw new Error(`unparseable ${scheme} ${ring} on ${under}`);
+  }
+  return contrastRatio(front, back);
+}
 
 /** Ink on a (possibly translucent) plate laid on the surface under it. */
 function inkContrast(
@@ -80,8 +97,82 @@ describe('avatar tones', () => {
         });
         expect(low).toEqual([]);
       });
+
+      test(`${scheme}: every initials ring holds 3:1 on ${under}`, () => {
+        const low = [...AVATAR_TONES, YOUR_AVATAR_TONE].flatMap((tone) => {
+          const ratio = ringContrast(scheme, tone.ring, under);
+          return ratio >= NON_TEXT
+            ? []
+            : [`${tone.ring} ring on ${under}: ${ratio.toFixed(2)}`];
+        });
+        expect(low).toEqual([]);
+      });
     }
   }
+
+  test('your own initials keep their AA ink', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      expect(
+        inkContrast(
+          scheme,
+          YOUR_AVATAR_TONE.ink,
+          YOUR_AVATAR_TONE.plate,
+          'surface'
+        )
+      ).toBeGreaterThanOrEqual(TEXT);
+    }
+  });
+});
+
+describe('Avatar initials ring', () => {
+  test('an initials face wears its tone ring, not the hairline', () => {
+    const tone = avatarTone('robin');
+    renderUi(() => (
+      <>
+        <Avatar
+          initials="R"
+          tintKey="robin"
+          dataSet={{ component: 'Tinted' }}
+        />
+        <Avatar initials="R" dataSet={{ component: 'Plain' }} />
+        <Avatar initials="ME" you dataSet={{ component: 'You' }} />
+      </>
+    ));
+    expect(mustQuery('[data-component="Tinted"]')).toHaveAttribute(
+      'data-ring',
+      tone.ring
+    );
+    expect(mustQuery('[data-component="Plain"]')).toHaveAttribute(
+      'data-ring',
+      'outline'
+    );
+    expect(mustQuery('[data-component="You"]')).toHaveAttribute(
+      'data-ring',
+      'tint'
+    );
+  });
+
+  test('pictures, placeholders and ringless faces keep no tone ring', () => {
+    renderUi(() => (
+      <>
+        <Avatar dataSet={{ component: 'Placeholder' }} />
+        <Avatar
+          uri="https://example.test/face.png"
+          initials="R"
+          dataSet={{ component: 'Picture' }}
+        />
+        <Avatar initials="R" ring={false} dataSet={{ component: 'Bare' }} />
+      </>
+    ));
+    for (const id of ['Placeholder', 'Picture']) {
+      expect(mustQuery(`[data-component="${id}"]`)).not.toHaveAttribute(
+        'data-ring'
+      );
+    }
+    expect(mustQuery('[data-component="Bare"]').className).not.toContain(
+      'border'
+    );
+  });
 });
 
 describe('Avatar tintKey', () => {

@@ -64,8 +64,12 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
       hostOffline={props.hostOffline}
       canRename={canRename()}
       canEnd={canEnd()}
-      presence={(size) => (
-        <SpacePresenceStrip spaceId={sessionUi.spaceId} size={size} />
+      presence={(size, compact) => (
+        <SpacePresenceStrip
+          spaceId={sessionUi.spaceId}
+          size={size}
+          compact={compact}
+        />
       )}
       notice={<SpaceRefusedChangeNotice />}
       overlays={

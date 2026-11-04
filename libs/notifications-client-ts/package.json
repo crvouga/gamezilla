@@ -21,6 +21,8 @@
     "@libs/notifications-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-client-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/solid": "catalog:",

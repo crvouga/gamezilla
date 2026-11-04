@@ -3,6 +3,7 @@ import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -24,6 +25,8 @@ function usePillSounds(
 }
 
 export function ConfirmDeletePills(props: {
+  /** A row's trailing pair: small pills that keep to their labels. */
+  compact?: boolean;
   onConfirm: () => Promise<void>;
   onDelete: () => Promise<void>;
   confirmTestID?: string;
@@ -50,20 +53,24 @@ export function ConfirmDeletePills(props: {
     },
     successHoldMs: 0,
   });
+  const compact = (): boolean => props.compact === true;
   return (
-    <StackHorizontal gap="sm" self="stretch">
-      <StackVertical grow>
+    <StackHorizontal gap="sm" self={compact() ? undefined : 'stretch'}>
+      <StackVertical grow={!compact()}>
         <Button
           variant="solid"
+          size={compact() ? 'sm' : undefined}
           {...confirm.buttonProps}
           {...(props.confirmTestID !== undefined
             ? { dataSet: { testid: props.confirmTestID } }
             : {})}
         />
       </StackVertical>
-      <StackVertical grow>
+      <StackVertical grow={!compact()}>
         <Button
           variant="outline"
+          intent={compact() ? 'neutral' : undefined}
+          size={compact() ? 'sm' : undefined}
           {...del.buttonProps}
           {...(props.deleteTestID !== undefined
             ? { dataSet: { testid: props.deleteTestID } }
@@ -81,6 +88,9 @@ export function SingleActionPill(props: {
   success: string;
   error: string;
   variant?: 'solid' | 'outline' | 'ghost';
+  /** A row's trailing control: the small secondary pill. */
+  compact?: boolean;
+  icon?: IconComponent;
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
   testID?: string;
@@ -111,7 +121,10 @@ export function SingleActionPill(props: {
   });
   return (
     <Button
-      variant={props.variant ?? 'solid'}
+      variant={props.compact === true ? 'outline' : (props.variant ?? 'solid')}
+      intent={props.compact === true ? 'neutral' : undefined}
+      size={props.compact === true ? 'sm' : undefined}
+      icon={props.icon}
       {...mutation.buttonProps}
       {...(props.testID !== undefined
         ? { dataSet: { testid: props.testID } }

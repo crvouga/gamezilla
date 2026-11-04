@@ -57,7 +57,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A stranger: their face and name, and Add Friend. Block is in the menu. */
+/** A stranger: their face and name, and Add friend. Block is in the menu. */
 export const Stranger: Story = {};
 
 /** The person's row has not arrived yet: placeholders hold the identity's place. */
@@ -69,7 +69,7 @@ export const Unreachable: Story = { args: { presence: 'unreachable' } };
 /** The account was deleted: the profile says so instead of showing nobody. */
 export const Unavailable: Story = { args: { presence: 'unavailable' } };
 
-/** A request is out: Requested, which cancels it. */
+/** A request is out: one Cancel request control. */
 export const RequestSent: Story = { args: { status: 'pending_outgoing' } };
 
 /** The request is still being shared with the server. */

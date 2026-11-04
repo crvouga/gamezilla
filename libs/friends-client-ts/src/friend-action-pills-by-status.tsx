@@ -11,6 +11,8 @@ export function FriendActionPillsForStatus(props: {
   addFailureCode: Accessor<string | null>;
   onChanged?: (() => void) | undefined;
   username?: string | undefined;
+  /** A list row's trailing control rather than the profile's actions. */
+  compact?: boolean | undefined;
 }): JSX.Element {
   const wrap = (fn: () => Promise<void>) => async () => {
     await fn();
@@ -18,7 +20,7 @@ export function FriendActionPillsForStatus(props: {
   };
 
   // Re-render pills whenever status (or username) changes. A one-shot
-  // Show fallback stayed on "Add Friend" after send succeeded because
+  // Show fallback stayed on "Add friend" after send succeeded because
   // none → pending_outgoing keeps `when={blocked_by_them}` false.
   const view = createMemo(() => {
     const status = props.status;
@@ -28,6 +30,7 @@ export function FriendActionPillsForStatus(props: {
       addFailureCode: props.addFailureCode,
       wrap,
       username: props.username,
+      compact: props.compact === true,
     });
     if (status === 'blocked_by_them') {
       return <StackVertical self="stretch">{pills}</StackVertical>;

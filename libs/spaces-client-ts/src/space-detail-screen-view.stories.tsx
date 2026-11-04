@@ -70,8 +70,12 @@ const meta = {
     hostOffline: false,
     canRename: true,
     canEnd: true,
-    presence: (size: number) => (
-      <SpacePresenceStripView faces={faces([AVERY, ...GUESTS])} size={size} />
+    presence: (size: number, compact: boolean) => (
+      <SpacePresenceStripView
+        faces={faces([AVERY, ...GUESTS])}
+        size={size}
+        compact={compact}
+      />
     ),
     onPressHome: fn(),
     onPressBack: null,
@@ -86,7 +90,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The host in their space: every action, choosing what to play. */
+/**
+ * The host in their space: every action, choosing what to play. Wide, the
+ * members button is everyone's faces; on a phone it is the people glyph
+ * with how many are here, one button wide, so it stays beside the title.
+ */
 export const HostChoosingGame: Story = {};
 
 /** First load, or the host not known yet: chrome stays, the body loads. */

@@ -6,9 +6,11 @@ import type {
   NotificationAction,
   NotificationCardActions,
 } from '@libs/notifications-shared-ts/notification-action';
+import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
+import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
-import { InfoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -25,27 +27,31 @@ import { displayNotification } from './notification-display';
 
 /** The default face: `md`, so every card's text column starts at one x. */
 const LEADING_SIZE = 40;
-const STATUS_ICON_SIZE = 16;
 
 /** What a person can see: still waiting to be opened, or already opened. */
 function cardState(unread: boolean): ComponentDataSet {
   return { 'inbox-state': unread ? 'waiting' : 'opened' };
 }
 
+/**
+ * Who the notification is about: their face when it carries their avatar,
+ * else their initials, else the person placeholder.
+ */
 function DefaultLeading(props: {
   readonly interaction: Notification;
 }): JSX.Element {
   return (
     <Show
-      when={props.interaction.avatar?.fallbackLabel}
+      when={props.interaction.avatar}
       keyed
       fallback={<Avatar size={LEADING_SIZE} />}
     >
-      {(label) => (
-        <Avatar
+      {(avatar) => (
+        <DeviceAvatar
+          avatarConfig={parseAvatarConfig(avatar.avatarConfig ?? null)}
+          seedFallback={avatar.fallbackLabel.replace(/^@/, '')}
+          name={avatar.fallbackLabel}
           size={LEADING_SIZE}
-          initials={avatarInitials(label)}
-          tintKey={label.replace(/^@/, '')}
         />
       )}
     </Show>
@@ -54,6 +60,8 @@ function DefaultLeading(props: {
 
 function InteractionRowText(props: {
   readonly interaction: Notification;
+  /** Nothing can be answered any more: the words step back. */
+  readonly inactive: boolean;
 }): JSX.Element {
   const relative = useRelativeTimeLabel(() => props.interaction.createdAt);
   const detailParts = createMemo(() =>
@@ -63,7 +71,13 @@ function InteractionRowText(props: {
   );
   return (
     <StackVertical grow gap="xs">
-      <P variant={props.interaction.isUnread ? 'bodyBold' : 'body'} lines={3}>
+      <P
+        variant={
+          props.interaction.isUnread && !props.inactive ? 'bodyBold' : 'body'
+        }
+        tone={props.inactive ? 'secondary' : undefined}
+        lines={3}
+      >
         {props.interaction.title}
       </P>
       <P variant="caption">{relative()}</P>
@@ -81,6 +95,7 @@ function InteractionRowText(props: {
 /** The words of the card; pressing them opens it (the whole block takes the press tint). */
 function CardHeadline(props: {
   readonly interaction: Notification;
+  readonly inactive: boolean;
   readonly onOpen: (() => void) | undefined;
   readonly testId: string | undefined;
   readonly dataSet: ComponentDataSet | undefined;
@@ -89,7 +104,12 @@ function CardHeadline(props: {
     <Show
       when={props.onOpen}
       keyed
-      fallback={<InteractionRowText interaction={props.interaction} />}
+      fallback={
+        <InteractionRowText
+          interaction={props.interaction}
+          inactive={props.inactive}
+        />
+      }
     >
       {(open) => (
         <Pressable
@@ -101,7 +121,10 @@ function CardHeadline(props: {
           testId={props.testId}
           dataSet={props.dataSet}
         >
-          <InteractionRowText interaction={props.interaction} />
+          <InteractionRowText
+            interaction={props.interaction}
+            inactive={props.inactive}
+          />
         </Pressable>
       )}
     </Show>
@@ -110,15 +133,27 @@ function CardHeadline(props: {
 
 /**
  * Why an answer cannot be given right now ("Space is full"), told as a
- * plain status line in the answer's place: an icon and muted words, with
- * no pill or outline, so it never reads as a button that does nothing.
+ * neutral tag in the answer's place: a fact, never a button that does
+ * nothing.
  */
 function UnavailableAnswer(props: { readonly reason: string }): JSX.Element {
   return (
-    <StackHorizontal align="center" gap="xs">
-      <InfoIcon size={STATUS_ICON_SIZE} color="textSecondary" />
-      <P variant="caption">{props.reason}</P>
-    </StackHorizontal>
+    <StackVertical>
+      <Badge
+        label={props.reason}
+        intent="neutral"
+        dataSet={{ 'inbox-answer': 'unavailable' }}
+      />
+    </StackVertical>
+  );
+}
+
+/** Every answer the card offers is unavailable: it waits on nobody. */
+function everyAnswerUnavailable(
+  actions: readonly NotificationAction[]
+): boolean {
+  return (
+    actions.length > 0 && actions.every((action) => action.disabled === true)
   );
 }
 
@@ -214,8 +249,10 @@ export type NotificationCardDefaultProps = {
  * column whose words wrap (and open the notification), with Archive as a
  * quiet icon button in the trailing corner beside them, and the card's own
  * answers on a row beneath — the main answer as the solid pill, other
- * choices as outlines, an unavailable answer as its reason. A card without
- * answers is one compact block. Only the small Archive button sits beside
+ * choices as outlines, an unavailable answer as its reason in a neutral tag.
+ * A card whose every answer is unavailable (a full space) is plainly
+ * inactive: its words drop to the secondary ink and lose their unread
+ * weight. A card without answers is one compact block. Only the small Archive button sits beside
  * the words, so a long title never pushes a control off the edge.
  *
  * A card with no answers of its own is pressed by its `testID`; a card with
@@ -232,6 +269,7 @@ export function NotificationCardDefault(
   const inline = createMemo((): readonly NotificationAction[] =>
     (props.showInlineActions ?? true) ? props.interaction.actions : []
   );
+  const inactive = (): boolean => everyAnswerUnavailable(inline());
   const open = (): (() => void) | undefined => props.onPress ?? props.onOpen;
   // The id goes on what a driver presses: the words, unless the card has
   // answers of its own (then the words are `-open`) or cannot be opened.
@@ -259,6 +297,7 @@ export function NotificationCardDefault(
         <StackHorizontal align="start" gap="xs">
           <CardHeadline
             interaction={shown()}
+            inactive={inactive()}
             onOpen={open()}
             testId={wordsTestId()}
             dataSet={idOnWords() ? state() : undefined}

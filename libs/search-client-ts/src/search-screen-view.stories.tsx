@@ -7,7 +7,7 @@ import { StoryUserRow, storyResult } from './search-screen-view.example';
 const RESULTS = [
   storyResult(1, 'jordan'),
   storyResult(2, 'jordan_plays'),
-  storyResult(3, 'jordy'),
+  storyResult(3, 'jordy', { synced: false }),
 ];
 
 const IDLE = {
@@ -53,11 +53,11 @@ export const Searching: Story = {
 };
 
 /**
- * People whose username starts with the query, in one panel: what follows
- * the typed "jor" is emphasised so similar handles read apart. Each row ends
- * in what the viewer can do (Add Friend) or where they stand (a Friends or
- * Requested tag, Cancel beside a request). The panel sits on the search
- * field's inset.
+ * People whose username starts with the query, in one panel: each face, and
+ * what follows the typed "jor" emphasised so similar handles read apart
+ * (a profile not yet on this device shows its initials). Each row ends in
+ * one control: a Friends tag, or one small pill for what the viewer can do
+ * (Add friend, Cancel request). The panel sits on the search field's inset.
  */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },

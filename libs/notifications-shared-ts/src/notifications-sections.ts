@@ -18,13 +18,37 @@ function sectionKeyForDate(iso: string, now: () => number): string {
   return 'earlier';
 }
 
+/** The group of what waits on the person, ahead of the days. */
+export const NEEDS_YOU_SECTION_KEY = 'needs_you';
+
 const SECTION_TITLES: Record<string, string> = {
+  [NEEDS_YOU_SECTION_KEY]: 'Needs you',
   today: 'Today',
   yesterday: 'Yesterday',
   this_week: 'This week',
   earlier: 'Earlier',
 };
 
+/**
+ * Whether a notification waits on the person: an action-required item, in
+ * the inbox and still active, that has an answer they can give now (or, like
+ * a turn notice, asks them to open it). An invite whose every answer is
+ * unavailable (the space is full) waits on nobody.
+ */
+export function notificationNeedsYou(item: Notification): boolean {
+  if (item.category !== 'action_required') return false;
+  if (!item.isActive || item.isArchived || item.isDismissed) return false;
+  return (
+    item.actions.length === 0 ||
+    item.actions.some((action) => action.disabled !== true)
+  );
+}
+
+/**
+ * The inbox's groups: what needs the person first, then everything else by
+ * day (today, yesterday, this week, earlier). Order inside a group is the
+ * order given.
+ */
 export function buildNotificationSections(
   items: readonly Notification[],
   now: () => number,
@@ -32,12 +56,20 @@ export function buildNotificationSections(
 ): readonly NotificationSection[] {
   const buckets = new Map<string, Notification[]>();
   for (const item of items) {
-    const key = sectionKeyForDate(item.createdAt, now);
+    const key = notificationNeedsYou(item)
+      ? NEEDS_YOU_SECTION_KEY
+      : sectionKeyForDate(item.createdAt, now);
     const list = buckets.get(key) ?? [];
     list.push(item);
     buckets.set(key, list);
   }
-  const order = ['today', 'yesterday', 'this_week', 'earlier'];
+  const order = [
+    NEEDS_YOU_SECTION_KEY,
+    'today',
+    'yesterday',
+    'this_week',
+    'earlier',
+  ];
   const sections: NotificationSection[] = [];
   for (const key of order) {
     const bucket = buckets.get(key);

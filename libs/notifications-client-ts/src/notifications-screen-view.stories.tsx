@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -12,12 +13,23 @@ import {
   storySections,
 } from './notifications-story.example';
 
+/**
+ * Who a notification is about, with the default face every profile is
+ * seeded with.
+ */
+function person(username: string, id: string) {
+  return {
+    fallbackLabel: `@${username}`,
+    avatarConfig: serializeDefaultAvatarConfig(id),
+  };
+}
+
 const INVITE = storyNotification({
   id: 'b51c7a90-0000-4000-8000-000000000001',
   category: 'action_required',
   title: '@jordan_plays invited you to Friday chess',
   subtitle: 'Space invite',
-  avatar: { fallbackLabel: '@jordan_plays' },
+  avatar: person('jordan_plays', '9f1c2a4e-0000-4000-8000-000000000002'),
   isUnread: true,
   actions: [
     { id: 'accept', label: 'Join', variant: 'ghost' },
@@ -30,7 +42,7 @@ const STARTED = storyNotification({
   sourceType: 'space_started',
   title: '@morgan started a space',
   body: 'Tap to watch or join the next game.',
-  avatar: { fallbackLabel: '@morgan' },
+  avatar: person('morgan', '9f1c2a4e-0000-4000-8000-000000000003'),
   createdAt: '2023-11-14T18:30:00.000Z',
   isUnread: true,
   deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'friday-chess' } },
@@ -41,7 +53,7 @@ const DISABLED = storyNotification({
   category: 'action_required',
   title: '@sam invited you to Quick connect four',
   subtitle: 'Space invite',
-  avatar: { fallbackLabel: '@sam' },
+  avatar: person('sam', '9f1c2a4e-0000-4000-8000-000000000005'),
   createdAt: '2023-11-13T20:00:00.000Z',
   actions: [
     {
@@ -54,6 +66,18 @@ const DISABLED = storyNotification({
   ],
 });
 
+const TURN = storyNotification({
+  id: 'b51c7a90-0000-4000-8000-000000000006',
+  sourceNamespace: 'game-session',
+  sourceType: 'multiplayer_turn',
+  category: 'action_required',
+  title: 'Your move against @robin_42',
+  avatar: { fallbackLabel: '@robin_42' },
+  createdAt: '2023-11-13T21:40:00.000Z',
+  isUnread: true,
+  deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'robin-game' } },
+});
+
 const SYSTEM = storyNotification({
   id: 'b51c7a90-0000-4000-8000-000000000004',
   sourceNamespace: 'app',
@@ -64,7 +88,8 @@ const SYSTEM = storyNotification({
 });
 
 const SECTIONS = storySections([
-  ['Today', [INVITE, STARTED]],
+  ['Needs you', [INVITE, TURN]],
+  ['Today', [STARTED]],
   ['Yesterday', [DISABLED]],
   ['Earlier', [SYSTEM]],
 ]);
@@ -99,9 +124,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The inbox by day: an invite with Join / Decline, an unread update that
- * opens its space, an invite whose Join is unavailable ("Space is full"
- * instead of a dead button), and a system note. Archive sits in each card's
+ * What needs you first (an invite with Join / Decline, a turn waiting on
+ * you, whose profile has not synced, so its initials), then updates by day:
+ * one that opens its space, an invite whose Join is unavailable (an inactive
+ * card: "Space is full" as a tag and its words stepped back, instead of a
+ * dead button), and a system note. Archive is the quiet icon in each card's
  * trailing corner. Unread items put Mark all read in the header.
  */
 export const Populated: Story = {};

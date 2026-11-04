@@ -9,7 +9,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { Accessor, JSX } from 'solid-js';
 import {
   ConfirmDeletePills,
@@ -48,11 +49,13 @@ function renderBlockedByThem(): JSX.Element {
 function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   const { t } = useLingui();
   return (
     <SingleActionPill
+      compact={compact}
       operation={wrap(mutations.unblock)}
       idle={<Trans>Unblock</Trans>}
       loading={t`Unblocking…`}
@@ -68,10 +71,12 @@ function renderBlockedByMe(
 function renderPendingIncoming(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   return (
     <ConfirmDeletePills
+      compact={compact}
       onConfirm={wrap(mutations.confirmRequest)}
       onDelete={wrap(mutations.deleteRequest)}
       {...(username !== undefined && username.length > 0
@@ -84,28 +89,30 @@ function renderPendingIncoming(
   );
 }
 
-/** "Requested" as a tag, with the one real action beside it: Cancel. */
+/**
+ * A request is out: one control that says so and what it does, "Cancel
+ * request", never a tag with a second button beside it.
+ */
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    <StackHorizontal align="center" gap="sm">
-      <RelationshipBadge label={<Trans>Requested</Trans>} intent="neutral" />
-      <SingleActionPill
-        operation={wrap(mutations.cancelRequest)}
-        idle={<Trans>Cancel</Trans>}
-        loading={t`Cancelling…`}
-        success={t`Cancelled`}
-        error={t`Couldn't cancel`}
-        variant="ghost"
-        {...(username !== undefined && username.length > 0
-          ? { testID: Handles.friendCancel(username) }
-          : {})}
-      />
-    </StackHorizontal>
+    <SingleActionPill
+      compact={compact}
+      operation={wrap(mutations.cancelRequest)}
+      idle={<Trans>Cancel request</Trans>}
+      loading={t`Cancelling…`}
+      success={t`Cancelled`}
+      error={t`Couldn't cancel`}
+      variant="outline"
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendCancel(username) }
+        : {})}
+    />
   );
 }
 
@@ -142,15 +149,18 @@ function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   addFailureCode: Accessor<string | null>,
-  username: string | undefined
+  row: { readonly username: string | undefined; readonly compact: boolean }
 ): JSX.Element {
+  const { username, compact } = row;
   const { t } = useLingui();
   const sendFailureLabel = useSendFailureLabel();
   return (
     <StackVertical gap="xs">
       <SingleActionPill
+        compact={compact}
+        icon={UserPlusIcon}
         operation={wrap(mutations.addFriend)}
-        idle={<Trans>Add Friend</Trans>}
+        idle={<Trans>Add friend</Trans>}
         loading={t`Sending…`}
         success={t`Sent`}
         error={sendFailureLabel(addFailureCode())}
@@ -166,31 +176,37 @@ function renderNone(
   );
 }
 
+/**
+ * The controls for one relationship. `compact` is a list row's trailing
+ * control: one small secondary pill (or a tag), so every row ends alike.
+ */
 export function renderFriendActionPillsForStatus({
   status,
   mutations,
   addFailureCode,
   wrap,
   username,
+  compact,
 }: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
   addFailureCode: Accessor<string | null>;
   wrap: WrapMutation;
   username?: string | undefined;
+  compact: boolean;
 }): JSX.Element {
   switch (status) {
     case 'blocked_by_them':
       return renderBlockedByThem();
     case 'blocked_by_me':
-      return renderBlockedByMe(wrap, mutations, username);
+      return renderBlockedByMe(wrap, mutations, username, compact);
     case 'pending_incoming':
-      return renderPendingIncoming(wrap, mutations, username);
+      return renderPendingIncoming(wrap, mutations, username, compact);
     case 'pending_outgoing':
-      return renderPendingOutgoing(wrap, mutations, username);
+      return renderPendingOutgoing(wrap, mutations, username, compact);
     case 'friends':
       return renderFriends(username);
     default:
-      return renderNone(wrap, mutations, addFailureCode, username);
+      return renderNone(wrap, mutations, addFailureCode, { username, compact });
   }
 }

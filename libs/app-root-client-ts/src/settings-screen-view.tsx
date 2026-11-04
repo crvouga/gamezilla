@@ -112,8 +112,8 @@ function useAccountGroup(
 
 /**
  * The Work offline row's caption: the mode the app is in now, then what the
- * switch would change. "Online" / "Offline" lead, so the row says where the
- * person stands before it says what the switch does.
+ * switch means for the person. "Online" / "Offline" lead, so the row says
+ * where the person stands before it says what the switch does.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -121,8 +121,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Offline. Nothing connects until you turn this off.`
-      : t`Online. Turn on to stop every network connection.`;
+      ? t`Offline. What you do stays on this device until you turn this off.`
+      : t`Online. Turn on to use the app without a connection; nothing syncs until you turn it off.`;
 }
 
 function usePreferencesGroup(

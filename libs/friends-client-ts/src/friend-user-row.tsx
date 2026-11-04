@@ -37,8 +37,8 @@ export type FriendUserRowProps = {
   /** DST handle for the pressable identity, when not a friends-list row. */
   readonly pressTestID?: string | undefined;
   /**
-   * Ends the pressable identity in a chevron: the row opens the person and
-   * has no trailing action of its own to say so.
+   * Ends the row in a chevron, after any trailing tag: the row opens the
+   * person.
    */
   readonly disclosure?: boolean | undefined;
 };
@@ -83,7 +83,6 @@ function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
   readonly caption?: JSX.Element;
   readonly highlight?: string | undefined;
-  readonly disclosure?: boolean | undefined;
 }): JSX.Element {
   const moderation = useModeration();
   const label = createMemo(() => profileLabel(moderation(), props.profile));
@@ -98,9 +97,6 @@ function FriendUserRowIdentity(props: {
           </P>
         </Show>
       </StackVertical>
-      <Show when={props.disclosure === true}>
-        <ChevronRightIcon size={20} color="icon" />
-      </Show>
     </>
   );
 }
@@ -158,10 +154,13 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
               profile={props.profile}
               caption={props.caption}
               highlight={props.highlight}
-              disclosure={props.disclosure}
             />
           </Pressable>
           {trailing()}
+          {/* Last on the row, after any trailing tag: where the row leads. */}
+          <Show when={props.disclosure === true}>
+            <ChevronRightIcon size={20} color="icon" />
+          </Show>
         </StackHorizontal>
       )}
     </Show>
