@@ -60,10 +60,10 @@ export const STORY_PEOPLE: FramePeople = {
 };
 
 const LOOKS = {
-  white: { sideLabel: 'Red circle', swatch: { color: 'player7', mark: '●' } },
+  white: { sideLabel: 'Red circle', swatch: { color: 'disc-one', mark: '●' } },
   black: {
     sideLabel: 'Yellow diamond',
-    swatch: { color: 'player5', mark: '◆' },
+    swatch: { color: 'disc-two', mark: '◆' },
   },
   red: { sideLabel: 'Third seat', swatch: { color: 'player2', mark: '▲' } },
   blue: { sideLabel: 'Fourth seat', swatch: { color: 'player3', mark: '■' } },
