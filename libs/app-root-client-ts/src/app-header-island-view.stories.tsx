@@ -52,3 +52,30 @@ export const SelectProfile: Story = {
     await expect(args.onSelect).toHaveBeenCalledWith(STORY_APP_TABS[3]);
   },
 };
+
+/** Wide layouts: the sidebar, Spaces current, the account face at its foot. */
+export const SidebarSpacesCurrent: Story = {
+  parameters: { appFrame: 'rail' },
+  args: { orientation: 'vertical' },
+  render: (args) => (
+    <AppHeaderIslandView {...args} trailing={<Avatar size={32} you />} />
+  ),
+};
+
+/** The sidebar on Search. */
+export const SidebarSearchCurrent: Story = {
+  ...SidebarSpacesCurrent,
+  args: { orientation: 'vertical', pathname: '/search' },
+};
+
+/** The sidebar on the inbox. */
+export const SidebarNotificationsCurrent: Story = {
+  ...SidebarSpacesCurrent,
+  args: { orientation: 'vertical', pathname: '/notifications' },
+};
+
+/** The sidebar on a profile sub-screen: Profile stays current. */
+export const SidebarProfileCurrent: Story = {
+  ...SidebarSpacesCurrent,
+  args: { orientation: 'vertical', pathname: '/profile/friends' },
+};

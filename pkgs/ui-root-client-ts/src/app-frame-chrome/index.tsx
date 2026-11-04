@@ -96,6 +96,15 @@ export function useAppFrameHeader(
   };
 }
 
+/**
+ * Whether a screen has replaced or hidden the default header for its
+ * lifetime (an active space draws its own chrome; the sidebar steps aside).
+ */
+export function useAppFrameHeaderOverridden(): Accessor<boolean> {
+  const ctx = useContext(AppFrameChromeContext);
+  return () => (ctx?.headerOverride() ?? null) !== null;
+}
+
 /** Register the mounted wide screen, with identity-safe cleanup during route swaps. */
 export function usePublishScreenNavigation(
   breadcrumbs: Accessor<readonly ScreenBaseBreadcrumb[]>,

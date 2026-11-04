@@ -25,6 +25,12 @@ export type AppHeaderIslandProps = {
    * `AppFrameChromeProvider` `globalTrailing` chrome when omitted.
    */
   trailing?: JSX.Element | undefined;
+  /**
+   * `horizontal` (default): one 52px top row. `vertical`: the wide sidebar —
+   * logo on top, one navigation row per item, the trailing chrome at the foot.
+   * A vertical island never shows breadcrumbs; screens draw their own.
+   */
+  orientation?: 'horizontal' | 'vertical' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };

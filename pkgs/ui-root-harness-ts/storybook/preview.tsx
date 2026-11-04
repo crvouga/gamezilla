@@ -10,7 +10,7 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { children, createEffect, type JSX, onCleanup } from 'solid-js';
+import { children, createEffect, type JSX, onCleanup, Show } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
@@ -42,7 +42,8 @@ function createStoryRouter(): AppRouter {
  * A screen renders where the app renders it: inside `AppFrame`, filling the
  * viewport, so wide layouts get the app's centered column and page inset.
  * The frame's own chrome (header, tab bar, account menu) opts out with
- * `appFrame: false`.
+ * `appFrame: false`; the sidebar renders as the frame's rail with
+ * `appFrame: 'rail'`.
  */
 function withOptionalRouter(
   parameters: Record<string, unknown>,
@@ -51,11 +52,12 @@ function withOptionalRouter(
   if (parameters['appRouter'] !== true) return story();
   return (
     <StaticAppRouterProvider router={createStoryRouter()}>
-      {parameters['appFrame'] === false ? (
-        story()
-      ) : (
-        <StoryAppViewport story={story} />
-      )}
+      <Show when={parameters['appFrame'] !== false} fallback={story()}>
+        <StoryAppViewport
+          story={story}
+          asRail={parameters['appFrame'] === 'rail'}
+        />
+      </Show>
     </StaticAppRouterProvider>
   );
 }
@@ -64,11 +66,16 @@ function withOptionalRouter(
  * The story mounts once and moves with the frame's compact / wide switch
  * (a second `<Story />` would render empty).
  */
-function StoryAppViewport(props: { story: () => JSX.Element }): JSX.Element {
+function StoryAppViewport(props: {
+  story: () => JSX.Element;
+  asRail: boolean;
+}): JSX.Element {
   const screen = children(() => props.story());
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
-      <AppFrame>{screen()}</AppFrame>
+      <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
+        <AppFrame rail={screen()}>{null}</AppFrame>
+      </Show>
     </div>
   );
 }

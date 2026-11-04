@@ -1,7 +1,10 @@
 /** @jsxImportSource solid-js */
 
 import { type JSX, Show } from 'solid-js';
-import { useAppFrameHeader } from '../app-frame-chrome/index';
+import {
+  useAppFrameHeader,
+  useAppFrameHeaderOverridden,
+} from '../app-frame-chrome/index';
 import { ContentEdgePaddingProvider } from '../content-edge-padding/index';
 import { DismissibleBannerPortalProvider } from '../dismissible-top-banner/index';
 import { ScreenFocusProvider } from '../screen-focus/index';
@@ -10,6 +13,12 @@ import { useLayoutMode } from '../use-layout-mode';
 export type AppFrameProps = {
   /** Wide-only header (e.g. `AppHeaderIsland`). Ignored on compact. */
   header?: JSX.Element | undefined;
+  /**
+   * Wide-only sidebar (`AppHeaderIsland orientation="vertical"`), full height
+   * at the window's leading edge. It steps aside while a screen overrides the
+   * header (an active space). Ignored on compact.
+   */
+  rail?: JSX.Element | undefined;
   children: JSX.Element;
 };
 
@@ -37,6 +46,9 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
 }
 
 function AppFrameWide(props: AppFrameProps): JSX.Element {
+  const overridden = useAppFrameHeaderOverridden();
+  const rail = (): JSX.Element | undefined =>
+    overridden() ? undefined : props.rail;
   return (
     <main
       class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-background overflow-clip"
@@ -44,7 +56,21 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
       data-mode="wide"
     >
       <DismissibleBannerPortalProvider>
-        <AppFrameWideColumn {...props} />
+        <div class="box flex-row flex-1 min-h-0 min-w-0">
+          <Show when={rail()}>
+            {(node) => (
+              <div class="box shrink-0 min-h-0" data-region="rail">
+                {node()}
+              </div>
+            )}
+          </Show>
+          <div
+            class="box flex-1 min-h-0 min-w-0"
+            classList={{ 'pt-4': rail() !== undefined }}
+          >
+            <AppFrameWideColumn {...props} />
+          </div>
+        </div>
       </DismissibleBannerPortalProvider>
     </main>
   );
@@ -72,7 +98,11 @@ function AppFrameCompact(props: AppFrameProps): JSX.Element {
  * `background` edge to edge at every width, and nothing inside it (header,
  * top bar, screen bodies) paints a second page tone. `surface` is for wells.
  *
- * Regions, top to bottom (`data-region` on each box AppFrame draws):
+ * Regions (`data-region` on each box AppFrame draws):
+ *
+ * - **rail** (wide only) -- the `rail` prop, normally the vertical
+ *   `AppHeaderIsland`: the app's sidebar, full height at the leading edge.
+ *   Hidden while a screen overrides the header.
  *
  * - **header** (wide only) -- the `header` prop, normally `AppHeaderIsland`:
  *   logo, then the app's top-level **nav**, then actions and the account

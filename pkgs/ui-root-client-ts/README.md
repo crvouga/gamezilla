@@ -78,12 +78,14 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
    `shadow-float`, is for what floats: sheets, dialogs, menus, popovers,
    tooltips and the FAB. No gradients, no glows.
-7. **One navigation bar.** Wide subscreens publish their existing breadcrumb
-   contracts to the header island as ancestor pills and a current-page pill;
-   root screens keep primary navigation. The redundant body header is omitted
-   while the pill supplies the single semantic, focusable subpage heading.
-   Root screens keep a visually hidden heading. Compact screens keep
-   their title/back bar. Standalone screens retain their own headers.
+7. **One navigation surface.** Wide layouts navigate from the sidebar
+   (`AppHeaderIsland orientation="vertical"` in `AppFrame` `rail`): logo,
+   one row per destination, the global chrome at its foot. Screens beside it
+   draw their own breadcrumb header, so every subpage keeps one semantic,
+   focusable heading. A screen that draws its own chrome (an open space)
+   replaces the top header and the sidebar steps aside. Compact screens keep
+   their title/back bar and the tab bar. Standalone screens retain their own
+   headers.
    **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
 8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never
