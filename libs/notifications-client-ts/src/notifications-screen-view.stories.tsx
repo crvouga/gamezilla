@@ -128,8 +128,10 @@ type Story = StoryObj<typeof meta>;
  * you with an explicit Open step, whose profile has not synced, so its
  * initials), then updates by day: one that opens its space, an invite whose
  * Join is unavailable (an inactive card: "Space is full" as a tag and its
- * words stepped back, instead of a dead button), and a system note. Archive
- * is the quiet labelled button at the end of each card's action row. Unread
+ * words stepped back, instead of a dead button), and a system note. Each
+ * card says when and what in one caption line ("1h ago · Space invite");
+ * unread items lead with the accent dot, read ones stay plain. Archive is
+ * the quiet icon at each card's top trailing corner. Unread
  * items put Mark all read in the header.
  */
 export const Populated: Story = {};

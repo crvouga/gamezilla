@@ -1,0 +1,4 @@
+{
+  "summary": "Each notifications inbox entry stacked its time and its kind on separate caption lines under the title, so entries were tall and only three fit on a phone. When and what now share one caption line (\"1h ago · Space invite\").",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

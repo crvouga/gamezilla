@@ -155,3 +155,30 @@ test('an informational card offers no open step, only Archive', () => {
   expect(screen.queryByRole('button', { name: 'Open' })).toBeNull();
   expect(screen.getByRole('button', { name: 'Archive' })).toBeTruthy();
 });
+
+// regression: inbox-unread-only-a-heavier-title
+test('an unread card leads with a named unread dot; a read card has none', () => {
+  mountCard(invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]));
+  const dot = screen.getByRole('img', { name: 'Unread' });
+  expect(dot.getAttribute('data-status')).toBe('unread');
+  cleanup();
+  mountCard({
+    ...invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]),
+    isUnread: false,
+  });
+  expect(screen.queryByRole('img', { name: 'Unread' })).toBeNull();
+});
+
+// regression: inbox-card-stacked-metadata
+test('when and what share one caption line', () => {
+  mountCard({ ...invite([]), subtitle: 'Space invite' });
+  expect(screen.getByText('1h ago · Space invite')).toBeTruthy();
+});
+
+// regression: inbox-archive-full-weight-text
+test('Archive is a quiet icon with no visible word', () => {
+  mountCard(invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]));
+  const archive = screen.getByRole('button', { name: 'Archive' });
+  expect(archive.getAttribute('data-component')).toBe('IconButton');
+  expect(archive.textContent ?? '').not.toContain('Archive');
+});

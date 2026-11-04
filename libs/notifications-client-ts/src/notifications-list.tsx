@@ -82,12 +82,13 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
 
   const renderItem = (row: ListRow): JSX.Element => {
     if (row.kind === 'header') {
-      // The `MenuSection` rhythm: the label on the rows' text column, a
-      // small gap to its panel, a section gap above every day but the first.
+      // The label on the rows' text column, a small gap to its panel, and a
+      // tighter gap than a settings section above every day but the first:
+      // the inbox is one running list, so more of it fits on a phone.
       return (
         <StackVertical
           paddingX="lg"
-          paddingTop={row.leading ? 'none' : 'xl'}
+          paddingTop={row.leading ? 'none' : 'lg'}
           paddingBottom="sm"
         >
           <H2 size="label" tone="secondary">
@@ -112,7 +113,7 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
         <ScreenBodyVirtualList
           items={rows()}
           keyExtractor={(row) => row.key}
-          estimateSize={88}
+          estimateSize={72}
           renderItem={renderItem}
           panelGroups={rowPlace}
         />
