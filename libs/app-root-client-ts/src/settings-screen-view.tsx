@@ -44,8 +44,11 @@ type SettingsRow = {
 
 type SettingsGroup = {
   readonly key: string;
-  /** The group's label; omitted where its one row already says it. */
-  readonly title?: string | undefined;
+  /**
+   * The group's label. Every settings group has one (the subs' sections
+   * too), so the eye finds each group the same way.
+   */
+  readonly title: string;
   /** A note under the group's rows. */
   readonly footer?: string | undefined;
   readonly rows: readonly SettingsRow[];
@@ -87,6 +90,7 @@ function useAccountGroup(
   const { t } = useLingui();
   return () => ({
     key: 'account',
+    title: t`Your account`,
     rows: [
       {
         title: t`Account`,
@@ -227,9 +231,9 @@ function SettingsGroupView(props: {
 }
 
 /**
- * About, then one Troubleshooting row, closed until it is opened: the
- * diagnostics (connection, sync, client config, performance) are one tap
- * away without taking the screen from everyday settings.
+ * The App group: About, then one Troubleshooting row, closed until it is
+ * opened: the diagnostics (connection, sync, client config, performance)
+ * are one tap away without taking the screen from everyday settings.
  */
 function AboutSection(props: SettingsScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -237,6 +241,7 @@ function AboutSection(props: SettingsScreenViewProps): JSX.Element {
   const [open, setOpen] = createSignal(false);
   return (
     <MenuSection
+      title={t`App`}
       footer={
         open() ? t`Details to check when something isn't working.` : undefined
       }
