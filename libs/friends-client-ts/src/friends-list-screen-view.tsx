@@ -54,22 +54,12 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
   );
 }
 
-/** "Since Mar 2026", quietly, or nothing when the date is unknown. */
-function FriendsSince(props: { readonly since: string }): JSX.Element {
-  const { t, i18n } = useLingui();
-  const label = (): string | null => {
-    const ms = Date.parse(props.since);
-    if (!Number.isFinite(ms)) return null;
-    const month = new Intl.DateTimeFormat(i18n().locale, {
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(ms));
-    return t`Since ${month}`;
-  };
-  return <>{label()}</>;
-}
-
-/** One friend in the list's panel: face, name, since when, and the way in. */
+/**
+ * One friend in the list's panel: face, name, the Live tag while they host
+ * a live space (what helps you play now), and the way in. How long you have
+ * been friends is record-keeping, not a reason to tap, so the row leaves it
+ * out.
+ */
 function FriendsListRow(props: {
   readonly friend: Friend;
   readonly trailing: JSX.Element | undefined;
@@ -79,7 +69,6 @@ function FriendsListRow(props: {
     <StackVertical paddingX="lg" paddingY="xs">
       <FriendUserRow
         profile={props.friend}
-        caption={<FriendsSince since={props.friend.friendsSince} />}
         onPress={() => props.onOpen()}
         friendsListHandle
         disclosure
@@ -160,7 +149,7 @@ export function FriendsListScreenView(
           <ScreenBodyVirtualList
             items={props.friends}
             keyExtractor={(item) => item.userId}
-            estimateSize={76}
+            estimateSize={68}
             empty={
               <FriendsListPlaceholder
                 status={props.status}

@@ -75,10 +75,11 @@ const HOSTING = new Set([personId('02'), personId('05')]);
 
 /**
  * Friends are known: one row each, newest-first order as the container gives
- * it. Each row is the friend's face, name and since when, and opens their
- * profile; a friend hosting a live space ends in the Live tag that joins it
- * (a profile not yet on this device shows its initials). Find friends sits
- * in the header as the page's next step.
+ * it. Each row is the friend's face and name, and opens their profile; a
+ * friend hosting a live space ends in the Live tag that joins it (a profile
+ * not yet on this device shows its initials). No friendship date: the row
+ * says what helps you play now. Find friends sits in the header as the
+ * page's next step.
  */
 export const Populated: Story = {
   args: {
