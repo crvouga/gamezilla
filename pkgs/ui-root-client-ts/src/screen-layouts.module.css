@@ -31,6 +31,45 @@
   min-width: 0;
   gap: var(--ui-space-3);
 }
+/* A profile: identity, then its sections. Stacked on a phone; side by side
+   once the column is wide enough, the identity in a fixed left column. */
+.profileFrame {
+  container-type: inline-size;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileAside {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.profileSections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileSections:empty {
+  display: none;
+}
+@container (min-width: 40rem) {
+  .profile[data-split="true"] {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    column-gap: var(--ui-space-2xl);
+    align-items: start;
+  }
+  .profile[data-split="true"] > .profileAside {
+    padding-top: var(--ui-space-lg);
+  }
+}
 /* One column as wide as a board can use, centered: the feed, the board, the
    move list and the actions stay together instead of spanning a wide frame.
    A wider-than-square board widens the column by its aspect ratio. */

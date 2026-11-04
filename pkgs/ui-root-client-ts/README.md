@@ -152,15 +152,16 @@ protocol. Import each from its matching kebab-case module export.
 | `GameReviewScreen` | Review stage, timeline, actions and optional record rail | Puzzle review |
 | `FormScreen` | Scrolling editor, shared Save / Cancel footer | Username and avatar editors |
 | `MenuScreen` | Scrolling groups of `MenuSection` / `MenuList` | Settings, profile settings, account, devices, preferences |
-| `ProfileScreenLayout` | Identity, identity actions, supporting sections | Own profile; `ProfileIdentity` also groups another person's identity |
+| `ProfileScreenLayout` | Identity, identity actions, supporting sections; side by side once the column is wide enough | Own profile; `ProfileIdentity` also groups another person's identity |
 | `CollectionScreen` | Fixed search / filters / notices, independently scrolling content | Spaces, friends, search, inbox |
 | `ContentScreen` | Readable scrolling details, documents or state explanations | Privacy, billing, link outcomes, administration |
 
 Every page sits on one canvas, `background`, edge to edge at every width;
 only wells (inputs, tags, notices) take a `surface` tone. Each family has one
 measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
-`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `list` (720px) for
-`CollectionScreen`; `full` for game stages with a rail. At every width a capped
+`MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `list` (720px) for
+`CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
+sections); `full` for game stages with a rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
 content. Narrow layouts retain the 16px page inset.
