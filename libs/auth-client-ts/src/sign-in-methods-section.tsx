@@ -72,7 +72,10 @@ export function SignInMethodsSection(
           />
         }
       >
-        <MenuSection title={<Trans>Sign-in methods</Trans>}>
+        <MenuSection
+          title={<Trans>Sign-in methods</Trans>}
+          footer={<RemoveMethodFooter removable={removable()} />}
+        >
           {/* Only a Synthetic User's account ever holds an email method. */}
           <Show when={identities().find((row) => row.provider === 'email')}>
             {(identity) => (
@@ -107,6 +110,31 @@ export function SignInMethodsSection(
   );
 }
 
+/**
+ * What Remove does, under the methods: it stops that method signing in, and
+ * the account keeps at least one, which is why the only one cannot go.
+ */
+function RemoveMethodFooter(props: {
+  readonly removable: boolean;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.removable}
+      fallback={
+        <Trans>
+          Your account needs at least one way to sign in. Connect another
+          before removing this one.
+        </Trans>
+      }
+    >
+      <Trans>
+        Removing a method stops it signing in to this account. You can connect
+        it again later.
+      </Trans>
+    </Show>
+  );
+}
+
 function EmailMethodRow(props: {
   readonly identity: LinkedIdentity;
   readonly removable: boolean;
@@ -121,6 +149,7 @@ function EmailMethodRow(props: {
       trailing={
         <Button
           title={t`Remove`}
+          aria-label={t`Remove ${providerName(i18n(), 'email')} sign-in`}
           variant="ghost"
           intent="danger"
           size="sm"

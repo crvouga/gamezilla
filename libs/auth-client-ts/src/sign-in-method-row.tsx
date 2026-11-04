@@ -100,6 +100,7 @@ function LinkedMethodRow(props: {
       trailing={
         <Button
           title={t`Remove`}
+          aria-label={t`Remove ${providerName(i18n(), props.provider)} sign-in`}
           variant="ghost"
           intent="danger"
           size="sm"
