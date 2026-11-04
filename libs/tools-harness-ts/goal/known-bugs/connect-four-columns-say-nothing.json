@@ -1,0 +1,4 @@
+{
+  "summary": "On the person's turn Connect Four showed only seven column numbers above the holes, which did not say what to do or where a disc would go. The board now says \"Choose a column\", marks every open column with a chevron, and colors the chevron of the column pointed at or focused as the person's disc, with a ghost of that disc where it would land.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

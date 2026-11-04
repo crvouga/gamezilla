@@ -34,6 +34,9 @@ export function ConnectFourBoard(props: {
       lastCell={lastCell()}
       interactive={props.interactive && game().result === 0}
       label={t`Connect Four board, seven columns and six rows`}
+      prompt={
+        props.interactive && game().result === 0 ? t`Choose a column` : ''
+      }
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1

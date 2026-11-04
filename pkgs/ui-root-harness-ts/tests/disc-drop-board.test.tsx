@@ -94,3 +94,35 @@ test("a column control's own text says nothing its name leaves out", () => {
   ).toEqual([]);
   view.unmount();
 });
+
+// regression: connect-four-columns-say-nothing
+test('the board says what to do and marks where the disc would be let go', () => {
+  const view = example();
+  const board = view.getByRole('group', { name: 'Drop board' });
+  const prompt = document.getElementById(
+    requiredAttribute(board, 'aria-describedby')
+  );
+  expect(prompt?.textContent).toBe('Choose a column');
+  const marker = (column: HTMLElement) =>
+    column.querySelector('[data-disc][aria-hidden="true"]');
+  // Every open column carries a chevron; the full one carries nothing.
+  const full = view.getByRole('button', { name: 'Column 1, 3 discs, full' });
+  const second = view.getByRole('button', { name: 'Column 2, 0 discs' });
+  expect(full.querySelector('svg')).toBeNull();
+  expect(second.querySelector('svg')).not.toBeNull();
+  expect(marker(second)).toHaveAttribute('data-disc', '0');
+  // Focusing a column colors its chevron as the dropping side and puts
+  // that side's ghost disc where it would land.
+  fireEvent.focus(second);
+  expect(marker(second)).toHaveAttribute('data-disc', '1');
+  const landing = board.querySelector('[data-cell="1"]');
+  expect(landing).toHaveAttribute('data-preview-disc', '1');
+  expect(landing?.textContent).toBe('●');
+  // A board that takes no drop has no chevrons and no prompt, but keeps
+  // the prompt's line so the board never moves.
+  view.setInteractive(false);
+  expect(second.querySelector('svg')).toBeNull();
+  expect(board.hasAttribute('aria-describedby')).toBe(false);
+  expect(board.querySelector('[data-testid$="-prompt"]')).not.toBeNull();
+  view.unmount();
+});
