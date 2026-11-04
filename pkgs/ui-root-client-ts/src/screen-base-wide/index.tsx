@@ -49,8 +49,6 @@ function WidePageHeader(
   );
   const measure = (): string | undefined => measureWidth(props.measure);
   return (
-    // Actions sit on the title's line, not centered against the caption
-    // trail above it.
     <header
       class="box flex-row items-end gap-3 shrink-0 min-h-13 py-2"
       classList={{ 'w-full': measure() !== undefined }}
@@ -62,21 +60,27 @@ function WidePageHeader(
         <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
       </Show>
       <div class="box flex-1" aria-hidden="true" />
-      <Show when={hasScreenBaseActions(partition())}>
-        <ActionBar
-          items={partition().iconItems}
-          textActions={partition().textActions}
-          buttonSize={chrome().buttonSize}
-          gap={chrome().gap}
-          slotWidth={chrome().slotWidth}
-          showInlineLabels
-          renderMenu={props.renderActionsMenu}
-          overflowDataSet={{ testid: 'header-overflow-menu' }}
-        />
-      </Show>
-      <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
-        {(primary) => <ScreenBasePrimaryButton render={primary()} />}
-      </Show>
+      {/* Bottom-aligned with the title, so actions sit on its line. */}
+      <div
+        class="box flex-row items-center gap-3 self-end"
+        data-component="ScreenBaseHeaderActions"
+      >
+        <Show when={hasScreenBaseActions(partition())}>
+          <ActionBar
+            items={partition().iconItems}
+            textActions={partition().textActions}
+            buttonSize={chrome().buttonSize}
+            gap={chrome().gap}
+            slotWidth={chrome().slotWidth}
+            showInlineLabels
+            renderMenu={props.renderActionsMenu}
+            overflowDataSet={{ testid: 'header-overflow-menu' }}
+          />
+        </Show>
+        <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
+          {(primary) => <ScreenBasePrimaryButton render={primary()} />}
+        </Show>
+      </div>
     </header>
   );
 }

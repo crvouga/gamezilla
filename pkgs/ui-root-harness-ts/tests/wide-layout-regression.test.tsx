@@ -72,6 +72,31 @@ describe('wide layout canvas and centered measure', () => {
     );
   });
 
+  // regression: header-action-floats-above-title
+  test('header actions sit on the title line, under the breadcrumb', () => {
+    renderUi(
+      framed(() => (
+        <MenuScreen
+          screenId="friends"
+          breadcrumbs={[
+            { name: 'Profile', onClick: () => {} },
+            { name: 'Friends' },
+          ]}
+          actions={[{ type: 'text', label: 'Find friends', onClick: () => {} }]}
+        >
+          <p class="text">{'rows'}</p>
+        </MenuScreen>
+      )),
+      WIDE
+    );
+    const actions = mustQuery('[data-component="ScreenBaseHeaderActions"]');
+    expect(actions.className).toMatch(/\bself-end\b/);
+    expect(actions.textContent).toContain('Find friends');
+    expect(classes('[data-component="ScreenBaseHeader"]')).toMatch(
+      /\bitems-end\b/
+    );
+  });
+
   // regression: wide-layout-canvas-and-centered-measure
   test('a content screen shares the prose measure between title and body', () => {
     renderUi(
