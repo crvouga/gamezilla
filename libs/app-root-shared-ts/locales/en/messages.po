@@ -848,6 +848,10 @@ msgstr "Account menu"
 msgid "Account privacy"
 msgstr "Account privacy"
 
+#: libs/profile-client-ts/src/profile-screen-view.tsx
+msgid "Account, appearance, sound and more"
+msgstr "Account, appearance, sound and more"
+
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 msgid "Accuracy"
 msgstr "Accuracy"
@@ -1301,6 +1305,7 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
@@ -1378,6 +1383,10 @@ msgstr "Change who sits here"
 #: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Changes waiting to send"
+msgstr "Changes waiting to send"
 
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
@@ -1808,6 +1817,10 @@ msgstr "Connection"
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Connection, sync and diagnostics"
+msgstr "Connection, sync and diagnostics"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "Connectivity"
@@ -2197,6 +2210,10 @@ msgstr "Desired synthetic population"
 msgid "Destroyer"
 msgstr "Destroyer"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Details to check when something isn't working."
+msgstr "Details to check when something isn't working."
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "dev"
 msgstr "dev"
@@ -2482,6 +2499,10 @@ msgstr "Ending space…"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
+
+#: libs/auth-client-ts/src/sign-out-everywhere.tsx
+msgid "Ends every session on this account, this device included"
+msgstr "Ends every session on this account, this device included"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Enter a valid desired synthetic population."
@@ -2796,6 +2817,10 @@ msgstr "Four sides. One hill. First to e5 wins immediately."
 msgid "fps"
 msgstr "fps"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Frame rate and responsiveness"
+msgstr "Frame rate and responsiveness"
+
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Frames per second"
 msgstr "Frames per second"
@@ -3058,6 +3083,14 @@ msgstr "Host as many spaces as you like at once"
 msgid "Host starts the rematch"
 msgstr "Host starts the rematch"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Hosted by <0/>"
+msgstr "Hosted by <0/>"
+
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Hosted by you"
+msgstr "Hosted by you"
+
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
@@ -3206,6 +3239,10 @@ msgstr "jank"
 msgid "John Doe"
 msgstr "John Doe"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Join"
+msgstr "Join"
+
 #: libs/numberlink-client-ts/src/numberlink-game-client.tsx
 msgid "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
 msgstr "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
@@ -3213,6 +3250,11 @@ msgstr "Join matching endpoints with paths that move horizontally or vertically.
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join space"
 msgstr "Join space"
+
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Join space {0}"
+msgstr "Join space {0}"
 
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join to see who is here and hang out."
@@ -3547,10 +3589,6 @@ msgstr "Loading your privacy settings…"
 #: pkgs/ui-root-client-ts/src/spinner/index.tsx
 msgid "Loading…"
 msgstr "Loading…"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Local database and sync state"
-msgstr "Local database and sync state"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
@@ -3932,6 +3970,10 @@ msgstr "No events yet"
 msgid "No friends yet"
 msgstr "No friends yet"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "No guests yet"
+msgstr "No guests yet"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "No legal move or wall — pass turn"
 msgstr "No legal move or wall — pass turn"
@@ -4163,10 +4205,13 @@ msgid "offline"
 msgstr "offline"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Offline. Nothing connects until you turn this off."
+msgstr "Offline. Nothing connects until you turn this off."
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4189,7 +4234,6 @@ msgid "online"
 msgstr "online"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
@@ -4197,6 +4241,10 @@ msgstr "Online"
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
 msgstr "Online Synthetic Users"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Online. Turn on to stop every network connection."
+msgstr "Online. Turn on to stop every network connection."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only a participant can make this choice."
@@ -4226,6 +4274,10 @@ msgstr "Only the puzzle team can load puzzles"
 msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Open"
+msgstr "Open"
+
 #: pkgs/ui-root-client-ts/src/command-palette-trigger/index.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
@@ -4233,11 +4285,6 @@ msgstr "Open command palette"
 #: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Open created draft"
 msgstr "Open created draft"
-
-#. placeholder {0}: props.space.title
-#: libs/spaces-client-ts/src/space-card-view.tsx
-msgid "Open current space {0}"
-msgstr "Open current space {0}"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Open developer feedback"
@@ -4384,10 +4431,6 @@ msgstr "Page {current} of {total}"
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Page {label}"
 msgstr "Page {label}"
-
-#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "Page not found"
-msgstr "Page not found"
 
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Pagination"
@@ -5289,9 +5332,15 @@ msgstr "Restart this puzzle?"
 msgid "Restart this Synthetic User?"
 msgstr "Restart this Synthetic User?"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resume"
 msgstr "Resume"
+
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Resume space {0}"
+msgstr "Resume space {0}"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resumed"
@@ -5553,6 +5602,7 @@ msgstr "Search"
 msgid "Search by name"
 msgstr "Search by name"
 
+#: libs/friends-client-ts/src/profile-friends-actions-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Search by username"
 msgstr "Search by username"
@@ -5698,11 +5748,16 @@ msgstr "Sessions"
 #: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Settings"
 msgstr "Settings"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Settings from the server"
+msgstr "Settings from the server"
 
 #. placeholder {0}: part.from
 #. placeholder {1}: part.to
@@ -5735,6 +5790,10 @@ msgstr "Share space"
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Share the space link to invite people."
 msgstr "Share the space link to invite people."
+
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
+msgid "Shared with you"
+msgstr "Shared with you"
 
 #: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Sharing your friend request…"
@@ -5910,6 +5969,10 @@ msgstr "Signing in…"
 #: libs/auth-client-ts/src/use-sign-out-confirmation.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
+
+#: libs/friends-client-ts/src/friends-list-screen-view.tsx
+msgid "Since {month}"
+msgstr "Since {month}"
 
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Sit here"
@@ -6164,8 +6227,8 @@ msgid "State"
 msgstr "State"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Status"
-msgstr "Status"
+msgid "Status, and what works offline"
+msgstr "Status, and what works offline"
 
 #: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "Stay here"
@@ -6194,10 +6257,6 @@ msgstr "Steer {0} up"
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Stop every network connection until you work online"
-msgstr "Stop every network connection until you work online"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Stop loading"
@@ -6271,10 +6330,6 @@ msgstr "Sync issue"
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Synced from the server on first request. Values come from server secrets, not from this device."
 msgstr "Synced from the server on first request. Values come from server secrets, not from this device."
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Synced runtime configuration"
-msgstr "Synced runtime configuration"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
@@ -6659,6 +6714,10 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
+msgid "The link may be old or mistyped. Your spaces are one tap away."
+msgstr "The link may be old or mistyped. Your spaces are one tap away."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
 msgstr "The link may be out of date. Pick a game from your list."
@@ -6814,8 +6873,8 @@ msgid "There is no secret choice to make now."
 msgstr "There is no secret choice to make now."
 
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "There is nothing at this address."
-msgstr "There is nothing at this address."
+msgid "There's nothing at this address"
+msgstr "There's nothing at this address"
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "They already asked you"
@@ -6892,6 +6951,10 @@ msgstr "This device is offline"
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 msgstr "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+
+#: libs/auth-client-ts/src/account-actions-row.tsx
+msgid "This device only"
+msgstr "This device only"
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
 msgid "This draft cannot be opened. Choose an earlier saved copy to continue."
@@ -7153,6 +7216,10 @@ msgstr "triple letter"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "triple word"
 msgstr "triple word"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Troubleshooting"
+msgstr "Troubleshooting"
 
 #: pkgs/ui-root-client-ts/src/catalog-list-rows/index.tsx
 msgid "Try a different search term."
@@ -7544,10 +7611,6 @@ msgstr "What next"
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "What Plus includes"
 msgstr "What Plus includes"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Whether the app is connected, and what works without it"
-msgstr "Whether the app is connected, and what works without it"
 
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
@@ -8178,6 +8241,10 @@ msgstr "Your space wasn't ended"
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your space wasn't renamed"
 msgstr "Your space wasn't renamed"
+
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
+msgid "Your spaces"
+msgstr "Your spaces"
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "your tentative blank as {letter}"
