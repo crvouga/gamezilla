@@ -52,6 +52,7 @@ const CONFIGURING: Partial<GameFrameScreenViewProps> = {
       choices: HOST_CHOICES,
     }),
     setupSeat(BOT, {
+      ready: true,
       choices: {
         ...HOST_CHOICES,
         difficulties: ['easy', 'medium', 'hard'],

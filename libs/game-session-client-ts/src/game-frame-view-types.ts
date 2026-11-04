@@ -124,6 +124,7 @@ export type FrameSetupSeat = FrameSeat & {
   readonly host: boolean;
   /** The viewer's own seat at someone else's table. */
   readonly visiting: boolean;
+  /** Its holder is ready: a ready person, or a bot or a guest here (always). */
   readonly ready: boolean;
   readonly invitation: FrameInvitation | null;
   readonly canSit: boolean;
