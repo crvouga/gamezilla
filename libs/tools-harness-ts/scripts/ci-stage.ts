@@ -1,4 +1,4 @@
-/** Blocking CI selection; the complete catalog remains the nightly source. */
+/** PR predicts release safety; release adds critical production-build journeys. */
 const STATIC = new Set([
   'tc',
   'lint',
@@ -38,10 +38,15 @@ export function ciStageTasks(
     return catalog;
   if (stage !== 'pr' && stage !== 'release')
     throw new Error(`Unknown CI stage: ${stage}`);
-  // Both stages verify the selected commit, including changes from merging main.
-  // Hash-identical successful tasks are restored by the existing Turbo planner.
+  // Recheck the selected commit, including merge changes, with cached results
+  // only for identical inputs. Critical browser journeys are release-only.
   return [
-    ...catalog.filter((task) => STATIC.has(task) || DEPLOYMENT.has(task)),
+    ...catalog.filter(
+      (task) =>
+        STATIC.has(task) ||
+        DEPLOYMENT.has(task) ||
+        (stage === 'release' && isReleaseJourney(task))
+    ),
     ...SECURITY_TESTS,
   ];
 }
@@ -54,4 +59,8 @@ export function isBlockingCiTask(id: string): boolean {
     SECURITY_TESTS.includes(id) ||
     STATIC.has(id.slice(id.indexOf('#') + 1))
   );
+}
+
+function isReleaseJourney(id: string): boolean {
+  return id.startsWith('@apps/product-ts#test:release-journeys:');
 }

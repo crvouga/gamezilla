@@ -1,8 +1,10 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import fc from 'fast-check';
 import { ciStageTasks } from './ci-stage';
-import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
 test('nightly and local verification retain the complete catalog', () => {
   expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toEqual(MAIN_VERIFY_TASKS);
@@ -52,9 +54,18 @@ test('Release compares schema evolution against the pre-push commit', () => {
   );
 });
 
-test('PR and release use the same safety tasks, with no lost nightly coverage', () => {
+test('PR predicts release; release additionally proves critical journeys', () => {
   const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
-  expect(pr).toEqual(ciStageTasks(MAIN_VERIFY_TASKS, 'release'));
+  const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
+  expect(release.filter((task) => !pr.includes(task))).toEqual(
+    RELEASE_JOURNEY_TASKS
+  );
+  for (const task of pr) expect(release).toContain(task);
+  for (const task of RELEASE_JOURNEY_TASKS) {
+    expect(pr).not.toContain(task);
+    expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toContain(task);
+  }
+  expect(new Set(release).size).toBe(release.length);
   expect(new Set(pr).size).toBe(pr.length);
   for (const task of pr)
     expect(
@@ -67,4 +78,37 @@ test('PR and release use the same safety tasks, with no lost nightly coverage', 
     '@pkgs/permissions-shared-ts#test',
   ])
     expect(pr).toContain(task);
+});
+
+test('PR and manual prediction runs differ from reusable release and nightly runs', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(
+      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+      'utf8'
+    )
+  ) as { env: Record<string, string> };
+  expect(workflow.env['VERIFY_CI_STAGE']).toBe(
+    "${{ inputs.profile == 'nightly' && 'nightly' || (inputs.profile == 'release' && 'release' || 'pr') }}"
+  );
+});
+
+test('stage selections stay nested as the catalog grows and changes order', () => {
+  assertProperty(
+    'ci-stage-nested-coverage',
+    fc.property(
+      fc.shuffledSubarray([...MAIN_VERIFY_TASKS, 'future:verification']),
+      (catalog) => {
+        const pr = ciStageTasks(catalog, 'pr');
+        const release = ciStageTasks(catalog, 'release');
+        const nightly = ciStageTasks(catalog, 'nightly');
+        for (const task of pr) expect(release).toContain(task);
+        // Focused test selections are covered by nightly's generic test task.
+        for (const task of release)
+          expect(nightly.includes(task) || task.endsWith('#test')).toBe(true);
+        expect(nightly).toEqual(catalog);
+        expect(pr).not.toContain('future:verification');
+        expect(release).not.toContain('future:verification');
+      }
+    )
+  );
 });

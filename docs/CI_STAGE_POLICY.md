@@ -10,7 +10,7 @@ remain in `verify-profile.ts`, independently of selection. No tests were removed
 | Workflow and triggers | Responsibility and dependencies |
 | --- | --- |
 | Verify PR: PR opened/reopened/synchronized against main, manual, reusable call | `verify:start` builds a content-addressed plan and shared prerequisites; independent misses run in duration-balanced shards; `verify:end` aggregates every expected verdict. No path filter can strand the required status. New PR pushes cancel superseded runs. |
-| Release: main push or manual dispatch | Reuse the safety gate on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
+| Release: main push or manual dispatch | Run safety checks and critical production-build journeys on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
 | Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently; visual waits only for its required corpus. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
 | Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
@@ -20,9 +20,24 @@ environment remain. No workflow, runner service or dependency was added.
 
 ## Blocking check classification
 
-PR and release use the same safety selection so a merge commit cannot introduce
-unchecked changes. Selection is cheap; successful tasks execute only on cache misses.
-The release gate does not run the full nightly catalog as a hidden prerequisite.
+A releasable commit produces valid deployable bundles, boots with its offline shell,
+preserves authentication, authorization and stored data, and passes the critical user
+journeys against its production client and production-like API/database stack. The
+release must also pass environment configuration, infrastructure safety and live
+post-deployment probes before it is tagged. This is a bounded automated release bar;
+it does not promise that every feature, visual state or performance case is correct.
+
+PR runs the inexpensive predictors below, including focused security and migration
+tests. Release reruns that same selection on the exact selected commit and adds all
+three `@apps/product-ts#test:release-journeys:<k>` partitions. These cover the existing
+health specs supported by the local production-like stack, including sign-in,
+join links, offline recovery and multiplayer games. PR intentionally omits those
+browser journeys; its green status predicts rather than guarantees a green release.
+Manual Verify PR dispatches use the PR selection; Release's reusable invocation
+explicitly selects release. Nightly executes both tiers and the remaining catalog.
+
+Selection is cheap; successful tasks execute only on cache misses. The release gate
+does not run the full nightly catalog as a hidden prerequisite.
 
 | Check | Why it cannot reasonably wait |
 | --- | --- |
@@ -49,7 +64,7 @@ Everything below remains in its existing owning package and production-relevant 
   at nightly depth through the same catalog.
 - All `test:contract` variants, render contracts, all numbered `test:spec:*` parts,
   Quint `verify:models` parts and `verify:board-contract`.
-- Every split release journey, Storybook checks and remote corpus checks.
+- Every split release journey (also release-blocking), Storybook checks and remote corpus checks.
 - `ci:i18n`, `ci:agent-commands`, `ci:workspace-lifecycle`, `ci:cache-hygiene`,
   `ci:package-names`, `ci:goals`, `ci:specs`, `ci:statecharts`, `ci:conformance`,
   `ci:spec-ownership`, branding and synthetic rebranding checks.
@@ -107,32 +122,19 @@ not a claim that the preceding deployment was atomically undone.
 
 ## Redundancy and expected improvement
 
-No unique verification was judged redundant enough to delete. The removed redundancy
-is comprehensive execution on every PR and again on release. Named security tests run
+No verification is deleted. PR omits critical browser journeys; Release omits the
+comprehensive functional, model, visual and performance catalog. Named security tests run
 once within each selected graph; nightly's generic `test` includes those same suites.
 Existing cached successes, shared build prerequisites and identical dependency tasks
 remain deduplicated by Turbo. Superseded pending releases no longer consume deployment
 work. Full nightly coverage and hourly production monitoring remain unchanged.
 
-Dry-run dependency closures contain **740 executable blocking tasks versus 1,536** in
-the former full gate (796 fewer, about 52%). The checked-in task-cost estimator models
-**2,100 versus 20,788 task-seconds**, approximately **90% less cold gate task work**.
-These include 3 and 47 fallback estimates respectively, and family estimates where no
-exact measurement exists. They are not new hosted benchmarks or a billing forecast.
+No new timing or cost claim is made for this selection. Release adds the three
+existing journey partitions to the PR graph, with their shared prerequisites deduplicated
+by Turbo. Compare hosted timing and cache-hit data after rollout.
 
-At the existing roughly three-minute shard target and 64-shard cap, an illustrative
-cold verification is approximately **4–6 minutes instead of 7–10 minutes**, including
-ordinary setup/fan-in but excluding queue delays. Both PR and release verification
-benefit; warm runs may improve little because they already restore cached results.
-Total release latency falls only by the saved verification time: infrastructure,
-environment builds and live checks remain. Nightly compute is unchanged. Daily compute
-savings depend on PR volume and cache misses; do not multiply the cold 90% estimate by
-all CI spending. `bun ci:stats` now reports the blocking/nightly split instead of
-incorrectly assigning the entire catalog to PRs. Validate projections with hosted
-per-job timing and cache-hit data after rollout.
-
-Accepted risk: ordinary functional, integration, visual and performance failures may
-reach main or production before nightly discovers them. Blocking access-control,
+Accepted risk: journey failures may reach main and stop Release; failures outside the
+release bar may reach production before nightly discovers them. Blocking access-control,
 secrets, dependency, schema and deployability checks plus live production probes limit
 critical exposure. Complete nightly verification, assigned triage and pinned regressions
 provide the feedback loop; nightly intentionally does not become a release gate.
