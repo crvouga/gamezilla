@@ -21,13 +21,19 @@ export type RouteStubScreenViewProps = {
   readonly notFound?: boolean | undefined;
   /** Leave for Spaces, the app's home. */
   readonly onGoToSpaces: () => void;
+  /**
+   * Return to the screen the person came from; set only when the app has
+   * one to return to. Offered beside Go to Spaces.
+   */
+  readonly onGoBack?: (() => void) | undefined;
 };
 
 /**
  * Placeholder screen for routes whose Solid port has not landed yet, and the
  * `*` not-found screen, presentational. A real `ScreenBase` so header chrome,
  * breadcrumbs and the tab bar behave exactly as they will for the ported
- * screen. `RouteStub` wires the way back to Spaces.
+ * screen. `RouteStub` wires the way back to Spaces, and Go back when the
+ * app has a screen to return to.
  */
 export function RouteStubScreenView(
   props: RouteStubScreenViewProps
@@ -38,6 +44,12 @@ export function RouteStubScreenView(
       : [{ name: props.parent.name, href: props.parent.href }]),
     { name: props.title },
   ];
+  const goBack = () => {
+    const back = props.onGoBack;
+    return back === undefined
+      ? undefined
+      : { label: <Trans>Go back</Trans>, onClick: () => back() };
+  };
   return (
     <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
       <EmptyState
@@ -62,6 +74,7 @@ export function RouteStubScreenView(
           label: <Trans>Go to Spaces</Trans>,
           onClick: () => props.onGoToSpaces(),
         }}
+        secondaryAction={goBack()}
         dataSet={{
           testid:
             props.notFound === true ? Handles.routeNotFound : 'route-stub',

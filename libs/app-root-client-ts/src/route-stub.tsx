@@ -12,9 +12,15 @@ import {
   type RouteStubScreenViewProps,
 } from './route-stub-screen-view';
 
-export type RouteStubProps = Omit<RouteStubScreenViewProps, 'onGoToSpaces'>;
+export type RouteStubProps = Omit<
+  RouteStubScreenViewProps,
+  'onGoToSpaces' | 'onGoBack'
+>;
 
-/** Wires `RouteStubScreenView`'s way out to the router: replace with Spaces. */
+/**
+ * Wires `RouteStubScreenView`'s ways out to the router: replace with Spaces,
+ * or back, when this app pushed the screen before it.
+ */
 export function RouteStub(props: RouteStubProps): JSX.Element {
   const router = useRouter();
   return (
@@ -24,6 +30,7 @@ export function RouteStub(props: RouteStubProps): JSX.Element {
       parent={props.parent}
       notFound={props.notFound}
       onGoToSpaces={() => router.replace('/')}
+      onGoBack={router.canGoBack() ? () => router.back() : undefined}
     />
   );
 }

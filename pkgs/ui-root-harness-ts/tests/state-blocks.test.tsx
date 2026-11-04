@@ -39,6 +39,25 @@ describe('EmptyState', () => {
     fireEvent.click(action);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  test('a secondary way out sits beside the primary, outlined and neutral', () => {
+    const onBack = mock();
+    renderUi(() => (
+      <EmptyState
+        title="There's nothing at this address"
+        body="The link may be old or mistyped."
+        action={{ label: 'Go to Spaces', onClick: () => undefined }}
+        secondaryAction={{ label: 'Go back', onClick: onBack }}
+        dataSet={{ testid: 'not-found' }}
+      />
+    ));
+    const back = screen.getByRole('button', { name: 'Go back' });
+    expect(back).toHaveAttribute('data-intent', 'neutral');
+    expect(back).toHaveAttribute('data-variant', 'outline');
+    expect(back).toHaveAttribute('data-testid', 'not-found-secondary');
+    fireEvent.click(back);
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('ErrorState', () => {
