@@ -185,6 +185,11 @@ export type FrameStatus = {
   /** Who holds every seat, for a listener who cannot see the seats. */
   readonly lineup: string;
   readonly description: string;
+  /**
+   * The line only says which side moves (`<Side> to move.`), which the
+   * seat to move already says: no game's own words, stand-in or phase.
+   */
+  readonly plainTurn: boolean;
   readonly emphasis: GameTurnPillEmphasis;
   readonly tone: GameTurnPillTone;
   readonly sending: boolean;

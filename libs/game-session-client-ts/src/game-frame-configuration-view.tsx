@@ -215,13 +215,8 @@ export function FrameStartView(props: {
   readonly onReady: () => Promise<void>;
 }): JSX.Element {
   return (
-    <GameSection
-      title={<Trans>Start</Trans>}
-      description={
-        <Trans>Agree on the lineup and options, then get ready.</Trans>
-      }
-    >
-      <P variant="bodyBold" role="status" testId="custom-game-startable">
+    <GameSection title={<Trans>Start</Trans>}>
+      <P variant="body" role="status" testId="custom-game-startable">
         {frameStartLine(props.start.reason)}
       </P>
       <Show when={props.start.hostStarts}>

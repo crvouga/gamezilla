@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import {
   ChevronLeftIcon,
@@ -60,9 +61,24 @@ function ReviewSteps(props: RecordProps): JSX.Element {
   );
 }
 
-/** Jump straight to a numbered position. */
+/**
+ * Jump straight to a numbered position: the moves listed above are the usual
+ * way through the record, so the number field waits behind a quiet
+ * disclosure, reached by keyboard like any other control.
+ */
 function ReviewJump(props: RecordProps): JSX.Element {
-  const [jump, setJump] = createSignal('0');
+  return (
+    <GameDisclosure
+      title={<Trans>Go to a move by number</Trans>}
+      dataSet={{ testid: 'custom-game-review-jump' }}
+    >
+      <ReviewJumpField {...props} />
+    </GameDisclosure>
+  );
+}
+
+function ReviewJumpField(props: RecordProps): JSX.Element {
+  const [jump, setJump] = createSignal(String(props.record.displayedPly));
   return (
     <StackHorizontal align="end" gap="sm">
       <StackVertical grow>

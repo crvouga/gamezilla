@@ -19,7 +19,7 @@
 .stage {
   width: 100%;
   max-width: var(--game-board-measure);
-  justify-self: center;
+  justify-self: start;
 }
 .layout:not([data-has-stage="true"]) > .stage {
   display: none;
@@ -28,7 +28,7 @@
 .layout:not([data-has-stage="true"]) > .setup {
   width: 100%;
   max-width: var(--game-board-measure);
-  justify-self: center;
+  justify-self: start;
 }
 /* The seats hug the board: one column, the board the widest thing in it. */
 .boardStage {
@@ -67,6 +67,51 @@
   flex-direction: column;
   gap: var(--ui-space-3);
   min-width: 0;
+}
+.player[data-active="true"] {
+  /* The seat to move: an accent edge on the leading side, beside the tint. */
+  box-shadow: inset 4px 0 0 var(--ui-color-tint-active);
+}
+.playerTurn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--ui-space-2);
+  min-height: 20px;
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+  white-space: nowrap;
+}
+.seatToggle {
+  display: inline-flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ui-color-border);
+  color: var(--ui-color-text);
+  position: relative;
+}
+/* A 44px hit area around the 36px button. */
+.seatToggle::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--ui-space-1) * -1);
+}
+.seatToggle:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.seatOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  padding: var(--ui-space-2) 0 var(--ui-space-3);
+  border-top: 1px solid var(--ui-color-border);
+}
+.player[data-density="compact"] {
+  gap: var(--ui-space-2);
 }
 .playerRow {
   display: flex;
@@ -279,7 +324,7 @@
   }
 }
 /* Wide: the board column and one rail beside it (setup above the record),
-   centered together as a group. */
+   starting at the screen's title edge, as the body lines up with it. */
 @media (min-width: 960px) {
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
@@ -287,7 +332,7 @@
       minmax(0, var(--game-board-measure))
       minmax(280px, 360px);
     grid-template-rows: auto 1fr;
-    justify-content: center;
+    justify-content: start;
     column-gap: var(--ui-space-6);
   }
   .layout[data-has-stage="true"] > .stage {

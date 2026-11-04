@@ -150,6 +150,14 @@ export function MultiplayerSeat(props: {
           </For>
         </>
       }
+      turnLabel={
+        <Show
+          when={profileId() === props.viewer.myId}
+          fallback={<Trans>To move</Trans>}
+        >
+          <Trans>Your move</Trans>
+        </Show>
+      }
       trailing={
         <Show
           when={props.game.white_ms !== null && props.game.black_ms !== null}

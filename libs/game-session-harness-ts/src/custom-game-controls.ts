@@ -47,7 +47,7 @@ async function revealControl(
   const ui = await actorUi(s, actor);
   if (
     'side' in input &&
-    ['take', 'bot', 'local', 'open', 'close', 'invite'].includes(
+    ['take', 'bot', 'local', 'open', 'close', 'invite', 'release'].includes(
       input.operation
     )
   ) {

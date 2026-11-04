@@ -35,13 +35,37 @@ function TimeControlBadge(props: {
   );
 }
 
+/** The game's facts for the title row: unrated, and its clock. */
+export function FrameFactsView(props: {
+  readonly status: FrameStatus | null;
+}): JSX.Element {
+  return (
+    <Show when={props.status}>
+      {(status) => (
+        <StackHorizontal align="center" gap="sm">
+          <Badge
+            intent="neutral"
+            label={<Trans>Unrated</Trans>}
+            dataSet={{ testid: 'custom-game-unrated' }}
+          />
+          <TimeControlBadge status={status()} />
+        </StackHorizontal>
+      )}
+    </Show>
+  );
+}
+
 /**
  * Where the game stands, in one line: the eye reads the state beside the
  * seats; a listener, who cannot see the seats, first hears who holds them.
- * With no game yet only a listener hears it.
+ * With no game yet only a listener hears it. When the screen already shows
+ * the same thing (`spokenOnly`: the seat to move says whose move it is, the
+ * Start section says whether the game can start), the line is for a
+ * listener only.
  */
 export function FrameStatusView(props: {
   readonly status: FrameStatus | null;
+  readonly spokenOnly?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -69,16 +93,7 @@ export function FrameStatusView(props: {
             </>
           }
           detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
-          trailing={
-            <StackHorizontal align="center" gap="sm">
-              <Badge
-                intent="neutral"
-                label={<Trans>Unrated</Trans>}
-                dataSet={{ testid: 'custom-game-unrated' }}
-              />
-              <TimeControlBadge status={status()} />
-            </StackHorizontal>
-          }
+          spokenOnly={props.spokenOnly === true && !status().sending}
         />
       )}
     </Show>
