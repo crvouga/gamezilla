@@ -41,12 +41,22 @@ export function GameSection(props: {
   );
 }
 
-export function GameActions(props: { children: JSX.Element }): JSX.Element {
+/**
+ * A row of game commands, wrapping when the line is short. `share`: the
+ * commands split the row evenly, each at most a primary command's width
+ * (320px), so one prominent command (Start) and its companion (I'm not
+ * ready) read as a pair instead of a stretched bar and a stray link.
+ */
+export function GameActions(props: {
+  children: JSX.Element;
+  sizing?: 'content' | 'share' | undefined;
+}): JSX.Element {
   const content = createScreenSlot(() => props.children);
   return (
     <Show when={content.present()}>
       <div
         class={styles['actions']}
+        data-sizing={props.sizing ?? 'content'}
         {...dataAttrs({ component: 'GameActions' })}
       >
         {content.content()}

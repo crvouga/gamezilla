@@ -97,7 +97,7 @@ export type FrameInvitee = {
   readonly disabled: boolean;
 };
 
-/** What the host may put in a seat, behind its "Change who sits here". */
+/** What the host may put in a seat, behind its "Change player". */
 export type FrameSeatChoices = {
   readonly localPlayers: boolean;
   readonly bots: boolean;
