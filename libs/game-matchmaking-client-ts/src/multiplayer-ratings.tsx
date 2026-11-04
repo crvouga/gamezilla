@@ -9,11 +9,10 @@ import {
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
@@ -53,46 +52,49 @@ export function useMultiplayerRatings(
 }
 
 /**
- * What the "?" after a provisional rating means, in one line under the
- * ratings: it stays until enough rated games settle the rating.
+ * Under the number, in one compact line: how many rated games stand
+ * behind it and, while the "?" marks it provisional, how many settle it
+ * (`Provisional · 7 of 12 rated games`).
  */
-function ProvisionalNote(props: {
-  readonly ratings: readonly MultiplayerRatingView[];
+function RatingGames(props: {
+  readonly rating: MultiplayerRatingView;
 }): JSX.Element {
-  const provisional = (): boolean => props.ratings.some(isProvisional);
   return (
-    <Show when={provisional()}>
-      <P
-        variant="caption"
-        tone="secondary"
-        dataSet={{ testid: 'multiplayer-rating-provisional-note' }}
+    <Text
+      variant="inherit"
+      testId={`multiplayer-rating-${props.rating.pool}-games`}
+    >
+      <Show
+        when={isProvisional(props.rating)}
+        fallback={
+          <Plural
+            value={props.rating.games}
+            one="# rated game"
+            other="# rated games"
+          />
+        }
       >
-        <Show
-          when={props.ratings.length > 1}
-          fallback={
-            <Trans>
-              The ? means provisional: the rating settles after{' '}
-              {MULTIPLAYER_SETTLED_GAMES} rated games.
-            </Trans>
-          }
-        >
-          <Trans>
-            The ? means provisional: each rating settles after{' '}
-            {MULTIPLAYER_SETTLED_GAMES} rated games at its speed.
-          </Trans>
-        </Show>
-      </P>
-    </Show>
+        <Trans>
+          Provisional · {props.rating.games} of {MULTIPLAYER_SETTLED_GAMES}{' '}
+          rated games
+        </Trans>
+      </Show>
+    </Text>
   );
 }
 
-/** The person's own multiplayer rating and rated games in every pool. */
+/**
+ * The person's own multiplayer rating and rated games in every pool. With
+ * `fill` (beside the search, nothing else in the rail) it ends level with
+ * the search's panel.
+ */
 export function MultiplayerRatings(props: {
   readonly ratings: readonly MultiplayerRatingView[];
+  readonly fill?: boolean | undefined;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Your ratings</Trans>}>
-      {/* One game rating takes the row, so its tag sits beside it. */}
+    <GameSection title={<Trans>Your ratings</Trans>} fill={props.fill}>
+      {/* One game rating takes the row; a rating per speed, two a row. */}
       <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
         <For each={props.ratings}>
           {(rating) => (
@@ -115,34 +117,11 @@ export function MultiplayerRatings(props: {
                   {isProvisional(rating) ? '?' : ''}
                 </Text>
               }
-              tag={
-                <Show when={isProvisional(rating)}>
-                  <Badge
-                    intent="neutral"
-                    label={<Trans>Provisional</Trans>}
-                    dataSet={{
-                      testid: `multiplayer-rating-${rating.pool}-provisional`,
-                    }}
-                  />
-                </Show>
-              }
-              detail={
-                <Text
-                  variant="inherit"
-                  testId={`multiplayer-rating-${rating.pool}-games`}
-                >
-                  <Plural
-                    value={rating.games}
-                    one="# rated game"
-                    other="# rated games"
-                  />
-                </Text>
-              }
+              detail={<RatingGames rating={rating} />}
             />
           )}
         </For>
       </Grid>
-      <ProvisionalNote ratings={props.ratings} />
     </GameSection>
   );
 }

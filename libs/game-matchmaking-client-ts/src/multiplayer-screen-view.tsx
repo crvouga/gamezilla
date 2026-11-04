@@ -194,7 +194,10 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
                 {/* Beside the search (or the board) when wide, so the
                     screen is two columns at the frame's width; under it
                     on a phone. */}
-                <MultiplayerRatings ratings={props.ratings} />
+                <MultiplayerRatings
+                  ratings={props.ratings}
+                  fill={props.stage !== 'game'}
+                />
               </>
             }
           >

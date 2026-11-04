@@ -113,8 +113,8 @@ test('the board says what to do and marks where the disc would be let go', () =>
   expect(full.querySelector('svg')).toBeNull();
   expect(second.querySelector('svg')).not.toBeNull();
   expect(marker(second)).toHaveAttribute('data-disc', '0');
-  // Focusing a column colors its chevron as the dropping side and puts
-  // that side's ghost disc where it would land.
+  // Focusing a column marks it as the dropping side's and puts that side's
+  // ghost disc where it would land.
   fireEvent.focus(second);
   expect(marker(second)).toHaveAttribute('data-disc', '1');
   const landing = board.querySelector('[data-cell="1"]');
@@ -126,6 +126,30 @@ test('the board says what to do and marks where the disc would be let go', () =>
   expect(second.querySelector('svg')).toBeNull();
   expect(board.hasAttribute('aria-describedby')).toBe(false);
   expect(board.querySelector('[data-testid$="-prompt"]')).not.toBeNull();
+  view.unmount();
+});
+
+// regression: connect-four-target-column-faint
+test('the column pointed at lights up and holds the dropping disc above it', () => {
+  const view = example();
+  const second = view.getByRole('button', { name: 'Column 2, 0 discs' });
+  const third = view.getByRole('button', { name: 'Column 3, 0 discs' });
+  const held = (column: HTMLElement) =>
+    column.querySelector('[data-disc][aria-hidden="true"] [data-disc]');
+  // At rest every open column offers a chevron and nothing is lit.
+  expect(second).toHaveAttribute('data-previewed', 'false');
+  expect(held(second)).toBeNull();
+  // Pointing at a column lights it and swaps its chevron for the disc
+  // about to drop; its neighbour stays at rest.
+  fireEvent.pointerEnter(second);
+  expect(second).toHaveAttribute('data-previewed', 'true');
+  expect(held(second)).toHaveAttribute('data-disc', '1');
+  expect(second.querySelector('svg')).toBeNull();
+  expect(third).toHaveAttribute('data-previewed', 'false');
+  expect(third.querySelector('svg')).not.toBeNull();
+  fireEvent.pointerLeave(second);
+  expect(second).toHaveAttribute('data-previewed', 'false');
+  expect(held(second)).toBeNull();
   view.unmount();
 });
 

@@ -14,15 +14,14 @@ import {
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleClockLabel } from './puzzle-clock-label';
 import { PuzzleEmptyPoolState } from './puzzle-empty-pool-state';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 
-const COMPACT_AVATAR_SIZE = 56;
-const WIDE_AVATAR_SIZE = 80;
+/** The coach's face: small enough to leave its words a whole line beside a wide board. */
+const AVATAR_SIZE = 56;
 
 /**
  * What the board well holds: a placed puzzle (`playing`), one activity
@@ -85,12 +84,9 @@ export type PuzzlePlayScreenViewProps = {
   readonly denial?: DenialView | undefined;
   readonly status: SolveStatus;
   readonly hintStage: HintStage;
-  readonly canGoBack: boolean;
   readonly canGoForward: boolean;
   readonly onHint: () => void;
   readonly onSolution: () => void;
-  readonly onBack: () => void;
-  readonly onForward: () => void;
   readonly onRetry: () => void;
   readonly onSkip: () => void;
   readonly onNext: () => void;
@@ -102,11 +98,6 @@ export type PuzzlePlayScreenViewProps = {
   /** Layers over the screen: the result, the feed settings, live regions. */
   readonly overlay?: JSX.Element;
 };
-
-function useAvatarSize(): () => number {
-  const mode = useLayoutMode();
-  return () => (mode() === 'wide' ? WIDE_AVATAR_SIZE : COMPACT_AVATAR_SIZE);
-}
 
 /** Clock, spectator mark and share control at the end of the status row. */
 function HeaderTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
@@ -122,7 +113,6 @@ function HeaderTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const avatarSize = useAvatarSize();
   const handles = () => props.coach.handles;
   return (
     <SpeakingAvatar
@@ -146,7 +136,7 @@ function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
         />
       }
       numberOfLines={2}
-      avatarSize={avatarSize()}
+      avatarSize={AVATAR_SIZE}
     />
   );
 }
@@ -206,12 +196,9 @@ function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
     <PuzzleActionBar
       status={props.status}
       hintStage={props.hintStage}
-      canGoBack={props.canGoBack}
       canGoForward={props.canGoForward}
       onHint={props.onHint}
       onSolution={props.onSolution}
-      onBack={props.onBack}
-      onForward={props.onForward}
       onRetry={props.onRetry}
       onSkip={props.onSkip}
       onNext={props.onNext}
@@ -221,8 +208,10 @@ function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 /**
  * Puzzle play, presentational: the feed strip, the coach with the status
- * row, the board well, the move list and the action bar — for a placed
- * puzzle, a pending pick, or why none can be placed. The board, the feed
+ * row, the board well, the move list with its review controls and the
+ * action row (help, retry or next, and Skip puzzle apart) — beside the
+ * board in one panel when wide — for a placed puzzle, a pending pick, or
+ * why none can be placed. The board, the feed
  * and the overlays arrive as slots; `PuzzlePlayScreen` wires the room.
  */
 export function PuzzlePlayScreenView(

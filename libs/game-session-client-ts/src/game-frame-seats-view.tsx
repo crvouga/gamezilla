@@ -170,7 +170,7 @@ function SetupSeatView(props: SeatProps): JSX.Element {
       tags={<SetupSeatTags seat={props.seat} />}
       trailing={<SetupSeatTrailing {...props} />}
       options={<SetupSeatOptions {...props} />}
-      optionsLabel={<Trans>Change who sits here</Trans>}
+      optionsLabel={<Trans>Change player</Trans>}
       optionsDataSet={{ testid: `custom-game-${props.seat.side}-choices` }}
     >
       <Show when={props.seat.invitation}>

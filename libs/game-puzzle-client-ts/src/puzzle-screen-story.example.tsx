@@ -122,7 +122,6 @@ export function StoryTimeline(props: {
       nav={{
         canGoBack: props.plies.length > 0,
         canGoForward: false,
-        showStepControls: false,
         onNavigate: noop,
       }}
     />
@@ -149,7 +148,6 @@ export function StoryReviewBoard(props: {
           nav={{
             canGoBack: props.selectedSolveIdx > 0,
             canGoForward: props.selectedSolveIdx < props.plies.length,
-            showStepControls: true,
             onNavigate: noop,
           }}
         />
@@ -355,12 +353,9 @@ export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
   feedConfig: STORY_FEED_CONFIG,
   status: 'solving',
   hintStage: 'none',
-  canGoBack: false,
   canGoForward: false,
   onHint: fn(),
   onSolution: fn(),
-  onBack: fn(),
-  onForward: fn(),
   onRetry: fn(),
   onSkip: fn(),
   onNext: fn(),

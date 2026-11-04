@@ -68,6 +68,26 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
+/* The column pointed at or focused while the board takes a drop: a light
+   wash down its whole height, under its cells, so the target reads at a
+   glance against the board. */
+.column {
+  position: relative;
+  isolation: isolate;
+}
+.column::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ui-color-tint);
+  opacity: 0;
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.column[data-previewed="true"]::before {
+  opacity: 0.16;
+}
 .column[data-full="true"] {
   opacity: var(--ui-opacity-muted);
 }
@@ -101,7 +121,32 @@
 .chevron {
   display: grid;
   place-items: center;
-  min-height: var(--ui-space-4);
+  min-height: var(--ui-space-6);
+}
+/* The disc held over the chosen column, in the dropping side's colour and
+   mark. */
+.ghost {
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-6);
+  height: var(--ui-space-6);
+  border-radius: 50%;
+  font-size: var(--ui-font-size-xs);
+  line-height: 1;
+}
+.ghost[data-disc="1"] {
+  background: var(--ui-color-destructive);
+  color: var(--ui-color-on-destructive);
+}
+.ghost[data-disc="1"]::after {
+  content: "●";
+}
+.ghost[data-disc="2"] {
+  background: var(--ui-color-warning);
+  color: var(--ui-color-background);
+}
+.ghost[data-disc="2"]::after {
+  content: "◆";
 }
 .drop[data-disc="1"] {
   --ui-on-icon: var(--ui-color-destructive);
@@ -183,5 +228,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cell[data-last="true"] .disc {
     animation: none;
+  }
+  .column::before {
+    transition: none;
   }
 }

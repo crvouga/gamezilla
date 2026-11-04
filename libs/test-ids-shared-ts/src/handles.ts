@@ -437,8 +437,6 @@ export const Handles = {
   chessPuzzleActionHint: 'chess-puzzle-action-hint',
   chessPuzzleActionNext: 'chess-puzzle-action-next',
   chessPuzzleActionRetry: 'chess-puzzle-action-retry',
-  chessPuzzleActionBack: 'chess-puzzle-action-back',
-  chessPuzzleActionForward: 'chess-puzzle-action-forward',
   chessPuzzleActionSkip: 'chess-puzzle-action-skip',
   chessPuzzleClock: 'chess-puzzle-clock',
   chessPuzzleStatusLabel: 'chess-puzzle-status-label',

@@ -61,8 +61,9 @@ export type GamePlayerBarProps = {
    */
   density?: 'regular' | 'compact' | undefined;
   /**
-   * Secondary choices for the seat, behind one trailing toggle named
-   * `optionsLabel` and opened under the row (native button, `aria-expanded`).
+   * Secondary choices for the seat, behind one trailing pill that shows
+   * `optionsLabel` beside a chevron and opens them under the row (native
+   * button, `aria-expanded`).
    */
   options?: JSX.Element;
   optionsLabel?: JSX.Element;

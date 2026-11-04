@@ -85,8 +85,8 @@ function discMark(disc: number): string {
 /**
  * Above a column: its number, as the record writes its moves (counted from
  * 1), and while the board takes a drop a chevron under it over every open
- * column, in the dropping side's color over the one pointed at or focused
- * (whose landing cell holds that side's ghost disc). While someone is to
+ * column; over the one pointed at or focused, the dropping side's disc, as
+ * if held there ready to let go (its landing cell holds the same ghost). While someone is to
  * move the chevron's band keeps its height when empty; a board nobody is
  * to move on draws only the numbers. A preview draws neither.
  */
@@ -109,7 +109,12 @@ function DropMarker(props: {
       <Show when={turnTaken()}>
         <span class={styles['chevron']}>
           <Show when={props.board.interactive && !props.full}>
-            <ChevronDownIcon size={16} />
+            <Show
+              when={props.previewed}
+              fallback={<ChevronDownIcon size={16} />}
+            >
+              <span class={styles['ghost']} data-disc={props.board.active} />
+            </Show>
           </Show>
         </span>
       </Show>
@@ -150,6 +155,7 @@ function Column(props: {
         aria-label={props.board.columnLabel(props.column, occupied(), full())}
         aria-disabled={!props.board.interactive || full()}
         data-full={String(full())}
+        data-previewed={String(previewed())}
         onPointerEnter={() => props.preview(props.column)}
         onPointerLeave={() => props.preview(null)}
         onFocus={() => props.preview(props.column)}
@@ -197,9 +203,9 @@ function Column(props: {
  * A board of columns a disc drops down. Each column is one native,
  * full-height button (also a practical touch target) headed by its number;
  * a prompt line above them says what to do, and while the board takes a
- * drop each open column carries a chevron, the one pointed at or focused in
- * the dropping side's color, with that side's ghost disc in the cell where
- * it would land. As a `GameBoardStage` preview (a game still being set up)
+ * drop each open column carries a chevron; the one pointed at or focused
+ * lights up, holds the dropping side's disc above it and that side's ghost
+ * disc in the cell where it would land. As a `GameBoardStage` preview (a game still being set up)
  * it draws only its discs: no prompt line, numbers or chevrons.
  */
 export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {

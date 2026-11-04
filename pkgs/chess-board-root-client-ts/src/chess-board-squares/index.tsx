@@ -143,18 +143,22 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
 /**
- * Label size in board units (100 per square): about a quarter of a square,
- * so a phone-wide board (a 44px square) still sets it near 11px, and still
- * small enough to stay in a corner, clear of the piece's figure.
+ * Label size in board units (100 per square): under a fifth of a square,
+ * small enough to sit wholly in the corner a piece's figure (88% of its
+ * square, centred) never reaches, so a rank-1 or a-file label reads as the
+ * square's coordinate, never as a mark under the piece. A phone-wide board
+ * (a 44px square) still sets it near 8px. The insets below keep the 24-unit
+ * label's proportions (in ems), so a glyph's overhang and descent still
+ * stay inside the square on every platform.
  */
-const LABEL_SIZE = '24';
+const LABEL_SIZE = '18';
 /** A file label's right edge, in from its square's right side. */
-const LABEL_INSET = 9;
+const LABEL_INSET = 7;
 /** A file label's baseline above the board's bottom, room left for descenders. */
-const FILE_BASELINE_INSET = 13;
+const FILE_BASELINE_INSET = 10;
 /** A rank label's left edge and baseline within its square. */
-const RANK_INSET = 5;
-const RANK_BASELINE = 26;
+const RANK_INSET = 4;
+const RANK_BASELINE = 22;
 
 /**
  * Edge labels inside the corner squares, chess.com-style: each label takes

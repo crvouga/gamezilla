@@ -8,8 +8,6 @@ import {
   RevealPuzzleSolution,
   ShowPuzzleSolution,
   SkipPuzzlePlay,
-  StepBackPuzzlePlay,
-  StepForwardPuzzlePlay,
 } from '@libs/game-puzzle-shared-ts/play-messages';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client-ts/use-space-room-selector';
@@ -86,8 +84,6 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   onRetry: () => void;
   onSkip: () => void;
   onNext: () => void;
-  onBack: () => void;
-  onForward: () => void;
   backToRoot: () => void;
 } {
   const dispatch = useSpaceRoomDispatch();
@@ -134,14 +130,6 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     args.onRequestNext();
   };
 
-  const onBack = (): void => {
-    dispatch(StepBackPuzzlePlay({}));
-  };
-
-  const onForward = (): void => {
-    dispatch(StepForwardPuzzlePlay({}));
-  };
-
   return {
     onMove,
     onHint,
@@ -149,8 +137,6 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     onRetry,
     onSkip,
     onNext,
-    onBack,
-    onForward,
     backToRoot,
   };
 }

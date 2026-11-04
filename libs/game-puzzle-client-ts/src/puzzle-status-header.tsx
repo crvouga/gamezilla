@@ -50,8 +50,9 @@ export type PuzzleStatusHeaderProps = {
 export function PuzzleStatusHeader(
   props: PuzzleStatusHeaderProps
 ): JSX.Element {
-  // The row is as tall as its content: a prompt that wraps to two lines
-  // grows it rather than overlapping the coach's message below.
+  // The row is as tall as its content: a prompt that wraps grows it rather
+  // than overlapping the coach's message below. Three lines keep the whole
+  // prompt beside the clock in the narrow panel beside a wide board.
   return (
     <StackHorizontal
       align="center"
@@ -62,7 +63,7 @@ export function PuzzleStatusHeader(
     >
       <PuzzleStatusIcon kind={props.kind} />
       <StackVertical grow>
-        <P variant="label" lines={2} testId="chess-puzzle-status-label">
+        <P variant="label" lines={3} testId="chess-puzzle-status-label">
           <Show
             when={props.kind === 'started' ? props.solverSide : null}
             fallback={statusLabel(props.kind)}

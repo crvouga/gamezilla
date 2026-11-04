@@ -46,7 +46,6 @@ export const CorrectMove: Story = {
       contextKey: 'after-bxd1',
     },
     elapsedMs: 27_000,
-    canGoBack: true,
   },
   parameters: { puzzleScene: { fen: STORY_LINE.afterBxd1, plies: 3 } },
 };
@@ -112,7 +111,6 @@ export const Solved: Story = {
     statusKind: 'solved',
     status: 'solved',
     elapsedMs: 41_000,
-    canGoBack: true,
     coach: { message: "Checkmate! That's Legal's mate." },
   },
   parameters: {

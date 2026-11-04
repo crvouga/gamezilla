@@ -206,10 +206,10 @@ export function FrameOptionsView(props: {
 
 /**
  * Starting the game, right under the players it starts with: why it cannot
- * start yet (or "Ready to start."), then Start, full width, for whoever may
- * start it, always shown and held back until the game can start. The
- * person's own readiness follows: the one thing to do next when they may
- * not start the game, a quiet second choice when they may.
+ * start yet (or "Ready to start."), then one row of commands: Start, for
+ * whoever may start it, always shown and held back until the game can
+ * start, and the person's own readiness beside it — the one thing to do
+ * next when they may not start the game, a secondary button when they may.
  */
 export function FrameStartView(props: {
   readonly start: FrameStart;
@@ -226,16 +226,34 @@ export function FrameStartView(props: {
           <Trans>Waiting for the host to start.</Trans>
         </P>
       </Show>
-      <Show when={props.start.canStart}>
-        <GameActionButton
-          title={<Trans>Start game</Trans>}
-          dataSet={{ testid: 'custom-game-start' }}
-          variant="solid"
-          fullWidth
-          operation={() => props.onChoose({ operation: 'start' })}
-          disabled={props.start.reason !== null}
+      <GameActions sizing="share">
+        <Show when={props.start.canStart}>
+          <GameActionButton
+            title={<Trans>Start game</Trans>}
+            dataSet={{ testid: 'custom-game-start' }}
+            variant="solid"
+            operation={() => props.onChoose({ operation: 'start' })}
+            disabled={props.start.reason !== null}
+          />
+        </Show>
+        <FrameReadinessButton
+          start={props.start}
+          onChoose={props.onChoose}
+          onReady={props.onReady}
         />
-      </Show>
+      </GameActions>
+    </StackVertical>
+  );
+}
+
+/** The person's own readiness: get ready, or take it back. */
+function FrameReadinessButton(props: {
+  readonly start: FrameStart;
+  readonly onChoose: Choose;
+  readonly onReady: () => Promise<void>;
+}): JSX.Element {
+  return (
+    <>
       <Show when={props.start.readiness}>
         {(readiness) => (
           <GameActionButton
@@ -249,7 +267,6 @@ export function FrameStartView(props: {
             }
             dataSet={{ testid: 'custom-game-ready' }}
             variant={readinessVariant(props.start, readiness().ready)}
-            fullWidth
             disabled={!readiness().ready && readiness().blocked}
             operation={() =>
               readiness().ready
@@ -259,18 +276,17 @@ export function FrameStartView(props: {
           />
         )}
       </Show>
-    </StackVertical>
+    </>
   );
 }
 
 /**
  * Getting ready is the next step until the person is ready; once ready, or
- * beside Start, taking it back is a quiet choice.
+ * beside Start, it is the secondary button.
  */
 function readinessVariant(
   start: FrameStart,
   ready: boolean
-): 'solid' | 'outline' | 'ghost' {
-  if (start.canStart) return 'ghost';
-  return ready ? 'outline' : 'solid';
+): 'solid' | 'outline' {
+  return start.canStart || ready ? 'outline' : 'solid';
 }

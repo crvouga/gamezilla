@@ -1,5 +1,7 @@
 /**
- * Pure mode → slot plan for the puzzle bottom bar (no UI imports).
+ * Pure mode → slot plan for the puzzle's action row (no UI imports). Moving
+ * through the line is not here: its step and jump controls flank the move
+ * list, so the row holds only what is done about the puzzle itself.
  */
 
 import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared-ts/play-attr';
@@ -10,7 +12,7 @@ export type ActionBarHintStage = 'none' | 'highlight' | 'solution';
 export type PuzzleActionBarPlanInput = {
   status: ActionBarSolveStatus;
   hintStage: ActionBarHintStage;
-  canGoBack: boolean;
+  /** Looking back at an earlier move: no hint until back at the latest. */
   canGoForward: boolean;
 };
 
@@ -22,12 +24,18 @@ export type PuzzleActionBarSlot =
       disabled: boolean;
     }
   | {
-      id: 'solution' | 'skip';
+      id: 'solution';
       type: 'action';
       disabled: boolean;
     }
   | {
-      id: 'back' | 'forward' | 'next' | 'retry';
+      /** Drawn apart from the rest: leaving the puzzle, not help with it. */
+      id: 'skip';
+      type: 'action';
+      disabled: boolean;
+    }
+  | {
+      id: 'retry';
       type: 'action';
       disabled: boolean;
     }
@@ -64,21 +72,7 @@ function skipSlot(disabled: boolean): PuzzleActionBarSlot {
 }
 
 function solvingSlots(p: PuzzleActionBarPlanInput): PuzzleActionBarSlot[] {
-  const navDisabled = p.status === 'loading';
-  return [
-    hintSlot(p),
-    {
-      id: 'back',
-      type: 'action',
-      disabled: navDisabled || !p.canGoBack,
-    },
-    {
-      id: 'forward',
-      type: 'action',
-      disabled: navDisabled || !p.canGoForward,
-    },
-    skipSlot(navDisabled),
-  ];
+  return [hintSlot(p), skipSlot(p.status === 'loading')];
 }
 
 function wrongSlots(): PuzzleActionBarSlot[] {
@@ -93,20 +87,9 @@ function wrongSlots(): PuzzleActionBarSlot[] {
   ];
 }
 
-function solvedSlots(p: PuzzleActionBarPlanInput): PuzzleActionBarSlot[] {
+/** Solved, skipped or the solution shown: move on, or try it again. */
+function overSlots(): PuzzleActionBarSlot[] {
   return [
-    { id: 'back', type: 'action', disabled: !p.canGoBack },
-    { id: 'forward', type: 'action', disabled: !p.canGoForward },
-    { id: 'next', type: 'button', intent: 'primary' },
-    { id: 'retry', type: 'action', disabled: false },
-  ];
-}
-
-/** Review after "Show solution": scrub the whole line, then move on. */
-function revealedSlots(p: PuzzleActionBarPlanInput): PuzzleActionBarSlot[] {
-  return [
-    { id: 'back', type: 'action', disabled: !p.canGoBack },
-    { id: 'forward', type: 'action', disabled: !p.canGoForward },
     { id: 'next', type: 'button', intent: 'primary' },
     { id: 'retry', type: 'action', disabled: false },
   ];
@@ -117,7 +100,11 @@ export function buildPuzzleActionBarPlan(
   p: PuzzleActionBarPlanInput
 ): PuzzleActionBarSlot[] {
   if (p.status === 'wrong') return wrongSlots();
-  if (p.status === 'revealed') return revealedSlots(p);
-  if (p.status === 'solved' || p.status === 'skipped') return solvedSlots(p);
+  if (
+    p.status === 'revealed' ||
+    p.status === 'solved' ||
+    p.status === 'skipped'
+  )
+    return overSlots();
   return solvingSlots(p);
 }

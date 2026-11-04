@@ -35,8 +35,9 @@ export function useSeatOptions(read: Accessor<JSX.Element>): SeatOptionsState {
 }
 
 /**
- * The one trailing control of a compact seat: a round chevron named by
- * `label` (for assistive technology and tooltips), opening its choices below.
+ * The one trailing control of a compact seat: a pill that says what it
+ * does (`label`, e.g. "Change player") beside a chevron, opening its
+ * choices below.
  */
 export function SeatOptionsToggle(props: {
   state: SeatOptionsState;
@@ -52,13 +53,15 @@ export function SeatOptionsToggle(props: {
       onClick={() => props.state.toggle()}
       {...dataAttrs({ component: 'GamePlayerOptionsToggle', ...props.dataSet })}
     >
-      <span class="sr-only">{props.label}</span>
+      <span class={`${styles['seatToggleLabel']} text textFootnote`}>
+        {props.label}
+      </span>
       <span
         class={styles['chevron']}
         data-open={props.state.open()}
         aria-hidden="true"
       >
-        <ChevronDownIcon size={18} />
+        <ChevronDownIcon size={16} />
       </span>
     </button>
   );

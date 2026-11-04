@@ -81,6 +81,17 @@
     background: var(--ui-color-surface);
   }
 }
+/* The puzzle's frame: what the wide template measures, filling the screen. */
+.puzzleFrame {
+  container: puzzle-frame / inline-size;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-self: stretch;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+}
 /* One column as wide as a board can use, centered: the feed, the board, the
    move list and the actions stay together instead of spanning a wide frame.
    A wider-than-square board widens the column by its aspect ratio. */
@@ -138,4 +149,80 @@
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
+}
+/* Live regions, probes and dialogs: after everything, taking no room of
+   their own. */
+.overlay {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.overlay:empty {
+  display: none;
+}
+/* Wide: the game screens' template. The board on the left, as tall as the
+   window leaves it (never under a usable 320px, never past 720px, never so
+   wide the panel loses its room); beside it a panel column the same height,
+   the header, legend and move list from its top and the actions at its
+   foot, so the two read as one unit. */
+@container puzzle-frame (min-width: 880px) {
+  .puzzle {
+    --puzzle-panel-measure: 360px;
+    --puzzle-board-block: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--ui-host-chrome-block-size, 0px) -
+        var(--ui-space-2xl) *
+        2
+      ),
+      720px
+    );
+    display: grid;
+    grid-template-columns:
+      min(
+        calc(var(--puzzle-board-block) * var(--ui-puzzle-column-ratio, 1)),
+        calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6))
+      )
+      var(--puzzle-panel-measure);
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      "well header"
+      "well legend"
+      "well timeline"
+      "well ."
+      "well actions";
+    column-gap: var(--ui-space-6);
+    row-gap: 0;
+    justify-content: center;
+    align-content: start;
+    /* As tall as the board, so the actions sit at its foot. */
+    flex: none;
+    max-width: none;
+  }
+  .puzzle > .header,
+  .puzzle > .legend,
+  .puzzle > .timeline {
+    padding-bottom: var(--ui-space-3);
+  }
+  .well {
+    grid-area: well;
+    width: 100%;
+    padding-inline: 0;
+  }
+  .header {
+    grid-area: header;
+  }
+  .legend {
+    grid-area: legend;
+  }
+  .timeline {
+    grid-area: timeline;
+  }
+  .actions {
+    grid-area: actions;
+  }
+  .overlay {
+    grid-column: 1 / -1;
+  }
 }

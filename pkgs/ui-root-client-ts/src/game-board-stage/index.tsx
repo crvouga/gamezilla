@@ -11,9 +11,9 @@ import { GameBoardPreviewContext } from './board-preview';
  * in reading order: the other players above it (one `GamePlayerBar`, or a
  * `GamePlayerRail` at a bigger table), then the board, then the turn
  * (`GameTurnPill`), then the person's own strip. An empty slot takes no room.
- * `preview` shows the board as a small, dimmed thumbnail under its
- * `previewLabel` instead, while the game is still being set up: it says
- * which board, not where to play, so it never outweighs the setup. A board
+ * `preview` shows the board as a small thumbnail, in its own colours, over
+ * a quiet `previewLabel` instead, while the game is still being set up: it
+ * says which board, not where to play, so it never outweighs the setup. A board
  * with turn chrome of its own leaves it out there (`useGameBoardPreview`).
  */
 export function GameBoardStage(props: {
@@ -26,7 +26,7 @@ export function GameBoardStage(props: {
   children: JSX.Element;
   /** A thumbnail of the board, before there is play to show. */
   preview?: boolean | undefined;
-  /** Over the thumbnail, what it is (`Board preview`). */
+  /** Under the thumbnail, what it is (`Board preview`). */
   previewLabel?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
@@ -41,16 +41,16 @@ export function GameBoardStage(props: {
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>
-      <Show when={props.preview === true && props.previewLabel}>
-        <p class={`${styles['previewLabel']} text textFootnote`}>
-          {props.previewLabel}
-        </p>
-      </Show>
       <div class={styles['board']}>
         <GameBoardPreviewContext.Provider value={preview}>
           {props.children}
         </GameBoardPreviewContext.Provider>
       </div>
+      <Show when={props.preview === true && props.previewLabel}>
+        <p class={`${styles['previewLabel']} text textFootnote`}>
+          {props.previewLabel}
+        </p>
+      </Show>
       <Show when={turn.present()}>{turn.content()}</Show>
       <Show when={own.present()}>{own.content()}</Show>
     </div>

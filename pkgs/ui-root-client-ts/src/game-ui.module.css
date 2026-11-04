@@ -100,14 +100,12 @@
   border-radius: var(--ui-radius-sm);
   overflow: hidden;
 }
-/* Before play: a dimmed thumbnail under its label that names the board,
-   centred; it shows which board, never where to play. */
+/* Before play: a small thumbnail in the board's own colours, its top level
+   with the setup beside it, over a quiet label that names it; its size and
+   the label say it is a preview, never where to play. */
 .boardStage[data-preview="true"] {
   max-width: var(--game-board-preview-measure, 176px);
   gap: var(--ui-space-2);
-}
-.boardStage[data-preview="true"] > .board {
-  opacity: var(--ui-opacity-muted);
 }
 .previewLabel {
   margin: 0;
@@ -131,6 +129,11 @@
   align-items: center;
   gap: var(--ui-space-2);
 }
+.actions[data-sizing="share"] > * {
+  flex: 1 1 0;
+  min-width: 144px;
+  max-width: 320px;
+}
 .player {
   display: flex;
   flex-direction: column;
@@ -150,17 +153,26 @@
   color: var(--ui-color-on-primary);
   white-space: nowrap;
 }
+/* A seat's choices: a labelled pill, so it reads as "Change player"
+   rather than an unexplained chevron. */
 .seatToggle {
   display: inline-flex;
   flex-direction: row;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  gap: var(--ui-space-1);
   height: 36px;
+  padding-inline: var(--ui-space-3) var(--ui-space-2);
   border: 1px solid var(--ui-color-border);
   color: var(--ui-color-text);
   position: relative;
+  white-space: nowrap;
+}
+.seatToggleLabel {
+  color: var(--ui-color-text);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
 }
 /* A 44px hit area around the 36px button. */
 .seatToggle::after {
@@ -453,6 +465,33 @@
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
     > :is(.setup, .controls, .rail) {
     grid-column: 1;
+  }
+  /* The rail ends where the board does: the last of its slots (the record,
+     the ratings) runs from its own row to the foot of the grid, so the two
+     columns read as one unit. A filling section in either column stretches
+     to that foot too; a move table in it takes the room and scrolls inside,
+     contributing only its floor to the grid's height. */
+  .layout[data-has-stage="true"][data-has-aside="true"] > .rail {
+    grid-row: var(--game-rail-rows, 1) / -1;
+    align-self: stretch;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"] > .stage {
+    align-self: stretch;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > :is(.stage, .rail)
+    > .section[data-fill="true"] {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail
+    > .section[data-fill="true"]
+    > [data-layout="table"] {
+    flex: 1 1 auto;
+    height: 0;
+    min-height: 160px;
+    max-height: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

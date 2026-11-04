@@ -51,11 +51,21 @@ type Story = StoryObj<typeof meta>;
 /** A new game: Red moves first, so the person playing Red can drop anywhere. */
 export const Opening: Story = {};
 
-/** Mid-game on the person's turn: every open column offers a drop. */
+/**
+ * Mid-game on the person's turn: every open column offers a drop, and the
+ * one focused (column 6) lights up with Red's disc held above it and its
+ * ghost where it would land.
+ */
 export const YourTurn: Story = {
   args: { position: after(MID_GAME) },
   parameters: {
     table: { turn: 'white', moves: columnsPlayed(MID_GAME) },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const column = await canvas.findByTestId('custom-game-board-column-6');
+    column.focus();
+    await expect(column).toHaveAttribute('data-previewed', 'true');
   },
 };
 
