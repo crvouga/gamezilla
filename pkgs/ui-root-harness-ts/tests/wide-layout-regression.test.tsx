@@ -82,7 +82,9 @@ describe('wide layout canvas and centered measure', () => {
             { name: 'Profile', onClick: () => {} },
             { name: 'Friends' },
           ]}
-          actions={[{ type: 'text', label: 'Find friends', onClick: () => {} }]}
+          actions={[
+            { type: 'secondary', label: 'Find friends', onClick: () => {} },
+          ]}
         >
           <p class="text">{'rows'}</p>
         </MenuScreen>
