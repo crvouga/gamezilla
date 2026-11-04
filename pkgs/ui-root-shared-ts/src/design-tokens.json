@@ -1109,9 +1109,9 @@
         "$description": "Raised paper (`surface-raised`): cards, list panels, sheets and menus.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0902, 0.102, 0.1294],
+          "components": [0.098, 0.1137, 0.1451],
           "alpha": 1.0,
-          "hex": "#171a21"
+          "hex": "#191d25"
         }
       },
       "surfaceMuted": {
@@ -1127,18 +1127,18 @@
         "$description": "Raised above the canvas: dialogs and sheets (`surface-raised`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1098, 0.1255, 0.1608],
+          "components": [0.1216, 0.1373, 0.1725],
           "alpha": 1.0,
-          "hex": "#1c2029"
+          "hex": "#1f232c"
         }
       },
       "surfaceOverlay": {
         "$description": "Floating above content: popovers, menus, tooltips (`surface-raised`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1176, 0.1333, 0.1686],
+          "components": [0.1333, 0.149, 0.1843],
           "alpha": 1.0,
-          "hex": "#1e222b"
+          "hex": "#22262f"
         }
       },
       "text": {
@@ -1289,9 +1289,9 @@
         "$description": "Decorative dividers only (`line`).",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.149, 0.1686, 0.2078],
+          "components": [0.1686, 0.1882, 0.2314],
           "alpha": 1.0,
-          "hex": "#262b35"
+          "hex": "#2b303b"
         }
       },
       "outline": {
