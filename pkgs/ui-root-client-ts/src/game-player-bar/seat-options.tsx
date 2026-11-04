@@ -10,8 +10,9 @@ import {
   Show,
 } from 'solid-js';
 import styles from '../game-ui.module.css';
-import { ChevronDownIcon } from '../icons';
+import { ChevronDownIcon, SquarePenIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
+import seat from './seat-options.module.css';
 
 /** A seat's secondary choices and whether they are open. */
 export type SeatOptionsState = {
@@ -37,7 +38,9 @@ export function useSeatOptions(read: Accessor<JSX.Element>): SeatOptionsState {
 /**
  * The one trailing control of a compact seat: a pill that says what it
  * does (`label`, e.g. "Change player") beside a chevron, opening its
- * choices below.
+ * choices below. In a narrow row (a phone) it folds to a round edit
+ * button, the label kept as its accessible name, so the seat's holder
+ * ("Bot (medium)") keeps the room to be read whole.
  */
 export function SeatOptionsToggle(props: {
   state: SeatOptionsState;
@@ -47,17 +50,20 @@ export function SeatOptionsToggle(props: {
   return (
     <button
       type="button"
-      class={`${styles['seatToggle']} clickable clickableTint rounded-full`}
+      class={`${seat['seatToggle']} clickable clickableTint rounded-full`}
       aria-expanded={props.state.open()}
       aria-controls={props.state.id}
       onClick={() => props.state.toggle()}
       {...dataAttrs({ component: 'GamePlayerOptionsToggle', ...props.dataSet })}
     >
-      <span class={`${styles['seatToggleLabel']} text textFootnote`}>
+      <span class={seat['seatToggleIcon']} aria-hidden="true">
+        <SquarePenIcon size={16} />
+      </span>
+      <span class={`${seat['seatToggleLabel']} text textFootnote`}>
         {props.label}
       </span>
       <span
-        class={styles['chevron']}
+        class={`${styles['chevron']} ${seat['seatToggleChevron']}`}
         data-open={props.state.open()}
         aria-hidden="true"
       >
@@ -71,7 +77,7 @@ export function SeatOptionsToggle(props: {
 export function SeatOptions(props: { state: SeatOptionsState }): JSX.Element {
   return (
     <Show when={props.state.present() && props.state.open()}>
-      <div id={props.state.id} class={styles['seatOptions']}>
+      <div id={props.state.id} class={seat['seatOptions']}>
         {props.state.content()}
       </div>
     </Show>
