@@ -17,7 +17,8 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Layer } from '@pkgs/ui-root-client-ts/layer';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
+import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import { PuzzleCelebrationOverlayView } from './puzzle-celebration-overlay-view';
 import type { PuzzleBoardMarks } from './puzzle-client';
@@ -26,6 +27,10 @@ import {
   type PuzzleFeedRatingChange,
 } from './puzzle-feed-bar-view';
 import { PuzzleMoveHistory } from './puzzle-move-history';
+import {
+  PuzzlePlayScreenView,
+  type PuzzlePlayScreenViewProps,
+} from './puzzle-play-screen-view';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
@@ -265,15 +270,20 @@ function positionCells(
 
 const NO_MARKS: PuzzleBoardMarks = { wrong: null, hint: null, solution: null };
 
+/** What a story's board draws: a position, its marks, at the well's size. */
+export type StoryPuzzleBoardProps = {
+  readonly position: string;
+  readonly testId: string;
+  readonly marks?: PuzzleBoardMarks | undefined;
+  /** The board well's size, px; a board that fills its box may ignore it. */
+  readonly size: number;
+};
+
 /**
  * A puzzle position on the design system's checkered board, standing in for
  * a game's board: wooden squares, pieces filling most of a square.
  */
-export function StoryPuzzleBoard(props: {
-  readonly position: string;
-  readonly testId: string;
-  readonly marks?: PuzzleBoardMarks | undefined;
-}): JSX.Element {
+export function StoryPuzzleBoard(props: StoryPuzzleBoardProps): JSX.Element {
   return (
     <CellGridBoard
       boardTheme="checkered"
@@ -282,6 +292,130 @@ export function StoryPuzzleBoard(props: {
       columnLabels={FILES}
       rowLabels={RANKS}
       cells={positionCells(props.position, props.marks ?? NO_MARKS)}
+    />
+  );
+}
+
+/** The puzzle a play story shows in its feed. */
+const STORY_PUZZLE_ID = 'chess/00a3f';
+
+/** What the slots show for one state: the board, the line so far, the result. */
+export type PuzzleScene = {
+  readonly fen: string;
+  readonly marks?: PuzzleBoardMarks;
+  readonly plies: number;
+  readonly over?: boolean;
+  readonly ratingChange?: number | 'unrated';
+  readonly allowanceLabel?: string;
+  readonly completion?: PuzzleCompletion;
+};
+
+/** A solved puzzle that raised the rating, for the result overlay. */
+export const STORY_SOLVED: PuzzleCompletion = {
+  outcome: 'solved',
+  ratingBefore: 1500,
+  ratingAfter: 1516,
+  delta: 16,
+  streak: 3,
+  puzzleRating: 1702,
+  rated: true,
+};
+
+/** The solver's turn after the setup move, the line's opening state. */
+const SOLVING_SCENE: PuzzleScene = { fen: STORY_LINE.start, plies: 1 };
+
+/** The play view's slots a story fills itself, hidden from Controls. */
+export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
+  'coach',
+  'speaker',
+  'shareLink',
+  'feed',
+  'legend',
+  'timeline',
+  'board',
+  'feedConfig',
+  'denial',
+  'probe',
+  'overlay',
+] as const;
+
+/** The play view solving the line's first move, every callback a spy. */
+export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
+  pick: 'playing',
+  statusKind: 'started',
+  solverSide: 'White',
+  coach: {
+    message: 'White to move. Something on the board is undefended.',
+    contextKey: 'start',
+  },
+  elapsedMs: 12_000,
+  spectator: false,
+  allowanceLabel: '',
+  feedConfig: STORY_FEED_CONFIG,
+  status: 'solving',
+  hintStage: 'none',
+  canGoBack: false,
+  canGoForward: false,
+  onHint: fn(),
+  onSolution: fn(),
+  onBack: fn(),
+  onForward: fn(),
+  onRetry: fn(),
+  onSkip: fn(),
+  onNext: fn(),
+  onIncludeAllPuzzles: fn(),
+  onOpenFeedSettings: fn(),
+};
+
+/**
+ * The play view with its slots filled from the story's `puzzleScene`
+ * parameter, fresh per mount: the feed strip, the line so far, the result,
+ * and `Board` drawing the position (the platform's stand-in, or a game's
+ * own board).
+ */
+export function renderPuzzlePlayScene(
+  args: PuzzlePlayScreenViewProps,
+  context: { readonly parameters: Record<string, unknown> },
+  Board: (props: StoryPuzzleBoardProps) => JSX.Element
+): JSX.Element {
+  const scene =
+    (context.parameters['puzzleScene'] as PuzzleScene | undefined) ??
+    SOLVING_SCENE;
+  return (
+    <PuzzlePlayScreenView
+      {...args}
+      feed={
+        <StoryFeedBar
+          puzzleId={args.pick === 'playing' ? STORY_PUZZLE_ID : undefined}
+          rating={1702}
+          themes={['mate', 'opening', 'sacrifice']}
+          over={scene.over}
+          ratingChange={scene.ratingChange}
+          allowanceLabel={scene.allowanceLabel}
+        />
+      }
+      timeline={
+        <StoryTimeline
+          plies={
+            args.pick === 'playing' ? STORY_PLIES.slice(0, scene.plies) : []
+          }
+        />
+      }
+      board={(size) => (
+        <Board
+          position={scene.fen}
+          testId="chess-puzzle-board"
+          marks={scene.marks}
+          size={size}
+        />
+      )}
+      overlay={
+        <Show when={scene.completion} keyed>
+          {(completion) => (
+            <StoryCelebration completion={completion} onNext={args.onNext} />
+          )}
+        </Show>
+      }
     />
   );
 }
