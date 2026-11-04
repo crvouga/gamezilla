@@ -19,7 +19,6 @@ import {
   FrameStarterView,
   FrameStartView,
 } from './game-frame-configuration-view';
-import { FrameMoveStripView } from './game-frame-move-strip-view';
 import {
   FrameRecordView,
   type FrameReviewHandlers,
@@ -187,22 +186,55 @@ function FrameStatusRow(props: Props): JSX.Element {
 }
 
 /**
- * On a narrow screen the record falls below the play actions, so the
- * latest moves ride right under the board as well, once there are any.
+ * The record has nothing to say while a game is set up: it shows once the
+ * game is under way (or over), and before a game only for earlier games.
+ */
+function shownRecord(props: Props): FrameRecord | null {
+  return props.phase === 'configuring' ? null : props.record;
+}
+
+/**
+ * On a narrow screen a game played by turns keeps its record right under
+ * the board, as one strip that opens to the rest of the record; a wide
+ * screen keeps it in the rail beside the board.
  */
 function FrameMoveStripSlot(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  const record = (): FrameRecord | null =>
-    mode() !== 'wide' &&
-    (props.phase === 'active' || props.phase === 'completed') &&
-    props.record !== null &&
-    props.record.turns &&
-    props.record.moves.length > 0
-      ? props.record
+  const record = (): FrameRecord | null => {
+    const shown = shownRecord(props);
+    return mode() !== 'wide' &&
+      (props.phase === 'active' || props.phase === 'completed') &&
+      shown !== null &&
+      shown.turns
+      ? shown
       : null;
+  };
   return (
     <Show when={record()}>
-      {(shown) => <FrameMoveStripView record={shown()} onSeek={props.onSeek} />}
+      {(shown) => (
+        <FrameRecordView {...props} record={shown()} layout="strip" />
+      )}
+    </Show>
+  );
+}
+
+/** The record's panel, unless the strip under the board already holds it. */
+function FrameRecordAside(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  const record = (): FrameRecord | null => {
+    const shown = props.phase === 'none' ? null : shownRecord(props);
+    if (shown === null) return null;
+    const stripped =
+      mode() !== 'wide' &&
+      shown.turns &&
+      (props.phase === 'active' || props.phase === 'completed');
+    return stripped ? null : shown;
+  };
+  return (
+    <Show when={record()}>
+      {(shown) => (
+        <FrameRecordView {...props} record={shown()} layout="panel" />
+      )}
     </Show>
   );
 }
@@ -300,11 +332,7 @@ function FrameContent(props: Props): JSX.Element {
         </>
       }
       setup={<FrameSetupSlot {...props} />}
-      aside={
-        <Show when={props.phase !== 'none' ? props.record : null}>
-          {(record) => <FrameRecordView {...props} record={record()} />}
-        </Show>
-      }
+      aside={<FrameRecordAside {...props} />}
       status={<FrameStatusRow {...props} />}
       actions={
         <FrameActionsView

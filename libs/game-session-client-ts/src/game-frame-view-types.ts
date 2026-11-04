@@ -259,6 +259,9 @@ export type FrameNext = {
 };
 
 /** The game's record beside the board. */
+/** Who made a move, as their seat looks in the record. */
+export type FrameMover = Pick<FrameSeat, 'sideLabel' | 'swatch'>;
+
 export type FrameRecord = {
   /** Ids of this space's earlier games, newest first. */
   readonly earlier: readonly string[];
@@ -268,6 +271,16 @@ export type FrameRecord = {
   readonly turns: boolean;
   /** Every move of the shown game, as its notation. */
   readonly moves: readonly string[];
+  /**
+   * Moves per numbered turn: the seats taking turns in order (2 for
+   * `1 e4 e5`); 1 when the game itself decides who moves next.
+   */
+  readonly perTurn: number;
+  /**
+   * The seat that made each move, in order; empty when the game itself
+   * decides who moves next, so the record names no mover.
+   */
+  readonly movers: readonly FrameMover[];
   readonly displayedPly: number;
   /** A refused review, in words; `''` for none. */
   readonly error: string;
