@@ -176,13 +176,19 @@ export function FrameRecordView(props: RecordProps): JSX.Element {
         <ReviewSteps {...props} />
         <ReviewJump {...props} />
       </Show>
-      <Show when={props.record.history}>
-        <Button
-          title={<Trans>History and stats</Trans>}
-          onClick={() => props.onOpenHistory()}
-          dataSet={{ testid: 'custom-game-history-stats' }}
-        />
-      </Show>
+      {/* Leaving for the space's history is secondary to the game itself:
+          an outline at its own width, never a filled bar. */}
+      <GameActions>
+        <Show when={props.record.history}>
+          <Button
+            title={<Trans>History and stats</Trans>}
+            variant="outline"
+            intent="neutral"
+            onClick={() => props.onOpenHistory()}
+            dataSet={{ testid: 'custom-game-history-stats' }}
+          />
+        </Show>
+      </GameActions>
       <FrameErrorView text={props.record.error} />
     </GameSection>
   );

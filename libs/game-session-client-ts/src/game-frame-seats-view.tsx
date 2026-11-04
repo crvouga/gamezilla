@@ -74,23 +74,28 @@ function SetupSeatActions(props: SeatProps): JSX.Element {
           <FrameInvitationView {...props} invitation={invitation()} />
         )}
       </Show>
-      <Show when={props.seat.canSit}>
-        <GameActionButton
-          title={<Trans>Sit here</Trans>}
-          variant="solid"
-          dataSet={{ testid: `custom-game-${side()}-claim` }}
-          operation={() => props.onChoose({ operation: 'claim', side: side() })}
-        />
-      </Show>
-      <Show when={props.seat.canLeave}>
-        <GameActionButton
-          title={<Trans>Leave seat</Trans>}
-          dataSet={{ testid: `custom-game-${side()}-release` }}
-          operation={() =>
-            props.onChoose({ operation: 'release', side: side() })
-          }
-        />
-      </Show>
+      {/* The seat's commands keep their own width, side by side. */}
+      <GameActions>
+        <Show when={props.seat.canSit}>
+          <GameActionButton
+            title={<Trans>Sit here</Trans>}
+            variant="solid"
+            dataSet={{ testid: `custom-game-${side()}-claim` }}
+            operation={() =>
+              props.onChoose({ operation: 'claim', side: side() })
+            }
+          />
+        </Show>
+        <Show when={props.seat.canLeave}>
+          <GameActionButton
+            title={<Trans>Leave seat</Trans>}
+            dataSet={{ testid: `custom-game-${side()}-release` }}
+            operation={() =>
+              props.onChoose({ operation: 'release', side: side() })
+            }
+          />
+        </Show>
+      </GameActions>
       <Show when={props.seat.choices}>
         {(choices) => (
           <GameDisclosure

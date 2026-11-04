@@ -16,6 +16,7 @@ import {
   GameResultHeadline,
   GameStandings,
 } from '@pkgs/ui-root-client-ts/game-result';
+import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -135,47 +136,51 @@ function GameTable(props: GameTableProps): JSX.Element {
   };
   const others = () => props.sides.filter((side) => side !== viewer());
   const own = () => viewer();
+  // Inside the game template, as the frame shows a board: the same page
+  // inset around the board, never touching the screen's edges.
   return (
-    <StackVertical gap="lg">
-      <GameBoardStage
-        others={
-          <StackVertical gap="xs">
-            <For each={others()}>{(side) => seat(side)}</For>
+    <GameScreen screenId="game-table" title={undefined}>
+      <StackVertical gap="lg">
+        <GameBoardStage
+          others={
+            <StackVertical gap="xs">
+              <For each={others()}>{(side) => seat(side)}</For>
+            </StackVertical>
+          }
+          turn={
+            <Show when={props.ending === undefined && turnLine() !== ''}>
+              <GameTurnPill
+                title={turnLine()}
+                emphasis={props.turn === viewer() ? 'yours' : 'neutral'}
+              />
+            </Show>
+          }
+          own={<Show when={own()}>{(side) => seat(side())}</Show>}
+        >
+          <StackVertical gap="sm">
+            <session.Board />
+            <Show when={session.controls}>{(controls) => controls()()}</Show>
+            <Show when={session.actions().length > 0}>
+              <GameActionBar
+                aria-label="Board actions"
+                items={session.actions().map((action) => ({
+                  id: action.id,
+                  label: action.label,
+                  testId: `${props.board.testId}-${action.id}`,
+                  onPress: action.run,
+                  disabled: !action.enabled,
+                  emphasis: action.emphasis,
+                  pressed: action.pressed,
+                }))}
+              />
+            </Show>
           </StackVertical>
-        }
-        turn={
-          <Show when={props.ending === undefined && turnLine() !== ''}>
-            <GameTurnPill
-              title={turnLine()}
-              emphasis={props.turn === viewer() ? 'yours' : 'neutral'}
-            />
-          </Show>
-        }
-        own={<Show when={own()}>{(side) => seat(side())}</Show>}
-      >
-        <StackVertical gap="sm">
-          <session.Board />
-          <Show when={session.controls}>{(controls) => controls()()}</Show>
-          <Show when={session.actions().length > 0}>
-            <GameActionBar
-              aria-label="Board actions"
-              items={session.actions().map((action) => ({
-                id: action.id,
-                label: action.label,
-                testId: `${props.board.testId}-${action.id}`,
-                onPress: action.run,
-                disabled: !action.enabled,
-                emphasis: action.emphasis,
-                pressed: action.pressed,
-              }))}
-            />
-          </Show>
-        </StackVertical>
-      </GameBoardStage>
-      <Show when={props.ending}>
-        {(ending) => <GameResult {...props} ending={ending()} />}
-      </Show>
-    </StackVertical>
+        </GameBoardStage>
+        <Show when={props.ending}>
+          {(ending) => <GameResult {...props} ending={ending()} />}
+        </Show>
+      </StackVertical>
+    </GameScreen>
   );
 }
 

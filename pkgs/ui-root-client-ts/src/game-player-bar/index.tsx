@@ -12,6 +12,7 @@ import {
 } from '../game-player-parts/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import styles from '../game-ui.module.css';
+import { createScreenSlot } from '../screen-slot';
 
 /** The one avatar size a seat uses, so both seats of a game line up. */
 export const GAME_PLAYER_AVATAR_SIZE = 40;
@@ -25,6 +26,11 @@ export type GamePlayerBarProps = {
   avatar?: JSX.Element;
   /** The seat's look: its player color and / or mark. */
   swatch?: GameSeatLook | undefined;
+  /**
+   * What the swatch stands for (the side's name), when no visible word says
+   * it: the swatch is then an image with this name.
+   */
+  swatchLabel?: string | undefined;
   /** Facts about the seat, each its own `Badge`: side, rating, readiness. */
   tags?: JSX.Element;
   /** The seat's figure at the far edge (score, walls). */
@@ -44,6 +50,8 @@ export type GamePlayerBarProps = {
 
 /** Avatar, swatch and name, and the tags under them. */
 function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
+  // Tags that resolve to nothing (every fact hidden) take no row.
+  const tags = createScreenSlot(() => props.tags);
   return (
     <>
       <span
@@ -61,7 +69,9 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
       <span class={styles['playerIdentity']}>
         <span class="box flex-row items-center gap-2 min-w-0">
           <Show when={props.swatch}>
-            {(look) => <GameSeatSwatch look={look()} />}
+            {(look) => (
+              <GameSeatSwatch look={look()} label={props.swatchLabel} />
+            )}
           </Show>
           <span
             class="text textLabel line-clamp-1 min-w-0"
@@ -70,12 +80,12 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
             {props.name}
           </span>
         </span>
-        <Show when={props.tags !== undefined || props.state}>
+        <Show when={tags.present() || props.state}>
           <span class={styles['playerTags']}>
             <Show when={props.state}>
               {(state) => <GamePlayerStateBadge state={state()} />}
             </Show>
-            {props.tags}
+            {tags.content()}
           </span>
         </Show>
       </span>
@@ -93,7 +103,8 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
  * - `stat`: one figure (score, walls) in the `stat` style at the far edge.
  * - `state`: out or reconnecting, as a word in a tag; an out seat is dimmed.
  * - `active`: the seat to move, in the soft tint (`tintSubtle`) and
- *   `aria-current="step"`, never color alone.
+ *   `aria-current="step"`, never color alone. Every other seat sits on the
+ *   same panel in the surface tone, so the seats around a board match.
  * - `onPress`: the identity becomes a real button (named by the seat's
  *   name and facts), for opening the player.
  *
@@ -111,10 +122,12 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
  */
 export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
   const active = (): boolean => props.active === true;
+  // Controls that resolve to nothing (a false `<Show>`) take no room.
+  const controls = createScreenSlot(() => props.children);
   return (
     <section
       class={`${styles['player']} rounded-card px-3 py-2`}
-      classList={{ 'bg-tint-subtle': active() }}
+      classList={{ 'bg-surface': !active(), 'bg-tint-subtle': active() }}
       aria-current={active() ? 'step' : undefined}
       data-active={active()}
       data-state={props.state?.kind}
@@ -146,8 +159,8 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
           <div class={styles['playerTrailing']}>{props.trailing}</div>
         </Show>
       </div>
-      <Show when={props.children}>
-        <div class="box gap-3">{props.children}</div>
+      <Show when={controls.present()}>
+        <div class="box gap-3">{controls.content()}</div>
       </Show>
     </section>
   );

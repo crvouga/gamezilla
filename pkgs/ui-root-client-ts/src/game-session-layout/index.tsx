@@ -32,7 +32,10 @@ function SessionStage(props: GameSessionLayoutProps): JSX.Element {
 }
 
 /**
- * Shared custom / matched game composition, including setup and results.
+ * Shared custom / matched game composition, including setup and results:
+ * the board column holds the play surface with its status and actions
+ * directly under it; setup and the aside share the rail beside it on wide
+ * screens (`GameLayout`).
  * `header` and `footer` resolve their content first: an empty slot (a false
  * `<Show>`, `null`, an empty fragment) draws nothing and takes no room.
  */
@@ -46,8 +49,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
     >
       <Show when={header.present()}>{header.content()}</Show>
       {props.notices}
-      {props.setup}
-      <GameLayout aside={props.aside}>
+      <GameLayout setup={props.setup} aside={props.aside}>
         <SessionStage {...props} />
       </GameLayout>
       <Show when={footer.present()}>{footer.content()}</Show>

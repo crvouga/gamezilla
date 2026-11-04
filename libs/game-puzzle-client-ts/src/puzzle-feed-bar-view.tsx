@@ -7,7 +7,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
@@ -232,16 +232,15 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
       <VisuallyHidden testId="chess-puzzle-feed-description">
         {`${feedAccessibleLabel(props.config, props.effectiveRating, themeLabel)} ${props.allowanceLabel}`.trim()}
       </VisuallyHidden>
-      <ScrollView
-        horizontal
-        flushEdge={false}
-        hideScrollbar
+      {/* Wraps rather than scrolls: every fact stays in view on a phone. */}
+      <StackHorizontal
+        wrap
         self="stretch"
         align="center"
         gap="sm"
         paddingX="lg"
         paddingY="sm"
-        dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
+        testId="chess-puzzle-board-elo-bar"
       >
         {/* A fixed slot keeps every short puzzle id the same width. */}
         <P variant="mono" wrap="nowrap">
@@ -270,7 +269,7 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
             testId="chess-puzzle-remaining-today"
           />
         </Show>
-      </ScrollView>
+      </StackHorizontal>
     </Pressable>
   );
 }

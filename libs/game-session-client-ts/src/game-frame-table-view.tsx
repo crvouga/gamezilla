@@ -82,8 +82,8 @@ type SeatProps = {
 };
 
 /**
- * One seat as a full strip: who holds it, its look and side, its facts, its
- * figure and its clock. The seat nearest the person, and the one opponent
+ * One seat as a full strip: who holds it, its look (named by its side), its
+ * facts, its figure and its clock. The seat nearest the person, and the one opponent
  * across a two-seat board.
  */
 export function FrameSeatStripView(props: SeatProps): JSX.Element {
@@ -111,12 +111,8 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
         />
       }
       swatch={props.seat.swatch}
-      tags={
-        <>
-          <Badge intent="neutral" label={props.seat.sideLabel} />
-          <PlaySeatTags seat={props.seat} />
-        </>
-      }
+      swatchLabel={props.seat.sideLabel}
+      tags={<PlaySeatTags seat={props.seat} />}
       stat={props.seat.stat}
       state={props.seat.state}
       trailing={
