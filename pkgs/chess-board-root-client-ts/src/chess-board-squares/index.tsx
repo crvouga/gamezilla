@@ -142,15 +142,19 @@ function CellHighlightBox(props: {
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
-/** Label size in board units (100 per square): small enough to stay in a corner. */
-const LABEL_SIZE = '16';
+/**
+ * Label size in board units (100 per square): about a quarter of a square,
+ * so a phone-wide board (a 44px square) still sets it near 11px, and still
+ * small enough to stay in a corner, clear of the piece's figure.
+ */
+const LABEL_SIZE = '24';
 /** A file label's right edge, in from its square's right side. */
 const LABEL_INSET = 9;
 /** A file label's baseline above the board's bottom, room left for descenders. */
 const FILE_BASELINE_INSET = 13;
 /** A rank label's left edge and baseline within its square. */
 const RANK_INSET = 5;
-const RANK_BASELINE = 20;
+const RANK_BASELINE = 26;
 
 /**
  * Edge labels inside the corner squares, chess.com-style: each label takes
