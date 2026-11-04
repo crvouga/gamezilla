@@ -15,8 +15,8 @@ export type AppFrameProps = {
   header?: JSX.Element | undefined;
   /**
    * Wide-only sidebar (`AppHeaderIsland orientation="vertical"`), full height
-   * at the window's leading edge. It steps aside while a screen overrides the
-   * header (an active space). Ignored on compact.
+   * at the window's leading edge, on every screen — an open space included,
+   * so the rest of the app is always one click away. Ignored on compact.
    */
   rail?: JSX.Element | undefined;
   children: JSX.Element;
@@ -60,9 +60,7 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
 }
 
 function AppFrameWide(props: AppFrameProps): JSX.Element {
-  const overridden = useAppFrameHeaderOverridden();
-  const rail = (): JSX.Element | undefined =>
-    overridden() ? undefined : props.rail;
+  const rail = (): JSX.Element | undefined => props.rail;
   return (
     <main
       class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-background overflow-clip"
@@ -115,8 +113,8 @@ function AppFrameCompact(props: AppFrameProps): JSX.Element {
  * Regions (`data-region` on each box AppFrame draws):
  *
  * - **rail** (wide only) -- the `rail` prop, normally the vertical
- *   `AppHeaderIsland`: the app's sidebar, full height at the leading edge.
- *   Hidden while a screen overrides the header.
+ *   `AppHeaderIsland`: the app's sidebar, full height at the leading edge,
+ *   kept while a screen draws its own top chrome.
  *
  * - **header** (wide only) -- the `header` prop, normally `AppHeaderIsland`:
  *   logo, then the app's top-level **nav**, then actions and the account

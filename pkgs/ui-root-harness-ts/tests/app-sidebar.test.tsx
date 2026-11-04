@@ -101,7 +101,7 @@ describe('AppFrame rail', () => {
     expect(screen.getByText('Content')).toBeTruthy();
   });
 
-  test('the rail steps aside while a screen draws its own chrome', () => {
+  test('the rail stays while a screen draws its own chrome', () => {
     const [inSpace, setInSpace] = createSignal(false);
     renderUi(
       () => (
@@ -117,7 +117,7 @@ describe('AppFrame rail', () => {
     );
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
     setInSpace(true);
-    expect(document.querySelector('[data-region="rail"]')).toBeNull();
+    expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
     expect(screen.getByText('Space chrome')).toBeTruthy();
     setInSpace(false);
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();

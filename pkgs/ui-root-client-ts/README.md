@@ -83,7 +83,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    one row per destination, the global chrome at its foot. Screens beside it
    draw their own breadcrumb header, so every subpage keeps one semantic,
    focusable heading. A screen that draws its own chrome (an open space)
-   replaces the top header and the sidebar steps aside. Compact screens keep
+   draws it at the top of its column, beside the sidebar, which stays. Compact screens keep
    their title/back bar and the tab bar. Standalone screens retain their own
    headers.
    **Left-aligned.** Header titles sit after the back control and line up
