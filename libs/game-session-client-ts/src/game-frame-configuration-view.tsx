@@ -205,10 +205,11 @@ export function FrameOptionsView(props: {
 }
 
 /**
- * Starting the game, directly under the board where every game's play
- * actions sit: why it cannot start yet (or "Ready to start."), the
- * person's own readiness, and Start for whoever may start it, always shown
- * and held back until the game can start.
+ * Starting the game, right under the players it starts with: why it cannot
+ * start yet (or "Ready to start."), then Start, full width, for whoever may
+ * start it, always shown and held back until the game can start. The
+ * person's own readiness follows: the one thing to do next when they may
+ * not start the game, a quiet second choice when they may.
  */
 export function FrameStartView(props: {
   readonly start: FrameStart;
@@ -225,39 +226,51 @@ export function FrameStartView(props: {
           <Trans>Waiting for the host to start.</Trans>
         </P>
       </Show>
-      <GameActions>
-        <Show when={props.start.readiness}>
-          {(readiness) => (
-            <GameActionButton
-              title={
-                <Show
-                  when={readiness().ready}
-                  fallback={<Trans>I'm ready</Trans>}
-                >
-                  <Trans>Withdraw readiness</Trans>
-                </Show>
-              }
-              dataSet={{ testid: 'custom-game-ready' }}
-              variant={readiness().ready ? 'outline' : 'solid'}
-              disabled={!readiness().ready && readiness().blocked}
-              operation={() =>
-                readiness().ready
-                  ? props.onChoose({ operation: 'unready' })
-                  : props.onReady()
-              }
-            />
-          )}
-        </Show>
-        <Show when={props.start.canStart}>
+      <Show when={props.start.canStart}>
+        <GameActionButton
+          title={<Trans>Start game</Trans>}
+          dataSet={{ testid: 'custom-game-start' }}
+          variant="solid"
+          fullWidth
+          operation={() => props.onChoose({ operation: 'start' })}
+          disabled={props.start.reason !== null}
+        />
+      </Show>
+      <Show when={props.start.readiness}>
+        {(readiness) => (
           <GameActionButton
-            title={<Trans>Start game</Trans>}
-            dataSet={{ testid: 'custom-game-start' }}
-            variant="solid"
-            operation={() => props.onChoose({ operation: 'start' })}
-            disabled={props.start.reason !== null}
+            title={
+              <Show
+                when={readiness().ready}
+                fallback={<Trans>I'm ready</Trans>}
+              >
+                <Trans>I'm not ready</Trans>
+              </Show>
+            }
+            dataSet={{ testid: 'custom-game-ready' }}
+            variant={readinessVariant(props.start, readiness().ready)}
+            fullWidth
+            disabled={!readiness().ready && readiness().blocked}
+            operation={() =>
+              readiness().ready
+                ? props.onChoose({ operation: 'unready' })
+                : props.onReady()
+            }
           />
-        </Show>
-      </GameActions>
+        )}
+      </Show>
     </StackVertical>
   );
+}
+
+/**
+ * Getting ready is the next step until the person is ready; once ready, or
+ * beside Start, taking it back is a quiet choice.
+ */
+function readinessVariant(
+  start: FrameStart,
+  ready: boolean
+): 'solid' | 'outline' | 'ghost' {
+  if (start.canStart) return 'ghost';
+  return ready ? 'outline' : 'solid';
 }

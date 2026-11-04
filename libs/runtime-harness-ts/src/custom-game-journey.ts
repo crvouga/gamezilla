@@ -212,7 +212,7 @@ export function expectBlackNamed(name: string): (ui: Driver) => Promise<void> {
 export async function becomeReady(ui: Driver): Promise<void> {
   await openCustomGameJourney(ui);
   await tap(ui, 'custom-game-ready');
-  await ui.get('custom-game-ready').expect.text('Withdraw readiness', {
+  await ui.get('custom-game-ready').expect.text("I'm not ready", {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });

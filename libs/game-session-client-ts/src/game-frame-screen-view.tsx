@@ -96,7 +96,10 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
 
 type Props = GameFrameScreenViewProps;
 
-/** Before a game, the starter; while one is set up, its seats and options. */
+/**
+ * Before a game, the starter; while one is set up, its seats and options,
+ * then starting it, so Start sits right under the players it starts with.
+ */
 function FrameSetupSlot(props: Props): JSX.Element {
   return (
     <Show
@@ -139,6 +142,13 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 />
               )}
             </Show>
+            {/* The start line says whether the game can start. */}
+            <FrameStatusView status={props.status} spokenOnly />
+            <FrameStartView
+              start={setup().start}
+              onChoose={props.onChoose}
+              onReady={props.onReady}
+            />
           </>
         )}
       </Show>
@@ -147,30 +157,17 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board: the line about a game being set up and starting it
- * (once it is played the line sits between the board and the person's own
- * seat), what a player is told during play, and the result once the game
- * is over. Play actions follow it, so on every screen they sit right under
- * the board.
+ * Under the board: the record strip on a phone, what a player is told
+ * during play, and the result once the game is over (once it is played the
+ * turn line sits between the board and the person's own seat). Play
+ * actions follow it, so on every screen they sit right under the board.
  */
 function FrameStatusRow(props: Props): JSX.Element {
   return (
     <>
-      <Show when={props.phase === 'configuring'}>
-        {/* The start line says whether the game can start. */}
-        <FrameStatusView
-          status={props.status}
-          spokenOnly={props.setup !== null}
-        />
-        <Show when={props.setup}>
-          {(setup) => (
-            <FrameStartView
-              start={setup().start}
-              onChoose={props.onChoose}
-              onReady={props.onReady}
-            />
-          )}
-        </Show>
+      {/* While set up without its setup in view, the line still says why. */}
+      <Show when={props.phase === 'configuring' && props.setup === null}>
+        <FrameStatusView status={props.status} />
       </Show>
       <FrameMoveStripSlot {...props} />
       <Show when={props.phase === 'active'}>
