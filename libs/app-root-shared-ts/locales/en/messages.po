@@ -2859,10 +2859,6 @@ msgstr "Friends"
 msgid "Friends let you find each other and jump into shared spaces."
 msgstr "Friends let you find each other and jump into shared spaces."
 
-#: libs/friends-client-ts/src/friends-list-screen-view.tsx
-msgid "Friends since {month}"
-msgstr "Friends since {month}"
-
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "full board"
 msgstr "full board"
