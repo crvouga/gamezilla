@@ -1,0 +1,4 @@
+{
+  "summary": "The secrets wrapper prepared fixture identity and assets in the configured caller checkout before full verification copied its private workspace. Full-verification launchers now explicitly delegate preparation to the isolated child; configured commands cannot opt out of preparation.",
+  "regressionTest": "libs/secrets-server-ts/tests/configured-command-input.test.ts"
+}

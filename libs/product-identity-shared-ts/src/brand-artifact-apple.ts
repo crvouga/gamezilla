@@ -8,7 +8,7 @@ import type { BrandArtifact } from './brand-artifacts.ts';
 import type { ProductIdentity } from './product-identity.ts';
 
 const GENERATOR =
-  'bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts';
+  'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts';
 const SOURCE = 'libs/product-identity/product-identity.json';
 
 /** A Swift string literal holding exactly `value`. */

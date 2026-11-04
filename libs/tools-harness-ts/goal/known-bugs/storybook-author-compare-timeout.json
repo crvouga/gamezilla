@@ -1,0 +1,4 @@
+{
+  "summary": "Authoring3037states succeeded but comparing the entire catalogue exceeded the60minute job budget. Explicit diagnostics can select a story family; author and compare share the selection, default remains all states, and the patch is logged before comparison.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-identity.test.ts"
+}

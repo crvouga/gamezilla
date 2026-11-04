@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { isAppTabActive } from '@libs/app-root-shared-ts/is-app-tab-active';
+import { brandMarkSource } from '@libs/product-identity-shared-ts/brand-mark';
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
@@ -40,7 +41,13 @@ export function AppHeaderIslandView(
 
   return (
     <AppHeaderIsland
-      leading={<AppLogo name={PRODUCT_NAME.toLowerCase()} size={LOGO_SIZE} />}
+      leading={
+        <AppLogo
+          name={PRODUCT_NAME}
+          markSrc={brandMarkSource()}
+          size={LOGO_SIZE}
+        />
+      }
       items={items()}
       trailing={props.trailing}
     />

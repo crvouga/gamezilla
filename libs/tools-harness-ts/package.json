@@ -15,7 +15,14 @@
     "ci:statecharts": "bun run scripts/statechart-cli.ts verify",
     "ci:syncpack": "cd ../.. && syncpack lint --dependency-types prod,dev",
     "ci:workspace-lifecycle": "bun run scripts/sync-workspace-lifecycle.ts --check",
+    "configure:brand": "bun run scripts/generate-brand-artifacts.ts",
+    "configure:brand-policy": "bun run scripts/verify-brand-policy.ts",
+    "configure:identity": "bun run scripts/materialize-product-identity.ts",
+    "configure:identity-agents": "bun run scripts/sync-agent-mcp.ts",
     "docs:ci-load": "bun run scripts/ci-load.ts --write",
+    "generate:brand-artifacts": "bun run scripts/generate-brand-artifacts.ts",
+    "generate:identity": "bun run scripts/materialize-product-identity.ts --development",
+    "generate:identity-agents": "bun run scripts/sync-agent-mcp.ts",
     "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts",
     "install:cli": "mise install",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
@@ -31,6 +38,7 @@
     "verify:workflow-security": "bun run scripts/verify-workflow-security.ts"
   },
   "dependencies": {
+    "@libs/product-identity": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*"
   },
   "devDependencies": {
@@ -58,6 +66,7 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "fast-check": "catalog:",
+    "sharp": "0.35.5",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },

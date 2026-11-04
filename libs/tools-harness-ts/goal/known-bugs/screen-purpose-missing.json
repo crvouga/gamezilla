@@ -1,0 +1,4 @@
+{
+  "summary": "The manifest lacked purposes for screens-notifications-friends, screens-games-numberlink-puzzle, screens-games-numberlink-preview and screens-games-sokoban-puzzle. Their production component comments now describe their purpose.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-manifests.test.ts"
+}

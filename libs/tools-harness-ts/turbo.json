@@ -32,6 +32,9 @@
         "$TURBO_ROOT$/pkgs/equal-shared-ts/**",
         "$TURBO_ROOT$/pkgs/assert-root-shared-ts/**",
         "$TURBO_ROOT$/apps/product-ts/scripts/ui-quality/sources.json",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/**",
+        "$TURBO_ROOT$/apps/client-ts/public/favicon.ico",
+        "$TURBO_ROOT$/apps/product-ts/public/favicon.ico",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/apps/*/src/**",
         "$TURBO_ROOT$/apps/*/tests/steps/**",
@@ -51,7 +54,8 @@
         "$TURBO_ROOT$/pkgs/*/tests/dmn/**",
         "$TURBO_ROOT$/pkgs/*/tests/alloy/**",
         "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
-        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/required-checks/*.json"
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/required-checks/*.json",
+        "$TURBO_ROOT$/libs/product-identity/fixtures/**"
       ]
     },
     "src": {
@@ -73,6 +77,29 @@
     },
     "docs:ci-load": {
       "cache": false
+    },
+    "generate:identity": {
+      "inputs": [
+        "scripts/materialize-product-identity.ts",
+        "scripts/materialize-product-identity-input.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-input.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-schema.ts",
+        "$TURBO_ROOT$/libs/product-identity/fixtures/**"
+      ],
+      "env": ["PRODUCT_IDENTITY_JSON", "PRODUCT_IDENTITY_MODE"],
+      "outputs": ["$TURBO_ROOT$/libs/product-identity/product-identity.json"]
+    },
+    "configure:identity": {
+      "cache": false,
+      "env": ["PRODUCT_IDENTITY_JSON"]
+    },
+    "configure:identity-agents": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
+    },
+    "configure:brand-policy": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
     }
   }
 }

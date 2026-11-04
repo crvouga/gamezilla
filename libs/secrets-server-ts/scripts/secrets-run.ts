@@ -24,7 +24,14 @@ process.exit(
   await runWithSecrets({
     repoRoot: REPO_ROOT,
     configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
-    childArgs,
+    childArgs:
+      childArgs.length === 0
+        ? []
+        : [
+            process.execPath,
+            join(import.meta.dirname, 'configured-command.ts'),
+            ...childArgs,
+          ],
     envs: REPO_SECRETS_ENVS,
     nowMs,
     nowIso: new Date(nowMs).toISOString(),

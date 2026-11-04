@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { needsBrowser } from './verify-browser-tasks';
+import { needsBrowser, needsSolver } from './verify-browser-tasks';
 import type { VerifyTask } from './verify-shards';
 
 function task(taskId: string, hit = false): VerifyTask {
@@ -74,4 +74,13 @@ test('an uncached Storybook gate installs the renderer used to plan its task has
   expect(needsBrowser([{ ...storybook, hit: true, source: 'REMOTE' }])).toBe(
     false
   );
+});
+
+// regression: auth-shard-missing-solver
+test('an uncached auth solver regression provisions pinned model tools', () => {
+  const auth = task('@pkgs/auth-root-harness-ts#test');
+  expect(needsSolver([auth])).toBe(true);
+  expect(needsSolver([{ ...auth, hit: true, source: 'REMOTE' }])).toBe(false);
+  expect(needsSolver([task('@pkgs/quint-server-ts#test')])).toBe(true);
+  expect(needsSolver([task('@libs/auth-client-ts#test')])).toBe(false);
 });

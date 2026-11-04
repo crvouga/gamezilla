@@ -19,6 +19,7 @@ import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import {
   createContext,
+  createSignal,
   type JSX,
   type ParentProps,
   useContext,
@@ -145,6 +146,16 @@ describe('useBreadcrumbNav', () => {
 });
 
 describe('brand + providers', () => {
+  test('AppLogo follows host-supplied artwork when the identity changes', () => {
+    // regression: brand-artwork-not-configurable
+    const [source, setSource] = createSignal('/first.svg');
+    renderUi(() => <AppLogo name="acme" markSrc={source()} />);
+    const mark = screen.getByRole('img', { name: 'acme' }).querySelector('img');
+    expect(mark?.getAttribute('src')).toBe('/first.svg');
+    setSource('/second.svg');
+    expect(mark?.getAttribute('src')).toBe('/second.svg');
+  });
+
   test('AppLogo names the brand without taking over the page heading', () => {
     renderUi(() => <AppLogo name="acme" size={40} />);
     const brand = screen.getByRole('img', { name: 'acme' });

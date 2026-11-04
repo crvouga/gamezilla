@@ -1,0 +1,4 @@
+{
+  "summary": "Full isolated verification could not resolve the Solid test package's own render entrypoint: cold Bun.resolveSync did not fall through the wildcard export array's absent .ts target to render.tsx. Workspace aliases masked the failure in the working checkout. An explicit public render export makes native resolution work without aliases or prior module resolution.",
+  "regressionTest": "pkgs/bun-test-solid-client-ts/tests/cold-export.test.ts"
+}

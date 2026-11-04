@@ -1,0 +1,4 @@
+{
+  "summary": "Changing the product identity left a fixed mascot in the app header and fixed PNG artwork in install icons and launch images. The host now supplies configured artwork to AppLogo, and every generated web image derives from the same SVG mark and background configuration.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/navigation.test.tsx"
+}

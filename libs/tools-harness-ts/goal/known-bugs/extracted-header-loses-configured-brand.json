@@ -1,0 +1,4 @@
+{
+  "summary": "The extracted shell header view used the neutral default artwork and lowercased the configured product name. It now preserves the external artwork and exact supplied spelling.",
+  "regressionTest": "libs/app-root-client-ts/tests/header-branding.test.tsx"
+}

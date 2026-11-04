@@ -9,6 +9,10 @@
         "@pkgs/openslo-shared-ts#src",
         "@pkgs/sync-engine-shared-ts#src"
       ]
+    },
+    "configure:slo": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
     }
   }
 }

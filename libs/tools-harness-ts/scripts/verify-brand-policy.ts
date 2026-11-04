@@ -55,7 +55,7 @@ const registry = JSON.parse(
 const brandArtifacts: GeneratedArtifact[] = BRAND_ARTIFACTS.map((artifact) => ({
   path: artifact.path,
   generator:
-    'bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts',
+    'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts',
   freshnessTest:
     'libs/product-identity-shared-ts/tests/brand-artifacts.test.ts',
 }));

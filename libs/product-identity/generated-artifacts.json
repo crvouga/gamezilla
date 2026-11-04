@@ -1,5 +1,5 @@
 {
-  "$comment": "Committed files generated from product-identity.json (or from code that reads it). The brand policy accepts brand spellings in a listed file only because its freshness test fails whenever the file differs from what its generator writes, so nothing in it is maintained by hand. Add an entry only with that test.",
+  "$comment": "Ignored build outputs derived from external identity configuration, verified by the registered freshness tests. Never commit deployed identity or these outputs.",
   "artifacts": [
     {
       "path": "libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json",

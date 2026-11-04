@@ -1,6 +1,9 @@
 {
   "extends": ["//"],
   "tasks": {
+    "pwa:generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
     },

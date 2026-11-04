@@ -19,6 +19,16 @@ export default function AppLogoExample(): JSX.Element {
         </div>
       </SchemePreview>
 
+      <label class="text textLabel text-text-secondary">
+        {'Configured artwork'}
+      </label>
+      <SchemePreview>
+        <AppLogo
+          name="acme"
+          markSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='gray'/%3E%3C/svg%3E"
+        />
+      </SchemePreview>
+
       <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">{'Mark only'}</label>
