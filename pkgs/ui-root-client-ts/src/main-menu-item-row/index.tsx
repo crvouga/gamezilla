@@ -26,9 +26,9 @@ export type MainMenuItem = {
   /**
    * How strongly the row asks to be chosen among its menu's rows:
    * `primary` (the one main way in) wears the accent's soft selection fill
-   * and a tinted chevron; `quiet` (a look back, a setting) steps its title
-   * down to the secondary ink; unset is an ordinary row. One `primary` per
-   * menu at most.
+   * and a tinted chevron; `quiet` (a look back, a setting) keeps its title's
+   * ink, so it never reads as disabled, and only says less: its caption is
+   * one line. Unset is an ordinary row. One `primary` per menu at most.
    */
   emphasis?: 'primary' | 'quiet' | undefined;
   onClick?: (() => void) | undefined;
@@ -101,7 +101,6 @@ function ItemBody(props: {
               class="text textLabel line-clamp-1 min-w-0"
               classList={{
                 'text-on-primary-soft': props.item.emphasis === 'primary',
-                'text-text-secondary': props.item.emphasis === 'quiet',
               }}
             >
               {props.item.title}
@@ -111,7 +110,13 @@ function ItemBody(props: {
             </Show>
           </div>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
-            <p class="text textCaption line-clamp-2 max-w-full">
+            <p
+              class="text textCaption max-w-full"
+              classList={{
+                'line-clamp-1': props.item.emphasis === 'quiet',
+                'line-clamp-2': props.item.emphasis !== 'quiet',
+              }}
+            >
               {props.item.caption}
             </p>
           </Show>
