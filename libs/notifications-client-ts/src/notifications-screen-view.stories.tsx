@@ -40,7 +40,7 @@ const DISABLED = storyNotification({
   id: 'b51c7a90-0000-4000-8000-000000000003',
   category: 'action_required',
   title: '@sam invited you to Quick connect four',
-  subtitle: 'The space is full',
+  subtitle: 'Space invite',
   avatar: { fallbackLabel: '@sam' },
   createdAt: '2023-11-13T20:00:00.000Z',
   actions: [
@@ -49,7 +49,7 @@ const DISABLED = storyNotification({
       label: 'Join',
       variant: 'ghost',
       disabled: true,
-      disabledReason: 'The space is full',
+      disabledReason: 'Space is full',
     },
   ],
 });
@@ -100,8 +100,9 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * The inbox by day: an invite with Join / Decline, an unread update that
- * opens its space, a disabled action, and a system note. Unread items put
- * Mark all read in the header.
+ * opens its space, an invite whose Join is unavailable ("Space is full"
+ * instead of a dead button), and a system note. Archive sits in each card's
+ * trailing corner. Unread items put Mark all read in the header.
  */
 export const Populated: Story = {};
 

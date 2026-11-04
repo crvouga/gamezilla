@@ -8,10 +8,9 @@ import type {
 } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
-import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
-import { Spacer } from '@pkgs/ui-root-client-ts/spacer';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -78,7 +77,7 @@ function InteractionRowText(props: {
   );
 }
 
-/** The words of the card; pressing them opens it, with a chevron to say so. */
+/** The words of the card; pressing them opens it (the whole block takes the press tint). */
 function CardHeadline(props: {
   readonly interaction: Notification;
   readonly onOpen: (() => void) | undefined;
@@ -95,14 +94,13 @@ function CardHeadline(props: {
         <Pressable
           direction="horizontal"
           align="start"
-          gap="sm"
+          grow
           radius="control"
           onPress={open}
           testId={props.testId}
           dataSet={props.dataSet}
         >
           <InteractionRowText interaction={props.interaction} />
-          <ChevronRightIcon size={20} color="icon" />
         </Pressable>
       )}
     </Show>
@@ -110,8 +108,18 @@ function CardHeadline(props: {
 }
 
 /**
+ * Why an answer cannot be given right now ("Space is full"), told as a
+ * status in the answer's place instead of a button that does nothing.
+ */
+function UnavailableAnswer(props: { readonly reason: string }): JSX.Element {
+  return <Badge label={props.reason} intent="neutral" />;
+}
+
+/**
  * The card's answers on their own row under its words: the main answer
- * first, other choices beside it, and Archive always at the far end.
+ * first, other choices beside it. An answer that is unavailable for a
+ * stated reason shows that reason instead. Nothing is drawn when the card
+ * has no answers, so such a card stays one compact block.
  */
 function CardActionsRow(props: {
   readonly interaction: Notification;
@@ -120,37 +128,53 @@ function CardActionsRow(props: {
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
-  readonly archiveTestID: string | undefined;
 }): JSX.Element {
   const primaryId = createMemo(() => primaryNotificationActionId(props.inline));
   return (
-    <Show when={props.inline.length > 0 || props.archiveTestID !== undefined}>
+    <Show when={props.inline.length > 0}>
       <StackHorizontal align="center" gap="sm" wrap>
         <For each={props.inline}>
           {(action) => (
-            <NotificationActionButton
-              interaction={props.interaction}
-              action={action}
-              actions={props.actions}
-              emphasis={action.id === primaryId() ? 'primary' : 'secondary'}
-              testID={props.actionTestID?.(action)}
-            />
+            <Show
+              when={
+                action.disabled === true ? action.disabledReason : undefined
+              }
+              keyed
+              fallback={
+                <NotificationActionButton
+                  interaction={props.interaction}
+                  action={action}
+                  actions={props.actions}
+                  emphasis={action.id === primaryId() ? 'primary' : 'secondary'}
+                  testID={props.actionTestID?.(action)}
+                />
+              }
+            >
+              {(reason) => <UnavailableAnswer reason={reason} />}
+            </Show>
           )}
         </For>
-        <Show when={props.archiveTestID} keyed>
-          {(cardTestID) => (
-            <>
-              <Spacer />
-              <InboxArchiveButton
-                testId={Handles.notificationsArchive(cardTestID)}
-                onArchive={() => {
-                  void props.actions.archive(props.interaction.id);
-                }}
-              />
-            </>
-          )}
-        </Show>
       </StackHorizontal>
+    </Show>
+  );
+}
+
+/** Archive, in the card's trailing corner beside its words. */
+function CardArchive(props: {
+  readonly interaction: Notification;
+  readonly actions: NotificationCardActions;
+  readonly cardTestID: string | undefined;
+}): JSX.Element {
+  return (
+    <Show when={props.cardTestID} keyed>
+      {(cardTestID) => (
+        <InboxArchiveButton
+          testId={Handles.notificationsArchive(cardTestID)}
+          onArchive={() => {
+            void props.actions.archive(props.interaction.id);
+          }}
+        />
+      )}
     </Show>
   );
 }
@@ -180,11 +204,12 @@ export type NotificationCardDefaultProps = {
 
 /**
  * The inbox's card for one notification, in one anatomy: the face, then a
- * column whose words wrap (and open the notification, ending in a chevron),
- * with the card's answers on their own row beneath — the main answer as the
- * solid pill, other choices as outlines, Archive always at the far end. On a
- * phone nothing sits beside the words, so a long title never pushes a
- * control off the edge.
+ * column whose words wrap (and open the notification), with Archive as a
+ * quiet icon button in the trailing corner beside them, and the card's own
+ * answers on a row beneath — the main answer as the solid pill, other
+ * choices as outlines, an unavailable answer as its reason. A card without
+ * answers is one compact block. Only the small Archive button sits beside
+ * the words, so a long title never pushes a control off the edge.
  *
  * A card with no answers of its own is pressed by its `testID`; a card with
  * answers is addressed by `testID` and opened by `${testID}-open`.
@@ -224,18 +249,24 @@ export function NotificationCardDefault(
     >
       {props.leading ?? <DefaultLeading interaction={shown()} />}
       <StackVertical grow gap="md">
-        <CardHeadline
-          interaction={shown()}
-          onOpen={open()}
-          testId={wordsTestId()}
-          dataSet={idOnWords() ? state() : undefined}
-        />
+        <StackHorizontal align="start" gap="xs">
+          <CardHeadline
+            interaction={shown()}
+            onOpen={open()}
+            testId={wordsTestId()}
+            dataSet={idOnWords() ? state() : undefined}
+          />
+          <CardArchive
+            interaction={props.interaction}
+            actions={props.actions}
+            cardTestID={props.testID}
+          />
+        </StackHorizontal>
         <CardActionsRow
           interaction={props.interaction}
           actions={props.actions}
           inline={inline()}
           actionTestID={props.actionTestID}
-          archiveTestID={props.testID}
         />
       </StackVertical>
     </StackHorizontal>
