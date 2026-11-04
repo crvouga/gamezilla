@@ -10,7 +10,7 @@ import {
   Show,
 } from 'solid-js';
 import styles from '../game-ui.module.css';
-import { ChevronDownIcon, SquarePenIcon } from '../icons';
+import { ChevronDownIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
 import seat from './seat-options.module.css';
 
@@ -36,11 +36,10 @@ export function useSeatOptions(read: Accessor<JSX.Element>): SeatOptionsState {
 }
 
 /**
- * The one trailing control of a compact seat: a pill that says what it
- * does (`label`, e.g. "Change player") beside a chevron, opening its
- * choices below. In a narrow row (a phone) it folds to a round edit
- * button, the label kept as its accessible name, so the seat's holder
- * ("Bot (medium)") keeps the room to be read whole.
+ * The one trailing control of a compact seat: a short pill that says what
+ * it does (`label`, e.g. "Change") beside a chevron, opening its choices
+ * below. The same pill on every size, small enough that the seat's holder
+ * ("Bot (medium)") keeps the room to be read whole on a phone.
  */
 export function SeatOptionsToggle(props: {
   state: SeatOptionsState;
@@ -56,9 +55,6 @@ export function SeatOptionsToggle(props: {
       onClick={() => props.state.toggle()}
       {...dataAttrs({ component: 'GamePlayerOptionsToggle', ...props.dataSet })}
     >
-      <span class={seat['seatToggleIcon']} aria-hidden="true">
-        <SquarePenIcon size={16} />
-      </span>
       <span class={`${seat['seatToggleLabel']} text textFootnote`}>
         {props.label}
       </span>

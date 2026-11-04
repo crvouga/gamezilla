@@ -13,6 +13,8 @@
   --game-rail-measure: 376px;
   /* The game's own chrome a wide board leaves room for in the window. */
   --game-board-chrome-block: 284px;
+  /* A search's card: one column, its command as wide as the card. */
+  --game-search-measure: 600px;
 }
 .column {
   container: game-column / inline-size;
@@ -86,6 +88,16 @@
 .column .layout:not([data-has-stage="true"]) > .setup,
 .column .layout[data-has-aside="false"][data-has-setup="false"] > .stage {
   max-width: none;
+}
+/* A search and what the person brings to it (their ratings) read as one
+   card at a form's measure, the way a phone shows it, at the column's
+   start edge: never stretched across a board's width with its command
+   stranded at one end. The column itself keeps the host's width, so the
+   title still lines up with the host's bar. */
+.column
+  .layout[data-has-aside][data-has-setup]
+  > .stage:has([data-setup-split="true"]) {
+  max-width: var(--game-search-measure);
 }
 /* The seats hug the board: one column, the board the widest thing in it. */
 .boardStage {
@@ -411,12 +423,10 @@
     grid-row: 1 / -1;
   }
   /* While the game is set up the setup is the main column, running the
-     grid's height, and the board preview takes a column of its own beside
-     it: the board at a size worth looking at, its label, and then what
-     starts the game (the controls), so Start sits under the board it
-     starts on. */
+     grid's height, with Start under its players; the board preview is a
+     thumbnail beside it, a glance at what the game is played on. */
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"] {
-    --game-board-preview-measure: 336px;
+    --game-board-preview-measure: 200px;
     grid-template-columns:
       minmax(0, 1fr)
       var(--game-board-preview-measure);

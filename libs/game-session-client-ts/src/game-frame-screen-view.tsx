@@ -95,20 +95,6 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
 
 type Props = GameFrameScreenViewProps;
 
-/**
- * Beside a wide screen's setup the board preview takes its own column, and
- * starting the game sits right under it: the board the game starts on,
- * then Start. Narrower screens keep Start under the players.
- */
-function startBesidePreview(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): boolean {
-  return (
-    mode() === 'wide' && props.phase === 'configuring' && props.setup !== null
-  );
-}
-
 /** Whether the game can start, and Start, for the setup being shown. */
 function FrameStartSlot(
   props: Props & { readonly setup: FrameSetup }
@@ -129,10 +115,9 @@ function FrameStartSlot(
 /**
  * Before a game, the starter; while one is set up, its seats and options,
  * then starting it, so Start sits right under the players it starts with
- * (or, when wide, under the board preview beside them).
+ * on every size (the board preview is only a thumbnail beside them).
  */
 function FrameSetupSlot(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <Show
       when={props.phase !== 'none'}
@@ -174,9 +159,7 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 />
               )}
             </Show>
-            <Show when={!startBesidePreview(props, mode)}>
-              <FrameStartSlot {...props} setup={setup()} />
-            </Show>
+            <FrameStartSlot {...props} setup={setup()} />
           </>
         )}
       </Show>
@@ -192,12 +175,8 @@ function FrameSetupSlot(props: Props): JSX.Element {
  * they stay in view with the board on every screen.
  */
 function FrameStatusRow(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <>
-      <Show when={startBesidePreview(props, mode) ? props.setup : null}>
-        {(setup) => <FrameStartSlot {...props} setup={setup()} />}
-      </Show>
       {/* While set up without its setup in view, the line still says why. */}
       <Show when={props.phase === 'configuring' && props.setup === null}>
         <FrameStatusView status={props.status} />
