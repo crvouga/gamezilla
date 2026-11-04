@@ -32,9 +32,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The viewer's own space (open here, so "Current") under "Hosting 1 space",
- * then a friend's live space and a crowded space they were added to under
- * "Shared with you" — each group its own panel.
+ * The viewer's own space (open here, so "Current" and "Resume") under
+ * "Hosting 1 space", then a friend's live space nobody has joined yet ("No
+ * guests yet") and a crowded one (faces, two names, "+5 more") under
+ * "Shared with you", each "Join". Every card has the same rows: name and
+ * tag, host, guests, and what pressing it does.
  */
 export const Populated: Story = {};
 
