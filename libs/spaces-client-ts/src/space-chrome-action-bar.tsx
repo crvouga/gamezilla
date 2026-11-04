@@ -3,6 +3,7 @@ import { Plural, Trans } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
 import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { iconButtonAvatarContentSize } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronLeftIcon,
@@ -13,8 +14,9 @@ import {
   XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 /** Leaving the space's screen, and going back inside it when there is a way. */
 export type SpaceChromeNavCallbacks = {
@@ -186,14 +188,44 @@ export function SpaceChromeLeadingActionBar(
     })
   );
 
+  const mode = useLayoutMode();
   return (
-    <ActionBar
-      items={items()}
-      align="start"
-      overflow="never"
-      buttonSize={chrome().buttonSize}
-      gap={chrome().gap}
-    />
+    <Show
+      when={mode() === 'wide'}
+      fallback={
+        <ActionBar
+          items={items()}
+          align="start"
+          overflow="never"
+          buttonSize={chrome().buttonSize}
+          gap={chrome().gap}
+        />
+      }
+    >
+      {/* Wide has room to say where each control goes. */}
+      <StackHorizontal align="center" gap="xs">
+        <Button
+          title={<Trans>Close</Trans>}
+          icon={DoorOpenIcon}
+          variant="ghost"
+          size="sm"
+          onClick={props.onPressHome}
+          dataSet={{ testid: Handles.spaceClose }}
+        />
+        <Show when={props.onPressBack}>
+          {(onPressBack) => (
+            <Button
+              title={<Trans>Back</Trans>}
+              icon={ChevronLeftIcon}
+              variant="ghost"
+              size="sm"
+              onClick={onPressBack()}
+              dataSet={{ testid: Handles.navBack }}
+            />
+          )}
+        </Show>
+      </StackHorizontal>
+    </Show>
   );
 }
 
