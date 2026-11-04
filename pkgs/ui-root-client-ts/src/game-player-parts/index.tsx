@@ -90,11 +90,11 @@ export function GameSeatReadiness(props: {
         ready: String(props.ready),
       })}
     >
-      {props.ready ? (
-        <StatusDot status="online" size={READINESS_DOT_SIZE} />
-      ) : (
-        <StatusDot color={colorVar('outline')} size={READINESS_DOT_SIZE} />
-      )}
+      <StatusDot
+        status={props.ready ? 'online' : undefined}
+        color={props.ready ? undefined : colorVar('outline')}
+        size={READINESS_DOT_SIZE}
+      />
       <span
         class="text textCaption whitespace-nowrap"
         classList={{
