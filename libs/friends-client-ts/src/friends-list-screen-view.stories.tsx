@@ -8,16 +8,26 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendsListScreenView } from './friends-list-screen-view';
 
 /**
+ * Story people share one id each with the space fixtures
+ * (`spaces-story.example.tsx`), so a person wears the same face in every
+ * story: friends, search, the inbox and a space.
+ */
+function personId(suffix: string): string {
+  return `5a1e0000-0000-4000-8000-0000000000${suffix}`;
+}
+
+/**
  * A friend with the default face every profile is seeded with
  * (`synced: false` for one whose profile has not reached this device, which
  * shows their initials).
  */
 function friend(
-  userId: string,
+  suffix: string,
   username: string,
   since: string,
   options: { readonly synced?: boolean } = {}
 ): Friend {
+  const userId = personId(suffix);
   return {
     userId,
     username,
@@ -27,34 +37,16 @@ function friend(
   };
 }
 
-/** Friends made over the past year and more, newest first. */
+/**
+ * The signed-in viewer's (avery's) friends, newest first: never the viewer
+ * themselves.
+ */
 const FRIENDS: readonly Friend[] = [
-  friend(
-    '9f1c2a4e-0000-4000-8000-000000000001',
-    'avery',
-    '2026-10-21T18:30:00.000Z'
-  ),
-  friend(
-    '9f1c2a4e-0000-4000-8000-000000000002',
-    'jordan_plays',
-    '2026-08-03T12:00:00.000Z'
-  ),
-  friend(
-    '9f1c2a4e-0000-4000-8000-000000000003',
-    'morgan',
-    '2026-04-12T09:15:00.000Z'
-  ),
-  friend(
-    '9f1c2a4e-0000-4000-8000-000000000004',
-    'robin_42',
-    '2026-01-15T12:00:00.000Z',
-    { synced: false }
-  ),
-  friend(
-    '9f1c2a4e-0000-4000-8000-000000000005',
-    'sam',
-    '2025-09-30T20:45:00.000Z'
-  ),
+  friend('02', 'jordan_plays', '2026-08-03T12:00:00.000Z'),
+  friend('03', 'morgan', '2026-04-12T09:15:00.000Z'),
+  friend('04', 'robin_42', '2026-01-15T12:00:00.000Z'),
+  friend('09', 'casey', '2025-12-02T17:00:00.000Z', { synced: false }),
+  friend('05', 'sam', '2025-09-30T20:45:00.000Z'),
 ];
 
 const meta = {
@@ -79,7 +71,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** Who is hosting a live space right now: the app's live-space tag. */
-const HOSTING = new Set(['9f1c2a4e-0000-4000-8000-000000000002']);
+const HOSTING = new Set([personId('02'), personId('05')]);
 
 /**
  * Friends are known: one row each, newest-first order as the container gives
@@ -112,7 +104,7 @@ export const LongNames: Story = {
   args: {
     friends: [
       friend(
-        '9f1c2a4e-0000-4000-8000-000000000006',
+        '08',
         'a_really_long_username_that_keeps_going_and_going',
         '2026-11-01T10:00:00.000Z'
       ),
@@ -143,7 +135,7 @@ export const OpenFriend: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByText('@morgan'));
-    await expect(args.onOpenFriend).toHaveBeenCalledWith(FRIENDS[2]);
+    await expect(args.onOpenFriend).toHaveBeenCalledWith(FRIENDS[1]);
     const find = await canvas.findByRole('button', { name: 'Find friends' });
     await userEvent.click(find);
     await expect(args.onFindFriends).toHaveBeenCalled();

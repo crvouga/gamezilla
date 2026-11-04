@@ -15,16 +15,18 @@ import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 /**
- * Story fixture: a person found by search, with a fixed id and the default
- * face every profile is seeded with (`synced: false` for one whose profile
- * has not reached this device, which shows their initials).
+ * Story fixture: a person found by search, with the default face every
+ * profile is seeded with (`synced: false` for one whose profile has not
+ * reached this device, which shows their initials). The id is the one the
+ * space fixtures (`spaces-story.example.tsx`) give the same person, so they
+ * wear the same face in every story.
  */
 export function storyResult(
-  index: number,
+  suffix: string,
   username: string,
   options: { readonly synced?: boolean } = {}
 ): UserSearchResult {
-  const userId = `4a8d6b20-0000-4000-8000-00000000000${index}`;
+  const userId = `5a1e0000-0000-4000-8000-0000000000${suffix}`;
   return {
     userId,
     username,

@@ -5,9 +5,9 @@ import { SearchScreenView } from './search-screen-view';
 import { StoryUserRow, storyResult } from './search-screen-view.example';
 
 const RESULTS = [
-  storyResult(1, 'jordan'),
-  storyResult(2, 'jordan_plays'),
-  storyResult(3, 'jordy', { synced: false }),
+  storyResult('10', 'jordan'),
+  storyResult('02', 'jordan_plays'),
+  storyResult('11', 'jordy', { synced: false }),
 ];
 
 const IDLE = {
