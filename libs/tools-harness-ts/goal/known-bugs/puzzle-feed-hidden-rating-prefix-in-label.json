@@ -1,0 +1,4 @@
+{
+  "summary": "Before a puzzle was over, its feed button kept an invisible rating badge to hold its width, but the badge still carried the words \"Puzzle rating\". Those words counted as the button's visible label while its accessible name left them out, so the listening scenarios in puzzle-accessibility.feature failed WCAG 2.5.3. A hidden badge now says nothing, prefix included.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/rating-chip-label-in-name.test.tsx"
+}

@@ -28,8 +28,12 @@ export function PuzzleRatingBadge(props: PuzzleRatingBadgeProps): JSX.Element {
           rating: props.rating,
           provisional: props.provisional === true,
         });
+  // A hidden badge says nothing, its prefix included: words a sighted
+  // reader cannot see would otherwise count as the button's visible label.
   const label = (): string =>
-    props.prefix === undefined ? value() : `${props.prefix} ${value()}`;
+    props.prefix === undefined || props.invisible === true
+      ? value()
+      : `${props.prefix} ${value()}`;
   return (
     <Badge
       label={label()}
