@@ -111,6 +111,7 @@ export function FriendsListScreenView(
                 profile={item}
                 onPress={() => props.onOpenFriend(item)}
                 friendsListHandle
+                disclosure
                 trailing={props.friendTrailing?.(item)}
               />
             )}

@@ -6,6 +6,7 @@ import {
 } from '@libs/moderation-shared-ts/display';
 import type { AppModeration } from '@libs/moderation-shared-ts/policy';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -24,6 +25,11 @@ export type FriendUserRowProps = {
   readonly friendsListHandle?: boolean;
   /** DST handle for the pressable identity, when not a friends-list row. */
   readonly pressTestID?: string | undefined;
+  /**
+   * Ends the pressable identity in a chevron: the row opens the person and
+   * has no trailing action of its own to say so.
+   */
+  readonly disclosure?: boolean | undefined;
 };
 
 function profileLabel(
@@ -36,16 +42,21 @@ function profileLabel(
 
 function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
+  readonly disclosure?: boolean | undefined;
 }): JSX.Element {
   const moderation = useModeration();
+  const label = createMemo(() => profileLabel(moderation(), props.profile));
   return (
     <>
-      <FriendProfileAvatar profile={props.profile} size={44} />
+      <FriendProfileAvatar profile={props.profile} name={label()} size={44} />
       <StackVertical grow>
         <P variant="bodyBold" lines={1}>
-          {profileLabel(moderation(), props.profile)}
+          {label()}
         </P>
       </StackVertical>
+      <Show when={props.disclosure === true}>
+        <ChevronRightIcon size={20} color="icon" />
+      </Show>
     </>
   );
 }
@@ -95,7 +106,10 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
             radius="control"
             testId={rowTestID()}
           >
-            <FriendUserRowIdentity profile={props.profile} />
+            <FriendUserRowIdentity
+              profile={props.profile}
+              disclosure={props.disclosure}
+            />
           </Pressable>
           {trailing()}
         </StackHorizontal>
