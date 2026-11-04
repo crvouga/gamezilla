@@ -43,7 +43,7 @@ export type SearchScreenViewProps = {
   readonly denial?: DenialView | undefined;
   /**
    * One result's row content, such as a person with friend pills. `query`
-   * is the typed search, so the row can emphasise what follows it.
+   * is the typed search, so the row can emphasise where it matched.
    */
   readonly renderUserRow: (
     user: UserSearchResult,

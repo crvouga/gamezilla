@@ -1,0 +1,4 @@
+{
+  "summary": "People search showed the typed text in regular weight and bolded the rest of each name (typing \"jor\" bolded \"dan_plays\" in @jordan_plays), the reverse of the usual match highlight, so the eye landed on what was not searched. Fixed by emphasising the matched run (rangesOfMatch) in the search and friends result rows.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/command-palette-logic.test.ts"
+}

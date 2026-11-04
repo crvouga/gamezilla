@@ -8,7 +8,7 @@ import type { AppModeration } from '@libs/moderation-shared-ts/policy';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   HighlightedText,
-  rangesAfterMatch,
+  rangesOfMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
@@ -28,8 +28,8 @@ export type FriendUserRowProps = {
    */
   readonly subtitle?: JSX.Element;
   /**
-   * A typed search: the part of the name after it is emphasised, so
-   * similar names ("@jordan", "@jordan_plays") read apart at a glance.
+   * A typed search: the part of the name it matched is emphasised, so
+   * the eye lands where the search did.
    */
   readonly highlight?: string | undefined;
   /**
@@ -54,13 +54,13 @@ function profileLabel(
   return label.length > 0 ? label : profile.userId.slice(0, 8);
 }
 
-/** The name, with what follows a typed search emphasised when there is one. */
+/** The name, with where a typed search matched emphasised. */
 function FriendUserRowName(props: {
   readonly label: string;
   readonly highlight: string | undefined;
 }): JSX.Element {
   const ranges = createMemo(() =>
-    rangesAfterMatch(props.label, props.highlight ?? '')
+    rangesOfMatch(props.label, props.highlight ?? '')
   );
   return (
     <Show
