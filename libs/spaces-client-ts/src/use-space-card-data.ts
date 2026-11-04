@@ -1,3 +1,4 @@
+import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSpacePresence } from './public-use-space-presence';
 import type { SpaceCardData } from './space-card-view';
@@ -24,6 +25,7 @@ export function useSpaceCardData(
   const isOpen = useIsSpaceOpenLocally(spaceId);
   const presence = useSpacePresence(spaceId);
   const guests = useSpacePeople(useSpaceGuestMembershipIds(spaceId()));
+  const myId = useMyId();
   return createMemo((): SpaceCardRead => {
     const ended = endedAt() !== null;
     return {
@@ -33,6 +35,7 @@ export function useSpaceCardData(
       hostUsername: hostUsername(),
       badge: ended ? 'none' : isOpen() ? 'current' : 'live',
       active: presence().status === 'active',
+      hostedByViewer: myId().length > 0 && host()?.profileId === myId(),
       guests: guests(),
       ended,
     };

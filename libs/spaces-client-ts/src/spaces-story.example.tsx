@@ -48,6 +48,7 @@ function space(
     hostUsername: host.name,
     badge: 'live',
     active: false,
+    hostedByViewer: host === AVERY,
     guests: [],
     ...fields,
   };
@@ -74,6 +75,12 @@ export const LONG_SPACE = space('04', LONG_NAME, {
   title:
     'The extremely long and very descriptive name of a space about board games',
   guests: [LONG_NAME, JORDAN],
+});
+
+/** A second space the viewer hosts, kept after paid access ended. */
+export const SECOND_HOSTED_SPACE = space('05', AVERY, {
+  title: 'Sunday puzzle club',
+  guests: [ROBIN],
 });
 
 export const SPACES: readonly SpaceCardData[] = [
