@@ -30,7 +30,7 @@ const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
     caption: 'Solve rated puzzles and climb the ladder',
   },
   {
-    screen: 'puzzle-stats',
+    screen: 'stats',
     title: 'Puzzle stats',
     caption: 'Puzzle rating trend and game log',
   },

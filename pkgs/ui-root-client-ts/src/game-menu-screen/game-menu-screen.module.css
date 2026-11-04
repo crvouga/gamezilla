@@ -1,0 +1,102 @@
+/* A game's menu on a wide screen: the hero block (the game's tile, name,
+   what it is and how to play), then its choices as large tiles. */
+.hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-6);
+  min-width: 0;
+  padding-block: var(--ui-space-4) var(--ui-space-2);
+}
+.heroWords {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.description {
+  max-width: var(--ui-max-width-prose);
+  margin-top: var(--ui-space-1);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--game-menu-columns, 3), minmax(0, 1fr));
+  gap: var(--ui-space-4);
+}
+.item {
+  display: flex;
+  min-width: 0;
+}
+/* One choice: a tall card, its picture at the top, its words under it and a
+   chevron at the far corner. */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ui-space-4);
+  width: 100%;
+  min-height: 176px;
+  padding: var(--ui-space-5);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  text-align: start;
+}
+.tile:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+  --ui-on-icon: var(--ui-color-text);
+}
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  padding-inline-end: var(--ui-space-6);
+}
+.title {
+  min-width: 0;
+}
+.caption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.chevron {
+  position: absolute;
+  inset-block-end: var(--ui-space-5);
+  inset-inline-end: var(--ui-space-5);
+  display: flex;
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+/* The main way in leads: the accent's soft fill, its picture on the
+   accent, a tinted chevron. */
+.tile[data-emphasis="primary"] {
+  background: var(--ui-color-tint-subtle);
+  border-color: var(--ui-color-tint-subtle);
+}
+.tile[data-emphasis="primary"] .icon {
+  background: var(--ui-color-tint-active);
+  --ui-on-icon: var(--ui-color-on-primary);
+}
+.tile[data-emphasis="primary"] .title {
+  color: var(--ui-color-on-primary-soft);
+}
+.tile[data-emphasis="primary"] .chevron {
+  --ui-on-icon: var(--ui-color-tint);
+}
+/* A look back or a setting says less: a secondary picture. */
+.tile[data-emphasis="quiet"] .icon {
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
