@@ -5,6 +5,10 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import {
+  AppFrameChromeProvider,
+  useSetAppFrameHeader,
+} from '@pkgs/ui-root-client-ts/app-frame-chrome';
+import {
   type AppRouter,
   StaticAppRouterProvider,
 } from '@pkgs/ui-root-client-ts/app-router';
@@ -43,10 +47,13 @@ function createStoryRouter(): AppRouter {
  * viewport, so wide layouts get the app's centered column and page inset.
  * The frame's own chrome (header, tab bar, account menu) opts out with
  * `appFrame: false`; the sidebar renders as the frame's rail with
- * `appFrame: 'rail'`.
+ * `appFrame: 'rail'`. The `frame` toolbar global shows a screen as it sits
+ * inside an open space: a space's top bar takes the header slot (a blank
+ * stand-in here) and the column narrows to the space measure.
  */
 function withOptionalRouter(
   parameters: Record<string, unknown>,
+  inSpace: boolean,
   story: () => JSX.Element
 ): JSX.Element {
   if (parameters['appRouter'] !== true) return story();
@@ -56,10 +63,23 @@ function withOptionalRouter(
         <StoryAppViewport
           story={story}
           asRail={parameters['appFrame'] === 'rail'}
+          inSpace={inSpace}
         />
       </Show>
     </StaticAppRouterProvider>
   );
+}
+
+/** Holds the header slot the way an open space's top bar does. */
+function SpaceChromeStandIn(): JSX.Element {
+  useSetAppFrameHeader(
+    <div
+      class="box h-13"
+      aria-hidden="true"
+      data-component="StorySpaceChrome"
+    />
+  );
+  return null;
 }
 
 /**
@@ -69,13 +89,19 @@ function withOptionalRouter(
 function StoryAppViewport(props: {
   story: () => JSX.Element;
   asRail: boolean;
+  inSpace: boolean;
 }): JSX.Element {
   const screen = children(() => props.story());
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
-      <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
-        <AppFrame rail={screen()}>{null}</AppFrame>
-      </Show>
+      <AppFrameChromeProvider>
+        <Show when={props.inSpace}>
+          <SpaceChromeStandIn />
+        </Show>
+        <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
+          <AppFrame rail={screen()}>{null}</AppFrame>
+        </Show>
+      </AppFrameChromeProvider>
     </div>
   );
 }
@@ -115,9 +141,13 @@ const withProviders = createJSXDecorator((Story, context) => {
           transparent
         >
           <SurfaceStackProvider>
-            {withOptionalRouter(context.parameters, () => (
-              <Story />
-            ))}
+            {withOptionalRouter(
+              context.parameters,
+              context.globals['frame'] === 'space',
+              () => (
+                <Story />
+              )
+            )}
           </SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>
@@ -129,6 +159,7 @@ export default {
   decorators: [withProviders],
   initialGlobals: {
     theme: 'light',
+    frame: 'app',
     timeStep: '0',
     backgrounds: { value: 'canvas', grid: false },
     a11y: { manual: true },
@@ -150,6 +181,16 @@ export default {
     theme: {
       description: 'Production color scheme',
       toolbar: { icon: 'circlehollow', items: ['light', 'dark'] },
+    },
+    frame: {
+      description: 'Where a screen sits: the app, or inside an open space',
+      toolbar: {
+        icon: 'browser',
+        items: [
+          { value: 'app', title: 'In the app' },
+          { value: 'space', title: 'Inside a space' },
+        ],
+      },
     },
   },
   parameters: {
