@@ -5,7 +5,17 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from 'solid-js';
 
-export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
+/**
+ * What the dot says. `unread` is the accent dot that marks something new
+ * the person has not opened yet (an inbox item); it sits before the words
+ * it marks and is named, never hue alone.
+ */
+export type StatusDotStatus =
+  | 'online'
+  | 'offline'
+  | 'warning'
+  | 'pending'
+  | 'unread';
 
 export type StatusDotProps = {
   /** The status the dot paints. Unset when `color` names the dot instead. */

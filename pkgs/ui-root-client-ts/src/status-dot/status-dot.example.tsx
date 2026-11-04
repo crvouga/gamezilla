@@ -15,6 +15,7 @@ const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
   { status: 'offline', label: 'Offline' },
   { status: 'warning', label: 'Warning' },
   { status: 'pending', label: 'Pending' },
+  { status: 'unread', label: 'Unread' },
 ];
 
 const PARTICIPANTS = ['player1', 'player2', 'player3', 'player4'] as const;
