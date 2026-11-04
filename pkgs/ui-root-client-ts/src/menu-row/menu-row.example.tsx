@@ -93,6 +93,24 @@ function StatesSection(): JSX.Element {
   );
 }
 
+/** A disclosure row shows or hides the rows after it, in the same panel. */
+function DisclosureSection(): JSX.Element {
+  const [open, setOpen] = createSignal(false);
+  return (
+    <MenuSection title="Disclosure">
+      <MenuRow
+        title="Advanced"
+        caption="Rarely needed details"
+        expanded={open()}
+        onClick={() => setOpen((value) => !value)}
+      />
+      <Show when={open()}>
+        <MenuRow title="Diagnostics" onClick={noop} />
+      </Show>
+    </MenuSection>
+  );
+}
+
 function PeopleSection(): JSX.Element {
   return (
     <MenuSection title="People">
@@ -151,6 +169,7 @@ export default function MenuRowExample(): JSX.Element {
         <SettingsSections />
       </SchemePreview>
       <StatesSection />
+      <DisclosureSection />
       <PeopleSection />
       <LongTextSection />
     </ExampleRoot>
