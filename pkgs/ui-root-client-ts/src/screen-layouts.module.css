@@ -94,14 +94,21 @@
   flex-shrink: 0;
   min-width: 0;
 }
+/* The board's well: as tall as the board it holds (its width over the
+   board's aspect ratio), shrinking only when the screen is too short, so
+   the move list and the actions sit right under the board and any spare
+   room falls below them. The page inset on both sides keeps the board off
+   the screen's edges and centered. */
 .well {
+  box-sizing: content-box;
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
+  align-self: stretch;
+  aspect-ratio: var(--ui-puzzle-column-ratio, 1);
   min-height: 0;
   min-width: 0;
+  padding-inline: var(--ui-space-lg);
   overflow: hidden;
-  /* The board sits right under the coaching; room it does not fill goes
-     below it, above the docked timeline and actions. */
   align-items: flex-start;
   justify-content: center;
   container-type: size;

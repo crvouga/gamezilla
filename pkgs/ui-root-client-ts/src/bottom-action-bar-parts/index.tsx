@@ -22,8 +22,9 @@ export function BottomActionBarAction(props: {
 }): JSX.Element {
   const disabled = (): boolean => props.item.disabled === true;
   const selected = (): boolean => props.item.selected === true;
-  const iconColor = (): string =>
-    selected() ? 'tint' : disabled() ? 'textSecondary' : 'icon';
+  // A disabled action is dimmed once, by the control's opacity, so an
+  // enabled one reads at full contrast and a disabled one still reads.
+  const iconColor = (): string => (selected() ? 'tint' : 'icon');
   const ariaLabel = (): string | undefined =>
     props.item['aria-label'] ??
     (typeof props.item.label === 'string' ? props.item.label : undefined);
@@ -51,7 +52,7 @@ export function BottomActionBarAction(props: {
         class="text textFootnote line-clamp-1 text-center w-full"
         classList={{
           'text-tint': selected(),
-          'text-text-secondary': !selected(),
+          'text-text': !selected(),
         }}
       >
         {props.item.label}

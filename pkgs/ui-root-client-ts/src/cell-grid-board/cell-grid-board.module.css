@@ -217,24 +217,22 @@
   --color-on-info: var(--ui-color-on-info);
 }
 /* A wooden board: squares meet edge to edge in the board's two tones, the
-   glyph fills most of its square, and the labels stand in the margin
-   outside the squares, so they can never cover a piece. */
+   glyph fills most of its square, and the labels sit in the corners of the
+   edge squares in the other square's tone, as a chess board's coordinates
+   do, so the board is square and its side insets match. */
 .board[data-board-theme="checkered"] {
   --ui-color-text: var(--ui-color-board-card-ink);
   --color-text: var(--ui-color-text);
   container-type: inline-size;
-  grid-template-columns: 1rem repeat(var(--cell-grid-columns), minmax(0, 1fr));
-  grid-template-rows: 1rem;
+  grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
   max-width: none;
   gap: 0;
   padding: 0;
   border-radius: 0;
   background: transparent;
 }
-.board[data-board-theme="checkered"] .header {
-  color: var(--ui-color-text-secondary);
-}
 .board[data-board-theme="checkered"] .cell {
+  position: relative;
   border: 0;
   border-radius: 0;
   background: var(--ui-color-board-light);
@@ -243,13 +241,36 @@
   background: var(--ui-color-board-dark);
 }
 .board[data-board-theme="checkered"] .glyph {
-  /* About four fifths of a square: the board less its label margin, per column. */
-  font-size: calc((100cqw - 1rem) / var(--cell-grid-columns) * 0.82);
+  /* About four fifths of a square. */
+  font-size: calc(100cqw / var(--cell-grid-columns) * 0.82);
   line-height: 1;
 }
+.coordinate {
+  position: absolute;
+  /* Never the light piece's outline: a coordinate is plain ink. */
+  -webkit-text-stroke: 0;
+  font-size: calc(100cqw / var(--cell-grid-columns) * 0.2);
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  color: var(--ui-color-board-dark);
+}
+.cell[data-shade="dark"] .coordinate {
+  color: var(--ui-color-board-light);
+}
+.coordinate[data-corner="row"] {
+  top: 6%;
+  left: 6%;
+}
+.coordinate[data-corner="column"] {
+  right: 6%;
+  bottom: 6%;
+}
+/* A light piece: the face fill inside a firm ink outline, as heavy as the
+   game board's own pieces draw theirs (half the stroke shows outside). */
 .board[data-board-theme="checkered"] .cell[data-identity="one"] {
   color: var(--ui-color-board-card-face);
-  -webkit-text-stroke: 0.06em var(--ui-color-board-card-ink);
+  -webkit-text-stroke: 0.1em var(--ui-color-board-card-ink);
   paint-order: stroke fill;
 }
 .board[data-board-theme="checkered"] .cell[data-identity="two"] {
