@@ -10,6 +10,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { Match, Show, Switch } from 'solid-js';
 import { FriendUserRow } from './friend-user-row';
@@ -49,6 +50,41 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
       action={{ label: t`Find friends`, onClick: () => props.onFindFriends() }}
       dataSet={{ testid: Handles.friendsEmpty }}
     />
+  );
+}
+
+/** "Friends since March 2026", or nothing when the date is unknown. */
+function FriendsSince(props: { readonly since: string }): JSX.Element {
+  const { t, i18n } = useLingui();
+  const label = (): string | null => {
+    const ms = Date.parse(props.since);
+    if (!Number.isFinite(ms)) return null;
+    const month = new Intl.DateTimeFormat(i18n().locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(ms));
+    return t`Friends since ${month}`;
+  };
+  return <>{label()}</>;
+}
+
+/** One friend in the list's panel: face, name, since when, and the way in. */
+function FriendsListRow(props: {
+  readonly friend: Friend;
+  readonly trailing: JSX.Element | undefined;
+  readonly onOpen: () => void;
+}): JSX.Element {
+  return (
+    <StackVertical paddingX="lg" paddingY="xs">
+      <FriendUserRow
+        profile={props.friend}
+        caption={<FriendsSince since={props.friend.friendsSince} />}
+        onPress={() => props.onOpen()}
+        friendsListHandle
+        disclosure
+        trailing={props.trailing}
+      />
+    </StackVertical>
   );
 }
 
@@ -98,7 +134,7 @@ export function FriendsListScreenView(
           <ScreenBodyVirtualList
             items={props.friends}
             keyExtractor={(item) => item.userId}
-            estimateSize={72}
+            estimateSize={76}
             empty={
               <FriendsListPlaceholder
                 status={props.status}
@@ -106,13 +142,12 @@ export function FriendsListScreenView(
                 onRetry={props.onRetry}
               />
             }
+            panel
             renderItem={(item) => (
-              <FriendUserRow
-                profile={item}
-                onPress={() => props.onOpenFriend(item)}
-                friendsListHandle
-                disclosure
+              <FriendsListRow
+                friend={item}
                 trailing={props.friendTrailing?.(item)}
+                onOpen={() => props.onOpenFriend(item)}
               />
             )}
           />

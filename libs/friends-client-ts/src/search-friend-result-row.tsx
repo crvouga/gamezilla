@@ -11,6 +11,8 @@ import { useFriendshipStatus } from './use-friendship-status';
 /** Fills search's result-row slot: the person, their status, the pills. */
 export function SearchFriendResultRow(props: {
   readonly user: UserSearchResult;
+  /** What was typed: the part of the name after it is emphasised. */
+  readonly query: string;
 }): JSX.Element {
   const router = useRouter();
   const userId = () => props.user.userId;
@@ -20,6 +22,7 @@ export function SearchFriendResultRow(props: {
   return (
     <FriendUserRow
       profile={props.user}
+      highlight={props.query}
       pressTestID={Handles.searchUserResultOpen(props.user.username)}
       onPress={() =>
         router.push({

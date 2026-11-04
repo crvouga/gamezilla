@@ -30,7 +30,7 @@ const meta = {
     query: '',
     recentQueries: [],
     search: IDLE,
-    renderUserRow: (user) => <StoryUserRow user={user} />,
+    renderUserRow: (user, query) => <StoryUserRow user={user} query={query} />,
     onQueryChange: fn(),
     onSelectRecent: fn(),
     onClearRecent: fn(),
@@ -52,7 +52,11 @@ export const Searching: Story = {
   args: { query: 'jor', search: { ...IDLE, searching: true } },
 };
 
-/** People whose username starts with the query. */
+/**
+ * People whose username starts with the query, in one panel: what follows
+ * the typed "jor" is emphasised so similar handles read apart, and each row
+ * ends in its status pill.
+ */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },
 };

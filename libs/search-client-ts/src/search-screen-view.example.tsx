@@ -1,9 +1,13 @@
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
-import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import {
+  HighlightedText,
+  rangesAfterMatch,
+} from '@pkgs/ui-root-client-ts/highlighted-text';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 /** Story fixture: a person found by search, with a fixed id. */
 export function storyResult(index: number, username: string): UserSearchResult {
@@ -14,15 +18,43 @@ export function storyResult(index: number, username: string): UserSearchResult {
   };
 }
 
+/** How a stand-in row relates the viewer to a person, by username. */
+const STORY_RELATIONS: Readonly<
+  Record<string, 'add' | 'friends' | 'requested'>
+> = { jordan: 'add', jordan_plays: 'friends', jordy: 'requested' };
+
+/** Stand-in for the friends sub's status pill: Add Friend, Requested or Friends. */
+function StoryRelationPill(props: { readonly username: string }): JSX.Element {
+  const relation = (): 'add' | 'friends' | 'requested' =>
+    STORY_RELATIONS[props.username] ?? 'add';
+  return (
+    <Button
+      title={
+        relation() === 'friends'
+          ? 'Friends'
+          : relation() === 'requested'
+            ? 'Requested'
+            : 'Add Friend'
+      }
+      variant={relation() === 'add' ? 'solid' : 'outline'}
+      onClick={() => undefined}
+    />
+  );
+}
+
 /**
  * Stand-in for the result row the app composes (the friends sub fills it
- * with status pills; otherwise avatar + username from the device's data):
- * the same shape, drawn from the result itself — tinted initials for a
- * person without a picture, and the chevron of a row that opens them.
+ * with the person and their status pill; otherwise avatar + username from
+ * the device's data): the same shape, drawn from the result itself —
+ * tinted initials for a person without a picture, the part of the name after
+ * the typed query emphasised so similar names read apart, and the pill.
  */
 export function StoryUserRow(props: {
   readonly user: UserSearchResult;
+  readonly query: string;
 }): JSX.Element {
+  const name = (): string => `@${props.user.username}`;
+  const ranges = () => rangesAfterMatch(name(), props.query);
   return (
     <StackHorizontal align="center" gap="sm" paddingY="sm">
       <Avatar
@@ -31,11 +63,24 @@ export function StoryUserRow(props: {
         tintKey={props.user.userId}
       />
       <StackVertical grow>
-        <P variant="bodyBold" lines={1}>
-          {`@${props.user.username}`}
-        </P>
+        <Show
+          when={ranges().length > 0}
+          fallback={
+            <P variant="bodyBold" lines={1}>
+              {name()}
+            </P>
+          }
+        >
+          <HighlightedText
+            text={name()}
+            ranges={ranges()}
+            variant="body"
+            boldVariant="bodyBold"
+            numberOfLines={1}
+          />
+        </Show>
       </StackVertical>
-      <ChevronRightIcon size={20} color="icon" />
+      <StoryRelationPill username={props.user.username} />
     </StackHorizontal>
   );
 }

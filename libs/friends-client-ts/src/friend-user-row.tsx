@@ -6,6 +6,10 @@ import {
 } from '@libs/moderation-shared-ts/display';
 import type { AppModeration } from '@libs/moderation-shared-ts/policy';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import {
+  HighlightedText,
+  rangesAfterMatch,
+} from '@pkgs/ui-root-client-ts/highlighted-text';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -18,6 +22,13 @@ export type FriendUserRowProps = {
   readonly profile: FriendProfile;
   readonly onPress?: (() => void) | undefined;
   readonly trailing?: JSX.Element;
+  /** A line under the name, such as how long you have been friends. */
+  readonly caption?: JSX.Element;
+  /**
+   * A typed search: the part of the name after it is emphasised, so
+   * similar names ("@jordan", "@jordan_plays") read apart at a glance.
+   */
+  readonly highlight?: string | undefined;
   /**
    * When true, sets the friends-list DST handle from the name the row shows
    * (a stand-in name when the username is no longer allowed).
@@ -40,8 +51,38 @@ function profileLabel(
   return label.length > 0 ? label : profile.userId.slice(0, 8);
 }
 
+/** The name, with what follows a typed search emphasised when there is one. */
+function FriendUserRowName(props: {
+  readonly label: string;
+  readonly highlight: string | undefined;
+}): JSX.Element {
+  const ranges = createMemo(() =>
+    rangesAfterMatch(props.label, props.highlight ?? '')
+  );
+  return (
+    <Show
+      when={ranges().length > 0}
+      fallback={
+        <P variant="bodyBold" lines={1}>
+          {props.label}
+        </P>
+      }
+    >
+      <HighlightedText
+        text={props.label}
+        ranges={ranges()}
+        variant="body"
+        boldVariant="bodyBold"
+        numberOfLines={1}
+      />
+    </Show>
+  );
+}
+
 function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
+  readonly caption?: JSX.Element;
+  readonly highlight?: string | undefined;
   readonly disclosure?: boolean | undefined;
 }): JSX.Element {
   const moderation = useModeration();
@@ -50,9 +91,12 @@ function FriendUserRowIdentity(props: {
     <>
       <FriendProfileAvatar profile={props.profile} name={label()} size={44} />
       <StackVertical grow>
-        <P variant="bodyBold" lines={1}>
-          {label()}
-        </P>
+        <FriendUserRowName label={label()} highlight={props.highlight} />
+        <Show when={props.caption !== undefined}>
+          <P variant="caption" lines={1}>
+            {props.caption}
+          </P>
+        </Show>
       </StackVertical>
       <Show when={props.disclosure === true}>
         <ChevronRightIcon size={20} color="icon" />
@@ -89,7 +133,11 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
           self="stretch"
           testId={rowTestID()}
         >
-          <FriendUserRowIdentity profile={props.profile} />
+          <FriendUserRowIdentity
+            profile={props.profile}
+            caption={props.caption}
+            highlight={props.highlight}
+          />
           {trailing()}
         </StackHorizontal>
       }
@@ -108,6 +156,8 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
           >
             <FriendUserRowIdentity
               profile={props.profile}
+              caption={props.caption}
+              highlight={props.highlight}
               disclosure={props.disclosure}
             />
           </Pressable>
