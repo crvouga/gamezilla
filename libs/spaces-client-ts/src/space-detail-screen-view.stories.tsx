@@ -101,12 +101,13 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * The host in their space, choosing what to play. The bar reads the same on
- * every size: ✕ Close at the leading edge (the space goes on in the
- * miniplayer), the space's name, then the members button, the way out and
- * ⋯ at the far edge with Share, Rename and Leave. Wide says Close and End
- * space in words and shows everyone's faces; on a phone the members button
- * is the people glyph with how many are here, and End folds into ⋯ when the
- * row is short. Under the Games title, who is here and who hosts.
+ * every size: ⌄ Minimize at the leading edge (stepping out to the lobby; the
+ * space goes on in the miniplayer), the space's name, then the members
+ * button and ⋯ at the far edge with Share and Rename, then, after a divider
+ * and in red, Leave and End space, each behind a confirm. Wide says Minimize
+ * in words and shows everyone's faces; on a phone the members button is the
+ * people glyph with how many are here. Under the Games title, who is here
+ * and who hosts.
  */
 export const HostChoosingGame: Story = {};
 
@@ -116,16 +117,16 @@ export const Loading: Story = {
   render: (args) => withSlots(args, {}),
 };
 
-/** A guest: Leave instead of End, no Rename, the list says the host picks. */
+/** A guest: ⋯ holds Leave and no End, no Rename; the list says the host picks. */
 export const Guest: Story = {
   args: { canRename: false, canEnd: false },
   render: (args) => withSlots(args, { body: () => gamesList(false) }),
 };
 
 /**
- * A game in progress: after Close, ‹ Games goes back to the space's games,
- * named so moving within the room never reads like leaving it. The game
- * area is a slot.
+ * A game in progress: after Minimize, ‹ Games goes back to the space's
+ * games, named so moving within the room never reads like leaving it. The
+ * game area is a slot.
  */
 export const GameInProgress: Story = {
   args: { onPressBack: fn(), backLabel: 'Games' },
@@ -201,8 +202,12 @@ export const ShareOpen: Story = {
     }),
 };
 
-/** Close leaves the space screen (the space keeps running in the miniplayer). */
+/**
+ * Minimize steps out of the space screen (the space keeps running in the
+ * miniplayer). The id stays `close-space` so its baselines keep their paths.
+ */
 export const CloseSpace: Story = {
+  name: 'Minimize space',
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId(Handles.spaceClose));

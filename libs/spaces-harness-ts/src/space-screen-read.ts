@@ -3,6 +3,7 @@ import { actorLocalSql } from '@libs/harness-ts/identity';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { endOffered } from './space-ending-ui-reads';
 
 export type SpaceScreen =
   | 'ended'
@@ -31,11 +32,12 @@ export async function spaceScreenOf(
   const connectionMissing = await visible(s, actorId, [
     Handles.statusConnectionMissing,
   ]);
-  const hostKeepsSpace = await visible(s, actorId, [Handles.spaceEnd]);
+  // Only the host is offered End (in the space's ⋯ menu), so ask that only
+  // when it decides the screen: a guest without a connection, in the space.
   if (
     connectionMissing &&
-    !hostKeepsSpace &&
-    (await visible(s, actorId, [Handles.spaceClose]))
+    (await visible(s, actorId, [Handles.spaceClose])) &&
+    !(await endOffered(s, actorId))
   )
     return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
