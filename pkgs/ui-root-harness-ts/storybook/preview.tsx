@@ -12,6 +12,7 @@ import {
   type AppRouter,
   StaticAppRouterProvider,
 } from '@pkgs/ui-root-client-ts/app-router';
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { children, createEffect, type JSX, onCleanup, Show } from 'solid-js';
@@ -82,6 +83,9 @@ function SpaceChromeStandIn(): JSX.Element {
   return null;
 }
 
+/** The account face the app's global chrome ends with (its menu trigger). */
+const STORY_ACCOUNT_FACE = 32;
+
 /** Fills the viewport with the app's chrome provider and frame. */
 function StoryAppViewport(props: {
   story: () => JSX.Element;
@@ -90,7 +94,9 @@ function StoryAppViewport(props: {
 }): JSX.Element {
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
-      <AppFrameChromeProvider>
+      <AppFrameChromeProvider
+        globalTrailing={<Avatar size={STORY_ACCOUNT_FACE} you />}
+      >
         <Show when={props.inSpace}>
           <SpaceChromeStandIn />
         </Show>
