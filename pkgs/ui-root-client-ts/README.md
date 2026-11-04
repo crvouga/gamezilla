@@ -164,7 +164,8 @@ shares one 640px measure (`screen-measure.ts`), so the column never jumps
 between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`,
 `GameHistoryScreen` and Storybook; `prose` for `ContentScreen`; `list` for
 `CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
-sections); `full` for game stages with a rail. At every width a capped
+sections); `wide` (960px) for a collection laid out as a grid of cards on wide
+layouts (the lobby); `full` for game stages with a rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
 content. Narrow layouts retain the 16px page inset.
