@@ -9,7 +9,7 @@ export type SpaceLiveBadgeProps = {
 
 /**
  * Status tag for one space — "Current" when this device has the space open
- * (miniplayer), otherwise the LIVE tag while the space has not ended.
+ * (miniplayer), otherwise the Live tag while the space has not ended.
  */
 export function SpaceLiveBadge(props: SpaceLiveBadgeProps): JSX.Element {
   const endedAt = useSpaceColumn(props.spaceId, SpaceField.endedAt);

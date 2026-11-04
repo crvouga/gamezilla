@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
-import { Badge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
+import { CurrentBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -40,14 +40,17 @@ const GUEST_NAMES_SHOWN = 3;
 const CARD_GUEST_NAMES = 2;
 const ACTION_ICON_SIZE = 16;
 
-/** "Current" when this device has the space open, otherwise LIVE. */
+/**
+ * "Current" when this device has the space open, otherwise "Live": one tag
+ * shape, two tones.
+ */
 export function SpaceBadgeView(props: {
   readonly badge: SpaceCardBadge;
 }): JSX.Element {
   return (
     <Switch>
       <Match when={props.badge === 'current'}>
-        <Badge label={<Trans>Current</Trans>} intent="brand" tone="solid" />
+        <CurrentBadge />
       </Match>
       <Match when={props.badge === 'live'}>
         <LiveBadge />

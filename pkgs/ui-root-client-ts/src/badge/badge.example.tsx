@@ -3,6 +3,7 @@
 import {
   Badge,
   type BadgeIntent,
+  CurrentBadge,
   HostBadge,
   LiveBadge,
 } from '@pkgs/ui-root-client-ts/badge';
@@ -55,8 +56,9 @@ export default function BadgeExample(): JSX.Element {
     <ExampleRoot>
       <SchemePreview>
         <StackVertical gap="lg">
-          <Row title="Fixed tags: LIVE (the only all-caps word) and Host">
+          <Row title="Fixed tags: Live, Current and Host">
             <LiveBadge />
+            <CurrentBadge />
             <HostBadge />
             <HostBadge size="sm" />
           </Row>
