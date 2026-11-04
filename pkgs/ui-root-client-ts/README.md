@@ -10,8 +10,8 @@ paper surfaces with cool gray inks, so long sessions are easy on the eyes.
 One indigo accent marks what a person can act on or has chosen: links, the
 primary fill, selection and focus rings. Feedback keeps its words and icons
 and adds its named hue (red, green, amber, blue); it never depends on hue
-alone. Manrope sets every line of copy, headlines included; Unbounded sets
-numbers.
+alone. Manrope sets every line of copy, headlines and numbers (tabular
+figures).
 
 Game-prefixed color tokens belong only to playing surfaces. Component-local
 variables scope them to the board, leaving the surrounding chrome neutral.
@@ -34,7 +34,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Scale | Steps |
 | --- | --- |
 | Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
-| Faces | Manrope 400 / 500 / 700 for copy and headlines, Unbounded 600 for numbers; self-hosted, `font-display: swap` |
+| Face | Manrope 400 / 500 / 600 / 700 for copy, headlines and numbers (tabular figures); self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | 6 (`sm`: small details), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, chips, tags, header tabs, avatars, stat pills) |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
@@ -57,11 +57,11 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
    `heading`, `subtitle`, `navigationTitle`, `label`, `stat`). Each role wears
    one of the eight text styles; the mapping is in `hosts.css` and
-   `docs/ui-overhaul/DECISIONS.md`. `numeral` (Unbounded 600, tabular) for
+   `docs/ui-overhaul/DECISIONS.md`. `numeral` (Manrope 600, tabular) for
    ratings, clocks, prices and counts; counts from 1,000 are compact
    (`formatCompactNumber`: 12.4K). Nothing renders below 12px.
-3. **Two faces.** Manrope carries every headline, label, button and line of
-   copy; Unbounded sets numbers. Mono is for code and
+3. **One face.** Manrope carries every headline, label, button, line of copy
+   and number (tabular figures). Mono is for code and
    identifiers, never for numbers or labels. Google sign-in alone uses its
    mandated, self-hosted Google Sans Medium.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or

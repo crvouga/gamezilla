@@ -39,7 +39,7 @@
   --perspective-*: initial;
   --aspect-*: initial;
 
-  /* Two faces: Manrope for text, Unbounded for display and numbers. Mono is
+  /* One face: Manrope for text, headlines and numbers. Mono is
      for code only. */
   --font-sans: var(--ui-font-sans);
   --font-display: var(--ui-font-display);

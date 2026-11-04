@@ -2373,7 +2373,7 @@
   "font": {
     "family": {
       "$type": "fontFamily",
-      "$description": "Two faces. `sans` (Manrope) sets every line of copy, including display headlines; `display` (Unbounded) sets numbers: ratings, scores, clocks and counts. Both are self-hosted with `font-display: swap`. `mono` is for code and identifiers only.",
+      "$description": "One face. `sans` (Manrope) sets every line of copy, including display headlines; `display` is the same face for numbers (ratings, scores, clocks and counts), set with tabular figures. Self-hosted with `font-display: swap`. `mono` is for code and identifiers only.",
       "sans": {
         "$value": [
           "Manrope",
@@ -2388,7 +2388,6 @@
       },
       "display": {
         "$value": [
-          "Unbounded",
           "Manrope",
           "system-ui",
           "-apple-system",
@@ -2515,7 +2514,7 @@
     },
     "weight": {
       "$type": "fontWeight",
-      "$description": "Manrope 400 body, 500 captions, 700 emphasis, titles and display headlines; Unbounded 600 numbers.",
+      "$description": "Manrope 400 body, 500 captions, 600 numbers, 700 emphasis, titles and display headlines.",
       "regular": {
         "$value": 400
       },

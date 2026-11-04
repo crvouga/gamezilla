@@ -133,7 +133,7 @@
     color: var(--ui-color-text);
   }
 
-  /* Type roles use the shared Manrope / Unbounded scale. Screens choose
+  /* Type roles use the shared Manrope scale. Screens choose
      a role; the system owns its face, size, weight and wrapping. */
 
   .textBody {

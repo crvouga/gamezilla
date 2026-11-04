@@ -146,7 +146,7 @@ function useStepperModel(props: NumberStepperProps) {
  * `NumberStepper` -- a labeled count with minus / plus controls (a player
  * count, a board size, a rating).
  *
- * - The value is the `stat` type style (Unbounded, tabular figures), in a
+ * - The value is the `stat` type style (Manrope, tabular figures), in a
  *   `role="spinbutton"` cell with `aria-valuenow` / `min` / `max`. It is the
  *   one tab stop: the arrow keys step it, Home and End jump to the bounds.
  * - Minus and plus are 44px round secondary controls (transparent, the 3:1

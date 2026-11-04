@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@fontsource/manrope": "catalog:",
-    "@fontsource/unbounded": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/a11y-shared-ts": "workspace:*",

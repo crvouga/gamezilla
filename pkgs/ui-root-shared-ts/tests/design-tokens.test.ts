@@ -218,7 +218,7 @@ describe('values derived from the tokens', () => {
     expect(COLOR_PALETTE.light.tintSubtle).toBe('#eceefe');
     expect(COLOR_PALETTE.dark.scrim).toBe('#00000099');
     expect(fonts.sans.startsWith('Manrope,')).toBe(true);
-    expect(fonts.display.startsWith('Unbounded,')).toBe(true);
+    expect(fonts.display.startsWith('Manrope,')).toBe(true);
     expect(duration.fast).toBe(150);
     expect(easing.standard).toBe('cubic-bezier(0.2, 0, 0, 1)');
   });
