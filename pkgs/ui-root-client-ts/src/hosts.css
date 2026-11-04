@@ -147,6 +147,12 @@
     font-weight: var(--ui-text-body-strong-weight);
   }
 
+  /* A row's title: body size at medium weight, so it outranks the row's
+     caption and the section label above it. */
+  .textRowTitle {
+    font-weight: var(--ui-font-weight-medium);
+  }
+
   /* A navigation label that is semibold only while current. The box is
      always as wide as the semibold label (an invisible semibold copy from
      `data-label` sizes it), so selecting an item never moves its
@@ -186,11 +192,15 @@
   }
 
   /* Section labels above a group: the `label` style in the muted ink. */
+  /* Section labels name a group without outranking its rows: tracked
+     small caps in the muted ink, a step lighter than the rows' titles. */
   .textSectionLabel {
     font-family: var(--ui-text-label-family);
     font-size: var(--ui-text-label-size);
     line-height: var(--ui-text-label-leading);
-    font-weight: var(--ui-text-label-weight);
+    font-weight: var(--ui-font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--ui-color-text-secondary);
   }
 

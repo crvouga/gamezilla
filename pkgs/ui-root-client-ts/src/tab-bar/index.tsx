@@ -60,7 +60,7 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
           component={props.item.icon}
           size={ICON_SIZE}
           strokeWidth={props.item.current ? STROKE_CURRENT : STROKE_DEFAULT}
-          color={props.item.current ? 'text' : 'textSecondary'}
+          color={props.item.current ? 'tint' : 'textSecondary'}
         />
         <Show when={props.item.badge}>
           {(badge) => (
@@ -83,7 +83,7 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
         <span
           class="text textFootnote line-clamp-1 max-w-full transition-colors"
           classList={{
-            'text-text font-semibold': props.item.current,
+            'text-tint font-semibold': props.item.current,
             'text-text-secondary': !props.item.current,
           }}
         >
@@ -136,9 +136,9 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
  *
  * - **Look.** A 52px row on the canvas with one hairline above it and the
  *   bottom safe-area inset below. Icons are 24px outlines with a 12px label
- *   under them. The current item is drawn in full text color with a heavier
- *   stroke and a semibold label; the rest are secondary. No blue, no
- *   indicator pill: the convention of the big social apps. Each label box
+ *   under them. The current item is drawn in the accent with a heavier
+ *   stroke and a semibold label; the rest are secondary, so where you are
+ *   reads at a glance. No indicator pill. Each label box
  *   is held at its semibold width (`reserveBold`), so selection never
  *   reflows the labels.
  * - **Meaning.** A `navigation` landmark of links or buttons, never an ARIA

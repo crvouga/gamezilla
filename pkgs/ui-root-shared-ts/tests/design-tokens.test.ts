@@ -126,9 +126,9 @@ describe('values derived from the tokens', () => {
     expect(spacing[4]).toBe(16);
   });
 
-  test('the type scale is 12, 13, 15, 18, 20, 26, 40 with its leading', () => {
-    expect(Object.values(fontSize)).toEqual([12, 13, 15, 18, 20, 26, 40]);
-    expect(Object.values(fontLeading)).toEqual([16, 18, 22, 24, 24, 30, 44]);
+  test('the type scale is 12, 14, 15, 18, 20, 26, 40 with its leading', () => {
+    expect(Object.values(fontSize)).toEqual([12, 14, 15, 18, 20, 26, 40]);
+    expect(Object.values(fontLeading)).toEqual([16, 20, 22, 24, 24, 30, 44]);
     expect(Object.values(fontWeight)).toEqual([400, 500, 600, 700]);
   });
 

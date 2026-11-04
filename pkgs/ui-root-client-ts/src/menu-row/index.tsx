@@ -144,7 +144,7 @@ function MenuRowBody(
           {/* `div`, not `p`: callers pass their own text blocks, and a `p`
               may not contain one. A long title ends in an ellipsis. */}
           <div
-            class="text textBody line-clamp-1 max-w-full"
+            class="text textBody textRowTitle line-clamp-1 max-w-full"
             classList={{
               'text-tint': selected(),
               'text-destructive': !selected() && destructive(),

@@ -2418,7 +2418,7 @@
       },
       "sm": {
         "$value": {
-          "value": 13,
+          "value": 14,
           "unit": "px"
         }
       },
@@ -2464,7 +2464,7 @@
       },
       "sm": {
         "$value": {
-          "value": 18,
+          "value": 20,
           "unit": "px"
         }
       },
@@ -2735,7 +2735,7 @@
       "$description": "Minimum height of a control: `sm` compact buttons, `md` the default button and field, `lg` a prominent action and list rows.",
       "sm": {
         "$value": {
-          "value": 32,
+          "value": 36,
           "unit": "px"
         }
       },

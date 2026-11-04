@@ -67,7 +67,7 @@ function DefaultOverflowPill(props: {
   const { i18n } = useLingui();
   return (
     <div
-      class={`${SLOT_CLASS} bg-surface-muted`}
+      class={`${SLOT_CLASS} bg-border`}
       style={{
         'border-color': props.metrics.ringColor,
         width: `${props.metrics.size}px`,
