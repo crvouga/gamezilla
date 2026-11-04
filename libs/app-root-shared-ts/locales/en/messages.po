@@ -55,6 +55,11 @@ msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {#
 msgid "{0, plural, one {# person here} other {# people here}}"
 msgstr "{0, plural, one {# person here} other {# people here}}"
 
+#. placeholder {0}: props.count
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "{0, plural, one {# player} other {# players}}"
+msgstr "{0, plural, one {# player} other {# players}}"
+
 #. placeholder {0}: rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
@@ -848,6 +853,10 @@ msgstr "Account menu"
 msgid "Account privacy"
 msgstr "Account privacy"
 
+#: libs/profile-client-ts/src/profile-screen-view.tsx
+msgid "Account, appearance, sound and more"
+msgstr "Account, appearance, sound and more"
+
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 msgid "Accuracy"
 msgstr "Accuracy"
@@ -1379,6 +1388,10 @@ msgstr "Change who sits here"
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Changes waiting to send"
+msgstr "Changes waiting to send"
+
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
@@ -1505,10 +1518,6 @@ msgstr "Choose from {0} to {1}."
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
 
-#: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Choose people or bots for each of the {playerCount} places"
-msgstr "Choose people or bots for each of the {playerCount} places"
-
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
 msgstr "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
@@ -1540,6 +1549,10 @@ msgstr "Choose three cards to pass to the left."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Choose three cards to pass to the right."
 msgstr "Choose three cards to pass to the right."
+
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Choose who plays each of the {playerCount} places"
+msgstr "Choose who plays each of the {playerCount} places"
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
@@ -2087,10 +2100,6 @@ msgstr "Custom"
 msgid "Custom game"
 msgstr "Custom game"
 
-#: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Custom games"
-msgstr "Custom games"
-
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Custom hex color"
 msgstr "Custom hex color"
@@ -2196,6 +2205,10 @@ msgstr "Desired synthetic population"
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Destroyer"
 msgstr "Destroyer"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Details to check when something isn't working."
+msgstr "Details to check when something isn't working."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "dev"
@@ -2482,6 +2495,10 @@ msgstr "Ending space…"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
+
+#: libs/auth-client-ts/src/sign-out-everywhere.tsx
+msgid "Ends every session on this account, this device included"
+msgstr "Ends every session on this account, this device included"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Enter a valid desired synthetic population."
@@ -2796,6 +2813,10 @@ msgstr "Four sides. One hill. First to e5 wins immediately."
 msgid "fps"
 msgstr "fps"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Frame rate and responsiveness"
+msgstr "Frame rate and responsiveness"
+
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Frames per second"
 msgstr "Frames per second"
@@ -2832,6 +2853,10 @@ msgstr "Friends"
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Friends let you find each other and jump into shared spaces."
 msgstr "Friends let you find each other and jump into shared spaces."
+
+#: libs/friends-client-ts/src/friends-list-screen-view.tsx
+msgid "Friends since {month}"
+msgstr "Friends since {month}"
 
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "full board"
@@ -3548,10 +3573,6 @@ msgstr "Loading your privacy settings…"
 msgid "Loading…"
 msgstr "Loading…"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Local database and sync state"
-msgstr "Local database and sync state"
-
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
 msgstr "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
@@ -3700,6 +3721,12 @@ msgstr "Move {0} of {1}. {2}"
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 msgid "Move {0} up"
 msgstr "Move {0} up"
+
+#. placeholder {0}: first() + index + 1
+#. placeholder {1}: label()
+#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
+msgid "Move {0}: {1}"
+msgstr "Move {0}: {1}"
 
 #: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
 msgid "Move endpoints inside the smaller board before resizing it."
@@ -3858,6 +3885,7 @@ msgid "Next"
 msgstr "Next"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
+#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Next move"
@@ -4163,10 +4191,13 @@ msgid "offline"
 msgstr "offline"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Offline. Nothing connects until you turn this off."
+msgstr "Offline. Nothing connects until you turn this off."
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4189,7 +4220,6 @@ msgid "online"
 msgstr "online"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
@@ -4197,6 +4227,10 @@ msgstr "Online"
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
 msgstr "Online Synthetic Users"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Online. Turn on to stop every network connection."
+msgstr "Online. Turn on to stop every network connection."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only a participant can make this choice."
@@ -4563,6 +4597,10 @@ msgstr "Play history"
 msgid "Play published puzzles, continue your attempts, or build something of your own."
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Play with friends or bots"
+msgstr "Play with friends or bots"
+
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Play word"
@@ -4671,6 +4709,7 @@ msgid "Previous"
 msgstr "Previous"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
+#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Previous move"
@@ -5698,11 +5737,16 @@ msgstr "Sessions"
 #: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Settings"
 msgstr "Settings"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Settings from the server"
+msgstr "Settings from the server"
 
 #. placeholder {0}: part.from
 #. placeholder {1}: part.to
@@ -5735,6 +5779,10 @@ msgstr "Share space"
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Share the space link to invite people."
 msgstr "Share the space link to invite people."
+
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
+msgid "Shared with you"
+msgstr "Shared with you"
 
 #: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Sharing your friend request…"
@@ -5959,6 +6007,10 @@ msgstr "Sokoban board being built"
 msgid "Sokoban board preview"
 msgstr "Sokoban board preview"
 
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "Solo"
+msgstr "Solo"
+
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Solution"
 msgstr "Solution"
@@ -6097,7 +6149,6 @@ msgstr "Stand-in bot"
 msgid "Standings"
 msgstr "Standings"
 
-#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Start"
 msgstr "Start"
@@ -6164,8 +6215,8 @@ msgid "State"
 msgstr "State"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Status"
-msgstr "Status"
+msgid "Status, and what works offline"
+msgstr "Status, and what works offline"
 
 #: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "Stay here"
@@ -6194,10 +6245,6 @@ msgstr "Steer {0} up"
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Stop every network connection until you work online"
-msgstr "Stop every network connection until you work online"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Stop loading"
@@ -6271,10 +6318,6 @@ msgstr "Sync issue"
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Synced from the server on first request. Values come from server secrets, not from this device."
 msgstr "Synced from the server on first request. Values come from server secrets, not from this device."
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Synced runtime configuration"
-msgstr "Synced runtime configuration"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
@@ -7154,6 +7197,10 @@ msgstr "triple letter"
 msgid "triple word"
 msgstr "triple word"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Troubleshooting"
+msgstr "Troubleshooting"
+
 #: pkgs/ui-root-client-ts/src/catalog-list-rows/index.tsx
 msgid "Try a different search term."
 msgstr "Try a different search term."
@@ -7544,10 +7591,6 @@ msgstr "What next"
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "What Plus includes"
 msgstr "What Plus includes"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Whether the app is connected, and what works without it"
-msgstr "Whether the app is connected, and what works without it"
 
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
@@ -8178,6 +8221,10 @@ msgstr "Your space wasn't ended"
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your space wasn't renamed"
 msgstr "Your space wasn't renamed"
+
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
+msgid "Your spaces"
+msgstr "Your spaces"
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "your tentative blank as {letter}"
