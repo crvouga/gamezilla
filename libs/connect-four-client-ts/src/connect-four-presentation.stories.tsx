@@ -53,8 +53,8 @@ export const Opening: Story = {};
 
 /**
  * Mid-game on the person's turn: every open column offers a drop, and the
- * one focused (column 6) lights up with Red's disc held above it and its
- * ghost where it would land.
+ * one pointed at (column 6) takes a quiet tint, with Red's ring and mark
+ * in the hole where the disc would land.
  */
 export const YourTurn: Story = {
   args: { position: after(MID_GAME) },
@@ -64,7 +64,7 @@ export const YourTurn: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const column = await canvas.findByTestId('custom-game-board-column-6');
-    column.focus();
+    await userEvent.hover(column);
     await expect(column).toHaveAttribute('data-previewed', 'true');
   },
 };

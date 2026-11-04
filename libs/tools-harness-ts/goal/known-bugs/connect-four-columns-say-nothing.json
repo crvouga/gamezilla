@@ -1,4 +1,4 @@
 {
-  "summary": "On the person's turn Connect Four showed only seven column numbers above the holes, which did not say what to do or where a disc would go. The board now says \"Choose a column\", marks every open column with a chevron, and colors the chevron of the column pointed at or focused as the person's disc, with a ghost of that disc where it would land.",
+  "summary": "On the person's turn Connect Four showed only seven column numbers above the holes, which did not say what to do or where a disc would go. The board is now described as \"Choose a column\" to assistive technology (the seat's turn pill says it on screen), and the column pointed at or focused puts the person's mark in the hole where the disc would land.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
 }
