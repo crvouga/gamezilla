@@ -23,18 +23,29 @@ export type MainMenuItem = {
   trailing?: JSX.Element | undefined;
   selected?: boolean | undefined;
   disabled?: boolean | undefined;
+  /**
+   * How strongly the row asks to be chosen among its menu's rows:
+   * `primary` (the one main way in) wears the accent's soft selection fill
+   * and a tinted chevron; `quiet` (a look back, a setting) steps its title
+   * down to the secondary ink; unset is an ordinary row. One `primary` per
+   * menu at most.
+   */
+  emphasis?: 'primary' | 'quiet' | undefined;
   onClick?: (() => void) | undefined;
   /** DOM `data-*` identifiers for the row. */
   dataSet?: ComponentDataSet | undefined;
 };
 
-function DefaultTrailing(props: { selected: boolean }): JSX.Element {
+function DefaultTrailing(props: {
+  selected: boolean;
+  primary: boolean;
+}): JSX.Element {
   return (
     <div class="box flex-row items-center gap-2">
       <Show when={props.selected}>
         <CircleCheckIcon size={20} color="tint" />
       </Show>
-      <ChevronRightIcon size={20} color="icon" />
+      <ChevronRightIcon size={20} color={props.primary ? 'tint' : 'icon'} />
     </div>
   );
 }
@@ -48,7 +59,10 @@ function ItemTrailing(props: {
       when={props.item.trailing !== undefined}
       fallback={
         <Show when={props.interactive}>
-          <DefaultTrailing selected={props.item.selected === true} />
+          <DefaultTrailing
+            selected={props.item.selected === true}
+            primary={props.item.emphasis === 'primary'}
+          />
         </Show>
       }
     >
@@ -67,7 +81,11 @@ function ItemBody(props: {
   return (
     <div
       class="box flex-row items-stretch pl-4 min-h-14"
-      classList={{ 'opacity-disabled': disabled() }}
+      classList={{
+        'opacity-disabled': disabled(),
+        'bg-tint-subtle': props.item.emphasis === 'primary',
+      }}
+      data-emphasis={props.item.emphasis}
     >
       <Show when={props.item.leading}>
         <div class="box items-center justify-center shrink-0 py-2 pr-3">
@@ -79,7 +97,13 @@ function ItemBody(props: {
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
           <div class="box flex-row items-center gap-2 min-w-0 max-w-full">
-            <p class="text textLabel line-clamp-1 min-w-0">
+            <p
+              class="text textLabel line-clamp-1 min-w-0"
+              classList={{
+                'text-on-primary-soft': props.item.emphasis === 'primary',
+                'text-text-secondary': props.item.emphasis === 'quiet',
+              }}
+            >
               {props.item.title}
             </p>
             <Show when={props.item.meta}>
