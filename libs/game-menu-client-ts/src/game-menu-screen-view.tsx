@@ -1,4 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { Trans } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -89,6 +90,11 @@ export function GameMenuScreenView(
       caption: choice.caption,
       icon: ICON[choice.screen] ?? CompassIcon,
       emphasis: GAME_CHOICE_EMPHASIS[choice.screen],
+      // The main way in says why it leads, in words, on every size.
+      badge:
+        GAME_CHOICE_EMPHASIS[choice.screen] === 'primary' ? (
+          <Trans>Recommended</Trans>
+        ) : undefined,
       dataSet: { testid: Handles.gameChoice(choice.screen) },
       onClick: () => props.onChoose(choice.screen),
     }))

@@ -23,6 +23,7 @@ function menu(width: number, onPlay: () => void) {
             caption: 'Choose who plays',
             icon: UsersIcon,
             emphasis: 'primary',
+            badge: 'Recommended',
             dataSet: { testid: 'choice-play' },
             onClick: onPlay,
           },
@@ -31,6 +32,7 @@ function menu(width: number, onPlay: () => void) {
             title: 'History and stats',
             icon: HistoryIcon,
             emphasis: 'quiet',
+            badge: 'Ignored',
             dataSet: { testid: 'choice-history' },
             onClick: () => undefined,
           },
@@ -65,5 +67,24 @@ describe('GameMenuScreen', () => {
     );
     expect(view.getByText('Four in a row wins.')).toBeTruthy();
     view.unmount();
+  });
+
+  // regression: game-menu-primary-emphasis-differs-by-size — wide led with a
+  // tinted card that read as hovered or chosen; a phone row lost the lead.
+  test('the main way in leads alike on every size: its picture on the accent and its tag', () => {
+    for (const width of [1440, 390]) {
+      const view = menu(width, () => undefined);
+      const play = view.getByTestId('choice-play');
+      const history = view.getByTestId('choice-history');
+      expect(play.textContent).toContain('Recommended');
+      expect(history.textContent).not.toContain('Ignored');
+      expect(
+        play.querySelector('[aria-hidden="true"][data-emphasis="primary"]')
+      ).not.toBeNull();
+      expect(
+        history.querySelector('[aria-hidden="true"][data-emphasis="quiet"]')
+      ).not.toBeNull();
+      view.unmount();
+    }
   });
 });

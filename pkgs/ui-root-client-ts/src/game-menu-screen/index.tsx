@@ -2,7 +2,8 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import { Badge } from '../badge/index';
 import type { IconComponent } from '../create-icon/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import {
@@ -23,10 +24,46 @@ export type GameMenuChoice = Pick<
   MainMenuItem,
   'key' | 'title' | 'caption' | 'emphasis' | 'dataSet'
 > & {
-  /** What the choice is, as a picture heading its tile. */
+  /** What the choice is, as a picture heading its tile (or its row). */
   icon: IconComponent;
+  /**
+   * Why the main way in leads, as a short tag (`Recommended`): beside its
+   * picture on a tile, under its title in a row. Only with `emphasis:
+   * 'primary'`.
+   */
+  badge?: JSX.Element | undefined;
   onClick: () => void;
 };
+
+/** A choice's picture in its rounded square: the accent's for the main way in. */
+function ChoiceIcon(props: {
+  choice: GameMenuChoice;
+  size: 'row' | 'tile';
+}): JSX.Element {
+  const Picture = (): JSX.Element => {
+    const Icon = props.choice.icon;
+    return <Icon size={props.size === 'tile' ? 24 : 20} />;
+  };
+  return (
+    <span
+      class={styles['icon']}
+      data-size={props.size}
+      data-emphasis={props.choice.emphasis}
+      aria-hidden="true"
+    >
+      <Picture />
+    </span>
+  );
+}
+
+/** The main way in's tag, only when it leads. */
+function ChoiceBadge(props: { choice: GameMenuChoice }): JSX.Element {
+  return (
+    <Show when={props.choice.emphasis === 'primary' && props.choice.badge}>
+      <Badge intent="neutral" size="sm" label={props.choice.badge} />
+    </Show>
+  );
+}
 
 export type GameMenuScreenProps = {
   /** Stable screen identifier rendered as `data-screen`. */
@@ -46,10 +83,6 @@ export type GameMenuScreenProps = {
 /** A choice as a large tile: its picture, name, what it opens, a chevron. */
 function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
-  const Icon = (): JSX.Element => {
-    const Picture = props.choice.icon;
-    return <Picture size={24} />;
-  };
   return (
     <button
       type="button"
@@ -58,8 +91,9 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
       onClick={() => confirmNavigation(() => props.choice.onClick())}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
-      <span class={styles['icon']} aria-hidden="true">
-        <Icon />
+      <span class={styles['tileTop']}>
+        <ChoiceIcon choice={props.choice} size="tile" />
+        <ChoiceBadge choice={props.choice} />
       </span>
       <span class={styles['words']}>
         <span class={`${styles['title']} text textHeading`}>
@@ -128,11 +162,13 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  * game (puzzles, playing with friends or bots, finding an opponent, its
  * history, its settings). On a wide screen it opens with a hero block (the
  * game's `GameTile` at its largest, its name, what it is and how to play)
- * and lays every choice out as a large tile with its picture, the main way
- * in (`emphasis: 'primary'`) leading in the accent's soft fill and the
- * quiet ones (`'quiet'`) on the plain surface with secondary pictures. On a
- * phone it is a `MainMenuScreen`: the name beside the tile, then one panel
- * of rows. Presentational; the caller opens what each choice names.
+ * and lays every choice out as a large tile with its picture; on a phone it
+ * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
+ * each led by the same picture. Either way the main way in (`emphasis:
+ * 'primary'`) leads the same way: its picture on the accent and its tag
+ * (`badge`, "Recommended"), never a fill, which would read as already
+ * chosen; the quiet ones (`'quiet'`) have secondary pictures.
+ * Presentational; the caller opens what each choice names.
  *
  * @example
  * ```tsx
@@ -149,6 +185,18 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const mode = useLayoutMode();
   const description = createScreenSlot(() => props.description);
+  const rows = createMemo((): MainMenuItem[] =>
+    props.choices.map((choice) => ({
+      key: choice.key,
+      title: choice.title,
+      caption: choice.caption,
+      emphasis: choice.emphasis,
+      dataSet: choice.dataSet,
+      onClick: choice.onClick,
+      leading: <ChoiceIcon choice={choice} size="row" />,
+      meta: choice.emphasis === 'primary' ? choice.badge : undefined,
+    }))
+  );
   return (
     <Show
       when={mode() === 'wide'}
@@ -162,7 +210,7 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
             </GameTitleLockup>
           }
           subtitle={props.subtitle}
-          items={props.choices}
+          items={rows()}
           helper={
             <Show when={description.present()}>{description.content()}</Show>
           }
