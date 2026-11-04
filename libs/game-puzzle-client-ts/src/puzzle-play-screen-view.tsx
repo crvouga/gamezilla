@@ -210,8 +210,8 @@ function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
 /**
  * Puzzle play, presentational: the feed strip, the coach with the status
  * row, the board well, the move list with its review controls and the
- * action row (help, retry or next, and Skip puzzle apart) — beside the
- * board in one panel when wide — for a placed puzzle, a pending pick, or
+ * action row (help, retry or next, then Skip puzzle) — beside the board in
+ * one panel card when wide — for a placed puzzle, a pending pick, or
  * why none can be placed. The board, the feed
  * and the overlays arrive as slots; `PuzzlePlayScreen` wires the room.
  */

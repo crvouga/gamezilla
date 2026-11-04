@@ -71,7 +71,7 @@ function RetryButton(props: {
   );
 }
 
-/** One slot of the plan as its button; Skip is drawn apart, at the end. */
+/** One slot of the plan as its button; Skip is drawn after them. */
 export function PuzzleActionButton(props: {
   slot: Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
   model: PuzzleActionBarModel;
@@ -110,7 +110,7 @@ export function PuzzleActionButton(props: {
   );
 }
 
-/** Leaving this puzzle for the next: a quiet text button, apart from help. */
+/** Leaving this puzzle for the next: a quiet text button after help. */
 export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;

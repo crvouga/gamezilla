@@ -1,4 +1,4 @@
-/* A seat's choices: a labelled pill, so it reads as "Change player"
+/* A seat's choices: a labelled pill, so it reads as "Change"
    rather than an unexplained chevron. */
 .seatToggle {
   display: inline-flex;
@@ -18,32 +18,6 @@
   color: var(--ui-color-text);
   font-weight: var(--ui-font-weight-semibold);
   white-space: nowrap;
-}
-.seatToggleIcon {
-  display: none;
-}
-/* A narrow compact seat row (a phone) folds the toggle to a round edit
-   button and keeps its label for assistive technology, so the holder's
-   name and facts keep the row's room. The row is the `seat-row`
-   container (game-ui.module.css). */
-@container seat-row (max-width: 400px) {
-  .seatToggle {
-    width: 36px;
-    padding-inline: 0;
-  }
-  .seatToggleIcon {
-    display: flex;
-  }
-  .seatToggle .seatToggleChevron {
-    display: none;
-  }
-  .seatToggleLabel {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
 }
 /* A 44px hit area around the 36px button. */
 .seatToggle::after {

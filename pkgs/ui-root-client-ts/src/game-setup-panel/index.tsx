@@ -11,9 +11,9 @@ export type GameSetupPanelProps = {
   actions?: JSX.Element | undefined;
   details?: JSX.Element | undefined;
   /**
-   * What the person brings to the choice (their ratings), in the same card:
-   * a column beside the choices and commands when the game's column is
-   * wide, under them past a hairline when it is not. One card, never two.
+   * What the person brings to the choice (their ratings), in the same card,
+   * under the choices and commands past a hairline. One card, never two,
+   * held to a form's measure beside nothing else (`GameLayout`).
    */
   aside?: JSX.Element | undefined;
   /** Stretch to the foot of its column beside a wide board (`GameSection`). */

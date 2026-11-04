@@ -48,14 +48,28 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
 }
+/* The tile's head row: its picture, and the main way in's tag across. */
+.tileTop {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ui-space-3);
+  align-self: stretch;
+}
 .icon {
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   width: 48px;
   height: 48px;
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface-muted);
   --ui-on-icon: var(--ui-color-text);
+}
+.icon[data-size="row"] {
+  width: 36px;
+  height: 36px;
 }
 .words {
   display: flex;
@@ -80,23 +94,17 @@
   display: flex;
   --ui-on-icon: var(--ui-color-text-secondary);
 }
-/* The main way in leads: the accent's soft fill, its picture on the
-   accent, a tinted chevron. */
-.tile[data-emphasis="primary"] {
-  background: var(--ui-color-tint-subtle);
-  border-color: var(--ui-color-tint-subtle);
-}
-.tile[data-emphasis="primary"] .icon {
+/* The main way in leads by its picture on the accent and its tag, on the
+   plain surface like every other choice: a fill would read as already
+   chosen (or hovered). */
+.icon[data-emphasis="primary"] {
   background: var(--ui-color-tint-active);
   --ui-on-icon: var(--ui-color-on-primary);
-}
-.tile[data-emphasis="primary"] .title {
-  color: var(--ui-color-on-primary-soft);
 }
 .tile[data-emphasis="primary"] .chevron {
   --ui-on-icon: var(--ui-color-tint);
 }
 /* A look back or a setting says less: a secondary picture. */
-.tile[data-emphasis="quiet"] .icon {
+.icon[data-emphasis="quiet"] {
   --ui-on-icon: var(--ui-color-text-secondary);
 }

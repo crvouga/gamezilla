@@ -1,0 +1,4 @@
+{
+  "summary": "Edge coordinates at a quarter of a square, beside pieces filling 88% of theirs, ran into the figures: on a 536px board the h label sat under the h1 rook and c, d and e touched the bishop, queen and king. Labels are now a sixth of a square and pieces fill 84%, so a label's ink never meets a figure's.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/marking-geometry.contract.test.ts"
+}

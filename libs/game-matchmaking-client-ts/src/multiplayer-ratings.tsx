@@ -58,9 +58,29 @@ export function useMultiplayerRatings(
 /**
  * Under the number: how many rated games stand behind it and, while it is
  * provisional, how many of the games that settle it are played
- * (`7 of 12 rated games`), over a bar showing the same.
+ * (`7 of 12 rated games`), over a bar showing the same, and what the "?"
+ * beside the number means, in plain words.
  */
 function RatingGames(props: {
+  readonly rating: MultiplayerRatingView;
+}): JSX.Element {
+  return (
+    <>
+      <RatingGameCount rating={props.rating} />
+      <Show when={isProvisional(props.rating)}>
+        {' · '}
+        <Text
+          variant="inherit"
+          testId={`multiplayer-rating-${props.rating.pool}-settles`}
+        >
+          <Trans>the “?” goes once your rating settles</Trans>
+        </Text>
+      </Show>
+    </>
+  );
+}
+
+function RatingGameCount(props: {
   readonly rating: MultiplayerRatingView;
 }): JSX.Element {
   return (

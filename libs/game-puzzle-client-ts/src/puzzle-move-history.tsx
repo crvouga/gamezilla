@@ -50,7 +50,8 @@ function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
 }
 
 /**
- * Nav buttons, the scrubbable move list, and a horizontal swipe over both.
+ * Nav buttons right beside the scrubbable move list (a puzzle's line is
+ * short), and a horizontal swipe over both.
  * With no moves yet the row stays empty at its full height, so the board
  * above keeps its size when the first move lands.
  */
@@ -60,6 +61,7 @@ export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
   return (
     <MoveStrip
       testId="chess-puzzle-move-history"
+      fit="content"
       pointer={hasPlies() ? swipe : undefined}
       leading={
         <Show when={hasPlies()}>

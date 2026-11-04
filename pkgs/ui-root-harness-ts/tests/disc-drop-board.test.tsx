@@ -111,13 +111,16 @@ test('the board says what to do and marks where the disc would land', () => {
   // No chevrons compete with the numbers and the landing preview.
   expect(board.querySelector('svg')).toBeNull();
   expect(marker(second)).toHaveAttribute('data-disc', '0');
-  // Focusing a column marks it as the dropping side's and puts that side's
-  // mark where its disc would land.
+  // Focusing a column marks it as the dropping side's and previews that
+  // side's disc where it would land.
   fireEvent.focus(second);
   expect(marker(second)).toHaveAttribute('data-disc', '1');
   const landing = board.querySelector('[data-cell="1"]');
   expect(landing).toHaveAttribute('data-preview-disc', '1');
-  expect(landing?.textContent).toBe('●');
+  // regression: connect-four-preview-looks-placed — the preview carried the
+  // played disc's centre mark, so it read as a disc already dropped.
+  expect(landing?.textContent).toBe('');
+  expect(board.querySelector('[data-cell="0"]')?.textContent).toBe('●');
   // A board that takes no drop has no prompt to read, but keeps the
   // element so the board never changes shape.
   view.setInteractive(false);

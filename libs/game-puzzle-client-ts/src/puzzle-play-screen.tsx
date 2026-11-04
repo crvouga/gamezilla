@@ -1,7 +1,10 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { t } from '@lingui/core/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
@@ -104,6 +107,7 @@ function PuzzlePlayerChrome(props: {
   const [config] = usePuzzleFeedConfig();
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
   const presentation = useGamePresentation();
+  const choices = useGameChoicesName();
   /** The solver's side as the game names it, once a position is shown. */
   const solverSide = (): string | null => {
     const position = p.boardPosition();
@@ -113,7 +117,7 @@ function PuzzlePlayerChrome(props: {
   };
   return (
     <>
-      <DefineBackButton onPress={p.backToRoot} />
+      <DefineBackButton onPress={p.backToRoot} label={choices()} />
       <PuzzlePlayScreenView
         pick="playing"
         statusKind={p.statusKind()}
@@ -239,6 +243,7 @@ function PuzzlePlayShell(props: {
 }): JSX.Element {
   const [config] = usePuzzleFeedConfig();
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
+  const choices = useGameChoicesName();
   const denial = useDeniedView({
     get decision() {
       return props.startDenial();
@@ -248,7 +253,7 @@ function PuzzlePlayShell(props: {
   const pick = (): PuzzlePlayPick => props.pickState();
   return (
     <>
-      <DefineBackButton onPress={props.backToRoot} />
+      <DefineBackButton onPress={props.backToRoot} label={choices()} />
       <PuzzlePlayScreenView
         pick={pick()}
         statusKind={props.pickState()}

@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four's landing preview drew the dropping side's ring with the same centre mark as a played disc, so the column pointed at looked like it already held that disc. The preview is now a see-through, dashed disc with no mark, and a visible line under the columns says what to do on the viewer's move.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

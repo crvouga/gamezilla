@@ -38,7 +38,7 @@ export function ConnectFourBoard(props: {
         game().result !== 0
           ? undefined
           : props.interactive
-            ? t`Choose a column`
+            ? t`Pick a column to drop your disc`
             : ''
       }
       cellLabel={(column, row, disc) => {

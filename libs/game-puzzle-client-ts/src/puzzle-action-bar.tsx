@@ -13,10 +13,10 @@ export type PuzzleActionBarProps = PuzzleActionBarModel;
 type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
 
 /**
- * What is done about the puzzle, in one row: help, retrying or moving on at
- * its start, and skipping the puzzle — a different kind of choice — as a
- * quiet text button at its far end. Moving through the line is the move
- * list's own row.
+ * What is done about the puzzle, in one group: help, retrying or moving on,
+ * then skipping the puzzle — a different kind of choice — as a quiet text
+ * button right beside them, never stranded at the row's far end. Moving
+ * through the line is the move list's own row.
  */
 export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
   const slots = createMemo(() =>
@@ -34,18 +34,10 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         slot.id === 'skip'
     );
   return (
-    <StackHorizontal
-      gap="sm"
-      align="center"
-      justify="between"
-      wrap
-      paddingX="md"
-    >
-      <StackHorizontal gap="sm" align="center" wrap>
-        <For each={actions()}>
-          {(slot) => <PuzzleActionButton slot={slot} model={props} />}
-        </For>
-      </StackHorizontal>
+    <StackHorizontal gap="sm" align="center" wrap paddingX="md">
+      <For each={actions()}>
+        {(slot) => <PuzzleActionButton slot={slot} model={props} />}
+      </For>
       <Show when={skip()}>
         {(slot) => (
           <PuzzleSkipButton disabled={slot().disabled} onSkip={props.onSkip} />

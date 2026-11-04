@@ -1,0 +1,4 @@
+{
+  "summary": "A game's menu led with its main choice differently by size: wide, a tinted card that reviewers read as a hovered or already chosen tile; on a phone, a row that looked like every other. Both sizes now give the main choice its picture on the accent and a Recommended tag, with no fill.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}
