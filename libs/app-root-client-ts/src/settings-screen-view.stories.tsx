@@ -24,7 +24,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Defaults: online, system appearance, sound on, monitor off, no billing. */
+/**
+ * Defaults: online, system appearance, sound on, monitor off, no billing.
+ * Everyday groups lead; diagnostics close the page under Troubleshooting.
+ */
 export const Default: Story = {};
 
 /** Billing is offered when the person may view it. */
@@ -35,7 +38,7 @@ export const PreferencesChanged: Story = {
   args: { theme: 'dark', muted: true, perfEnabled: true, offline: true },
 };
 
-/** Sections the composed subs contribute follow the shell's own groups. */
+/** Sections the composed subs contribute follow the everyday groups. */
 export const WithSubSettings: Story = {
   render: (args) => (
     <SettingsScreenView
