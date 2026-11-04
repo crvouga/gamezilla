@@ -67,7 +67,7 @@ export function useConnectionExplanation(): (cause: ConnectionCause) => string {
     if (cause === 'checking')
       return t`Checking whether ${productName} can be reached.`;
     if (cause === 'workingOffline')
-      return t`You chose to work offline. Turn off Work offline in Settings to share what you do.`;
+      return t`You chose to work offline. Turn off Offline mode in Settings to share what you do.`;
     if (cause === 'deviceOffline')
       return t`This device has no internet connection. Check Wi-Fi or mobile data. The app keeps trying on its own.`;
     return t`This device is online, but ${productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own.`;

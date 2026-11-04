@@ -54,9 +54,9 @@ export const Searching: Story = {
 
 /**
  * People whose username starts with the query, in one panel: each face, and
- * what follows the typed "jor" emphasised so similar handles read apart
+ * the typed "jor" emphasised where it matched in each handle
  * (a profile not yet on this device shows its initials). Each row ends in
- * one control on one shared edge: a Friends tag, Cancel for a request that
+ * one control on one shared edge: a Friends tag, Cancel request for one that
  * is out (a Request sent tag under the name), or Add friend. The panel sits
  * on the search field's inset.
  */

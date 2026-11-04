@@ -206,9 +206,13 @@ When('{actor} opens account settings', async (w, actor: Actor) => {
 Then(
   '{actor} is offered personal-data export and account deletion there',
   async (w, actor: Actor) => {
-    const text = await w.s.read(privacyText, actor, 'account-privacy');
-    expect(text).toContain('export');
-    expect(text).toContain('delete');
+    // Export is the data entry; deletion is its own row in the danger zone.
+    expect(await w.s.read(privacyText, actor, 'account-privacy')).toContain(
+      'export'
+    );
+    expect(await w.s.read(privacyText, actor, 'account-delete')).toContain(
+      'Delete account'
+    );
   }
 );
 Then(

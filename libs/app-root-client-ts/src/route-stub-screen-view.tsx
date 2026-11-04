@@ -52,7 +52,9 @@ export function RouteStubScreenView(
   };
   return (
     <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
+      {/* On the page title's edge, so the title and the state line up. */}
       <EmptyState
+        align="start"
         icon={props.notFound === true ? CompassIcon : InfoIcon}
         title={
           props.notFound === true ? (

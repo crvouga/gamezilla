@@ -36,6 +36,7 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
       signingOutEverywhere={everywhere.confirming()}
       onOpenDevices={openDevices}
       onOpenPrivacy={() => router.push('/profile/privacy')}
+      onOpenDeletion={() => router.push('/profile/privacy')}
       onSignIn={() => signIn.open()}
       onSignOut={() => signOut.open()}
       onConnectMethod={methods.connect}

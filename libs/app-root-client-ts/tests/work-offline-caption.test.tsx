@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-/** What the Settings Work offline row tells a person about playing with others. */
+/** What the Settings Offline mode row tells a person about playing with others. */
 
 import { afterEach, expect, test } from 'bun:test';
 import { SettingsScreenView } from '@libs/app-root-client-ts/settings-screen-view';
@@ -23,17 +23,18 @@ function mountSettings(offline: boolean): void {
 }
 
 // regression: work-offline-silent-on-multiplayer
-test('online, the row says turning it on pauses games with others', () => {
+test('online, the row says turning it on pauses multiplayer', () => {
   mountSettings(false);
-  expect(
-    screen.getByText('Online — turn on to pause syncing and games with others')
-  ).toBeTruthy();
+  expect(screen.getByText('Offline mode')).toBeTruthy();
+  expect(screen.getByText('Pause syncing and multiplayer')).toBeTruthy();
+  const toggle = screen.getByRole('switch', { name: 'Offline mode' });
+  expect(toggle.getAttribute('aria-checked')).toBe('false');
 });
 
 // regression: work-offline-silent-on-multiplayer
-test('offline, the row says turning it off plays with others again', () => {
+test('offline, the row says multiplayer is paused', () => {
   mountSettings(true);
-  expect(
-    screen.getByText('Offline — turn off to sync and play with others again')
-  ).toBeTruthy();
+  expect(screen.getByText('Syncing and multiplayer are paused')).toBeTruthy();
+  const toggle = screen.getByRole('switch', { name: 'Offline mode' });
+  expect(toggle.getAttribute('aria-checked')).toBe('true');
 });

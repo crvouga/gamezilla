@@ -113,7 +113,8 @@ export function FriendRequestSentTag(): JSX.Element {
 }
 
 /**
- * A request is out. At a row's end, cancelling is the row's one control: the
+ * A request is out. At a row's end, "Cancel request" is the row's one
+ * control (said in full, so it never reads as dismissing the screen): the
  * same small outlined pill as Add friend, so every row's control ends on one
  * edge (the row says "Request sent" under the name). On a profile, the
  * status sits over the outlined "Cancel request".
@@ -130,7 +131,7 @@ function renderPendingOutgoing(
     <SingleActionPill
       compact={compact}
       operation={wrap(mutations.cancelRequest)}
-      idle={compact ? <Trans>Cancel</Trans> : <Trans>Cancel request</Trans>}
+      idle={<Trans>Cancel request</Trans>}
       loading={t`Cancelling…`}
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
