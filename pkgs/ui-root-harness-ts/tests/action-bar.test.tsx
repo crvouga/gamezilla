@@ -235,6 +235,7 @@ describe('ActionBar in a box too narrow for its actions', () => {
     }
   );
 
+  // regression: ui-title-truncated-beside-collapsed-actions
   test('the bar asks for its full row but gives it up down to the More trigger', () => {
     layOutBarsAt(60);
     renderUi(() => <SpaceLikeBar renderMenu={() => null} />, { width: 320 });
@@ -243,7 +244,8 @@ describe('ActionBar in a box too narrow for its actions', () => {
     expect(css).toContain('width:148px');
     expect(css).toContain('max-width:100%');
     expect(css).toContain('min-width:44px');
-    expect(css).toContain('flex-shrink:1000');
+    // Decisive: a title beside it loses less than a layout unit.
+    expect(css).toContain('flex-shrink:1000000');
   });
 
   test('a box with room for everything shows every action inline', () => {

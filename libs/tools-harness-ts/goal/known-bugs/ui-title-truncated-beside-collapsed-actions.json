@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the space's top bar cut its title to \"Friday gam…\" while half the bar was empty: the title had a fixed 96px basis and the action bar kept room it no longer drew after collapsing into More. Fixed in TopBar (the title's basis is its own width) and ActionBar (it gives up room decisively first, so a title never loses the fraction of a pixel that wraps its last word).",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/action-bar.test.tsx"
+}
