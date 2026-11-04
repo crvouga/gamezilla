@@ -1,0 +1,4 @@
+{
+  "summary": "On the person's turn the column about to take their disc was marked only by a small coloured chevron and a ghost in its landing hole, which read weakly against the board. The column pointed at or focused now lights up down its whole height and holds the person's disc above it, in their colour and mark, where its chevron was.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}
