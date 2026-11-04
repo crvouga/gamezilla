@@ -12,6 +12,14 @@ import { AvatarFace } from '../avatar-face/index';
 import type { IconComponent } from '../create-icon/index';
 import { UserIcon } from '../icons';
 import { useThemeTokens } from '../theme-context/index';
+import { type AvatarTone, avatarTone } from './avatar-identity';
+
+export {
+  AVATAR_TONES,
+  type AvatarTone,
+  avatarInitials,
+  avatarTone,
+} from './avatar-identity';
 
 /** The named avatar diameters, on the 4px grid. */
 export const AVATAR_SIZES = {
@@ -99,8 +107,15 @@ export type AvatarProps = {
    * (and has a name without one); a person without `alt` is decorative.
    */
   alt?: string | undefined;
-  /** 1–2 character text fallback (truncated to 2 chars). */
+  /** 1–2 character text fallback (truncated to 2 chars); see `avatarInitials`. */
   initials?: string | undefined;
+  /**
+   * Stable identity (a profile id or handle) that tints an initials face
+   * with one of the `AVATAR_TONES`, so different people read apart at a
+   * glance. The same key always gives the same tone. Ignored for `you`,
+   * an explicit `background`, and faces that are not initials.
+   */
+  tintKey?: string | undefined;
   /** Icon glyph for a plate that is not a person (a game, a device). */
   icon?: IconComponent | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -109,6 +124,19 @@ export type AvatarProps = {
 
 function isNonEmpty(value: string | null | undefined): value is string {
   return typeof value === 'string' && value.length > 0;
+}
+
+/** Whether the face is initials that its `tintKey` should tint. */
+function tintedInitials(props: AvatarProps, kind: AvatarKind): boolean {
+  return (
+    isNonEmpty(props.tintKey) &&
+    isNonEmpty(props.initials) &&
+    props.you !== true &&
+    props.background === undefined &&
+    (kind === 'person' || kind === 'guest') &&
+    !isNonEmpty(props.svg) &&
+    !isNonEmpty(props.uri)
+  );
 }
 
 /** The ring: the seat color, the empty seat's dashes, or the hairline. */
@@ -172,6 +200,10 @@ function GuestMark(props: { size: number }): JSX.Element {
  * `Guest`, `Open seat`, or `alt` with the kind added); a person is named by
  * `alt` and is decorative without it.
  *
+ * `tintKey` gives an initials face one of the soft `AVATAR_TONES`, picked
+ * from a stable identity, so a list of people without pictures does not read
+ * as one repeated face. Pair it with `avatarInitials(name)`.
+ *
  * `you` marks the person's own face: the `tintSubtle` plate with initials
  * (or the placeholder) in `onPrimarySoft`. `seatColor` draws the seat's
  * player color (`player1`..`player8`) as the ring, when a game supplies one.
@@ -187,6 +219,7 @@ function GuestMark(props: { size: number }): JSX.Element {
  * ```tsx
  * <Avatar uri={photo} alt="Jane" size="md" />
  * <Avatar initials="JD" you />
+ * <Avatar initials={avatarInitials('jordan_plays')} tintKey={userId} />
  * <Avatar kind="bot" alt="Stockfish" seatColor="player2" />
  * <Avatar kind="guest" />
  * <Avatar kind="emptySeat" />
@@ -203,11 +236,15 @@ export function Avatar(props: AvatarProps): JSX.Element {
     !isNonEmpty(props.uri) &&
     !isNonEmpty(props.initials) &&
     props.icon === undefined;
+  const tone = createMemo((): AvatarTone | undefined =>
+    tintedInitials(props, kind()) ? avatarTone(props.tintKey ?? '') : undefined
+  );
   const background = (): string =>
-    props.background ?? (props.you === true ? YOUR_PLATE : QUIET_PLATE);
+    props.background ??
+    (props.you === true ? YOUR_PLATE : (tone()?.plate ?? QUIET_PLATE));
   const ink = (): string | undefined =>
     props.foreground ??
-    (props.you === true ? YOUR_INK : kind() === 'bot' ? BOT_INK : undefined);
+    (props.you === true ? YOUR_INK : kind() === 'bot' ? BOT_INK : tone()?.ink);
   const foreground = createMemo((): string => {
     const chosen = ink();
     if (chosen !== undefined) {
@@ -223,6 +260,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
       data-seat-color={props.seatColor}
+      data-tone={tone()?.plate}
       data-placeholder={isPlaceholder() ? 'true' : undefined}
       role={name() === undefined ? undefined : 'img'}
       aria-label={name()}
