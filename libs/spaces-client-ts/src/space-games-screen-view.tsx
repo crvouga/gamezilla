@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
@@ -12,6 +12,8 @@ export type SpaceGameOption = {
   readonly id: string;
   readonly title: JSX.Element | string;
   readonly caption?: JSX.Element | string | undefined;
+  /** How many play one game; shown beside the title (`2 players`, `Solo`). */
+  readonly players?: number | undefined;
   /** The game's picture beside its title (a `GameTile`). */
   readonly Tile: (props: { readonly size?: 'md' | 'lg' }) => JSX.Element;
 };
@@ -40,12 +42,24 @@ function HostChoosesNotice(): JSX.Element {
   );
 }
 
+/** A game's player count as the tag beside its title. */
+function PlayersTag(props: { readonly count: number }): JSX.Element {
+  return (
+    <Show when={props.count > 1} fallback={<Trans>Solo</Trans>}>
+      <Plural value={props.count} one="# player" other="# players" />
+    </Show>
+  );
+}
+
 function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
   const items = createMemo((): MainMenuItem[] =>
     props.games.map((game) => ({
       key: game.id,
       title: game.title,
       ...(game.caption !== undefined ? { caption: game.caption } : {}),
+      ...(game.players !== undefined
+        ? { meta: <PlayersTag count={game.players} /> }
+        : {}),
       leading: <game.Tile />,
       dataSet: { testid: `game-menu-${game.id}` },
       selected: props.shownGame === game.id,

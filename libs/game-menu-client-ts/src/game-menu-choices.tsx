@@ -131,11 +131,9 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.customGames,
-            title: () => <Trans>Custom games</Trans>,
+            title: () => <Trans>Play with friends or bots</Trans>,
             caption: () => (
-              <Trans>
-                Choose people or bots for each of the {playerCount} places
-              </Trans>
+              <Trans>Choose who plays each of the {playerCount} places</Trans>
             ),
           },
         ]

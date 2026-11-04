@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
+import { Badge } from '../badge/index';
 import { ChevronRightIcon, CircleCheckIcon } from '../icons';
 import { useConfirmNavigation } from '../pending-navigation';
 
@@ -11,6 +12,11 @@ export type MainMenuItem = {
   key: string;
   title: JSX.Element | string;
   caption?: JSX.Element | string | undefined;
+  /**
+   * One short fact beside the title, as a small neutral tag (`2 players`).
+   * Rows of one menu give it all or none, so it reads as a column.
+   */
+  meta?: JSX.Element | string | undefined;
   /** Before the title: a `GameTile` or an icon that says what the row is. */
   leading?: JSX.Element | undefined;
   /** Overrides the default trailing affordance (chevron / selection check). */
@@ -72,9 +78,14 @@ function ItemBody(props: {
           so it starts past a leading picture. */}
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
-          <p class="text textLabel line-clamp-1 max-w-full">
-            {props.item.title}
-          </p>
+          <div class="box flex-row items-center gap-2 min-w-0 max-w-full">
+            <p class="text textLabel line-clamp-1 min-w-0">
+              {props.item.title}
+            </p>
+            <Show when={props.item.meta}>
+              <Badge intent="neutral" size="sm" label={props.item.meta} />
+            </Show>
+          </div>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
             <p class="text textCaption line-clamp-2 max-w-full">
               {props.item.caption}
@@ -98,7 +109,8 @@ function ItemBody(props: {
 
 /**
  * One row of `MainMenuScreen`: an optional leading picture (`leading`),
- * title, optional caption, and a trailing
+ * title with an optional short fact beside it (`meta`), optional caption,
+ * and a trailing
  * chevron / selection check. Same anatomy as `MenuRow` (16px insets, 20px
  * secondary chevron, 150ms hover / press tint, focus ring inside the panel),
  * a little taller and with a `textLabel` title because each row is a
