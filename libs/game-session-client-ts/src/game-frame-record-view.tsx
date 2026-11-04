@@ -32,7 +32,14 @@ export type FrameReviewHandlers = {
   readonly onOpenHistory: () => void;
 };
 
-type RecordProps = FrameReviewHandlers & { readonly record: FrameRecord };
+type RecordProps = FrameReviewHandlers & {
+  readonly record: FrameRecord;
+  /**
+   * The game's commands, beside a wide board: they close the record's
+   * panel, on one row with "History and stats".
+   */
+  readonly commands?: JSX.Element | undefined;
+};
 
 const STEP_SIZE = 32;
 
@@ -219,27 +226,48 @@ function RecordSelect(props: RecordProps): JSX.Element {
 }
 
 /** Leaving for the space's history: an outline at its own width, never a filled bar. */
-function RecordHistory(props: RecordProps): JSX.Element {
+function HistoryButton(props: RecordProps): JSX.Element {
   return (
     <Show when={props.record.history}>
-      <GameActions>
-        <Button
-          title={<Trans>History and stats</Trans>}
-          variant="outline"
-          intent="neutral"
-          onClick={() => props.onOpenHistory()}
-          dataSet={{ testid: 'custom-game-history-stats' }}
-        />
-      </GameActions>
+      <Button
+        title={<Trans>History and stats</Trans>}
+        variant="outline"
+        intent="neutral"
+        onClick={() => props.onOpenHistory()}
+        dataSet={{ testid: 'custom-game-history-stats' }}
+      />
     </Show>
   );
 }
 
+/** "History and stats" in a row of its own, behind the phone's disclosure. */
+function RecordHistory(props: RecordProps): JSX.Element {
+  return (
+    <GameActions>
+      <HistoryButton {...props} />
+    </GameActions>
+  );
+}
+
 /**
- * The record beside a wide board: the moves as a table of turns, the steps
- * under it, a quiet disclosure to jump by number, then earlier games and
- * the space's history. A game played by turns lists its moves only once
- * there are any.
+ * The panel's last row: "History and stats", then the game's own commands
+ * (offer a draw, what next), resigning last and quietest; one wrapping row.
+ */
+function RecordFooter(props: RecordProps): JSX.Element {
+  return (
+    <GameActions>
+      <HistoryButton {...props} />
+      {props.commands}
+    </GameActions>
+  );
+}
+
+/**
+ * The record beside a wide board, as tall as what it holds: the moves as a
+ * table of turns, the steps right under them, a quiet disclosure to jump
+ * by number, then earlier games; its last row holds the game's commands
+ * and the space's history. A game played by turns lists its moves only
+ * once there are any.
  */
 function RecordPanel(props: RecordProps): JSX.Element {
   const played = (): boolean =>
@@ -247,8 +275,8 @@ function RecordPanel(props: RecordProps): JSX.Element {
   return (
     <GameSection
       title={<Trans>Game record</Trans>}
-      fill
       dataSet={{ component: 'CustomGameReview' }}
+      footer={<RecordFooter {...props} />}
     >
       <RecordSelect {...props} />
       <Show when={played()}>
@@ -265,7 +293,6 @@ function RecordPanel(props: RecordProps): JSX.Element {
           <ReviewJumpField {...props} />
         </GameDisclosure>
       </Show>
-      <RecordHistory {...props} />
       <FrameErrorView text={props.record.error} />
     </GameSection>
   );

@@ -143,26 +143,25 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
 /**
- * Label size in board units (100 per square): under a fifth of a square,
- * small enough to sit wholly in the corner a piece's figure (88% of its
- * square, centred) never reaches, so a rank-1 or a-file label reads as the
- * square's coordinate, never as a mark under the piece. A phone-wide board
- * (a 44px square) still sets it near 8px. The insets below keep the 24-unit
- * label's proportions (in ems), so a glyph's overhang and descent still
- * stay inside the square on every platform.
+ * Label size in board units (100 per square): about a quarter of a square,
+ * so a phone-wide board (a 44px square) still sets it near 11px in bold,
+ * hugging the square's outer corner beside a piece's figure (88% of its
+ * square, centred). The insets keep a glyph's overhang and descent inside
+ * the square on every platform.
  */
-const LABEL_SIZE = '18';
+const LABEL_SIZE = '24';
 /** A file label's right edge, in from its square's right side. */
-const LABEL_INSET = 7;
+const LABEL_INSET = 9;
 /** A file label's baseline above the board's bottom, room left for descenders. */
-const FILE_BASELINE_INSET = 10;
+const FILE_BASELINE_INSET = 13;
 /** A rank label's left edge and baseline within its square. */
-const RANK_INSET = 4;
-const RANK_BASELINE = 22;
+const RANK_INSET = 5;
+const RANK_BASELINE = 26;
 
 /**
- * Edge labels inside the corner squares, chess.com-style: each label takes
- * the *other* square color so it reads on both.
+ * Edge labels inside the corner squares, chess.com-style: on a light square
+ * the board's deeper border walnut (stronger than the dark square's own
+ * colour), on a dark square the light square's cream, so each reads.
  */
 function Coordinates(props: {
   readonly orientation: BoardOrientation;
@@ -172,7 +171,9 @@ function Coordinates(props: {
   const ranks = () => (white() ? [...RANKS].reverse() : [...RANKS]);
   // Display cell (col, row) is light when col + row is even.
   const ink = (col: number, row: number) =>
-    (col + row) % 2 === 0 ? 'var(--chess-sq-dark)' : 'var(--chess-sq-light)';
+    (col + row) % 2 === 0
+      ? 'var(--chess-border, var(--chess-sq-dark))'
+      : 'var(--chess-sq-light)';
   return (
     <svg
       class={`${styles['layer']} ${styles['svgLayer']} ${styles['coords']}`}

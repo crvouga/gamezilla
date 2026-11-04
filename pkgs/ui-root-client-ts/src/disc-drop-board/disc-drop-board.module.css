@@ -68,9 +68,9 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
-/* The column pointed at or focused while the board takes a drop: a light
-   wash down its whole height, under its cells, so the target reads at a
-   glance against the board. */
+/* The column pointed at or focused while the board takes a drop: one
+   quiet wash down its whole height, under its cells. It is the column's
+   only mark; the disc waiting in its landing cell is the other signal. */
 .column {
   position: relative;
   isolation: isolate;
@@ -81,12 +81,12 @@
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: var(--ui-color-tint);
+  background: var(--ui-color-text);
   opacity: 0;
   transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
 }
 .column[data-previewed="true"]::before {
-  opacity: 0.16;
+  opacity: 0.08;
 }
 .column[data-full="true"] {
   opacity: var(--ui-opacity-muted);
@@ -95,64 +95,29 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
 }
-/* What happens now, in one line across the columns; it keeps its height
-   while empty so the board never moves when the turn changes. */
+/* What to do now, for assistive technology: the seat's turn pill says it
+   on screen. */
 .prompt {
-  grid-column: 1 / -1;
-  min-height: var(--ui-space-5);
+  position: absolute;
+  width: 1px;
+  height: 1px;
   margin: 0;
-  padding-block: var(--ui-space-1) 0;
-  color: var(--ui-color-text);
-  text-align: center;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-/* Where a column's disc is let go: its number, then a chevron over an
-   open column, in the dropping side's color over the one pointed at;
-   empty, the chevron's band keeps its height. */
+/* A column's number, quiet; the column pointed at reads it in full ink. */
 .drop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  --ui-on-icon: var(--ui-color-text-secondary);
+  padding-block: var(--ui-space-1) var(--ui-space-hairline);
 }
 .number {
   color: var(--ui-color-text-secondary);
   font-variant-numeric: tabular-nums;
-}
-.chevron {
-  display: grid;
-  place-items: center;
-  min-height: var(--ui-space-6);
-}
-/* The disc held over the chosen column, in the dropping side's colour and
-   mark. */
-.ghost {
-  display: grid;
-  place-items: center;
-  width: var(--ui-space-6);
-  height: var(--ui-space-6);
-  border-radius: 50%;
-  font-size: var(--ui-font-size-xs);
-  line-height: 1;
-}
-.ghost[data-disc="1"] {
-  background: var(--ui-color-destructive);
-  color: var(--ui-color-on-destructive);
-}
-.ghost[data-disc="1"]::after {
-  content: "●";
-}
-.ghost[data-disc="2"] {
-  background: var(--ui-color-warning);
-  color: var(--ui-color-background);
-}
-.ghost[data-disc="2"]::after {
-  content: "◆";
-}
-.drop[data-disc="1"] {
-  --ui-on-icon: var(--ui-color-destructive);
-}
-.drop[data-disc="2"] {
-  --ui-on-icon: var(--ui-color-warning);
+  transition: color var(--ui-duration-fast) var(--ui-easing-standard);
 }
 .drop[data-disc="1"] .number,
 .drop[data-disc="2"] .number {
@@ -164,7 +129,6 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--ui-color-background);
-  border: 2px solid var(--ui-color-surface);
   overflow: visible;
 }
 .disc {
@@ -175,6 +139,7 @@
   border-radius: 50%;
   font-size: var(--ui-font-size-xl);
   line-height: 1;
+  transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
 .cell[data-disc="1"] .disc {
   background: var(--ui-color-destructive);
@@ -184,29 +149,31 @@
   background: var(--ui-color-warning);
   color: var(--ui-color-background);
 }
-.cell[data-preview="true"] {
-  outline: 2px dashed var(--ui-color-tint);
-  outline-offset: -3px;
-}
-/* The ghost of the disc about to drop, where it would land. */
-.cell[data-preview-disc="1"] .disc,
-.cell[data-preview-disc="2"] .disc {
-  opacity: 0.55;
-}
+/* Where the disc would land: the dropping side's ring and mark in an empty
+   hole, unmistakably not a disc already played. */
 .cell[data-preview-disc="1"] .disc {
-  background: var(--ui-color-destructive);
-  color: var(--ui-color-on-destructive);
+  box-shadow: inset 0 0 0 3px var(--ui-color-destructive);
+  color: var(--ui-color-destructive);
 }
 .cell[data-preview-disc="2"] .disc {
-  background: var(--ui-color-warning);
-  color: var(--ui-color-background);
+  box-shadow: inset 0 0 0 3px var(--ui-color-warning);
+  color: var(--ui-color-warning);
+}
+/* Four connected: the rest of the board steps back, and the four keep
+   their full colour inside a ring in the board's ink. */
+.board[data-won="true"]
+  .cell[data-disc]:not([data-disc="0"]):not([data-winning="true"])
+  .disc {
+  opacity: var(--ui-opacity-muted);
 }
 .cell[data-winning="true"] {
-  outline: 3px solid var(--ui-color-tint);
-  outline-offset: 1px;
+  outline: 3px solid var(--ui-color-text);
+  outline-offset: 2px;
 }
+/* The last disc played falls the column's height under gravity: slow at
+   the top, fastest as it lands. */
 .cell[data-last="true"] .disc {
-  animation: disc-drop var(--ui-duration-normal) var(--ui-easing-standard);
+  animation: disc-drop var(--ui-duration-slow) linear;
 }
 .hidden {
   position: absolute;
@@ -221,6 +188,15 @@
   from {
     transform: translateY(var(--disc-distance));
   }
+  25% {
+    transform: translateY(calc(var(--disc-distance) * 0.9375));
+  }
+  50% {
+    transform: translateY(calc(var(--disc-distance) * 0.75));
+  }
+  75% {
+    transform: translateY(calc(var(--disc-distance) * 0.4375));
+  }
   to {
     transform: translateY(0);
   }
@@ -229,7 +205,9 @@
   .cell[data-last="true"] .disc {
     animation: none;
   }
-  .column::before {
+  .column::before,
+  .number,
+  .disc {
     transition: none;
   }
 }

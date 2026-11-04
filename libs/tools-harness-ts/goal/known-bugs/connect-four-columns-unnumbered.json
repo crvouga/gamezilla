@@ -1,4 +1,4 @@
 {
-  "summary": "The Connect Four record writes each move as its column number (4, 6), but the board showed no column numbers, so a move in the record could not be found on the board. Fixed by numbering every column of the disc-drop board, the drop chevron under the number on the person's turn.",
+  "summary": "The Connect Four record writes each move as its column number (4, 6), but the board showed no column numbers, so a move in the record could not be found on the board. Fixed by numbering every column of the disc-drop board.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
 }

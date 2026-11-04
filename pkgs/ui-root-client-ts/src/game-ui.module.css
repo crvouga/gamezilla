@@ -8,8 +8,9 @@
 .layout {
   /* A board's width: the stage column, and the seats around the board. */
   --game-board-measure: 560px;
-  /* The rail beside the board on wide screens. */
-  --game-rail-measure: 360px;
+  /* The rail beside the board on wide screens: with the board and the gap
+     between them, the 960px content width of a wide screen. */
+  --game-rail-measure: 376px;
   /* The game's own chrome a wide board leaves room for in the window. */
   --game-board-chrome-block: 284px;
 }
@@ -26,7 +27,8 @@
   max-width: var(--ui-max-width-prose);
 }
 .column:has(.layout[data-has-stage="true"][data-has-aside="true"]),
-.column:has(.layout[data-has-stage="true"][data-has-setup="true"]) {
+.column:has(.layout[data-has-stage="true"][data-has-setup="true"]),
+.column:has([data-setup-split="true"]) {
   max-width: calc(
     var(--game-board-measure) +
     var(--ui-space-6) +
@@ -153,46 +155,12 @@
   color: var(--ui-color-on-primary);
   white-space: nowrap;
 }
-/* A seat's choices: a labelled pill, so it reads as "Change player"
-   rather than an unexplained chevron. */
-.seatToggle {
-  display: inline-flex;
-  flex-direction: row;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ui-space-1);
-  height: 36px;
-  padding-inline: var(--ui-space-3) var(--ui-space-2);
-  border: 1px solid var(--ui-color-border);
-  color: var(--ui-color-text);
-  position: relative;
-  white-space: nowrap;
-}
-.seatToggleLabel {
-  color: var(--ui-color-text);
-  font-weight: var(--ui-font-weight-semibold);
-  white-space: nowrap;
-}
-/* A 44px hit area around the 36px button. */
-.seatToggle::after {
-  content: "";
-  position: absolute;
-  inset: calc(var(--ui-space-1) * -1);
-}
-.seatToggle:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-}
-.seatOptions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-3);
-  padding: var(--ui-space-2) 0 var(--ui-space-3);
-  border-top: 1px solid var(--ui-color-border);
-}
 .player[data-density="compact"] {
   gap: var(--ui-space-2);
+}
+/* A compact seat row measures itself for its toggle (seat-options.module.css). */
+.player[data-density="compact"] .playerRow {
+  container: seat-row / inline-size;
 }
 .playerRow {
   display: flex;
@@ -442,17 +410,22 @@
     grid-column: 1;
     grid-row: 1 / -1;
   }
-  /* While the game is set up the setup is the main column and the board a
-     modest preview beside it, at its top. */
+  /* While the game is set up the setup is the main column, running the
+     grid's height, and the board preview takes a column of its own beside
+     it: the board at a size worth looking at, its label, and then what
+     starts the game (the controls), so Start sits under the board it
+     starts on. */
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"] {
-    --game-board-preview-measure: 256px;
+    --game-board-preview-measure: 336px;
     grid-template-columns:
       minmax(0, 1fr)
       var(--game-board-preview-measure);
+    grid-template-rows: auto 1fr;
   }
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
     > .stage {
     grid-column: 2;
+    grid-row: 1;
     max-width: var(--game-board-preview-measure);
   }
   /* In document order, each in the next free row of the rail. */
@@ -463,8 +436,14 @@
     grid-column: 2;
   }
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
-    > :is(.setup, .controls, .rail) {
+    > :is(.setup, .rail) {
     grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > .controls {
+    grid-column: 2;
+    grid-row: 2;
   }
   /* The rail ends where the board does: the last of its slots (the record,
      the ratings) runs from its own row to the foot of the grid, so the two

@@ -1,0 +1,4 @@
+.statProgress {
+  max-width: 240px;
+  padding-block: var(--ui-space-1);
+}

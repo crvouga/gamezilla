@@ -12,7 +12,7 @@ function rowBody(title: string): HTMLElement {
 }
 
 describe('MainMenuItemRow emphasis', () => {
-  test('the primary row wears the soft accent fill; a quiet one keeps its title ink and says less', () => {
+  test('the primary row leads with a tinted chevron, never a fill; a quiet one keeps its title ink and says less', () => {
     renderUi(() => (
       <>
         <MainMenuItemRow
@@ -37,7 +37,14 @@ describe('MainMenuItemRow emphasis', () => {
         />
       </>
     ));
-    expect(rowBody('Play with friends').className).toContain('bg-tint-subtle');
+    // regression: menu-primary-row-reads-selected
+    // A fill on the main way in read as a row already chosen.
+    expect(rowBody('Play with friends').className).not.toContain(
+      'bg-tint-subtle'
+    );
+    expect(screen.getByText('Play with friends').className).not.toContain(
+      'text-on-primary-soft'
+    );
     expect(rowBody('Play with friends').dataset['emphasis']).toBe('primary');
     expect(rowBody('History').className).not.toContain('bg-tint-subtle');
     // regression: quiet-menu-row-reads-disabled

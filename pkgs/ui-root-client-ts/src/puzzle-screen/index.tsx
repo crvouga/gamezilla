@@ -2,11 +2,18 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { useScreenFocus } from '../screen-focus/index';
+import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
 
 export type PuzzleScreenProps = {
   screenId: string;
+  /**
+   * The screen's title, as every game screen opens (`ScreenIntro`): above
+   * the board and its panel when wide; on a phone, where the board needs
+   * the height, it is kept for assistive technology only.
+   */
+  title?: JSX.Element | undefined;
   /** Feed choices and coaching stay above the play surface. */
   header?: JSX.Element | undefined;
   children: JSX.Element;
@@ -28,7 +35,7 @@ function requireBoardAspectRatio(value: number | undefined): number {
   return ratio;
 }
 
-type PuzzleArea = 'header' | 'legend' | 'timeline' | 'actions';
+type PuzzleArea = 'title' | 'header' | 'legend' | 'timeline' | 'actions';
 
 function PuzzleFixedRegion(props: {
   children: JSX.Element;
@@ -52,9 +59,9 @@ function PuzzleFixedRegion(props: {
  * Host-chrome puzzle play: largest fitting square, fixed controls, no second
  * bar. On a phone one column: the header (feed, coaching), the board, the
  * legend, the move list, the actions. Wide, the game screens' template:
- * the board on the left at the window's height, and beside it one panel
- * column holding the header, the legend and the move list from its top and
- * the actions at its foot, level with the board's bottom edge.
+ * the title over everything, the board on the left, and beside it one
+ * panel column, top to bottom: the header (feed, the prompt), the actions
+ * right under the prompt, the move list, the legend.
  */
 export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
   const ratio = createMemo(() =>
@@ -77,6 +84,11 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
           screen: props.screenId,
         })}
       >
+        <PuzzleFixedRegion name="PuzzleTitle" area="title">
+          <Show when={props.title}>
+            <ScreenIntro title={props.title} />
+          </Show>
+        </PuzzleFixedRegion>
         <PuzzleFixedRegion name="PuzzleHeader" area="header">
           {props.header}
         </PuzzleFixedRegion>

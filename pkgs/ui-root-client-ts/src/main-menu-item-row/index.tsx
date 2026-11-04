@@ -13,8 +13,9 @@ export type MainMenuItem = {
   title: JSX.Element | string;
   caption?: JSX.Element | string | undefined;
   /**
-   * One short fact beside the title, as a small neutral tag (`2 players`).
-   * Rows of one menu give it all or none, so it reads as a column.
+   * One short fact about the row, as a small neutral tag on its own line
+   * under the title (`2 players`), so it never crowds the name. Rows of one
+   * menu give it all or none, so it reads as a column.
    */
   meta?: JSX.Element | string | undefined;
   /** Before the title: a `GameTile` or an icon that says what the row is. */
@@ -25,10 +26,11 @@ export type MainMenuItem = {
   disabled?: boolean | undefined;
   /**
    * How strongly the row asks to be chosen among its menu's rows:
-   * `primary` (the one main way in) wears the accent's soft selection fill
-   * and a tinted chevron; `quiet` (a look back, a setting) keeps its title's
-   * ink, so it never reads as disabled, and only says less: its caption is
-   * one line. Unset is an ordinary row. One `primary` per menu at most.
+   * `primary` (the one main way in) leads with a tinted chevron, never a
+   * fill, which would read as already chosen; `quiet` (a look back, a
+   * setting) keeps its title's ink, so it never reads as disabled, and only
+   * says less: its caption is one line. Unset is an ordinary row. One
+   * `primary` per menu at most.
    */
   emphasis?: 'primary' | 'quiet' | undefined;
   onClick?: (() => void) | undefined;
@@ -83,7 +85,6 @@ function ItemBody(props: {
       class="box flex-row items-stretch pl-4 min-h-14"
       classList={{
         'opacity-disabled': disabled(),
-        'bg-tint-subtle': props.item.emphasis === 'primary',
       }}
       data-emphasis={props.item.emphasis}
     >
@@ -96,19 +97,14 @@ function ItemBody(props: {
           so it starts past a leading picture. */}
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
-          <div class="box flex-row items-center gap-2 min-w-0 max-w-full">
-            <p
-              class="text textLabel line-clamp-1 min-w-0"
-              classList={{
-                'text-on-primary-soft': props.item.emphasis === 'primary',
-              }}
-            >
-              {props.item.title}
-            </p>
-            <Show when={props.item.meta}>
+          <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
+            {props.item.title}
+          </p>
+          <Show when={props.item.meta}>
+            <div class="box flex-row pt-1 pb-1 min-w-0 max-w-full">
               <Badge intent="neutral" size="sm" label={props.item.meta} />
-            </Show>
-          </div>
+            </div>
+          </Show>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
             <p
               class="text textCaption max-w-full"

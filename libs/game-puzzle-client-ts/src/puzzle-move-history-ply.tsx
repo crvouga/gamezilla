@@ -3,7 +3,7 @@ import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import type { ScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { Code, P } from '@pkgs/ui-root-client-ts/text';
+import { Code, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
@@ -11,17 +11,24 @@ import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 type HistoryPlyChipProps = {
   ply: PuzzleHistoryPly;
+  /** The move's number (`4.`, `4…`), or null when the turn needs none. */
+  prefix: string | null;
   selected: boolean;
   interactive: boolean;
   writing: PuzzleMoveWriting;
   onSeek: (solveIdx: number) => void;
 };
 
+/**
+ * The move's number inside its chip, quiet beside the move, so a reply
+ * numbered on its own (`4…`) reads as one move, `4… g6`, never as a cut-off
+ * label beside it.
+ */
 function MoveNumberLabel(props: { label: string }): JSX.Element {
   return (
-    <P variant="caption" numeral>
-      {props.label}
-    </P>
+    <Text variant="label" tone="secondary" numeral>
+      {`${props.label}\u00a0`}
+    </Text>
   );
 }
 
@@ -39,13 +46,22 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
       disabled={!props.interactive}
       onPress={handlePress}
       pressed={props.selected}
-      aria-label={props.ply.label}
+      aria-label={
+        props.prefix === null
+          ? props.ply.label
+          : `${props.prefix} ${props.ply.label}`
+      }
     >
       <Surface
         tone={props.selected ? 'success' : 'transparent'}
         radius="sm"
         paddingX="sm"
+        direction="horizontal"
+        align="baseline"
       >
+        {props.prefix !== null ? (
+          <MoveNumberLabel label={props.prefix} />
+        ) : null}
         <Code
           variant="label"
           numeral
@@ -89,9 +105,9 @@ export function HistoryPlyCluster(props: {
   const prefix = props.writing.moveNumber(props.ply.before, props.ply.plyIndex);
   return (
     <StackHorizontal align="center" gap="xs" scrollTarget={props.scrollTarget}>
-      {prefix !== null ? <MoveNumberLabel label={prefix} /> : null}
       <HistoryPlyChip
         ply={props.ply}
+        prefix={prefix}
         selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
         interactive={props.interactive}
         writing={props.writing}

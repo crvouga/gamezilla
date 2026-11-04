@@ -98,7 +98,7 @@ test("a column control's own text says nothing its name leaves out", () => {
 });
 
 // regression: connect-four-columns-say-nothing
-test('the board says what to do and marks where the disc would be let go', () => {
+test('the board says what to do and marks where the disc would land', () => {
   const view = example();
   const board = view.getByRole('group', { name: 'Drop board' });
   const prompt = document.getElementById(
@@ -107,49 +107,46 @@ test('the board says what to do and marks where the disc would be let go', () =>
   expect(prompt?.textContent).toBe('Choose a column');
   const marker = (column: HTMLElement) =>
     column.querySelector('[data-disc][aria-hidden="true"]');
-  // Every open column carries a chevron; the full one carries nothing.
-  const full = view.getByRole('button', { name: 'Column 1, 3 discs, full' });
   const second = view.getByRole('button', { name: 'Column 2, 0 discs' });
-  expect(full.querySelector('svg')).toBeNull();
-  expect(second.querySelector('svg')).not.toBeNull();
+  // No chevrons compete with the numbers and the landing preview.
+  expect(board.querySelector('svg')).toBeNull();
   expect(marker(second)).toHaveAttribute('data-disc', '0');
   // Focusing a column marks it as the dropping side's and puts that side's
-  // ghost disc where it would land.
+  // mark where its disc would land.
   fireEvent.focus(second);
   expect(marker(second)).toHaveAttribute('data-disc', '1');
   const landing = board.querySelector('[data-cell="1"]');
   expect(landing).toHaveAttribute('data-preview-disc', '1');
   expect(landing?.textContent).toBe('●');
-  // A board that takes no drop has no chevrons and no prompt, but keeps
-  // the prompt's line so the board never moves.
+  // A board that takes no drop has no prompt to read, but keeps the
+  // element so the board never changes shape.
   view.setInteractive(false);
-  expect(second.querySelector('svg')).toBeNull();
   expect(board.hasAttribute('aria-describedby')).toBe(false);
   expect(board.querySelector('[data-testid$="-prompt"]')).not.toBeNull();
   view.unmount();
 });
 
 // regression: connect-four-target-column-faint
-test('the column pointed at lights up and holds the dropping disc above it', () => {
+test('the column pointed at is tinted, and only its landing cell holds the disc', () => {
   const view = example();
+  const board = view.getByRole('group', { name: 'Drop board' });
   const second = view.getByRole('button', { name: 'Column 2, 0 discs' });
   const third = view.getByRole('button', { name: 'Column 3, 0 discs' });
-  const held = (column: HTMLElement) =>
-    column.querySelector('[data-disc][aria-hidden="true"] [data-disc]');
-  // At rest every open column offers a chevron and nothing is lit.
+  const previews = () => board.querySelectorAll('[data-preview="true"]');
+  // At rest nothing is lit and no landing cell is marked.
   expect(second).toHaveAttribute('data-previewed', 'false');
-  expect(held(second)).toBeNull();
-  // Pointing at a column lights it and swaps its chevron for the disc
-  // about to drop; its neighbour stays at rest.
+  expect(previews()).toHaveLength(0);
+  // Pointing at a column lights it and marks one landing cell, inside it;
+  // nothing is held above the column, and its neighbour stays at rest.
   fireEvent.pointerEnter(second);
   expect(second).toHaveAttribute('data-previewed', 'true');
-  expect(held(second)).toHaveAttribute('data-disc', '1');
-  expect(second.querySelector('svg')).toBeNull();
+  expect(previews()).toHaveLength(1);
+  expect(second.contains(previews()[0] ?? null)).toBe(true);
+  expect(second.querySelector('[aria-hidden="true"] [data-disc]')).toBeNull();
   expect(third).toHaveAttribute('data-previewed', 'false');
-  expect(third.querySelector('svg')).not.toBeNull();
   fireEvent.pointerLeave(second);
   expect(second).toHaveAttribute('data-previewed', 'false');
-  expect(held(second)).toBeNull();
+  expect(previews()).toHaveLength(0);
   view.unmount();
 });
 
@@ -157,6 +154,7 @@ test('the column pointed at lights up and holds the dropping disc above it', () 
 function bareBoard(options: {
   readonly prompt?: string | undefined;
   readonly preview?: boolean | undefined;
+  readonly winning?: readonly number[] | undefined;
 }) {
   const board = (): JSX.Element => (
     <DiscDropBoard
@@ -164,7 +162,7 @@ function bareBoard(options: {
       columns={4}
       rows={3}
       active={1}
-      winning={[]}
+      winning={options.winning ?? []}
       interactive={options.prompt !== undefined && options.prompt !== ''}
       label="Drop board"
       prompt={options.prompt}
@@ -201,16 +199,13 @@ function columnNumbers(root: ParentNode): readonly string[] {
 test('every column is headed by its number, as the record writes its moves', () => {
   const view = bareBoard({ prompt: 'Choose a column' });
   expect(columnNumbers(view.container)).toEqual(['1', '2', '3', '4']);
-  // On the person's turn the number carries the drop chevron under it.
-  const second = view.getByTestId('bare-column-2');
-  expect(second.querySelector('svg')).not.toBeNull();
   view.unmount();
 });
 
 // regression: setup-preview-reserves-turn-rows
 test('a board nobody is to move on, or a setup preview, reserves no turn rows', () => {
   const over = bareBoard({});
-  // Over: the numbers stay, but no prompt line and no chevron band.
+  // Over: the numbers stay, but no prompt and nothing under the numbers.
   expect(over.queryByTestId('bare-board-prompt')).toBeNull();
   expect(columnNumbers(over.container)).toEqual(['1', '2', '3', '4']);
   expect(
@@ -219,7 +214,7 @@ test('a board nobody is to move on, or a setup preview, reserves no turn rows', 
       .querySelectorAll(':scope > [aria-hidden="true"] > span')
   ).toHaveLength(1);
   over.unmount();
-  // Someone else to move: the prompt's line keeps its height, empty.
+  // Someone else to move: the prompt is kept, empty.
   const waiting = bareBoard({ prompt: '' });
   expect(waiting.getByTestId('bare-board-prompt').textContent).toBe('');
   waiting.unmount();
@@ -233,4 +228,24 @@ test('a board nobody is to move on, or a setup preview, reserves no turn rows', 
   ).toBeNull();
   expect(preview.getByText('Board preview')).toBeTruthy();
   preview.unmount();
+});
+
+test('once four connect, the board says it is won and marks the winning discs', () => {
+  const playing = bareBoard({ prompt: 'Choose a column' });
+  expect(playing.getByTestId('bare-board')).toHaveAttribute(
+    'data-won',
+    'false'
+  );
+  playing.unmount();
+  const won = bareBoard({ winning: [0, 4] });
+  expect(won.getByTestId('bare-board')).toHaveAttribute('data-won', 'true');
+  expect(won.getByTestId('bare-board-cell-0')).toHaveAttribute(
+    'data-winning',
+    'true'
+  );
+  expect(won.getByTestId('bare-board-cell-1')).toHaveAttribute(
+    'data-winning',
+    'false'
+  );
+  won.unmount();
 });

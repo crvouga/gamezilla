@@ -802,6 +802,17 @@ export async function readPuzzlePrompt(
   }
 }
 
+/**
+ * A move's chip leads with its number when the turn has one (`41. Kh4`,
+ * `4… g6`); the move itself, as the game writes it, is what follows.
+ */
+const MOVE_NUMBER = /^\d+(?:\.{1,3}|…)[\s\u00a0]+/;
+
+/** The move a chip shows, without its number. */
+export function moveChipText(text: string | null | undefined): string {
+  return stripProbe(text).replace(MOVE_NUMBER, '');
+}
+
 /** The move the board's move list highlights: its index from 0 and its text. */
 export async function readPuzzleHighlightedMove(
   s: ProductHarness,
@@ -813,7 +824,7 @@ export async function readPuzzleHighlightedMove(
   const index = Number.parseInt(stripProbe(await probe.text()), 10);
   if (!Number.isFinite(index)) return null;
   const chip = ui.get(Handles.chessPuzzleMovePly(index));
-  return { index, text: stripProbe(await chip.text()) };
+  return { index, text: moveChipText(await chip.text()) };
 }
 
 export type ShownRatingChange = 'raised' | 'lowered' | 'unchanged' | 'unrated';

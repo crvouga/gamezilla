@@ -18,6 +18,11 @@ export type ProgressBarProps = {
   progress?: number | undefined;
   /** Accessible name; when set it is shown with the percentage. */
   label?: string | undefined;
+  /**
+   * Accessible name for a bare track whose words sit beside it (`7 of 12
+   * rated games`): names the bar without drawing a label.
+   */
+  accessibleLabel?: string | undefined;
   /** Supporting copy under a labelled bar. */
   description?: JSX.Element | undefined;
   /** Default `tint`. */
@@ -114,7 +119,7 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
       <ProgressTrack
         known={known()}
         value={value()}
-        label={props.label ?? t`Progress`}
+        label={props.label ?? props.accessibleLabel ?? t`Progress`}
         tone={props.tone ?? 'tint'}
         size={props.size ?? 'md'}
       />

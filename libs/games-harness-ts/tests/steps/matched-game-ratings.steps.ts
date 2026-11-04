@@ -196,7 +196,7 @@ Then(
     // A provisional rating says how many rated games settle it.
     expect(await shown(w, actor, speed, 'games')).toBe(
       games < MULTIPLAYER_SETTLED_GAMES
-        ? `Provisional · ${String(games)} of ${String(MULTIPLAYER_SETTLED_GAMES)} rated games`
+        ? `${String(games)} of ${String(MULTIPLAYER_SETTLED_GAMES)} rated games`
         : `${String(games)} rated game${games === 1 ? '' : 's'}`
     );
   }

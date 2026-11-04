@@ -4,6 +4,7 @@ import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { Trans } from '@lingui/solid/macro';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
@@ -21,7 +22,7 @@ import { PuzzleEmptyPoolState } from './puzzle-empty-pool-state';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 
 /** The coach's face: small enough to leave its words a whole line beside a wide board. */
-const AVATAR_SIZE = 56;
+const AVATAR_SIZE = 48;
 
 /**
  * What the board well holds: a placed puzzle (`playing`), one activity
@@ -223,6 +224,7 @@ export function PuzzlePlayScreenView(
       <Show when={playing()}>{props.probe}</Show>
       <PuzzleScreen
         screenId="chess-puzzle-play"
+        title={<Trans>Puzzles</Trans>}
         dataSet={{ testid: 'chess-puzzle-play-layout' }}
         header={
           <>
