@@ -74,6 +74,25 @@ describe('wide layout canvas and centered measure', () => {
     }
   });
 
+  test('inside a space a menu screen starts at the same edge as a tab screen', () => {
+    function InSpace(): JSX.Element {
+      useSetAppFrameHeader(<p class="text">{'Space bar'}</p>);
+      return (
+        <MenuScreen screenId="games" breadcrumbs={[{ name: 'Games' }]}>
+          <p class="text">{'rows'}</p>
+        </MenuScreen>
+      );
+    }
+    renderUi(
+      framed(() => <InSpace />),
+      WIDE
+    );
+    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
+      /\bmx-auto\b/
+    );
+    expect(style('[data-component="ScreenColumn"]').maxWidth).toBe('');
+  });
+
   test('a desktop menu screen puts each section label beside its rows', () => {
     renderUi(
       framed(() => (
