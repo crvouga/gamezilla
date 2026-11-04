@@ -901,10 +901,6 @@ msgstr "Ace"
 msgid "across"
 msgstr "across"
 
-#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
-msgid "Action required"
-msgstr "Action required"
-
 #. placeholder {0}: date()
 #: libs/billing-client-ts/src/billing-status-line.tsx
 msgid "Active · renews {0}"
@@ -1437,7 +1433,7 @@ msgstr "Change the search or increase the desired synthetic population."
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Changes waiting to send"
 msgstr "Changes waiting to send"
 
@@ -1662,7 +1658,7 @@ msgid "Clear my suggestion"
 msgstr "Clear my suggestion"
 
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Client config"
 msgstr "Client config"
 
@@ -1861,8 +1857,8 @@ msgid "Connecting…"
 msgstr "Connecting…"
 
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Connection"
 msgstr "Connection"
 
@@ -2259,7 +2255,7 @@ msgstr "Desired synthetic population"
 msgid "Destroyer"
 msgstr "Destroyer"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Details to check when something isn't working."
 msgstr "Details to check when something isn't working."
 
@@ -2866,7 +2862,7 @@ msgstr "Four sides. One hill. First to e5 wins immediately."
 msgid "fps"
 msgstr "fps"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Frame rate and responsiveness"
 msgstr "Frame rate and responsiveness"
 
@@ -2978,6 +2974,7 @@ msgstr "Game record copied"
 msgid "Game replay"
 msgstr "Game replay"
 
+#: libs/game-menu-client-ts/src/game-menu.tsx
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Games"
 msgstr "Games"
@@ -3152,6 +3149,10 @@ msgstr "Hosted by you"
 msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 
+#: libs/spaces-client-ts/src/friend-live-space.tsx
+msgid "Hosting a space"
+msgstr "Hosting a space"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "hud"
 msgstr "hud"
@@ -3183,6 +3184,10 @@ msgstr "Immediately"
 #: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
 msgid "Import and manage puzzle content."
 msgstr "Import and manage puzzle content."
+
+#: libs/spaces-client-ts/src/friend-live-space.tsx
+msgid "In a space"
+msgstr "In a space"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
@@ -3300,6 +3305,7 @@ msgstr "jank"
 msgid "John Doe"
 msgstr "John Doe"
 
+#: libs/spaces-client-ts/src/friend-live-space.tsx
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Join"
 msgstr "Join"
@@ -3931,6 +3937,7 @@ msgstr "Navigation"
 msgid "Needs corrections"
 msgstr "Needs corrections"
 
+#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 #: libs/notifications-client-ts/src/use-notifications.tsx
 msgid "Needs you"
 msgstr "Needs you"
@@ -4265,7 +4272,7 @@ msgstr "Observe and control the Synthetic Population"
 
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Off"
 msgstr "Off"
@@ -4288,8 +4295,8 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Offline — games with others pause"
-msgstr "Offline — games with others pause"
+msgid "Offline — turn off to sync and play with others again"
+msgstr "Offline — turn off to sync and play with others again"
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4300,6 +4307,7 @@ msgstr "OK"
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sound-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "On"
 msgstr "On"
 
@@ -4317,8 +4325,8 @@ msgid "Online"
 msgstr "Online"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Online — games and changes sync"
-msgstr "Online — games and changes sync"
+msgid "Online — turn on to pause syncing and games with others"
+msgstr "Online — turn on to pause syncing and games with others"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
@@ -4607,7 +4615,7 @@ msgid "perf"
 msgstr "perf"
 
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Performance"
 msgstr "Performance"
 
@@ -4728,6 +4736,10 @@ msgstr "Players"
 msgid "Playing"
 msgstr "Playing"
 
+#: libs/friends-client-ts/src/profile-friends-playing.tsx
+msgid "Playing now"
+msgstr "Playing now"
+
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Playtest"
 msgstr "Playtest"
@@ -4837,6 +4849,7 @@ msgstr "Production"
 #: libs/app-root-client-ts/src/sound-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 #: libs/auth-client-ts/src/account-devices-screen-view.tsx
 #: libs/auth-client-ts/src/account-screen-view.tsx
@@ -5454,6 +5467,7 @@ msgstr "Restart this puzzle?"
 msgid "Restart this Synthetic User?"
 msgstr "Restart this Synthetic User?"
 
+#: libs/spaces-client-ts/src/friend-live-space.tsx
 #: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resume"
@@ -5873,6 +5887,7 @@ msgstr "Sessions"
 #: libs/app-root-client-ts/src/sound-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 #: libs/auth-client-ts/src/account-devices-screen-view.tsx
 #: libs/auth-client-ts/src/account-screen-view.tsx
@@ -5888,7 +5903,7 @@ msgstr "Sessions"
 msgid "Settings"
 msgstr "Settings"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Settings from the server"
 msgstr "Settings from the server"
 
@@ -6240,6 +6255,7 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
+#: libs/app-root-client-ts/src/not-found.tsx
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
@@ -6345,7 +6361,7 @@ msgstr "Starting…"
 msgid "State"
 msgstr "State"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Status, and what works offline"
 msgstr "Status, and what works offline"
 
@@ -6437,8 +6453,8 @@ msgstr "Suggested"
 msgid "Swap sides"
 msgstr "Swap sides"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Sync"
 msgstr "Sync"
 
@@ -6834,8 +6850,8 @@ msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "The link may be old or mistyped. Your spaces are one tap away."
-msgstr "The link may be old or mistyped. Your spaces are one tap away."
+msgid "The link may be old or mistyped. Your spaces are still here."
+msgstr "The link may be old or mistyped. Your spaces are still here."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
@@ -7349,6 +7365,7 @@ msgid "triple word"
 msgstr "triple word"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Troubleshooting"
 msgstr "Troubleshooting"
 
