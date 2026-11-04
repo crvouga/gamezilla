@@ -263,12 +263,16 @@ function CardArchive(props: {
   return (
     <Show when={props.cardTestID} keyed>
       {(cardTestID) => (
-        <InboxArchiveButton
-          testId={Handles.notificationsArchive(cardTestID)}
-          onArchive={() => {
-            void props.actions.archive(props.interaction.id);
-          }}
-        />
+        // A column of its own, so the button keeps to the top corner
+        // instead of centring on a tall card.
+        <StackVertical>
+          <InboxArchiveButton
+            testId={Handles.notificationsArchive(cardTestID)}
+            onArchive={() => {
+              void props.actions.archive(props.interaction.id);
+            }}
+          />
+        </StackVertical>
       )}
     </Show>
   );
