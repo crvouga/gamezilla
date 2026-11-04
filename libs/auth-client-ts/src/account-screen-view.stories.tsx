@@ -49,6 +49,7 @@ const meta = {
     signingOutEverywhere: false,
     onOpenDevices: fn(),
     onOpenPrivacy: fn(),
+    onOpenDeletion: fn(),
     onSignIn: fn(),
     onSignOut: fn(),
     onConnectMethod: fn(async () => undefined),
