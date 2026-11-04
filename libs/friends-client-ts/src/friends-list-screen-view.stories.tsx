@@ -88,8 +88,9 @@ const HOSTING = new Set([personId('02'), personId('05')]);
  * Friends are known: one row each, newest-first order as the container gives
  * it. Each row is the friend's face and name, and opens their profile; a
  * friend hosting a live space says so under their name ("Hosting a space",
- * with the online dot) and ends in Join, which goes in (a profile not yet on
- * this device shows its initials). No friendship date: the row says what
+ * with the online dot) and ends in Join, which goes in; every other row
+ * ends in the chevron, so a row never offers two targets (a profile not yet
+ * on this device shows its initials). No friendship date: the row says what
  * helps you play now. Find friends sits in the header as the page's next
  * step.
  */

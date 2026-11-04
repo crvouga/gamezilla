@@ -2,13 +2,13 @@
 /** A lobby card: a title over one line of who hosts the space and who is in it. */
 
 import { afterEach, expect, test } from 'bun:test';
+import type { SpaceCardData } from '@libs/spaces-client-ts/space-card-view';
 import { SpaceCardView } from '@libs/spaces-client-ts/space-card-view';
 import {
   FRIEND_SPACE,
   HOSTED_SPACE,
   JOINED_SPACE,
 } from '@libs/spaces-client-ts/spaces-story.example';
-import type { SpaceCardData } from '@libs/spaces-client-ts/space-card-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup } from '@solidjs/testing-library';

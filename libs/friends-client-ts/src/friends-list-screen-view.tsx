@@ -14,7 +14,7 @@ import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtu
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, Match, Show, Switch } from 'solid-js';
-import { FriendUserRow } from './friend-user-row';
+import { FriendRowDisclosure, FriendUserRow } from './friend-user-row';
 
 /** Whether the friends list is still reading, could not load, or is known. */
 export type FriendsListStatus = 'loading' | 'failed' | 'ready';
@@ -29,7 +29,10 @@ export type FriendsListScreenViewProps = {
   readonly notice?: JSX.Element;
   /** What the friend is doing, under their name (hosting a space). */
   readonly friendStatus?: ((friend: Friend) => JSX.Element) | undefined;
-  /** Trailing control per row, such as Join for their live space. */
+  /**
+   * The row's one control, such as Join for their live space. A row without
+   * one ends in a chevron instead.
+   */
   readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
   readonly onOpenFriend: (friend: Friend) => void;
   readonly onFindFriends: () => void;
@@ -56,12 +59,19 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
   );
 }
 
+/** A friends-list row's face: a bare name sits beside it without empty room. */
+const ROW_AVATAR_SIZE = 40;
+/** A row: the face and the row's vertical padding. */
+const ROW_ESTIMATE = 56;
+
 /**
- * One friend in the list's panel: face and name, what they are doing while
- * they are in a live space ("Hosting a space", under the name) with Join at
- * the row's end (what helps you play now), and the way to their profile.
- * How long you have been friends is record-keeping, not a reason to tap, so
- * the row leaves it out.
+ * One friend in the list's panel, a compact row: face and name, and what
+ * they are doing while they are in a live space ("Hosting a space", under
+ * the name). The row opens their profile. Its end holds one thing: Join
+ * while they are in a live space (what helps you play now), otherwise the
+ * chevron that says the row opens them — never a button and a chevron
+ * side by side. How long you have been friends is record-keeping, not a
+ * reason to tap, so the row leaves it out.
  */
 function FriendsListRow(props: {
   readonly friend: Friend;
@@ -70,14 +80,14 @@ function FriendsListRow(props: {
   readonly onOpen: () => void;
 }): JSX.Element {
   return (
-    <StackVertical paddingX="lg" paddingY="xs">
+    <StackVertical paddingX="lg">
       <FriendUserRow
         profile={props.friend}
         onPress={() => props.onOpen()}
         friendsListHandle
-        disclosure
+        avatarSize={ROW_AVATAR_SIZE}
         subtitle={props.status}
-        trailing={props.trailing}
+        trailing={props.trailing ?? <FriendRowDisclosure />}
       />
     </StackVertical>
   );
@@ -154,7 +164,7 @@ export function FriendsListScreenView(
           <ScreenBodyVirtualList
             items={props.friends}
             keyExtractor={(item) => item.userId}
-            estimateSize={68}
+            estimateSize={ROW_ESTIMATE}
             empty={
               <FriendsListPlaceholder
                 status={props.status}

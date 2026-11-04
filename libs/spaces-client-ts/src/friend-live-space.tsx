@@ -96,13 +96,17 @@ function FriendLiveSpaceJoinFor(props: {
   );
 }
 
-/** Join (or Resume) a friend's live space, while they are in one. */
+/**
+ * Join (or Resume) a friend's live space, while they are in one; otherwise
+ * the `fallback`, such as the row's chevron.
+ */
 export function FriendLiveSpaceJoin(props: {
   readonly hostAccountId: string;
+  readonly fallback?: JSX.Element;
 }): JSX.Element {
   const live = useFriendLiveSpace(() => props.hostAccountId);
   return (
-    <Show when={live()?.spaceId} keyed>
+    <Show when={live()?.spaceId} keyed fallback={props.fallback}>
       {(spaceId) => (
         <FriendLiveSpaceJoinFor
           spaceId={spaceId}

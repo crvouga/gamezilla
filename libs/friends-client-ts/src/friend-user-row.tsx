@@ -39,12 +39,21 @@ export type FriendUserRowProps = {
   readonly friendsListHandle?: boolean;
   /** DST handle for the pressable identity, when not a friends-list row. */
   readonly pressTestID?: string | undefined;
-  /**
-   * Ends the row in a chevron, after any trailing tag: the row opens the
-   * person.
-   */
-  readonly disclosure?: boolean | undefined;
+  /** The face's size. Default 44; a list of bare names uses a smaller one. */
+  readonly avatarSize?: number | undefined;
 };
+
+const AVATAR_SIZE = 44;
+const DISCLOSURE_SIZE = 20;
+
+/**
+ * The chevron at a row's end that says the row opens the person: a row's
+ * trailing edge when it has no control of its own, so a row never offers a
+ * button and a chevron side by side.
+ */
+export function FriendRowDisclosure(): JSX.Element {
+  return <ChevronRightIcon size={DISCLOSURE_SIZE} color="icon" />;
+}
 
 function profileLabel(
   moderation: AppModeration,
@@ -86,12 +95,17 @@ function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
   readonly highlight?: string | undefined;
   readonly subtitle?: JSX.Element;
+  readonly avatarSize?: number | undefined;
 }): JSX.Element {
   const moderation = useModeration();
   const label = createMemo(() => profileLabel(moderation(), props.profile));
   return (
     <>
-      <FriendProfileAvatar profile={props.profile} name={label()} size={44} />
+      <FriendProfileAvatar
+        profile={props.profile}
+        name={label()}
+        size={props.avatarSize ?? AVATAR_SIZE}
+      />
       <StackVertical grow shrink gap="xs">
         <FriendUserRowName label={label()} highlight={props.highlight} />
         <Show when={props.subtitle !== undefined}>{props.subtitle}</Show>
@@ -132,6 +146,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
             profile={props.profile}
             highlight={props.highlight}
             subtitle={props.subtitle}
+            avatarSize={props.avatarSize}
           />
           {trailing()}
         </StackHorizontal>
@@ -153,13 +168,10 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
               profile={props.profile}
               highlight={props.highlight}
               subtitle={props.subtitle}
+              avatarSize={props.avatarSize}
             />
           </Pressable>
           {trailing()}
-          {/* Last on the row, after any trailing tag: where the row leads. */}
-          <Show when={props.disclosure === true}>
-            <ChevronRightIcon size={20} color="icon" />
-          </Show>
         </StackHorizontal>
       )}
     </Show>
