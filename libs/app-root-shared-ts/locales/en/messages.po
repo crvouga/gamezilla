@@ -912,8 +912,8 @@ msgid "Add a published puzzle"
 msgstr "Add a published puzzle"
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
-msgid "Add Friend"
-msgstr "Add Friend"
+msgid "Add friend"
+msgstr "Add friend"
 
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Add hex (6 chars, no #)"
@@ -1310,7 +1310,6 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
-#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
@@ -1325,6 +1324,10 @@ msgstr "Cancel exchange"
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Cancel game"
 msgstr "Cancel game"
+
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
+msgid "Cancel request"
+msgstr "Cancel request"
 
 #. placeholder {0}: date()
 #: libs/billing-client-ts/src/billing-status-line.tsx
@@ -2082,8 +2085,8 @@ msgstr "Cruiser"
 
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
-#: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
+#: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Current"
 msgstr "Current"
 
@@ -2406,6 +2409,10 @@ msgstr "Each side chooses a private setup before the first move."
 #: libs/battleship-client-ts/src/battleship-game-client.tsx
 msgid "Each side hides five ships on its own ten by ten waters: a Carrier of five cells, a Battleship of four, a Cruiser of three, a Submarine of three and a Destroyer of two. Choose a ship, turn it across or down, and press the cell for its bow; ships never overlap or leave the board. Then the Blue fleet fires first and the sides take turns firing at one cell of the other's waters. A miss marks open water, a hit marks part of a ship, and a ship sinks once every one of its cells is hit. Sink the whole hidden fleet first to win."
 msgstr "Each side hides five ships on its own ten by ten waters: a Carrier of five cells, a Battleship of four, a Cruiser of three, a Submarine of three and a Destroyer of two. Choose a ship, turn it across or down, and press the cell for its bow; ships never overlap or leave the board. Then the Blue fleet fires first and the sides take turns firing at one cell of the other's waters. A miss marks open water, a hit marks part of a ship, and a ship sinks once every one of its cells is hit. Sink the whole hidden fleet first to win."
+
+#: libs/notifications-client-ts/src/use-notifications.tsx
+msgid "Earlier"
+msgstr "Earlier"
 
 #. placeholder {0}: index + 1
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
@@ -3863,6 +3870,10 @@ msgstr "Navigation"
 msgid "Needs corrections"
 msgstr "Needs corrections"
 
+#: libs/notifications-client-ts/src/use-notifications.tsx
+msgid "Needs you"
+msgstr "Needs you"
+
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "Neither side can checkmate."
 msgstr "Neither side can checkmate."
@@ -4218,8 +4229,8 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Offline. Nothing connects until you turn this off."
-msgstr "Offline. Nothing connects until you turn this off."
+msgid "Offline. What you do stays on this device until you turn this off."
+msgstr "Offline. What you do stays on this device until you turn this off."
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4251,8 +4262,8 @@ msgid "Online Synthetic Users"
 msgstr "Online Synthetic Users"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Online. Turn on to stop every network connection."
-msgstr "Online. Turn on to stop every network connection."
+msgid "Online. Turn on to use the app without a connection; nothing syncs until you turn it off."
+msgstr "Online. Turn on to use the app without a connection; nothing syncs until you turn it off."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only a participant can make this choice."
@@ -5184,6 +5195,13 @@ msgstr "Remove"
 msgid "Remove {0} from pack"
 msgstr "Remove {0} from pack"
 
+#. placeholder {0}: providerName(i18n(), 'email')
+#. placeholder {0}: providerName(i18n(), props.provider)
+#: libs/auth-client-ts/src/sign-in-method-row.tsx
+#: libs/auth-client-ts/src/sign-in-methods-section.tsx
+msgid "Remove {0} sign-in"
+msgstr "Remove {0} sign-in"
+
 #. placeholder {0}: name()
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 msgid "Remove {0} sign-in?"
@@ -5234,6 +5252,10 @@ msgstr "Remove this puzzle from the pack?"
 msgid "Removed"
 msgstr "Removed"
 
+#: libs/auth-client-ts/src/sign-in-methods-section.tsx
+msgid "Removing a method stops it signing in to this account. You can connect it again later."
+msgstr "Removing a method stops it signing in to this account. You can connect it again later."
+
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Removing…"
@@ -5270,10 +5292,6 @@ msgstr "Report a security problem"
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Request personal-data export"
 msgstr "Request personal-data export"
-
-#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
-msgid "Requested"
-msgstr "Requested"
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Requesting…"
@@ -7174,6 +7192,10 @@ msgstr "This wall overlaps another wall. Choose a different anchor."
 msgid "This wall would close a player's last path to the goal. Choose another anchor."
 msgstr "This wall would close a player's last path to the goal. Choose another anchor."
 
+#: libs/notifications-client-ts/src/use-notifications.tsx
+msgid "This week"
+msgstr "This week"
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Three"
 msgstr "Three"
@@ -7216,6 +7238,10 @@ msgstr "To move"
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "to play"
 msgstr "to play"
+
+#: libs/notifications-client-ts/src/use-notifications.tsx
+msgid "Today"
+msgstr "Today"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Total CPU time"
@@ -7746,6 +7772,10 @@ msgstr "Yellow diamond"
 msgid "Yes"
 msgstr "Yes"
 
+#: libs/notifications-client-ts/src/use-notifications.tsx
+msgid "Yesterday"
+msgstr "Yesterday"
+
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "You"
 msgstr "You"
@@ -8002,6 +8032,10 @@ msgstr "Your account could not be loaded. Check your connection and reload the a
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
+
+#: libs/auth-client-ts/src/sign-in-methods-section.tsx
+msgid "Your account needs at least one way to sign in. Connect another before removing this one."
+msgstr "Your account needs at least one way to sign in. Connect another before removing this one."
 
 #: libs/profile-client-ts/src/profile-avatar-figure.tsx
 msgid "Your avatar"
