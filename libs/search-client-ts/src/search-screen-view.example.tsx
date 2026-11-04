@@ -4,16 +4,13 @@ import {
   serializeDefaultAvatarConfig,
 } from '@libs/profile-shared-ts/avatar-config';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   HighlightedText,
   rangesAfterMatch,
 } from '@pkgs/ui-root-client-ts/highlighted-text';
-import {
-  CheckIcon,
-  ClockIcon,
-  UserPlusIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -46,9 +43,10 @@ const STORY_RELATIONS: Readonly<
 
 /**
  * Stand-in for the friends sub's relationship: one trailing control per row,
- * "Friends" as words with a check in the success ink (a status, not a
- * control), "Request sent" as words with a clock beside a quiet ghost
- * "Cancel", or one small secondary pill ("Add friend").
+ * every one ending on the same edge: "Friends" as words with a check in the
+ * success ink (a status, not a control), "Cancel" for a request that is out
+ * (the row says "Request sent" under the name), or "Add friend", each a
+ * small outlined pill.
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
@@ -64,21 +62,13 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
         </StackHorizontal>
       </Match>
       <Match when={relation() === 'requested'}>
-        <StackHorizontal align="center" gap="xs">
-          <StackHorizontal align="center" gap="xs">
-            <ClockIcon size={16} color="textSecondary" />
-            <Text variant="label" tone="secondary" lines={1}>
-              Request sent
-            </Text>
-          </StackHorizontal>
-          <Button
-            title="Cancel"
-            intent="neutral"
-            variant="ghost"
-            size="sm"
-            onClick={() => undefined}
-          />
-        </StackHorizontal>
+        <Button
+          title="Cancel"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          onClick={() => undefined}
+        />
       </Match>
       <Match when={relation() === 'add'}>
         <Button
@@ -100,7 +90,7 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
  * the device's data): the same shape, drawn from the result itself — the
  * person's face (their initials when their profile has not synced), the part
  * of the name after the typed query emphasised so similar names read apart,
- * and the pill.
+ * a request that is out as a tag under the name, and the pill.
  */
 export function StoryUserRow(props: {
   readonly user: UserSearchResult;
@@ -116,7 +106,7 @@ export function StoryUserRow(props: {
         name={props.user.username}
         size={44}
       />
-      <StackVertical grow>
+      <StackVertical grow shrink gap="xs">
         <Show
           when={ranges().length > 0}
           fallback={
@@ -132,6 +122,9 @@ export function StoryUserRow(props: {
             boldVariant="bodyBold"
             numberOfLines={1}
           />
+        </Show>
+        <Show when={STORY_RELATIONS[props.user.username] === 'requested'}>
+          <Badge label="Request sent" intent="info" />
         </Show>
       </StackVertical>
       <StoryRelationPill username={props.user.username} />

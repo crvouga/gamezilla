@@ -23,6 +23,11 @@ export type FriendUserRowProps = {
   readonly onPress?: (() => void) | undefined;
   readonly trailing?: JSX.Element;
   /**
+   * A status under the name, such as a request that is out: it reads as a
+   * fact about the person, and leaves the trailing edge to the one control.
+   */
+  readonly subtitle?: JSX.Element;
+  /**
    * A typed search: the part of the name after it is emphasised, so
    * similar names ("@jordan", "@jordan_plays") read apart at a glance.
    */
@@ -80,14 +85,16 @@ function FriendUserRowName(props: {
 function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
   readonly highlight?: string | undefined;
+  readonly subtitle?: JSX.Element;
 }): JSX.Element {
   const moderation = useModeration();
   const label = createMemo(() => profileLabel(moderation(), props.profile));
   return (
     <>
       <FriendProfileAvatar profile={props.profile} name={label()} size={44} />
-      <StackVertical grow>
+      <StackVertical grow shrink gap="xs">
         <FriendUserRowName label={label()} highlight={props.highlight} />
+        <Show when={props.subtitle !== undefined}>{props.subtitle}</Show>
       </StackVertical>
     </>
   );
@@ -124,6 +131,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
           <FriendUserRowIdentity
             profile={props.profile}
             highlight={props.highlight}
+            subtitle={props.subtitle}
           />
           {trailing()}
         </StackHorizontal>
@@ -144,6 +152,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
             <FriendUserRowIdentity
               profile={props.profile}
               highlight={props.highlight}
+              subtitle={props.subtitle}
             />
           </Pressable>
           {trailing()}
