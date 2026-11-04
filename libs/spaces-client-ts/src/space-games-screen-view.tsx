@@ -57,6 +57,7 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
   return (
     <MainMenuScreen
       screenId="games-main-menu"
+      wideLayout="grid"
       title={<Trans>Games</Trans>}
       subtitle={<Trans>Pick a game to play.</Trans>}
       helper={!props.canSelectGame ? <HostChoosesNotice /> : undefined}

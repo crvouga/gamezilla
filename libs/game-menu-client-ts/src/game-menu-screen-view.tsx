@@ -52,6 +52,7 @@ export function GameMenuScreenView(
   return (
     <MainMenuScreen
       screenId="game-choices"
+      wideLayout="grid"
       dataSet={{ testid: Handles.gameChoices }}
       title={
         <GameTitleLockup tile={<GameTile motif={props.tile} size="lg" />}>
