@@ -75,7 +75,7 @@ msgstr "{0, plural, one {# player} other {# players}}"
 msgid "{0, plural, one {# plays, others watch} other {# play, others watch}}"
 msgstr "{0, plural, one {# plays, others watch} other {# play, others watch}}"
 
-#. placeholder {0}: rating.games
+#. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
 msgstr "{0, plural, one {# rated game} other {# rated games}}"
@@ -1154,7 +1154,6 @@ msgstr "Available transitions"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: pkgs/ui-root-client-ts/src/back-icon-button/index.tsx
 msgid "Back"
@@ -1420,6 +1419,10 @@ msgstr "Central hill"
 msgid "Change game"
 msgstr "Change game"
 
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+msgid "Change player"
+msgstr "Change player"
+
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
 msgstr "Change size"
@@ -1427,10 +1430,6 @@ msgstr "Change size"
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
-
-#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
-msgid "Change who sits here"
-msgstr "Change who sits here"
 
 #: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Changes have not reached your other devices"
@@ -1601,10 +1600,6 @@ msgstr "Choose three cards to pass to the left."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Choose three cards to pass to the right."
 msgstr "Choose three cards to pass to the right."
-
-#: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Choose who plays each of the {playerCount} places"
-msgstr "Choose who plays each of the {playerCount} places"
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
@@ -2836,10 +2831,6 @@ msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for you
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
-
-#: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
-msgid "Forward"
-msgstr "Forward"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Forward<0> one move</0>"
@@ -4860,9 +4851,10 @@ msgstr "Progress saved on this device. Changes share when connected."
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
+#. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Provisional"
-msgstr "Provisional"
+msgid "Provisional · {0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
+msgstr "Provisional · {0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
@@ -6112,8 +6104,8 @@ msgid "Six turns in a row scored nothing. Each player's remaining tiles count ag
 msgstr "Six turns in a row scored nothing. Each player's remaining tiles count against them."
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
-msgid "Skip"
-msgstr "Skip"
+msgid "Skip puzzle"
+msgstr "Skip puzzle"
 
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Skipped"
@@ -6684,14 +6676,6 @@ msgstr "That username is not allowed"
 #: libs/game-puzzle-client-ts/src/puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "The ? means provisional: each rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games at its speed."
-msgstr "The ? means provisional: each rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games at its speed."
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "The ? means provisional: the rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games."
-msgstr "The ? means provisional: the rating settles after {MULTIPLAYER_SETTLED_GAMES} rated games."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "The {name} cannot go there: it would overlap the {other}."
@@ -7768,6 +7752,10 @@ msgstr "White"
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Wins"
 msgstr "Wins"
+
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "With the people in this space, or bots"
+msgstr "With the people in this space, or bots"
 
 #: libs/game-puzzle-client-ts/src/content-withdraw.tsx
 msgid "Withdraw"
