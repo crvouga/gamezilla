@@ -92,7 +92,9 @@ export function GlobalTrailingInRail(props: {
   readonly when: boolean;
   readonly children: JSX.Element;
 }): JSX.Element {
-  const when = createMemo(() => props.when);
+  // Inherits: content already marked beside a sidebar stays marked.
+  const outer = useContext(GlobalTrailingInRailContext);
+  const when = createMemo(() => props.when || outer());
   return (
     <GlobalTrailingInRailContext.Provider value={when}>
       {props.children}

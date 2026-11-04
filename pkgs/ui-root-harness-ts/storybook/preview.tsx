@@ -6,6 +6,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import {
   AppFrameChromeProvider,
+  GlobalTrailingInRail,
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import {
@@ -49,13 +50,14 @@ function createStoryRouter(): AppRouter {
  * viewport, so wide layouts get the app's centered column and page inset.
  * The frame's own chrome (header, tab bar, account menu) opts out with
  * `appFrame: false`; the sidebar renders as the frame's rail with
- * `appFrame: 'rail'`. The `frame` toolbar global shows a screen as it sits
+ * `appFrame: 'rail'`. The `sidebar` global shows a desktop screen beside
+ * the sidebar that carries the account menu. The `frame` global shows a screen as it sits
  * inside an open space: a space's top bar takes the header slot (a blank
  * stand-in here) and the column narrows to the space measure.
  */
 function withOptionalRouter(
   parameters: Record<string, unknown>,
-  inSpace: boolean,
+  where: { readonly inSpace: boolean; readonly besideSidebar: boolean },
   story: () => JSX.Element
 ): JSX.Element {
   if (parameters['appRouter'] !== true) return story();
@@ -65,7 +67,8 @@ function withOptionalRouter(
         <StoryAppViewport
           story={story}
           asRail={parameters['appFrame'] === 'rail'}
-          inSpace={inSpace}
+          inSpace={where.inSpace}
+          besideSidebar={where.besideSidebar}
         />
       </Show>
     </StaticAppRouterProvider>
@@ -92,6 +95,7 @@ function StoryAppViewport(props: {
   story: () => JSX.Element;
   asRail: boolean;
   inSpace: boolean;
+  besideSidebar: boolean;
 }): JSX.Element {
   return (
     <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
@@ -108,7 +112,9 @@ function StoryAppViewport(props: {
         <Show when={props.inSpace}>
           <SpaceChromeStandIn />
         </Show>
-        <StoryFrame story={props.story} asRail={props.asRail} />
+        <GlobalTrailingInRail when={props.besideSidebar}>
+          <StoryFrame story={props.story} asRail={props.asRail} />
+        </GlobalTrailingInRail>
       </AppFrameChromeProvider>
     </div>
   );
@@ -169,7 +175,10 @@ const withProviders = createJSXDecorator((Story, context) => {
           <SurfaceStackProvider>
             {withOptionalRouter(
               context.parameters,
-              context.globals['frame'] === 'space',
+              {
+                inSpace: context.globals['frame'] === 'space',
+                besideSidebar: context.globals['sidebar'] === 'beside',
+              },
               () => (
                 <Story />
               )
@@ -186,6 +195,7 @@ export default {
   initialGlobals: {
     theme: 'light',
     frame: 'app',
+    sidebar: 'none',
     timeStep: '0',
     backgrounds: { value: 'canvas', grid: false },
     a11y: { manual: true },
@@ -207,6 +217,17 @@ export default {
     theme: {
       description: 'Production color scheme',
       toolbar: { icon: 'circlehollow', items: ['light', 'dark'] },
+    },
+    sidebar: {
+      description:
+        'Whether a desktop sidebar carries the account menu beside the screen',
+      toolbar: {
+        icon: 'sidebar',
+        items: [
+          { value: 'none', title: 'No sidebar' },
+          { value: 'beside', title: 'Beside the sidebar' },
+        ],
+      },
     },
     frame: {
       description: 'Where a screen sits: the app, or inside an open space',
