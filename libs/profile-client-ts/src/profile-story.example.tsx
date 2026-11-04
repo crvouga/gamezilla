@@ -9,11 +9,14 @@ import type { ProfileIdentity } from './profile-screen-view';
 /** Story fixtures: a fixed person whose own profile the stories show. */
 export const STORY_PROFILE_ID = '7d3e5c1a-0000-4000-8000-000000000001';
 
-/** Avery, with the default avatar look seeded from their id. */
+/** Seeds Avery's friendly default face, the one their space card shows. */
+const STORY_AVATAR_SEED = '5a1e0000-0000-4000-8000-000000000001';
+
+/** Avery, with a seeded default avatar look. */
 export const STORY_IDENTITY: ProfileIdentity = {
   profileId: STORY_PROFILE_ID,
   username: 'avery',
-  avatarConfig: { style: 'funEmoji', seed: STORY_PROFILE_ID, options: {} },
+  avatarConfig: { style: 'funEmoji', seed: STORY_AVATAR_SEED, options: {} },
   isBot: false,
 };
 

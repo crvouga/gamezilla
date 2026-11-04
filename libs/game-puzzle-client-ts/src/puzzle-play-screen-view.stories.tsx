@@ -19,7 +19,7 @@ import {
   withScreenFrame,
 } from './puzzle-screen-story.example';
 
-const PUZZLE_ID = 'chess:00a3f';
+const PUZZLE_ID = 'chess/00a3f';
 
 /** What the slots show for one state: the board, the line so far, the result. */
 type PuzzleScene = {

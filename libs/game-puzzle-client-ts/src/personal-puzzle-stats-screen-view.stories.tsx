@@ -22,7 +22,7 @@ const STATS = {
 
 const LOG = [
   {
-    puzzleId: 'chess:00a3f',
+    puzzleId: 'chess/00a3f',
     puzzleRating: 1702,
     outcome: 'solved',
     ratingBefore: 1632,
