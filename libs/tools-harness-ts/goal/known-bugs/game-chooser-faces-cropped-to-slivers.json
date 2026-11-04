@@ -1,0 +1,4 @@
+{
+  "summary": "The game chooser's who's-here strip drew 24px faces inside 24px ring slots (the 2px ring cropped each face) and stacked them 10px deep, so every face but the last showed as a sliver. Faces are now 28px inside a 32px slot and neighbours overlap only by the ring.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-who-is-here.test.tsx"
+}
