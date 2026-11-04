@@ -15,7 +15,6 @@ import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { Layer } from '@pkgs/ui-root-client-ts/layer';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { fn } from 'storybook/test';
@@ -51,15 +50,14 @@ const WRITING: PuzzleMoveWriting = {
 const noop = (): void => {};
 
 /**
- * Decorator: a fixed full-viewport frame (with the canvas held at that
- * height), so a screen whose board takes the room its chrome leaves (play)
- * has a definite room to measure, as in the app.
+ * Decorator: the room the app frame's content region leaves (its height
+ * held, never more), so a screen whose board takes the room its chrome
+ * leaves (play) has a definite room to measure, as in the app, and sits
+ * under the frame's header (an open space's top bar) rather than over it.
  */
 export const withScreenFrame = createJSXDecorator((Story) => (
-  <StackVertical minHeight="screen">
-    <Layer inset="viewport">
-      <Story />
-    </Layer>
+  <StackVertical grow minHeight="none">
+    <Story />
   </StackVertical>
 ));
 
