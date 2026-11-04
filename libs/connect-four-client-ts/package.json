@@ -23,6 +23,7 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@libs/game-session-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

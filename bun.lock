@@ -841,6 +841,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -1211,9 +1212,9 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/sounds-client-ts": "workspace:*",
         "@pkgs/sounds-shared-ts": "workspace:*",
-        "@pkgs/ui-root-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1383,6 +1384,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -2345,6 +2347,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -2452,6 +2455,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -2846,6 +2850,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -3067,6 +3072,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -3907,6 +3913,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -8186,7 +8193,7 @@
 
     "@emnapi/core": ["@emnapi/core@1.9.2", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.1", "tslib": "^2.4.0" } }, "sha512-UC+ZhH3XtczQYfOlu3lNEkdW/p4dsJ1r/bP7H8+rhao3TTTMO1ATq/4DdIi23XuGoFY+Cz0JmCbdVl0hz9jZcA=="],
 
-    "@emnapi/runtime": ["@emnapi/runtime@1.11.3", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA=="],
+    "@emnapi/runtime": ["@emnapi/runtime@1.9.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-3U4+MIWHImeyu1wnmVygh5WlgfYDtyf0k8AbLhMFxOipihf6nrWC4syIm/SwEeec0mNSafiiNnMJwbza/Is6Lw=="],
 
     "@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.2.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w=="],
 
@@ -11078,6 +11085,8 @@
 
     "@happy-dom/global-registrator/@types/node": ["@types/node@26.6.5", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg=="],
 
+    "@img/sharp-wasm32/@emnapi/runtime": ["@emnapi/runtime@1.11.3", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA=="],
+
     "@informalsystems/quint/yargs": ["yargs@17.7.3", "", { "dependencies": { "cliui": "^8.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "require-directory": "^2.1.1", "string-width": "^4.2.3", "y18n": "^5.0.5", "yargs-parser": "^21.1.1" } }, "sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g=="],
 
     "@jest/types/@types/node": ["@types/node@26.6.5", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg=="],
@@ -11127,8 +11136,6 @@
     "@opentelemetry/sdk-trace-node/@opentelemetry/api": ["@opentelemetry/api@1.9.1", "", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
 
     "@opentelemetry/sdk-trace-web/@opentelemetry/api": ["@opentelemetry/api@1.9.1", "", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
-
-    "@oxc-parser/binding-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.9.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-3U4+MIWHImeyu1wnmVygh5WlgfYDtyf0k8AbLhMFxOipihf6nrWC4syIm/SwEeec0mNSafiiNnMJwbza/Is6Lw=="],
 
     "@oxc-resolver/binding-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.11.0", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.2", "tslib": "^2.4.0" } }, "sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q=="],
 

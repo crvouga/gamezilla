@@ -1,3 +1,9 @@
+import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
 import { type Card, writeCards } from '@libs/hearts-shared-ts/hearts-cards';
 import {
   dealFrom,
@@ -19,12 +25,6 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 import { HeartsBoard } from './hearts-board';
 import { heartsPresentation } from './hearts-presentation';
 

@@ -24,6 +24,7 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@libs/game-session-client-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
