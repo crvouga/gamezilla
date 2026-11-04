@@ -29,6 +29,8 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@libs/profile-client-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
     "@typescript/native": "catalog:",
     "storybook": "catalog:",
     "storybook-solidjs-vite": "catalog:",
