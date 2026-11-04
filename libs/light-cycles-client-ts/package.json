@@ -25,6 +25,7 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@libs/game-session-client-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

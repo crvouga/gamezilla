@@ -1,4 +1,10 @@
 import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
+import {
   decodePosition,
   encodePosition,
   newPosition,
@@ -8,12 +14,6 @@ import { seatSides } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 import {
   createWordTilesSession,
   WordTilesBoardView,

@@ -1,16 +1,16 @@
 import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
+import {
   encodeQuoridor,
   replayQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
 

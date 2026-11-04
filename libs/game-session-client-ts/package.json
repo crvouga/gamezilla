@@ -57,6 +57,8 @@
     "typescript": "catalog:"
   },
   "category": "client",
-  "gameApi": [],
+  "gameApi": [
+    "game-frame-table.example"
+  ],
   "language": "typescript"
 }

@@ -17,6 +17,18 @@ export type GameMenuChoiceView = {
   readonly caption: JSX.Element;
 };
 
+/**
+ * How strongly each choice asks to be chosen: playing with friends or bots
+ * is the main way in, finding an opponent an ordinary one, and looking
+ * back (history, puzzle stats) or settings the quiet ones.
+ */
+const EMPHASIS: Readonly<Record<string, MainMenuItem['emphasis']>> = {
+  'custom-game': 'primary',
+  history: 'quiet',
+  'puzzle-stats': 'quiet',
+  settings: 'quiet',
+};
+
 export type GameMenuScreenViewProps = {
   /** The game's name. */
   readonly title: string;
@@ -45,6 +57,7 @@ export function GameMenuScreenView(
       key: choice.screen,
       title: choice.title,
       caption: choice.caption,
+      emphasis: EMPHASIS[choice.screen],
       dataSet: { testid: Handles.gameChoice(choice.screen) },
       onClick: () => props.onChoose(choice.screen),
     }))

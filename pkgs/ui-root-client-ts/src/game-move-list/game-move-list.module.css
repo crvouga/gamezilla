@@ -1,0 +1,99 @@
+/* A game's record as numbered turns. `row` runs along one line inside a
+   MoveStrip; `table` gives each turn a line, its moves in seat columns. */
+.list {
+  display: flex;
+  min-width: 0;
+}
+.list[data-layout="row"] {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-3);
+}
+.list[data-layout="table"] {
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.turns {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.list[data-layout="row"] .turns {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-3);
+}
+.list[data-layout="table"] .turns {
+  flex-direction: column;
+  gap: var(--ui-space-hairline);
+}
+.turn {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  flex-shrink: 0;
+}
+.list[data-layout="table"] .turn {
+  display: grid;
+  grid-template-columns: 32px repeat(var(--move-columns), minmax(0, 1fr));
+  column-gap: var(--ui-space-2);
+}
+.number {
+  min-width: 16px;
+  color: var(--ui-color-text-secondary);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: end;
+}
+.list[data-layout="table"] .number {
+  grid-column: 1;
+}
+.move {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.list[data-layout="table"] .move {
+  grid-column: var(--move-column);
+}
+.moveButton {
+  display: inline-flex;
+  align-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding-inline: var(--ui-space-2);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-color-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.list[data-layout="table"] .moveButton {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (hover: hover) and (pointer: fine) {
+  .moveButton:hover {
+    background: var(--ui-color-interactive-hover);
+  }
+}
+.moveButton[data-current="true"] {
+  background: var(--ui-color-tint-subtle);
+  color: var(--ui-color-on-primary-soft);
+}
+.moveButton:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .moveButton {
+    transition: none;
+  }
+}

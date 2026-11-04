@@ -19,7 +19,6 @@ import {
   FrameStarterView,
   FrameStartView,
 } from './game-frame-configuration-view';
-import { FrameMoveStripView } from './game-frame-move-strip-view';
 import {
   FrameRecordView,
   type FrameReviewHandlers,
@@ -97,7 +96,10 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
 
 type Props = GameFrameScreenViewProps;
 
-/** Before a game, the starter; while one is set up, its seats and options. */
+/**
+ * Before a game, the starter; while one is set up, its seats and options,
+ * then starting it, so Start sits right under the players it starts with.
+ */
 function FrameSetupSlot(props: Props): JSX.Element {
   return (
     <Show
@@ -140,6 +142,13 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 />
               )}
             </Show>
+            {/* The start line says whether the game can start. */}
+            <FrameStatusView status={props.status} spokenOnly />
+            <FrameStartView
+              start={setup().start}
+              onChoose={props.onChoose}
+              onReady={props.onReady}
+            />
           </>
         )}
       </Show>
@@ -148,30 +157,17 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board: the line about a game being set up and starting it
- * (once it is played the line sits between the board and the person's own
- * seat), what a player is told during play, and the result once the game
- * is over. Play actions follow it, so on every screen they sit right under
- * the board.
+ * Under the board: the record strip on a phone, what a player is told
+ * during play, and the result once the game is over (once it is played the
+ * turn line sits between the board and the person's own seat). Play
+ * actions follow it, so on every screen they sit right under the board.
  */
 function FrameStatusRow(props: Props): JSX.Element {
   return (
     <>
-      <Show when={props.phase === 'configuring'}>
-        {/* The start line says whether the game can start. */}
-        <FrameStatusView
-          status={props.status}
-          spokenOnly={props.setup !== null}
-        />
-        <Show when={props.setup}>
-          {(setup) => (
-            <FrameStartView
-              start={setup().start}
-              onChoose={props.onChoose}
-              onReady={props.onReady}
-            />
-          )}
-        </Show>
+      {/* While set up without its setup in view, the line still says why. */}
+      <Show when={props.phase === 'configuring' && props.setup === null}>
+        <FrameStatusView status={props.status} />
       </Show>
       <FrameMoveStripSlot {...props} />
       <Show when={props.phase === 'active'}>
@@ -187,22 +183,55 @@ function FrameStatusRow(props: Props): JSX.Element {
 }
 
 /**
- * On a narrow screen the record falls below the play actions, so the
- * latest moves ride right under the board as well, once there are any.
+ * The record has nothing to say while a game is set up: it shows once the
+ * game is under way (or over), and before a game only for earlier games.
+ */
+function shownRecord(props: Props): FrameRecord | null {
+  return props.phase === 'configuring' ? null : props.record;
+}
+
+/**
+ * On a narrow screen a game played by turns keeps its record right under
+ * the board, as one strip that opens to the rest of the record; a wide
+ * screen keeps it in the rail beside the board.
  */
 function FrameMoveStripSlot(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  const record = (): FrameRecord | null =>
-    mode() !== 'wide' &&
-    (props.phase === 'active' || props.phase === 'completed') &&
-    props.record !== null &&
-    props.record.turns &&
-    props.record.moves.length > 0
-      ? props.record
+  const record = (): FrameRecord | null => {
+    const shown = shownRecord(props);
+    return mode() !== 'wide' &&
+      (props.phase === 'active' || props.phase === 'completed') &&
+      shown !== null &&
+      shown.turns
+      ? shown
       : null;
+  };
   return (
     <Show when={record()}>
-      {(shown) => <FrameMoveStripView record={shown()} onSeek={props.onSeek} />}
+      {(shown) => (
+        <FrameRecordView {...props} record={shown()} layout="strip" />
+      )}
+    </Show>
+  );
+}
+
+/** The record's panel, unless the strip under the board already holds it. */
+function FrameRecordAside(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  const record = (): FrameRecord | null => {
+    const shown = props.phase === 'none' ? null : shownRecord(props);
+    if (shown === null) return null;
+    const stripped =
+      mode() !== 'wide' &&
+      shown.turns &&
+      (props.phase === 'active' || props.phase === 'completed');
+    return stripped ? null : shown;
+  };
+  return (
+    <Show when={record()}>
+      {(shown) => (
+        <FrameRecordView {...props} record={shown()} layout="panel" />
+      )}
     </Show>
   );
 }
@@ -300,11 +329,7 @@ function FrameContent(props: Props): JSX.Element {
         </>
       }
       setup={<FrameSetupSlot {...props} />}
-      aside={
-        <Show when={props.phase !== 'none' ? props.record : null}>
-          {(record) => <FrameRecordView {...props} record={record()} />}
-        </Show>
-      }
+      aside={<FrameRecordAside {...props} />}
       status={<FrameStatusRow {...props} />}
       actions={
         <FrameActionsView

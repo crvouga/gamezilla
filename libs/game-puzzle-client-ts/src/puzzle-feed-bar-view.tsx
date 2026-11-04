@@ -9,7 +9,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
@@ -45,9 +45,6 @@ export type PuzzleFeedBarViewProps = {
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
 const RATING_SLOT_DIGITS = 4;
-
-/** A short puzzle id's width in the mono face, held before the id is known. */
-const EMPTY_ID_SLOT = '\u2007'.repeat(5);
 
 function historyFilterLabel(filter: PuzzleFeedHistoryFilter): string {
   switch (filter) {
@@ -170,15 +167,17 @@ function FeedBarPuzzleFacts(props: {
 }
 
 /**
- * Filter labels paint only after the saved config is in. Until then the
- * id and rating slots already hold their final width, so this block
- * appearing cannot move them or the board below.
+ * The feed's filters as one quiet line ("Auto target 1500 · Unseen · All
+ * themes"), then the rated puzzles left today. Filter words paint only
+ * after the saved config is in; until then the line keeps its height, so
+ * its appearing cannot move the board below. The settings hold the rest
+ * (how many puzzles match, every choice).
  */
-function FeedBarFilters(props: {
+function FeedBarSummary(props: {
   config: PuzzleFeedConfig;
+  configReady: boolean;
   effectiveRating: number;
-  matched: number;
-  total: number;
+  allowanceLabel: string;
   themeLabel: ThemeLabel;
 }): JSX.Element {
   const themeLabel = (theme: string): string => props.themeLabel(theme);
@@ -189,32 +188,39 @@ function FeedBarFilters(props: {
       <Trans>Custom target {ratingSlot(props.effectiveRating)}</Trans>
     );
   return (
-    <>
-      <FeedTag label={modeLabel()} testId="chess-puzzle-feed-target-label" />
-      <FeedTag
-        label={historyFilterLabel(props.config.historyFilter)}
-        testId="chess-puzzle-feed-history-label"
-      />
-      <FeedTag
-        label={themesSummary(props.config.themes, themeLabel)}
-        testId="chess-puzzle-feed-themes-label"
-      />
-      <FeedTag
-        label={
-          <Trans>
-            {props.matched} of {props.total} puzzles
-          </Trans>
-        }
-      />
-    </>
+    <P variant="caption" tone="secondary">
+      <Show when={props.configReady} fallback={'\u2007'}>
+        <Text variant="inherit" testId="chess-puzzle-feed-target-label">
+          {modeLabel()}
+        </Text>
+        {SEPARATOR}
+        <Text variant="inherit" testId="chess-puzzle-feed-history-label">
+          {historyFilterLabel(props.config.historyFilter)}
+        </Text>
+        {SEPARATOR}
+        <Text variant="inherit" testId="chess-puzzle-feed-themes-label">
+          {themesSummary(props.config.themes, themeLabel)}
+        </Text>
+      </Show>
+      <Show when={props.allowanceLabel.length > 0}>
+        <Show when={props.configReady}>{SEPARATOR}</Show>
+        <Text variant="inherit" testId="chess-puzzle-remaining-today">
+          {props.allowanceLabel}
+        </Text>
+      </Show>
+    </P>
   );
 }
 
+/** Between the facts of the summary line. */
+const SEPARATOR = ' · ';
+
 /**
  * The feed strip above the board, presentational: the puzzle by name, its
- * own rating and themes once over and the rating change it made, its id
- * trailing quietly; under them the feed's filters and the rated allowance.
- * Pressing it opens the feed settings.
+ * own rating and themes once over and the rating change it made; under
+ * them one quiet line of the feed's filters and the rated allowance. Its
+ * id and how many puzzles match are spoken, not shown. Pressing it opens
+ * the feed settings.
  */
 export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
   const themeLabel = (theme: string): string => props.themeLabel(theme);
@@ -233,7 +239,14 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
       {/* The whole feed in words; the visible labels follow it, so the
           button's name says everything the bar shows (WCAG 2.5.3). */}
       <VisuallyHidden testId="chess-puzzle-feed-description">
-        {`${feedAccessibleLabel(props.config, props.effectiveRating, themeLabel)} ${props.allowanceLabel}`.trim()}
+        {[
+          idLabel().length > 0 ? t`Puzzle ${idLabel()}.` : '',
+          feedAccessibleLabel(props.config, props.effectiveRating, themeLabel),
+          t`${props.matched} of ${props.total} puzzles match.`,
+          props.allowanceLabel,
+        ]
+          .filter((part) => part.length > 0)
+          .join(' ')}
       </VisuallyHidden>
       <StackVertical
         self="stretch"
@@ -257,32 +270,16 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
             {/* §9: a re-serve is played again but never re-rated (§8). */}
             <FeedBarRatingChange change={props.ratingChange} />
           </StackHorizontal>
-          {/* The id is for reference, so it trails, quiet; a fixed slot
-              keeps every short id the same width. */}
-          <P variant="mono" tone="secondary" wrap="nowrap">
-            {idLabel().length > 0 ? `#${idLabel()}` : EMPTY_ID_SLOT}
-          </P>
           <SlidersHorizontalIcon size={18} color="icon" />
         </StackHorizontal>
-        {/* The feed's filters, each its own tag; wraps rather than
-            scrolls, so every fact stays in view on a phone. */}
-        <StackHorizontal wrap self="stretch" align="center" gap="xs">
-          <Show when={props.configReady}>
-            <FeedBarFilters
-              config={props.config}
-              effectiveRating={props.effectiveRating}
-              matched={props.matched}
-              total={props.total}
-              themeLabel={themeLabel}
-            />
-          </Show>
-          <Show when={props.allowanceLabel.length > 0}>
-            <FeedTag
-              label={props.allowanceLabel}
-              testId="chess-puzzle-remaining-today"
-            />
-          </Show>
-        </StackHorizontal>
+        {/* The feed in one line; the settings hold the rest. */}
+        <FeedBarSummary
+          config={props.config}
+          configReady={props.configReady}
+          effectiveRating={props.effectiveRating}
+          allowanceLabel={props.allowanceLabel}
+          themeLabel={themeLabel}
+        />
       </StackVertical>
     </Pressable>
   );

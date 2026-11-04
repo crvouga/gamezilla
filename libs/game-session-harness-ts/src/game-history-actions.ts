@@ -28,8 +28,16 @@ export const openGameHistory = scenarioAction({
       s,
       async () => {
         if (await ui.get('game-history-statistics').isVisible()) return true;
+        const record = ui.get('custom-game-review-jump');
         if (await ui.get('custom-game-history-stats').isVisible())
           await ui.get('custom-game-history-stats').tap();
+        // Under a phone's board the record's disclosure holds the way to
+        // the history: a person opens it first.
+        else if (
+          (await record.isVisible()) &&
+          (await record.attribute('aria-expanded')) === 'false'
+        )
+          await record.tap();
         else if (await ui.get(Handles.gameChoice('history')).isVisible())
           await ui.get(Handles.gameChoice('history')).tap();
         else await ui.get(Handles.navBack).tap();

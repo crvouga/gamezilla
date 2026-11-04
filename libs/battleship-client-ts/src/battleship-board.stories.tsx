@@ -1,6 +1,12 @@
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { resolveBattleshipShot } from '@libs/battleship-shared-ts/battleship-rules';
 import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
+import {
   type GameSetups,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -8,12 +14,6 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipBoard } from './battleship-board';
 import { battleshipPresentation } from './battleship-presentation';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 
 /** Blue's fleet along rows 1, 3, 5, 7 and 9 from column A. */
 const BLUE_FLEET =

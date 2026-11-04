@@ -2,14 +2,52 @@ import {
   DEFAULT_TIME_CONTROL,
   TIME_CONTROLS,
   timeControlKey,
+  timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
-import { timeControlChoiceText } from './time-control-name';
+import { timeControlChoiceText, timeControlText } from './time-control-name';
+
+/**
+ * What the search will find, right above it: a rated game, and its clock
+ * (the chosen time control and its speed) or none.
+ */
+function MatchConditions(props: {
+  readonly timed: boolean;
+  readonly timeControl: string;
+}): JSX.Element {
+  const speed = () => timeControlOf(props.timeControl)?.speed;
+  return (
+    <StackHorizontal
+      align="center"
+      gap="sm"
+      wrap
+      aria-label={t`Match conditions`}
+      dataSet={{ testid: 'multiplayer-find-conditions' }}
+    >
+      <Badge intent="neutral" label={<Trans>Rated</Trans>} />
+      <Show
+        when={props.timed}
+        fallback={<Badge intent="neutral" label={<Trans>Untimed</Trans>} />}
+      >
+        <Badge intent="neutral" label={timeControlText(props.timeControl)} />
+        <Show when={speed()}>
+          {(name) => (
+            <Badge intent="neutral" label={<SpeedName speed={name()} />} />
+          )}
+        </Show>
+      </Show>
+    </StackHorizontal>
+  );
+}
 
 /**
  * Choose one of the offered time controls (for a game with clock choices),
@@ -25,6 +63,9 @@ export function MultiplayerFindPanel(props: {
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const count = () => props.players;
+  // A phone's button spans its column; beside a wide board it is sized to
+  // its words, never stretched across the whole column.
+  const mode = useLayoutMode();
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
@@ -76,7 +117,7 @@ export function MultiplayerFindPanel(props: {
             props.onFind(props.timed ? timeControl() : undefined)
           }
           variant="solid"
-          fullWidth
+          fullWidth={mode() !== 'wide'}
           dataSet={{ testid: 'multiplayer-find' }}
         />
       }
@@ -96,6 +137,7 @@ export function MultiplayerFindPanel(props: {
           }))}
         />
       </Show>
+      <MatchConditions timed={props.timed} timeControl={timeControl()} />
     </GameSetupPanel>
   );
 }

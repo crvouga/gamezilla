@@ -1,3 +1,9 @@
+import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import {
@@ -13,12 +19,6 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 import { PongBoardView } from './pong-board-view';
 import { pongGameClient } from './pong-game-client';
 

@@ -45,10 +45,10 @@ msgstr "{0, plural, one {# closed seat needs a player or a bot.} other {# closed
 msgid "{0, plural, one {# device} other {# devices}}"
 msgstr "{0, plural, one {# device} other {# devices}}"
 
-#. placeholder {0}: first()
+#. placeholder {0}: props.count
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
-msgid "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
-msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
+msgid "{0, plural, one {# earlier move} other {# earlier moves}}"
+msgstr "{0, plural, one {# earlier move} other {# earlier moves}}"
 
 #. placeholder {0}: count()
 #: libs/spaces-client-ts/src/miniplayer-space-summary.tsx
@@ -140,17 +140,17 @@ msgstr "{0} matching · {1} local puzzles"
 msgid "{0} no longer signs in to this account."
 msgstr "{0} no longer signs in to this account."
 
-#. placeholder {0}: props.matched
-#. placeholder {1}: props.total
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
-msgid "{0} of {1} puzzles"
-msgstr "{0} of {1} puzzles"
-
 #. placeholder {0}: pack().completedCount
 #. placeholder {1}: pack().total
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "{0} of {1} puzzles completed"
 msgstr "{0} of {1} puzzles completed"
+
+#. placeholder {0}: props.matched
+#. placeholder {1}: props.total
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+msgid "{0} of {1} puzzles match."
+msgstr "{0} of {1} puzzles match."
 
 #. placeholder {0}: position.scoreless
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
@@ -3105,6 +3105,10 @@ msgid "I can't fetch puzzles without a connection. Come back online and we'll pi
 msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
+msgid "I'm not ready"
+msgstr "I'm not ready"
+
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "I'm ready"
 msgstr "I'm ready"
 
@@ -3649,6 +3653,10 @@ msgstr "Manual next puzzle"
 msgid "Mark all read"
 msgstr "Mark all read"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "Match conditions"
+msgstr "Match conditions"
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
 msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
@@ -3740,11 +3748,14 @@ msgstr "Move {0} of {1}. {2}"
 msgid "Move {0} up"
 msgstr "Move {0} up"
 
-#. placeholder {0}: first() + index + 1
-#. placeholder {1}: label()
-#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
-msgid "Move {0}: {1}"
-msgstr "Move {0}: {1}"
+#. placeholder {0}: mover.sideLabel
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Move {ply}, {0}: {label}"
+msgstr "Move {ply}, {0}: {label}"
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Move {ply}: {label}"
+msgstr "Move {ply}: {label}"
 
 #: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
 msgid "Move endpoints inside the smaller board before resizing it."
@@ -3903,7 +3914,6 @@ msgid "Next"
 msgstr "Next"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
-#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Next move"
@@ -4015,7 +4025,6 @@ msgid "No membership yet."
 msgstr "No membership yet."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
-#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "No moves yet."
 msgstr "No moves yet."
 
@@ -4726,7 +4735,6 @@ msgid "Previous"
 msgstr "Previous"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
-#: libs/game-session-client-ts/src/game-frame-move-strip-view.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Previous move"
@@ -4840,6 +4848,11 @@ msgstr "Pushes"
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
+
+#. placeholder {0}: idLabel()
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+msgid "Puzzle {0}."
+msgstr "Puzzle {0}."
 
 #: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay-view.tsx
 msgid "Puzzle abandoned"
@@ -5023,6 +5036,10 @@ msgstr "Randomize"
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Rapid"
 msgstr "Rapid"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "Rated"
+msgstr "Rated"
 
 #: libs/game-puzzle-client-ts/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"
@@ -7407,6 +7424,7 @@ msgstr "Unreachable"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Untimed"
@@ -7644,10 +7662,6 @@ msgstr "Withdraw"
 #: libs/game-puzzle-client-ts/src/content-withdraw.tsx
 msgid "Withdraw publication"
 msgstr "Withdraw publication"
-
-#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
-msgid "Withdraw readiness"
-msgstr "Withdraw readiness"
 
 #: libs/game-puzzle-client-ts/src/content-withdraw.tsx
 msgid "Withdraw this publication?"

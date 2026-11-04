@@ -143,13 +143,15 @@ export function status(over: Partial<FrameStatus> = {}): FrameStatus {
   };
 }
 
-/** The record of a game played by turns, at its latest move. */
+/** The record of a game played by turns, at its latest move: the two seats alternate. */
 export function record(moves: readonly string[]): FrameRecord {
   return {
     earlier: [],
     selection: 'live',
     turns: true,
     moves,
+    perTurn: 2,
+    movers: moves.map((_, index) => LOOKS[index % 2 === 0 ? 'white' : 'black']),
     displayedPly: moves.length,
     error: '',
     history: true,
