@@ -61,6 +61,12 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
   );
 }
 
+/**
+ * Chess's board for the platform's puzzle screens: in `play` the solver's
+ * moves (reported in UCI, never auto-queened), a hint's dot, a wrong
+ * move's cross and the solution and suggestions as arrows; in `review` a
+ * read-only position stepping through the line.
+ */
 export function ChessPuzzleBoard(props: PuzzleBoardProps): JSX.Element {
   return (
     <Show when={props.mode === 'play'} fallback={<ReviewBoard {...props} />}>

@@ -399,7 +399,7 @@ describe('Game frame: layout slots', () => {
     expect(
       controls.contains(screen.getByRole('button', { name: 'Resign' }))
     ).toBe(true);
-    expect(layout.style.getPropertyValue('--game-rail-rows')).toBe('3');
+    expect(layout.getAttribute('style')).toContain('--game-rail-rows: 3');
   });
 
   test('without actions beside, status and actions follow the board in its column', () => {

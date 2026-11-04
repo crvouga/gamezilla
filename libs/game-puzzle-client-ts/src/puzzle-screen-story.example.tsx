@@ -339,6 +339,9 @@ export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
   'overlay',
 ] as const;
 
+/** The play view's props, for a game's own puzzle stories. */
+export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
+
 /** The play view solving the line's first move, every callback a spy. */
 export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
   pick: 'playing',

@@ -1,7 +1,7 @@
-import type { PuzzlePlayScreenViewProps } from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
+  type PuzzlePlayStoryArgs,
   renderPuzzlePlayScene,
   STORY_LINE,
   withScreenFrame,
@@ -29,7 +29,7 @@ const meta = {
       {
         ...PUZZLE_PLAY_STORY_ARGS,
         ...(context.parameters['view'] as
-          | Partial<PuzzlePlayScreenViewProps>
+          | Partial<PuzzlePlayStoryArgs>
           | undefined),
       },
       context,
