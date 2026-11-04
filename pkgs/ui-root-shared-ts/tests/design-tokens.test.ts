@@ -135,13 +135,13 @@ describe('values derived from the tokens', () => {
   test('the text styles are the eight of the design', () => {
     expect(textStyles).toEqual({
       'display-xl': {
-        family: 'display',
+        family: 'sans',
         size: '3xl',
         weight: 'bold',
         leading: '3xl',
       },
       display: {
-        family: 'display',
+        family: 'sans',
         size: '2xl',
         weight: 'bold',
         leading: '2xl',

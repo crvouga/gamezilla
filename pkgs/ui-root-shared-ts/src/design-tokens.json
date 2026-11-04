@@ -2688,12 +2688,7 @@
       "$type": "cubicBezier",
       "$description": "Ease-out for everything that answers a person.",
       "standard": {
-        "$value": [
-          0.2,
-          0,
-          0,
-          1
-        ]
+        "$value": [0.2, 0, 0, 1]
       }
     }
   },
