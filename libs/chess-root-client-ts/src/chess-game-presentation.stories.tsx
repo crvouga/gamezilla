@@ -36,7 +36,7 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
-    table: { turn: 'white' } satisfies GameTableStory,
+    table: { title: 'Chess', turn: 'white' } satisfies GameTableStory,
   },
   args: boardArgs(START, { interactive: true }),
 } satisfies Meta<typeof ChessGameBoard>;

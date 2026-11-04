@@ -71,6 +71,8 @@ export const BOARD_CONTROLS_EXCLUDE = [
  * `parameters: { table: GameTableStory }`.
  */
 export type GameTableStory = {
+  /** The game's title above the board, as its menu names it; defaults to the presentation's name. */
+  readonly title?: string;
   /** The person's own seat; `null` for a watcher. Defaults to the board's orientation. */
   readonly viewer?: GameSide | null;
   /** The side to move. */
@@ -231,7 +233,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
   return (
     <GameFrameScreenView
       {...frameArgs()}
-      title={props.presentation.name()}
+      title={props.title ?? props.presentation.name()}
       phase={over() ? 'completed' : 'active'}
       viewerSide={viewer()}
       status={tableStatus(props)}
