@@ -106,10 +106,11 @@ function MenuRowTrailing(props: {
       when={props.value !== undefined && props.value !== null}
       fallback={end()}
     >
-      {/* Capped so a long value never crowds the title out of the row. */}
+      {/* Capped so a long value never crowds the title out of the row.
+          Body size in the secondary ink: a value is read, not glossed. */}
       <div class="box flex-row items-center gap-2 max-w-9/20">
         <div
-          class={`text textCaption text-right shrink ${textStyleClass({ lines: props.valueLines ?? 1 })}`}
+          class={`text text-text-secondary text-right shrink ${textStyleClass({ lines: props.valueLines ?? 1 })}`}
         >
           {props.value}
         </div>

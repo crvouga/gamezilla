@@ -111,18 +111,16 @@ function useAccountGroup(
 }
 
 /**
- * The Work offline row's caption: the mode the app is in now, then what the
- * switch means for the person. "Online" / "Offline" lead, so the row says
- * where the person stands before it says what the switch does.
+ * The Work offline row's caption: one short line, the mode the app is in now
+ * and what that means. "Online" / "Offline" lead, so the row says where the
+ * person stands; the switch beside it says what turning it does.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
 ): Accessor<string> {
   const { t } = useLingui();
   return () =>
-    props.offline
-      ? t`Offline. What you do stays on this device until you turn this off.`
-      : t`Online. Turn on to use the app without a connection; nothing syncs until you turn it off.`;
+    props.offline ? t`Offline — nothing syncs` : t`Online — changes sync`;
 }
 
 function usePreferencesGroup(
