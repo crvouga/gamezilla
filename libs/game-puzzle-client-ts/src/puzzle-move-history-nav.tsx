@@ -18,11 +18,6 @@ const NAV_SIZE = 40;
 export type PuzzleMoveNavProps = {
   canGoBack: boolean;
   canGoForward: boolean;
-  /**
-   * The play screen already offers step back / forward in its bottom action
-   * bar, so only the review surface renders them here as well.
-   */
-  showStepControls: boolean;
   onNavigate: (intent: PuzzleNavIntent) => void;
 };
 
@@ -31,7 +26,6 @@ type NavSlot = {
   readonly icon: IconComponent;
   readonly label: string;
   readonly disabled: boolean;
-  readonly step: boolean;
 };
 
 function navSlots(props: PuzzleMoveNavProps): readonly NavSlot[] {
@@ -41,28 +35,24 @@ function navSlots(props: PuzzleMoveNavProps): readonly NavSlot[] {
       icon: ChevronsLeftIcon,
       label: t`Jump to start`,
       disabled: !props.canGoBack,
-      step: false,
     },
     {
       intent: PUZZLE_NAV_INTENT.back,
       icon: ChevronLeftIcon,
       label: t`Previous move`,
       disabled: !props.canGoBack,
-      step: true,
     },
     {
       intent: PUZZLE_NAV_INTENT.forward,
       icon: ChevronRightIcon,
       label: t`Next move`,
       disabled: !props.canGoForward,
-      step: true,
     },
     {
       intent: PUZZLE_NAV_INTENT.end,
       icon: ChevronsRightIcon,
       label: t`Jump to end`,
       disabled: !props.canGoForward,
-      step: false,
     },
   ];
 }
@@ -86,8 +76,9 @@ function NavButton(props: {
 }
 
 /**
- * §7 jump-to-start / jump-to-end (plus step back / forward on the review
- * surface) flanking the move list.
+ * §7 move review flanking the move list, the one place to move through the
+ * line: jump to the start and step back before it, step forward and jump to
+ * the end after it.
  */
 export function PuzzleMoveNav(props: {
   side: 'leading' | 'trailing';
@@ -96,7 +87,6 @@ export function PuzzleMoveNav(props: {
   const slots = (): readonly NavSlot[] => {
     const leading = props.side === 'leading';
     return navSlots(props.nav).filter((slot) => {
-      if (!props.nav.showStepControls && slot.step) return false;
       const isLeading =
         slot.intent === PUZZLE_NAV_INTENT.start ||
         slot.intent === PUZZLE_NAV_INTENT.back;

@@ -109,7 +109,6 @@ export function PuzzleReviewBoard(props: {
             nav={{
               canGoBack: model.canGoBack(),
               canGoForward: model.canGoForward(),
-              showStepControls: true,
               onNavigate: model.onNavigate,
             }}
           />

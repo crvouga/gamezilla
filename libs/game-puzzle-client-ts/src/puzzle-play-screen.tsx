@@ -158,12 +158,9 @@ function PuzzlePlayerChrome(props: {
         feedConfig={config()}
         status={p.status()}
         hintStage={p.hintStage()}
-        canGoBack={p.canGoBack()}
         canGoForward={p.canGoForward()}
         onHint={p.onHint}
         onSolution={p.onSolution}
-        onBack={p.onBack}
-        onForward={p.onForward}
         onRetry={p.onRetry}
         onSkip={p.onSkip}
         onNext={p.onNext}
@@ -271,12 +268,9 @@ function PuzzlePlayShell(props: {
         denial={denial()}
         status="loading"
         hintStage="none"
-        canGoBack={false}
         canGoForward={false}
         onHint={noop}
         onSolution={noop}
-        onBack={noop}
-        onForward={noop}
         onRetry={noop}
         onSkip={noop}
         onNext={noop}

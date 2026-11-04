@@ -732,13 +732,7 @@ export const stepThroughPuzzleLine = scenarioAction({
   act: async (s, actorId: string, direction: 'back' | 'forward') => {
     await closeResultPanel(s, actorId);
     const ui = await actorUi(s, actorId);
-    await ui
-      .get(
-        direction === 'back'
-          ? Handles.chessPuzzleActionBack
-          : Handles.chessPuzzleActionForward
-      )
-      .tap();
+    await ui.get(Handles.chessPuzzleMoveNav(direction)).tap();
     await s.session.waitForIdle();
   },
 });
