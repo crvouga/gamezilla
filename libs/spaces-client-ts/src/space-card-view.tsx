@@ -36,9 +36,7 @@ const GUEST_AVATAR_SIZE = 24;
 const GUEST_AVATAR_MAX_VISIBLE = 6;
 /** Names spelled out under the faces; the rest are counted. */
 const GUEST_NAMES_SHOWN = 3;
-/** A lobby card's guest line: a few small faces, then two names. */
-const CARD_GUEST_AVATAR_SIZE = 20;
-const CARD_GUEST_AVATAR_MAX_VISIBLE = 3;
+/** A lobby card's guest line: two names, then how many more. */
 const CARD_GUEST_NAMES = 2;
 const ACTION_ICON_SIZE = 16;
 
@@ -190,8 +188,8 @@ function SpaceHostLine(props: { readonly space: SpaceCardData }): JSX.Element {
 }
 
 /**
- * Who else is in the space on one line: the first faces, then names and
- * how many more, or "No guests yet" so every card has the same rows.
+ * Who else is in the space on one line: the first names, then how many
+ * more, or "No guests yet" so every card has the same rows.
  */
 function SpaceGuestsLine(props: {
   readonly guests: readonly SpacePerson[];
@@ -205,25 +203,7 @@ function SpaceGuestsLine(props: {
         </P>
       }
     >
-      <StackHorizontal align="center" gap="sm">
-        <AvatarGroup
-          size={CARD_GUEST_AVATAR_SIZE}
-          maxVisible={CARD_GUEST_AVATAR_MAX_VISIBLE}
-          ringColor="surface"
-        >
-          <Index each={props.guests}>
-            {(guest) => (
-              <SpacePersonAvatar
-                person={guest()}
-                size={CARD_GUEST_AVATAR_SIZE}
-              />
-            )}
-          </Index>
-        </AvatarGroup>
-        <StackVertical grow shrink>
-          <SpaceGuestNames guests={props.guests} shown={CARD_GUEST_NAMES} />
-        </StackVertical>
-      </StackHorizontal>
+      <SpaceGuestNames guests={props.guests} shown={CARD_GUEST_NAMES} />
     </Show>
   );
 }
@@ -258,9 +238,9 @@ function SpaceCardActionLabel(props: {
 
 /**
  * One row in the lobby panel, in one anatomy for every space: the host's
- * face; the name with its status tag; who hosts it; who else is in it (or
- * "No guests yet"); and, trailing, what pressing it does (Resume, Open or
- * Join). Pressing anywhere on the row does that.
+ * face; the name, who hosts it and who else is in it (or "No guests yet");
+ * and a trailing column with the status tag over what pressing it does
+ * (Resume, Open or Join). Pressing anywhere on the row does that.
  */
 export function SpaceCardView(props: {
   readonly space: SpaceCardData;
@@ -296,18 +276,16 @@ export function SpaceCardView(props: {
           vividBackdrop
         />
         <StackVertical grow shrink gap="xs">
-          <StackHorizontal align="center" gap="sm">
-            <StackVertical shrink>
-              <Text variant="bodyBold" lines={1}>
-                {props.space.title}
-              </Text>
-            </StackVertical>
-            <SpaceBadgeView badge={props.space.badge} />
-          </StackHorizontal>
+          <Text variant="bodyBold" lines={1}>
+            {props.space.title}
+          </Text>
           <SpaceHostLine space={props.space} />
           <SpaceGuestsLine guests={props.space.guests} />
         </StackVertical>
-        <SpaceCardActionLabel action={spaceCardAction(props.space)} />
+        <StackVertical self="stretch" align="end" justify="between" gap="sm">
+          <SpaceBadgeView badge={props.space.badge} />
+          <SpaceCardActionLabel action={spaceCardAction(props.space)} />
+        </StackVertical>
       </StackHorizontal>
     </Pressable>
   );
