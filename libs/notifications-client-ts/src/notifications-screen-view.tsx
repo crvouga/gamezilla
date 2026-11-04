@@ -10,7 +10,6 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
-import { CheckCheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { InboxChoiceFailure } from './inbox-choice-failure';
@@ -47,8 +46,9 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
       ? [
           {
             type: 'default',
+            // Words, not a glyph: a double check alone does not say what it
+            // does, and a text action never clips its label.
             label: t`Mark all read`,
-            icon: CheckCheckIcon,
             loading: props.markingAllRead,
             onClick: () => props.onMarkAllRead(),
             overflow: 'never',
