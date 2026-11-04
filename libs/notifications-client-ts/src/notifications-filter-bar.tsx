@@ -29,7 +29,8 @@ export function NotificationsFilterBar(
     },
     {
       key: NOTIFICATIONS_FILTER_ACTION_REQUIRED,
-      label: t`Action required`,
+      // The inbox's own name for these: its first section says the same.
+      label: t`Needs you`,
       testid: Handles.notificationsFilterWaiting,
     },
     {

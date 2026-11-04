@@ -71,9 +71,9 @@ function metaLine(parts: readonly (string | undefined)[]): string {
 }
 
 /**
- * The card's title. Waiting on the person (unread, with something still
- * to answer), it leads with the accent unread dot and takes the bold
- * weight; once opened it is plain body text with no dot.
+ * The card's title, in the body weight. Waiting on the person (unread, with
+ * something still to answer), it leads with the named accent unread dot:
+ * one mark for unread, not a dot and a heavier weight too.
  */
 function CardTitle(props: {
   readonly title: string;
@@ -82,11 +82,7 @@ function CardTitle(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <P
-      variant={props.waiting ? 'bodyBold' : 'body'}
-      tone={props.inactive ? 'secondary' : undefined}
-      lines={3}
-    >
+    <P variant="body" tone={props.inactive ? 'secondary' : undefined} lines={3}>
       <Show when={props.waiting}>
         <StatusDot
           status="unread"
@@ -233,8 +229,8 @@ function CardAnswers(props: {
 /**
  * The card's one explicit next step when it waits on the person but
  * publishes no answers of its own (a turn waiting on you): the same thing
- * pressing its words does, said as a solid pill so the card reads as
- * actionable at a glance.
+ * pressing its words does, as an outlined pill. Only a card's own main
+ * answer (Join, Accept) is solid, so two cards never compete for the eye.
  */
 function CardOpenAnswer(props: {
   readonly label: string | undefined;
@@ -245,7 +241,13 @@ function CardOpenAnswer(props: {
       {(open) => (
         <Show when={props.label} keyed>
           {(label) => (
-            <Button title={label} size="sm" intent="primary" onClick={open} />
+            <Button
+              title={label}
+              size="sm"
+              intent="neutral"
+              variant="outline"
+              onClick={open}
+            />
           )}
         </Show>
       )}
