@@ -3,9 +3,8 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import {
-  GAME_PLAYER_AVATAR_SIZE,
+  GAME_PLAYER_COMPACT_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -41,7 +40,6 @@ function SetupSeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
       <Badge intent="neutral" label={props.seat.sideLabel} />
       <Show when={props.seat.host}>
         <HostBadge
-          size="sm"
           dataSet={{ testid: `custom-game-${props.seat.side}-host` }}
         />
       </Show>
@@ -64,59 +62,75 @@ function SetupSeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
   );
 }
 
-/** What the viewer may do with one seat while the game is set up. */
-function SetupSeatActions(props: SeatProps): JSX.Element {
-  const side = () => props.seat.side;
+/** Leave the seat the viewer holds. */
+function LeaveSeatButton(props: SeatProps): JSX.Element {
+  return (
+    <GameActionButton
+      title={<Trans>Leave seat</Trans>}
+      size="sm"
+      dataSet={{ testid: `custom-game-${props.seat.side}-release` }}
+      operation={() =>
+        props.onChoose({ operation: 'release', side: props.seat.side })
+      }
+    />
+  );
+}
+
+/**
+ * The seat's one trailing control beside its clock: sit in an open seat,
+ * or leave one's own when there is nothing else to change about it.
+ */
+function SetupSeatTrailing(props: SeatProps): JSX.Element {
   return (
     <>
-      <Show when={props.seat.invitation}>
-        {(invitation) => (
-          <FrameInvitationView {...props} invitation={invitation()} />
-        )}
+      <Show when={props.seat.clock}>
+        {(clock) => <FrameSeatClock seat={props.seat} clock={clock()} />}
       </Show>
-      {/* The seat's commands keep their own width, side by side. */}
-      <GameActions>
-        <Show when={props.seat.canSit}>
-          <GameActionButton
-            title={<Trans>Sit here</Trans>}
-            variant="solid"
-            dataSet={{ testid: `custom-game-${side()}-claim` }}
-            operation={() =>
-              props.onChoose({ operation: 'claim', side: side() })
-            }
-          />
-        </Show>
-        <Show when={props.seat.canLeave}>
-          <GameActionButton
-            title={<Trans>Leave seat</Trans>}
-            dataSet={{ testid: `custom-game-${side()}-release` }}
-            operation={() =>
-              props.onChoose({ operation: 'release', side: side() })
-            }
-          />
-        </Show>
-      </GameActions>
-      <Show when={props.seat.choices}>
-        {(choices) => (
-          <GameDisclosure
-            title={<Trans>Change who sits here</Trans>}
-            dataSet={{ testid: `custom-game-${side()}-choices` }}
-          >
-            <FrameSeatChoicesView {...props} choices={choices()} />
-          </GameDisclosure>
-        )}
+      <Show when={props.seat.canSit}>
+        <GameActionButton
+          title={<Trans>Sit here</Trans>}
+          variant="solid"
+          size="sm"
+          dataSet={{ testid: `custom-game-${props.seat.side}-claim` }}
+          operation={() =>
+            props.onChoose({ operation: 'claim', side: props.seat.side })
+          }
+        />
+      </Show>
+      <Show when={props.seat.canLeave && props.seat.choices === null}>
+        <LeaveSeatButton {...props} />
       </Show>
     </>
   );
 }
 
+/** Behind the seat's toggle: leaving it, and who else may sit there. */
+function SetupSeatOptions(props: SeatProps): JSX.Element {
+  return (
+    <Show when={props.seat.choices}>
+      {(choices) => (
+        <>
+          <Show when={props.seat.canLeave}>
+            <GameActions>
+              <LeaveSeatButton {...props} />
+            </GameActions>
+          </Show>
+          <FrameSeatChoicesView {...props} choices={choices()} />
+        </>
+      )}
+    </Show>
+  );
+}
+
 /**
- * One seat while the game is set up: who holds it, its look, its clock and
- * the choices for it. Once the game is played the board's seats show it.
+ * One seat while the game is set up, as one compact row: who holds it, its
+ * look and facts, and one trailing control; its other choices wait behind
+ * that control. Once the game is played the board's seats show it.
  */
 function SetupSeatView(props: SeatProps): JSX.Element {
   return (
     <GamePlayerBar
+      density="compact"
       dataSet={{ testid: `custom-game-${props.seat.side}` }}
       swatch={props.seat.swatch}
       name={
@@ -135,19 +149,22 @@ function SetupSeatView(props: SeatProps): JSX.Element {
         <FrameHolderAvatar
           holder={props.seat.holder}
           plainName={props.seat.plainName}
-          size={GAME_PLAYER_AVATAR_SIZE}
+          size={GAME_PLAYER_COMPACT_AVATAR_SIZE}
           setup
           people={props.people}
         />
       }
       tags={<SetupSeatTags seat={props.seat} />}
-      trailing={
-        props.seat.clock === null ? undefined : (
-          <FrameSeatClock seat={props.seat} clock={props.seat.clock} />
-        )
-      }
+      trailing={<SetupSeatTrailing {...props} />}
+      options={<SetupSeatOptions {...props} />}
+      optionsLabel={<Trans>Change who sits here</Trans>}
+      optionsDataSet={{ testid: `custom-game-${props.seat.side}-choices` }}
     >
-      <SetupSeatActions {...props} />
+      <Show when={props.seat.invitation}>
+        {(invitation) => (
+          <FrameInvitationView {...props} invitation={invitation()} />
+        )}
+      </Show>
     </GamePlayerBar>
   );
 }

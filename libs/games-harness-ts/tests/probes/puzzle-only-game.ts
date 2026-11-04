@@ -34,6 +34,7 @@ export const PUZZLE_ONLY_GAME = assertHarnessGame({
     shared: SHARED,
     title: COUNTING_RACE_CLIENT.title,
     caption: COUNTING_RACE_CLIENT.caption,
+    tile: 'paths',
     subtitle: COUNTING_RACE_CLIENT.subtitle,
     presentation: COUNTING_RACE_CLIENT.presentation,
     puzzles: COUNTING_RACE_CLIENT.puzzles,

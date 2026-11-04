@@ -6,6 +6,7 @@ import {
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
@@ -54,7 +55,8 @@ export function MultiplayerRatings(props: {
 }): JSX.Element {
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
-      <Grid columns={2} gap="lg">
+      {/* One game rating takes the row, so its tag sits beside it. */}
+      <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
         <For each={props.ratings}>
           {(rating) => (
             <GameStat
@@ -75,6 +77,17 @@ export function MultiplayerRatings(props: {
                   {rating.rating}
                   {isProvisional(rating) ? '?' : ''}
                 </Text>
+              }
+              tag={
+                <Show when={isProvisional(rating)}>
+                  <Badge
+                    intent="neutral"
+                    label={<Trans>Provisional</Trans>}
+                    dataSet={{
+                      testid: `multiplayer-rating-${rating.pool}-provisional`,
+                    }}
+                  />
+                </Show>
               }
               detail={
                 <Text

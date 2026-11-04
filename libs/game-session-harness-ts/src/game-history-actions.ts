@@ -7,6 +7,9 @@ export const reviewCustomGameMove = scenarioAction({
   name: 'reviewCustomGameMove',
   act: async (s, actor: string, ply: number) => {
     const ui = await actorUi(s, actor);
+    // The number field waits behind its disclosure, as a person opens it.
+    if (!(await ui.get('custom-game-review-ply').isVisible()))
+      await ui.get('custom-game-review-jump').tap();
     await ui.get('custom-game-review-ply').clear();
     await ui.get('custom-game-review-ply').input(String(ply));
     await ui.get('custom-game-review-seek').tap();

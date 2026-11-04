@@ -1,5 +1,10 @@
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
+import {
+  GameTile,
+  type GameTileMotif,
+} from '@pkgs/ui-root-client-ts/game-tile';
+import type { JSX } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import type { SpacePerson } from './space-person-view';
@@ -112,6 +117,13 @@ export const MEMBERS: readonly SpaceMemberRow[] = faces([
   isHost: index === 0,
 }));
 
+/** A made-up game's picture, as `defineGameClient` gives a registered game one. */
+export function storyTile(
+  motif: GameTileMotif
+): (props: { readonly size?: 'md' | 'lg' }) => JSX.Element {
+  return (props) => <GameTile motif={motif} size={props.size} />;
+}
+
 /**
  * Games a space offers, as the composition root would register them. Ids
  * are made up: platform code never names a real game.
@@ -121,16 +133,19 @@ export const GAMES = [
     id: 'example-board',
     title: 'Board duel',
     caption: 'Two players, one board, turn by turn.',
+    Tile: storyTile('checkered'),
   },
   {
     id: 'example-cards',
     title: 'Card table',
     caption: 'Four players pass and play tricks.',
+    Tile: storyTile('cards'),
   },
   {
     id: 'example-race',
     title: 'Light race',
     caption: 'Steer, turn and outlast everyone.',
+    Tile: storyTile('trails'),
   },
-  { id: 'example-puzzle', title: 'Path puzzle' },
+  { id: 'example-puzzle', title: 'Path puzzle', Tile: storyTile('paths') },
 ] as const;

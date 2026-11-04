@@ -18,6 +18,7 @@ frame: Setup / Play / Game over** for each part in both themes.
 | Setup | `game-player-bar`, `game-seat-swatch`, `game-option-field` | The seat list and the game's options |
 | Play | `game-board-stage`, `game-player-rail`, `game-turn-pill`, `game-action-bar`, `game-watching` | The board, the other players, whose turn, what to do, who is watching |
 | Game over | `game-result` | The headline, the standings and a solo run's numbers |
+| Choosing | `game-tile` | A game's picture (`GameTile`: a miniature of its playing surface in its own colors) beside its name in every game list, and `GameTitleLockup` above its own menu |
 | Shared | `game-clock`, `game-stat`, `game-action-button`, `game-section`, `game-choice-grid`, `game-disclosure`, `game-countdown`, `game-search-state` | Time, numbers, inline asynchronous commands, grouped content and matchmaking states |
 
 ## The frame
@@ -39,10 +40,14 @@ beside it on wide screens.
 ## Setup
 
 Each seat is a `GamePlayerBar`: avatar, swatch, name, a row of `Badge`
-facts (side, rating, readiness) and the seat's controls in `children` (an
-open seat's "Sit here" is the one blue fill). The avatar says who holds the
-seat: `Avatar` `person`, `bot`, `guest` or `emptySeat`, never an outlined
-glyph. A table has one to eight seats, each with its own look.
+facts (side, rating, readiness) and the seat's controls. While a game is
+set up a seat is one compact row (`density="compact"`, a 32px avatar): its
+one trailing control (an open seat's "Sit here", the one blue fill) and its
+other choices behind a round chevron toggle (`options`, named by
+`optionsLabel`), so a phone still shows the top of the board. The avatar
+says who holds the seat: `Avatar` `person`, `bot`, `guest` or `emptySeat`,
+never an outlined glyph. A table has one to eight seats, each with its own
+look.
 
 `GameSeatSwatch` draws a seat's look: a round dot in its player color
 (`player1`..`player8`, at least 4.5 L\* apart, so seats never rely on hue)
@@ -74,12 +79,16 @@ each a `Badge`), `stat` (one figure,
 `{ label, value }`, in the `stat` text style at the far edge), `state`
 (`{ kind: 'out' | 'reconnecting', label }`: a word in a tag, and an out
 seat is dimmed) and `active` (the seat to move: the soft blue `tintSubtle`,
-a `primaryStrong` border on a chip, and `aria-current="step"`). With
+an accent edge on a strip, a `primaryStrong` border on a chip, and
+`aria-current="step"`). A strip's `turnLabel` says it in words inside the
+seat ("Your move", "To move"), so the seat is the turn signal. With
 `onPress` the identity becomes a real button, named by the player, to open
 them. A strip's `trailing` holds its `GameClock`.
 
 `GameTurnPill` is the one line that says whose turn it is or how the game
-ended, in a round pill between the board and the person's own strip.
+ended, in a round pill between the board and the person's own strip. When
+the seat to move already says it (`turnLabel`), `spokenOnly` keeps the line
+as the live status for a listener and takes no room on screen.
 `emphasis="yours"` is the viewer's own turn (`tintSubtle` under
 `onPrimarySoft`); otherwise it is the sunken well. `tone` adds a small
 `success` or `warning` mark; the words carry the meaning. With `live` the

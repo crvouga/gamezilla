@@ -50,6 +50,7 @@ export const MISERE_TALLY_GAME = assertHarnessGame({
     shared: SHARED,
     title: 'Misère tally',
     caption: 'Leave the count of seven to the other side',
+    tile: 'discs',
     subtitle: () => 'Whoever counts to seven loses.',
     presentation: probePresentation(MISERE_TALLY_RULES, {
       name: 'Misère tally',

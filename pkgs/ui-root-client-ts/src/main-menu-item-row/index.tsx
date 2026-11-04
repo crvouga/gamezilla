@@ -11,6 +11,8 @@ export type MainMenuItem = {
   key: string;
   title: JSX.Element | string;
   caption?: JSX.Element | string | undefined;
+  /** Before the title: a `GameTile` or an icon that says what the row is. */
+  leading?: JSX.Element | undefined;
   /** Overrides the default trailing affordance (chevron / selection check). */
   trailing?: JSX.Element | undefined;
   selected?: boolean | undefined;
@@ -58,33 +60,45 @@ function ItemBody(props: {
     disabled() && props.item.caption !== undefined;
   return (
     <div
-      class="box flex-row items-center gap-3 px-4 py-3 min-h-14"
+      class="box flex-row items-stretch pl-4 min-h-14"
       classList={{ 'opacity-disabled': disabled() }}
     >
-      <div class="box flex-1 min-w-0 items-start">
-        <p class="text textLabel line-clamp-1 max-w-full">{props.item.title}</p>
-        <Show when={props.item.caption !== undefined && !captionInTrailing()}>
-          <p class="text textCaption line-clamp-2 max-w-full">
+      <Show when={props.item.leading}>
+        <div class="box items-center justify-center shrink-0 py-2 pr-3">
+          {props.item.leading}
+        </div>
+      </Show>
+      {/* The text column draws the hairline above the row (`.panelRule`),
+          so it starts past a leading picture. */}
+      <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
+        <div class="box flex-1 min-w-0 items-start">
+          <p class="text textLabel line-clamp-1 max-w-full">
+            {props.item.title}
+          </p>
+          <Show when={props.item.caption !== undefined && !captionInTrailing()}>
+            <p class="text textCaption line-clamp-2 max-w-full">
+              {props.item.caption}
+            </p>
+          </Show>
+        </div>
+        <Show
+          when={captionInTrailing()}
+          fallback={
+            <ItemTrailing item={props.item} interactive={props.interactive} />
+          }
+        >
+          <p class="text textCaption line-clamp-1 shrink max-w-9/20">
             {props.item.caption}
           </p>
         </Show>
       </div>
-      <Show
-        when={captionInTrailing()}
-        fallback={
-          <ItemTrailing item={props.item} interactive={props.interactive} />
-        }
-      >
-        <p class="text textCaption line-clamp-1 shrink max-w-9/20">
-          {props.item.caption}
-        </p>
-      </Show>
     </div>
   );
 }
 
 /**
- * One row of `MainMenuScreen`: title, optional caption, and a trailing
+ * One row of `MainMenuScreen`: an optional leading picture (`leading`),
+ * title, optional caption, and a trailing
  * chevron / selection check. Same anatomy as `MenuRow` (16px insets, 20px
  * secondary chevron, 150ms hover / press tint, focus ring inside the panel),
  * a little taller and with a `textLabel` title because each row is a

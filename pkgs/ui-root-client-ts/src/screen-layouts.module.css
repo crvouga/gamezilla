@@ -100,7 +100,9 @@
   min-height: 0;
   min-width: 0;
   overflow: hidden;
-  align-items: center;
+  /* The board sits right under the coaching; room it does not fill goes
+     below it, above the docked timeline and actions. */
+  align-items: flex-start;
   justify-content: center;
   container-type: size;
 }

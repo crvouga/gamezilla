@@ -7,6 +7,7 @@ export const heartsGameClient = defineGameClient({
   shared: heartsGameShared,
   title: 'Hearts',
   caption: 'Avoid hearts and the queen of spades, four players',
+  tile: 'cards',
   subtitle: () => <Trans>Duck the tricks. Dodge the queen. Lowest wins.</Trans>,
   instructions: () => (
     <Trans>

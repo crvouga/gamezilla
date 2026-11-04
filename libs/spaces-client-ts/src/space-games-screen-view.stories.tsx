@@ -2,7 +2,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpaceGamesScreenView } from './space-games-screen-view';
 import { GameAreaExample } from './space-story-game-area.example';
-import { GAMES } from './spaces-story.example';
+import { GAMES, storyTile } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-games',
@@ -53,6 +53,7 @@ export const LongContent: Story = {
         title: 'A game with a remarkably long localized title',
         caption:
           'A caption that keeps going to show how a long description wraps in the games list.',
+        Tile: storyTile('discs'),
       },
     ],
   },

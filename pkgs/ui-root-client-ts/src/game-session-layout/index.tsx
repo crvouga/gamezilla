@@ -59,7 +59,8 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
 
 /**
  * The title row of a game: its name at the start, then what sits at the far
- * edge (a `GameWatcherCount`, a "Change game" button). Either may be absent.
+ * edge (a `GameWatcherCount`, a "Change game" button). Either may be absent;
+ * with no name the rest reads from the start, as a strip of the game's facts.
  */
 export function GameSessionHeader(props: {
   title?: JSX.Element | undefined;
@@ -71,10 +72,16 @@ export function GameSessionHeader(props: {
   return (
     <Show when={title.present() || trailing.present()}>
       <div
-        class="box flex-row flex-wrap items-center justify-between gap-2 min-w-0"
+        class="box flex-row flex-wrap items-center gap-2 min-w-0"
+        classList={{
+          'justify-between': title.present(),
+          'justify-start': !title.present(),
+        }}
         {...dataAttrs({ component: 'GameSessionHeader', ...props.dataSet })}
       >
-        <div class="text textTitle min-w-0 truncate">{title.content()}</div>
+        <Show when={title.present()}>
+          <div class="text textTitle min-w-0 truncate">{title.content()}</div>
+        </Show>
         <Show when={trailing.present()}>
           <div class="box flex-row items-center gap-2 shrink-0">
             {trailing.content()}

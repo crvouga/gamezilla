@@ -27,12 +27,17 @@ import { FrameSetupSeatsView } from './game-frame-seats-view';
 import {
   FrameConnectionView,
   FrameErrorView,
+  FrameFactsView,
   FramePlayNoticesView,
   FrameStatusView,
   FrameWatchingView,
   frameWatchersLabel,
 } from './game-frame-status-view';
-import { FrameNearSeatView, FrameOthersView } from './game-frame-table-view';
+import {
+  FrameNearSeatView,
+  FrameOthersView,
+  tableShowsTurn,
+} from './game-frame-table-view';
 import type {
   FrameConnection,
   FrameNext,
@@ -154,7 +159,11 @@ function FrameStatusRow(props: Props): JSX.Element {
   return (
     <>
       <Show when={props.phase === 'configuring'}>
-        <FrameStatusView status={props.status} />
+        {/* The Start section says whether the game can start. */}
+        <FrameStatusView
+          status={props.status}
+          spokenOnly={props.setup !== null}
+        />
       </Show>
       <Show when={props.phase === 'active'}>
         <FramePlayNoticesView play={props.play} people={props.people} />
@@ -165,6 +174,16 @@ function FrameStatusRow(props: Props): JSX.Element {
         )}
       </Show>
     </>
+  );
+}
+
+/** The seat to move says the plain `<Side> to move.` line itself. */
+function turnInSeats(props: Props): boolean {
+  return (
+    props.phase === 'active' &&
+    props.status?.plainTurn === true &&
+    props.status.tone === 'neutral' &&
+    tableShowsTurn(props.table)
   );
 }
 
@@ -184,12 +203,16 @@ function FrameBoardStage(props: Props): JSX.Element {
             table={props.table}
             people={props.people}
             onChoose={props.onChoose}
+            viewerSide={props.viewerSide}
           />
         </Show>
       }
       turn={
         <Show when={seated()}>
-          <FrameStatusView status={props.status} />
+          <FrameStatusView
+            status={props.status}
+            spokenOnly={turnInSeats(props)}
+          />
         </Show>
       }
       own={
@@ -198,6 +221,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             table={props.table}
             people={props.people}
             onChoose={props.onChoose}
+            viewerSide={props.viewerSide}
           />
         </Show>
       }
@@ -225,13 +249,16 @@ function FrameContent(props: Props): JSX.Element {
         <Show when={props.phase !== 'none'}>
           <GameSessionHeader
             trailing={
-              <Show when={props.watchers > 0}>
-                <GameWatcherCount
-                  value={props.watchers}
-                  label={frameWatchersLabel(props.watchers)}
-                  dataSet={{ testid: 'custom-game-watchers' }}
-                />
-              </Show>
+              <>
+                <FrameFactsView status={props.status} />
+                <Show when={props.watchers > 0}>
+                  <GameWatcherCount
+                    value={props.watchers}
+                    label={frameWatchersLabel(props.watchers)}
+                    dataSet={{ testid: 'custom-game-watchers' }}
+                  />
+                </Show>
+              </>
             }
           />
         </Show>

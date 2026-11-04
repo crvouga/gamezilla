@@ -104,6 +104,7 @@ export function status(over: Partial<FrameStatus> = {}): FrameStatus {
   return {
     lineup: 'Red circle: avery. Yellow diamond: jordan_plays.',
     description: 'Red circle to move.',
+    plainTurn: true,
     emphasis: 'yours',
     tone: 'neutral',
     sending: false,

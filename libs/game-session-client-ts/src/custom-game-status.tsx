@@ -237,6 +237,21 @@ export function useSideClocks(
   ) as Record<CustomGameSide, Accessor<FrameClock | null>>;
 }
 
+/** The line is only the default `<Side> to move.` (see `gameStateDescription`). */
+function plainTurnLine(
+  game: CustomGame,
+  presentation: GamePresentation,
+  viewer: CustomGameSide | null
+): boolean {
+  return (
+    game.status === 'active' &&
+    game.awaiting.length === 0 &&
+    game.execution === undefined &&
+    !game.standIns.includes(game.turn) &&
+    presentation.frame.turnStatus(game.fen, viewer, game.committed) === null
+  );
+}
+
 /** Where the game stands, in one line; `null` with no game. */
 export function useFrameStatus(
   model: CustomGameScreenModel
@@ -253,6 +268,7 @@ export function useFrameStatus(
         presentation(game.fen),
         model.mySide()
       ),
+      plainTurn: plainTurnLine(game, presentation(game.fen), model.mySide()),
       emphasis: statusEmphasis(game, model.mySide()),
       tone: statusTone(game),
       sending: model.submitting(),

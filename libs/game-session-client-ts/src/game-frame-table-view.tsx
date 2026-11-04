@@ -79,7 +79,29 @@ type SeatProps = {
   readonly seat: FramePlaySeat;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
+  /** The viewer's own seat; `null` while watching. */
+  readonly viewerSide?: string | null | undefined;
 };
+
+/** The seat is to move (not making a secret choice, which its tag says). */
+export function seatShowsTurn(seat: FramePlaySeat | null | undefined): boolean {
+  return seat !== null && seat !== undefined && seat.deciding && !seat.choosing;
+}
+
+/** The words inside the seat to move: the viewer's own, or someone else's. */
+function SeatTurnLabel(props: {
+  readonly seat: FramePlaySeat;
+  readonly viewerSide?: string | null | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.seat.side === props.viewerSide}
+      fallback={<Trans>To move</Trans>}
+    >
+      <Trans>Your move</Trans>
+    </Show>
+  );
+}
 
 /**
  * One seat as a full strip: who holds it, its look (named by its side), its
@@ -121,6 +143,11 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
         )
       }
       active={props.seat.deciding}
+      turnLabel={
+        <Show when={seatShowsTurn(props.seat)}>
+          <SeatTurnLabel seat={props.seat} viewerSide={props.viewerSide} />
+        </Show>
+      }
       onPress={props.seat.onPress}
     >
       <Show when={props.seat.reclaim}>
@@ -173,7 +200,20 @@ type TableProps = {
   readonly table: FrameTable;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
+  /** The viewer's own seat; `null` while watching. */
+  readonly viewerSide?: string | null | undefined;
 };
+
+/**
+ * Whether a full seat strip says whose move it is, so the turn line can be
+ * left to a listener: the near seat, or the one opponent across the board.
+ */
+export function tableShowsTurn(table: FrameTable): boolean {
+  return (
+    seatShowsTurn(table.near) ||
+    (table.shape === 'strip' && seatShowsTurn(table.others[0]))
+  );
+}
 
 /**
  * The other seats, above the board: the one opponent's full strip, or a
@@ -188,6 +228,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
             seat={seat()}
             people={props.people}
             onChoose={props.onChoose}
+            viewerSide={props.viewerSide}
           />
         )}
       </Match>
@@ -214,6 +255,7 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
             seat={seat()}
             people={props.people}
             onChoose={props.onChoose}
+            viewerSide={props.viewerSide}
           />
         </StackVertical>
       )}

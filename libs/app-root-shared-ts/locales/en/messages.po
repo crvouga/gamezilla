@@ -91,12 +91,6 @@ msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for #
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#. placeholder {0}: props.matched
-#. placeholder {1}: props.total
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
-msgid "{0} / {1}"
-msgstr "{0} / {1}"
-
 #. placeholder {0}: active()
 #: libs/auth-client-ts/src/account-device-session-caption-text.tsx
 msgid "{0} active, expires {latestExpires}"
@@ -140,6 +134,12 @@ msgstr "{0} matching · {1} local puzzles"
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 msgid "{0} no longer signs in to this account."
 msgstr "{0} no longer signs in to this account."
+
+#. placeholder {0}: props.matched
+#. placeholder {1}: props.total
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+msgid "{0} of {1} puzzles"
+msgstr "{0} of {1} puzzles"
 
 #. placeholder {0}: pack().completedCount
 #. placeholder {1}: pack().total
@@ -582,6 +582,11 @@ msgstr "↑ Up"
 msgid "↓ Down"
 msgstr "↓ Down"
 
+#. placeholder {0}: more()
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "+{0} more"
+msgstr "+{0} more"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "<0>Find </0>New players"
 msgstr "<0>Find </0>New players"
@@ -954,10 +959,6 @@ msgstr "After 1 s"
 msgid "Agree draw"
 msgstr "Agree draw"
 
-#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
-msgid "Agree on the lineup and options, then get ready."
-msgstr "Agree on the lineup and options, then get ready."
-
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -1076,8 +1077,8 @@ msgstr "Auto"
 
 #. placeholder {0}: ratingSlot(props.effectiveRating)
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
-msgid "Auto · {0}"
-msgstr "Auto · {0}"
+msgid "Auto target {0}"
+msgstr "Auto target {0}"
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Auto-advance"
@@ -2082,11 +2083,6 @@ msgstr "Current route"
 msgid "Custom"
 msgstr "Custom"
 
-#. placeholder {0}: ratingSlot(props.effectiveRating)
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
-msgid "Custom · {0}"
-msgstr "Custom · {0}"
-
 #: libs/game-session-client-ts/src/custom-game-screen.tsx
 msgid "Custom game"
 msgstr "Custom game"
@@ -2098,6 +2094,11 @@ msgstr "Custom games"
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Custom hex color"
 msgstr "Custom hex color"
+
+#. placeholder {0}: ratingSlot(props.effectiveRating)
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+msgid "Custom target {0}"
+msgstr "Custom target {0}"
 
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Daily"
@@ -2287,7 +2288,7 @@ msgstr "Dismiss"
 
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
-#: libs/notifications-client-ts/src/notification-card-default.tsx
+#: libs/notifications-client-ts/src/notification-action-button.tsx
 #: pkgs/ui-root-client-ts/src/combobox-body/index.tsx
 #: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
@@ -2601,7 +2602,7 @@ msgstr "Export requested"
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
-#: libs/notifications-client-ts/src/notification-card-default.tsx
+#: libs/notifications-client-ts/src/notification-action-button.tsx
 msgid "Failed"
 msgstr "Failed"
 
@@ -2929,6 +2930,10 @@ msgstr "Give your space a name"
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Go to {0}"
 msgstr "Go to {0}"
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Go to a move by number"
+msgstr "Go to a move by number"
 
 #: libs/app-root-client-ts/src/crash-screen-view.tsx
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
@@ -4719,6 +4724,10 @@ msgstr "Progress saved on this device. Changes share when connected."
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "Provisional"
+msgstr "Provisional"
+
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
 msgstr "Publication did not go ahead"
@@ -4771,6 +4780,7 @@ msgstr "Pushes"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
@@ -4830,6 +4840,7 @@ msgstr "Puzzle loading stopped"
 msgid "Puzzle rated {0}"
 msgstr "Puzzle rated {0}"
 
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-stats-screen-view.tsx
 msgid "Puzzle rating"
 msgstr "Puzzle rating"
@@ -7118,6 +7129,11 @@ msgstr "Title"
 msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
+msgid "To move"
+msgstr "To move"
+
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "to play"
 msgstr "to play"
@@ -7624,7 +7640,7 @@ msgstr "Working copy chosen"
 msgid "Working offline"
 msgstr "Working offline"
 
-#: libs/notifications-client-ts/src/notification-card-default.tsx
+#: libs/notifications-client-ts/src/notification-action-button.tsx
 #: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Working…"
@@ -8028,6 +8044,11 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 #: libs/spaces-client-ts/src/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
+msgid "Your move"
+msgstr "Your move"
 
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Your move will be played when the connection returns."

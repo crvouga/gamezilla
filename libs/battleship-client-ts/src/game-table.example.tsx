@@ -113,6 +113,7 @@ function GameTable(props: GameTableProps): JSX.Element {
         stat={seats.stat(position, side)}
         state={seats.out(position, side) ? { kind: 'out', label: 'Out' } : null}
         active={props.ending === undefined && side === props.turn}
+        turnLabel={side === viewer() ? 'Your move' : 'To move'}
         tags={
           <For each={seats.facts(position, side, props.board.committed)}>
             {(fact) => <Badge intent="neutral" label={fact} />}
@@ -121,12 +122,12 @@ function GameTable(props: GameTableProps): JSX.Element {
       />
     );
   };
+  // The game's own turn words (a phase, a choice); `null` for the frame's
+  // `<Side> to move.`, which the active seat already says.
+  const gameLine = () =>
+    frame().turnStatus(props.board.position, viewer(), props.board.committed);
   const turnLine = (): string => {
-    const line = frame().turnStatus(
-      props.board.position,
-      viewer(),
-      props.board.committed
-    );
+    const line = gameLine();
     if (line !== null) return line;
     const turn = props.turn;
     if (turn === undefined || turn === null) return '';
@@ -152,6 +153,7 @@ function GameTable(props: GameTableProps): JSX.Element {
               <GameTurnPill
                 title={turnLine()}
                 emphasis={props.turn === viewer() ? 'yours' : 'neutral'}
+                spokenOnly={props.turn != null && gameLine() === null}
               />
             </Show>
           }
