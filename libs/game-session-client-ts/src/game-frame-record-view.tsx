@@ -7,6 +7,7 @@ import {
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronLeftIcon,
@@ -328,6 +329,66 @@ export function FrameRecordView(
       fallback={<RecordPanel {...props} />}
     >
       <RecordStrip {...props} />
+    </Show>
+  );
+}
+
+/** The record shows an earlier position, or an earlier game, not the live one. */
+export function recordReviewing(record: FrameRecord | null): boolean {
+  return (
+    record !== null &&
+    (record.selection !== 'live' || record.displayedPly < record.moves.length)
+  );
+}
+
+/**
+ * Right by the board while it shows an earlier position: which one, in
+ * words, and one prominent step back to the game as it stands. Nothing
+ * while the board is live, so the record's own steps stay secondary then.
+ */
+export function FrameReviewingView(
+  props: Pick<FrameReviewHandlers, 'onReturnLive'> & {
+    readonly record: FrameRecord | null;
+  }
+): JSX.Element {
+  return (
+    <Show when={recordReviewing(props.record) ? props.record : null}>
+      {(record) => (
+        <GameTurnPill
+          live
+          tone="warning"
+          dataSet={{ testid: 'custom-game-reviewing' }}
+          title={
+            <Show
+              when={record().displayedPly > 0}
+              fallback={<Trans>Reviewing the starting position</Trans>}
+            >
+              <Show
+                when={record().selection === 'live'}
+                fallback={
+                  <Trans>
+                    Reviewing an earlier game, move {record().displayedPly}
+                  </Trans>
+                }
+              >
+                <Trans>
+                  Reviewing move {record().displayedPly} of{' '}
+                  {record().moves.length}
+                </Trans>
+              </Show>
+            </Show>
+          }
+          trailing={
+            <Button
+              title={<Trans>Back to live</Trans>}
+              size="sm"
+              variant="solid"
+              onClick={() => props.onReturnLive()}
+              dataSet={{ testid: 'custom-game-back-to-live' }}
+            />
+          }
+        />
+      )}
     </Show>
   );
 }

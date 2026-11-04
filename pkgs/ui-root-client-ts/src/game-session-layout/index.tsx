@@ -23,6 +23,11 @@ export type GameSessionLayoutProps = {
    * keep them right under the board either way.
    */
   actionsBeside?: boolean | undefined;
+  /**
+   * The board is only a preview while the game is set up: on wide screens
+   * `setup` takes the main column and the board sits beside it, small.
+   */
+  boardPreview?: boolean | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
   footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -56,14 +61,16 @@ function SessionStage(props: GameSessionLayoutProps): JSX.Element {
  * screens (`GameLayout`). With `actionsBeside` the status and actions head
  * that rail instead, while phones keep them under the board.
  * `header` and `footer` resolve their content first: an empty slot (a false
- * `<Show>`, `null`, an empty fragment) draws nothing and takes no room.
+ * `<Show>`, `null`, an empty fragment) draws nothing and takes no room. The
+ * last row keeps a deliberate gap under it, so the play actions never end
+ * flush against the screen's bottom edge.
  */
 export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   const header = createScreenSlot(() => props.header);
   const footer = createScreenSlot(() => props.footer);
   return (
     <div
-      class="box gap-4 min-w-0"
+      class="box gap-4 min-w-0 pb-6"
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>
@@ -76,6 +83,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           </Show>
         }
         aside={props.aside}
+        stagePreview={props.boardPreview}
       >
         <SessionStage {...props} />
       </GameLayout>

@@ -2,13 +2,11 @@ import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-c
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/solid/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import {
-  GameSessionHeader,
-  GameSessionLayout,
-} from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
@@ -22,6 +20,7 @@ import {
 import {
   FrameRecordView,
   type FrameReviewHandlers,
+  FrameReviewingView,
 } from './game-frame-record-view';
 import { FrameResultView } from './game-frame-result-view';
 import { FrameSetupSeatsView } from './game-frame-seats-view';
@@ -251,15 +250,14 @@ function turnInSeats(props: Props): boolean {
  * The board and the people around it. Once the game is under way the seats
  * sit around it (the other seats above, the person's own nearest them, the
  * turn between); while it is set up the seats are in the Players section,
- * and a phone shows the board only as a thumbnail under them.
+ * and the board is only a labelled preview beside (or under) them.
  */
 function FrameBoardStage(props: Props): JSX.Element {
   const seated = (): boolean => props.phase !== 'configuring';
-  // While a phone's screen is the setup, the board is only a thumbnail.
-  const mode = useLayoutMode();
   return (
     <GameBoardStage
-      preview={!seated() && mode() !== 'wide'}
+      preview={!seated()}
+      previewLabel={<Trans>Board preview</Trans>}
       dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
       others={
         <Show when={seated()}>
@@ -273,6 +271,10 @@ function FrameBoardStage(props: Props): JSX.Element {
       }
       turn={
         <Show when={seated()}>
+          <FrameReviewingView
+            record={shownRecord(props)}
+            onReturnLive={props.onReturnLive}
+          />
           <FrameStatusView
             status={props.status}
             spokenOnly={turnInSeats(props)}
@@ -302,6 +304,22 @@ function FrameBoardStage(props: Props): JSX.Element {
   );
 }
 
+/** On the title's line: unrated, the clock, and how many watch. */
+function FrameFacts(props: Props): JSX.Element {
+  return (
+    <>
+      <FrameFactsView status={props.status} />
+      <Show when={props.watchers > 0}>
+        <GameWatcherCount
+          value={props.watchers}
+          label={frameWatchersLabel(props.watchers)}
+          dataSet={{ testid: 'custom-game-watchers' }}
+        />
+      </Show>
+    </>
+  );
+}
+
 function FrameContent(props: Props): JSX.Element {
   return (
     <GameSessionLayout
@@ -309,24 +327,6 @@ function FrameContent(props: Props): JSX.Element {
         component: 'CustomGameContent',
         testid: 'custom-game-content',
       }}
-      header={
-        <Show when={props.phase !== 'none'}>
-          <GameSessionHeader
-            trailing={
-              <>
-                <FrameFactsView status={props.status} />
-                <Show when={props.watchers > 0}>
-                  <GameWatcherCount
-                    value={props.watchers}
-                    label={frameWatchersLabel(props.watchers)}
-                    dataSet={{ testid: 'custom-game-watchers' }}
-                  />
-                </Show>
-              </>
-            }
-          />
-        </Show>
-      }
       notices={
         <>
           <FrameConnectionView connection={props.connection} />
@@ -336,6 +336,7 @@ function FrameContent(props: Props): JSX.Element {
       setup={<FrameSetupSlot {...props} />}
       aside={<FrameRecordAside {...props} />}
       actionsBeside
+      boardPreview={props.phase === 'configuring'}
       status={<FrameStatusRow {...props} />}
       actions={
         <FrameActionsView
@@ -368,7 +369,15 @@ function FrameContent(props: Props): JSX.Element {
  */
 export function GameFrameScreenView(props: Props): JSX.Element {
   return (
-    <GameScreen screenId="custom-game" title={props.title}>
+    <GameScreen
+      screenId="custom-game"
+      title={props.title}
+      facts={
+        <Show when={props.denial === undefined && props.phase !== 'none'}>
+          <FrameFacts {...props} />
+        </Show>
+      }
+    >
       <Show when={props.denial} fallback={<FrameContent {...props} />}>
         {(denial) => <DenialSurfaceView denial={denial()} />}
       </Show>

@@ -269,7 +269,7 @@ export const ChoiceRefused: Story = {
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
 export const Stopped: Story = { args: { ...PLAYING, stopped: true } };
 
-/** Reviewing an earlier move: the record marks it and the board shows that position. */
+/** Reviewing an earlier move: the record marks it, the board shows that position, and the line by the board says which move with a Back to live step. */
 export const ReviewingEarlierMove: Story = {
   render: (args) => onBoard(MID_GAME_MOVES.slice(0, 3))(args),
   args: {
