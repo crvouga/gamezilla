@@ -1,0 +1,4 @@
+{
+  "summary": "Each Spaces lobby card stacked three lines of the same small grey text (the title, \"Hosted by …\", then the guests or \"No guests yet\"), so the title got lost and every card was taller than it needed to be. The card now shows its title over one line that says who hosts it and who is in it (\"Hosted by you · jordan_plays, morgan\"), with the count of the rest after it.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-card-meta-line.test.tsx"
+}

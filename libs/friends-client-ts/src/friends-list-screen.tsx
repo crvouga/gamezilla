@@ -11,6 +11,7 @@ import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
+import { FriendRowDisclosure } from './friend-user-row';
 import { FriendsListScreenView } from './friends-list-screen-view';
 import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
 import { useFriends } from './use-friends';
@@ -50,7 +51,10 @@ function FriendsListContainer(): JSX.Element {
         <FriendLiveSpaceStatus hostAccountId={friend.userId} />
       )}
       friendTrailing={(friend) => (
-        <FriendLiveSpaceJoin hostAccountId={friend.userId} />
+        <FriendLiveSpaceJoin
+          hostAccountId={friend.userId}
+          fallback={<FriendRowDisclosure />}
+        />
       )}
       onOpenFriend={navigation.onOpenFriend}
       onFindFriends={navigation.onFindFriends}

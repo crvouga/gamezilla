@@ -65,15 +65,13 @@
     display: grid;
     grid-template-columns: 15rem minmax(0, 1fr);
     column-gap: var(--ui-space-2xl);
-    align-items: stretch;
+    align-items: start;
   }
   /* Beside the sections the identity is a card: one panel whose top is on
-     the same line as the first section's label and whose bottom is level
-     with the last section, its contents centered in it, so the two columns
-     read as one composed block of equal height. */
+     the same line as the first section's label and whose height is its own
+     content, so the face never floats in an empty box stretched to the
+     sections' height. */
   .profile[data-split="true"] > .profileAside > .identity {
-    flex: 1;
-    justify-content: center;
     box-sizing: border-box;
     padding: var(--ui-space-xl) var(--ui-space-lg);
     border: 1px solid var(--ui-color-border);

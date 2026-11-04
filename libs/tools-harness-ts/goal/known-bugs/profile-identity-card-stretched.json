@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide profile the identity card stretched to the height of the sections beside it (about 240×410 on desktop) and centered its content, so the avatar, name and Edit profile floated in an empty box. The card is now as tall as its content, its top level with the first section.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/profile-identity-card.test.ts"
+}
