@@ -1,6 +1,8 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "src": {
       "dependsOn": [
@@ -10,6 +12,8 @@
         "@libs/notifications-shared-ts#src",
         "@libs/permissions-client-ts#src",
         "@libs/permissions-shared-ts#src",
+        "@libs/profile-client-ts#src",
+        "@libs/profile-shared-ts#src",
         "@libs/sub-client-ts#src",
         "@libs/test-ids-shared-ts#src",
         "@pkgs/clock-client-ts#src",
