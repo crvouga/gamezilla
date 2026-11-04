@@ -64,7 +64,7 @@ export function RouteStubScreenView(
         body={
           props.notFound === true ? (
             <Trans>
-              The link may be old or mistyped. Your spaces are one tap away.
+              The link may be old or mistyped. Your spaces are still here.
             </Trans>
           ) : (
             <Trans>This screen has not been ported to the web app yet.</Trans>
