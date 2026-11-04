@@ -390,19 +390,9 @@
       background-color var(--ui-duration-normal) var(--ui-easing-standard);
   }
 
-  .switchTrack[data-on="false"] {
-    box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
-  }
-
-  .switchTrack[data-on="true"] {
-    box-shadow: inset 0 0 0 var(--ui-space-hairline)
-      var(--ui-color-primary-strong);
-  }
-
   @media (hover: hover) and (pointer: fine) {
     .clickable:not(:disabled):hover > .switchTrack[data-on="false"] {
-      box-shadow: inset 0 0 0 var(--ui-space-hairline)
-        var(--ui-color-text-secondary);
+      background-color: var(--ui-color-text-secondary);
     }
   }
 

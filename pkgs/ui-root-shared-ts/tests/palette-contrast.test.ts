@@ -86,6 +86,8 @@ const PAIRS: readonly Pair[] = [
   ['boardCardInk', 'boardCardFace', TEXT],
   ['boardCardInkRed', 'boardCardFace', TEXT],
   ['onPrimary', 'tintActive', TEXT],
+  // The switch thumb on its off track.
+  ['onPrimary', 'outline', GLYPH],
   ['onDestructive', 'destructiveActive', TEXT],
   ['onSuccess', 'success', TEXT],
   ['onWarning', 'warning', TEXT],
