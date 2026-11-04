@@ -3,13 +3,14 @@ import { compileMessage } from '@lingui/message-utils/compileMessage';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import {
   type AppRouter,
   StaticAppRouterProvider,
 } from '@pkgs/ui-root-client-ts/app-router';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createEffect, type JSX, onCleanup } from 'solid-js';
+import { children, createEffect, type JSX, onCleanup } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
@@ -38,6 +39,8 @@ function createStoryRouter(): AppRouter {
 /**
  * Product screen views opt in with `parameters: { appRouter: true }`; other
  * stories stay router-free so a component that wrongly needs one still fails.
+ * A screen renders where the app renders it: inside `AppFrame`, filling the
+ * viewport, so wide layouts get the app's centered column and page inset.
  */
 function withOptionalRouter(
   enabled: unknown,
@@ -46,8 +49,21 @@ function withOptionalRouter(
   if (enabled !== true) return story();
   return (
     <StaticAppRouterProvider router={createStoryRouter()}>
-      {story()}
+      <StoryAppViewport story={story} />
     </StaticAppRouterProvider>
+  );
+}
+
+/**
+ * The story mounts once and moves with the frame's compact / wide switch
+ * (a second `<Story />` would render empty).
+ */
+function StoryAppViewport(props: { story: () => JSX.Element }): JSX.Element {
+  const screen = children(() => props.story());
+  return (
+    <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
+      <AppFrame>{screen()}</AppFrame>
+    </div>
   );
 }
 

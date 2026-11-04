@@ -3,12 +3,15 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: neutral chrome, expressive games
+## The look: calm chrome, one accent, expressive games
 
-Application chrome is achromatic in both schemes: charcoal and white
-surfaces, gray inks, neutral selection fills and visible focus rings. Feedback
-keeps its words, icons and semantic roles; it never depends on hue. Manrope
-and Unbounded retain the familiar type hierarchy.
+Application chrome is quiet slate in both schemes: ink-blue charcoal and soft
+paper surfaces with cool gray inks, so long sessions are easy on the eyes.
+One indigo accent marks what a person can act on or has chosen: links, the
+primary fill, selection and focus rings. Feedback keeps its words and icons
+and adds its named hue (red, green, amber, blue); it never depends on hue
+alone. Manrope sets every line of copy, headlines included; Unbounded sets
+numbers.
 
 Game-prefixed color tokens belong only to playing surfaces. Component-local
 variables scope them to the board, leaving the surrounding chrome neutral.
@@ -31,7 +34,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Scale | Steps |
 | --- | --- |
 | Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
-| Faces | Unbounded 600 / 700 for display and numbers, Manrope 400 / 500 / 700 for everything else; self-hosted, `font-display: swap` |
+| Faces | Manrope 400 / 500 / 700 for copy and headlines, Unbounded 600 for numbers; self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | 6 (`sm`: small details), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, chips, tags, header tabs, avatars, stat pills) |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
@@ -41,10 +44,14 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
 ## Rules
 
-1. **Neutral application.** Primary actions use a high-contrast neutral fill;
-   selection uses `tint-subtle` and `on-primary-soft`. Status is always named
-   or accompanied by an icon. Color belongs to playing surfaces, the intrinsic
-   emerald product monster mark and vendor-mandated identity artwork.
+1. **Calm chrome, one accent.** Neutrals are slate and never carry a hue of
+   their own. The indigo accent is the primary fill (`tint-active`), links
+   (`tint`), selection (`tint-subtle` and `on-primary-soft`) and focus; it is
+   never decoration. Status takes its named hue and is always named or
+   accompanied by an icon. Richer color belongs to playing surfaces, seat
+   colors, the product mark and vendor-mandated identity artwork
+   (`palette-contrast.test.ts` holds neutrals quiet and the accent to one
+   hue).
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
    `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
@@ -53,8 +60,8 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    `docs/ui-overhaul/DECISIONS.md`. `numeral` (Unbounded 600, tabular) for
    ratings, clocks, prices and counts; counts from 1,000 are compact
    (`formatCompactNumber`: 12.4K). Nothing renders below 12px.
-3. **Two faces.** Manrope carries every label, button and line of copy;
-   Unbounded sets display headlines and numbers. Mono is for code and
+3. **Two faces.** Manrope carries every headline, label, button and line of
+   copy; Unbounded sets numbers. Mono is for code and
    identifiers, never for numbers or labels. Google sign-in alone uses its
    mandated, self-hosted Google Sans Medium.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
@@ -152,8 +159,8 @@ protocol. Import each from its matching kebab-case module export.
 Every page sits on one canvas, `background`, edge to edge at every width;
 only wells (inputs, tags, notices) take a `surface` tone. Each family has one
 measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
-`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `full` for
-`CollectionScreen` and game stages with a rail. At every width a capped
+`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `list` (720px) for
+`CollectionScreen`; `full` for game stages with a rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
 content. Narrow layouts retain the 16px page inset.

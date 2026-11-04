@@ -218,7 +218,7 @@
     font-size: var(--ui-text-display-xl-size);
     line-height: var(--ui-text-display-xl-leading);
     font-weight: var(--ui-text-display-xl-weight);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.025em;
   }
 
   .textTitle {
@@ -226,7 +226,7 @@
     font-size: var(--ui-text-display-size);
     line-height: var(--ui-text-display-leading);
     font-weight: var(--ui-text-display-weight);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .textHeading {

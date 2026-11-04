@@ -2373,7 +2373,7 @@
   "font": {
     "family": {
       "$type": "fontFamily",
-      "$description": "Two faces. `display` (Unbounded) sets display headlines and numbers; `sans` (Manrope) sets everything else. Both are self-hosted with `font-display: swap`. `mono` is for code and identifiers only.",
+      "$description": "Two faces. `sans` (Manrope) sets every line of copy, including display headlines; `display` (Unbounded) sets numbers: ratings, scores, clocks and counts. Both are self-hosted with `font-display: swap`. `mono` is for code and identifiers only.",
       "sans": {
         "$value": [
           "Manrope",
@@ -2515,7 +2515,7 @@
     },
     "weight": {
       "$type": "fontWeight",
-      "$description": "Manrope 400 body, 500 captions, 700 emphasis and titles; Unbounded 600 numbers and 700 display.",
+      "$description": "Manrope 400 body, 500 captions, 700 emphasis, titles and display headlines; Unbounded 600 numbers.",
       "regular": {
         "$value": 400
       },
@@ -2535,7 +2535,7 @@
     "$description": "The eight text styles. A component names a style, never a size, weight or face. `stat` is for numbers only.",
     "display-xl": {
       "$value": {
-        "fontFamily": "{font.family.display}",
+        "fontFamily": "{font.family.sans}",
         "fontSize": "{font.size.3xl}",
         "fontWeight": "{font.weight.bold}",
         "lineHeight": "{font.leading.3xl}"
@@ -2543,7 +2543,7 @@
     },
     "display": {
       "$value": {
-        "fontFamily": "{font.family.display}",
+        "fontFamily": "{font.family.sans}",
         "fontSize": "{font.size.2xl}",
         "fontWeight": "{font.weight.bold}",
         "lineHeight": "{font.leading.2xl}"

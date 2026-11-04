@@ -30,6 +30,7 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       actions={props.actions}
       primaryAction={props.primaryAction}
       renderActionsMenu={props.renderActionsMenu}
+      measure="list"
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
         <div class={styles['collection']}>
