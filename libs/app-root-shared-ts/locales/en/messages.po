@@ -1310,6 +1310,7 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
@@ -1820,6 +1821,10 @@ msgstr "Connection"
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Connection, sync and diagnostics"
+msgstr "Connection, sync and diagnostics"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
@@ -3083,6 +3088,14 @@ msgstr "Host as many spaces as you like at once"
 msgid "Host starts the rematch"
 msgstr "Host starts the rematch"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Hosted by <0/>"
+msgstr "Hosted by <0/>"
+
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Hosted by you"
+msgstr "Hosted by you"
+
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
@@ -3231,6 +3244,10 @@ msgstr "jank"
 msgid "John Doe"
 msgstr "John Doe"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Join"
+msgstr "Join"
+
 #: libs/numberlink-client-ts/src/numberlink-game-client.tsx
 msgid "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
 msgstr "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
@@ -3238,6 +3255,11 @@ msgstr "Join matching endpoints with paths that move horizontally or vertically.
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join space"
 msgstr "Join space"
+
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Join space {0}"
+msgstr "Join space {0}"
 
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join to see who is here and hang out."
@@ -3960,6 +3982,10 @@ msgstr "No events yet"
 msgid "No friends yet"
 msgstr "No friends yet"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "No guests yet"
+msgstr "No guests yet"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "No legal move or wall — pass turn"
 msgstr "No legal move or wall — pass turn"
@@ -4260,6 +4286,10 @@ msgstr "Only the puzzle team can load puzzles"
 msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Open"
+msgstr "Open"
+
 #: pkgs/ui-root-client-ts/src/command-palette-trigger/index.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
@@ -4267,11 +4297,6 @@ msgstr "Open command palette"
 #: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Open created draft"
 msgstr "Open created draft"
-
-#. placeholder {0}: props.space.title
-#: libs/spaces-client-ts/src/space-card-view.tsx
-msgid "Open current space {0}"
-msgstr "Open current space {0}"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Open developer feedback"
@@ -4418,10 +4443,6 @@ msgstr "Page {current} of {total}"
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Page {label}"
 msgstr "Page {label}"
-
-#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "Page not found"
-msgstr "Page not found"
 
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Pagination"
@@ -5328,9 +5349,15 @@ msgstr "Restart this puzzle?"
 msgid "Restart this Synthetic User?"
 msgstr "Restart this Synthetic User?"
 
+#: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resume"
 msgstr "Resume"
+
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "Resume space {0}"
+msgstr "Resume space {0}"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resumed"
@@ -5592,6 +5619,7 @@ msgstr "Search"
 msgid "Search by name"
 msgstr "Search by name"
 
+#: libs/friends-client-ts/src/profile-friends-actions-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Search by username"
 msgstr "Search by username"
@@ -5958,6 +5986,10 @@ msgstr "Signing in…"
 #: libs/auth-client-ts/src/use-sign-out-confirmation.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
+
+#: libs/friends-client-ts/src/friends-list-screen-view.tsx
+msgid "Since {month}"
+msgstr "Since {month}"
 
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Sit here"
@@ -6702,6 +6734,10 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
+msgid "The link may be old or mistyped. Your spaces are one tap away."
+msgstr "The link may be old or mistyped. Your spaces are one tap away."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
 msgstr "The link may be out of date. Pick a game from your list."
@@ -6857,8 +6893,8 @@ msgid "There is no secret choice to make now."
 msgstr "There is no secret choice to make now."
 
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "There is nothing at this address."
-msgstr "There is nothing at this address."
+msgid "There's nothing at this address"
+msgstr "There's nothing at this address"
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "They already asked you"
@@ -6935,6 +6971,10 @@ msgstr "This device is offline"
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 msgstr "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+
+#: libs/auth-client-ts/src/account-actions-row.tsx
+msgid "This device only"
+msgstr "This device only"
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
 msgid "This draft cannot be opened. Choose an earlier saved copy to continue."

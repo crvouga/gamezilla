@@ -3,16 +3,21 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { SettingsIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
-import { Match, Show, Switch } from 'solid-js';
+import {
+  createMemo,
+  Match,
+  children as resolveChildren,
+  Show,
+  Switch,
+} from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import { ProfileAvatarFigure } from './profile-avatar-figure';
 import { UserUsernameView } from './user-username-view';
@@ -43,9 +48,9 @@ export type ProfileScreenViewProps = {
   readonly usernameChange: UsernameChange | null;
   /** Inline notice for a refused avatar change, under the identity. */
   readonly notice?: JSX.Element;
-  /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
+  /** The friends panel's count row (signed-in counts; guests open sign-in on tap). */
   readonly friendsStats?: JSX.Element | undefined;
-  /** The friends section's call to action, under the count (Find friends). */
+  /** The friends panel's action rows, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
   /** Opens Settings (appearance, sound, account and the rest). */
@@ -121,9 +126,31 @@ function ProfileSettingsEntry(props: {
 }
 
 /**
+ * The friends slots as one titled panel: the count row, then the way to
+ * find more. Nothing at all when no friends sub fills the slots.
+ */
+function ProfileFriendsSection(props: {
+  readonly stats: JSX.Element | undefined;
+  readonly actions: JSX.Element | undefined;
+}): JSX.Element {
+  const rows = resolveChildren(() => [props.stats, props.actions]);
+  const present = createMemo(() =>
+    rows
+      .toArray()
+      .some((node) => node !== null && node !== undefined && node !== false)
+  );
+  return (
+    <Show when={present()}>
+      <MenuSection title={<Trans>Friends</Trans>}>{rows()}</MenuSection>
+    </Show>
+  );
+}
+
+/**
  * `/profile`, presentational: the person's own avatar, name, username and
- * avatar notices, Edit profile, the friends slots and the way to Settings.
- * On a wide screen the identity sits in its own column beside the sections.
+ * avatar notices, Edit profile, the friends panel (count, then Find friends)
+ * and the way to Settings. On a wide screen the identity is a card in its
+ * own column, its top level with the sections beside it.
  * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
 export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
@@ -171,15 +198,10 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
         />
       }
     >
-      <StackVertical gap="md" self="stretch">
-        <H2 size="subtitle">
-          <Trans>Friends</Trans>
-        </H2>
-        {props.friendsStats}
-        <StackHorizontal wrap gap="sm">
-          {props.friendsActions}
-        </StackHorizontal>
-      </StackVertical>
+      <ProfileFriendsSection
+        stats={props.friendsStats}
+        actions={props.friendsActions}
+      />
       <ProfileSettingsEntry onOpen={() => props.onOpenSettings()} />
     </ProfileScreenLayout>
   );

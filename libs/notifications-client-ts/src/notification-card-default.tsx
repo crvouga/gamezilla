@@ -8,7 +8,7 @@ import type {
 } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { InfoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -25,6 +25,7 @@ import { displayNotification } from './notification-display';
 
 /** The default face: `md`, so every card's text column starts at one x. */
 const LEADING_SIZE = 40;
+const STATUS_ICON_SIZE = 16;
 
 /** What a person can see: still waiting to be opened, or already opened. */
 function cardState(unread: boolean): ComponentDataSet {
@@ -109,10 +110,16 @@ function CardHeadline(props: {
 
 /**
  * Why an answer cannot be given right now ("Space is full"), told as a
- * status in the answer's place instead of a button that does nothing.
+ * plain status line in the answer's place: an icon and muted words, with
+ * no pill or outline, so it never reads as a button that does nothing.
  */
 function UnavailableAnswer(props: { readonly reason: string }): JSX.Element {
-  return <Badge label={props.reason} intent="neutral" />;
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <InfoIcon size={STATUS_ICON_SIZE} color="textSecondary" />
+      <P variant="caption">{props.reason}</P>
+    </StackHorizontal>
+  );
 }
 
 /**

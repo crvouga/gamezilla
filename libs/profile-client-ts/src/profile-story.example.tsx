@@ -1,6 +1,4 @@
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
-import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
+import { UserPlusIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -21,40 +19,38 @@ export const STORY_IDENTITY: ProfileIdentity = {
 };
 
 /**
- * Stand-in for the friends slot the friends sub fills in the app: a count
- * row. Profile cannot import friends, so stories draw the same shape.
+ * Stand-in for the friends slot the friends sub fills in the app: a bare
+ * count row the profile puts in its friends panel. Profile cannot import
+ * friends, so stories draw the same shape.
  */
 export function StoryFriendsStats(props: {
   readonly count: number;
 }): JSX.Element {
   return (
-    <MenuList>
-      <MenuRow
-        title={
-          <>
-            <Text variant="bodyBold" numeral>
-              {String(props.count)}
-            </Text>{' '}
-            <Text tone="secondary">
-              {props.count === 1 ? 'friend' : 'friends'}
-            </Text>
-          </>
-        }
-        onClick={() => undefined}
-      />
-    </MenuList>
+    <MenuRow
+      leading={<UsersIcon size={20} color="icon" />}
+      title={
+        <>
+          <Text variant="bodyBold" numeral>
+            {String(props.count)}
+          </Text>{' '}
+          <Text tone="secondary">
+            {props.count === 1 ? 'friend' : 'friends'}
+          </Text>
+        </>
+      }
+      onClick={() => undefined}
+    />
   );
 }
 
-/** Stand-in for the friends actions slot: the solid Find friends call to action. */
+/** Stand-in for the friends actions slot: the Find friends row. */
 export function StoryFriendsActions(): JSX.Element {
   return (
-    <Button
+    <MenuRow
       title="Find friends"
-      intent="primary"
-      variant="solid"
-      icon={UserPlusIcon}
-      flex={1}
+      caption="Search by username"
+      leading={<UserPlusIcon size={20} color="tint" />}
       onClick={() => undefined}
     />
   );

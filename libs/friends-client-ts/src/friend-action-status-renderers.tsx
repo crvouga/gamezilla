@@ -8,7 +8,8 @@ import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { Accessor, JSX } from 'solid-js';
 import {
   ConfirmDeletePills,
@@ -17,22 +18,30 @@ import {
 
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
-function noopOperation(): Promise<void> {
-  return Promise.resolve();
+/** A relationship, not an action: a tag, never a button that does nothing. */
+function RelationshipBadge(props: {
+  readonly label: JSX.Element;
+  readonly intent: 'neutral' | 'success';
+  readonly testId?: string | undefined;
+}): JSX.Element {
+  // Its own box, so the tag centers on the row like a button would (a
+  // badge keeps to the start of its parent's cross axis).
+  return (
+    <StackVertical>
+      <Badge
+        label={props.label}
+        intent={props.intent}
+        dataSet={
+          props.testId === undefined ? undefined : { testid: props.testId }
+        }
+      />
+    </StackVertical>
+  );
 }
 
 function renderBlockedByThem(): JSX.Element {
-  const { t } = useLingui();
   return (
-    <SingleActionPill
-      operation={noopOperation}
-      idle={t`Unavailable`}
-      loading={t`Unavailable`}
-      success={t`Unavailable`}
-      error={t`Unavailable`}
-      variant="outline"
-      disabled
-    />
+    <RelationshipBadge label={<Trans>Unavailable</Trans>} intent="neutral" />
   );
 }
 
@@ -75,6 +84,7 @@ function renderPendingIncoming(
   );
 }
 
+/** "Requested" as a tag, with the one real action beside it: Cancel. */
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
@@ -82,34 +92,33 @@ function renderPendingOutgoing(
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    <SingleActionPill
-      operation={wrap(mutations.cancelRequest)}
-      idle={<Trans>Requested</Trans>}
-      loading={t`Cancelling…`}
-      success={t`Cancelled`}
-      error={t`Couldn't cancel`}
-      variant="outline"
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendCancel(username) }
-        : {})}
-    />
+    <StackHorizontal align="center" gap="sm">
+      <RelationshipBadge label={<Trans>Requested</Trans>} intent="neutral" />
+      <SingleActionPill
+        operation={wrap(mutations.cancelRequest)}
+        idle={<Trans>Cancel</Trans>}
+        loading={t`Cancelling…`}
+        success={t`Cancelled`}
+        error={t`Couldn't cancel`}
+        variant="ghost"
+        {...(username !== undefined && username.length > 0
+          ? { testID: Handles.friendCancel(username) }
+          : {})}
+      />
+    </StackHorizontal>
   );
 }
 
 function renderFriends(username: string | undefined): JSX.Element {
-  const { t } = useLingui();
   return (
-    <SingleActionPill
-      operation={noopOperation}
-      idle={<Trans>Friends</Trans>}
-      loading={t`Friends`}
-      success={t`Friends`}
-      error={t`Friends`}
-      variant="outline"
-      disabled
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendStatusFriends(username) }
-        : {})}
+    <RelationshipBadge
+      label={<Trans>Friends</Trans>}
+      intent="success"
+      testId={
+        username !== undefined && username.length > 0
+          ? Handles.friendStatusFriends(username)
+          : undefined
+      }
     />
   );
 }

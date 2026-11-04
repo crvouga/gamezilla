@@ -80,7 +80,7 @@ export function SingleActionPill(props: {
   loading: string;
   success: string;
   error: string;
-  variant?: 'solid' | 'outline';
+  variant?: 'solid' | 'outline' | 'ghost';
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
   testID?: string;

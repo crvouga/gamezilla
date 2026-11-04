@@ -1,5 +1,6 @@
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { Avatar, avatarInitials } from '@pkgs/ui-root-client-ts/avatar';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   HighlightedText,
@@ -7,7 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/highlighted-text';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 
 /** Story fixture: a person found by search, with a fixed id. */
 export function storyResult(index: number, username: string): UserSearchResult {
@@ -23,22 +24,32 @@ const STORY_RELATIONS: Readonly<
   Record<string, 'add' | 'friends' | 'requested'>
 > = { jordan: 'add', jordan_plays: 'friends', jordy: 'requested' };
 
-/** Stand-in for the friends sub's status pill: Add Friend, Requested or Friends. */
+/**
+ * Stand-in for the friends sub's relationship: "Add Friend" is the one
+ * button; "Friends" and "Requested" are tags, with Cancel beside a request.
+ */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): 'add' | 'friends' | 'requested' =>
     STORY_RELATIONS[props.username] ?? 'add';
   return (
-    <Button
-      title={
-        relation() === 'friends'
-          ? 'Friends'
-          : relation() === 'requested'
-            ? 'Requested'
-            : 'Add Friend'
-      }
-      variant={relation() === 'add' ? 'solid' : 'outline'}
-      onClick={() => undefined}
-    />
+    <Switch>
+      <Match when={relation() === 'friends'}>
+        <StackVertical>
+          <Badge label="Friends" intent="success" />
+        </StackVertical>
+      </Match>
+      <Match when={relation() === 'requested'}>
+        <StackHorizontal align="center" gap="sm">
+          <StackVertical>
+            <Badge label="Requested" intent="neutral" />
+          </StackVertical>
+          <Button title="Cancel" variant="ghost" onClick={() => undefined} />
+        </StackHorizontal>
+      </Match>
+      <Match when={relation() === 'add'}>
+        <Button title="Add Friend" onClick={() => undefined} />
+      </Match>
+    </Switch>
   );
 }
 

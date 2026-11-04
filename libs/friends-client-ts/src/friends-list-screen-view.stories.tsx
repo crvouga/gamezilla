@@ -5,21 +5,37 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendsListScreenView } from './friends-list-screen-view';
 
-function friend(userId: string, username: string): Friend {
-  return {
-    userId,
-    username,
-    avatarConfig: null,
-    friendsSince: '2026-01-15T12:00:00.000Z',
-  };
+function friend(userId: string, username: string, since: string): Friend {
+  return { userId, username, avatarConfig: null, friendsSince: since };
 }
 
+/** Friends made over the past year and more, newest first. */
 const FRIENDS: readonly Friend[] = [
-  friend('9f1c2a4e-0000-4000-8000-000000000001', 'avery'),
-  friend('9f1c2a4e-0000-4000-8000-000000000002', 'jordan_plays'),
-  friend('9f1c2a4e-0000-4000-8000-000000000003', 'morgan'),
-  friend('9f1c2a4e-0000-4000-8000-000000000004', 'robin_42'),
-  friend('9f1c2a4e-0000-4000-8000-000000000005', 'sam'),
+  friend(
+    '9f1c2a4e-0000-4000-8000-000000000001',
+    'avery',
+    '2026-10-21T18:30:00.000Z'
+  ),
+  friend(
+    '9f1c2a4e-0000-4000-8000-000000000002',
+    'jordan_plays',
+    '2026-08-03T12:00:00.000Z'
+  ),
+  friend(
+    '9f1c2a4e-0000-4000-8000-000000000003',
+    'morgan',
+    '2026-04-12T09:15:00.000Z'
+  ),
+  friend(
+    '9f1c2a4e-0000-4000-8000-000000000004',
+    'robin_42',
+    '2026-01-15T12:00:00.000Z'
+  ),
+  friend(
+    '9f1c2a4e-0000-4000-8000-000000000005',
+    'sam',
+    '2025-09-30T20:45:00.000Z'
+  ),
 ];
 
 const meta = {
@@ -64,7 +80,8 @@ export const LongNames: Story = {
     friends: [
       friend(
         '9f1c2a4e-0000-4000-8000-000000000006',
-        'a_really_long_username_that_keeps_going_and_going'
+        'a_really_long_username_that_keeps_going_and_going',
+        '2026-11-01T10:00:00.000Z'
       ),
       ...FRIENDS,
     ],

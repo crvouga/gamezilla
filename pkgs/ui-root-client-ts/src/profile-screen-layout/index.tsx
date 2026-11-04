@@ -33,9 +33,10 @@ export function ProfileIdentity(props: {
 /**
  * Identity first, then the supporting sections. On a phone they stack in
  * one column with the identity centered. Where the column is wide enough
- * (a tablet or desktop), the identity takes its own column on the left and
- * the sections run beside it, so a profile reads as one composed page
- * rather than a narrow strip. A profile without sections keeps one column.
+ * (a tablet or desktop), the identity becomes a card in its own column on
+ * the left, its top aligned with the first section, and the sections run
+ * beside it, so a profile reads as one composed page rather than a narrow
+ * strip. A profile without sections keeps one column.
  */
 export function ProfileScreenLayout(
   props: ProfileScreenLayoutProps

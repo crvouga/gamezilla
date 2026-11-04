@@ -4,7 +4,7 @@ import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Match, Show, Switch } from 'solid-js';
-import { ChevronRightIcon } from '../icons';
+import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '../icons';
 import type { TextLines } from '../text-classes';
 import { textStyleClass } from '../text-classes';
 
@@ -32,6 +32,13 @@ export type MenuRowProps = {
   trailing?: JSX.Element | undefined;
   /** Hide the trailing disclosure chevron. Defaults to `false`. */
   hideChevron?: boolean | undefined;
+  /**
+   * Make the row a disclosure (WAI-ARIA): it shows or hides the rows after
+   * it instead of going somewhere. The row announces `aria-expanded`, and
+   * its chevron points down while closed and up while open. Pair with
+   * `onClick` to toggle.
+   */
+  expanded?: boolean | undefined;
   /** Render the row in its "current selection" state. */
   selected?: boolean | undefined;
   /**
@@ -54,11 +61,32 @@ export type MenuRowProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
+function MenuRowChevron(props: {
+  expanded: boolean | undefined;
+  selected: boolean;
+}): JSX.Element {
+  const color = (): string => (props.selected ? 'tint' : 'icon');
+  return (
+    <Switch>
+      <Match when={props.expanded === undefined}>
+        <ChevronRightIcon size={20} color={color()} />
+      </Match>
+      <Match when={props.expanded === true}>
+        <ChevronUpIcon size={20} color={color()} />
+      </Match>
+      <Match when={props.expanded === false}>
+        <ChevronDownIcon size={20} color={color()} />
+      </Match>
+    </Switch>
+  );
+}
+
 function MenuRowTrailing(props: {
   value: JSX.Element | undefined;
   valueLines: TextLines | undefined;
   trailing: JSX.Element | undefined;
   hideChevron: boolean;
+  expanded: boolean | undefined;
   selected: boolean;
 }): JSX.Element {
   const end = (): JSX.Element => (
@@ -66,10 +94,7 @@ function MenuRowTrailing(props: {
       when={props.trailing !== undefined}
       fallback={
         <Show when={!props.hideChevron}>
-          <ChevronRightIcon
-            size={20}
-            color={props.selected ? 'tint' : 'icon'}
-          />
+          <MenuRowChevron expanded={props.expanded} selected={props.selected} />
         </Show>
       }
     >
@@ -125,6 +150,7 @@ function MenuRowBody(
           valueLines={props.valueLines}
           trailing={props.trailing}
           hideChevron={props.hideChevron === true || !props.interactive}
+          expanded={props.expanded}
           selected={selected()}
         />
       </div>
@@ -177,6 +203,7 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
       disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-current={props.selected === true ? true : undefined}
+      aria-expanded={props.expanded}
       classList={{ 'opacity-disabled': props.disabled === true }}
     >
       <MenuRowBody {...props} interactive />
@@ -202,7 +229,8 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
  * whose trailing control owns the interaction use plain boxes. `MenuList`
  * groups these mixed controls without imposing command-menu keyboard semantics.
  * Pass `selected` to opt into a `tintSubtle` row fill. `submit` carries
- * `name=value` into the surrounding form.
+ * `name=value` into the surrounding form. `expanded` makes the row a
+ * disclosure for the rows after it (a down / up chevron, `aria-expanded`).
  *
  * @example
  * ```tsx

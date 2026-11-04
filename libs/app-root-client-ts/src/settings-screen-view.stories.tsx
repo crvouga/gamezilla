@@ -26,7 +26,8 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * Defaults: online, system appearance, sound on, monitor off, no billing.
- * Everyday groups lead; diagnostics close the page under Troubleshooting.
+ * Everyday groups lead; About closes the page, with the diagnostics behind
+ * one Troubleshooting row, closed until it is opened.
  */
 export const Default: Story = {};
 
@@ -69,5 +70,26 @@ export const OpenAppearance: Story = {
     const target = await canvas.findByText('Appearance');
     await userEvent.click(target);
     await expect(args.onNavigate).toHaveBeenCalledWith('/more/theme');
+  },
+};
+
+/**
+ * Opening Troubleshooting shows the diagnostics in the same panel:
+ * Connection, Sync, Client config and Performance, each one tap from its
+ * screen.
+ */
+export const TroubleshootingOpen: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const disclosure = await canvas.findByRole('button', {
+      name: /Troubleshooting/,
+    });
+    await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
+    await expect(canvas.queryByText('Connection')).toBeNull();
+    await userEvent.click(disclosure);
+    await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+    const connection = await canvas.findByText('Connection');
+    await userEvent.click(connection);
+    await expect(args.onNavigate).toHaveBeenCalledWith('/more/server-status');
   },
 };

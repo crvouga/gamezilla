@@ -32,7 +32,8 @@
   gap: var(--ui-space-3);
 }
 /* A profile: identity, then its sections. Stacked on a phone; side by side
-   once the column is wide enough, the identity in a fixed left column. */
+   once the column is wide enough, the identity a card in a fixed left
+   column. */
 .profileFrame {
   container-type: inline-size;
   align-self: stretch;
@@ -66,8 +67,15 @@
     column-gap: var(--ui-space-2xl);
     align-items: start;
   }
-  .profile[data-split="true"] > .profileAside {
-    padding-top: var(--ui-space-lg);
+  /* Beside the sections the identity is a card: one panel, its top on the
+     same line as the first section's label, so the two columns read as one
+     composed page. */
+  .profile[data-split="true"] > .profileAside > .identity {
+    box-sizing: border-box;
+    padding: var(--ui-space-xl) var(--ui-space-lg);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
   }
 }
 /* One column as wide as a board can use, centered: the feed, the board, the

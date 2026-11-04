@@ -53,17 +53,17 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
   );
 }
 
-/** "Friends since March 2026", or nothing when the date is unknown. */
+/** "Since Mar 2026", quietly, or nothing when the date is unknown. */
 function FriendsSince(props: { readonly since: string }): JSX.Element {
   const { t, i18n } = useLingui();
   const label = (): string | null => {
     const ms = Date.parse(props.since);
     if (!Number.isFinite(ms)) return null;
     const month = new Intl.DateTimeFormat(i18n().locale, {
-      month: 'long',
+      month: 'short',
       year: 'numeric',
     }).format(new Date(ms));
-    return t`Friends since ${month}`;
+    return t`Since ${month}`;
   };
   return <>{label()}</>;
 }

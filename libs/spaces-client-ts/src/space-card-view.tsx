@@ -2,6 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Badge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -35,6 +36,9 @@ const GUEST_AVATAR_SIZE = 24;
 const GUEST_AVATAR_MAX_VISIBLE = 6;
 /** Names spelled out under the faces; the rest are counted. */
 const GUEST_NAMES_SHOWN = 3;
+/** A lobby card's guest line: two names, then how many more. */
+const CARD_GUEST_NAMES = 2;
+const ACTION_ICON_SIZE = 16;
 
 /** "Current" when this device has the space open, otherwise LIVE. */
 export function SpaceBadgeView(props: {
@@ -86,12 +90,13 @@ export function SpaceSummaryView(props: {
  */
 function SpaceGuestNames(props: {
   readonly guests: readonly SpacePerson[];
+  /** Names spelled out before the count. Default three. */
+  readonly shown?: number | undefined;
 }): JSX.Element {
   const { t } = useLingui();
-  const named = (): readonly SpacePerson[] =>
-    props.guests.slice(0, GUEST_NAMES_SHOWN);
-  const more = (): number =>
-    Math.max(0, props.guests.length - GUEST_NAMES_SHOWN);
+  const shown = (): number => props.shown ?? GUEST_NAMES_SHOWN;
+  const named = (): readonly SpacePerson[] => props.guests.slice(0, shown());
+  const more = (): number => Math.max(0, props.guests.length - shown());
   return (
     <StackHorizontal align="center" gap="xs">
       <StackVertical shrink>
@@ -149,16 +154,105 @@ export function SpaceGuestsView(props: {
   );
 }
 
-/** One row in the lobby panel; pressing it opens the space. */
+/** What pressing a lobby card does: go back in, open your own, or join. */
+export type SpaceCardAction = 'resume' | 'open' | 'join';
+
+/** "Resume" where the viewer already is, "Open" for their own, else "Join". */
+export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
+  if (space.active) return 'resume';
+  return space.hostedByViewer ? 'open' : 'join';
+}
+
+/** Who hosts the space: "Hosted by you", or the host's name. */
+function SpaceHostLine(props: { readonly space: SpaceCardData }): JSX.Element {
+  return (
+    <Show
+      when={!props.space.hostedByViewer}
+      fallback={
+        <P variant="caption" lines={1}>
+          <Trans>Hosted by you</Trans>
+        </P>
+      }
+    >
+      <Show when={props.space.host} keyed>
+        {(host) => (
+          <P variant="caption" lines={1}>
+            <Trans>
+              Hosted by <SpacePersonName person={host} variant="caption" />
+            </Trans>
+          </P>
+        )}
+      </Show>
+    </Show>
+  );
+}
+
+/**
+ * Who else is in the space on one line: the first names, then how many
+ * more, or "No guests yet" so every card has the same rows.
+ */
+function SpaceGuestsLine(props: {
+  readonly guests: readonly SpacePerson[];
+}): JSX.Element {
+  return (
+    <Show
+      when={props.guests.length > 0}
+      fallback={
+        <P variant="caption" lines={1}>
+          <Trans>No guests yet</Trans>
+        </P>
+      }
+    >
+      <SpaceGuestNames guests={props.guests} shown={CARD_GUEST_NAMES} />
+    </Show>
+  );
+}
+
+/**
+ * The card's trailing word for what a press does, with a chevron: it names
+ * the card's one action. The whole card is the control, so this is a label,
+ * not a second button.
+ */
+function SpaceCardActionLabel(props: {
+  readonly action: SpaceCardAction;
+}): JSX.Element {
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <Text variant="label" tone="tint">
+        <Switch>
+          <Match when={props.action === 'resume'}>
+            <Trans>Resume</Trans>
+          </Match>
+          <Match when={props.action === 'open'}>
+            <Trans>Open</Trans>
+          </Match>
+          <Match when={props.action === 'join'}>
+            <Trans>Join</Trans>
+          </Match>
+        </Switch>
+      </Text>
+      <ChevronRightIcon size={ACTION_ICON_SIZE} color="tint" />
+    </StackHorizontal>
+  );
+}
+
+/**
+ * One row in the lobby panel, in one anatomy for every space: the host's
+ * face; the name, who hosts it and who else is in it (or "No guests yet");
+ * and a trailing column with the status tag over what pressing it does
+ * (Resume, Open or Join). Pressing anywhere on the row does that.
+ */
 export function SpaceCardView(props: {
   readonly space: SpaceCardData;
   readonly onOpen: () => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const label = (): string =>
-    props.space.active
-      ? t`Open current space ${props.space.title}`
-      : t`Open space ${props.space.title}`;
+  const label = (): string => {
+    const action = spaceCardAction(props.space);
+    if (action === 'resume') return t`Resume space ${props.space.title}`;
+    if (action === 'open') return t`Open space ${props.space.title}`;
+    return t`Join space ${props.space.title}`;
+  };
   const testId = (): string | undefined => {
     const host = props.space.hostUsername;
     return host !== null ? Handles.spaceCard(host) : undefined;
@@ -170,14 +264,29 @@ export function SpaceCardView(props: {
       onPress={() => props.onOpen()}
       aria-label={label()}
     >
-      <StackVertical
+      <StackHorizontal
         padding="lg"
         gap="md"
+        align="center"
         testId={Handles.spaceLobbyCard(props.space.spaceId)}
       >
-        <SpaceSummaryView space={props.space} />
-        <SpaceGuestsView guests={props.space.guests} />
-      </StackVertical>
+        <SpacePersonAvatar
+          person={props.space.host}
+          size={HOST_AVATAR_SIZE}
+          vividBackdrop
+        />
+        <StackVertical grow shrink gap="xs">
+          <Text variant="bodyBold" lines={1}>
+            {props.space.title}
+          </Text>
+          <SpaceHostLine space={props.space} />
+          <SpaceGuestsLine guests={props.space.guests} />
+        </StackVertical>
+        <StackVertical self="stretch" align="end" justify="between" gap="sm">
+          <SpaceBadgeView badge={props.space.badge} />
+          <SpaceCardActionLabel action={spaceCardAction(props.space)} />
+        </StackVertical>
+      </StackHorizontal>
     </Pressable>
   );
 }
