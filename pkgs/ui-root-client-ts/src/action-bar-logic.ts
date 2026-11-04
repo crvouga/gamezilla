@@ -18,6 +18,10 @@ export type ActionBarTextAction = {
   label: JSX.Element;
   onClick: () => void;
   intent?: 'primary' | 'danger' | 'neutral' | undefined;
+  /** Button weight inline. Defaults to `'solid'`. */
+  variant?: 'solid' | 'outline' | 'ghost' | undefined;
+  /** A glyph before the label inline. */
+  icon?: IconComponent | undefined;
   loading?: boolean | undefined;
   disabled?: boolean | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;
@@ -60,6 +64,11 @@ export type ActionBarIconItem = ActionBarItemBase & {
 export type ActionBarAvatarItem = ActionBarItemBase & {
   variant: 'avatar';
   children: JSX.Element;
+  /**
+   * `faces`: the children are a row of faces with their own rings (an
+   * avatar stack), so the button draws no ring around them.
+   */
+  plate?: 'ring' | 'faces' | undefined;
 };
 
 export type ActionBarItem = ActionBarIconItem | ActionBarAvatarItem;

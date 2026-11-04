@@ -14,7 +14,7 @@ import type {
 import { actionBarGlyphSize, isActionBarAvatarItem } from '../action-bar-logic';
 import { Button } from '../button/index';
 import { IconButton } from '../icon-button/index';
-import { MenuIcon } from '../icons';
+import { EllipsisIcon } from '../icons';
 
 export type ActionBarOverflowTriggerSpec =
   | {
@@ -41,7 +41,7 @@ function ActionBarAvatarItemButton(props: {
       when={props.showInlineLabel}
       fallback={
         <IconButton
-          variant="avatar"
+          variant={props.item.plate === 'faces' ? 'faces' : 'avatar'}
           size={props.buttonSize}
           label={props.item.label}
           onClick={onClick}
@@ -86,8 +86,9 @@ export function ActionBarOverflowTrigger(props: {
   const moreLabel = (): string => t`More`;
   const slotWidth = (): number => props.slotWidth ?? props.buttonSize;
   const iconSize = (): number => actionBarGlyphSize(props.buttonSize);
+  // ⋯: more of this bar's actions, never the app's navigation (≡).
   const menuIcon = (): JSX.Element => (
-    <MenuIcon size={iconSize()} color="icon" />
+    <EllipsisIcon size={iconSize()} color="icon" />
   );
   return (
     // `dataSet` (the caller's handle) goes on the control a person presses,
@@ -216,6 +217,8 @@ export function ActionBarTextItems(props: {
             title={action.label}
             onClick={action.onClick}
             intent={action.intent ?? 'neutral'}
+            variant={action.variant}
+            icon={action.icon}
             size="sm"
             loading={action.loading ?? false}
             disabled={action.disabled ?? false}

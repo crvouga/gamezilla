@@ -100,11 +100,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The host in their space: every action, choosing what to play. Wide, the
- * members button is everyone's faces; on a phone it is the people glyph
- * with how many are here, one button wide, so it stays beside the title.
- * Under the Games title, who is here and who hosts ("5 here · you host"),
- * so the room stays in view while the game is chosen.
+ * The host in their space, choosing what to play. The bar reads the same on
+ * every size: ✕ Close at the leading edge (the space goes on in the
+ * miniplayer), the space's name, then the members button, the way out and
+ * ⋯ at the far edge with Share, Rename and Leave. Wide says Close and End
+ * space in words and shows everyone's faces; on a phone the members button
+ * is the people glyph with how many are here, and End folds into ⋯ when the
+ * row is short. Under the Games title, who is here and who hosts.
  */
 export const HostChoosingGame: Story = {};
 
@@ -120,9 +122,13 @@ export const Guest: Story = {
   render: (args) => withSlots(args, { body: () => gamesList(false) }),
 };
 
-/** A game in progress: Back returns to its menu; the game area is a slot. */
+/**
+ * A game in progress: after Close, ‹ Games goes back to the space's games,
+ * named so moving within the room never reads like leaving it. The game
+ * area is a slot.
+ */
 export const GameInProgress: Story = {
-  args: { onPressBack: fn() },
+  args: { onPressBack: fn(), backLabel: 'Games' },
   render: (args) =>
     withSlots(args, {
       body: () => <GameAreaExample title="A game in progress" />,
