@@ -147,7 +147,6 @@ function SearchResults(props: {
           items={props.search.results}
           keyExtractor={(user) => user.userId}
           estimateSize={60}
-          edgeInset={false}
           panel
           renderItem={(user) => (
             <SearchResultRow
