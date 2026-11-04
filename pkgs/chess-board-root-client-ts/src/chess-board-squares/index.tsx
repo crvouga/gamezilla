@@ -142,6 +142,16 @@ function CellHighlightBox(props: {
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
+/** Label size in board units (100 per square): small enough to stay in a corner. */
+const LABEL_SIZE = '16';
+/** A file label's right edge, in from its square's right side. */
+const LABEL_INSET = 9;
+/** A file label's baseline above the board's bottom, room left for descenders. */
+const FILE_BASELINE_INSET = 13;
+/** A rank label's left edge and baseline within its square. */
+const RANK_INSET = 5;
+const RANK_BASELINE = 20;
+
 /**
  * Edge labels inside the corner squares, chess.com-style: each label takes
  * the *other* square color so it reads on both.
@@ -160,16 +170,18 @@ function Coordinates(props: {
       class={`${styles['layer']} ${styles['svgLayer']} ${styles['coords']}`}
       viewBox={BOARD_VIEW_BOX}
     >
-      {/* A file label's right inset absorbs a glyph's overhang past its
-          advance (`f`) plus a device pixel of snapping at half scale on the
-          smallest board, so the label never leaves its square. */}
+      {/* Each label hugs its square's outer corner, below and beside where
+          a piece's figure reaches, so it never sits under a piece. A file
+          label's right inset absorbs a glyph's overhang past its advance
+          (`f`) plus a device pixel of snapping at half scale on the smallest
+          board, so the label never leaves its square. */}
       <For each={files()}>
         {(file, col) => (
           <text
-            x={col() * CELL_UNITS + CELL_UNITS - 10}
-            y={8 * CELL_UNITS - 20}
+            x={col() * CELL_UNITS + CELL_UNITS - LABEL_INSET}
+            y={8 * CELL_UNITS - FILE_BASELINE_INSET}
             fill={ink(col(), 7)}
-            font-size="20"
+            font-size={LABEL_SIZE}
             text-anchor="end"
           >
             {file}
@@ -179,10 +191,10 @@ function Coordinates(props: {
       <For each={ranks()}>
         {(rank, row) => (
           <text
-            x={5}
-            y={row() * CELL_UNITS + 30}
+            x={RANK_INSET}
+            y={row() * CELL_UNITS + RANK_BASELINE}
             fill={ink(0, row())}
-            font-size="20"
+            font-size={LABEL_SIZE}
           >
             {rank}
           </text>
