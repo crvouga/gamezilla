@@ -16,6 +16,7 @@ import { useGamesRegistry } from './games-registry-context';
 import { SpaceGamesScreenView } from './space-games-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { SpaceWhoIsHere } from './space-who-is-here';
 import { useConnectedSpaceRoster } from './use-connected-space-roster';
 import { useOfflineGameBrowse } from './use-offline-game-browse';
 import { useSpaceCan } from './use-space-can';
@@ -89,6 +90,7 @@ export function GamesMainMenu(): JSX.Element {
         present={present()}
         hostChoosesNotice={hostChooses()}
         onSelectGame={chooseGame}
+        whoIsHere={<SpaceWhoIsHere spaceId={spaceId} />}
         renderGameMenu={(gameId) => {
           const game = games.find((g) => g.id === gameId);
           return game === undefined ? null : (

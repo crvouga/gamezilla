@@ -1,0 +1,4 @@
+{
+  "summary": "While a space chose its game, the games list showed no one: who was in the room and who hosted were folded into the header's members button (a count badge on a phone), so the choice was made blind to the room. Under the Games title a compact line now shows everyone's faces and \"5 here · avery hosts\" (\"you host\" for the host), from the same presence data as the members button.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-who-is-here.test.tsx"
+}

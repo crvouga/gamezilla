@@ -37,21 +37,31 @@ export function useSpacePresenceCount(): () => number {
   return () => clients().length;
 }
 
-/** {@link SpacePresenceStripView} for the space room this device holds. */
-export function SpacePresenceStrip(
-  props: SpacePresenceStripProps
-): JSX.Element {
-  const colors = useSpaceParticipantColors(props.spaceId);
+/**
+ * One face per person connected to the space room this device holds, with
+ * their profile and participant color: what the members button and the
+ * games list's "In this space" line both show.
+ */
+export function useSpacePresenceFaces(
+  spaceId: () => string
+): () => readonly SpacePresenceFace[] {
+  const colors = useSpaceParticipantColors(spaceId);
   const clients = useSpaceParticipants();
   const people = useSpacePeople(() => clients().map((client) => client.id));
-  const faces = createMemo((): readonly SpacePresenceFace[] =>
+  return createMemo((): readonly SpacePresenceFace[] =>
     clients().map((actor) => ({
       actor,
       person: people().find((person) => person.id === actor.id) ?? null,
       color: colors.colorForParticipant(actor.id),
     }))
   );
+}
 
+/** {@link SpacePresenceStripView} for the space room this device holds. */
+export function SpacePresenceStrip(
+  props: SpacePresenceStripProps
+): JSX.Element {
+  const faces = useSpacePresenceFaces(() => props.spaceId);
   return (
     <SpacePresenceStripView
       faces={faces()}
