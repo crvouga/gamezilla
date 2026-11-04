@@ -285,6 +285,8 @@ export function SpaceChromeTrailingActionBar(
   return (
     <ActionBar
       items={items()}
+      // The members button stays on the bar: the title truncates first.
+      holdPinned
       buttonSize={chrome().buttonSize}
       gap={chrome().gap}
       overflowDataSet={{ testid: Handles.spaceChromeOverflow }}

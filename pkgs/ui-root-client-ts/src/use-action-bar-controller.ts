@@ -43,6 +43,8 @@ export type ActionBarControllerInput = {
   gap?: number | undefined;
   slotWidth?: number | undefined;
   showInlineLabels?: boolean | undefined;
+  /** `never` items hold their room: the bar's row-mates give way first. */
+  holdPinned?: boolean | undefined;
 };
 
 export type ResolvedActionBarProps = {
@@ -177,7 +179,10 @@ export type ActionBarController = {
   widths: KeyedWidths;
   /** Room the bar asks for with every action inline. */
   naturalWidth: Accessor<number>;
-  /** Room the bar never gives up: its `never` items and the More trigger. */
+  /**
+   * Room the bar never gives up: the More trigger, and its `never` items
+   * too when it holds them (`holdPinned`).
+   */
   minWidth: Accessor<number>;
 };
 
@@ -240,7 +245,7 @@ export function useActionBarController(
     naturalWidth: natural,
     minWidth: () =>
       actionBarMinWidth({
-        items: input.items,
+        items: input.holdPinned === true ? input.items : [],
         widthOf: (item) =>
           widths.width(itemKey(item.id)) ?? resolved().slotWidth,
         moreWidth: moreWidth(widths, resolved()),
