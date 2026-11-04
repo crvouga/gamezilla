@@ -27,7 +27,11 @@ const meta = {
   component: AppHeaderGlobalMenuView,
   tags: ['autodocs'],
   decorators: [withHeaderEnd],
-  parameters: { appRouter: true, controls: { exclude: ['identity'] } },
+  parameters: {
+    appRouter: true,
+    appFrame: false,
+    controls: { exclude: ['identity'] },
+  },
   args: {
     identity: SIGNED_IN,
     connectivity: 'online',

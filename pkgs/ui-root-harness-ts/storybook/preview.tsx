@@ -41,15 +41,21 @@ function createStoryRouter(): AppRouter {
  * stories stay router-free so a component that wrongly needs one still fails.
  * A screen renders where the app renders it: inside `AppFrame`, filling the
  * viewport, so wide layouts get the app's centered column and page inset.
+ * The frame's own chrome (header, tab bar, account menu) opts out with
+ * `appFrame: false`.
  */
 function withOptionalRouter(
-  enabled: unknown,
+  parameters: Record<string, unknown>,
   story: () => JSX.Element
 ): JSX.Element {
-  if (enabled !== true) return story();
+  if (parameters['appRouter'] !== true) return story();
   return (
     <StaticAppRouterProvider router={createStoryRouter()}>
-      <StoryAppViewport story={story} />
+      {parameters['appFrame'] === false ? (
+        story()
+      ) : (
+        <StoryAppViewport story={story} />
+      )}
     </StaticAppRouterProvider>
   );
 }
@@ -102,7 +108,7 @@ const withProviders = createJSXDecorator((Story, context) => {
           transparent
         >
           <SurfaceStackProvider>
-            {withOptionalRouter(context.parameters['appRouter'], () => (
+            {withOptionalRouter(context.parameters, () => (
               <Story />
             ))}
           </SurfaceStackProvider>

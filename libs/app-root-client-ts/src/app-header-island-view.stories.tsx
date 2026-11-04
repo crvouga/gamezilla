@@ -9,7 +9,11 @@ const meta = {
   title: 'Screens/Shell/Header island',
   component: AppHeaderIslandView,
   tags: ['autodocs'],
-  parameters: { appRouter: true, controls: { exclude: ['tabs', 'trailing'] } },
+  parameters: {
+    appRouter: true,
+    appFrame: false,
+    controls: { exclude: ['tabs', 'trailing'] },
+  },
   args: { tabs: STORY_APP_TABS, pathname: '/', onSelect: fn() },
 } satisfies Meta<typeof AppHeaderIslandView>;
 export default meta;
@@ -17,6 +21,14 @@ type Story = StoryObj<typeof meta>;
 
 /** Wide layouts: logo, the tab pills with Spaces current, no actions. */
 export const SpacesCurrent: Story = {};
+
+/** On Search: its pill is the current page. */
+export const SearchCurrent: Story = { args: { pathname: '/search' } };
+
+/** On the inbox: the Notifications pill is the current page. */
+export const NotificationsCurrent: Story = {
+  args: { pathname: '/notifications' },
+};
 
 /** A nested route keeps its tab's pill current. */
 export const ProfileCurrent: Story = { args: { pathname: '/profile/friends' } };
