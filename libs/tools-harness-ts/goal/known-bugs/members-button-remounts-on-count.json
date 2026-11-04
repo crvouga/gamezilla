@@ -1,0 +1,4 @@
+{
+  "summary": "The phone members button's name said how many people are here, but the name was built inside the space bar's item list, so every arrival or departure rebuilt the bar's items and remounted the button. A tap landing during that rebuild hit a detached button, the members sheet never opened, and the idle-presence scenarios timed out waiting for its close button. The name now follows the count inside one label component, so the button stays the same element.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-presence-strip-compact.test.tsx"
+}

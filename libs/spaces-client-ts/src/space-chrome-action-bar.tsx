@@ -229,6 +229,27 @@ export function SpaceChromeLeadingActionBar(
   );
 }
 
+/**
+ * The members button's name. It follows the count itself, so the bar's items
+ * never rebuild (and the button never remounts) while people come and go.
+ */
+function MembersLabel(props: {
+  readonly count: () => number | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={(props.count() ?? 0) > 0}
+      fallback={<Trans>People in this space</Trans>}
+    >
+      <Plural
+        value={props.count() ?? 0}
+        one="# person in this space"
+        other="# people in this space"
+      />
+    </Show>
+  );
+}
+
 export type SpaceChromeTrailingActionBarProps = {
   /**
    * How many people the members button shows as a number (the phone's
@@ -257,16 +278,7 @@ export function SpaceChromeTrailingActionBar(
       canEndSpace: props.canEnd,
       presence: props.presence(avatarSize()),
       labels: {
-        members:
-          props.shownCount === undefined || props.shownCount === 0 ? (
-            <Trans>People in this space</Trans>
-          ) : (
-            <Plural
-              value={props.shownCount}
-              one="# person in this space"
-              other="# people in this space"
-            />
-          ),
+        members: <MembersLabel count={() => props.shownCount} />,
         invite: <Trans>Share</Trans>,
         rename: <Trans>Rename</Trans>,
         end: <Trans>End space</Trans>,

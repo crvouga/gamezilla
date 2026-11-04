@@ -60,7 +60,7 @@ msgstr "{0, plural, one {# here} other {# here}}"
 msgid "{0, plural, one {# person here} other {# people here}}"
 msgstr "{0, plural, one {# person here} other {# people here}}"
 
-#. placeholder {0}: props.shownCount
+#. placeholder {0}: props.count() ?? 0
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 msgid "{0, plural, one {# person in this space} other {# people in this space}}"
 msgstr "{0, plural, one {# person in this space} other {# people in this space}}"
