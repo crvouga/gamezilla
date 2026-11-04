@@ -37,7 +37,7 @@ export function AppHeaderIslandView(
       id: tab.name,
       label: tab.label,
       icon: tab.Icon,
-      active: isAppTabActive(tab.href, props.pathname),
+      active: isAppTabActive(tab.href, props.pathname, tab.alsoActiveUnder),
       onClick: () => props.onSelect(tab),
       dataSet: { testid: tab.testID },
     }));

@@ -15,7 +15,7 @@ export function SyntheticPopulationDenial(props: {
     <ContentScreen
       screenId="synthetic-population-permission"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Bot Observatory</Trans> },
       ]}

@@ -328,7 +328,7 @@ export function SettingsScreenView(
     <MenuScreen
       screenId="more"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans> },
       ]}
     >

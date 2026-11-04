@@ -113,7 +113,7 @@ export function ClientConfigScreenView(
     <MenuScreen
       screenId="client-config"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Client config</Trans> },
       ]}

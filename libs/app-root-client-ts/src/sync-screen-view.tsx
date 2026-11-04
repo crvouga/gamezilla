@@ -110,7 +110,7 @@ export function SyncScreenView(props: SyncScreenViewProps): JSX.Element {
     <MenuScreen
       screenId="sync"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Sync</Trans> },
       ]}

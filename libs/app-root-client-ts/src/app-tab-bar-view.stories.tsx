@@ -32,8 +32,8 @@ export const NotificationsCurrent: Story = {
 /** A nested route keeps its tab current (a profile sub-screen → Profile). */
 export const ProfileCurrent: Story = { args: { pathname: '/profile/friends' } };
 
-/** A route outside every tab (Settings) marks no tab current. */
-export const NoTabCurrent: Story = { args: { pathname: '/more' } };
+/** A route outside every tab (an open space) marks no tab current. */
+export const NoTabCurrent: Story = { args: { pathname: '/space/abc' } };
 
 /** Long localized labels truncate within their tab. */
 export const LongLabels: Story = { args: { tabs: STORY_LONG_APP_TABS } };

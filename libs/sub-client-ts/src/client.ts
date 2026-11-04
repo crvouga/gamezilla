@@ -27,6 +27,11 @@ export type SubTab = {
   readonly label: () => string;
   readonly Icon: IconComponent;
   readonly testID: string;
+  /**
+   * Other routes this tab stands for, by path prefix — a screen reached
+   * from the tab that lives at its own address (Settings under Profile).
+   */
+  readonly alsoActiveUnder?: readonly string[] | undefined;
 };
 
 export type SubProvider = Component<{ readonly children: JSX.Element }>;

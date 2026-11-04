@@ -55,7 +55,7 @@ export function PerformanceSettingsScreenView(
     <MenuScreen
       screenId="performance"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Performance</Trans> },
       ]}

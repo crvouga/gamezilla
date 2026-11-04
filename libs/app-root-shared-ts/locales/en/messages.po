@@ -4836,6 +4836,20 @@ msgid "Production"
 msgstr "Production"
 
 #: libs/account-privacy-client-ts/src/privacy-screen-layout.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
+#: libs/app-root-client-ts/src/client-sql-screen-view.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
+#: libs/billing-client-ts/src/billing-screen-view.tsx
 #: libs/friends-client-ts/src/friend-user-screen-view.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
@@ -4843,6 +4857,9 @@ msgstr "Production"
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/profile-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Profile"
 msgstr "Profile"
 
@@ -6231,28 +6248,11 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
-#: libs/app-config-client-ts/src/client-config-screen-view.tsx
-#: libs/app-root-client-ts/src/about-screen-view.tsx
-#: libs/app-root-client-ts/src/client-events-screen-view.tsx
-#: libs/app-root-client-ts/src/client-sql-screen-view.tsx
-#: libs/app-root-client-ts/src/connection-screen-view.tsx
-#: libs/app-root-client-ts/src/performance-screen-view.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-#: libs/app-root-client-ts/src/sound-screen-view.tsx
-#: libs/app-root-client-ts/src/sync-screen-view.tsx
-#: libs/app-root-client-ts/src/theme-screen-view.tsx
-#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
-#: libs/auth-client-ts/src/account-devices-screen-view.tsx
-#: libs/auth-client-ts/src/account-screen-view.tsx
-#: libs/billing-client-ts/src/billing-screen-view.tsx
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/spaces-client-ts/src/sub-client.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Spaces"
 msgstr "Spaces"
 

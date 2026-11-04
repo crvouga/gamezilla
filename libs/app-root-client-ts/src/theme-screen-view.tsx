@@ -99,7 +99,7 @@ export function ThemeSettingsScreenView(
     <MenuScreen
       screenId="theme"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Appearance</Trans> },
       ]}

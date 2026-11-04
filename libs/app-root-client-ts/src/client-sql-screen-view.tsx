@@ -21,7 +21,7 @@ export function ClientSqlScreenView(
     <ScreenBase
       screenId="client-sql"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Client SQL</Trans> },
       ]}
