@@ -50,7 +50,6 @@ export function SpacesScreenView(props: SpacesScreenViewProps): JSX.Element {
   return (
     <CollectionScreen
       screenId="spaces"
-      measure="wide"
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
       controls={props.notice}

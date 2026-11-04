@@ -4,7 +4,6 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import { MenuList } from '../menu-list/index';
-import { useLayoutMode } from '../use-layout-mode';
 
 export type MenuSectionProps = {
   /** Section label above the rows, in sentence case. */
@@ -14,12 +13,6 @@ export type MenuSectionProps = {
   children: JSX.Element;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
-  /**
-   * Wide layouts only. `list` (default): one panel of rows. `grid`: each
-   * row is its own card, two to a line — for collections of things (spaces),
-   * never settings.
-   */
-  wideLayout?: 'list' | 'grid' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -45,8 +38,6 @@ export type MenuSectionProps = {
  * ```
  */
 export function MenuSection(props: MenuSectionProps): JSX.Element {
-  const mode = useLayoutMode();
-  const cards = (): boolean => props.wideLayout === 'grid' && mode() === 'wide';
   return (
     <section
       class="box gap-2"
@@ -55,12 +46,7 @@ export function MenuSection(props: MenuSectionProps): JSX.Element {
       <Show when={props.title !== undefined && props.title !== null}>
         <h3 class="text textSectionLabel line-clamp-1 px-4">{props.title}</h3>
       </Show>
-      <MenuList
-        separator={props.separator}
-        layout={cards() ? 'cards' : 'panel'}
-      >
-        {props.children}
-      </MenuList>
+      <MenuList separator={props.separator}>{props.children}</MenuList>
       <Show when={props.footer !== undefined && props.footer !== null}>
         <p class="text textCaption px-4">{props.footer}</p>
       </Show>

@@ -2780,9 +2780,9 @@
         }
       },
       "space": {
-        "$description": "The desktop column inside an open space: its top bar and every screen in it share these edges.",
+        "$description": "The desktop column inside an open space: its top bar and every screen in it share these edges (960px inside the column's 16px insets).",
         "$value": {
-          "value": 1040,
+          "value": 992,
           "unit": "px"
         }
       }

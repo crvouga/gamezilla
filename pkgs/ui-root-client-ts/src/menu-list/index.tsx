@@ -7,7 +7,6 @@ import {
   For,
   type JSX,
   children as resolveChildren,
-  Show,
 } from 'solid-js';
 
 export type MenuListProps = {
@@ -16,11 +15,6 @@ export type MenuListProps = {
   grow?: boolean | undefined;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
-  /**
-   * `panel` (default): one surface of rows. `cards`: every row is its own
-   * card in a two-column grid — for collections of things on wide layouts.
-   */
-  layout?: 'panel' | 'cards' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -50,41 +44,16 @@ export function MenuList(props: MenuListProps): JSX.Element {
       .filter((node) => node !== null && node !== undefined && node !== false)
   );
   return (
-    <Show
-      when={props.layout === 'cards'}
-      fallback={
-        <div
-          class="panel"
-          classList={{
-            panelPlain: props.separator === false,
-            'flex-1': props.grow === true,
-          }}
-          {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
-          role="group"
-        >
-          <For each={rows()}>
-            {(child) => <div class="panelItem">{child}</div>}
-          </For>
-        </div>
-      }
+    <div
+      class="panel"
+      classList={{
+        panelPlain: props.separator === false,
+        'flex-1': props.grow === true,
+      }}
+      {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
+      role="group"
     >
-      <div
-        class="grid grid-cols-2 gap-3"
-        {...dataAttrs({
-          component: 'MenuList',
-          layout: 'cards',
-          ...props.dataSet,
-        })}
-        role="group"
-      >
-        <For each={rows()}>
-          {(child) => (
-            <div class="panel">
-              <div class="panelItem flex-1">{child}</div>
-            </div>
-          )}
-        </For>
-      </div>
-    </Show>
+      <For each={rows()}>{(child) => <div class="panelItem">{child}</div>}</For>
+    </div>
   );
 }

@@ -66,7 +66,7 @@ function SpacesGroup(props: {
   readonly onOpenSpace: (spaceId: string) => void;
 }): JSX.Element {
   return (
-    <MenuSection title={props.title} wideLayout="grid">
+    <MenuSection title={props.title}>
       <Index each={props.spaces}>
         {(space) => (
           <SpaceCardView

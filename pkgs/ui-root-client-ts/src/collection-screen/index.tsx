@@ -14,11 +14,6 @@ export type CollectionScreenProps = Pick<
   | 'dataSet'
   | 'renderActionsMenu'
 > & {
-  /**
-   * `list` (default, 640px) for rows; `wide` (960px) for a collection that
-   * lays its items out as a grid of cards on wide layouts.
-   */
-  measure?: 'list' | 'wide' | undefined;
   /** Pinned search, filters, or notices above the independently scrolling list. */
   controls?: JSX.Element | undefined;
   /** A ScreenBodyVirtualList / ScreenBodyScrollView, or an empty/loading state. */
@@ -35,7 +30,7 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       actions={props.actions}
       primaryAction={props.primaryAction}
       renderActionsMenu={props.renderActionsMenu}
-      measure={props.measure ?? 'list'}
+      measure="list"
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
         <div class={styles['collection']}>

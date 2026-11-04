@@ -2,8 +2,6 @@
 
 import { describe, expect, test } from 'bun:test';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
@@ -60,37 +58,5 @@ describe('balanced grids', () => {
       WIDE
     );
     expect(screen.getByRole('list').className).toMatch(/\bgrid-cols-2\b/);
-  });
-});
-
-describe('MenuSection grid', () => {
-  test('wide, a grid section gives every row its own card', () => {
-    renderUi(
-      () => (
-        <MenuSection title="Spaces" wideLayout="grid">
-          <MenuRow title="Friday game night" onClick={() => undefined} />
-          <MenuRow title="robin_42's space" onClick={() => undefined} />
-        </MenuSection>
-      ),
-      WIDE
-    );
-    const group = screen.getByRole('group');
-    expect(group.getAttribute('data-layout')).toBe('cards');
-    expect(group.querySelectorAll(':scope > .panel')).toHaveLength(2);
-  });
-
-  test('compact, the same section stays one panel', () => {
-    renderUi(
-      () => (
-        <MenuSection title="Spaces" wideLayout="grid">
-          <MenuRow title="Friday game night" onClick={() => undefined} />
-          <MenuRow title="robin_42's space" onClick={() => undefined} />
-        </MenuSection>
-      ),
-      COMPACT
-    );
-    const group = screen.getByRole('group');
-    expect(group.getAttribute('data-layout')).toBeNull();
-    expect(group.className).toMatch(/\bpanel\b/);
   });
 });
