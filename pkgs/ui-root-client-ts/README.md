@@ -157,10 +157,12 @@ protocol. Import each from its matching kebab-case module export.
 | `ContentScreen` | Readable scrolling details, documents or state explanations | Privacy, billing, link outcomes, administration |
 
 Every page sits on one canvas, `background`, edge to edge at every width;
-only wells (inputs, tags, notices) take a `surface` tone. Each family has one
-measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
-`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `list` (720px) for
-`CollectionScreen`; `full` for game stages with a rail. At every width a capped
+only wells (inputs, tags, notices) take a `surface` tone. Every page column
+shares one 640px measure (`screen-measure.ts`), so the column never jumps
+between tabs: `menu` for `MenuScreen`, `FormScreen`, `ProfileScreenLayout`,
+`MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` for
+`ContentScreen`; `list` for `CollectionScreen`; `full` for game stages with a
+rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
 content. Narrow layouts retain the 16px page inset.

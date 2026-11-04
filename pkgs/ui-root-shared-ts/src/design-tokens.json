@@ -1189,9 +1189,9 @@
         "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5451, 0.5922, 0.9804],
+          "components": [0.3608, 0.3804, 0.949],
           "alpha": 1.0,
-          "hex": "#8b97fa"
+          "hex": "#5c61f2"
         }
       },
       "tintSubtle": {
@@ -1224,9 +1224,9 @@
       "onPrimary": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0588, 0.0667, 0.0824],
+          "components": [1.0, 1.0, 1.0],
           "alpha": 1.0,
-          "hex": "#0f1115"
+          "hex": "#ffffff"
         }
       },
       "onDestructive": {

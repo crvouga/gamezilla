@@ -1,11 +1,12 @@
 /**
- * The measure a screen's column is capped at, one per template family:
+ * The measure a screen's column is capped at. Every page column is the same
+ * 640px (the prose token), so moving between tabs and screens never makes the
+ * column jump; the names say which template family a screen belongs to:
  *
- * - `menu` (480px): menus, settings, forms, profiles, game menus and
- *   history / stats — rows and fields read best at a phone's width.
- * - `prose` (640px, the prose token): readable details and documents.
- * - `list` (720px): collections — spaces, people, search results, the inbox.
- *   Rows keep a scannable line length instead of stretching across a monitor.
+ * - `menu`: menus, settings, forms, profiles, game menus, history / stats.
+ * - `prose`: readable details and documents.
+ * - `list`: collections — spaces, people, search results, the inbox. Rows
+ *   keep a scannable line length instead of stretching across a monitor.
  * - `full`: the whole frame column — explorers and game stages with a side
  *   rail.
  *
@@ -17,8 +18,8 @@
 export type ScreenMeasure = 'menu' | 'prose' | 'list' | 'full';
 
 export const SCREEN_MAX_WIDTH: Readonly<Record<ScreenMeasure, string>> = {
-  menu: '480px',
+  menu: '640px',
   prose: '640px',
-  list: '720px',
+  list: '640px',
   full: '100%',
 };
