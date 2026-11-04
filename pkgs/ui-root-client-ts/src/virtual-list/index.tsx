@@ -32,6 +32,12 @@ export type VirtualListProps<ItemT> = ScrollFrameProps & {
   /** Rendered instead of rows when `items` is empty. */
   empty?: JSX.Element | undefined;
   /**
+   * Draw the rows as one panel: the surface tone inside one hairline at
+   * the card radius, hairlines between rows (the `MenuList` look), so a
+   * long collection reads as one group like every other list.
+   */
+  panel?: boolean | undefined;
+  /**
    * Fixed scroller size for environments without layout (tests). When set the
    * scroller box is not observed.
    */
@@ -41,11 +47,14 @@ export type VirtualListProps<ItemT> = ScrollFrameProps & {
 };
 
 const DEFAULT_ESTIMATE = 56;
+/** A panel's hairline, top and bottom, around the measured rows. */
+const PANEL_BORDER_PX = 2;
 
 type RowsProps<ItemT> = {
   virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
   items: readonly ItemT[];
   renderItem: (item: ItemT, index: number) => JSX.Element;
+  panel: boolean;
 };
 
 function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
@@ -60,6 +69,7 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
         {(row) => (
           <div
             role="listitem"
+            class={props.panel ? 'panelItem' : undefined}
             data-index={item.index}
             ref={(el) =>
               queueMicrotask(() => props.virtualizer.measureElement(el))
@@ -81,8 +91,9 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
   return (
     <div
       role="list"
+      class={props.panel ? 'panel' : undefined}
       style={{
-        height: `${props.virtualizer.getTotalSize()}px`,
+        height: `${props.virtualizer.getTotalSize() + (props.panel ? PANEL_BORDER_PX : 0)}px`,
         position: 'relative',
         width: '100%',
       }}
@@ -198,6 +209,7 @@ export function VirtualList<ItemT>(
             virtualizer={virtualizer}
             items={props.items}
             renderItem={props.renderItem}
+            panel={props.panel === true}
           />
         </Show>
         {props.footer}

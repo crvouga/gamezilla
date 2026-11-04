@@ -4,7 +4,9 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SettingsIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
+import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -46,6 +48,8 @@ export type ProfileScreenViewProps = {
   /** The friends section's call to action, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
+  /** Opens Settings (appearance, sound, account and the rest). */
+  readonly onOpenSettings: () => void;
   readonly onChooseUsername: () => void;
   readonly onRetry: () => void;
 };
@@ -99,10 +103,28 @@ function StandInNoticeView(props: { readonly alias: string }): JSX.Element {
   );
 }
 
+/** The way from a profile to Settings: one row, under the friends section. */
+function ProfileSettingsEntry(props: {
+  readonly onOpen: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <MenuList>
+      <MenuRow
+        title={t`Settings`}
+        caption={t`Account, appearance, sound and more`}
+        leading={<SettingsIcon size={20} color="icon" />}
+        onClick={() => props.onOpen()}
+      />
+    </MenuList>
+  );
+}
+
 /**
  * `/profile`, presentational: the person's own avatar, name, username and
- * avatar notices, Edit profile, and the friends slots. Data arrives as
- * props; `ProfileScreen` wires them to the sync engine.
+ * avatar notices, Edit profile, the friends slots and the way to Settings.
+ * On a wide screen the identity sits in its own column beside the sections.
+ * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
 export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -158,6 +180,7 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
           {props.friendsActions}
         </StackHorizontal>
       </StackVertical>
+      <ProfileSettingsEntry onOpen={() => props.onOpenSettings()} />
     </ProfileScreenLayout>
   );
 }

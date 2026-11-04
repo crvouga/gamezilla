@@ -24,6 +24,8 @@ export type SpaceCardData = {
   readonly badge: SpaceCardBadge;
   /** The viewer is in this space, so opening it returns to it. */
   readonly active: boolean;
+  /** The viewer hosts this space, so the lobby lists it under their own. */
+  readonly hostedByViewer: boolean;
   /** Guests seated in the space's room, host excluded. */
   readonly guests: readonly SpacePerson[];
 };

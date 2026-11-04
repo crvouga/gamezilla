@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * `/more` — settings index: account, preferences, status and about groups of
- * `MenuRow`s linking to the sub-screens.
+ * `/more` — settings index: account, preferences, about and troubleshooting
+ * groups of `MenuRow`s linking to the sub-screens.
  */
 
 import { APP_VERSION } from '@libs/app-root-shared-ts/app-metadata';

@@ -61,6 +61,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
       friendsStats={props.friendsStats}
       friendsActions={props.friendsActions}
       onEditProfile={() => router.push('/profile/edit')}
+      onOpenSettings={() => router.push('/more')}
       onChooseUsername={() => router.push('/profile/handle')}
       onRetry={() => void engine.refreshQueries()}
     />

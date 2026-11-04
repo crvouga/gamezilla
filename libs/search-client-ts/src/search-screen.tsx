@@ -19,7 +19,9 @@ export function SearchScreen(): JSX.Element {
       recentQueries={queries}
       search={state}
       denial={state.canSearch ? undefined : denial()}
-      renderUserRow={(user) => <SearchUserResultRow user={user} />}
+      renderUserRow={(user, query) => (
+        <SearchUserResultRow user={user} query={query} />
+      )}
       onQueryChange={setQuery}
       onSelectRecent={setQuery}
       onClearRecent={clear}

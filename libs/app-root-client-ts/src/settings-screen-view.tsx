@@ -44,6 +44,8 @@ type SettingsRow = {
 type SettingsGroup = {
   readonly key: string;
   readonly title: string;
+  /** A note under the group's rows. */
+  readonly footer?: string | undefined;
   readonly rows: readonly SettingsRow[];
 };
 
@@ -107,27 +109,31 @@ function useAccountGroup(
   });
 }
 
+/**
+ * The Work offline row's caption: the mode the app is in now, then what the
+ * switch would change. "Online" / "Offline" lead, so the row says where the
+ * person stands before it says what the switch does.
+ */
+function useWorkOfflineCaption(
+  props: SettingsScreenViewProps
+): Accessor<string> {
+  const { t } = useLingui();
+  return () =>
+    props.offline
+      ? t`Offline. Nothing connects until you turn this off.`
+      : t`Online. Turn on to stop every network connection.`;
+}
+
 function usePreferencesGroup(
   props: SettingsScreenViewProps
 ): Accessor<SettingsGroup> {
   const { t } = useLingui();
   const themeValue = useThemeValue(props);
+  const offlineCaption = useWorkOfflineCaption(props);
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
     rows: [
-      {
-        title: t`Work offline`,
-        caption: t`Stop every network connection until you work online`,
-        value: props.offline ? t`Offline` : t`Online`,
-        icon: props.offline ? WifiOffIcon : WifiIcon,
-        toggle: {
-          value: props.offline,
-          onChange: props.onOfflineChange,
-          label: t`Work offline`,
-        },
-        testid: Handles.settingsWorkOffline,
-      },
       {
         title: t`Appearance`,
         value: themeValue(),
@@ -143,42 +149,58 @@ function usePreferencesGroup(
         testid: Handles.settingsSound,
       },
       {
-        title: t`Performance`,
-        value: props.perfEnabled ? t`On` : t`Off`,
-        icon: GaugeIcon,
-        href: '/more/performance',
-        testid: 'settings-performance',
+        title: t`Work offline`,
+        caption: offlineCaption(),
+        icon: props.offline ? WifiOffIcon : WifiIcon,
+        toggle: {
+          value: props.offline,
+          onChange: props.onOfflineChange,
+          label: t`Work offline`,
+        },
+        testid: Handles.settingsWorkOffline,
       },
     ],
   });
 }
 
-function useStatusGroup(): Accessor<SettingsGroup> {
+/** Diagnostics, last: for when something is not working. */
+function useTroubleshootingGroup(
+  props: SettingsScreenViewProps
+): Accessor<SettingsGroup> {
   const { t } = useLingui();
   return () => ({
-    key: 'status',
-    title: t`Status`,
+    key: 'troubleshooting',
+    title: t`Troubleshooting`,
+    footer: t`Details to check when something isn't working.`,
     rows: [
       {
         title: t`Connection`,
-        caption: t`Whether the app is connected, and what works without it`,
+        caption: t`Status, and what works offline`,
         icon: WifiIcon,
         href: '/more/server-status',
         testid: Handles.settingsConnection,
       },
       {
         title: t`Sync`,
-        caption: t`Local database and sync state`,
+        caption: t`Changes waiting to send`,
         icon: RefreshCwIcon,
         href: '/more/sync',
         testid: 'settings-sync',
       },
       {
         title: t`Client config`,
-        caption: t`Synced runtime configuration`,
+        caption: t`Settings from the server`,
         icon: SlidersHorizontalIcon,
         href: '/more/client-config',
         testid: 'settings-client-config',
+      },
+      {
+        title: t`Performance`,
+        caption: t`Frame rate and responsiveness`,
+        value: props.perfEnabled ? t`On` : t`Off`,
+        icon: GaugeIcon,
+        href: '/more/performance',
+        testid: 'settings-performance',
       },
     ],
   });
@@ -203,14 +225,32 @@ function useAboutGroup(
   });
 }
 
-function useSettingsGroups(
-  props: SettingsScreenViewProps
-): Accessor<readonly SettingsGroup[]> {
+/** Everyday groups lead; About and Troubleshooting follow the subs' sections. */
+function useSettingsGroups(props: SettingsScreenViewProps): {
+  readonly everyday: Accessor<readonly SettingsGroup[]>;
+  readonly closing: Accessor<readonly SettingsGroup[]>;
+} {
   const account = useAccountGroup(props);
   const preferences = usePreferencesGroup(props);
-  const status = useStatusGroup();
   const about = useAboutGroup(props);
-  return () => [account(), preferences(), status(), about()];
+  const troubleshooting = useTroubleshootingGroup(props);
+  return {
+    everyday: () => [account(), preferences()],
+    closing: () => [about(), troubleshooting()],
+  };
+}
+
+function SettingsGroupView(props: {
+  readonly group: SettingsGroup;
+  readonly onNavigate: (href: Href) => void;
+}): JSX.Element {
+  return (
+    <MenuSection title={props.group.title} footer={props.group.footer}>
+      <For each={props.group.rows}>
+        {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
+      </For>
+    </MenuSection>
+  );
 }
 
 function SettingsRowItem(props: {
@@ -253,10 +293,11 @@ function SettingsRowItem(props: {
 }
 
 /**
- * `/more`, presentational: the settings index — account, preferences, status
- * and about groups of rows opening the sub-screens, then whatever settings the
- * composed subs contribute. `SettingsScreen` wires preferences, permissions
- * and navigation.
+ * `/more`, presentational: the settings index — everyday account and
+ * preference groups first, then whatever settings the composed subs
+ * contribute, then About, and last a Troubleshooting group of diagnostics
+ * (connection, sync, client config, performance). `SettingsScreen` wires
+ * preferences, permissions and navigation.
  */
 export function SettingsScreenView(
   props: SettingsScreenViewProps
@@ -270,18 +311,17 @@ export function SettingsScreenView(
         { name: <Trans>Settings</Trans> },
       ]}
     >
-      <For each={groups()}>
+      <For each={groups.everyday()}>
         {(group) => (
-          <MenuSection title={group.title}>
-            <For each={group.rows}>
-              {(row) => (
-                <SettingsRowItem row={row} onNavigate={props.onNavigate} />
-              )}
-            </For>
-          </MenuSection>
+          <SettingsGroupView group={group} onNavigate={props.onNavigate} />
         )}
       </For>
       {props.subSettings}
+      <For each={groups.closing()}>
+        {(group) => (
+          <SettingsGroupView group={group} onNavigate={props.onNavigate} />
+        )}
+      </For>
     </MenuScreen>
   );
 }

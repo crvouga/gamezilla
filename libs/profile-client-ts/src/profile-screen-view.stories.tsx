@@ -34,6 +34,7 @@ const meta = {
     standInName: null,
     usernameChange: null,
     onEditProfile: fn(),
+    onOpenSettings: fn(),
     onChooseUsername: fn(),
     onRetry: fn(),
   },
@@ -50,7 +51,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The person's own profile: avatar, name, Edit profile and the friends row. */
+/**
+ * The person's own profile: avatar, name, Edit profile, the friends row and
+ * the way to Settings — identity beside the sections on a wide screen.
+ */
 export const Ready: Story = {};
 
 /**

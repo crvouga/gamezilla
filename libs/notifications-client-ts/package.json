@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
     "storybook": "catalog:",
     "storybook-solidjs-vite": "catalog:",

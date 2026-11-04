@@ -16,8 +16,11 @@ import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from 'solid-js';
 
 export type SearchResultSlots = {
-  /** One whole result row, including what pressing it does. */
-  readonly userRow?: (user: UserSearchResult) => JSX.Element;
+  /**
+   * One whole result row, including what pressing it does. `query` is what
+   * was typed, so the row can emphasise what sets this name apart.
+   */
+  readonly userRow?: (user: UserSearchResult, query: string) => JSX.Element;
 };
 
 const SearchResultSlotsContext =

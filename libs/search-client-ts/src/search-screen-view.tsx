@@ -41,8 +41,14 @@ export type SearchScreenViewProps = {
   readonly search: PeopleSearchState;
   /** Set when the person may not search people; shown once they type. */
   readonly denial?: DenialView | undefined;
-  /** One result's row content, such as a person with friend pills. */
-  readonly renderUserRow: (user: UserSearchResult) => JSX.Element;
+  /**
+   * One result's row content, such as a person with friend pills. `query`
+   * is the typed search, so the row can emphasise what follows it.
+   */
+  readonly renderUserRow: (
+    user: UserSearchResult,
+    query: string
+  ) => JSX.Element;
   readonly onQueryChange: (query: string) => void;
   readonly onSelectRecent: (query: string) => void;
   readonly onClearRecent: () => void;
@@ -50,7 +56,8 @@ export type SearchScreenViewProps = {
 
 function SearchResultRow(props: {
   readonly user: UserSearchResult;
-  readonly render: (user: UserSearchResult) => JSX.Element;
+  readonly query: string;
+  readonly render: (user: UserSearchResult, query: string) => JSX.Element;
 }): JSX.Element {
   return (
     <StackVertical testId={Handles.searchResultRow}>
@@ -59,7 +66,7 @@ function SearchResultRow(props: {
         paddingX="lg"
         testId={Handles.searchUserResult(props.user.username)}
       >
-        {props.render(props.user)}
+        {props.render(props.user, props.query)}
       </StackVertical>
     </StackVertical>
   );
@@ -68,7 +75,10 @@ function SearchResultRow(props: {
 function SearchResults(props: {
   readonly query: string;
   readonly search: PeopleSearchState;
-  readonly renderUserRow: (user: UserSearchResult) => JSX.Element;
+  readonly renderUserRow: (
+    user: UserSearchResult,
+    query: string
+  ) => JSX.Element;
 }): JSX.Element {
   const { t } = useLingui();
   const phase = () =>
@@ -138,8 +148,13 @@ function SearchResults(props: {
           keyExtractor={(user) => user.userId}
           estimateSize={60}
           edgeInset={false}
+          panel
           renderItem={(user) => (
-            <SearchResultRow user={user} render={props.renderUserRow} />
+            <SearchResultRow
+              user={user}
+              query={props.query.trim()}
+              render={props.renderUserRow}
+            />
           )}
         />
       </Match>

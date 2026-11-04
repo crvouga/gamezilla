@@ -29,7 +29,9 @@ const PROFILE_SLOTS = {
 };
 
 const SEARCH_SLOTS = {
-  userRow: (user: UserSearchResult) => <SearchFriendResultRow user={user} />,
+  userRow: (user: UserSearchResult, query: string) => (
+    <SearchFriendResultRow user={user} query={query} />
+  ),
 };
 
 export default function FriendsSession(props: {

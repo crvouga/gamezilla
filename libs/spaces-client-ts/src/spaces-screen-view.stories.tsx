@@ -7,6 +7,7 @@ import {
   HOSTED_SPACE,
   JOINED_SPACE,
   LONG_SPACE,
+  SECOND_HOSTED_SPACE,
   SPACES,
 } from './spaces-story.example';
 
@@ -31,8 +32,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The viewer's own space (open here, so "Current"), a friend's live space,
- * and a crowded space they were added to — open-here first.
+ * The viewer's own space (open here, so "Current") under "Hosting 1 space",
+ * then a friend's live space and a crowded space they were added to under
+ * "Shared with you" — each group its own panel.
  */
 export const Populated: Story = {};
 
@@ -44,14 +46,17 @@ export const Loading: Story = {
 /** The lobby has answered with nothing: the empty state offers to start one. */
 export const Empty: Story = { args: { hostedCount: 0, spaces: [] } };
 
-/** Spaces to join but none hosted: no "Hosting" line. */
+/** Spaces to join but none hosted: no "Hosting" group, only "Shared with you". */
 export const JoinableOnly: Story = {
   args: { hostedCount: 0, spaces: [JOINED_SPACE] },
 };
 
 /** Hosting more than one space (kept after paid access ended). */
 export const HostingSeveral: Story = {
-  args: { hostedCount: 2, spaces: [HOSTED_SPACE, LONG_SPACE] },
+  args: {
+    hostedCount: 2,
+    spaces: [HOSTED_SPACE, SECOND_HOSTED_SPACE, LONG_SPACE],
+  },
 };
 
 /** Long titles and names truncate to one line inside the card. */
