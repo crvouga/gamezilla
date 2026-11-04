@@ -73,6 +73,7 @@ export function SignInMethodsSection(
       >
         <MenuSection
           title={<Trans>Sign-in methods</Trans>}
+          description={<Trans>How you sign in</Trans>}
           footer={<RemoveMethodFooter removable={removable()} />}
         >
           {/* Only a Synthetic User's account ever holds an email method. */}

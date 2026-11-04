@@ -56,7 +56,8 @@ export type AccountScreenViewProps = {
  * The account's irreversible choices, set apart at the foot under their own
  * "Danger zone" label, each in the destructive ink: Sign out of all devices
  * (asks first, in place) and Delete account (opens what deletion removes,
- * where it is confirmed).
+ * where it is confirmed). Both are actions that ask before they act, so
+ * both end the same way: no chevron on either.
  */
 function AccountDangerZone(props: {
   readonly onSignOutEverywhere: () => void;
@@ -64,7 +65,10 @@ function AccountDangerZone(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <MenuSection title={<Trans>Danger zone</Trans>}>
+    <MenuSection
+      title={<Trans>Danger zone</Trans>}
+      description={<Trans>Each asks first</Trans>}
+    >
       <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
       <MenuRow
         title={t`Delete account`}
@@ -72,6 +76,7 @@ function AccountDangerZone(props: {
         leading={<Trash2Icon size={ROW_ICON_SIZE} color="destructive" />}
         tone="destructive"
         onClick={() => props.onOpenDeletion()}
+        hideChevron
         dataSet={{ testid: 'account-delete' }}
       />
     </MenuSection>
@@ -108,7 +113,10 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           onConfirmRemove={props.onConfirmRemoveMethod}
         />
       </Show>
-      <MenuSection title={<Trans>Security</Trans>}>
+      <MenuSection
+        title={<Trans>Security</Trans>}
+        description={<Trans>Where you are signed in</Trans>}
+      >
         <MenuRow
           title={t`Devices`}
           caption={t`Installs signed into this account`}
@@ -121,10 +129,13 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         </Show>
       </MenuSection>
       <Show when={props.signedIn}>
-        <MenuSection title={<Trans>Your data</Trans>}>
+        <MenuSection
+          title={<Trans>Your data</Trans>}
+          description={<Trans>A copy of what you have here</Trans>}
+        >
           <MenuRow
-            title={t`Account privacy`}
-            caption={t`Take a personal-data export`}
+            title={t`Export your data`}
+            caption={t`Download a personal-data export`}
             leading={<DatabaseIcon size={ROW_ICON_SIZE} color="icon" />}
             onClick={() => props.onOpenPrivacy()}
             dataSet={{ testid: 'account-privacy' }}

@@ -46,6 +46,8 @@ type SettingsGroup = {
    * too), so the eye finds each group the same way.
    */
   readonly title: string;
+  /** What the group is for, beside its rows on a desktop. */
+  readonly description?: string | undefined;
   /** A note under the group's rows. */
   readonly footer?: string | undefined;
   readonly rows: readonly SettingsRow[];
@@ -86,6 +88,7 @@ function useAccountGroup(
   return () => ({
     key: 'account',
     title: t`Your account`,
+    description: t`Sign-in and devices`,
     rows: [
       {
         title: t`Account`,
@@ -112,7 +115,8 @@ function useAccountGroup(
 /**
  * The Offline mode row's caption, short: what the switch pauses while it is
  * off, and that it is paused while it is on. Multiplayer is named either
- * way, so turning it on never silently stops playing with others.
+ * way, and so is what it means for a game with others (it disconnects), so
+ * turning it on never silently stops playing with others.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -120,8 +124,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Syncing and multiplayer are paused`
-      : t`Pause syncing and multiplayer`;
+      ? t`Syncing and multiplayer are paused; games with others are disconnected`
+      : t`Pause syncing and multiplayer; a game with others disconnects`;
 }
 
 function usePreferencesGroup(
@@ -133,6 +137,7 @@ function usePreferencesGroup(
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
+    description: t`Look, sound and connection`,
     rows: [
       {
         title: t`Appearance`,
@@ -177,7 +182,11 @@ function SettingsGroupView(props: {
   readonly onNavigate: (href: Href) => void;
 }): JSX.Element {
   return (
-    <MenuSection title={props.group.title} footer={props.group.footer}>
+    <MenuSection
+      title={props.group.title}
+      description={props.group.description}
+      footer={props.group.footer}
+    >
       <For each={props.group.rows}>
         {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
       </For>
@@ -193,7 +202,7 @@ function SettingsGroupView(props: {
 function AboutSection(props: SettingsScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <MenuSection title={t`App`}>
+    <MenuSection title={t`App`} description={t`Version and diagnostics`}>
       <SettingsRowItem
         row={{
           title: t`About`,

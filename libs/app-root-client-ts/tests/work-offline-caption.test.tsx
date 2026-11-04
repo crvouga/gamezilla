@@ -26,7 +26,11 @@ function mountSettings(offline: boolean): void {
 test('online, the row says turning it on pauses multiplayer', () => {
   mountSettings(false);
   expect(screen.getByText('Offline mode')).toBeTruthy();
-  expect(screen.getByText('Pause syncing and multiplayer')).toBeTruthy();
+  expect(
+    screen.getByText(
+      'Pause syncing and multiplayer; a game with others disconnects'
+    )
+  ).toBeTruthy();
   const toggle = screen.getByRole('switch', { name: 'Offline mode' });
   expect(toggle.getAttribute('aria-checked')).toBe('false');
 });
@@ -34,7 +38,11 @@ test('online, the row says turning it on pauses multiplayer', () => {
 // regression: work-offline-silent-on-multiplayer
 test('offline, the row says multiplayer is paused', () => {
   mountSettings(true);
-  expect(screen.getByText('Syncing and multiplayer are paused')).toBeTruthy();
+  expect(
+    screen.getByText(
+      'Syncing and multiplayer are paused; games with others are disconnected'
+    )
+  ).toBeTruthy();
   const toggle = screen.getByRole('switch', { name: 'Offline mode' });
   expect(toggle.getAttribute('aria-checked')).toBe('true');
 });

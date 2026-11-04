@@ -105,6 +105,11 @@ msgstr "{0, plural, one {Waiting for # invitation to be answered.} other {Waitin
 msgid "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 
+#. placeholder {0}: requests.outgoing().length
+#: libs/friends-client-ts/src/search-requests-aside.tsx
+msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
+msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
+
 #. placeholder {0}: riderName(rider.seat)
 #. placeholder {1}: props.state.scores[index()] ?? 0
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -331,6 +336,18 @@ msgstr "{head} and {last} have passed."
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "{held, plural, one {# card} other {# cards}}"
 msgstr "{held, plural, one {# card} other {# cards}}"
+
+#: libs/friends-client-ts/src/friends-playing-now.tsx
+msgid "{host} hosts"
+msgstr "{host} hosts"
+
+#: libs/friends-client-ts/src/friends-playing-now.tsx
+msgid "{host} hosts, with {others}"
+msgstr "{host} hosts, with {others}"
+
+#: libs/friends-client-ts/src/friends-playing-now.tsx
+msgid "{host}'s space"
+msgstr "{host}'s space"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{hours} hours"
@@ -620,6 +637,15 @@ msgstr "↓ Down"
 msgid "+{0} more"
 msgstr "+{0} more"
 
+#. placeholder {0}: others()
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "<0/> and {0} others"
+msgstr "<0/> and {0} others"
+
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "<0/> and <1/>"
+msgstr "<0/> and <1/>"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "<0>Find </0>New players"
 msgstr "<0>Find </0>New players"
@@ -723,6 +749,10 @@ msgstr "A completed playtest proves this version can be finished."
 msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
 
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "A copy of what you have here"
+msgstr "A copy of what you have here"
+
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "A different working copy was kept. Choose the copy you want below before publishing."
 msgstr "A different working copy was kept. Choose the copy you want below before publishing."
@@ -746,6 +776,10 @@ msgstr "A game needs {0} players including you. Find {1} other players at the sa
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "A game needs {0} players including you. Find {1} other players."
 msgstr "A game needs {0} players including you. Find {1} other players."
+
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "A game seats the players it needs; everyone else here watches."
+msgstr "A game seats the players it needs; everyone else here watches."
 
 #. placeholder {0}: count()
 #. placeholder {1}: timeControlText(props.game.time_control)
@@ -798,6 +832,10 @@ msgstr "A rated game with no clock"
 #: libs/hearts-client-ts/src/hearts-presentation.tsx
 msgid "A score reached 100, and the lowest score wins."
 msgstr "A score reached 100, and the lowest score wins."
+
+#: libs/friends-client-ts/src/friends-playing-now.tsx
+msgid "A space"
+msgstr "A space"
 
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
@@ -885,7 +923,6 @@ msgid "Account menu"
 msgstr "Account menu"
 
 #: libs/account-privacy-client-ts/src/privacy-screen-layout.tsx
-#: libs/auth-client-ts/src/account-screen-view.tsx
 #: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Account privacy"
 msgstr "Account privacy"
@@ -968,6 +1005,10 @@ msgstr "Add people"
 #: pkgs/ui-devtools-client-ts/src/tab-strip/index.tsx
 msgid "Add tab"
 msgstr "Add tab"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Add them as a friend, then invite them to a space to play together."
+msgstr "Add them as a friend, then invite them to a space to play together."
 
 #: pkgs/ui-root-client-ts/src/combobox-trigger/index.tsx
 msgid "Add…"
@@ -2374,6 +2415,10 @@ msgstr "double word"
 msgid "down"
 msgstr "down"
 
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Download a personal-data export"
+msgstr "Download a personal-data export"
+
 #: libs/account-privacy-client-ts/src/export-download.tsx
 msgid "Download readable summary"
 msgstr "Download readable summary"
@@ -2447,6 +2492,10 @@ msgstr "Duplicates skipped"
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
+
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Each asks first"
+msgstr "Each asks first"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Each side chooses a private setup before the first move."
@@ -2627,6 +2676,10 @@ msgstr "Every side chooses in secret: {chosen} of {total} have chosen."
 msgid "Every side makes its secret choice before play goes on."
 msgstr "Every side makes its secret choice before play goes on."
 
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Every username is unique. Ask a friend for theirs and type the start of it."
+msgstr "Every username is unique. Ask a friend for theirs and type the start of it."
+
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Everyone can see that the space has ended."
 msgstr "Everyone can see that the space has ended."
@@ -2670,6 +2723,10 @@ msgstr "Export and deletion only happen while you are online, so nothing is save
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Export requested"
 msgstr "Export requested"
+
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Export your data"
+msgstr "Export your data"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
@@ -2892,6 +2949,10 @@ msgstr "Friend request"
 #: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Friend request not sent"
 msgstr "Friend request not sent"
+
+#: libs/friends-client-ts/src/search-requests-aside.tsx
+msgid "Friend requests"
+msgstr "Friend requests"
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Friend requests and space invites will land here."
@@ -3154,9 +3215,22 @@ msgstr "Hosted by you"
 msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 
+#. placeholder {0}: title()
+#: libs/spaces-client-ts/src/friend-live-space.tsx
+msgid "Hosting {0}"
+msgstr "Hosting {0}"
+
 #: libs/spaces-client-ts/src/friend-live-space.tsx
 msgid "Hosting a space"
 msgstr "Hosting a space"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "How to find people"
+msgstr "How to find people"
+
+#: libs/auth-client-ts/src/sign-in-methods-section.tsx
+msgid "How you sign in"
+msgstr "How you sign in"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "hud"
@@ -3189,6 +3263,11 @@ msgstr "Immediately"
 #: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
 msgid "Import and manage puzzle content."
 msgstr "Import and manage puzzle content."
+
+#. placeholder {0}: title()
+#: libs/spaces-client-ts/src/friend-live-space.tsx
+msgid "In {0}"
+msgstr "In {0}"
 
 #: libs/spaces-client-ts/src/friend-live-space.tsx
 msgid "In a space"
@@ -3323,7 +3402,7 @@ msgstr "Join matching endpoints with paths that move horizontally or vertically.
 msgid "Join space"
 msgstr "Join space"
 
-#. placeholder {0}: props.space.title
+#. placeholder {0}: space().title
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Join space {0}"
 msgstr "Join space {0}"
@@ -3673,6 +3752,10 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Long tasks"
 msgstr "Long tasks"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Look, sound and connection"
+msgstr "Look, sound and connection"
 
 #. placeholder {0}: count() - 1
 #. placeholder {1}: props.search.gameName
@@ -4179,6 +4262,10 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
+#: libs/friends-client-ts/src/search-requests-aside.tsx
+msgid "Nobody is waiting on you"
+msgstr "Nobody is waiting on you"
+
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "None"
@@ -4414,7 +4501,7 @@ msgstr "Open restarted attempt"
 msgid "Open seat"
 msgstr "Open seat"
 
-#. placeholder {0}: props.space.title
+#. placeholder {0}: space().title
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open space {0}"
 msgstr "Open space {0}"
@@ -4572,8 +4659,8 @@ msgid "Pause"
 msgstr "Pause"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Pause syncing and multiplayer"
-msgstr "Pause syncing and multiplayer"
+msgid "Pause syncing and multiplayer; a game with others disconnects"
+msgstr "Pause syncing and multiplayer; a game with others disconnects"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
@@ -4759,6 +4846,7 @@ msgstr "Players"
 msgid "Playing"
 msgstr "Playing"
 
+#: libs/friends-client-ts/src/friends-playing-now.tsx
 #: libs/friends-client-ts/src/profile-friends-playing.tsx
 msgid "Playing now"
 msgstr "Playing now"
@@ -5504,7 +5592,7 @@ msgstr "Restart this Synthetic User?"
 msgid "Resume"
 msgstr "Resume"
 
-#. placeholder {0}: props.space.title
+#. placeholder {0}: space().title
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Resume space {0}"
 msgstr "Resume space {0}"
@@ -6093,6 +6181,10 @@ msgstr "Sign up with Google"
 msgid "Sign-in"
 msgstr "Sign-in"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Sign-in and devices"
+msgstr "Sign-in and devices"
+
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 msgid "Sign-in failed"
 msgstr "Sign-in failed"
@@ -6286,7 +6378,6 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
-#: libs/app-root-client-ts/src/not-found.tsx
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
@@ -6503,8 +6594,8 @@ msgid "Syncing"
 msgstr "Syncing"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Syncing and multiplayer are paused"
-msgstr "Syncing and multiplayer are paused"
+msgid "Syncing and multiplayer are paused; games with others are disconnected"
+msgstr "Syncing and multiplayer are paused; games with others are disconnected"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Synthetic Population"
@@ -6547,10 +6638,6 @@ msgstr "system"
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "System"
 msgstr "System"
-
-#: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "Take a personal-data export"
-msgstr "Take a personal-data export"
 
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Take a seat"
@@ -7712,6 +7799,10 @@ msgstr "Version"
 msgid "Version accepting new assignments"
 msgstr "Version accepting new assignments"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Version and diagnostics"
+msgstr "Version and diagnostics"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Vertical wall"
 msgstr "Vertical wall"
@@ -7769,6 +7860,10 @@ msgstr "Walls"
 msgid "Walls must fit between four squares. Choose an anchor from a1 to h8."
 msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
 
+#: libs/friends-client-ts/src/search-requests-aside.tsx
+msgid "Wants to be friends"
+msgstr "Wants to be friends"
+
 #. placeholder {0}: presentation(props.game.fen).name()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Watching multiplayer {0}."
@@ -7802,6 +7897,10 @@ msgstr "What next"
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "What Plus includes"
 msgstr "What Plus includes"
+
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Where you are signed in"
+msgstr "Where you are signed in"
 
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
