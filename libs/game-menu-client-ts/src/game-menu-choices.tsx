@@ -134,7 +134,9 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
             title: () => <Trans>Play with friends or bots</Trans>,
             // The game menu is always inside a space: its people are who
             // plays a custom game, beside any bots.
-            caption: () => <Trans>With the people in this space, or bots</Trans>,
+            caption: () => (
+              <Trans>With the people in this space, or bots</Trans>
+            ),
           },
         ]
       : []),
