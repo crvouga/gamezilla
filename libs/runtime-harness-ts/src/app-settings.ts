@@ -42,14 +42,27 @@ export const turnSoundsOff = scenarioAction({
   },
 });
 
-/** Settings → Work offline switch. */
+/** Whether the Settings Offline mode switch is on, or `null` off Settings. */
+async function offlineSwitchOn(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean | null> {
+  if ((await nodeText(s, actorId, [Handles.settingsWorkOffline])) === null)
+    return null;
+  const ui = await actorUi(s, actorId);
+  const checked = await ui
+    .get(Handles.settingsWorkOfflineSwitch)
+    .attribute('aria-checked');
+  return checked === null ? null : checked === 'true';
+}
+
+/** Settings → Offline mode switch. */
 export const setWorkOfflineInSettings = scenarioAction({
   name: 'setWorkOfflineInSettings',
   act: async (s, actorId: string, offline: boolean) => {
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
-    const shown = await nodeText(s, actorId, [Handles.settingsWorkOffline]);
-    const isOffline = shown?.includes('Offline') === true;
+    const isOffline = (await offlineSwitchOn(s, actorId)) === true;
     if (isOffline !== offline) {
       await ui
         .get(Handles.settingsWorkOfflineSwitch)
@@ -107,12 +120,17 @@ export async function soundShownInSettings(
   return nodeText(s, actorId, [Handles.settingsSound]);
 }
 
-/** What the Work offline row says (`Offline` / `Online`). */
+/**
+ * What the Settings Offline mode row shows (`Offline` while its switch is
+ * on, `Online` while it is off), or `null` off Settings.
+ */
 export async function workOfflineShownInSettings(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
-  return nodeText(s, actorId, [Handles.settingsWorkOffline]);
+  const on = await offlineSwitchOn(s, actorId);
+  if (on === null) return null;
+  return on ? 'Offline' : 'Online';
 }
 
 /** The sign-in error shown after an online-only attempt. */

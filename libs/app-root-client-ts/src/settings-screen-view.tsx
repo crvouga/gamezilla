@@ -110,9 +110,9 @@ function useAccountGroup(
 }
 
 /**
- * The Work offline row's caption: where the person stands ("Online" /
- * "Offline" lead), then what flipping the switch beside it does to playing
- * with others, so the label and the state never read as opposites.
+ * The Offline mode row's caption, short: what the switch pauses while it is
+ * off, and that it is paused while it is on. Multiplayer is named either
+ * way, so turning it on never silently stops playing with others.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -120,8 +120,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Offline — turn off to sync and play with others again`
-      : t`Online — turn on to pause syncing and games with others`;
+      ? t`Syncing and multiplayer are paused`
+      : t`Pause syncing and multiplayer`;
 }
 
 function usePreferencesGroup(
@@ -149,13 +149,13 @@ function usePreferencesGroup(
         testid: Handles.settingsSound,
       },
       {
-        title: t`Work offline`,
+        title: t`Offline mode`,
         caption: offlineCaption(),
         icon: props.offline ? WifiOffIcon : WifiIcon,
         toggle: {
           value: props.offline,
           onChange: props.onOfflineChange,
-          label: t`Work offline`,
+          label: t`Offline mode`,
         },
         testid: Handles.settingsWorkOffline,
       },
