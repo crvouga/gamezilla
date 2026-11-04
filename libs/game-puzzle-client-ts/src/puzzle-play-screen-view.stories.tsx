@@ -268,7 +268,7 @@ export const LongCoachLine: Story = {
   args: {
     coach: {
       message:
-        'White to move. The bishop on g4 pins your knight to the queen, but pins can be broken when the reward is bigger than what you give up — look for the checkmate pattern.',
+        'The bishop on g4 pins your knight to the queen, but pins can be broken when the reward is bigger than what you give up — look for the checkmate pattern.',
     },
   },
 };

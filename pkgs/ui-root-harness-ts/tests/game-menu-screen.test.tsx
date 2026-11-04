@@ -43,7 +43,7 @@ function menu(width: number, onPlay: () => void) {
 }
 
 describe('GameMenuScreen', () => {
-  test('wide: the game heads its menu, every choice a tile, the main way in leading', () => {
+  test('wide: the game heads its menu, every way to play a tile, the main way in leading', () => {
     const onPlay = mock(() => undefined);
     const view = menu(1440, onPlay);
     expect(view.getByRole('heading', { level: 1 }).textContent).toBe(
@@ -57,6 +57,20 @@ describe('GameMenuScreen', () => {
     expect(play.getAttribute('data-component')).toBe('GameMenuChoice');
     fireEvent.click(play);
     expect(onPlay).toHaveBeenCalledTimes(1);
+    view.unmount();
+  });
+
+  // regression: game-menu-history-weighs-as-play — wide, "History and stats"
+  // was a tile as large as the ways to play, so looking back weighed the
+  // same as starting a game.
+  test('wide: a quiet choice is a compact row under the tiles, never a tile', () => {
+    const view = menu(1440, () => undefined);
+    const history = view.getByTestId('choice-history');
+    const play = view.getByTestId('choice-play');
+    expect(history.closest('[data-layout="links"]')).not.toBeNull();
+    expect(history.closest('[data-layout="grid"]')).toBeNull();
+    expect(play.closest('[data-layout="grid"]')).not.toBeNull();
+    expect(history.getAttribute('data-component')).toBe('GameMenuChoice');
     view.unmount();
   });
 

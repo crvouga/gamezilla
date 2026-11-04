@@ -6,7 +6,7 @@ import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
@@ -75,6 +75,8 @@ export function FramePrivateSetupView(props: {
   readonly locked: boolean;
   readonly board: JSX.Element;
   readonly onRandom: () => Promise<void>;
+  /** Starting the game, when this is the last setup card. */
+  readonly footer?: JSX.Element | undefined;
 }): JSX.Element {
   return (
     <GameSection
@@ -82,6 +84,7 @@ export function FramePrivateSetupView(props: {
       description={
         <Trans>Only you see it. Get ready once it is complete.</Trans>
       }
+      footer={props.footer}
     >
       {props.board}
       <P
@@ -167,9 +170,11 @@ function FrameTimeChoicesView(props: {
 export function FrameOptionsView(props: {
   readonly options: FrameOptions;
   readonly onChoose: Choose;
+  /** Starting the game, when this is the last setup card. */
+  readonly footer?: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Options</Trans>}>
+    <GameSection title={<Trans>Options</Trans>} footer={props.footer}>
       <Show when={props.options.players}>
         {(players) => (
           <GameOptionField
@@ -205,11 +210,13 @@ export function FrameOptionsView(props: {
 }
 
 /**
- * Starting the game, right under the players it starts with: why it cannot
- * start yet (or "Ready to start."), then one row of commands: Start, for
- * whoever may start it, always shown and held back until the game can
- * start, and the person's own readiness beside it — the one thing to do
- * next when they may not start the game, a secondary button when they may.
+ * Starting the game, as the foot of the last setup card, across its whole
+ * width: why it cannot start yet (or "Ready to start."), the card's status
+ * at the start of the row, then the commands at its end, Start last and
+ * primary for whoever may start it (always shown, held back until the game
+ * can start). Someone who may not start it gets ready here: their one
+ * thing to do next. Whoever may start it gets ready on their own seat
+ * (`FrameOwnReadinessView`), so readiness never takes half the row.
  */
 export function FrameStartView(props: {
   readonly start: FrameStart;
@@ -217,16 +224,29 @@ export function FrameStartView(props: {
   readonly onReady: () => Promise<void>;
 }): JSX.Element {
   return (
-    <StackVertical gap="sm">
-      <P variant="body" role="status" testId="custom-game-startable">
-        {frameStartLine(props.start.reason)}
-      </P>
-      <Show when={props.start.hostStarts}>
-        <P variant="caption" tone="secondary" testId="custom-game-host-starts">
-          <Trans>Waiting for the host to start.</Trans>
+    <StackHorizontal wrap justify="between" align="center" gap="sm">
+      <StackVertical grow gap="xs">
+        <P variant="body" role="status" testId="custom-game-startable">
+          {frameStartLine(props.start.reason)}
         </P>
-      </Show>
-      <GameActions sizing="share">
+        <Show when={props.start.hostStarts}>
+          <P
+            variant="caption"
+            tone="secondary"
+            testId="custom-game-host-starts"
+          >
+            <Trans>Waiting for the host to start.</Trans>
+          </P>
+        </Show>
+      </StackVertical>
+      <GameActions>
+        <Show when={!props.start.canStart}>
+          <FrameReadinessButton
+            start={props.start}
+            onChoose={props.onChoose}
+            onReady={props.onReady}
+          />
+        </Show>
         <Show when={props.start.canStart}>
           <GameActionButton
             title={<Trans>Start game</Trans>}
@@ -236,13 +256,27 @@ export function FrameStartView(props: {
             disabled={props.start.reason !== null}
           />
         </Show>
-        <FrameReadinessButton
-          start={props.start}
-          onChoose={props.onChoose}
-          onReady={props.onReady}
-        />
       </GameActions>
-    </StackVertical>
+    </StackHorizontal>
+  );
+}
+
+/**
+ * The readiness of someone who may start the game, on their own seat: a
+ * small control under it, getting ready the one thing it asks while they
+ * are not, a quiet way to take it back once they are.
+ */
+export function FrameOwnReadinessView(props: {
+  readonly start: FrameStart;
+  readonly onChoose: Choose;
+  readonly onReady: () => Promise<void>;
+}): JSX.Element {
+  return (
+    <Show when={props.start.canStart}>
+      <GameActions>
+        <FrameReadinessButton {...props} size="sm" />
+      </GameActions>
+    </Show>
   );
 }
 
@@ -251,6 +285,7 @@ function FrameReadinessButton(props: {
   readonly start: FrameStart;
   readonly onChoose: Choose;
   readonly onReady: () => Promise<void>;
+  readonly size?: 'sm' | undefined;
 }): JSX.Element {
   return (
     <>
@@ -266,7 +301,8 @@ function FrameReadinessButton(props: {
               </Show>
             }
             dataSet={{ testid: 'custom-game-ready' }}
-            variant={readinessVariant(props.start, readiness().ready)}
+            variant={readiness().ready ? 'outline' : 'solid'}
+            size={props.size}
             disabled={!readiness().ready && readiness().blocked}
             operation={() =>
               readiness().ready
@@ -278,15 +314,4 @@ function FrameReadinessButton(props: {
       </Show>
     </>
   );
-}
-
-/**
- * Getting ready is the next step until the person is ready; once ready, or
- * beside Start, it is the secondary button.
- */
-function readinessVariant(
-  start: FrameStart,
-  ready: boolean
-): 'solid' | 'outline' {
-  return start.canStart || ready ? 'outline' : 'solid';
 }

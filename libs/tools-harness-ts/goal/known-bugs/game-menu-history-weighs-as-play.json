@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide screen a game's menu drew \"History and stats\" as a tile as large as the ways to play, so looking back weighed the same as starting a game. Quiet choices (history, stats, settings) are now compact rows under the tiles.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

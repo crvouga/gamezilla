@@ -575,6 +575,10 @@ msgstr "{shooter} fired at {cell} and sank the {ship}."
 msgid "{shown}, account menu"
 msgstr "{shown}, account menu"
 
+#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
+msgid "{side} to move"
+msgstr "{side} to move"
+
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
@@ -832,6 +836,10 @@ msgstr "A rated game with no clock"
 #: libs/hearts-client-ts/src/hearts-presentation.tsx
 msgid "A score reached 100, and the lowest score wins."
 msgstr "A score reached 100, and the lowest score wins."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "A search waits as long as it takes. Stop it any time before you're matched."
+msgstr "A search waits as long as it takes. Stop it any time before you're matched."
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "A space"
@@ -1459,13 +1467,14 @@ msgstr "Carrier"
 msgid "Central hill"
 msgstr "Central hill"
 
-#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
-msgid "Change"
-msgstr "Change"
-
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Change game"
 msgstr "Change game"
+
+#. placeholder {0}: props.seat.sideLabel
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+msgid "Change player<0>: {0}</0>"
+msgstr "Change player<0>: {0}</0>"
 
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
@@ -1474,6 +1483,11 @@ msgstr "Change size"
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
+
+#. placeholder {0}: props.seat.sideLabel
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+msgid "Change<0> player: {0}</0>"
+msgstr "Change<0> player: {0}</0>"
 
 #: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Changes have not reached your other devices"
@@ -2478,6 +2492,11 @@ msgstr "Drop a disc. Connect four. Plan your next turn."
 
 #. placeholder {0}: column + 1
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Drop in column {0}"
+msgstr "Drop in column {0}"
+
+#. placeholder {0}: column + 1
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
 msgid "Drop in column {0}, {occupied} of 6 occupied"
 msgstr "Drop in column {0}, {occupied} of 6 occupied"
 
@@ -2496,6 +2515,10 @@ msgstr "e.g. ff5733"
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Each asks first"
 msgstr "Each asks first"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Each finished game moves your rating once, win, lose or draw."
+msgstr "Each finished game moves your rating once, win, lose or draw."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Each side chooses a private setup before the first move."
@@ -2650,6 +2673,10 @@ msgstr "Every device signed in to this account, including this one, will be sign
 #: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Every match is rated"
+msgstr "Every match is rated"
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Every participant has moved. Resign instead of cancelling."
@@ -3224,6 +3251,10 @@ msgstr "Hosting {0}"
 msgid "Hosting a space"
 msgstr "Hosting a space"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "How matchmaking works"
+msgstr "How matchmaking works"
+
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "How to find people"
 msgstr "How to find people"
@@ -3268,6 +3299,10 @@ msgstr "Import and manage puzzle content."
 #: libs/spaces-client-ts/src/friend-live-space.tsx
 msgid "In {0}"
 msgstr "In {0}"
+
+#: libs/game-puzzle-client-ts/src/puzzle-play-screen-view.tsx
+msgid "in a row"
+msgstr "in a row"
 
 #: libs/spaces-client-ts/src/friend-live-space.tsx
 msgid "In a space"
@@ -3634,6 +3669,7 @@ msgstr "Light Cycles Trio"
 msgid "Link"
 msgstr "Link"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Live"
 msgstr "Live"
@@ -4438,6 +4474,10 @@ msgstr "Only a participant can make this choice."
 msgid "Only another participant can answer a draw offer."
 msgstr "Only another participant can answer a draw offer."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Only people you can play"
+msgstr "Only people you can play"
+
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Only sign-in"
 msgstr "Only sign-in"
@@ -5051,7 +5091,6 @@ msgstr "Pushes"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
@@ -6313,6 +6352,10 @@ msgstr "Solve a puzzle and it shows up here."
 msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
 
+#: libs/game-puzzle-client-ts/src/puzzle-play-screen-view.tsx
+msgid "solved"
+msgstr "solved"
+
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
@@ -6534,6 +6577,10 @@ msgstr "Stop saving file"
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Stop saving the Lichess file?"
 msgstr "Stop saving the Lichess file?"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Stop whenever you like"
+msgstr "Stop whenever you like"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Stop<0> finding an opponent</0>"
@@ -7329,6 +7376,10 @@ msgstr "This profile is no longer available because the account was deleted."
 msgid "This publication is withdrawn. You can continue saved attempts from your library."
 msgstr "This publication is withdrawn. You can continue saved attempts from your library."
 
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+msgid "This puzzle"
+msgstr "This puzzle"
+
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
@@ -7815,6 +7866,12 @@ msgstr "View profile"
 msgid "View published edition"
 msgstr "View published edition"
 
+#. placeholder {0}: props.record.displayedPly
+#. placeholder {1}: props.record.moves.length
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Viewing move {0} of {1}"
+msgstr "Viewing move {0} of {1}"
+
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Violet"
 msgstr "Violet"
@@ -8213,6 +8270,10 @@ msgstr "You'll be signed out on this device."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "You're never paired with someone you've blocked, or who blocked you."
+msgstr "You're never paired with someone you've blocked, or who blocked you."
+
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "You're offline"
@@ -8557,10 +8618,6 @@ msgstr "your tentative blank as {letter}"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "your tentative tile"
 msgstr "your tentative tile"
-
-#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
-msgid "Your turn — find the best move for {side}"
-msgstr "Your turn — find the best move for {side}"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Your turn to fire."

@@ -58,6 +58,7 @@ const MAX_WIDTH: Readonly<Record<MaxWidthToken, string>> = {
   content: 'max-w-ui-content',
   wide: 'max-w-ui-wide',
   space: 'max-w-ui-space',
+  panel: 'max-w-ui-panel',
   full: 'max-w-full',
 };
 

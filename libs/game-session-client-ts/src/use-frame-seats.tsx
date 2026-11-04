@@ -183,6 +183,7 @@ export function useFrameSetupSeats(
       ...seat(game, side),
       host: holder.kind === 'person' && holder.person === game.creator,
       visiting: model.mySide() === side && !model.canConfigure(),
+      own: model.mySide() === side,
       // A bot or a guest on this device is ready by itself, as the start
       // rule counts it; only a person gets ready.
       ready:

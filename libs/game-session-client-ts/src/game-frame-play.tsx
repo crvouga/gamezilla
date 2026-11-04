@@ -81,6 +81,9 @@ function useFrameBoardProps(
     get position() {
       return state.position();
     },
+    get lastAction() {
+      return live() && simulation.active() ? null : review.lastAction();
+    },
     get orientation() {
       return state.orientation();
     },

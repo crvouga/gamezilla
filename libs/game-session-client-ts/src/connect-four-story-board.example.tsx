@@ -62,6 +62,7 @@ export function ConnectFourStoryBoard(props: {
             ? 'Pick a column to drop your disc'
             : ''
       }
+      previewPrompt={(column) => `Drop in column ${column + 1}`}
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1 ? 'Red circle' : disc === 2 ? 'Yellow diamond' : 'Empty';

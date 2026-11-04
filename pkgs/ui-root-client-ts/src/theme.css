@@ -123,6 +123,7 @@
   --container-ui-content: var(--ui-max-width-content);
   --container-ui-wide: var(--ui-max-width-wide);
   --container-ui-space: var(--ui-max-width-space);
+  --container-ui-panel: var(--ui-max-width-panel);
   --opacity-muted: var(--ui-opacity-muted);
   --opacity-disabled: var(--ui-opacity-disabled);
   --z-index-harness-browser: var(--ui-layer-harness-browser);

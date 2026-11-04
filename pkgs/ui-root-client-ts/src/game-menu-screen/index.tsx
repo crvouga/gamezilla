@@ -112,13 +112,57 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
   );
 }
 
-/** Wide: the game's hero block, then every choice as a large tile. */
+/**
+ * A quiet choice (a look back, a setting) as a compact row under the tiles:
+ * its small picture, its name and what it opens, a chevron. It never
+ * weighs as much as a way to play.
+ */
+function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
+  const confirmNavigation = useConfirmNavigation();
+  return (
+    <button
+      type="button"
+      class={`${styles['link']} clickable clickableTint`}
+      data-emphasis={props.choice.emphasis}
+      onClick={() => confirmNavigation(() => props.choice.onClick())}
+      {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
+    >
+      <ChoiceIcon choice={props.choice} size="row" />
+      <span class={styles['linkWords']}>
+        <span class="text textBodyBold min-w-0 truncate">
+          {props.choice.title}
+        </span>
+        <Show when={props.choice.caption}>
+          <span class={`${styles['linkCaption']} text textCaption truncate`}>
+            {props.choice.caption}
+          </span>
+        </Show>
+      </span>
+      <span class={styles['linkChevron']} aria-hidden="true">
+        <ChevronRightIcon size={16} />
+      </span>
+    </button>
+  );
+}
+
+/**
+ * Wide: the game's hero block, then every way to play as a large tile and,
+ * under them, the quiet choices (history, stats, settings) as compact
+ * rows. A menu of quiet choices only shows them all as tiles.
+ */
 function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
   const description = createScreenSlot(() => props.description);
-  // Two or four choices take two columns, so none is left alone on a row.
+  const split = createMemo(() => {
+    const quiet = props.choices.filter((c) => c.emphasis === 'quiet');
+    const loud = props.choices.filter((c) => c.emphasis !== 'quiet');
+    return loud.length === 0
+      ? { tiles: props.choices, links: [] }
+      : { tiles: loud, links: quiet };
+  });
+  // Two or four tiles take two columns, so none is left alone on a row.
   const columns = (): number =>
-    props.choices.length === 2 || props.choices.length === 4 ? 2 : 3;
+    split().tiles.length === 2 || split().tiles.length === 4 ? 2 : 3;
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -145,7 +189,7 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
         role="list"
         data-layout="grid"
       >
-        <For each={props.choices}>
+        <For each={split().tiles}>
           {(choice) => (
             <div class={styles['item']} role="listitem">
               <ChoiceTile choice={choice} />
@@ -153,6 +197,26 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           )}
         </For>
       </div>
+      <Show when={split().links.length > 0}>
+        <div
+          class={styles['links']}
+          style={{
+            '--game-menu-link-columns': String(
+              Math.min(3, split().links.length)
+            ),
+          }}
+          role="list"
+          data-layout="links"
+        >
+          <For each={split().links}>
+            {(choice) => (
+              <div class={styles['item']} role="listitem">
+                <ChoiceLink choice={choice} />
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
     </EmbeddedScreen>
   );
 }

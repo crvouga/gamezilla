@@ -6,6 +6,7 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
+import { CircleCheckIcon, FlameIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import {
@@ -13,7 +14,8 @@ import {
   type SpeakingAvatarSpeaker,
 } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
@@ -73,6 +75,13 @@ export type PuzzlePlayScreenViewProps = {
   readonly shareLink?: JSX.Element;
   /** The feed strip and its refused-change notice (solver only). */
   readonly feed?: JSX.Element;
+  /**
+   * The solver's own run so far: solved puzzles in a row and solved in
+   * all, under the actions; absent for a spectator or before it is read.
+   */
+  readonly progress?:
+    | { readonly streak: number; readonly solved: number }
+    | undefined;
   /** Who suggested which move, while spectators suggest. */
   readonly legend?: JSX.Element;
   /** The move list under the board. */
@@ -194,16 +203,50 @@ function BoardWell(props: {
 
 function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <PuzzleActionBar
-      status={props.status}
-      hintStage={props.hintStage}
-      canGoForward={props.canGoForward}
-      onHint={props.onHint}
-      onSolution={props.onSolution}
-      onRetry={props.onRetry}
-      onSkip={props.onSkip}
-      onNext={props.onNext}
-    />
+    <StackVertical gap="md">
+      <PuzzleActionBar
+        status={props.status}
+        hintStage={props.hintStage}
+        canGoForward={props.canGoForward}
+        onHint={props.onHint}
+        onSolution={props.onSolution}
+        onRetry={props.onRetry}
+        onSkip={props.onSkip}
+        onNext={props.onNext}
+      />
+      <PlayProgress progress={props.progress} />
+    </StackVertical>
+  );
+}
+
+/**
+ * The run so far, as two quiet counts: solved puzzles in a row (lit while
+ * there is a streak to keep) and solved in all, so each puzzle reads as a
+ * step toward the next.
+ */
+function PlayProgress(props: {
+  readonly progress: PuzzlePlayScreenViewProps['progress'];
+}): JSX.Element {
+  return (
+    <Show when={props.progress}>
+      {(progress) => (
+        <StackHorizontal wrap gap="sm" testId="chess-puzzle-progress">
+          <StatPill
+            icon={FlameIcon}
+            value={progress().streak}
+            label={<Trans>in a row</Trans>}
+            active={progress().streak > 0}
+            dataSet={{ testid: 'chess-puzzle-streak' }}
+          />
+          <StatPill
+            icon={CircleCheckIcon}
+            value={progress().solved}
+            label={<Trans>solved</Trans>}
+            dataSet={{ testid: 'chess-puzzle-solved-count' }}
+          />
+        </StackHorizontal>
+      )}
+    </Show>
   );
 }
 

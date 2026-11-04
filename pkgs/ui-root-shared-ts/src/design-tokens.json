@@ -2784,6 +2784,13 @@
           "value": 992,
           "unit": "px"
         }
+      },
+      "panel": {
+        "$description": "The panel beside a desktop board (a game's record and commands, a puzzle's prompt and moves): one width for every game and puzzle, so a board and its panel fill the space column together.",
+        "$value": {
+          "value": 376,
+          "unit": "px"
+        }
       }
     }
   },

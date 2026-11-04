@@ -10,7 +10,7 @@
   --game-board-measure: 560px;
   /* The rail beside the board on wide screens: with the board and the gap
      between them, the 960px content width of a wide screen. */
-  --game-rail-measure: 376px;
+  --game-rail-measure: var(--ui-max-width-panel);
   /* The game's own chrome a wide board leaves room for in the window. */
   --game-board-chrome-block: 284px;
   /* A search's card: one column, its command as wide as the card. */
