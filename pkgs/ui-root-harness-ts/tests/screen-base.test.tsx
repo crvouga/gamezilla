@@ -54,13 +54,13 @@ function fakeRouter(canGoBack: boolean): AppRouter & { calls: string[] } {
 }
 
 describe('ScreenBase compact', () => {
-  test('root and pushed screens title in the same heading style', () => {
+  test('root screens open with the large title; pushed screens keep the heading beside back', () => {
     const view = renderUi(
       () => <Screen breadcrumbs={[{ name: 'Spaces' }]} />,
       COMPACT
     );
     const root = screen.getByRole('heading', { level: 1, name: 'Spaces' });
-    expect(root.className).toMatch(/\btextHeading\b/);
+    expect(root.className).toMatch(/\btextTitle\b/);
     view.unmount();
     renderUi(() => <Screen />, COMPACT);
     const title = screen.getByRole('heading', { level: 1, name: 'Demo' });

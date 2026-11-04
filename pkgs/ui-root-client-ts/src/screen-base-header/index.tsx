@@ -111,7 +111,14 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
       }
       center={
         <Show when={hasTitle()}>
-          <TopBarTitle label={layout().title} />
+          <TopBarTitle
+            label={layout().title}
+            size={
+              props.leading === undefined && !layout().showBack
+                ? 'large'
+                : 'regular'
+            }
+          />
         </Show>
       }
       trailing={
