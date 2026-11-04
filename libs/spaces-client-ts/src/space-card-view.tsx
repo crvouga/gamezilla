@@ -167,47 +167,72 @@ export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
 }
 
 /** Who hosts the space: "Hosted by you", or the host's name. */
-function SpaceHostLine(props: { readonly space: SpaceCardData }): JSX.Element {
+function SpaceHostPhrase(props: {
+  readonly space: SpaceCardData;
+}): JSX.Element {
   return (
     <Show
       when={!props.space.hostedByViewer}
-      fallback={
-        <P variant="caption" lines={1}>
-          <Trans>Hosted by you</Trans>
-        </P>
-      }
+      fallback={<Trans>Hosted by you</Trans>}
     >
       <Show when={props.space.host} keyed>
         {(host) => (
-          <P variant="caption" lines={1}>
-            <Trans>
-              Hosted by <SpacePersonName person={host} variant="caption" />
-            </Trans>
-          </P>
+          <Trans>
+            Hosted by <SpacePersonName person={host} variant="caption" />
+          </Trans>
         )}
       </Show>
     </Show>
   );
 }
 
-/**
- * Who else is in the space on one line: the first names, then how many
- * more, or "No guests yet" so every card has the same rows.
- */
-function SpaceGuestsLine(props: {
+/** The first guests by name, or "No guests yet". */
+function SpaceGuestsPhrase(props: {
   readonly guests: readonly SpacePerson[];
 }): JSX.Element {
   return (
     <Show
       when={props.guests.length > 0}
-      fallback={
-        <P variant="caption" lines={1}>
-          <Trans>No guests yet</Trans>
-        </P>
-      }
+      fallback={<Trans>No guests yet</Trans>}
     >
-      <SpaceGuestNames guests={props.guests} shown={CARD_GUEST_NAMES} />
+      <Index each={props.guests.slice(0, CARD_GUEST_NAMES)}>
+        {(guest, index) => (
+          <>
+            {index > 0 ? ', ' : null}
+            <SpacePersonName person={guest()} variant="caption" />
+          </>
+        )}
+      </Index>
     </Show>
+  );
+}
+
+/**
+ * Everything under the card's title on one line: who hosts it, then who
+ * else is in it ("Hosted by you · jordan_plays, morgan"). A long line ends
+ * in an ellipsis, and how many more always shows after it.
+ */
+function SpaceCardMetaLine(props: {
+  readonly space: SpaceCardData;
+}): JSX.Element {
+  const { t } = useLingui();
+  const more = (): number =>
+    Math.max(0, props.space.guests.length - CARD_GUEST_NAMES);
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <StackVertical shrink>
+        <P variant="caption" lines={1}>
+          <SpaceHostPhrase space={props.space} />
+          {' · '}
+          <SpaceGuestsPhrase guests={props.space.guests} />
+        </P>
+      </StackVertical>
+      <Show when={more() > 0}>
+        <StackVertical>
+          <P variant="caption">{t`+${more()} more`}</P>
+        </StackVertical>
+      </Show>
+    </StackHorizontal>
   );
 }
 
@@ -241,7 +266,7 @@ function SpaceCardActionLabel(props: {
 
 /**
  * One row in the lobby panel, in one anatomy for every space: the host's
- * face; the name, who hosts it and who else is in it (or "No guests yet");
+ * face; the name over one line of who hosts it and who else is in it;
  * and, centred at the trailing edge, what pressing it does: Resume where the
  * viewer already is, Open for their own, Join for someone else's. Every
  * space listed is live, so the row names the next step instead of tagging
@@ -286,8 +311,7 @@ export function SpaceCardView(props: {
           <Text variant="body" lines={1}>
             {props.space.title}
           </Text>
-          <SpaceHostLine space={props.space} />
-          <SpaceGuestsLine guests={props.space.guests} />
+          <SpaceCardMetaLine space={props.space} />
         </StackVertical>
         <SpaceCardActionLabel action={spaceCardAction(props.space)} />
       </StackHorizontal>
