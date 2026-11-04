@@ -10,9 +10,8 @@ import type { JSX } from 'solid-js';
 const ROW_ICON_SIZE = 20;
 
 /**
- * A quiet row beside Devices: its caption says what it ends, and
- * {@link SignOutEverywhereConfirm} asks before anything happens. The
- * screen's one prominent sign-out stays "Sign out" (this device only).
+ * A quiet row under Sign out (this device only): its caption says what it
+ * ends, and {@link SignOutEverywhereConfirm} asks before anything happens.
  */
 export function SignOutEverywhereRow(props: {
   readonly onOpen: () => void;

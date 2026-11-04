@@ -9,7 +9,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
-import { AccountActionsRow } from './account-actions-row';
+import { AccountSignInAction, SignOutRow } from './account-actions-row';
 import type { SignInMethodsView } from './sign-in-methods-section';
 import { SignInMethodsSection } from './sign-in-methods-section';
 import {
@@ -47,9 +47,10 @@ export type AccountScreenViewProps = {
 };
 
 /**
- * `/more/account`, presentational: sign-in methods, security (devices and
- * the quieter sign out of all devices, with its scope spelled out), the
- * privacy entry, and one Sign out for this device. A guest sees devices (which asks them to sign in)
+ * `/more/account`, presentational: sign-in methods, security (devices, Sign
+ * out for this device and Sign out of all devices, each with its scope
+ * spelled out, as calm rows whose confirmations carry the destructive tone)
+ * and the privacy entry. A guest sees devices (which asks them to sign in)
  * and Sign in only. `AccountScreen` wires it to the session and auth port.
  */
 export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
@@ -83,6 +84,7 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           dataSet={{ testid: Handles.accountDevices }}
         />
         <Show when={props.signedIn}>
+          <SignOutRow onOpen={props.onSignOut} />
           <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
         </Show>
       </MenuSection>
@@ -97,11 +99,9 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           />
         </MenuSection>
       </Show>
-      <AccountActionsRow
-        signedIn={props.signedIn}
-        onSignIn={props.onSignIn}
-        onSignOut={props.onSignOut}
-      />
+      <Show when={!props.signedIn}>
+        <AccountSignInAction onSignIn={props.onSignIn} />
+      </Show>
       <Show when={props.signedIn}>
         <SignOutEverywhereConfirm
           confirming={props.signingOutEverywhere}
