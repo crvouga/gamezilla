@@ -43,7 +43,7 @@ const meta = {
   render: (args) => (
     <ProfileScreenView
       {...args}
-      friendsStats={<StoryFriendsStats count={3} />}
+      friendsStats={<StoryFriendsStats count={5} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),
@@ -123,7 +123,7 @@ export const RefusedAvatarChange: Story = {
           onDismiss={() => undefined}
         />
       }
-      friendsStats={<StoryFriendsStats count={3} />}
+      friendsStats={<StoryFriendsStats count={5} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),

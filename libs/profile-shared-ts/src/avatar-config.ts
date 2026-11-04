@@ -8,6 +8,37 @@ import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 
 export const DEFAULT_AVATAR_STYLE = 'funEmoji';
 
+/**
+ * A newcomer's face is friendly: the default draws only from the style's
+ * glad and calm expressions (no tears, shouting, sickness or anger). A person
+ * can still pick any expression in the avatar editor.
+ */
+export const DEFAULT_AVATAR_OPTIONS: Readonly<Record<string, unknown>> = {
+  mouth: [
+    'plain',
+    'lilSmile',
+    'shy',
+    'cute',
+    'wideSmile',
+    'smileTeeth',
+    'smileLol',
+    'tongueOut',
+    'kissHeart',
+  ],
+  eyes: [
+    'cute',
+    'wink',
+    'wink2',
+    'plain',
+    'glasses',
+    'closed',
+    'love',
+    'stars',
+    'shades',
+    'closed2',
+  ],
+};
+
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
 }
@@ -32,7 +63,10 @@ export function createDefaultAvatarConfig(
   return {
     style: DEFAULT_AVATAR_STYLE,
     seed: profileEntityId,
-    options: {},
+    options: {
+      mouth: [...(DEFAULT_AVATAR_OPTIONS['mouth'] as string[])],
+      eyes: [...(DEFAULT_AVATAR_OPTIONS['eyes'] as string[])],
+    },
   };
 }
 
