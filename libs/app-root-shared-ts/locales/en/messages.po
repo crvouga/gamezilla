@@ -932,6 +932,7 @@ msgid "Active Synthetic Users"
 msgstr "Active Synthetic Users"
 
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
+#: libs/notifications-client-ts/src/notifications-list.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Activity"
 msgstr "Activity"
@@ -1355,7 +1356,6 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
-#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
@@ -1685,7 +1685,6 @@ msgstr "Clock and sides"
 
 #: libs/auth-client-ts/src/sign-in-idle-content.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
-#: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: pkgs/ui-devtools-client-ts/src/tab-strip-tab/index.tsx
 #: pkgs/ui-root-client-ts/src/close-icon-button/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
@@ -2171,6 +2170,10 @@ msgstr "Daily"
 msgid "Daily limit reached"
 msgstr "Daily limit reached"
 
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Danger zone"
+msgstr "Danger zone"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "dark"
 msgstr "dark"
@@ -2228,6 +2231,7 @@ msgid "Delete"
 msgstr "Delete"
 
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Delete account"
 msgstr "Delete account"
 
@@ -3778,6 +3782,14 @@ msgstr "Membership ended {0} · Plus access until {1}"
 msgid "Memberships aren't available right now."
 msgstr "Memberships aren't available right now."
 
+#: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
+msgid "Minimize"
+msgstr "Minimize"
+
+#: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
+msgid "Minimize space"
+msgstr "Minimize space"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "Minutes per player + seconds added after each move, or days for every move in a daily game."
 msgstr "Minutes per player + seconds added after each move, or days for every move in a daily game."
@@ -4300,8 +4312,9 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Offline — turn off to sync and play with others again"
-msgstr "Offline — turn off to sync and play with others again"
+#: libs/app-root-client-ts/src/work-offline-status.tsx
+msgid "Offline mode"
+msgstr "Offline mode"
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4328,10 +4341,6 @@ msgstr "online"
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Online — turn on to pause syncing and games with others"
-msgstr "Online — turn on to pause syncing and games with others"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
@@ -4565,6 +4574,10 @@ msgstr "Passing your cards…"
 msgid "Pause"
 msgstr "Pause"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Pause syncing and multiplayer"
+msgstr "Pause syncing and multiplayer"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
@@ -4631,6 +4644,10 @@ msgstr "Performance monitor"
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
+
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Permanently erase this account and its data"
+msgstr "Permanently erase this account and its data"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Person"
@@ -6480,6 +6497,10 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Syncing"
 msgstr "Syncing"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Syncing and multiplayer are paused"
+msgstr "Syncing and multiplayer are paused"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Synthetic Population"
 msgstr "Synthetic Population"
@@ -6523,8 +6544,8 @@ msgid "System"
 msgstr "System"
 
 #: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "Take a personal-data export or delete your account"
-msgstr "Take a personal-data export or delete your account"
+msgid "Take a personal-data export"
+msgstr "Take a personal-data export"
 
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Take a seat"
@@ -7827,8 +7848,6 @@ msgid "Words have at least two letters."
 msgstr "Words have at least two letters."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-#: libs/app-root-client-ts/src/work-offline-status.tsx
 msgid "Work offline"
 msgstr "Work offline"
 
@@ -7978,8 +7997,8 @@ msgid "You can't join this space"
 msgstr "You can't join this space"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
-msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
+msgid "You chose to work offline. Turn off Offline mode in Settings to share what you do."
+msgstr "You chose to work offline. Turn off Offline mode in Settings to share what you do."
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "You didn't leave the space"
