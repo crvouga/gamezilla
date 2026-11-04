@@ -33,7 +33,7 @@ function captionLines(space: SpaceCardData): string[] {
 // regression: space-lobby-card-three-grey-lines
 test('the host and the guests share one line under the title', () => {
   expect(captionLines(HOSTED_SPACE)).toEqual([
-    'Hosted by you · jordan_plays, morgan',
+    'Hosted by you · jordan_plays and morgan',
   ]);
 });
 
@@ -43,8 +43,11 @@ test('a space with no guests says so on the same line', () => {
   ]);
 });
 
-test('past two guests, the rest are counted after the line', () => {
-  const lines = captionLines(JOINED_SPACE);
-  expect(lines[0]).toStartWith('Hosted by sam · avery, jordan_plays');
-  expect(lines.at(-1)).toBe(`+${JOINED_SPACE.guests.length - 2} more`);
+// regression: space-lobby-guest-line-breaks-mid-list
+test('past two guests, one sentence names the first and counts the others', () => {
+  // One line, never "avery, … +5 more": a narrow card ends the sentence in
+  // one ellipsis instead of cutting the list and adding a count after it.
+  expect(captionLines(JOINED_SPACE)).toEqual([
+    `Hosted by sam · avery and ${JOINED_SPACE.guests.length - 1} others`,
+  ]);
 });

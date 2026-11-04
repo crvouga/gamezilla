@@ -82,12 +82,40 @@ function PlayersTag(props: {
   );
 }
 
-/** Above the list: who is here, and for a guest that the host picks. */
+/**
+ * Whether some game seats fewer than are here, so "5 here" above "2 play"
+ * needs the rule that joins them.
+ */
+function someoneWatches(props: SpaceGamesScreenViewProps): boolean {
+  const present = props.present ?? 0;
+  return props.games.some(
+    (game) => game.players !== undefined && game.players < present
+  );
+}
+
+/** How "5 here" and a game's "2 play" fit: who plays, who watches. */
+function SeatsRule(): JSX.Element {
+  return (
+    <P variant="caption">
+      <Trans>
+        A game seats the players it needs; everyone else here watches.
+      </Trans>
+    </P>
+  );
+}
+
+/**
+ * Above the list: who is here, how a game's seats fit them, and for a
+ * guest that the host picks.
+ */
 function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
   return (
     <Show when={props.whoIsHere !== undefined || !props.canSelectGame}>
       <StackVertical gap="sm">
         {props.whoIsHere}
+        <Show when={someoneWatches(props)}>
+          <SeatsRule />
+        </Show>
         <Show when={!props.canSelectGame}>
           <HostChoosesNotice />
         </Show>

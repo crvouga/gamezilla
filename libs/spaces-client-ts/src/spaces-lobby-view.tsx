@@ -1,14 +1,17 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Index, Show } from 'solid-js';
+import { SpaceCardTileView } from './space-card-tile-view';
 import type { SpaceCardData } from './space-card-view';
 import { SpaceCardView } from './space-card-view';
 
@@ -59,23 +62,58 @@ function SpacesHostingCount(props: { readonly count: number }): JSX.Element {
   );
 }
 
-/** One group of the lobby: its label above one panel of space rows. */
+/** A group's label over its desktop cards, on the cards' text edge. */
+function SpacesGroupLabel(props: { readonly title: JSX.Element }): JSX.Element {
+  return (
+    <StackVertical paddingX="lg">
+      <Text variant="sectionLabel" lines={1}>
+        {props.title}
+      </Text>
+    </StackVertical>
+  );
+}
+
+/**
+ * One group of the lobby: its label above one panel of space rows, or on
+ * desktop above a two-column grid of cards, so the page uses its width for
+ * the faces of who is in each space instead of stretching rows.
+ */
 function SpacesGroup(props: {
   readonly title: JSX.Element;
   readonly spaces: readonly SpaceCardData[];
   readonly onOpenSpace: (spaceId: string) => void;
 }): JSX.Element {
+  const mode = useLayoutMode();
   return (
-    <MenuSection title={props.title}>
-      <Index each={props.spaces}>
-        {(space) => (
-          <SpaceCardView
-            space={space()}
-            onOpen={() => props.onOpenSpace(space().spaceId)}
-          />
-        )}
-      </Index>
-    </MenuSection>
+    <Show
+      when={mode() === 'wide'}
+      fallback={
+        <MenuSection title={props.title}>
+          <Index each={props.spaces}>
+            {(space) => (
+              <SpaceCardView
+                space={space()}
+                onOpen={() => props.onOpenSpace(space().spaceId)}
+              />
+            )}
+          </Index>
+        </MenuSection>
+      }
+    >
+      <StackVertical gap="sm">
+        <SpacesGroupLabel title={props.title} />
+        <Grid columns={2} gap="md">
+          <Index each={props.spaces}>
+            {(space) => (
+              <SpaceCardTileView
+                space={space()}
+                onOpen={() => props.onOpenSpace(space().spaceId)}
+              />
+            )}
+          </Index>
+        </Grid>
+      </StackVertical>
+    </Show>
   );
 }
 

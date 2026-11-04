@@ -36,8 +36,6 @@ const GUEST_AVATAR_SIZE = 24;
 const GUEST_AVATAR_MAX_VISIBLE = 6;
 /** Names spelled out under the faces; the rest are counted. */
 const GUEST_NAMES_SHOWN = 3;
-/** A lobby card's guest line: two names, then how many more. */
-const CARD_GUEST_NAMES = 2;
 const ACTION_ICON_SIZE = 16;
 
 /**
@@ -167,7 +165,7 @@ export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
 }
 
 /** Who hosts the space: "Hosted by you", or the host's name. */
-function SpaceHostPhrase(props: {
+export function SpaceHostPhrase(props: {
   readonly space: SpaceCardData;
 }): JSX.Element {
   return (
@@ -186,53 +184,57 @@ function SpaceHostPhrase(props: {
   );
 }
 
-/** The first guests by name, or "No guests yet". */
-function SpaceGuestsPhrase(props: {
+/**
+ * Who else is in the space, in words that never break mid-list: "No guests
+ * yet", one or two names, or the first name and how many others
+ * ("avery and 6 others"). A long name ends the line in an ellipsis; the
+ * count is part of the sentence, never a separate "+5 more".
+ */
+export function SpaceGuestsPhrase(props: {
   readonly guests: readonly SpacePerson[];
 }): JSX.Element {
+  const first = (): SpacePerson | undefined => props.guests[0];
+  const second = (): SpacePerson | undefined => props.guests[1];
+  const others = (): number => Math.max(0, props.guests.length - 1);
   return (
-    <Show
-      when={props.guests.length > 0}
-      fallback={<Trans>No guests yet</Trans>}
-    >
-      <Index each={props.guests.slice(0, CARD_GUEST_NAMES)}>
-        {(guest, index) => (
-          <>
-            {index > 0 ? ', ' : null}
-            <SpacePersonName person={guest()} variant="caption" />
-          </>
+    <Switch fallback={<Trans>No guests yet</Trans>}>
+      <Match when={props.guests.length === 1 && first()} keyed>
+        {(guest) => <SpacePersonName person={guest} variant="caption" />}
+      </Match>
+      <Match when={props.guests.length === 2 && first()} keyed>
+        {(guest) => (
+          <Trans>
+            <SpacePersonName person={guest} variant="caption" /> and{' '}
+            <SpacePersonName person={second() ?? guest} variant="caption" />
+          </Trans>
         )}
-      </Index>
-    </Show>
+      </Match>
+      <Match when={props.guests.length > 2 && first()} keyed>
+        {(guest) => (
+          <Trans>
+            <SpacePersonName person={guest} variant="caption" /> and {others()}{' '}
+            others
+          </Trans>
+        )}
+      </Match>
+    </Switch>
   );
 }
 
 /**
  * Everything under the card's title on one line: who hosts it, then who
- * else is in it ("Hosted by you · jordan_plays, morgan"). A long line ends
- * in an ellipsis, and how many more always shows after it.
+ * else is in it ("Hosted by sam · avery and 6 others"). One sentence, so a
+ * narrow card ends it in one ellipsis instead of breaking the list.
  */
 function SpaceCardMetaLine(props: {
   readonly space: SpaceCardData;
 }): JSX.Element {
-  const { t } = useLingui();
-  const more = (): number =>
-    Math.max(0, props.space.guests.length - CARD_GUEST_NAMES);
   return (
-    <StackHorizontal align="center" gap="xs">
-      <StackVertical shrink>
-        <P variant="caption" lines={1}>
-          <SpaceHostPhrase space={props.space} />
-          {' · '}
-          <SpaceGuestsPhrase guests={props.space.guests} />
-        </P>
-      </StackVertical>
-      <Show when={more() > 0}>
-        <StackVertical>
-          <P variant="caption">{t`+${more()} more`}</P>
-        </StackVertical>
-      </Show>
-    </StackHorizontal>
+    <P variant="caption" lines={1}>
+      <SpaceHostPhrase space={props.space} />
+      {' · '}
+      <SpaceGuestsPhrase guests={props.space.guests} />
+    </P>
   );
 }
 
@@ -241,12 +243,13 @@ function SpaceCardMetaLine(props: {
  * the card's one action. The whole card is the control, so this is a label,
  * not a second button.
  */
-function SpaceCardActionLabel(props: {
+export function SpaceCardActionLabel(props: {
   readonly action: SpaceCardAction;
 }): JSX.Element {
   return (
     <StackHorizontal align="center" gap="xs">
-      <Text variant="label" tone="tint">
+      {/* Medium, like the title: the verb never outweighs the space it opens. */}
+      <Text variant="rowTitle" tone="tint">
         <Switch>
           <Match when={props.action === 'resume'}>
             <Trans>Resume</Trans>
@@ -264,6 +267,23 @@ function SpaceCardActionLabel(props: {
   );
 }
 
+/** What pressing a space's card says it does, for assistive tech. */
+export function useSpaceCardLabel(space: () => SpaceCardData): () => string {
+  const { t } = useLingui();
+  return () => {
+    const action = spaceCardAction(space());
+    if (action === 'resume') return t`Resume space ${space().title}`;
+    if (action === 'open') return t`Open space ${space().title}`;
+    return t`Join space ${space().title}`;
+  };
+}
+
+/** The card's handle: by its host's username, once that is known. */
+export function spaceCardTestId(space: SpaceCardData): string | undefined {
+  const host = space.hostUsername;
+  return host !== null ? Handles.spaceCard(host) : undefined;
+}
+
 /**
  * One row in the lobby panel, in one anatomy for every space: the host's
  * face; the name, with what pressing it does at the end of the name's line,
@@ -278,17 +298,8 @@ export function SpaceCardView(props: {
   readonly space: SpaceCardData;
   readonly onOpen: () => void;
 }): JSX.Element {
-  const { t } = useLingui();
-  const label = (): string => {
-    const action = spaceCardAction(props.space);
-    if (action === 'resume') return t`Resume space ${props.space.title}`;
-    if (action === 'open') return t`Open space ${props.space.title}`;
-    return t`Join space ${props.space.title}`;
-  };
-  const testId = (): string | undefined => {
-    const host = props.space.hostUsername;
-    return host !== null ? Handles.spaceCard(host) : undefined;
-  };
+  const label = useSpaceCardLabel(() => props.space);
+  const testId = (): string | undefined => spaceCardTestId(props.space);
   return (
     <Pressable
       width="full"
@@ -312,8 +323,8 @@ export function SpaceCardView(props: {
               run the card's full width and still name who is in it. */}
           <StackHorizontal align="center" justify="between" gap="sm">
             <StackVertical shrink>
-              {/* The list-row title: body weight, as in every panel of rows. */}
-              <Text variant="body" lines={1}>
+              {/* The list-row title: medium, as in every panel of rows. */}
+              <Text variant="rowTitle" lines={1}>
                 {props.space.title}
               </Text>
             </StackVertical>
