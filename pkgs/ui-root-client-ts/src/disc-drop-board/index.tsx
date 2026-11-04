@@ -19,11 +19,11 @@ export type DiscDropBoardProps = {
   readonly lastCell?: number | undefined;
   readonly label: string;
   /**
-   * What to do while the board takes a drop (`Choose a column`), read to
-   * assistive technology as the board's description; `''` while someone
-   * else is to move. Leave it out when nobody is to move (the game is
-   * over). It takes no room on screen, so the board never moves when the
-   * turn changes.
+   * What to do while the board takes a drop (`Pick a column to drop your
+   * disc`): a short line under the columns, and the board's description
+   * for assistive technology; `''` while someone else is to move, when the
+   * line stays empty at its height, so the board never moves when the turn
+   * changes. Leave it out when nobody is to move (the game is over).
    */
   readonly prompt?: string | undefined;
   readonly testId: string;
@@ -50,14 +50,9 @@ function DiscCell(props: {
 }): JSX.Element {
   const index = () => props.row * props.board.columns + props.column;
   const disc = () => props.board.cells[index()] ?? 0;
-  // The landing cell of the column pointed at holds the dropping side's
-  // ring and mark.
-  const marker = () =>
-    disc() !== 0
-      ? discMark(disc())
-      : props.target === index()
-        ? discMark(props.board.active)
-        : '';
+  // A played disc carries its side's mark; the landing preview never does,
+  // so it can never be read as a disc already played.
+  const marker = () => (disc() !== 0 ? discMark(disc()) : '');
   return (
     <span
       class={styles['cell']}
@@ -184,11 +179,12 @@ function Column(props: {
 /**
  * A board of columns a disc drops down. Each column is one native,
  * full-height button (also a practical touch target) headed by its number.
- * The prompt (`Choose a column`) describes the board to assistive
- * technology; on screen the seat's own turn pill already says whose move
- * it is. While the board takes a drop the column pointed at or focused
- * takes one quiet tint, and its landing cell shows the dropping side's
- * disc as an outline with its mark: two signals, each saying one thing.
+ * The prompt (`Pick a column to drop your disc`) says what to do in one
+ * line under the columns while it is the viewer's move, and describes the
+ * board to assistive technology. While the board takes a drop the column
+ * pointed at or focused takes one quiet tint, and its landing cell shows
+ * the dropping side's disc as a see-through, dashed preview with no mark:
+ * two signals, each saying one thing, neither a disc already played.
  * The last disc played falls into place (not under reduced motion), and
  * once four connect the rest of the board steps back behind them. As a
  * `GameBoardStage` preview (a game still being set up) it draws only its

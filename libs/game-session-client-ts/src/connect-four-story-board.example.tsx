@@ -59,7 +59,7 @@ export function ConnectFourStoryBoard(props: {
         props.winning !== undefined
           ? undefined
           : props.interactive === true
-            ? 'Choose a column'
+            ? 'Pick a column to drop your disc'
             : ''
       }
       cellLabel={(column, row, disc) => {
