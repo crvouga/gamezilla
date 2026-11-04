@@ -101,3 +101,23 @@ test('an available answer stays a button beside the card words', () => {
   mountCard(invite([{ id: 'accept', label: 'Join', variant: 'ghost' }]));
   expect(screen.getByTestId(`${CARD}-accept`).textContent).toContain('Join');
 });
+
+test('a card whose every answer is unavailable is plainly inactive', () => {
+  mountCard(
+    invite([
+      {
+        id: 'accept',
+        label: 'Join',
+        variant: 'ghost',
+        disabled: true,
+        disabledReason: 'Space is full',
+      },
+    ])
+  );
+  const reason = screen.getByText('Space is full').closest('[data-component="Badge"]');
+  expect(reason?.getAttribute('data-intent')).toBe('neutral');
+  // Unread, but nothing waits: the words lose their unread weight.
+  const title = screen.getByText('@sam invited you to Quick connect four');
+  expect(title.className).not.toContain('textBodyBold');
+  expect(title.className).toContain('text-text-secondary');
+});

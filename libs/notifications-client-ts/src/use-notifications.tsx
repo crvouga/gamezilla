@@ -3,8 +3,12 @@ import type {
   NotificationFilter,
 } from '@libs/notifications-shared-ts/notification';
 import { inboxListSql } from '@libs/notifications-shared-ts/notifications-queries';
-import { buildNotificationSections } from '@libs/notifications-shared-ts/notifications-sections';
+import {
+  buildNotificationSections,
+  NEEDS_YOU_SECTION_KEY,
+} from '@libs/notifications-shared-ts/notifications-sections';
 import { clientRowToInteraction } from '@libs/notifications-shared-ts/row-mapper';
+import { useLingui } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import {
@@ -26,6 +30,15 @@ export function useNotifications(options?: {
 } {
   const shell = useNotificationsShell();
   const clock = useClock();
+  const { t } = useLingui();
+  // The groups' headings, in the reader's language.
+  const sectionTitle = (key: string): string => {
+    if (key === NEEDS_YOU_SECTION_KEY) return t`Needs you`;
+    if (key === 'today') return t`Today`;
+    if (key === 'yesterday') return t`Yesterday`;
+    if (key === 'this_week') return t`This week`;
+    return t`Earlier`;
+  };
   const [filter, setFilter] = createSignal<NotificationFilter>(
     options?.filter ?? 'all'
   );
@@ -43,7 +56,7 @@ export function useNotifications(options?: {
     rows().map((row) => clientRowToInteraction({ ...row }))
   );
   const sections = createMemo(() =>
-    buildNotificationSections(interactions(), clock.now)
+    buildNotificationSections(interactions(), clock.now, sectionTitle)
   );
   return {
     interactions,

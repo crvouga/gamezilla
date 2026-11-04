@@ -6,13 +6,15 @@ import { ArchiveIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 
-const ARCHIVE_BUTTON_SIZE = 32;
-const ARCHIVE_ICON_SIZE = 18;
+const ARCHIVE_BUTTON_SIZE = 28;
+const ARCHIVE_ICON_SIZE = 16;
 
 /**
- * Set this inbox item aside. It stays in the archived inbox. A quiet icon
- * button in the card's trailing corner, named "Archive", so it is always
- * found in the same place and never competes with the card's answers.
+ * Set this inbox item aside. It stays in the archived inbox. A small icon
+ * button in the outline ink, in the card's trailing corner, named
+ * "Archive": always found in the same place (and keeping its full hit
+ * area), but the quietest thing on the card, so it never competes with the
+ * card's words or answers.
  */
 export function InboxArchiveButton(props: {
   readonly testId: string;
@@ -29,7 +31,7 @@ export function InboxArchiveButton(props: {
         onClick={() => props.onArchive()}
         dataSet={{ testid: props.testId }}
       >
-        <ArchiveIcon size={ARCHIVE_ICON_SIZE} color="icon" />
+        <ArchiveIcon size={ARCHIVE_ICON_SIZE} color="outline" />
       </IconButton>
     </StackVertical>
   );
