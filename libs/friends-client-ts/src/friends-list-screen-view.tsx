@@ -9,10 +9,11 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
-import { Match, Show, Switch } from 'solid-js';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import { FriendUserRow } from './friend-user-row';
 
 /** Whether the friends list is still reading, could not load, or is known. */
@@ -115,13 +116,38 @@ function FriendsListPlaceholder(
 }
 
 /**
- * `/profile/friends`, presentational: the accepted friends list with its
- * loading, failed, empty and permission-denied states. Data and navigation
- * arrive as props; `FriendsListScreen` wires them to the sync engine.
+ * Find friends in the header once the list has someone in it: the page's
+ * next step stays in reach (the empty list offers it in its own place).
+ */
+function useFindFriendsAction(
+  props: Pick<FriendsListScreenViewProps, 'friends' | 'onFindFriends'>
+) {
+  const { t } = useLingui();
+  return createMemo((): readonly ScreenBaseAction[] =>
+    props.friends.length > 0
+      ? [
+          {
+            type: 'default',
+            label: t`Find friends`,
+            icon: UserPlusIcon,
+            onClick: () => props.onFindFriends(),
+            overflow: 'never',
+          },
+        ]
+      : []
+  );
+}
+
+/**
+ * `/profile/friends`, presentational: the accepted friends list with Find
+ * friends in the header, and its loading, failed, empty and
+ * permission-denied states. Data and navigation arrive as props;
+ * `FriendsListScreen` wires them to the sync engine.
  */
 export function FriendsListScreenView(
   props: FriendsListScreenViewProps
 ): JSX.Element {
+  const headerActions = useFindFriendsAction(props);
   return (
     <Show
       when={props.denial}
@@ -129,6 +155,7 @@ export function FriendsListScreenView(
         <CollectionScreen
           screenId="friends-list"
           breadcrumbs={BREADCRUMBS()}
+          actions={headerActions()}
           controls={props.notice}
         >
           <ScreenBodyVirtualList
