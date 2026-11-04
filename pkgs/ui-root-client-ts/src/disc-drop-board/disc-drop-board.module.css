@@ -75,9 +75,30 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
 }
-.number {
-  font: inherit;
-  min-height: var(--ui-space-6);
+/* What happens now, in one line across the columns; it keeps its height
+   while empty so the board never moves when the turn changes. */
+.prompt {
+  grid-column: 1 / -1;
+  min-height: var(--ui-space-5);
+  margin: 0;
+  padding-block: var(--ui-space-1) 0;
+  color: var(--ui-color-text);
+  text-align: center;
+}
+/* Where a column's disc is let go: a chevron over an open column, in the
+   dropping side's color over the one pointed at; empty, it keeps its
+   height. */
+.drop {
+  display: grid;
+  place-items: center;
+  min-height: var(--ui-space-5);
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+.drop[data-disc="1"] {
+  --ui-on-icon: var(--ui-color-destructive);
+}
+.drop[data-disc="2"] {
+  --ui-on-icon: var(--ui-color-warning);
 }
 .cell {
   display: grid;
@@ -108,6 +129,19 @@
 .cell[data-preview="true"] {
   outline: 2px dashed var(--ui-color-tint);
   outline-offset: -3px;
+}
+/* The ghost of the disc about to drop, where it would land. */
+.cell[data-preview-disc="1"] .disc,
+.cell[data-preview-disc="2"] .disc {
+  opacity: 0.55;
+}
+.cell[data-preview-disc="1"] .disc {
+  background: var(--ui-color-destructive);
+  color: var(--ui-color-on-destructive);
+}
+.cell[data-preview-disc="2"] .disc {
+  background: var(--ui-color-warning);
+  color: var(--ui-color-background);
 }
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-tint);

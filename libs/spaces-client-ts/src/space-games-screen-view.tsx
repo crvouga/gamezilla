@@ -1,4 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { plural } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
@@ -24,6 +25,11 @@ export type SpaceGamesScreenViewProps = {
   readonly shownGame: string | null;
   /** The host picks the game; guests only see the list. */
   readonly canSelectGame: boolean;
+  /**
+   * How many people are in the space now; with more than a game seats,
+   * its tag says the others watch. Unset says only who plays.
+   */
+  readonly present?: number | undefined;
   /** A guest tried to go back: say that the host picks the game. */
   readonly hostChoosesNotice: boolean;
   readonly onSelectGame: (gameId: string) => void;
@@ -42,11 +48,30 @@ function HostChoosesNotice(): JSX.Element {
   );
 }
 
-/** A game's player count as the tag beside its title. */
-function PlayersTag(props: { readonly count: number }): JSX.Element {
+/**
+ * A game's player count as the tag beside its title; when the space holds
+ * more people than it seats, the rest watch it, and the tag says so.
+ */
+function PlayersTag(props: {
+  readonly count: number;
+  readonly present: number | undefined;
+}): JSX.Element {
+  const watched = (): boolean => (props.present ?? 0) > props.count;
   return (
-    <Show when={props.count > 1} fallback={<Trans>Solo</Trans>}>
-      <Plural value={props.count} one="# player" other="# players" />
+    <Show
+      when={watched()}
+      fallback={
+        <Show when={props.count > 1} fallback={<Trans>Solo</Trans>}>
+          <Plural value={props.count} one="# player" other="# players" />
+        </Show>
+      }
+    >
+      <Show when={props.count > 1} fallback={<Trans>Solo, others watch</Trans>}>
+        {plural(props.count, {
+          one: '# plays, others watch',
+          other: '# play, others watch',
+        })}
+      </Show>
     </Show>
   );
 }
@@ -58,7 +83,9 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       title: game.title,
       ...(game.caption !== undefined ? { caption: game.caption } : {}),
       ...(game.players !== undefined
-        ? { meta: <PlayersTag count={game.players} /> }
+        ? {
+            meta: <PlayersTag count={game.players} present={props.present} />,
+          }
         : {}),
       leading: <game.Tile />,
       dataSet: { testid: `game-menu-${game.id}` },

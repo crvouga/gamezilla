@@ -50,7 +50,7 @@ export default function GameMoveListExample(): JSX.Element {
   const [read, setRead] = createSignal(5);
   return (
     <ExampleRoot>
-      <ExampleSection title="Row inside a MoveStrip, latest move marked">
+      <ExampleSection title="The shown turn inside a MoveStrip, whole and centred">
         <MoveStrip
           leading={
             <IconButton
@@ -74,7 +74,7 @@ export default function GameMoveListExample(): JSX.Element {
           }
         >
           <GameMoveList
-            layout="row"
+            layout="turn"
             aria-label="Moves played"
             perTurn={2}
             current={shown()}
@@ -105,7 +105,7 @@ export default function GameMoveListExample(): JSX.Element {
       </ExampleSection>
       <ExampleSection title="No mover named: every move is its own turn">
         <GameMoveList
-          layout="row"
+          layout="turn"
           aria-label="Plays"
           perTurn={1}
           current={2}

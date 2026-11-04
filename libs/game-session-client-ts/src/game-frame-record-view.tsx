@@ -11,6 +11,7 @@ import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronsLeftIcon,
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
@@ -34,6 +35,9 @@ type RecordProps = FrameReviewHandlers & { readonly record: FrameRecord };
 
 const STEP_SIZE = 32;
 
+/** The steps under a phone's board: a full control, easy to hit. */
+const STRIP_STEP_SIZE = 40;
+
 /** How many of the latest moves the record lists; earlier ones are reached by number. */
 const LISTED_MOVES = 40;
 
@@ -42,12 +46,29 @@ function firstListed(record: FrameRecord): number {
   return Math.max(0, record.moves.length - LISTED_MOVES);
 }
 
+type StepProps = RecordProps & { readonly size?: number | undefined };
+
+/** Back to the opening position, before the first move. */
+function StepToStart(props: StepProps): JSX.Element {
+  return (
+    <IconButton
+      label={t`Go to the start`}
+      size={props.size ?? STEP_SIZE}
+      disabled={props.record.displayedPly === 0}
+      onClick={() => props.onSeek(0)}
+      dataSet={{ testid: 'custom-game-review-first' }}
+    >
+      <ChevronsLeftIcon />
+    </IconButton>
+  );
+}
+
 /** Step back or forward a move, or return to the position being played. */
-function StepBack(props: RecordProps): JSX.Element {
+function StepBack(props: StepProps): JSX.Element {
   return (
     <IconButton
       label={t`Previous move`}
-      size={STEP_SIZE}
+      size={props.size ?? STEP_SIZE}
       disabled={props.record.displayedPly === 0}
       onClick={() => props.onSeek(props.record.displayedPly - 1)}
       dataSet={{ testid: 'custom-game-review-back' }}
@@ -57,11 +78,11 @@ function StepBack(props: RecordProps): JSX.Element {
   );
 }
 
-function StepForward(props: RecordProps): JSX.Element {
+function StepForward(props: StepProps): JSX.Element {
   return (
     <IconButton
       label={t`Next move`}
-      size={STEP_SIZE}
+      size={props.size ?? STEP_SIZE}
       disabled={props.record.displayedPly >= props.record.moves.length}
       onClick={() => props.onSeek(props.record.displayedPly + 1)}
       dataSet={{ testid: 'custom-game-review-forward' }}
@@ -71,11 +92,11 @@ function StepForward(props: RecordProps): JSX.Element {
   );
 }
 
-function ReturnLive(props: RecordProps): JSX.Element {
+function ReturnLive(props: StepProps): JSX.Element {
   return (
     <IconButton
       label={t`Return to current position`}
-      size={STEP_SIZE}
+      size={props.size ?? STEP_SIZE}
       onClick={() => props.onReturnLive()}
       dataSet={{ testid: 'custom-game-review-live' }}
     >
@@ -128,13 +149,20 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
 }
 
 /**
- * The listed moves as numbered turns, each behind its mover's swatch; one
- * list for the strip under a phone's board and the table beside a wide one.
+ * The listed moves as numbered turns, each behind its mover's swatch: the
+ * shown turn in the strip under a phone's board (any turn can be stepped
+ * to), the latest moves in the table beside a wide one.
  */
 function RecordMoves(
-  props: RecordProps & { readonly layout: 'row' | 'table' }
+  props: RecordProps & {
+    readonly layout: 'turn' | 'table';
+    /** The full list behind the phone strip: its moves leave their ids to the strip. */
+    readonly besideStrip?: boolean | undefined;
+  }
 ): JSX.Element {
-  const first = createMemo(() => firstListed(props.record));
+  const first = createMemo(() =>
+    props.layout === 'table' ? firstListed(props.record) : 0
+  );
   const moves = createMemo((): readonly GameMoveListEntry[] =>
     props.record.moves.slice(first()).map((label, index) => {
       const ply = first() + index + 1;
@@ -147,7 +175,10 @@ function RecordMoves(
           mover === undefined
             ? t`Move ${ply}: ${label}`
             : t`Move ${ply}, ${mover.sideLabel}: ${label}`,
-        testId: `custom-game-review-move-${ply}`,
+        testId:
+          props.besideStrip === true
+            ? undefined
+            : `custom-game-review-move-${ply}`,
       };
     })
   );
@@ -239,32 +270,41 @@ function RecordPanel(props: RecordProps): JSX.Element {
 }
 
 /**
- * The record under a phone's board, its one history control: the latest
- * moves in a strip between the steps, and the rest of the record (a move
- * by number, earlier games, the space's history) behind one disclosure.
- * The strip keeps its height before the first move, so the board above
- * never moves when it lands.
+ * The record under a phone's board, its one history control: the shown
+ * turn, whole and centred between the steps (to the start and back a move
+ * on one side, forward a move and to the current position on the other),
+ * and the rest of the record (every move as a table, a move by number,
+ * earlier games, the space's history) behind one disclosure. The strip keeps its height
+ * before the first move, so the board above never moves when it lands.
  */
 function RecordStrip(props: RecordProps): JSX.Element {
   return (
     <StackVertical gap="xs" dataSet={{ component: 'CustomGameReview' }}>
       <MoveStrip
         testId="custom-game-move-strip"
-        leading={<StepBack {...props} />}
+        leading={
+          <>
+            <StepToStart {...props} size={STRIP_STEP_SIZE} />
+            <StepBack {...props} size={STRIP_STEP_SIZE} />
+          </>
+        }
         trailing={
           <>
-            <StepForward {...props} />
-            <ReturnLive {...props} />
+            <StepForward {...props} size={STRIP_STEP_SIZE} />
+            <ReturnLive {...props} size={STRIP_STEP_SIZE} />
           </>
         }
       >
-        <RecordMoves {...props} layout="row" />
+        <RecordMoves {...props} layout="turn" />
       </MoveStrip>
       <FrameErrorView text={props.record.error} />
       <GameDisclosure
         title={<Trans>Game record</Trans>}
         dataSet={{ testid: 'custom-game-review-jump' }}
       >
+        <Show when={props.record.moves.length > 0}>
+          <RecordMoves {...props} layout="table" besideStrip />
+        </Show>
         <ReviewJumpField {...props} />
         <RecordSelect {...props} />
         <RecordHistory {...props} />

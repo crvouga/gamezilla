@@ -2,17 +2,18 @@ import type { PuzzleNavIntent } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { t } from '@lingui/core/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX } from 'solid-js';
 
-const ICON_SIZE = 14;
+/** Each jump and step is a full control beside the moves, easy to read and hit. */
+const NAV_SIZE = 40;
 
 export type PuzzleMoveNavProps = {
   canGoBack: boolean;
@@ -72,18 +73,15 @@ function NavButton(props: {
 }): JSX.Element {
   const Icon = props.slot.icon;
   return (
-    <Pressable
-      align="center"
-      justify="center"
-      paddingX="xs"
-      radius="sm"
+    <IconButton
+      label={props.slot.label}
+      size={NAV_SIZE}
       disabled={props.slot.disabled}
-      aria-label={props.slot.label}
-      testId={`chess-puzzle-move-nav-${props.slot.intent}`}
-      onPress={() => props.onNavigate(props.slot.intent)}
+      dataSet={{ testid: `chess-puzzle-move-nav-${props.slot.intent}` }}
+      onClick={() => props.onNavigate(props.slot.intent)}
     >
-      <Icon size={ICON_SIZE} />
-    </Pressable>
+      <Icon />
+    </IconButton>
   );
 }
 

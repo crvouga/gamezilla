@@ -27,7 +27,8 @@ export type SpeechBubbleProps = {
 };
 
 /** Words stay readable while speech loads. The live region remains mounted
- * as messages change; its minimum height reserves space without truncating words. */
+ * as messages change; its minimum height reserves space without truncating
+ * words, and shorter words sit in its middle, level with the speaker. */
 export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
   const lines = () => props.numberOfLines ?? DEFAULT_NUMBER_OF_LINES;
   const bubbleHeight = () =>
@@ -47,7 +48,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
         aria-hidden="true"
       />
       <div
-        class="box flex-1 bg-surface-muted rounded-card justify-start"
+        class="box flex-1 bg-surface-muted rounded-card justify-center"
         style={{
           'padding-top': `${BUBBLE_PADDING_VERTICAL}px`,
           'padding-bottom': `${BUBBLE_PADDING_VERTICAL}px`,

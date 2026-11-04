@@ -370,6 +370,56 @@ describe('Game frame: layout slots', () => {
     ).toBeInTheDocument();
   });
 
+  // regression: desktop-game-actions-below-the-fold
+  test('actions beside the board head the rail, after setup and before the record', () => {
+    renderUi(() => (
+      <GameSessionLayout
+        actionsBeside
+        setup={<p>{'Setup'}</p>}
+        status={<p>{'Draw offered'}</p>}
+        actions={<button type="button">{'Resign'}</button>}
+        aside={<p>{'Game record'}</p>}
+      >
+        <div data-testid="stage" />
+      </GameSessionLayout>
+    ));
+    const layout = mustQuery('[data-component="GameLayout"]');
+    const order = [...layout.children].map(
+      (child) =>
+        child.textContent ||
+        child.querySelector('[data-testid]')?.getAttribute('data-testid')
+    );
+    expect(order).toEqual([
+      'Setup',
+      'stage',
+      'Draw offeredResign',
+      'Game record',
+    ]);
+    const controls = mustQuery('[data-component="GameControls"]');
+    expect(
+      controls.contains(screen.getByRole('button', { name: 'Resign' }))
+    ).toBe(true);
+    expect(layout.getAttribute('style')).toContain('--game-rail-rows: 3');
+  });
+
+  test('without actions beside, status and actions follow the board in its column', () => {
+    renderUi(() => (
+      <GameSessionLayout
+        aside={<p>{'Game record'}</p>}
+        actions={<button type="button">{'Resign'}</button>}
+      >
+        <div data-testid="stage" />
+      </GameSessionLayout>
+    ));
+    expect(
+      document.querySelector('[data-component="GameControls"]')
+    ).toBeNull();
+    const stage = screen.getByTestId('stage').parentElement;
+    expect(
+      stage?.contains(screen.getByRole('button', { name: 'Resign' }))
+    ).toBe(true);
+  });
+
   test('a header with neither title nor trailing draws nothing', () => {
     renderUi(() => (
       <GameSessionLayout header={<GameSessionHeader />}>

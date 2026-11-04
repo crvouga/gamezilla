@@ -16,6 +16,7 @@ import { useGamesRegistry } from './games-registry-context';
 import { SpaceGamesScreenView } from './space-games-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { useConnectedSpaceRoster } from './use-connected-space-roster';
 import { useOfflineGameBrowse } from './use-offline-game-browse';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceRoomSelector } from './use-space-room-selector';
@@ -53,6 +54,11 @@ export function GamesMainMenu(): JSX.Element {
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const [hostChooses, setHostChooses] = createSignal(false);
+  // Everyone here: a game seats some of them, the rest watch it.
+  const roster = useConnectedSpaceRoster();
+  const present = createMemo(
+    () => new Set(roster().map((person) => person.id)).size
+  );
   // A guest is told why going back did nothing, connected or not: only the
   // host moves the space. The answer belongs to the game it was given on.
   const onBackToGames = (): void => {
@@ -80,6 +86,7 @@ export function GamesMainMenu(): JSX.Element {
         games={games}
         shownGame={shownGame()}
         canSelectGame={canSelectGame()}
+        present={present()}
         hostChoosesNotice={hostChooses()}
         onSelectGame={chooseGame}
         renderGameMenu={(gameId) => {

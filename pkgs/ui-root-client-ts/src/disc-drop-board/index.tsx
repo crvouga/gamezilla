@@ -7,6 +7,7 @@ import {
   type JSX,
   Show,
 } from 'solid-js';
+import { ChevronDownIcon } from '../icons';
 import styles from './disc-drop-board.module.css';
 export type DiscDropBoardProps = {
   readonly cells: readonly number[];
@@ -17,6 +18,12 @@ export type DiscDropBoardProps = {
   readonly interactive: boolean;
   readonly lastCell?: number | undefined;
   readonly label: string;
+  /**
+   * One line above the columns saying what to do while the board takes a
+   * drop (`Choose a column`); empty otherwise. Its line keeps its height
+   * either way, so the board never moves when the turn changes.
+   */
+  readonly prompt?: string | undefined;
   readonly testId: string;
   readonly columnTestId: (column: number) => string;
   readonly cellLabel: (column: number, row: number, disc: number) => string;
@@ -41,14 +48,14 @@ function DiscCell(props: {
 }): JSX.Element {
   const index = () => props.row * props.board.columns + props.column;
   const disc = () => props.board.cells[index()] ?? 0;
+  // The landing cell of the column pointed at holds the dropping side's
+  // ghost disc, its mark included.
   const marker = () =>
-    disc() === 1
-      ? '●'
-      : disc() === 2
-        ? '◆'
-        : props.target === index()
-          ? '↓'
-          : '';
+    disc() !== 0
+      ? discMark(disc())
+      : props.target === index()
+        ? discMark(props.board.active)
+        : '';
   return (
     <span
       class={styles['cell']}
@@ -67,6 +74,35 @@ function DiscCell(props: {
     </span>
   );
 }
+/** The disc each side drops: its mark, inside its fill. */
+function discMark(disc: number): string {
+  return disc === 1 ? '●' : disc === 2 ? '◆' : '';
+}
+
+/**
+ * Above a column, where its disc is let go: while the board takes a drop,
+ * a chevron over every open column, in the dropping side's color over the
+ * one pointed at or focused (whose landing cell holds that side's ghost
+ * disc). The band keeps its height when empty.
+ */
+function DropMarker(props: {
+  board: DiscDropBoardProps;
+  previewed: boolean;
+  full: boolean;
+}): JSX.Element {
+  return (
+    <span
+      class={styles['drop']}
+      data-disc={props.previewed ? props.board.active : 0}
+      aria-hidden="true"
+    >
+      <Show when={props.board.interactive && !props.full}>
+        <ChevronDownIcon size={20} />
+      </Show>
+    </span>
+  );
+}
+
 function Column(props: {
   board: DiscDropBoardProps;
   column: number;
@@ -84,6 +120,9 @@ function Column(props: {
     rows().filter(
       (row) => props.board.cells[row * props.board.columns + props.column] !== 0
     ).length;
+  const previewed = () =>
+    props.target !== null &&
+    props.target % props.board.columns === props.column;
   return (
     <>
       <button
@@ -105,10 +144,7 @@ function Column(props: {
             props.board.onDrop(props.column);
         }}
       >
-        <span class={styles['number']} aria-hidden="true">
-          {props.column + 1}
-          <Show when={full()}> ×</Show>
-        </span>
+        <DropMarker board={props.board} previewed={previewed()} full={full()} />
         <For each={rows()}>
           {(row) => (
             <DiscCell
@@ -134,8 +170,16 @@ function Column(props: {
     </>
   );
 }
-/** The native full-height column controls also work as practical touch targets. */
+/**
+ * A board of columns a disc drops down. Each column is one native,
+ * full-height button (also a practical touch target); a prompt line above
+ * them says what to do, and while the board takes a drop each open column
+ * carries a chevron, the one pointed at or focused in the dropping side's
+ * color, with that side's ghost disc in the cell where it would land.
+ */
 export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
+  const promptId = createUniqueId();
+  const prompting = (): boolean => (props.prompt ?? '').length > 0;
   const [preview, setPreview] = createSignal<number | null>(null);
   const columns = createMemo(() =>
     Array.from({ length: props.columns }, (_, n) => n)
@@ -165,11 +209,19 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       {...dataAttrs({ component: 'DiscDropBoard' })}
       role="group"
       aria-label={props.label}
+      aria-describedby={prompting() ? promptId : undefined}
       data-testid={props.testId}
       data-preview-cell={target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
       style={{ '--disc-columns': props.columns }}
     >
+      <p
+        id={promptId}
+        class={`${styles['prompt']} text textCaption`}
+        data-testid={`${props.testId}-prompt`}
+      >
+        {props.prompt ?? ''}
+      </p>
       <For each={columns()}>
         {(column) => (
           <Column

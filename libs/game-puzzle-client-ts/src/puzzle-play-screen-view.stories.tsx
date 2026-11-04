@@ -1,92 +1,21 @@
-import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { Show } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import type { PuzzleBoardMarks } from './puzzle-client';
+import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import {
-  PuzzlePlayScreenView,
-  type PuzzlePlayScreenViewProps,
-} from './puzzle-play-screen-view';
-import {
+  PUZZLE_PLAY_STORY_ARGS,
+  PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
+  type PuzzleScene,
+  renderPuzzlePlayScene,
   STORY_FEED_CONFIG,
   STORY_LINE,
-  STORY_PLIES,
-  StoryCelebration,
-  StoryFeedBar,
+  STORY_SOLVED,
   StoryPuzzleBoard,
-  StoryTimeline,
   withScreenFrame,
 } from './puzzle-screen-story.example';
 
-const PUZZLE_ID = 'chess/00a3f';
-
-/** What the slots show for one state: the board, the line so far, the result. */
-type PuzzleScene = {
-  readonly fen: string;
-  readonly marks?: PuzzleBoardMarks;
-  readonly plies: number;
-  readonly over?: boolean;
-  readonly ratingChange?: number | 'unrated';
-  readonly allowanceLabel?: string;
-  readonly completion?: PuzzleCompletion;
-};
-
 const SOLVING: PuzzleScene = { fen: STORY_LINE.start, plies: 1 };
-
-const SOLVED: PuzzleCompletion = {
-  outcome: 'solved',
-  ratingBefore: 1500,
-  ratingAfter: 1516,
-  delta: 16,
-  streak: 3,
-  puzzleRating: 1702,
-  rated: true,
-};
-
-/** Fills the view's slots from the story's scene, fresh per mount. */
-function renderScene(
-  args: PuzzlePlayScreenViewProps,
-  context: { parameters: Record<string, unknown> }
-) {
-  const scene = (context.parameters['puzzleScene'] as PuzzleScene) ?? SOLVING;
-  return (
-    <PuzzlePlayScreenView
-      {...args}
-      feed={
-        <StoryFeedBar
-          puzzleId={args.pick === 'playing' ? PUZZLE_ID : undefined}
-          rating={1702}
-          themes={['mate', 'opening', 'sacrifice']}
-          over={scene.over}
-          ratingChange={scene.ratingChange}
-          allowanceLabel={scene.allowanceLabel}
-        />
-      }
-      timeline={
-        <StoryTimeline
-          plies={
-            args.pick === 'playing' ? STORY_PLIES.slice(0, scene.plies) : []
-          }
-        />
-      }
-      board={() => (
-        <StoryPuzzleBoard
-          position={scene.fen}
-          testId="chess-puzzle-board"
-          marks={scene.marks}
-        />
-      )}
-      overlay={
-        <Show when={scene.completion} keyed>
-          {(completion) => (
-            <StoryCelebration completion={completion} onNext={args.onNext} />
-          )}
-        </Show>
-      }
-    />
-  );
-}
+const SOLVED = STORY_SOLVED;
 
 const meta = {
   id: 'screens-puzzles-play',
@@ -94,51 +23,13 @@ const meta = {
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   decorators: [withScreenFrame],
-  render: (args, context) => renderScene(args, context),
+  render: (args, context) =>
+    renderPuzzlePlayScene(args, context, StoryPuzzleBoard),
   parameters: {
     appRouter: true,
-    controls: {
-      exclude: [
-        'coach',
-        'speaker',
-        'shareLink',
-        'feed',
-        'legend',
-        'timeline',
-        'board',
-        'feedConfig',
-        'denial',
-        'probe',
-        'overlay',
-      ],
-    },
+    controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
-  args: {
-    pick: 'playing',
-    statusKind: 'started',
-    solverSide: 'White',
-    coach: {
-      message: 'White to move. Something on the board is undefended.',
-      contextKey: 'start',
-    },
-    elapsedMs: 12_000,
-    spectator: false,
-    allowanceLabel: '',
-    feedConfig: STORY_FEED_CONFIG,
-    status: 'solving',
-    hintStage: 'none',
-    canGoBack: false,
-    canGoForward: false,
-    onHint: fn(),
-    onSolution: fn(),
-    onBack: fn(),
-    onForward: fn(),
-    onRetry: fn(),
-    onSkip: fn(),
-    onNext: fn(),
-    onIncludeAllPuzzles: fn(),
-    onOpenFeedSettings: fn(),
-  },
+  args: PUZZLE_PLAY_STORY_ARGS,
 } satisfies Meta<typeof PuzzlePlayScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

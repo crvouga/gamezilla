@@ -60,6 +60,11 @@ msgstr "{0, plural, one {# person here} other {# people here}}"
 msgid "{0, plural, one {# player} other {# players}}"
 msgstr "{0, plural, one {# player} other {# players}}"
 
+#. placeholder {0}: props.count
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "{0, plural, one {# plays, others watch} other {# play, others watch}}"
+msgstr "{0, plural, one {# plays, others watch} other {# play, others watch}}"
+
 #. placeholder {0}: rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
@@ -757,6 +762,15 @@ msgstr "A player left the round."
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 msgstr "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
+
+#. placeholder {0}: timeControlText(props.timeControl)
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "A rated game at {0}"
+msgstr "A rated game at {0}"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "A rated game with no clock"
+msgstr "A rated game with no clock"
 
 #: libs/hearts-client-ts/src/hearts-presentation.tsx
 msgid "A score reached 100, and the lowest score wins."
@@ -1463,6 +1477,10 @@ msgstr "Choose"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Choose a bot difficulty offered by this game."
 msgstr "Choose a bot difficulty offered by this game."
+
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Choose a column"
+msgstr "Choose a column"
 
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Choose a game with a puzzle editor."
@@ -2978,6 +2996,10 @@ msgstr "Go to a move by number"
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Go to the start"
+msgstr "Go to the start"
+
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "goal"
 msgstr "goal"
@@ -3663,10 +3685,6 @@ msgstr "Manual next puzzle"
 #: libs/notifications-client-ts/src/notifications-screen-view.tsx
 msgid "Mark all read"
 msgstr "Mark all read"
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "Match conditions"
-msgstr "Match conditions"
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
@@ -5057,10 +5075,6 @@ msgstr "Randomize"
 msgid "Rapid"
 msgstr "Rapid"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "Rated"
-msgstr "Rated"
-
 #: libs/game-puzzle-client-ts/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"
 msgstr "Rating after each puzzle"
@@ -6083,6 +6097,10 @@ msgstr "Sokoban board preview"
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Solo"
 msgstr "Solo"
+
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "Solo, others watch"
+msgstr "Solo, others watch"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Solution"
@@ -7179,6 +7197,10 @@ msgstr "This screen has not been ported to the web app yet."
 msgid "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 msgstr "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "This search finds"
+msgstr "This search finds"
+
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "This space can't be found"
 msgstr "This space can't be found"
@@ -7460,7 +7482,6 @@ msgstr "Unreachable"
 msgid "Unseen"
 msgstr "Unseen"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Untimed"

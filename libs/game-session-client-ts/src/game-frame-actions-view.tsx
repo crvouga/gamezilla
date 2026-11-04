@@ -30,7 +30,8 @@ export function FrameConfirmView(props: {
       <Trans>Cancel game</Trans>
     </Show>
   );
-  // The row sits under the board, so the button need not repeat "game".
+  // The row sits with the board, so the button need not repeat "game";
+  // it wears the other commands' outline, in the destructive tone.
   const action = (): JSX.Element => (
     <Show
       when={props.operation === 'cancel'}
@@ -49,7 +50,7 @@ export function FrameConfirmView(props: {
         <Button
           title={action()}
           intent="danger"
-          variant="ghost"
+          variant="outline"
           onClick={() => setDialogSession((current) => current + 1)}
           dataSet={{ testid: `custom-game-${props.operation}` }}
         />

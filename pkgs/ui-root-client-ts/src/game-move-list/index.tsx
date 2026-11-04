@@ -32,11 +32,11 @@ export type GameMoveListProps = {
   current: number;
   onSelect: (ply: number) => void;
   /**
-   * `row`: one line that scrolls sideways (inside a `MoveStrip`);
-   * `table`: a turn per line, its moves in columns, scrolling down past
-   * the latest few.
+   * `turn`: only the turn holding the shown move, whole and centred (inside
+   * a `MoveStrip`), so a phone never shows a cut-off move; `table`: a turn
+   * per line, its moves in columns, scrolling down past the latest few.
    */
-  layout: 'row' | 'table';
+  layout: 'turn' | 'table';
   'aria-label': string;
   /** Before the first turn, inside the list: how many earlier moves are not listed. */
   leading?: JSX.Element | undefined;
@@ -48,6 +48,11 @@ type Turn = {
   readonly moves: readonly GameMoveListEntry[];
 };
 
+/** The number of the turn holding a ply; the opening position is turn 1's. */
+function turnOf(ply: number, perTurn: number): number {
+  return Math.ceil(Math.max(1, ply) / Math.max(1, perTurn));
+}
+
 /** Group moves into numbered turns; a turn cut by the window keeps its number. */
 function turnsOf(
   moves: readonly GameMoveListEntry[],
@@ -56,7 +61,7 @@ function turnsOf(
   const size = Math.max(1, perTurn);
   const turns: { number: number; moves: GameMoveListEntry[] }[] = [];
   for (const move of moves) {
-    const number = Math.ceil(move.ply / size);
+    const number = turnOf(move.ply, size);
     const last = turns.at(-1);
     if (last?.number === number) last.moves.push(move);
     else turns.push({ number, moves: [move] });
@@ -99,10 +104,11 @@ function MoveButton(props: {
  * `GameMoveList` -- a game's record as numbered turns: each turn's number,
  * then every move in it behind the swatch of the seat that made it
  * (`1 ● e4 ◆ e5`), the move on the board marked (also `aria-current`). A
- * move is a button that shows its position. `row` runs along one line for
- * a `MoveStrip` under a phone's board; `table` gives every turn its own
- * line with the moves in columns, for the record beside a wide board. The
- * marked move scrolls into view, the latest while the game is live.
+ * move is a button that shows its position. `turn` shows only the turn
+ * holding the shown move, whole and centred, for a `MoveStrip` under a
+ * phone's board (stepping moves it along); `table` gives every turn its
+ * own line with the moves in columns, for the record beside a wide board,
+ * and scrolls the marked move into view, the latest while the game is live.
  *
  * @example
  * ```tsx
@@ -117,23 +123,21 @@ function MoveButton(props: {
  * ```
  */
 export function GameMoveList(props: GameMoveListProps): JSX.Element {
-  const turns = createMemo(() => turnsOf(props.moves, props.perTurn));
+  const turns = createMemo(() => {
+    const all = turnsOf(props.moves, props.perTurn);
+    if (props.layout === 'table') return all;
+    const shown = turnOf(props.current, props.perTurn);
+    return all.filter((turn) => turn.number === shown);
+  });
   let root: HTMLDivElement | undefined;
   // The marked move stays in view. The table scrolls only itself, so the
   // page never jumps to a record beside the board.
   createEffect(() => {
     void props.current;
     void turns();
+    if (props.layout !== 'table') return;
     const marked = root?.querySelector<HTMLElement>('[aria-current="step"]');
     if (root === undefined || marked === null || marked === undefined) return;
-    if (props.layout === 'row') {
-      marked.scrollIntoView({
-        behavior: 'instant',
-        block: 'nearest',
-        inline: 'nearest',
-      });
-      return;
-    }
     const box = root.getBoundingClientRect();
     const move = marked.getBoundingClientRect();
     if (move.bottom > box.bottom) root.scrollTop += move.bottom - box.bottom;

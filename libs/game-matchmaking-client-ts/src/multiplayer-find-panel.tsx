@@ -2,50 +2,41 @@ import {
   DEFAULT_TIME_CONTROL,
   TIME_CONTROLS,
   timeControlKey,
-  timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
-import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
 
 /**
- * What the search will find, right above it: a rated game, and its clock
- * (the chosen time control and its speed) or none.
+ * What the search will find, right above it, as a labelled line in words:
+ * a rated game, with no clock or at the chosen time control. The time
+ * control is changed by its choices above; a search is always rated.
  */
 function MatchConditions(props: {
   readonly timed: boolean;
   readonly timeControl: string;
 }): JSX.Element {
-  const speed = () => timeControlOf(props.timeControl)?.speed;
   return (
-    <StackHorizontal
-      align="center"
-      gap="sm"
-      wrap
-      aria-label={t`Match conditions`}
-      dataSet={{ testid: 'multiplayer-find-conditions' }}
-    >
-      <Badge intent="neutral" label={<Trans>Rated</Trans>} />
-      <Show
-        when={props.timed}
-        fallback={<Badge intent="neutral" label={<Trans>Untimed</Trans>} />}
-      >
-        <Badge intent="neutral" label={timeControlText(props.timeControl)} />
-        <Show when={speed()}>
-          {(name) => (
-            <Badge intent="neutral" label={<SpeedName speed={name()} />} />
-          )}
+    <StackVertical gap="xs" dataSet={{ testid: 'multiplayer-find-conditions' }}>
+      <P variant="caption" tone="secondary">
+        <Trans>This search finds</Trans>
+      </P>
+      <P variant="bodyBold">
+        <Show
+          when={props.timed}
+          fallback={<Trans>A rated game with no clock</Trans>}
+        >
+          <Trans>A rated game at {timeControlText(props.timeControl)}</Trans>
         </Show>
-      </Show>
-    </StackHorizontal>
+      </P>
+    </StackVertical>
   );
 }
 

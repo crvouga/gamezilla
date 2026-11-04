@@ -10,6 +10,8 @@
   --game-board-measure: 560px;
   /* The rail beside the board on wide screens. */
   --game-rail-measure: 360px;
+  /* The game's own chrome a wide board leaves room for in the window. */
+  --game-board-chrome-block: 284px;
 }
 .column {
   container: game-column / inline-size;
@@ -39,6 +41,7 @@
 }
 .setup,
 .stage,
+.controls,
 .rail {
   display: flex;
   flex-direction: column;
@@ -80,6 +83,10 @@
   width: 100%;
   border-radius: var(--ui-radius-sm);
   overflow: hidden;
+}
+/* Before play on a phone: a thumbnail that names the board, centred. */
+.boardStage[data-preview="true"] {
+  max-width: var(--game-board-preview-measure, 176px);
 }
 .section {
   display: flex;
@@ -359,34 +366,50 @@
     background: var(--ui-color-surface-muted);
   }
 }
-/* Wide: the board column and one rail beside it (setup above the record),
-   as one group as wide as the game column, which centers it. Measured on
-   the game column, so it holds wherever the host's chrome leaves room. */
+/* Wide: the board column and one rail beside it (setup, then the
+   controls, then the record, top to bottom), as one group as wide as the
+   game column, which centers it. The rail has a row per slot it holds and
+   the stage spans them all, with one last row taking what the board leaves.
+   Measured on the game column, so it holds wherever the host's chrome
+   leaves room. */
 @container game-column (min-width: 880px) {
+  /* Beside a rail the board also fits the window's height: the window less
+     the game's own chrome around the board (its title, facts and the seats
+     above and below it) and whatever the host draws above the screen
+     (`--ui-host-chrome-block-size`), so the board and both seats show
+     without scrolling. Never smaller than a usable board. */
+  .layout[data-has-stage="true"][data-has-aside="true"],
+  .layout[data-has-stage="true"][data-has-setup="true"] {
+    --game-board-measure: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--game-board-chrome-block) -
+        var(--ui-host-chrome-block-size, 0px)
+      ),
+      560px
+    );
+  }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
     grid-template-columns:
       minmax(0, var(--game-board-measure))
       minmax(280px, var(--game-rail-measure));
-    grid-template-rows: auto 1fr;
+    grid-template-rows: repeat(var(--game-rail-rows, 1), auto) 1fr;
     justify-content: start;
     column-gap: var(--ui-space-6);
   }
-  .layout[data-has-stage="true"] > .stage {
+  .layout[data-has-stage="true"][data-has-aside="true"] > .stage,
+  .layout[data-has-stage="true"][data-has-setup="true"] > .stage {
     grid-column: 1;
-    grid-row: 1 / 3;
+    grid-row: 1 / -1;
   }
-  .layout[data-has-stage="true"] > .setup {
+  /* In document order, each in the next free row of the rail. */
+  .layout[data-has-stage="true"][data-has-aside="true"]
+  > :is(.setup, .controls, .rail),
+  .layout[data-has-stage="true"][data-has-setup="true"]
+    > :is(.setup, .controls, .rail) {
     grid-column: 2;
-    grid-row: 1;
-  }
-  .layout[data-has-stage="true"] > .rail {
-    grid-column: 2;
-    grid-row: 2;
-  }
-  .layout[data-has-stage="true"][data-has-setup="false"] > .rail,
-  .layout[data-has-stage="true"][data-has-aside="false"] > .setup {
-    grid-row: 1 / 3;
   }
 }
 @media (prefers-reduced-motion: reduce) {

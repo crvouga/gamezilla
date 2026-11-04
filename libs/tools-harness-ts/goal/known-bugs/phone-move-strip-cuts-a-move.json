@@ -1,0 +1,4 @@
+{
+  "summary": "Under a phone's board the game record scrolled sideways as one line of moves, so a move was cut off at the strip's edge (half a glyph beside the back chevron) and numbers, swatches and arrows crowded together. The strip now shows only the whole turn holding the shown move, centred between the step buttons; the full list stays in the record.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

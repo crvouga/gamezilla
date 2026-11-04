@@ -12,7 +12,7 @@ function rowBody(title: string): HTMLElement {
 }
 
 describe('MainMenuItemRow emphasis', () => {
-  test('the primary row wears the soft accent fill; a quiet one steps its title down', () => {
+  test('the primary row wears the soft accent fill; a quiet one keeps its title ink and says less', () => {
     renderUi(() => (
       <>
         <MainMenuItemRow
@@ -27,6 +27,7 @@ describe('MainMenuItemRow emphasis', () => {
           item={{
             key: 'history',
             title: 'History',
+            caption: 'Review your games',
             emphasis: 'quiet',
             onClick: () => undefined,
           }}
@@ -39,8 +40,14 @@ describe('MainMenuItemRow emphasis', () => {
     expect(rowBody('Play with friends').className).toContain('bg-tint-subtle');
     expect(rowBody('Play with friends').dataset['emphasis']).toBe('primary');
     expect(rowBody('History').className).not.toContain('bg-tint-subtle');
-    expect(screen.getByText('History').className).toContain(
+    // regression: quiet-menu-row-reads-disabled
+    // A quiet row is not a disabled one: its title keeps the ordinary ink.
+    expect(screen.getByText('History').className).not.toContain(
       'text-text-secondary'
+    );
+    expect(rowBody('History').className).not.toContain('opacity-disabled');
+    expect(screen.getByText('Review your games').className).toContain(
+      'line-clamp-1'
     );
     expect(screen.getByText('Find').closest('[data-emphasis]')).toBeNull();
   });

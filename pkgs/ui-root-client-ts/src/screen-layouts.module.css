@@ -88,6 +88,9 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  /* The coaching, the board, its move list and the actions each keep a
+     breath apart, so the coach's card never touches the board. */
+  gap: var(--ui-space-3);
   align-self: stretch;
   width: 100%;
   max-width: calc(

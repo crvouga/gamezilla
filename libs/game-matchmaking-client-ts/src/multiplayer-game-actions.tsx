@@ -125,7 +125,10 @@ function RematchActions(props: {
   );
 }
 
-/** Before play begins a game is aborted; afterwards it is resigned. */
+/**
+ * Before play begins a game is aborted; afterwards it is resigned. Either
+ * wears the other commands' outline, in the destructive tone.
+ */
 function LeaveGameAction(props: {
   readonly started: boolean;
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
@@ -141,7 +144,7 @@ function LeaveGameAction(props: {
             </Trans>
           }
           intent="danger"
-          variant="ghost"
+          variant="outline"
           onClick={() => props.onConfirm('abort')}
           dataSet={{ testid: 'multiplayer-abort' }}
         />
@@ -154,7 +157,7 @@ function LeaveGameAction(props: {
           </Trans>
         }
         intent="danger"
-        variant="ghost"
+        variant="outline"
         onClick={() => props.onConfirm('resign')}
         dataSet={{ testid: 'multiplayer-resign' }}
       />

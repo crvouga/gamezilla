@@ -40,25 +40,45 @@ export function GameScreen(props: {
 
 /**
  * The board column and its supporting rail. On phones everything stacks in
- * reading order: setup, the stage, then the rail. On wide screens the stage
- * is one board-wide column (the board, the turn and the play actions right
- * under it) with setup and the rail beside it in one narrow column, so
- * neither pushes the board down. An empty slot takes no room, and toggling
- * the rail or setup never remounts the play surface.
+ * reading order: setup, the stage, the controls, then the rail. On wide
+ * screens the stage is one board-wide column with setup, the controls and
+ * the rail beside it, top to bottom, in one narrow column, so none of them
+ * pushes the board down and the play commands stay in view beside it. An
+ * empty slot takes no room, and toggling the rail, setup or controls never
+ * remounts the play surface.
  */
 export function GameLayout(props: {
   children: JSX.Element;
   /** Setup, invitation or waiting controls; beside the stage when wide. */
   setup?: JSX.Element | undefined;
+  /**
+   * What is said and done about the game in play (its status, its
+   * commands): right under the stage on phones; under setup, heading the
+   * rail, when wide.
+   */
+  controls?: JSX.Element | undefined;
   aside?: JSX.Element | undefined;
 }): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
+  const controls = createScreenSlot(() => props.controls);
   const aside = createScreenSlot(() => props.aside);
+  // The rail's rows, one per slot beside the stage, so the stage spans them.
+  const railRows = (): number =>
+    [setup.present(), controls.present(), aside.present()].filter(Boolean)
+      .length;
   return (
-    <Show when={stage.present() || setup.present() || aside.present()}>
+    <Show
+      when={
+        stage.present() ||
+        setup.present() ||
+        controls.present() ||
+        aside.present()
+      }
+    >
       <div
         class={styles['layout']}
+        style={{ '--game-rail-rows': String(Math.max(1, railRows())) }}
         data-has-stage={stage.present()}
         data-has-setup={setup.present()}
         data-has-aside={aside.present()}
@@ -68,6 +88,14 @@ export function GameLayout(props: {
           <div class={styles['setup']}>{setup.content()}</div>
         </Show>
         <div class={styles['stage']}>{stage.content()}</div>
+        <Show when={controls.present()}>
+          <div
+            class={styles['controls']}
+            {...dataAttrs({ component: 'GameControls' })}
+          >
+            {controls.content()}
+          </div>
+        </Show>
         <Show when={aside.present()}>
           <div class={styles['rail']}>{aside.content()}</div>
         </Show>

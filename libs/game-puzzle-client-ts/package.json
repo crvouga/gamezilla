@@ -65,7 +65,8 @@
   "category": "client",
   "gameApi": [
     "puzzle-content-client",
-    "puzzle-client"
+    "puzzle-client",
+    "puzzle-screen-story.example"
   ],
   "language": "typescript"
 }
