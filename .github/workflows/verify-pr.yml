@@ -52,7 +52,7 @@ on:
         type: string
         default: normal
       profile:
-        description: release (blocking safety checks) or nightly (complete catalog, deeper budgets, retained reports)
+        description: release (safety checks and critical journeys) or nightly (complete catalog, deeper budgets, retained reports)
         type: string
         default: release
       advisories:
@@ -97,7 +97,7 @@ env:
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
-  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}
+  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (inputs.profile == 'release' && 'release' || 'pr') }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.

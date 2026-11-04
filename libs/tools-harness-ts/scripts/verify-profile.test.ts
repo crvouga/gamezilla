@@ -29,7 +29,7 @@ import {
 } from './verify-profile';
 
 // regression: deploy-journeys-missing-pr-browser-gate
-test('PR verification runs the production-bundle journeys before release', () => {
+test('the full verification catalog retains production-bundle journeys', () => {
   for (const task of RELEASE_JOURNEY_TASKS)
     expect(MAIN_VERIFY_TASKS).toContain(task);
 });
