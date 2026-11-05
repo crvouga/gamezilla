@@ -252,7 +252,11 @@ type LibraryTab = 'browse' | 'continue' | 'mine';
 /** Everyone's puzzles: the shipped starter packs, then everything published. */
 function BrowsePanel(props: { view: View }): JSX.Element {
   return (
-    <StackVertical gap="lg" dataSet={{ testid: 'content-library-browse' }}>
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-browse' }}
+    >
       <BundledPacks view={props.view} />
       <PublishedContent view={props.view} />
     </StackVertical>
@@ -279,7 +283,11 @@ function ContinuePanel(props: { view: View }): JSX.Element {
     />
   );
   return (
-    <StackVertical gap="lg" dataSet={{ testid: 'content-library-continue' }}>
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-continue' }}
+    >
       <Show
         when={
           props.view.attempts.length > 0 ||
@@ -307,7 +315,11 @@ function ContinuePanel(props: { view: View }): JSX.Element {
 function MinePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   return (
-    <StackVertical gap="lg" dataSet={{ testid: 'content-library-mine' }}>
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-mine' }}
+    >
       <Show
         when={props.view.personalDenial}
         fallback={
@@ -395,7 +407,7 @@ export function ContentLibraryScreenView(
     <Show when={props.status === 'ready'} fallback={<LoadingState />}>
       <EmbeddedScreen
         screenId="puzzle-content-library"
-        width="menu"
+        width="full"
         title={props.title}
         subtitle={
           <Trans>

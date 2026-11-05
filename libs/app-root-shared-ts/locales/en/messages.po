@@ -602,25 +602,9 @@ msgstr "{winner} wins by {reason}."
 msgid "{winners} win by {reason}."
 msgstr "{winners} win by {reason}."
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "← Left"
-msgstr "← Left"
-
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "→ Right"
-msgstr "→ Right"
-
 #: pkgs/ui-root-client-ts/src/command-palette-hint/index.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
-
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "↑ Up"
-msgstr "↑ Up"
-
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "↓ Down"
-msgstr "↓ Down"
 
 #. placeholder {0}: more()
 #: libs/spaces-client-ts/src/space-card-view.tsx
@@ -1378,6 +1362,10 @@ msgstr "Bright surfaces, dark text"
 msgid "Broken"
 msgstr "Broken"
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Browse"
+msgstr "Browse"
+
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Build"
 msgstr "Build"
@@ -1512,10 +1500,6 @@ msgstr "Check again"
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Check finished"
 msgstr "Check finished"
-
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Check it, then share it with everyone who plays."
-msgstr "Check it, then share it with everyone who plays."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Check saved file again"
@@ -1923,12 +1907,16 @@ msgstr "Connectivity"
 msgid "Continuation chosen"
 msgstr "Continuation chosen"
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Continue"
+msgstr "Continue"
+
 #. placeholder {0}: next().title
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Continue {0}"
 msgstr "Continue {0}"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Continue playing"
 msgstr "Continue playing"
 
@@ -2008,6 +1996,10 @@ msgstr "Copying…"
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Coral"
 msgstr "Coral"
+
+#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
+msgid "Correct · {side} to move"
+msgstr "Correct · {side} to move"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Could not start local database"
@@ -2136,6 +2128,10 @@ msgstr "Crate"
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Create a private draft above, or come back for new puzzles and packs."
 msgstr "Create a private draft above, or come back for new puzzles and packs."
+
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Create a puzzle or a pack above. Drafts stay private until you publish them."
+msgstr "Create a puzzle or a pack above. Drafts stay private until you publish them."
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Create game"
@@ -2501,7 +2497,7 @@ msgstr "Duplicates skipped"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Each attempt keeps your progress at the edition you started."
 msgstr "Each attempt keeps your progress at the edition you started."
 
@@ -2836,6 +2832,10 @@ msgstr "Finding players"
 msgid "Finish a game before asking for a rematch."
 msgstr "Finish a game before asking for a rematch."
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Finish a playtest, then validate."
+msgstr "Finish a playtest, then validate."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Finish or cancel this game before creating another."
 msgstr "Finish or cancel this game before creating another."
@@ -2849,6 +2849,7 @@ msgid "Finish your Custom Game first"
 msgstr "Finish your Custom Game first"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Finished"
 msgstr "Finished"
 
@@ -3950,6 +3951,10 @@ msgstr "Move {ply}: {label}"
 msgid "Move {turn}"
 msgstr "Move {turn}"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Move down"
+msgstr "Move down"
+
 #: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
 msgid "Move endpoints inside the smaller board before resizing it."
 msgstr "Move endpoints inside the smaller board before resizing it."
@@ -3957,6 +3962,10 @@ msgstr "Move endpoints inside the smaller board before resizing it."
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Move first endpoint"
 msgstr "Move first endpoint"
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Move left"
+msgstr "Move left"
 
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Move number to review"
@@ -3970,6 +3979,10 @@ msgstr "Move on to the next puzzle by itself after a solve."
 msgid "Move pawn"
 msgstr "Move pawn"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Move right"
+msgstr "Move right"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Move second endpoint"
 msgstr "Move second endpoint"
@@ -3977,6 +3990,10 @@ msgstr "Move second endpoint"
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 msgstr "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Move up"
+msgstr "Move up"
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move with the arrow keys or W A S D, or click a square beside the worker."
@@ -4057,6 +4074,10 @@ msgstr "Mute coach"
 msgid "Muted"
 msgstr "Muted"
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "My creations"
+msgstr "My creations"
+
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Name"
@@ -4071,6 +4092,10 @@ msgstr "Name, activity, region or worker"
 #: pkgs/ui-root-client-ts/src/app-header-island/index.tsx
 msgid "Navigation"
 msgstr "Navigation"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Needs changes"
+msgstr "Needs changes"
 
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 msgid "Needs corrections"
@@ -4347,6 +4372,10 @@ msgstr "Not available in this app"
 msgid "Not available on this account"
 msgstr "Not available on this account"
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Not checked yet"
+msgstr "Not checked yet"
+
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Not confirmed yet"
 msgstr "Not confirmed yet"
@@ -4396,6 +4425,10 @@ msgstr "Not yet"
 msgid "Nothing archived"
 msgstr "Nothing archived"
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Nothing built yet"
+msgstr "Nothing built yet"
+
 #: libs/notifications-client-ts/src/notifications-empty-state.tsx
 msgid "Nothing needs your attention"
 msgstr "Nothing needs your attention"
@@ -4403,6 +4436,10 @@ msgstr "Nothing needs your attention"
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
 msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
+
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Nothing to continue yet"
+msgstr "Nothing to continue yet"
 
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Nothing to correct. Playtest the board to prove it."
@@ -4926,10 +4963,6 @@ msgstr "Playing with others and syncing"
 msgid "Playtest"
 msgstr "Playtest"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Playtest it, check it, then share it with everyone who plays."
-msgstr "Playtest it, check it, then share it with everyone who plays."
-
 #: libs/game-puzzle-client-ts/src/content-draft-playtest.tsx
 msgid "Playtest ready"
 msgstr "Playtest ready"
@@ -4944,7 +4977,7 @@ msgstr "Playtest solved"
 msgid "Playtest: this uses the real puzzle rules. It does not count toward personal or pack completion."
 msgstr "Playtest: this uses the real puzzle rules. It does not count toward personal or pack completion."
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Playtests change no personal or pack progress."
 msgstr "Playtests change no personal or pack progress."
 
@@ -5106,6 +5139,10 @@ msgstr "Publish"
 msgid "Publish it before the pack"
 msgstr "Publish it before the pack"
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Publish to share it with everyone who plays."
+msgstr "Publish to share it with everyone who plays."
+
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Published"
@@ -5255,6 +5292,7 @@ msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-settings.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-play-screen-view.tsx
 msgid "Puzzles"
 msgstr "Puzzles"
@@ -5286,6 +5324,10 @@ msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Puzzles processed"
 msgstr "Puzzles processed"
+
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+msgid "Puzzles you start from Browse wait here, at the move you left them."
+msgstr "Puzzles you start from Browse wait here, at the move you left them."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
@@ -5895,7 +5937,7 @@ msgstr "Saved position {0}"
 msgid "Saved positions"
 msgstr "Saved positions"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Saved puzzle"
 msgstr "Saved puzzle"
 
@@ -6106,6 +6148,7 @@ msgstr "Sessions"
 #: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
@@ -6679,8 +6722,8 @@ msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Swipe the board, tap a square beside the worker, or use the buttons."
-msgstr "Swipe the board, tap a square beside the worker, or use the buttons."
+msgid "Swipe the board, tap a square beside the worker, or use the pad."
+msgstr "Swipe the board, tap a square beside the worker, or use the pad."
 
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
@@ -7561,6 +7604,10 @@ msgstr "Time control: {0}."
 msgid "Title"
 msgstr "Title"
 
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Title, description and difficulty"
+msgstr "Title, description and difficulty"
+
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
@@ -7894,6 +7941,10 @@ msgstr "Username was changed recently"
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Validate"
 msgstr "Validate"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Validate, then publish."
+msgstr "Validate, then publish."
 
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Version"
@@ -8590,7 +8641,7 @@ msgstr "Your payment isn't confirmed yet, but it may have gone through. Check ag
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Your private playtests"
 msgstr "Your private playtests"
 
