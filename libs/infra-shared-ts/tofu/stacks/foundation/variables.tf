@@ -53,6 +53,11 @@ variable "auth_relay" {
   description = "Read by the fleet stack and TypeScript (apps/auth-relay-ts)."
 }
 
+variable "storybook" {
+  type        = any
+  description = "Read by the fleet stack and TypeScript (apps/storybook-ts)."
+}
+
 variable "aws_access_key_id" {
   type        = string
   default     = ""

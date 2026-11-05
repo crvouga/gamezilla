@@ -1,0 +1,17 @@
+# The static Storybook site (storybook.<zone>): an assets-only Worker over the
+# canonical Storybook build (@pkgs/ui-root-harness-ts#storybook:build). Global,
+# not per environment: libs/infra renders its name from
+# tofu/global.tfvars.json, and the OpenTofu fleet stack binds its hostname.
+# `{namespace}` resolves from the product identity when libs/infra renders
+# this file.
+name = "{namespace}-storybook"
+compatibility_date = "2026-09-21"
+workers_dev = false
+preview_urls = false
+
+# No Worker script: every request is a static asset, served from the CDN
+# without compute. Storybook has no client-side routes, so an unknown path
+# is a 404 rather than the manager page.
+[assets]
+directory = "../../pkgs/ui-root-harness-ts/.cache/storybook"
+not_found_handling = "none"

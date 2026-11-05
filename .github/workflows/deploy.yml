@@ -144,8 +144,9 @@ jobs:
         run: bunx turbo run @libs/infra-server-ts#apply:repository-policy
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
-  # shared secrets, the auth relay that forwards to every env, and each env's
-  # secrets environment. It runs before any environment deploys.
+  # shared secrets, the auth relay that forwards to every env, the Storybook
+  # site, and each env's secrets environment. It runs before any environment
+  # deploys.
   deploy-fleet:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
@@ -155,7 +156,8 @@ jobs:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: 20
+    # Room for a cold Storybook build if the remote cache misses.
+    timeout-minutes: 35
     env:
       SECRETS_ENV: shared
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -176,6 +178,10 @@ jobs:
       # The fleet stack binds the relay's hostname, so its Worker must exist.
       - name: Release the auth relay
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay-ts deploy
+      # Same for the Storybook site's hostname. Turbo builds Storybook first
+      # (restored from the remote cache the verify job just filled).
+      - name: Release the Storybook site
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bunx turbo run @apps/storybook-ts#deploy
       - name: Apply the fleet stack
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts apply:fleet
       # Every env now imports shared: drop the copies that shadow it.

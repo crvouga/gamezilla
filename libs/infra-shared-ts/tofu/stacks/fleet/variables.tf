@@ -59,6 +59,15 @@ variable "auth_relay" {
   })
 }
 
+variable "storybook" {
+  type = object({
+    account_id = string
+    zone_name  = string
+    hostname   = string
+    worker     = string
+  })
+}
+
 variable "global_imports" {
   type = object({
     infisical_environments = optional(map(string), {})

@@ -65,6 +65,12 @@ describe('resolved OpenTofu var files', () => {
         hostname: brandHost('auth'),
         worker: technicalName(['auth', 'relay']),
       },
+      storybook: {
+        account_id: ACCOUNT,
+        zone_name: brandHost(),
+        hostname: brandHost('storybook'),
+        worker: technicalName(['storybook']),
+      },
       global_imports: { github_repository: REPO },
       shared_data: { account_id: ACCOUNT, bucket: technicalName(['shared']) },
       ci_artifacts: {
@@ -211,6 +217,8 @@ describe('a rebrand', () => {
         'global.tfvars.json:github.settings.homepage_url',
         'global.tfvars.json:auth_relay.zone_name',
         'global.tfvars.json:auth_relay.hostname',
+        'global.tfvars.json:storybook.zone_name',
+        'global.tfvars.json:storybook.hostname',
         ...Object.keys(ENV_FILES).flatMap((env) => [
           ...hostsOf(`envs/${env}.tfvars.json:`),
           ...hostsOf(`envs.tfvars.json:envs.${env}.`),
