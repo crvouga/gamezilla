@@ -60,3 +60,52 @@ describe('balanced grids', () => {
     expect(screen.getByRole('list').className).toMatch(/\bgrid-cols-2\b/);
   });
 });
+
+describe('tiles', () => {
+  // regression: space-game-cards-underfilled — wide, the space's games were
+  // two-column cards with one-line descriptions, each mostly empty room.
+  test('four games are four tiles in one row, each read top to bottom with two lines of what it is', () => {
+    renderUi(
+      () => (
+        <MainMenuScreen
+          screenId="games"
+          items={[
+            ...ITEMS,
+            { key: 'd', title: 'Path puzzle', onClick: () => undefined },
+          ].map((item) => ({
+            ...item,
+            caption: 'Two players, one board, turn by turn.',
+            meta: '2 players',
+            leading: <span data-testid={`tile-${item.key}`}>tile</span>,
+          }))}
+          wideLayout="tiles"
+        />
+      ),
+      WIDE
+    );
+    const list = screen.getByRole('list');
+    expect(list.getAttribute('data-layout')).toBe('tiles');
+    expect(list.className).toMatch(/\bgrid-cols-4\b/);
+    const caption = screen.getAllByText(
+      'Two players, one board, turn by turn.'
+    )[0];
+    expect(caption?.className).toMatch(/\bline-clamp-2\b/);
+    // The picture heads the tile, above the name.
+    const picture = screen.getByTestId('tile-a');
+    const title = screen.getByText('Board duel');
+    expect(
+      picture.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(picture.parentElement?.contains(title)).toBe(false);
+  });
+
+  test('compact, a tile menu stays one panel of rows', () => {
+    renderUi(
+      () => (
+        <MainMenuScreen screenId="games" items={ITEMS} wideLayout="tiles" />
+      ),
+      COMPACT
+    );
+    expect(screen.getByRole('list').getAttribute('data-layout')).toBeNull();
+  });
+});

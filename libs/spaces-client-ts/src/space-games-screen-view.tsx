@@ -5,6 +5,7 @@ import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
@@ -92,6 +93,7 @@ function someoneWatches(props: SpaceGamesScreenViewProps): boolean {
 }
 
 function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
+  const mode = useLayoutMode();
   const items = createMemo((): MainMenuItem[] =>
     props.games.map((game) => ({
       key: game.id,
@@ -102,7 +104,8 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
             meta: <PlayersTag count={game.players} />,
           }
         : {}),
-      leading: <game.Tile />,
+      // A wide tile leads with the game's larger picture.
+      leading: <game.Tile size={mode() === 'wide' ? 'lg' : 'md'} />,
       dataSet: { testid: `game-menu-${game.id}` },
       selected: props.shownGame === game.id,
       ...(props.canSelectGame
@@ -113,7 +116,7 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
   return (
     <MainMenuScreen
       screenId="games-main-menu"
-      wideLayout="grid"
+      wideLayout="tiles"
       title={<Trans>Games</Trans>}
       subtitle={
         <Show

@@ -4,33 +4,42 @@ import {
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
 
 /**
- * What the search will find, right above its command, in one short line:
- * `Rated · No clock`, or `Rated · 5+0` at the chosen time control. The
- * time control is changed by its choices above; a search is always rated.
+ * What the search will find, right above its command, as the game's
+ * settings chips (`Rated` `No clock`, or `Rated` `5+0` at the chosen time
+ * control), the same chips a game's title carries (`Unrated` `Untimed`).
+ * The time control is changed by its choices above; a search is always
+ * rated.
  */
 function MatchConditions(props: {
   readonly timed: boolean;
   readonly timeControl: string;
 }): JSX.Element {
   return (
-    <P
-      variant="bodyBold"
-      tone="secondary"
-      dataSet={{ testid: 'multiplayer-find-conditions' }}
+    <StackHorizontal
+      align="center"
+      gap="sm"
+      testId="multiplayer-find-conditions"
     >
-      <Show when={props.timed} fallback={<Trans>Rated · No clock</Trans>}>
-        <Trans>Rated · {timeControlText(props.timeControl)}</Trans>
-      </Show>
-    </P>
+      <Badge intent="neutral" label={<Trans>Rated</Trans>} />
+      <Badge
+        intent="neutral"
+        label={
+          <Show when={props.timed} fallback={<Trans>No clock</Trans>}>
+            {timeControlText(props.timeControl)}
+          </Show>
+        }
+      />
+    </StackHorizontal>
   );
 }
 

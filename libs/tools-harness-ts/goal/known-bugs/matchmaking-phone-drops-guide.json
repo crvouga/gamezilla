@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, matchmaking left out \"How matchmaking works\" (every match is rated, stop whenever you like, only people you can play), which the wide card explains. The phone now keeps the same points behind one closed disclosure under the search.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone game menu the \"Recommended\" tag took a line of its own between \"Play with friends or bots\" and its caption. It now opens the caption's line, so the row is a title and one caption.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

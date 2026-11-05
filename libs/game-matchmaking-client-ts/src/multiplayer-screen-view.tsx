@@ -143,11 +143,7 @@ function NextGame(props: Props): JSX.Element {
                 <MultiplayerRatings ratings={props.ratings} framed={false} />
               </Show>
             }
-            details={
-              <Show when={mode() === 'wide'}>
-                <MultiplayerGuide />
-              </Show>
-            }
+            details={<MultiplayerGuide compact={mode() !== 'wide'} />}
           />
         )}
       </Match>

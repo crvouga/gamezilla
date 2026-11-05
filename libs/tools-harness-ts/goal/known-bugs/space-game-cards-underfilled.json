@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide space screen the games were two-column cards holding a small picture and a one-line description, each card mostly empty room. They are now tiles four across, read top to bottom: the game's larger picture, its name and player count, and two lines of what it is.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/main-menu-grid.test.tsx"
+}

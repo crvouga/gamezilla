@@ -62,6 +62,8 @@ export type ButtonProps = {
   'aria-pressed'?: boolean | undefined;
   /** The one of a set that is chosen now (the move being looked at). */
   'aria-current'?: boolean | undefined;
+  /** A disclosure: whether what it shows is open. */
+  'aria-expanded'?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -152,6 +154,7 @@ export function Button(props: ButtonProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-pressed={props['aria-pressed']}
       aria-current={props['aria-current']}
+      aria-expanded={props['aria-expanded']}
       style={flexStyle()}
     >
       <span class="box shrink min-w-0 flex-row items-center justify-center overflow-hidden">

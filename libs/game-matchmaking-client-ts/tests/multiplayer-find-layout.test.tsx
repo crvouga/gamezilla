@@ -57,23 +57,43 @@ test('wide: the search, the ratings and a short guide are one card, with no rail
 // regression: matchmaking-intro-wordy — the card said "Find someone to
 // play with." and "This search finds / A rated game with no clock" before
 // its one command.
-test('the conditions are one short line above the command', () => {
+// regression: match-conditions-unlike-game-chips — the conditions were
+// plain "Rated · No clock" text while a game's title showed "Unrated"
+// "Untimed" as chips, and wide they floated about 60px above the command.
+test("the conditions are the game's settings chips, right above the command", () => {
   for (const width of [390, 1440]) {
     mount(width);
-    expect(screen.getByTestId('multiplayer-find-conditions').textContent).toBe(
-      'Rated · No clock'
-    );
+    const conditions = screen.getByTestId('multiplayer-find-conditions');
+    const chips = [
+      ...conditions.querySelectorAll('[data-component="Badge"]'),
+    ].map((chip) => chip.textContent);
+    expect(chips).toEqual(['Rated', 'No clock']);
+    // The chips and the command are one group: the command comes next.
+    const actions = conditions.nextElementSibling;
+    expect(
+      actions?.contains(screen.getByTestId('multiplayer-find')) === true
+    ).toBe(true);
     expect(screen.queryByText('Find someone to play with.')).toBeNull();
     expect(screen.queryByText('This search finds')).toBeNull();
     cleanup();
   }
 });
 
-test('a phone keeps the ratings in the card and leaves the guide out', () => {
+// regression: matchmaking-phone-drops-guide — a phone left out "How
+// matchmaking works", which the wide card explains.
+test('a phone keeps the ratings in the card and the guide behind one closed disclosure', () => {
   const container = mount(390);
   const card = container.querySelector('[data-component="GameSetupPanel"]');
   expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
     true
   );
-  expect(screen.queryByTestId('multiplayer-guide')).toBeNull();
+  const guide = screen.getByTestId('multiplayer-guide');
+  expect(card?.contains(guide)).toBe(true);
+  const toggle = screen.getByTestId('multiplayer-guide-toggle');
+  expect(toggle.textContent).toContain('How matchmaking works');
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByText('Every match is rated')).toBeNull();
+  toggle.click();
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByText('Every match is rated')).toBeTruthy();
 });

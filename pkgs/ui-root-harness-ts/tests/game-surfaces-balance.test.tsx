@@ -4,11 +4,8 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
-import {
-  GameActions,
-  GameRailFoot,
-  GameSection,
-} from '@pkgs/ui-root-client-ts/game-section';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
@@ -67,29 +64,40 @@ describe('game surfaces', () => {
   // regression: game-record-panel-stretched-empty — wide, the record panel
   // ran the board's height: three moves at its top, about 300px of nothing,
   // then the steps and the game's commands at its foot.
-  test("the game's commands beside a wide board are a card of their own at the rail's foot", () => {
+  // regression: game-rail-commands-detached — then the commands became a
+  // card pinned to the board's foot, about 200px under the record.
+  test("the game's commands close the record's own card, and the rail is as tall as what it holds", () => {
     renderUi(() => (
-      <GameRailFoot dataSet={{ testid: 'foot' }}>
-        <GameActions>
-          <button type="button">Offer draw</button>
-        </GameActions>
-      </GameRailFoot>
+      <GameSection
+        title="Game record"
+        footer={
+          <GameActions>
+            <button type="button">Offer draw</button>
+          </GameActions>
+        }
+      >
+        <p>1 e4 e5</p>
+      </GameSection>
     ));
-    const foot = screen.getByTestId('foot');
-    expect(foot.getAttribute('data-component')).toBe('GameRailFoot');
-    expect(foot.contains(screen.getByRole('button'))).toBe(true);
-    expect(rule('game-ui.module.css', '.railFoot')).toMatch(
-      /margin-top:\s*auto;/
+    const section = screen.getByRole('region', { name: 'Game record' });
+    expect(section.contains(screen.getByRole('button'))).toBe(true);
+    const rail = rule(
+      'game-ui.module.css',
+      '  .layout[data-has-stage="true"][data-has-aside="true"] > .rail'
     );
+    expect(rail).toMatch(/align-self:\s*start;/);
+    expect(
+      readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8')
+    ).not.toContain('.railFoot');
   });
 
-  test('a rail foot with nothing to hold draws nothing', () => {
-    renderUi(() => (
-      <GameRailFoot dataSet={{ testid: 'foot' }}>
-        <GameActions>{undefined}</GameActions>
-      </GameRailFoot>
-    ));
-    expect(screen.queryByTestId('foot')).toBeNull();
+  // regression: rating-track-invisible-dark — on a dark card the rating's
+  // progress track was the sunken well, almost the card's own color.
+  test('a progress track is the line tone, never the sunken well', () => {
+    renderUi(() => <ProgressBar size="sm" progress={7 / 12} />);
+    const track = screen.getByRole('progressbar');
+    expect(track.className).toMatch(/\bbg-border\b/);
+    expect(track.className).not.toMatch(/\bbg-surface-muted\b/);
   });
 
   // regression: setup-change-player-truncated-on-phone — a phone seat row

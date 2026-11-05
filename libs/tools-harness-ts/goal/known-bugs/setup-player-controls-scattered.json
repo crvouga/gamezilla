@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide custom game setup, each player's \"Change player\" sat about 450px away at the row's far edge while \"I'm not ready\" sat on a line of its own under the name, in a 960px card left half empty. Each player is now a compact card holding identity, readiness and every control together, two side by side when wide.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+}

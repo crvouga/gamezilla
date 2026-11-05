@@ -1,0 +1,4 @@
+{
+  "summary": "On a dark card the matchmaking rating's progress track used the sunken well color (#0b0d10 on a #191d25 card), so only the fill showed and the track was almost invisible. Every progress track now uses the line tone, a visible step off the card in both themes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

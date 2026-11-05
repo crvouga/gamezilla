@@ -76,29 +76,6 @@ export function GameSection(props: {
 }
 
 /**
- * The game's commands beside a wide board (offer a draw, resign), in a
- * card of their own pinned to the foot of the rail, so they end on the
- * board's line and never read as part of the record above them. Phones
- * keep their commands under the board and never use it.
- */
-export function GameRailFoot(props: {
-  children: JSX.Element;
-  dataSet?: ComponentDataSet;
-}): JSX.Element {
-  const content = createScreenSlot(() => props.children);
-  return (
-    <Show when={content.present()}>
-      <div
-        class={`${styles['railFoot']} rounded-card border border-border bg-surface`}
-        {...dataAttrs({ component: 'GameRailFoot', ...props.dataSet })}
-      >
-        {content.content()}
-      </div>
-    </Show>
-  );
-}
-
-/**
  * A row of game commands, wrapping when the line is short. `share`: the
  * commands split the row evenly, each at most a primary command's width
  * (320px), so one prominent command (Start) and its companion (I'm not

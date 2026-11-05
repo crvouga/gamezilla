@@ -1041,6 +1041,10 @@ msgstr "All"
 msgid "All five ships placed. Your fleet is ready."
 msgstr "All five ships placed. Your fleet is ready."
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "All moves"
+msgstr "All moves"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "All players are ready."
 msgstr "All players are ready."
@@ -3081,8 +3085,8 @@ msgid "Go to {0}"
 msgstr "Go to {0}"
 
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
-msgid "Go to a move by number"
-msgstr "Go to a move by number"
+msgid "Go to move"
+msgstr "Go to move"
 
 #: libs/app-root-client-ts/src/crash-screen-view.tsx
 #: libs/app-root-client-ts/src/not-found-screen-view.tsx
@@ -3168,6 +3172,10 @@ msgstr "Hidden email · forwarding is off"
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Hidden email ({0})"
 msgstr "Hidden email ({0})"
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Hide all moves"
+msgstr "Hide all moves"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Hide performance monitor"
@@ -3968,7 +3976,6 @@ msgstr "Move your paddle to return the ball. A ball past the other paddle scores
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-move-history.tsx
-#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Moves"
 msgstr "Moves"
@@ -4155,6 +4162,10 @@ msgstr "No active session"
 #: pkgs/ui-root-client-ts/src/catalog-detail/index.tsx
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "No clock"
+msgstr "No clock"
 
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No completed games yet."
@@ -5274,14 +5285,9 @@ msgstr "Randomize"
 msgid "Rapid"
 msgstr "Rapid"
 
-#. placeholder {0}: timeControlText(props.timeControl)
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "Rated · {0}"
-msgstr "Rated · {0}"
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "Rated · No clock"
-msgstr "Rated · No clock"
+msgid "Rated"
+msgstr "Rated"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "Rated games toward a settled rating"
@@ -5705,7 +5711,9 @@ msgstr "Review your games, wins and draws"
 msgid "Reviewing an earlier game, move {0}"
 msgstr "Reviewing an earlier game, move {0}"
 
+#. placeholder {0}: props.record.displayedPly
 #. placeholder {0}: record().displayedPly
+#. placeholder {1}: props.record.moves.length
 #. placeholder {1}: record().moves.length
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Reviewing move {0} of {1}"
@@ -7849,12 +7857,6 @@ msgstr "View profile"
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "View published edition"
 msgstr "View published edition"
-
-#. placeholder {0}: props.record.displayedPly
-#. placeholder {1}: props.record.moves.length
-#: libs/game-session-client-ts/src/game-frame-record-view.tsx
-msgid "Viewing move {0} of {1}"
-msgstr "Viewing move {0} of {1}"
 
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Violet"

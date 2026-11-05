@@ -17,6 +17,7 @@ import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator'
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleClockLabel } from './puzzle-clock-label';
@@ -25,6 +26,9 @@ import { PuzzleStatusHeader } from './puzzle-status-header';
 
 /** The coach's face: small enough to leave its words a whole line beside a wide board. */
 const AVATAR_SIZE = 48;
+
+/** On a phone the coach's face is smaller still, so the prompt stays compact over the board. */
+const COMPACT_AVATAR_SIZE = 36;
 
 /**
  * What the board well holds: a placed puzzle (`playing`), one activity
@@ -124,6 +128,7 @@ function HeaderTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
   const handles = () => props.coach.handles;
+  const mode = useLayoutMode();
   return (
     <SpeakingAvatar
       message={props.coach.message}
@@ -146,7 +151,7 @@ function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
         />
       }
       numberOfLines={2}
-      avatarSize={AVATAR_SIZE}
+      avatarSize={mode() === 'wide' ? AVATAR_SIZE : COMPACT_AVATAR_SIZE}
     />
   );
 }
@@ -258,13 +263,19 @@ function PlayProgress(props: {
  * row, the board well, the move list with its review controls and the
  * action row (help, retry or next, then Skip puzzle) — beside the board in
  * one panel card when wide — for a placed puzzle, a pending pick, or
- * why none can be placed. The board, the feed
- * and the overlays arrive as slots; `PuzzlePlayScreen` wires the room.
+ * why none can be placed. On a phone only the prompt (the coach and whose
+ * move it is) sits over the board, so the board starts near the top; the
+ * feed's settings line, secondary there, follows the actions. The board,
+ * the feed and the overlays arrive as slots; `PuzzlePlayScreen` wires the
+ * room.
  */
 export function PuzzlePlayScreenView(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
   const playing = (): boolean => props.pick === 'playing';
+  const mode = useLayoutMode();
+  const feedAbove = (): boolean => !props.spectator && mode() === 'wide';
+  const feedBelow = (): boolean => !props.spectator && mode() !== 'wide';
   return (
     <StackVertical grow self="stretch" testId="chess-puzzle-play-screen">
       <Show when={playing()}>{props.probe}</Show>
@@ -279,7 +290,7 @@ export function PuzzlePlayScreenView(
         dataSet={{ testid: 'chess-puzzle-play-layout' }}
         header={
           <>
-            <Show when={!props.spectator}>{props.feed}</Show>
+            <Show when={feedAbove()}>{props.feed}</Show>
             <Show when={props.spectator}>
               <SpectatorAllowance label={props.allowanceLabel} />
             </Show>
@@ -296,7 +307,10 @@ export function PuzzlePlayScreenView(
         timeline={props.timeline}
         actions={
           <Show when={!props.spectator}>
-            <PlayActions {...props} />
+            <StackVertical gap="md">
+              <PlayActions {...props} />
+              <Show when={feedBelow()}>{props.feed}</Show>
+            </StackVertical>
           </Show>
         }
       >
