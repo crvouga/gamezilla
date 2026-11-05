@@ -111,8 +111,14 @@ function wordsColumn(): Element | null {
   );
 }
 
-// regression: notifications-desktop-rows-too-wide
-test('a desktop inbox keeps to the reading measure on the column edge', () => {
+// regression: notifications-desktop-rows-too-wide — the inbox once spread
+// a card's words and its "…" 500px apart; the answers and "…" now sit
+// together at the row's end (see the next test).
+// regression: notifications-column-stops-short — held to a 720px reading
+// measure, the inbox stopped at x=1080 while every other page runs to the
+// content column's end. It takes the column every collection does, from
+// the breadcrumb's edge, header included.
+test('a desktop inbox takes the content column every page has', () => {
   const container = mount(DESKTOP, () => (
     <NotificationsScreenView
       sections={[{ key: 'today', title: 'Today', items: [REQUEST] }]}
@@ -126,10 +132,13 @@ test('a desktop inbox keeps to the reading measure on the column edge', () => {
     />
   ));
   const header = container.querySelector('[data-component="ScreenBaseHeader"]');
-  expect((header as HTMLElement | null)?.style.maxWidth).toBe('720px');
+  expect(header).not.toBeNull();
+  expect((header as HTMLElement).style.maxWidth).toBe('');
   const body = container.querySelector('[data-component="CollectionBody"]');
-  const capped = body?.closest('[style*="max-width"]') as HTMLElement | null;
-  expect(capped?.style.maxWidth).toBe('720px');
+  expect(body).not.toBeNull();
+  expect(body?.closest('[style*="max-width"]')).toBeNull();
+  // Nothing centres it apart from the breadcrumb's edge either.
+  expect(body?.closest('[style*="margin"]')).toBeNull();
 });
 
 // regression: notifications-desktop-actions-stacked

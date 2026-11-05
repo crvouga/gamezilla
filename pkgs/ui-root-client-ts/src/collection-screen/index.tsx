@@ -3,7 +3,6 @@ import { type JSX, Show } from 'solid-js';
 import { ScreenBase } from '../screen-base/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import styles from '../screen-layouts.module.css';
-import type { ScreenMeasure } from '../screen-measure';
 import { createScreenSlot } from '../screen-slot';
 import { useLayoutMode } from '../use-layout-mode';
 
@@ -27,17 +26,13 @@ export type CollectionScreenProps = Pick<
    * nothing here may be the only way to reach something.
    */
   aside?: JSX.Element | undefined;
-  /**
-   * `list` (the default) takes the whole desktop column; `prose` keeps a
-   * feed read top to bottom (the inbox) at the reading measure on the
-   * column's leading edge, so its rows and their controls stay together.
-   */
-  measure?: Extract<ScreenMeasure, 'list' | 'prose'> | undefined;
 };
 
 /**
  * A viewport-sized collection; the list owns scrolling, filters stay
- * visible. On desktop an `aside` sits beside the list.
+ * visible. On desktop every collection takes the whole content column from
+ * the breadcrumb's edge (the `list` measure), so no collection stops short
+ * of the others; an `aside` sits beside the list.
  */
 export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
   const controls = createScreenSlot(() => props.controls);
@@ -51,7 +46,7 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       actions={props.actions}
       primaryAction={props.primaryAction}
       renderActionsMenu={props.renderActionsMenu}
-      measure={props.measure ?? 'list'}
+      measure="list"
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
         <div

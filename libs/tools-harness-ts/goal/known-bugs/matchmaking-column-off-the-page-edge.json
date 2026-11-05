@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking search's column (the game's title and its card) was held to 45rem and centred, so it started at x=480 while the space's bar and every other page start at x=360. The column now takes the content column every page has, from its leading edge, and the card splits it with the search leading.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

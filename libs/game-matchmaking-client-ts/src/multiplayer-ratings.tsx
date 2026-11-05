@@ -105,13 +105,20 @@ function RatingGameCount(props: {
   );
 }
 
-/** One pool's rating: the number, its quiet "?" while provisional, and how far it is from settling. */
+/**
+ * One pool's rating: the number, its quiet "?" while provisional, and how
+ * far it is from settling. In the search's card (`compact`) the number is
+ * at a label's size: it supports finding an opponent, never the first
+ * thing read.
+ */
 function RatingStat(props: {
   readonly rating: MultiplayerRatingView;
+  readonly compact: boolean;
 }): JSX.Element {
   const provisional = (): boolean => isProvisional(props.rating);
   return (
     <GameStat
+      size={props.compact ? 'compact' : 'regular'}
       dataSet={{ testid: `multiplayer-rating-${props.rating.pool}` }}
       label={
         <Show
@@ -145,11 +152,12 @@ function RatingStat(props: {
 /** Every pool's rating: one takes the row; a rating per speed, two a row. */
 function RatingGrid(props: {
   readonly ratings: readonly MultiplayerRatingView[];
+  readonly compact: boolean;
 }): JSX.Element {
   return (
     <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
       <For each={props.ratings}>
-        {(rating) => <RatingStat rating={rating} />}
+        {(rating) => <RatingStat rating={rating} compact={props.compact} />}
       </For>
     </Grid>
   );
@@ -173,12 +181,12 @@ export function MultiplayerRatings(props: {
           <H3 size="label">
             <Trans>Your ratings</Trans>
           </H3>
-          <RatingGrid ratings={props.ratings} />
+          <RatingGrid ratings={props.ratings} compact />
         </StackVertical>
       }
     >
       <GameSection title={<Trans>Your ratings</Trans>}>
-        <RatingGrid ratings={props.ratings} />
+        <RatingGrid ratings={props.ratings} compact={false} />
       </GameSection>
     </Show>
   );

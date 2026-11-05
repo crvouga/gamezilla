@@ -235,10 +235,13 @@ test('wide: a two-column search card keeps form-width columns and says what happ
 // regression: matchmaking-search-stretched-legal-columns — wide, the card
 // filled the 960px game column: Find an opponent stretched to 530px, the
 // guide read like fine print in three columns, and 60% of the page stood
-// empty. The column (title and card) is held to the search's measure and
-// centred, the command is sized to its words, and the guide is three short
+// empty. The command is sized to its words, and the guide is three short
 // lines, each one sentence; a phone's command still spans its card.
-test('wide: a centred search column, a command sized to its words, a guide of short lines', () => {
+// regression: matchmaking-column-off-the-page-edge — the search's column
+// was then held to 45rem and centred, so the title and card started 120px
+// right of the space's bar while every other page starts under it. The
+// column takes the content column every page has, from its leading edge.
+test('wide: the search column starts at the page edge, a command sized to its words, a guide of short lines', () => {
   mount(1440);
   const css = readFileSync(
     join(
@@ -248,7 +251,7 @@ test('wide: a centred search column, a command sized to its words, a guide of sh
     'utf8'
   );
   expect(css).toMatch(
-    /\.column:has\(\.layout \[data-setup-split="true"\]\[data-details-across="true"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+    /\.column:has\(\.layout \[data-setup-split="true"\]\[data-details-across="true"\]\) \{\s*max-width: calc\(\s*var\(--game-board-measure\) \+\s*var\(--ui-space-6\) \+\s*var\(--game-rail-measure\)\s*\);\s*margin-inline: 0 auto;/
   );
   const find = screen.getByTestId('multiplayer-find');
   expect(find.className).not.toContain('w-full');
@@ -265,4 +268,21 @@ test('wide: a centred search column, a command sized to its words, a guide of sh
   cleanup();
   mount(390);
   expect(screen.getByTestId('multiplayer-find').className).toContain('w-full');
+});
+
+// regression: matchmaking-rating-focal-point — in the search's card the
+// rating "1512?" was set in the large stat figures, the brightest thing on
+// a screen whose task is finding an opponent. In the card it is at a
+// label's size; the search's title and command lead.
+test("the rating in the search's card is a label-sized figure, not a stat", () => {
+  for (const width of [1440, 390]) {
+    mount(width);
+    const stat = screen.getByTestId('multiplayer-rating-game');
+    expect(stat.getAttribute('data-size')).toBe('compact');
+    const value = screen.getByTestId('multiplayer-rating-game-value');
+    const figure = value.closest('strong');
+    expect(figure?.className).toContain('textLabel');
+    expect(figure?.className).not.toContain('textStat');
+    cleanup();
+  }
 });

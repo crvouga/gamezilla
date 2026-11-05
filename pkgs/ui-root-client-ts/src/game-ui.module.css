@@ -44,11 +44,18 @@
     var(--game-rail-measure)
   );
 }
-/* A wide search before any game: the column (title and card) is held to
-   the search's measure and centred, never stretched across a board's
-   width. As specific as the board-and-rail rules above, and after them. */
+/* A wide search before any game: the column (title and card) takes the
+   content column every page has, from the breadcrumb's edge to its end,
+   never a narrower column centred apart from the space's bar. The card
+   splits it, the search leading (`GameSetupPanel`). As specific as the
+   board-and-rail rules above, and after them. */
 .column:has(.layout [data-setup-split="true"][data-details-across="true"]) {
-  max-width: var(--game-search-split-measure);
+  max-width: calc(
+    var(--game-board-measure) +
+    var(--ui-space-6) +
+    var(--game-rail-measure)
+  );
+  margin-inline: 0 auto;
 }
 .layout {
   display: grid;
