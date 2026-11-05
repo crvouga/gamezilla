@@ -156,10 +156,10 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
 /**
  * Wide: the game's hero block, then every way to play as a tile of one
  * size (the same title, as tall as its words) and, under them, the quiet
- * choices (history, stats, settings) as compact rows. One quiet choice
- * alone sits at the hero's end instead, level with the game's name, never
- * a half-width row orphaned under the tiles. A menu of quiet choices only
- * shows them all as tiles.
+ * choices (history, stats, settings) as compact outlined rows that share
+ * the tiles' edges: one alone spans the tiles' full width, never a
+ * half-width row orphaned under them nor a box floating at the hero's end.
+ * A menu of quiet choices only shows them all as tiles.
  */
 function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
@@ -168,10 +168,8 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
     const quiet = props.choices.filter((c) => c.emphasis === 'quiet');
     const loud = props.choices.filter((c) => c.emphasis !== 'quiet');
     return loud.length === 0
-      ? { tiles: props.choices, links: [], heroLink: null }
-      : quiet.length === 1
-        ? { tiles: loud, links: [], heroLink: quiet[0] ?? null }
-        : { tiles: loud, links: quiet, heroLink: null };
+      ? { tiles: props.choices, links: [] }
+      : { tiles: loud, links: quiet };
   });
   // Two or four tiles take two columns, so none is left alone on a row.
   const columns = (): number =>
@@ -195,20 +193,6 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
             </p>
           </Show>
         </div>
-        <Show when={split().heroLink}>
-          {(choice) => (
-            <div
-              class={styles['heroLink']}
-              role="list"
-              data-layout="links"
-              data-place="hero"
-            >
-              <div class={styles['item']} role="listitem">
-                <ChoiceLink choice={choice()} />
-              </div>
-            </div>
-          )}
-        </Show>
       </header>
       <div
         class={styles['grid']}
@@ -228,9 +212,9 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
         <div
           class={styles['links']}
           style={{
-            // Never one row across the whole menu: at least two columns.
+            // One across the tiles' full width, else up to three a row.
             '--game-menu-link-columns': String(
-              Math.max(2, Math.min(3, split().links.length))
+              Math.min(3, split().links.length)
             ),
           }}
           role="list"

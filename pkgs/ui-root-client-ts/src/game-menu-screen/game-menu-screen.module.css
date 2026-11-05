@@ -8,13 +8,6 @@
   min-width: 0;
   padding-block: var(--ui-space-4) var(--ui-space-2);
 }
-/* One quiet choice alone (History and stats): at the hero's end, level
-   with the game's name, a compact row the width of its words. */
-.heroLink {
-  flex: 0 0 auto;
-  margin-inline-start: auto;
-  min-width: 16rem;
-}
 .heroWords {
   display: flex;
   flex-direction: column;
@@ -44,8 +37,8 @@
   align-items: center;
   gap: var(--ui-space-4);
   width: 100%;
-  min-height: 96px;
-  padding: var(--ui-space-5);
+  min-height: 120px;
+  padding: var(--ui-space-6);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
@@ -120,8 +113,9 @@
 .icon[data-emphasis="quiet"] {
   --ui-on-icon: var(--ui-color-text-secondary);
 }
-/* The quiet choices under the tiles: compact rows, up to three across,
-   outlined on the page rather than raised like a way to play. */
+/* The quiet choices under the tiles: compact rows sharing the tiles'
+   edges (one alone spans them), up to three across, outlined on the page
+   rather than raised like a way to play. */
 .links {
   display: grid;
   grid-template-columns: repeat(
