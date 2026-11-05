@@ -30,7 +30,13 @@ export function ChessBoardFrame(props: {
   const files = () => (white() ? [...FILES] : [...FILES].reverse());
   const ranks = () => (white() ? [...RANKS] : [...RANKS].reverse());
   return (
-    <div class={styles['host']} data-component="ChessBoardFrame">
+    // Marks the labels' gutter beside the squares, so a stage's seats line
+    // up with the squares rather than the labels (`GameBoardStage`).
+    <div
+      class={styles['host']}
+      data-component="ChessBoardFrame"
+      data-board-gutter="start"
+    >
       <div class={styles['frame']}>
         <div class={styles['ranks']} aria-hidden="true">
           <For each={ranks()}>

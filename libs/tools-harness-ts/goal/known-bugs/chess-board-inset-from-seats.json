@@ -1,0 +1,4 @@
+{
+  "summary": "On a chess board in a game, the rank labels stood in a 20px gutter inside the board's column, so the squares started 20px in from the player bars above and below and the left edges did not line up. The chess frame now marks its labels gutter (data-board-gutter=\"start\"), and the game board stage starts its seats and turn line past it, so bars and squares share both edges.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx"
+}
