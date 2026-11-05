@@ -16,6 +16,8 @@ export type EmbeddedScreenProps = {
   title?: JSX.Element | undefined;
   /** One quiet line under the title. */
   subtitle?: JSX.Element | undefined;
+  /** The screen's own commands, at the title's end (`ScreenIntro`). */
+  actions?: JSX.Element | undefined;
   /** The body column's measure. Defaults to `menu`. */
   width?: ScreenMeasure | undefined;
   /**
@@ -88,7 +90,11 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
             screen: props.screenId,
           })}
         >
-          <ScreenIntro title={props.title} subtitle={props.subtitle} />
+          <ScreenIntro
+            title={props.title}
+            subtitle={props.subtitle}
+            actions={props.actions}
+          />
           {props.children}
         </div>
       }
@@ -130,7 +136,11 @@ function EmbeddedScroller(props: ScrolledProps): JSX.Element {
       measure={props.width ?? 'menu'}
       measureAlign="center"
     >
-      <ScreenIntro title={props.title} subtitle={props.subtitle} />
+      <ScreenIntro
+        title={props.title}
+        subtitle={props.subtitle}
+        actions={props.actions}
+      />
       {props.children}
     </ScrollView>
   );

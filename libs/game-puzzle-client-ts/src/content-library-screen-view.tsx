@@ -116,7 +116,7 @@ function PublishedContent(props: { view: View }): JSX.Element {
           <EmptyState
             variant="compact"
             title={t`No published puzzles loaded`}
-            body={t`Create a private draft above, or come back for new puzzles and packs.`}
+            body={t`Create a private draft, or come back for new puzzles and packs.`}
           />
         }
       >
@@ -337,7 +337,7 @@ function MinePanel(props: { view: View }): JSX.Element {
               <EmptyState
                 variant="compact"
                 title={t`Nothing built yet`}
-                body={t`Create a puzzle or a pack above. Drafts stay private until you publish them.`}
+                body={t`Create a puzzle or a pack. Drafts stay private until you publish them.`}
               />
             }
           >
@@ -359,7 +359,8 @@ function firstTab(view: View): LibraryTab {
 }
 
 /**
- * Browse, Continue and My creations, one at a time. Every panel stays
+ * Continue, Browse and My creations, one at a time: picking up where the
+ * person left off comes first. Every panel stays
  * rendered so its loaded pages keep their place across switches.
  */
 function LibraryTabs(props: { view: View }): JSX.Element {
@@ -373,12 +374,12 @@ function LibraryTabs(props: { view: View }): JSX.Element {
       keepMounted
       defaultValue={untrack(() => firstTab(props.view))}
       items={[
-        { value: 'browse', label: t`Browse` },
         {
           value: 'continue',
           label: t`Continue`,
           badge: unfinished() > 0 ? unfinished() : undefined,
         },
+        { value: 'browse', label: t`Browse` },
         { value: 'mine', label: t`My creations` },
       ]}
     >
@@ -400,11 +401,12 @@ function LibraryTabs(props: { view: View }): JSX.Element {
 }
 
 /**
- * A game's puzzle library, presentational: creating a puzzle or a pack
- * under the title, then three tabs, one shown at a time: Browse (the
- * shipped starter packs and everything published), Continue (attempts
- * left unfinished, the finished ones apart, private playtests) and My
- * creations (drafts and publications); each list paged. It opens on
+ * A game's puzzle library, presentational: creating a puzzle or a pack as
+ * the screen's own actions at its title, then three tabs, one shown at a
+ * time: Continue (attempts left unfinished, the finished ones apart,
+ * private playtests, as compact rows), Browse (the shipped starter packs
+ * and everything published) and My creations (drafts and publications);
+ * each list paged. It opens on
  * Continue when something is unfinished, else on Browse. Data arrives as
  * props; `ContentLibraryScreen` reads it from the synced library.
  */
@@ -423,8 +425,8 @@ export function ContentLibraryScreenView(
             of your own.
           </Trans>
         }
+        actions={props.createControls}
       >
-        {props.createControls}
         <LibraryTabs view={props} />
       </EmbeddedScreen>
     </Show>

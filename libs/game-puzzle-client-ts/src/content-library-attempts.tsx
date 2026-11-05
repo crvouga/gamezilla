@@ -76,7 +76,11 @@ function packOf(pack: ListedAttempt['pack']): JSX.Element | undefined {
   );
 }
 
-/** One list of the person's attempts, each card opening where they left it. */
+/**
+ * One list of the person's attempts, each row opening where they left it:
+ * compact rows at every width, so what is unfinished and what is finished
+ * are both in view.
+ */
 export function ContentAttemptSection(props: {
   list: ContentAttemptList;
   attempts: readonly ListedAttempt[];
@@ -87,6 +91,7 @@ export function ContentAttemptSection(props: {
   return (
     <Show when={props.attempts.length > 0}>
       <PreviewCardGrid
+        layout="rows"
         title={<ListTitle list={props.list} />}
         footer={
           props.list === 'finished' ? undefined : (

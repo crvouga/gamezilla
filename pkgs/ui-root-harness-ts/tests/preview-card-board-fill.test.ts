@@ -46,6 +46,45 @@ test("a card's board fills its picture: the whole area, fitted to its height", (
   const grid = css('preview-card-grid/preview-card-grid.module.css');
   const wide = grid.indexOf('@container preview-card-grid (min-width: 640px)');
   expect(
-    rule('preview-card-grid/preview-card-grid.module.css', '  .picture', wide)
+    rule(
+      'preview-card-grid/preview-card-grid.module.css',
+      '  .section:not([data-layout="rows"]) .picture',
+      wide
+    )
   ).toMatch(/aspect-ratio:\s*2 \/ 1;/);
+});
+
+// regression: library-dark-previews-dimmed — a library card's board was
+// drawn as a disabled board, at 70% opacity, so over the dark theme's
+// picture well its cream floor turned a muddy tan. A preview's picture is
+// still, not waiting on play: it is drawn at full strength in both themes.
+test("a card's board is drawn at full strength, not dimmed as a waiting board", () => {
+  const tiles = rule(
+    'tile-board/tile-board.module.css',
+    '.board[data-disabled="true"]'
+  );
+  expect(tiles).toMatch(/opacity:\s*var\(--board-still-opacity, 0\.7\);/);
+  const content = rule(
+    'preview-thumbnail/preview-thumbnail.module.css',
+    '\n.content'
+  );
+  expect(content).toMatch(/--board-still-opacity:\s*1;/);
+});
+
+// regression: library-desktop-cards-uneven — wide, a library's cards took
+// their own content's height row by row, and the Continue tab's two cards
+// filled two of three columns with pictures tall enough to push Finished
+// below the fold. Every row of cards is as tall as the tallest, and a
+// `rows` grid keeps its compact rows wide, two columns of them.
+test('wide, cards are one height, and a rows grid stays compact rows', () => {
+  const file = 'preview-card-grid/preview-card-grid.module.css';
+  const wide = css(file).indexOf(
+    '@container preview-card-grid (min-width: 640px)'
+  );
+  expect(rule(file, '  .grid', wide)).toMatch(/grid-auto-rows:\s*1fr;/);
+  expect(rule(file, '  .section[data-layout="rows"] .grid', wide)).toMatch(
+    /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/
+  );
+  // Only cards turn their picture across the card; rows keep 64px.
+  expect(css(file).slice(wide)).not.toMatch(/\n  \.picture \{/);
 });

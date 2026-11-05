@@ -2147,12 +2147,12 @@ msgid "Crate"
 msgstr "Crate"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
-msgid "Create a private draft above, or come back for new puzzles and packs."
-msgstr "Create a private draft above, or come back for new puzzles and packs."
+msgid "Create a private draft, or come back for new puzzles and packs."
+msgstr "Create a private draft, or come back for new puzzles and packs."
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
-msgid "Create a puzzle or a pack above. Drafts stay private until you publish them."
-msgstr "Create a puzzle or a pack above. Drafts stay private until you publish them."
+msgid "Create a puzzle or a pack. Drafts stay private until you publish them."
+msgstr "Create a puzzle or a pack. Drafts stay private until you publish them."
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Create game"

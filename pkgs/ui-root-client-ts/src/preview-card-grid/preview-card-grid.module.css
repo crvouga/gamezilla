@@ -68,10 +68,13 @@
 .chevron {
   display: inline-flex;
 }
+/* Wide, as cards: a grid of cards, each its picture across the card. */
 @container preview-card-grid (min-width: 640px) {
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    /* Every row as tall as the tallest, so cards are one height. */
+    grid-auto-rows: 1fr;
     gap: var(--ui-space-4);
     overflow: visible;
     border: 0;
@@ -81,30 +84,39 @@
   .item + .item {
     border-top: 0;
   }
+  /* Each card the height of the tallest in its row. */
   .item {
     display: flex;
   }
-  .card {
+  .section:not([data-layout="rows"]) .card {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: var(--ui-space-3);
     padding: var(--ui-space-3);
+  }
+  .card {
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
   /* Wide and short, as most boards are: the board fills it, and a row of
      cards leaves room for the next section in view. */
-  .picture {
+  .section:not([data-layout="rows"]) .picture {
     width: 100%;
     height: auto;
     aspect-ratio: 2 / 1;
   }
-  .body {
+  .section:not([data-layout="rows"]) .body {
     padding-inline: var(--ui-space-1);
   }
-  .chevron {
+  .section:not([data-layout="rows"]) .chevron {
     display: none;
+  }
+  /* Wide, as rows: two columns of row cards, each its 64px picture beside
+     its words and a chevron, as a phone lists them. */
+  .section[data-layout="rows"] .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ui-space-3);
   }
 }

@@ -71,7 +71,10 @@
   color: var(--ui-color-icon);
   pointer-events: none;
 }
+/* A preview is a picture, not a board waiting on play: never dimmed, so
+   its colours hold on a dark picture well as on a light one. */
 .content {
+  --board-still-opacity: 1;
   display: grid;
   place-items: center;
   width: calc(var(--preview-thumbnail-size) * 4);

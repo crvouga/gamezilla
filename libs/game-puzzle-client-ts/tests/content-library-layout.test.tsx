@@ -305,3 +305,54 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
     'Thirteen without overshooting, all the way'
   );
 });
+
+// regression: library-creation-before-continue — the library's two
+// outlined create buttons were the first content under its title, before
+// the tabs and the list to continue, and Continue was the second tab.
+// Creating is now the screen's own action at its title (`ScreenIntro`'s
+// actions), Continue is the first tab, and its lists are compact rows at
+// every width.
+test('Continue leads the tabs, creating is a title action, and attempts are rows', () => {
+  renderWithI18n(() => (
+    <ThemeProvider
+      colorScheme="dark"
+      fixedLayout={{ width: 1440, height: 900 }}
+    >
+      <ContentLibraryScreenView
+        {...VIEW}
+        createControls={<button type="button" data-testid="create" />}
+      />
+    </ThemeProvider>
+  ));
+  const tabs = [...document.querySelectorAll('[role="tab"]')].map((tab) =>
+    tab.getAttribute('data-testid')
+  );
+  expect(tabs).toEqual([
+    'content-library-tab-continue',
+    'content-library-tab-browse',
+    'content-library-tab-mine',
+  ]);
+  const actions = screen
+    .getByTestId('create')
+    .closest('[data-component="ScreenIntroActions"]');
+  expect(actions?.closest('[data-component="ScreenIntro"]')).not.toBeNull();
+  expect(
+    screen
+      .getByTestId('create')
+      .closest('[data-testid^="content-library-"][role="tabpanel"]')
+  ).toBeNull();
+  const grids = [
+    ...screen
+      .getByTestId('content-library-continue')
+      .querySelectorAll('[data-component="PreviewCardGrid"]'),
+  ];
+  expect(grids.length).toBeGreaterThan(0);
+  for (const grid of grids)
+    expect(grid.getAttribute('data-layout')).toBe('rows');
+  expect(
+    screen
+      .getByTestId('content-library-browse')
+      .querySelector('[data-component="PreviewCardGrid"]')
+      ?.getAttribute('data-layout')
+  ).toBe('cards');
+});

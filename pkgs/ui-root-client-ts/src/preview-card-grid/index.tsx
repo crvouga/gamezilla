@@ -13,6 +13,13 @@ export type PreviewCardGridProps = {
   footer?: JSX.Element | undefined;
   /** `PreviewCard`s. */
   children: JSX.Element;
+  /**
+   * `cards` (default): wide, a grid of cards, each picture across its card.
+   * `rows`: compact at every width, for lists picked up where they were
+   * left (Continue): wide, two columns of row cards, each a small picture
+   * beside its title, so the next section stays in view.
+   */
+  layout?: 'cards' | 'rows' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -33,7 +40,11 @@ export function PreviewCardGrid(props: PreviewCardGridProps): JSX.Element {
     <section
       class={styles['section']}
       aria-labelledby={props.title === undefined ? undefined : id}
-      {...dataAttrs({ component: 'PreviewCardGrid', ...props.dataSet })}
+      {...dataAttrs({
+        component: 'PreviewCardGrid',
+        layout: props.layout ?? 'cards',
+        ...props.dataSet,
+      })}
     >
       <Show when={props.title !== undefined}>
         <h3 id={id} class="text textSectionLabel px-4">

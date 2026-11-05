@@ -45,7 +45,8 @@ function CreateDraftButton(props: {
         {...button.buttonProps}
         intent="neutral"
         variant="outline"
-        startIcon={<PlusIcon size={20} />}
+        size="sm"
+        startIcon={<PlusIcon size={16} />}
         dataSet={{
           testid:
             props.kind === 'pack'
@@ -93,7 +94,7 @@ export function ContentCreateControlsView(
     <Show
       when={props.denial}
       fallback={
-        <StackHorizontal gap="md" wrap>
+        <StackHorizontal gap="sm" wrap>
           <Show when={props.canCreatePuzzle}>
             <CreateDraftButton
               kind="puzzle"

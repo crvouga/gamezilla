@@ -88,8 +88,10 @@
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
+/* A board waiting on something is dimmed; a picture of a board (a
+   preview's thumbnail) says it is still and is drawn at full strength. */
 .board[data-disabled="true"] {
-  opacity: 0.7;
+  opacity: var(--board-still-opacity, 0.7);
 }
 .tiles {
   position: absolute;
