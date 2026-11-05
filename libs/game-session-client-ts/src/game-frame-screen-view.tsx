@@ -612,6 +612,7 @@ function FrameBoardStage(props: Props): JSX.Element {
           />
           <FrameStatusView
             status={props.status}
+            arena={frameArena(props.phase, shownRecord(props))}
             spokenOnly={
               turnInSeats(props, mode) ||
               railCaption(props, mode) !== undefined ||

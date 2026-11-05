@@ -67,6 +67,13 @@ function OwnMarks(props: PaddleCourtProps): JSX.Element {
 }
 
 /**
+ * The ball is drawn round and this much larger than it plays, centred where
+ * it plays, so it reads at a glance on a phone's court (about 9px across
+ * there instead of 5px); the game's own size still decides every bounce.
+ */
+export const BALL_DRAWN_SCALE = 1.6;
+
+/**
  * Geometric play surface: the centre line and circle, each side's points
  * large and faint in its half (`score`), the paddles and the ball.
  * Resizing changes its viewBox projection, never the court coordinates.
@@ -148,13 +155,12 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
             />
           )}
         </For>
-        <rect
+        <circle
           class={styles['ball']}
           data-testid={`${props.testId}-ball`}
-          x={props.ball.x - props.ball.size / 2}
-          y={props.ball.y - props.ball.size / 2}
-          width={props.ball.size}
-          height={props.ball.size}
+          cx={props.ball.x}
+          cy={props.ball.y}
+          r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
         />
       </svg>
     </div>

@@ -37,7 +37,8 @@ const paddleName = (side: GameSide) =>
 
 /**
  * A phone's paddle control: an upright slider beside the court, on the
- * paddle's own side, moving top to bottom as the paddle does. A wide screen
+ * paddle's own side, moving top to bottom as the paddle does, drawn as that
+ * paddle's lane (its thumb the paddle, in the seat's colour). A wide screen
  * moves paddles by keys and a drag on the court instead.
  */
 function PaddleSlider(props: {
@@ -58,6 +59,7 @@ function PaddleSlider(props: {
       {(controls) => (
         <RangeControl
           orientation="vertical"
+          paddle={props.side === 'white' ? 'player1' : 'player2'}
           label={paddleName(props.side)}
           min={0}
           max={1000}

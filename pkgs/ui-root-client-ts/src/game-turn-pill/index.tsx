@@ -31,11 +31,19 @@ export type GameTurnPillProps = {
    * `trailing` and `note` still show.
    */
   spokenOnly?: boolean | undefined;
+  /**
+   * `pill` (default): the words in a round well. `plain`: the words as a
+   * quiet line of hint text with no well, for a game in real time whose
+   * line only says how play goes on (`Keep the ball in play.`), so it never
+   * reads as a button under the court. A tone still shows its mark.
+   */
+  look?: 'pill' | 'plain' | undefined;
   /** `data-*` for the words, the element that carries the status role. */
   dataSet?: ComponentDataSet;
 };
 
 function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
+  const plain = (): boolean => props.look === 'plain';
   return (
     <div
       class="box min-w-0"
@@ -45,8 +53,13 @@ function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
       {...dataAttrs({ component: 'GameTurnPillWords', ...props.dataSet })}
     >
       <div
-        class="text textLabel"
-        classList={{ 'text-on-primary-soft': props.yours }}
+        class="text"
+        classList={{
+          textLabel: !plain(),
+          textCaption: plain(),
+          'text-text-secondary': plain(),
+          'text-on-primary-soft': props.yours && !plain(),
+        }}
       >
         {props.title}
       </div>
@@ -67,8 +80,9 @@ function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
  * turn, or how it ended. One per game, between the board and the person's
  * own strip. The words sit in a round pill: the soft tint (`tintSubtle` under
  * `onPrimarySoft`) when it is the viewer's turn (`emphasis="yours"`), the
- * sunken well otherwise. A small mark carries an outcome's tone; the words
- * carry the meaning.
+ * sunken well otherwise; `look="plain"` drops the well for a quiet line of
+ * hint text. A small mark carries an outcome's tone; the words carry the
+ * meaning.
  *
  * With `spokenOnly` the seats carry the turn and the words are for a
  * listener only.
@@ -132,17 +146,22 @@ function SpokenPill(props: GameTurnPillProps): JSX.Element {
 
 function ShownPill(props: GameTurnPillProps): JSX.Element {
   const yours = (): boolean => props.emphasis === 'yours';
+  const plain = (): boolean => props.look === 'plain';
   const tone = (): GameTurnPillTone => props.tone ?? 'neutral';
   return (
     <div
       class={`${styles['turn']} box flex-row flex-wrap items-center justify-between gap-2 min-w-0`}
       data-tone={tone()}
       data-emphasis={yours() ? 'yours' : 'neutral'}
+      data-look={plain() ? 'plain' : 'pill'}
       {...dataAttrs({ component: 'GameTurnPill' })}
     >
       <div
         class={`${styles['turnPill']} rounded-full`}
-        classList={{ 'bg-tint-subtle': yours(), 'bg-surface-muted': !yours() }}
+        classList={{
+          'bg-tint-subtle': yours() && !plain(),
+          'bg-surface-muted': !yours() && !plain(),
+        }}
       >
         <Show when={tone() !== 'neutral'}>
           <span class={styles['turnMark']} aria-hidden="true" />

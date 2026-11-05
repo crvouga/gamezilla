@@ -372,6 +372,12 @@
   min-height: 44px;
   padding: var(--ui-space-2) var(--ui-space-4);
 }
+/* A plain line: hint text with no well, set where the well's words start
+   being the line's own start edge. */
+.turn[data-look="plain"] .turnPill {
+  min-height: 0;
+  padding: 0;
+}
 .turnMark {
   flex-shrink: 0;
   width: 8px;

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Pong's paddle slider beside the court was a bare grey bar with a blue knob, reading as a stray element rather than the paddle's control. It is now drawn as the paddle's lane: a groove in the court's colours whose thumb is a paddle in the seat's colour.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

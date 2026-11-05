@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's ball was a 20-unit square on a 1200-unit court, about 5px across on a phone and easy to lose. It is now drawn round and 1.6 times its playing size, centred where it plays; the game's own size still decides every bounce.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

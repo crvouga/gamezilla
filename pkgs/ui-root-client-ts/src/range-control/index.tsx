@@ -17,6 +17,12 @@ export type RangeControlProps = {
    * height its row gives it: for a value that moves up and down (a paddle).
    */
   orientation?: 'horizontal' | 'vertical' | undefined;
+  /**
+   * `vertical` only: drawn as a paddle's lane beside a court, so it reads
+   * as the control for that paddle and never as a stray bar: a groove in
+   * the court's colours whose thumb is a paddle in this player's colour.
+   */
+  paddle?: 'player1' | 'player2' | undefined;
   dataSet?: ComponentDataSet;
 };
 
@@ -31,6 +37,9 @@ export function RangeControl(props: RangeControlProps) {
           : 'box w-full min-h-11 accent-tint bg-transparent cursor-pointer'
       }
       aria-orientation={props.orientation}
+      data-paddle={
+        props.orientation === 'vertical' ? props.paddle : undefined
+      }
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}

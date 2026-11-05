@@ -428,3 +428,15 @@ test("wide: the players' card shows each figure on one quiet line", () => {
   expect(figure?.textContent).toBe('Wins 0');
   expect(figure?.querySelector('.textStat')).toBeNull();
 });
+
+// regression: pong-status-reads-as-button — on a phone the line under a
+// real-time game's arena ("Keep the ball in play.") sat in a round well
+// like a button. A neutral line there is plain hint text.
+test('phone: a real-time game says how play goes on as plain hint text', () => {
+  mount(390);
+  const pill = screen
+    .getByTestId('custom-game-status')
+    .closest('[data-component="GameTurnPill"]');
+  expect(pill?.getAttribute('data-look')).toBe('plain');
+  expect(pill?.querySelector('.bg-surface-muted')).toBeNull();
+});

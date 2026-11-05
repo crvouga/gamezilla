@@ -139,3 +139,26 @@ test('phone: the court takes the width the slider leaves, its score readable', (
   )?.[1];
   expect(Number(opacity)).toBeGreaterThanOrEqual(0.7);
 });
+
+// regression: pong-slider-stray — on a phone the slider beside the court
+// was a bare grey bar with a blue knob, reading as a stray element rather
+// than the paddle's control. It is drawn as the paddle's lane: a groove in
+// the court's colours whose thumb is a paddle in the seat's colour.
+test("phone: the slider beside the court is drawn as its paddle's lane", () => {
+  mount(390);
+  const control = screen.getByTestId('pong-white-control');
+  expect(control.getAttribute('data-paddle')).toBe('player1');
+  expect(control.getAttribute('aria-label')).toBe('Left paddle');
+});
+
+// regression: pong-ball-tiny — the ball was a 20-unit square on a
+// 1200-unit court, about 5px across on a phone. It is drawn round and 1.6
+// times its playing size, centred where it plays.
+test('the ball is drawn round, larger than it plays, centred where it plays', () => {
+  mount(390);
+  const config = pongConfig();
+  const ball = screen.getByTestId('pong-ball');
+  expect(ball.tagName.toLowerCase()).toBe('circle');
+  expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.6);
+  expect(Number(ball.getAttribute('cx'))).toBe(config.width / 2);
+});
