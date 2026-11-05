@@ -84,14 +84,19 @@ function CardTitle(props: {
   const { t } = useLingui();
   return (
     <P variant="body" tone={props.inactive ? 'secondary' : undefined} lines={3}>
-      <Show when={props.waiting}>
+      {/* A read card keeps the dot's room (an invisible dot), so every
+          title in the feed starts at the same x. */}
+      <Show
+        when={props.waiting}
+        fallback={<StatusDot color="transparent" size={UNREAD_DOT_SIZE} />}
+      >
         <StatusDot
           status="unread"
           size={UNREAD_DOT_SIZE}
           label={t`Unread`}
           dataSet={{ 'inbox-unread': 'true' }}
-        />{' '}
-      </Show>
+        />
+      </Show>{' '}
       {props.title}
     </P>
   );

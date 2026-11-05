@@ -1,0 +1,4 @@
+{
+  "summary": "An unread notification's title led with an inline dot while a read one did not, so read and unread titles in the same feed started at different x positions; a read card now keeps the dot's room with an invisible dot.",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

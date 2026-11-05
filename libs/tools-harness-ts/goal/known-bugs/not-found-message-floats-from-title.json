@@ -1,0 +1,4 @@
+{
+  "summary": "The not-found message was centred in a column that grew to the page's height, so on desktop it floated about 300px below the page title it explains; it now sits under the title, still centred across the column.",
+  "regressionTest": "libs/app-root-client-ts/tests/not-found-screen.test.tsx"
+}

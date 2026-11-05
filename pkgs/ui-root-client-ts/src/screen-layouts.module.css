@@ -403,8 +403,8 @@
   display: grid;
   /* A narrow label column keeps each label near its rows; the rows end on
      the same right edge as every other desktop page. */
-  grid-template-columns: 168px minmax(0, 1fr);
-  column-gap: var(--ui-space-6);
+  grid-template-columns: 144px minmax(0, 1fr);
+  column-gap: var(--ui-space-4);
   align-items: start;
   min-width: 0;
 }

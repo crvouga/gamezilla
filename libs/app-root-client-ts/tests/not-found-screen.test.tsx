@@ -59,3 +59,10 @@ test('without a screen to return to, there is no Go back', () => {
   expect(screen.queryByRole('button', { name: 'Go back' })).toBeNull();
   expect(screen.getByTestId(Handles.routeNotFoundAction)).toBeTruthy();
 });
+
+// regression: not-found-message-floats-from-title
+test('the message sits under the title instead of floating mid-page', () => {
+  mountNotFound([], false);
+  const holder = screen.getByTestId(Handles.routeNotFound).parentElement;
+  expect(holder?.className ?? '').not.toMatch(/\b(grow|flex-1)\b/);
+});

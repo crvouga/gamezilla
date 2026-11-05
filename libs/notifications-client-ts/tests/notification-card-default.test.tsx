@@ -216,3 +216,15 @@ test("an update's only choice stays outlined; a card that waits on you keeps its
     'primary'
   );
 });
+
+// regression: notification-unread-dot-shifts-title
+test('read and unread titles start at the same x: a read card keeps the dot room', () => {
+  for (const isUnread of [true, false]) {
+    mountCard({ ...invite([]), isUnread });
+    const title = screen.getByText(/invited you to Quick connect four/);
+    const dot = title.querySelector('[data-component="StatusDot"]');
+    expect(dot).not.toBeNull();
+    expect(dot?.getAttribute('aria-hidden') === 'true').toBe(!isUnread);
+    cleanup();
+  }
+});

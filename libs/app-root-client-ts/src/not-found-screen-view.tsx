@@ -40,7 +40,9 @@ export function NotFoundScreenView(
       screenId={props.screenId}
       breadcrumbs={[{ name: props.title }]}
       content={() => (
-        <StackVertical grow>
+        // Under the title, not centred in the page: centred, the message
+        // floated a screen's height away from the heading it explains.
+        <StackVertical paddingTop="xl">
           <StateBlock dataSet={{ testid: Handles.routeNotFound }}>
             <StateBlockIcon icon={CompassIcon} />
             <P variant="body" tone="secondary" align="center">
