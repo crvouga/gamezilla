@@ -8,8 +8,11 @@ import { repositoryUnlockArgs } from '@libs/infra-shared-ts/tofu-process-policy'
 import { tofu } from './tofu-process';
 import { writeResolvedVarFiles } from './tofu-var-files';
 
-const args = repositoryUnlockArgs(process.env['TOFU_ABANDONED_LOCK_ID'] ?? '');
 const { paths } = tofuLayout(join(import.meta.dirname, '..'));
+const args = repositoryUnlockArgs(
+  process.env['TOFU_ABANDONED_LOCK_ID'] ?? '',
+  paths
+);
 const { env, missing } = repositoryPolicyEnvironment(process.env, paths);
 if (missing.length > 0)
   throw new Error(`Missing credentials: ${missing.join(', ')}`);

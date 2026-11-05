@@ -1,0 +1,4 @@
+{
+  "summary": "Recovery rehearsal 41960302264 passed variable files to init but omitted them from force-unlock, so the variable-backed S3 backend could not resolve var.state. Both commands must receive the resolved global and environment files.",
+  "regressionTest": "libs/infra-shared-ts/tests/tofu-process-policy.test.ts"
+}
