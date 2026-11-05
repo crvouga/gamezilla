@@ -50,6 +50,26 @@ test_weak_repository_plan_denied if {
 	}]}
 }
 
+strict_repository_settings := {
+	"delete_branch_on_merge": true,
+	"allow_auto_merge": true,
+	"allow_merge_commit": true,
+	"allow_squash_merge": false,
+	"allow_rebase_merge": false,
+}
+
+test_auto_merge_allowed if {
+	strict_repository(strict_repository_settings)
+}
+
+test_squash_merge_denied if {
+	not strict_repository(object.union(strict_repository_settings, {"allow_squash_merge": true}))
+}
+
+test_rebase_merge_denied if {
+	not strict_repository(object.union(strict_repository_settings, {"allow_rebase_merge": true}))
+}
+
 test_public_repository_requires_push_protection if {
 	not scanning_enabled({"security_and_analysis": [{
 		"secret_scanning": [{"status": "enabled"}],

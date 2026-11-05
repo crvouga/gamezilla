@@ -1,0 +1,4 @@
+{
+  "summary": "Repository auto-merge was enabled in OpenTofu, but the bootstrap Conftest policy still required allow_auto_merge to be false, so Release refused every repository-policy apply (\"repository must delete merged branches and prohibit automatic, squash and rebase merges\") and stopped before deploying. The policy now allows auto-merge, which still waits for the main ruleset's required checks and resolved conversations, and keeps refusing squash and rebase merges.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}
