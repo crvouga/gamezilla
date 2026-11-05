@@ -128,7 +128,10 @@ export function CellGridPalette<K extends string = string>(
       class={styles['palette']}
       {...dataAttrs({ component: 'CellGridPalette' })}
     >
-      <span id={id} class="text textCaption text-text-secondary">
+      <span
+        id={id}
+        class={`text textCaption text-text-secondary ${styles['label']}`}
+      >
         {props.label}
       </span>
       <div

@@ -78,9 +78,11 @@ function stateOf(
 function NextLine(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   const line = (): string => {
-    const titles = props.waitingOn.join(', ');
+    const count = props.waitingOn.length;
     if (props.next === 'puzzles')
-      return t`A pack holds only published puzzles, so ${titles} comes first.`;
+      return count === 1
+        ? t`1 puzzle is still a draft. Publish it, then the pack.`
+        : t`${count} puzzles are still drafts. Publish them, then the pack.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
     if (props.next === 'publish')
@@ -101,14 +103,14 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
 }
 
 /**
- * A pack's lead while its puzzles wait: it opens the first draft one,
- * where it is published.
+ * A pack's lead while its puzzles wait: it opens the first draft one, to
+ * finish and publish it there.
  */
 function OpenWaiting(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Button
-      title={t`Publish ${props.waitingOn[0] ?? ''} first`}
+      title={t`Finish ${props.waitingOn[0] ?? ''}`}
       intent="primary"
       variant="solid"
       onClick={() => props.onOpenWaiting?.()}
@@ -182,30 +184,14 @@ function useLeadPlace(lead: () => JSX.Element): () => boolean {
 }
 
 /**
- * What a waiting step waits on: the nearest step before it not yet done.
- */
-function waitNotes(
-  steps: readonly StepTrackStep[],
-  names: Readonly<Record<string, string>>
-): StepTrackStep[] {
-  return steps.map((step, index) => {
-    if (step.state !== 'upcoming') return step;
-    const before = steps
-      .slice(0, index)
-      .findLast((earlier) => earlier.state !== 'done');
-    return before === undefined ? step : { ...step, note: names[before.key] };
-  });
-}
-
-/**
  * Where the draft stands on its way to publishing: the one next step's
  * action, filled, the one thing to press, with a line beside it saying
  * why (under it where the row is narrow; the action in the screen's title
  * row where the screen asks for it); then every step in order as
- * status, each with its marker (done,
- * next or waiting). A step behind the person keeps its action as an
+ * status, each one short line: its number, its name and its state (done,
+ * next or locked). A step behind the person keeps its action as an
  * outline; a step that waits keeps its action locked (muted, still
- * pressable, so it can say what is missing) and says what it waits on.
+ * pressable, so it can say what is missing).
  */
 export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
@@ -213,58 +199,46 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   const lead = useLead(props, next);
   const away = useLeadPlace(lead);
   const actions = useTrackActions(props, next);
-  const names = (): Record<string, string> => ({
-    puzzles: t`After its puzzles`,
-    playtest: t`After the playtest`,
-    validate: t`After validation`,
-  });
-  const steps = (): StepTrackStep[] =>
-    waitNotes(
-      [
-        ...(props.kind === 'pack'
-          ? [
-              {
-                key: 'puzzles',
-                label:
-                  props.waitingOn.length === 0
-                    ? t`Puzzles published`
-                    : t`Publish its puzzles`,
-                state: stateOf('puzzles', next()),
-                dataSet: { testid: 'content-pack-puzzles-step' },
-              },
-            ]
-          : [
-              {
-                key: 'playtest',
-                label: t`Playtest`,
-                state: stateOf('playtest', next()),
-                action: actions.playtest(),
-                dataSet: {
-                  testid: 'content-proof',
-                  proven: String(props.proven),
-                },
-              },
-            ]),
-        {
-          key: 'validate',
-          label: t`Validate`,
-          state:
-            props.validation === 'valid' ? 'done' : stateOf('validate', next()),
-          action: actions.validate(),
-          dataSet:
-            props.validation === 'valid'
-              ? { testid: 'content-validation-passed' }
-              : { testid: 'content-validation-step' },
-        },
-        {
-          key: 'publish',
-          label: t`Publish`,
-          state: stateOf('publish', next()),
-          action: actions.publish(),
-        },
-      ],
-      names()
-    );
+  const steps = (): StepTrackStep[] => [
+    ...(props.kind === 'pack'
+      ? [
+          {
+            key: 'puzzles',
+            label: t`Publish puzzles`,
+            state: stateOf('puzzles', next()),
+            dataSet: { testid: 'content-pack-puzzles-step' },
+          },
+        ]
+      : [
+          {
+            key: 'playtest',
+            label: t`Playtest`,
+            state: stateOf('playtest', next()),
+            action: actions.playtest(),
+            dataSet: {
+              testid: 'content-proof',
+              proven: String(props.proven),
+            },
+          },
+        ]),
+    {
+      key: 'validate',
+      label: t`Validate`,
+      state:
+        props.validation === 'valid' ? 'done' : stateOf('validate', next()),
+      action: actions.validate(),
+      dataSet:
+        props.validation === 'valid'
+          ? { testid: 'content-validation-passed' }
+          : { testid: 'content-validation-step' },
+    },
+    {
+      key: 'publish',
+      label: t`Publish`,
+      state: stateOf('publish', next()),
+      action: actions.publish(),
+    },
+  ];
   return (
     <StackVertical gap="md">
       <StackHorizontal gap="md" wrap align="center">
@@ -273,7 +247,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
       </StackHorizontal>
       <StepTrack
         label={t`Steps to publish`}
-        stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Later` }}
+        stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Locked` }}
         steps={steps()}
         dataSet={{ testid: 'content-publication-steps' }}
       />

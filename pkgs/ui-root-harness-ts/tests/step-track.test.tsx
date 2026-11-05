@@ -10,7 +10,7 @@ import {
 import { createSignal } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
-const NAMES = { done: 'Done', current: 'Next', upcoming: 'Later' };
+const NAMES = { done: 'Done', current: 'Next', upcoming: 'Locked' };
 
 describe('StepTrack', () => {
   test('reads its steps in order: a check once done, a number until then', () => {
@@ -39,10 +39,14 @@ describe('StepTrack', () => {
       null,
     ]);
     expect(steps[0]?.querySelector('svg')).not.toBeNull();
+    // regression: builder-stepper-hard-to-parse — a waiting step read its
+    // name, then what it waited on ("Validate After its puzzles"), with its
+    // state for assistive technology only, so the track ran together. Each
+    // step now reads as one short line: number, name, state.
     expect(steps.map((step) => step.textContent)).toEqual([
-      'Done: Playtest',
-      '2Next: Validate',
-      '3Later: Publish',
+      'Playtest· Done',
+      '2Validate· Next',
+      '3Publish· Locked',
     ]);
   });
 

@@ -122,3 +122,23 @@ test('tiles keep one height: names on one line under a top-aligned swatch', () =
   expect(glyph).toMatch(/line-height:\s*1;/);
   expect(glyph).toMatch(/font-size:\s*var\(--ui-font-size-xs\)/);
 });
+
+// regression: sokoban-editor-phone-chrome-over-board — on a phone the
+// editor's step heading, then the palette's own "Tool" caption, then two
+// rows of tiles came before the board, so chrome and tools filled most of
+// the screen. Narrow, the group's name is now for listeners only.
+test("narrow, the group's name is for listeners only", () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../ui-root-client-ts/src/cell-grid-palette/cell-grid-palette.module.css'
+    ),
+    'utf8'
+  );
+  const narrow = css.slice(
+    css.indexOf('@container cell-grid-palette (max-width: 399px)')
+  );
+  expect(narrow).toMatch(/\.label \{[^}]*clip-path: inset\(50%\);/);
+  renderUi(() => <CellGridPaletteExample />, { width: 390, height: 844 });
+  expect(screen.getByRole('radiogroup', { name: 'Tool' })).toBeDefined();
+});

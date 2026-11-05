@@ -301,6 +301,10 @@ msgstr "{coordinate}: path {0}, {status}"
 msgid "{count, plural, one {# person watching} other {# people watching}}"
 msgstr "{count, plural, one {# person watching} other {# people watching}}"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "{count} puzzles are still drafts. Publish them, then the pack."
+msgstr "{count} puzzles are still drafts. Publish them, then the pack."
+
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 msgid "{current} of {total}"
 msgstr "{current} of {total}"
@@ -695,6 +699,10 @@ msgstr "1 hour"
 msgid "1 minute"
 msgstr "1 minute"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "1 puzzle is still a draft. Publish it, then the pack."
+msgstr "1 puzzle is still a draft. Publish it, then the pack."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "1 second"
 msgstr "1 second"
@@ -793,10 +801,6 @@ msgstr "A new attempt could not be saved. Your earlier attempt is still here. Tr
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 msgid "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
 msgstr "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "A pack holds only published puzzles, so {titles} comes first."
-msgstr "A pack holds only published puzzles, so {titles} comes first."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "A pass is exactly three different cards."
@@ -1047,18 +1051,6 @@ msgstr "Admission limit per worker"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
 msgstr "After 1 s"
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "After its puzzles"
-msgstr "After its puzzles"
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "After the playtest"
-msgstr "After the playtest"
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "After validation"
-msgstr "After validation"
 
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Agree draw"
@@ -2879,6 +2871,11 @@ msgstr "Finding an opponent"
 msgid "Finding players"
 msgstr "Finding players"
 
+#. placeholder {0}: props.waitingOn[0] ?? ''
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Finish {0}"
+msgstr "Finish {0}"
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Finish a game before asking for a rematch."
 msgstr "Finish a game before asking for a rematch."
@@ -3611,10 +3608,6 @@ msgstr "Last seen"
 msgid "Last successful action"
 msgstr "Last successful action"
 
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Later"
-msgstr "Later"
-
 #. placeholder {0}: latestExpires()
 #: libs/auth-client-ts/src/account-device-active-session-line.tsx
 msgid "Latest expires {0}"
@@ -3857,6 +3850,10 @@ msgstr "Loading…"
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
 msgstr "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Locked"
+msgstr "Locked"
 
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Long tasks"
@@ -5250,18 +5247,13 @@ msgstr "Publication waits for your connection. Your draft is kept on this device
 msgid "Publish"
 msgstr "Publish"
 
-#. placeholder {0}: props.waitingOn[0] ?? ''
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Publish {0} first"
-msgstr "Publish {0} first"
-
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 msgid "Publish it before the pack"
 msgstr "Publish it before the pack"
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Publish its puzzles"
-msgstr "Publish its puzzles"
+msgid "Publish puzzles"
+msgstr "Publish puzzles"
 
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
@@ -5450,10 +5442,6 @@ msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Puzzles processed"
 msgstr "Puzzles processed"
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Puzzles published"
-msgstr "Puzzles published"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Puzzles you start from Browse wait here, at the move you left them."

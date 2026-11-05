@@ -1,4 +1,4 @@
 {
-  "summary": "Before a puzzle's playtest (or a pack's puzzles) was done, Validate and Publish were full-contrast outlined buttons beside the filled next step, so steps that could not happen yet looked ready. A step that waits is now locked: muted, behind a lock glyph, with a short note saying what it waits on (After the playtest, After validation). It stays pressable, so pressing Publish on a draft that is not ready still says what is missing.",
+  "summary": "Before a puzzle's playtest (or a pack's puzzles) was done, Validate and Publish were full-contrast outlined buttons beside the filled next step, so steps that could not happen yet looked ready. A step that waits is now locked: muted, behind a lock glyph, its state read as Locked. It stays pressable, so pressing Publish on a draft that is not ready still says what is missing.",
   "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
 }

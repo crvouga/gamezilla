@@ -1,0 +1,4 @@
+{
+  "summary": "With a puzzle still a draft, the pack builder explained the rule (\"A pack holds only published puzzles, so Count to nine comes first\") under a lead reading \"Publish Count to nine first\". It now says where the pack stands (\"1 puzzle is still a draft. Publish it, then the pack.\") under one lead naming the thing to do (\"Finish Count to nine\").",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

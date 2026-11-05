@@ -65,8 +65,9 @@
   color: var(--ui-color-text);
   font-weight: var(--ui-font-weight-medium);
 }
-/* What a waiting step waits on, quieter than its name. */
-.note {
+/* The step's state in a word, quieter than its name. */
+.state {
+  white-space: nowrap;
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-xs);
   line-height: var(--ui-leading-xs);

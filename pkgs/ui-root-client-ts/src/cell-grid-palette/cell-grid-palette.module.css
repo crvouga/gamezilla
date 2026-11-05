@@ -77,3 +77,16 @@
     width: var(--ui-space-8);
   }
 }
+/* On a phone the step heading over the editor already names the stage, so
+   the group's name is for listeners only and the board starts a row
+   higher. */
+@container cell-grid-palette (max-width: 399px) {
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

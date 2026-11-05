@@ -3,7 +3,7 @@ import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { Button } from '../button/index';
 import { StepTrack } from './index';
 
-const STATE_NAMES = { done: 'Done', current: 'Next', upcoming: 'Later' };
+const STATE_NAMES = { done: 'Done', current: 'Next', upcoming: 'Locked' };
 
 /**
  * A builder's last steps: one done, the next one (its action filled above
@@ -37,7 +37,6 @@ export default function StepTrackExample(): JSX.Element {
             action: (
               <Button title="Publish" intent="neutral" variant="ghost" locked />
             ),
-            note: 'After validation',
           },
         ]}
       />
@@ -45,7 +44,7 @@ export default function StepTrackExample(): JSX.Element {
         label="Steps to publish a pack"
         stateNames={STATE_NAMES}
         steps={[
-          { key: 'puzzles', label: 'Publish its puzzles', state: 'current' },
+          { key: 'puzzles', label: 'Publish puzzles', state: 'current' },
           {
             key: 'validate',
             label: 'Validate',
@@ -58,7 +57,6 @@ export default function StepTrackExample(): JSX.Element {
                 locked
               />
             ),
-            note: 'After its puzzles',
           },
           {
             key: 'publish',
@@ -67,7 +65,6 @@ export default function StepTrackExample(): JSX.Element {
             action: (
               <Button title="Publish" intent="neutral" variant="ghost" locked />
             ),
-            note: 'After validation',
           },
         ]}
       />

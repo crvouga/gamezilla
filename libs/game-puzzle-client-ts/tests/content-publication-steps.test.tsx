@@ -140,9 +140,13 @@ test('a checked, proven puzzle has Publish as its one next step', () => {
 // regression: builder-locked-steps-look-enabled — before the playtest,
 // Validate and Publish were full-contrast outlined buttons beside the
 // filled step, so a step that could not happen yet looked ready. A step
-// that waits is now locked: muted, behind a lock, saying what it waits
-// on, and still pressable, so pressing Publish says what is missing.
-test('steps that wait are locked, say what they wait on, and still press', async () => {
+// that waits is now locked: muted, behind a lock, saying so, and still
+// pressable, so pressing Publish says what is missing.
+// regression: builder-stepper-hard-to-parse — each waiting step also said
+// what it waited on ("Validate After the playtest · Publish After
+// validation"), so the track read as one run-on line. Each step now reads
+// as number, name and state: "2 Validate · Locked".
+test('steps that wait are locked, say so in a word, and still press', async () => {
   let published = 0;
   mount(() =>
     publication({
@@ -156,15 +160,16 @@ test('steps that wait are locked, say what they wait on, and still press', async
   const steps = [
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
-  for (const [index, id, note] of [
-    [1, 'content-validate', 'After the playtest'],
-    [2, 'content-publish', 'After validation'],
+  for (const [index, id, line] of [
+    [1, 'content-validate', '2Validate· Locked'],
+    [2, 'content-publish', '3Publish· Locked'],
   ] as const) {
     const button = screen.getByTestId(id);
     expect(button.getAttribute('data-face')).toBe('locked');
     expect(button.hasAttribute('disabled')).toBe(false);
     expect(button.querySelector('svg')).not.toBeNull();
-    expect(steps[index]?.textContent).toContain(note);
+    expect(steps[index]?.textContent).toBe(line);
+    expect(steps[index]?.textContent).not.toContain('After');
   }
   fireEvent.click(screen.getByTestId('content-publish'));
   await Promise.resolve();
@@ -174,8 +179,9 @@ test('steps that wait are locked, say what they wait on, and still press', async
 // regression: pack-builder-blocker-unnamed — a pack with a puzzle still a
 // draft said "Not checked yet. Validate, then publish." with Validate
 // filled, though the pack could not publish until that puzzle was. Its
-// first step is now publishing its puzzles, named in the next-step line,
-// and its lead opens that puzzle; the pack's own steps are locked.
+// first step is now publishing its puzzles, counted in the next-step
+// line, and its lead names and opens that puzzle; the pack's own steps
+// are locked.
 test('a pack waits on its draft puzzles first, names them, and opens the first', () => {
   let opened = 0;
   mount(() =>
@@ -189,16 +195,20 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
     })
   );
   expect(states()).toEqual(['current', 'upcoming', 'upcoming']);
-  expect(screen.getByTestId('content-pack-puzzles-step').textContent).toContain(
-    'Publish its puzzles'
+  expect(screen.getByTestId('content-pack-puzzles-step').textContent).toBe(
+    '1Publish puzzles· Next'
   );
+  // regression: pack-publish-dependency-exposed — the line explained the
+  // rule ("A pack holds only published puzzles, so Count to nine comes
+  // first") instead of where the pack stood. It now says it plainly.
   expect(screen.getByTestId('content-publication-status').textContent).toBe(
-    'A pack holds only published puzzles, so Count to nine comes first.'
+    '1 puzzle is still a draft. Publish it, then the pack.'
   );
   expect(lead()).toBe(screen.getByTestId('content-open-waiting'));
   // regression: pack-lead-awkward-wording — the lead read "Open Count to
-  // nine to publish it". It now says what comes first, in plain words.
-  expect(lead().textContent).toBe('Publish Count to nine first');
+  // nine to publish it", then "Publish Count to nine first". It now names
+  // the one thing to do, in plain words.
+  expect(lead().textContent).toBe('Finish Count to nine');
   fireEvent.click(lead());
   expect(opened).toBe(1);
   for (const id of ['content-validate', 'content-publish'])
@@ -206,8 +216,8 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   const steps = [
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
-  expect(steps[1]?.textContent).toContain('After its puzzles');
-  expect(steps[2]?.textContent).toContain('After validation');
+  expect(steps[1]?.textContent).toBe('2Validate· Locked');
+  expect(steps[2]?.textContent).toBe('3Publish· Locked');
 });
 
 function builder(): JSX.Element {
