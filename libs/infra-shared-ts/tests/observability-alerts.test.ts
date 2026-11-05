@@ -15,7 +15,7 @@ type Rule = {
 const MODULE = join(import.meta.dirname, '../tofu/modules/observability-views');
 const README = join(
   import.meta.dirname,
-  '../../observability-shared-ts/README.md'
+  '../../observability-slo-shared-ts/README.md'
 );
 const RUNBOOK = join(import.meta.dirname, '../../../docs/SLO_RUNBOOK.md');
 
