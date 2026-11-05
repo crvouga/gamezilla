@@ -7,6 +7,7 @@ import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '../icons';
 import type { TextLines } from '../text-classes';
 import { textStyleClass } from '../text-classes';
+import styles from './menu-row.module.css';
 
 export type MenuRowSubmit = {
   readonly name: string;
@@ -30,6 +31,12 @@ export type MenuRowProps = {
   valueLines?: TextLines | undefined;
   /** Replace the default trailing chevron with custom content. */
   trailing?: JSX.Element | undefined;
+  /**
+   * A control of its own at the row's far end, beside the row's press
+   * target and never inside it (a "…" menu on a row that opens something).
+   * The row stays one native button or link, the accessory another.
+   */
+  accessory?: JSX.Element | undefined;
   /** Hide the trailing disclosure chevron. Defaults to `false`. */
   hideChevron?: boolean | undefined;
   /**
@@ -184,11 +191,13 @@ function menuRowHost(
   return row.onClick === undefined ? 'static' : 'action';
 }
 
-function MenuRowLink(props: MenuRowProps & { href: string }): JSX.Element {
+function MenuRowLink(
+  props: MenuRowProps & MenuRowPart & { href: string }
+): JSX.Element {
   return (
     <a
       class={`clickable clickableTint ${rowClass(props.selected === true)}`}
-      {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+      {...partAttrs(props.part, props.dataSet)}
       href={props.href}
       onClick={(event) => {
         if (props.onClick === undefined) return;
@@ -203,11 +212,24 @@ function MenuRowLink(props: MenuRowProps & { href: string }): JSX.Element {
   );
 }
 
-function MenuRowButton(props: MenuRowProps): JSX.Element {
+/** `MenuRowAction`: the press target of a row whose accessory sits beside it. */
+type MenuRowPart = { readonly part?: 'action' | undefined };
+
+/** The host's `data-*`: the row's own, or its press target's beside an accessory. */
+function partAttrs(
+  part: MenuRowPart['part'],
+  dataSet: MenuRowProps['dataSet']
+) {
+  return part === 'action'
+    ? dataAttrs({ component: 'MenuRowAction' })
+    : dataAttrs({ component: 'MenuRow', ...dataSet });
+}
+
+function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
   return (
     <button
       class={`clickable clickableTint ${rowClass(props.selected === true)}`}
-      {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+      {...partAttrs(props.part, props.dataSet)}
       type={props.submit === undefined ? 'button' : 'submit'}
       name={props.submit?.name}
       value={props.submit?.value}
@@ -240,6 +262,8 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
  * Interactive rows use native buttons and links. Static detail rows and rows
  * whose trailing control owns the interaction use plain boxes. `MenuList`
  * groups these mixed controls without imposing command-menu keyboard semantics.
+ * An `accessory` (a "…" menu) sits at the row's end beside its press
+ * target, never inside it, on the same hairline.
  * Pass `selected` to opt into a `tintSubtle` row fill; `tone="destructive"`
  * paints the title in the destructive ink. `submit` carries
  * `name=value` into the surrounding form. `expanded` makes the row a
@@ -254,6 +278,43 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
  * />
  * ```
  */
+/** The row's press target: a link, or a button that acts or submits. */
+function MenuRowPressable(
+  props: MenuRowProps & MenuRowPart & { host: MenuRowHost }
+): JSX.Element {
+  return (
+    <Show
+      when={props.host === 'link' ? props.href : undefined}
+      fallback={<MenuRowButton {...props} />}
+    >
+      {(href) => <MenuRowLink {...props} href={href()} />}
+    </Show>
+  );
+}
+
+/**
+ * A pressable row with an accessory: the row's press target fills the
+ * row, the accessory sits beside it on the same hairline, so neither
+ * control nests in the other.
+ */
+function MenuRowSplit(
+  props: MenuRowProps & { host: MenuRowHost }
+): JSX.Element {
+  return (
+    <div
+      class={`${styles['split']} box flex-row items-stretch ${rowClass(props.selected === true)}`}
+      {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+    >
+      <div class={`${styles['action']} box flex-1 min-w-0`}>
+        <MenuRowPressable {...props} part="action" />
+      </div>
+      <div class="panelRule box flex-row items-center shrink-0 pr-2">
+        {props.accessory}
+      </div>
+    </div>
+  );
+}
+
 export function MenuRow(props: MenuRowProps): JSX.Element {
   const host = (): MenuRowHost =>
     menuRowHost({
@@ -261,13 +322,14 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
       submit: props.submit,
       onClick: props.onClick,
     });
+  const split = () => props.accessory !== undefined && host() !== 'static';
   return (
     <Switch>
-      <Match when={host() === 'link' ? props.href : undefined}>
-        {(href) => <MenuRowLink {...props} href={href()} />}
+      <Match when={split()}>
+        <MenuRowSplit {...props} host={host()} />
       </Match>
-      <Match when={host() === 'submit' || host() === 'action'}>
-        <MenuRowButton {...props} />
+      <Match when={host() !== 'static'}>
+        <MenuRowPressable {...props} host={host()} />
       </Match>
       <Match when={host() === 'static'}>
         <div
@@ -276,7 +338,20 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
           aria-label={props['aria-label']}
           aria-current={props.current === true ? 'true' : undefined}
         >
-          <MenuRowBody {...props} interactive={false} />
+          <MenuRowBody
+            {...props}
+            trailing={
+              props.accessory === undefined ? (
+                props.trailing
+              ) : (
+                <div class="box flex-row items-center gap-2">
+                  {props.trailing}
+                  {props.accessory}
+                </div>
+              )
+            }
+            interactive={false}
+          />
         </div>
       </Match>
     </Switch>

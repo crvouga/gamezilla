@@ -2570,15 +2570,6 @@ msgstr "East black square"
 msgid "Easy"
 msgstr "Easy"
 
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "Edit"
-msgstr "Edit"
-
-#. placeholder {0}: props.title
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "Edit {0}"
-msgstr "Edit {0}"
-
 #: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
@@ -8104,15 +8095,6 @@ msgstr "Version and diagnostics"
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Vertical wall"
 msgstr "Vertical wall"
-
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "View"
-msgstr "View"
-
-#. placeholder {0}: props.title
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "View {0}"
-msgstr "View {0}"
 
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "View profile"
