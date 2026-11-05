@@ -352,11 +352,41 @@
   background: var(--ui-color-game-sokoban-ink);
   border-color: var(--ui-color-game-sokoban-muted);
 }
+/* A wall is brickwork, as the player's board draws it: two running-bond
+   courses to a square, edge to edge, so walls read as one built mass. */
 .board[data-board-theme="sokoban"] .cell[data-tone="occupied"] {
+  --cell-grid-mortar: max(1px, calc(2cqw / var(--cell-grid-columns)));
   background: var(--ui-color-game-sokoban-canvas);
-  border: 1px solid var(--ui-color-game-sokoban-surface);
-  box-shadow: inset 0 max(1px, calc(8cqw / var(--cell-grid-columns)))
-    var(--ui-color-game-sokoban-surface);
+  background-image:
+    linear-gradient(
+      var(--ui-color-game-sokoban-surface),
+      var(--ui-color-game-sokoban-surface)
+    ),
+    linear-gradient(
+      var(--ui-color-game-sokoban-surface),
+      var(--ui-color-game-sokoban-surface)
+    ),
+    linear-gradient(
+      var(--ui-color-game-sokoban-surface),
+      var(--ui-color-game-sokoban-surface)
+    ),
+    linear-gradient(
+      var(--ui-color-game-sokoban-surface),
+      var(--ui-color-game-sokoban-surface)
+    );
+  background-size:
+    100% var(--cell-grid-mortar),
+    100% var(--cell-grid-mortar),
+    var(--cell-grid-mortar) 50%,
+    var(--cell-grid-mortar) 50%;
+  background-position:
+    0 0,
+    0 50%,
+    50% 0,
+    0 100%;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  border: 1px solid transparent;
 }
 .board[data-board-theme="sokoban"] .cell[data-tone="quiet"] {
   background: transparent;

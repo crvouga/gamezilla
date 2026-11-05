@@ -124,6 +124,37 @@ describe('Sokoban board', () => {
   });
 });
 
+describe('Sokoban walls', () => {
+  // regression: sokoban-wall-grout-strips — each wall tile drew a lit top
+  // edge (an inset shadow in the board's surface tone) and a surface
+  // border, so a run of walls showed lighter horizontal strips that read as
+  // a rendering glitch. Walls are now running-bond brickwork drawn edge to
+  // edge, in the player's board and the builder's alike.
+  const walls = [
+    ['tile-board/tile-board.module.css', '.tile[data-terrain="solid"]'],
+    [
+      'cell-grid-board/cell-grid-board.module.css',
+      '.board[data-board-theme="sokoban"] .cell[data-tone="occupied"]',
+    ],
+  ] as const;
+  test.each(walls)(
+    '%s draws walls as brick courses, no lit edge',
+    (file, selector) => {
+      const wall = rule(file, selector);
+      expect(wall).not.toContain('box-shadow');
+      expect(wall).toMatch(/border(?:-color)?:[^;]*transparent;/);
+      // Four mortar joints: two bed joints across, a head joint in each course.
+      expect(
+        declared(wall, 'background-image').match(/linear-gradient/g)
+      ).toHaveLength(4);
+      expect(declared(wall, 'background-position').replace(/\s+/g, ' ')).toBe(
+        '0 0, 0 50%, 50% 0, 0 100%'
+      );
+      expect(declared(wall, 'background-origin')).toBe('border-box');
+    }
+  );
+});
+
 describe('path board', () => {
   // regression: numberlink-path-seams — the cells' grid lines painted over
   // the paths, so every path showed a seam at each cell border. The paths

@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban wall tiles drew a lit top edge (an inset shadow in the board's surface tone) plus a surface border, so every run of walls showed lighter horizontal strips that read as a rendering glitch, in the player and the builder. Walls are now running-bond brickwork (two courses a tile, joints in the surface tone) drawn edge to edge, with no per-tile edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}
