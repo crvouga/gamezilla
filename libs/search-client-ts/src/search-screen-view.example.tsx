@@ -56,8 +56,8 @@ const STORY_RELATIONS: Readonly<Record<string, StoryRelation>> = {
  * Stand-in for the friends sub's relationship: the row's controls, every
  * one ending on the same edge: "Friends" as words with a check in the
  * success ink (a status, not a control), "Cancel request" for one that is
- * out and "Add friend" as the same small outlined pill, and Confirm /
- * Delete for one who asked.
+ * out and "Add friend" as the same small outlined pill, and Accept /
+ * Decline for one who asked (the words the app uses everywhere).
  */
 function StoryRelationPill(props: { readonly username: string }): JSX.Element {
   const relation = (): StoryRelation =>
@@ -67,13 +67,13 @@ function StoryRelationPill(props: { readonly username: string }): JSX.Element {
       <Match when={relation() === 'incoming'}>
         <StackHorizontal gap="sm">
           <Button
-            title="Confirm"
+            title="Accept"
             variant="solid"
             size="sm"
             onClick={() => undefined}
           />
           <Button
-            title="Delete"
+            title="Decline"
             intent="neutral"
             variant="outline"
             size="sm"
