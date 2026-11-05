@@ -24,6 +24,7 @@
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

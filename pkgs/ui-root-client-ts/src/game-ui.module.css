@@ -119,13 +119,11 @@
 > :not(.board) {
   margin-inline-start: 20px;
 }
-/* Wide, the gutter hangs in the margin: the squares start under the title. */
-@container game-column (min-width: 880px) {
-  .boardStage:not([data-preview="true"]):has([data-board-gutter="start"]) {
-    width: calc(100% + 20px);
-    max-width: calc(var(--game-board-measure, 560px) + 20px);
-    margin-inline-start: -20px;
-  }
+/* Ranks at the board's end (a wide screen's chess board): the seats end
+   short of that gutter instead, so the squares start under the title. */
+.boardStage:not([data-preview="true"]):has([data-board-gutter="end"])
+> :not(.board) {
+  margin-inline-end: 20px;
 }
 /* Before play: a small thumbnail in the board's own colours, its top level
    with the setup beside it, over a quiet label that names it; its size and

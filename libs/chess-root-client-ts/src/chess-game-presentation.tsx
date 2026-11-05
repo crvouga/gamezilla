@@ -14,6 +14,7 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentProps, JSX } from 'solid-js';
 
 const UCI = /^([a-h][1-8])([a-h][1-8])[qrbn]?$/;
@@ -36,8 +37,14 @@ export function chessMoveSquares(
  * (`ChessBoardFrame`), larger than a corner holds.
  */
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
+  const mode = useLayoutMode();
   return (
-    <ChessBoardFrame orientation={requireTwoPlayerSide(props.orientation)}>
+    <ChessBoardFrame
+      orientation={requireTwoPlayerSide(props.orientation)}
+      // Wide, the ranks stand at the end, so the squares start under the
+      // screen's title.
+      ranks={mode() === 'wide' ? 'end' : 'start'}
+    >
       <ChessBoard
         theme={BOARD_THEME}
         fen={props.position}

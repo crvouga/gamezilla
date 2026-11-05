@@ -8,8 +8,8 @@ const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
 
 /**
  * A fill-width chess board with its coordinates outside the squares: a
- * slim labelled frame, the ranks down its start edge and the files along
- * its foot, at a size a square's corner cannot hold. Every playing board
+ * slim labelled frame, the ranks down its start edge (or its end edge,
+ * `ranks="end"`) and the files along its foot, at a size a square's corner cannot hold. Every playing board
  * (280px and wider, a phone's or a desktop's, in a game or a puzzle) reads
  * its coordinates the same way; a thumbnail keeps the labels in the
  * squares' corners, and the frame takes no room. The board inside draws its
@@ -24,6 +24,11 @@ const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
  */
 export function ChessBoardFrame(props: {
   readonly orientation: 'white' | 'black';
+  /**
+   * The side the ranks stand on: `start` (default), or `end`, where a wide
+   * screen lines the board's start edge up with the screen's title.
+   */
+  readonly ranks?: 'start' | 'end' | undefined;
   readonly children: JSX.Element;
 }): JSX.Element {
   const white = (): boolean => props.orientation === 'white';
@@ -35,9 +40,9 @@ export function ChessBoardFrame(props: {
     <div
       class={styles['host']}
       data-component="ChessBoardFrame"
-      data-board-gutter="start"
+      data-board-gutter={props.ranks ?? 'start'}
     >
-      <div class={styles['frame']}>
+      <div class={styles['frame']} data-ranks={props.ranks ?? 'start'}>
         <div class={styles['ranks']} aria-hidden="true">
           <For each={ranks()}>
             {(rank) => <span class={styles['label']}>{rank}</span>}

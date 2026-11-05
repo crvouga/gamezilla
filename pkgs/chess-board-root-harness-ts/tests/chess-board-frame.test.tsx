@@ -102,23 +102,43 @@ test('the frame marks its labels gutter, and the stage starts its seats past it'
 
 // regression: chess-board-inset-from-title — wide, the squares still began
 // 20px in from the screen's title, the rank labels' gutter standing inside
-// the board's column. Wide, the labels now hang in the page's margin,
-// outside the column: the whole stage shifts by the gutter, so the squares
-// start at the column's edge, under the title, and the seats (still past
-// the gutter) share both edges with them. A phone, whose margin is
-// narrower than the gutter, keeps it inside.
-test('wide, the labels gutter hangs outside the column, the squares under the title', () => {
+// the board's column at its start. Wide, the ranks now stand at the
+// board's end edge: the squares start at the column's edge, under the
+// title, and the seats end short of the gutter instead. A phone keeps the
+// ranks at the start.
+test('wide, the ranks stand at the end, the squares under the title', () => {
+  const view = render(() => (
+    <ChessBoardFrame orientation="white" ranks="end">
+      <div />
+    </ChessBoardFrame>
+  ));
+  const host = view.container.querySelector('[data-board-gutter]');
+  expect(host?.getAttribute('data-board-gutter')).toBe('end');
+  expect(host?.querySelector('[data-ranks]')?.getAttribute('data-ranks')).toBe(
+    'end'
+  );
+  view.unmount();
+  const frame = readFileSync(
+    join(SRC, 'chess-board-frame/chess-board-frame.module.css'),
+    'utf8'
+  );
+  const playing = frame.slice(frame.indexOf(PLAYING_QUERY));
+  expect(playing).toMatch(
+    /\.frame\[data-ranks="end"\] \{\s*grid-template-columns: minmax\(0, 1fr\) 16px;/
+  );
+  expect(playing).toMatch(
+    /\.frame\[data-ranks="end"\] \.ranks \{\s*grid-column: 2;/
+  );
   const stage = readFileSync(
     join(import.meta.dirname, '../../ui-root-client-ts/src/game-ui.module.css'),
     'utf8'
   );
-  const wide = stage.slice(
-    stage.indexOf('@container game-column (min-width: 880px) {\n  .boardStage')
+  const rule = stage.slice(
+    stage.indexOf(
+      '.boardStage:not([data-preview="true"]):has([data-board-gutter="end"])'
+    )
   );
-  const rule = wide.slice(0, wide.indexOf('}'));
-  expect(rule).toMatch(
-    /\.boardStage:not\(\[data-preview="true"\]\):has\(\[data-board-gutter="start"\]\) \{/
+  expect(rule.slice(0, rule.indexOf('}'))).toMatch(
+    />\s*:not\(\.board\)\s*\{\s*margin-inline-end: 20px;/
   );
-  expect(rule).toMatch(/width: calc\(100% \+ 20px\);/);
-  expect(rule).toMatch(/margin-inline-start: -20px;/);
 });

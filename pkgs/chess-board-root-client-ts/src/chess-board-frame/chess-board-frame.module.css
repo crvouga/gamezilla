@@ -51,4 +51,16 @@
     grid-column: 2;
     grid-row: 2;
   }
+  /* Ranks at the end edge: the squares start at the frame's start edge,
+     under the screen's title, the labels standing past their end. */
+  .frame[data-ranks="end"] {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+  .frame[data-ranks="end"] .ranks {
+    grid-column: 2;
+  }
+  .frame[data-ranks="end"] .board,
+  .frame[data-ranks="end"] .files {
+    grid-column: 1;
+  }
 }
