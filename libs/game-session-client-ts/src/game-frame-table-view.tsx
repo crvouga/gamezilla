@@ -267,6 +267,8 @@ export function tableShowsTurn(
   // A board that seats its players says the turn by its table and the
   // turn line, never a strip.
   if (table.shape === 'board') return false;
+  // A phone's board that names its players draws no seat to say it.
+  if (compact === true && table.named === true) return false;
   // A chip in the rail says nothing of the turn: the turn line does.
   const nearStrip =
     nearInRail({ table, compact, onChoose: async () => undefined }) === null;
@@ -277,12 +279,23 @@ export function tableShowsTurn(
 }
 
 /**
+ * On a phone, a board that names each player in their own part of it
+ * (`GameFrame.boardNames`) is the one place they are named: the frame draws
+ * no seat above or below it.
+ */
+function namedOnBoard(props: TableProps): boolean {
+  return props.compact === true && props.table.named === true;
+}
+
+/**
  * The other seats, above the board: the one opponent's full strip, or a
  * rail of chips at a bigger table; nothing at a solo table.
  */
 export function FrameOthersView(props: TableProps): JSX.Element {
   return (
     <Switch>
+      {/* A phone's board that names its players: nothing above it. */}
+      <Match when={namedOnBoard(props)}>{null}</Match>
       <Match when={props.table.shape === 'strip' && props.table.others[0]}>
         {(seat) => (
           <FrameSeatStripView
@@ -322,7 +335,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
  */
 function nearStrip(props: TableProps): FramePlaySeat | null {
   const near = props.table.near;
-  if (props.table.shape === 'board')
+  if (props.table.shape === 'board' || namedOnBoard(props))
     return near?.reclaim === true ? near : null;
   return nearInRail(props) === null ? near : null;
 }

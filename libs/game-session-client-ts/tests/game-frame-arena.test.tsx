@@ -498,3 +498,47 @@ test('phone: a real-time game says how play goes on as plain hint text', () => {
   expect(pill?.getAttribute('data-look')).toBe('plain');
   expect(pill?.querySelector('.bg-surface-muted')).toBeNull();
 });
+
+/** A two-player court that names each player in its own half (Pong). */
+function mountNamedCourt(width: number, reclaim = false): void {
+  const time = createHarnessClock();
+  const near = { ...seat('white', 'avery'), reclaim };
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+        <GameFrameScreenView
+          {...props()}
+          playerCount={2}
+          table={{
+            shape: 'strip',
+            named: true,
+            near,
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+}
+
+// regression: pong-phone-players-named-thrice — on a phone Pong named each
+// player three times: a strip above the court, the name under their points
+// in the court, and a strip below it. A board that names its players is the
+// one place a phone names them; a wide screen's players card still lists
+// everyone, and a seat to take back from a stand-in still shows.
+test('phone: a court that names its players draws no seat above or below it', () => {
+  mountNamedCourt(390);
+  expect(screen.queryByTestId('custom-game-seat-near')).toBeNull();
+  expect(screen.queryByTestId('custom-game-white')).toBeNull();
+  expect(screen.queryByTestId('custom-game-black')).toBeNull();
+  expect(screen.getByTestId('arena')).toBeTruthy();
+  expect(screen.getByTestId('custom-game-resign')).toBeTruthy();
+  cleanup();
+  mountNamedCourt(390, true);
+  expect(screen.getByTestId('custom-game-seat-near')).toBeTruthy();
+  cleanup();
+  mountNamedCourt(1440);
+  const board = screen.getByTestId('custom-game-scoreboard');
+  for (const name of ['custom-game-white', 'custom-game-black'])
+    expect(board.querySelector(`[data-testid="${name}"]`)).not.toBeNull();
+});

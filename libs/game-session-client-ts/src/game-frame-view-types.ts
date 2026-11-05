@@ -92,6 +92,11 @@ export type FrameTable = {
    * frame lends it each player (`GameFrame.boardSeats`).
    */
   readonly shape: 'strip' | 'rail' | 'none' | 'board';
+  /**
+   * The board names each player itself (`GameFrame.boardNames`): a phone
+   * draws no seats above or below it, except one to take back.
+   */
+  readonly named?: boolean | undefined;
   readonly near: FramePlaySeat | null;
   readonly others: readonly FramePlaySeat[];
 };

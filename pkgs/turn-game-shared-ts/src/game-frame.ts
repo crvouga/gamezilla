@@ -168,6 +168,15 @@ export type GameFrame<View> = {
    * place at the table. Absent for a board the frame seats players around.
    */
   readonly boardSeats?: boolean;
+  /**
+   * The board names each player in their own part of it (Pong's halves of
+   * the court, each named under its points): on a phone, where the frame
+   * would draw a seat above the board and another below it, it draws
+   * neither, so each player is named once. Beside a wide board the
+   * players' card still lists everyone; a seat to take back from a
+   * stand-in bot still shows.
+   */
+  readonly boardNames?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

@@ -120,10 +120,22 @@
   dominant-baseline: hanging;
 }
 /* Where the person's thumb drags their paddle: a slim lane of the court's
-   lighter violet along their half's outer edge. */
+   lighter violet along their half's outer edge, shown only while a thumb is
+   on the court or keys reach the paddle's slider. At rest the court is one
+   colour edge to edge, so no unexplained band runs down its side. */
 .lane {
   fill: var(--ui-color-surface);
+  opacity: 0;
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.stage:active .lane,
+.stage:has(.half :focus-visible) .lane {
   opacity: 0.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lane {
+    transition: none;
+  }
 }
 .ring {
   fill: none;

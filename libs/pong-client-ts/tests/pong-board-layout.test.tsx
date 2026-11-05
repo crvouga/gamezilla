@@ -242,3 +242,19 @@ test('the ball is drawn round, larger than it plays, centred where it plays', ()
   expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.8);
   expect(Number(ball.getAttribute('cx'))).toBe(config.width / 2);
 });
+
+// regression: pong-drag-lane-unexplained-band — the drag lane drew a
+// lighter band down the person's edge of the court at all times, which read
+// as a fault in the court. At rest the court is one colour; the lane shows
+// only while a thumb is on the court or keys reach the paddle's slider.
+test("the drag lane shows only while the court is touched or the paddle's slider has keyboard focus", () => {
+  const lane = rule('paddle-court/paddle-court.module.css', '.lane');
+  expect(lane).toMatch(/opacity:\s*0;/);
+  const css = readFileSync(
+    join(UI_SRC, 'paddle-court/paddle-court.module.css'),
+    'utf8'
+  );
+  expect(css).toMatch(
+    /\.stage:active \.lane,\s*\.stage:has\(\.half :focus-visible\) \.lane \{\s*opacity: 0\.55;/
+  );
+});

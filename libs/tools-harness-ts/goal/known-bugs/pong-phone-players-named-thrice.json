@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Pong named each player three times: a strip above the court, the name under their points inside the court, and a strip below it. A game whose board names its players (GameFrame.boardNames) now draws no seats above or below it on a phone; the wide players card still lists everyone.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

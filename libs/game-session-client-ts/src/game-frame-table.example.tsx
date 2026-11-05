@@ -255,6 +255,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       status={tableStatus(props)}
       table={{
         shape: tableShape(props),
+        named: props.presentation.frame.boardNames === true,
         near: playSeat(props, near()),
         others: props.sides
           .filter((side) => side !== near())
