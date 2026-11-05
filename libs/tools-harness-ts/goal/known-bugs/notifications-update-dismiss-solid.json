@@ -1,0 +1,4 @@
+{
+  "summary": "A notification card made its first answer the solid primary pill even on an update that waits on nobody, so every game result's 'Dismiss' in the Activity timeline was a solid blue button competing with what needed the person. Fixed by giving only cards that need the person a main answer; an update's choices stay outlined.",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

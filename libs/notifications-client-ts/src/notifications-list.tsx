@@ -128,8 +128,12 @@ export function notificationRows(
   return out;
 }
 
-/** A group's heading: larger than a day's, with how many need the person. */
-export function GroupHeading(props: {
+/**
+ * A group's heading: larger than a day's, with how many need the person. It
+ * starts on the screen's own edge, the one the title, the filter chips and
+ * the panels start on, so the eye runs straight down the page.
+ */
+function GroupHeading(props: {
   readonly title: JSX.Element;
   readonly count: number | null;
   readonly leading: boolean;
@@ -138,7 +142,6 @@ export function GroupHeading(props: {
     <StackHorizontal
       align="center"
       gap="sm"
-      paddingX="lg"
       paddingTop={props.leading ? 'none' : 'xl'}
       paddingBottom="sm"
     >
@@ -163,12 +166,12 @@ function DayHeading(props: {
   readonly leading: boolean;
   readonly nested: boolean;
 }): JSX.Element {
-  // The label on the rows' text column, a small gap to its panel, and a
-  // tighter gap than a settings section above every day but the first:
-  // the inbox is one running list, so more of it fits on a phone.
+  // The label on the screen's edge, under the group heading, a small gap to
+  // its panel, and a tighter gap than a settings section above every day
+  // but the first: the inbox is one running list, so more of it fits on a
+  // phone.
   return (
     <StackVertical
-      paddingX="lg"
       paddingTop={props.leading ? 'none' : 'lg'}
       paddingBottom="sm"
     >

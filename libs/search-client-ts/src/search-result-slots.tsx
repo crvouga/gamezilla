@@ -27,6 +27,12 @@ export type SearchResultSlots = {
    * reachable elsewhere too.
    */
   readonly aside?: () => JSX.Element;
+  /**
+   * A phone's way to what the desktop column holds about people (such as
+   * the friend requests waiting): an entry under the search field. Phone
+   * only, since the desktop column already shows it.
+   */
+  readonly requests?: () => JSX.Element;
 };
 
 const SearchResultSlotsContext =

@@ -5,22 +5,17 @@ import type {
   NotificationFilter,
   NotificationSection,
 } from '@libs/notifications-shared-ts/notification';
-import { NEEDS_YOU_SECTION_KEY } from '@libs/notifications-shared-ts/notifications-sections';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
-import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import type { InboxChoiceFailure } from './inbox-choice-failure';
 import { InboxChoiceFailureNotice } from './inbox-choice-failure-notice';
 import { NotificationsFilterBar } from './notifications-filter-bar';
-import { NOTIFICATIONS_FILTER_ALL } from './notifications-filter-values';
-import { GroupHeading, NotificationsList } from './notifications-list';
+import { NotificationsList } from './notifications-list';
 
 export type NotificationsScreenViewProps = {
   /** The inbox under the current filter, grouped by day. */
@@ -67,57 +62,6 @@ function useMarkAllReadAction(
   );
 }
 
-/**
- * The "Needs you" items when they go in the desktop aside: the whole inbox
- * is shown, something needs the person, and there is a timeline to sit
- * beside. Otherwise the list keeps them as its first group.
- */
-function useNeedsYouAside(
-  props: NotificationsScreenViewProps
-): () => NotificationSection | undefined {
-  const mode = useLayoutMode();
-  return createMemo(() => {
-    if (mode() !== 'wide' || props.filter !== NOTIFICATIONS_FILTER_ALL)
-      return undefined;
-    const needsYou = props.sections.find(
-      (section) =>
-        section.key === NEEDS_YOU_SECTION_KEY && section.items.length > 0
-    );
-    const timeline = props.sections.some(
-      (section) =>
-        section.key !== NEEDS_YOU_SECTION_KEY && section.items.length > 0
-    );
-    return timeline ? needsYou : undefined;
-  });
-}
-
-const NO_SECTION: NotificationSection = { key: '', title: '', items: [] };
-
-/** What waits on the person, in its own column beside the timeline. */
-function NeedsYouAside(props: {
-  readonly section: NotificationSection;
-  readonly renderCard: (interaction: Notification) => JSX.Element;
-}): JSX.Element {
-  return (
-    <StackVertical>
-      <GroupHeading
-        title={props.section.title}
-        count={props.section.items.length}
-        leading
-      />
-      <MenuList>
-        <For each={props.section.items}>
-          {(item) => (
-            <StackVertical paddingX="lg">
-              {props.renderCard(item)}
-            </StackVertical>
-          )}
-        </For>
-      </MenuList>
-    </StackVertical>
-  );
-}
-
 function InboxView(props: NotificationsScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const hasUnread = (): boolean =>
@@ -125,26 +69,6 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
       section.items.some((item) => item.isUnread)
     );
   const actions = useMarkAllReadAction(props, hasUnread);
-  const needsYou = useNeedsYouAside(props);
-  const listed = createMemo(() =>
-    needsYou() === undefined
-      ? props.sections
-      : props.sections.filter(
-          (section) => section.key !== NEEDS_YOU_SECTION_KEY
-        )
-  );
-  // Nothing at all while there is no aside, so no empty column is
-  // reserved; built once per appearance, since the column is read more than
-  // once per render.
-  const hasAside = createMemo(() => needsYou() !== undefined);
-  const aside = createMemo((): JSX.Element | undefined =>
-    hasAside() ? (
-      <NeedsYouAside
-        section={needsYou() ?? NO_SECTION}
-        renderCard={props.renderCard}
-      />
-    ) : undefined
-  );
   return (
     <CollectionScreen
       screenId="notifications"
@@ -161,10 +85,9 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
           />
         </>
       }
-      aside={aside()}
     >
       <NotificationsList
-        sections={listed()}
+        sections={props.sections}
         isLoading={props.isLoading}
         filter={props.filter}
         renderCard={props.renderCard}
@@ -177,8 +100,10 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
  * `/notifications`, presentational: the inbox with its filters, day
  * sections, Mark all read, a failed choice's notice, and its loading, empty
  * and permission-denied states. Mark all read sits in the header beside the
- * title; on a desktop what needs the person sits in a column beside the
- * timeline.
+ * title. On every size the inbox is one list: what needs the person first,
+ * then the Activity timeline under it, so the "All" filter shows all of it
+ * in one place. A desktop gives that list the whole column: a side column
+ * would only repeat the filters or Mark all read.
  * `NotificationsScreen` wires it to the inbox and its actions.
  */
 export function NotificationsScreenView(

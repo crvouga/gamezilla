@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop search listed incoming friend requests in its side column, but a phone had no column and showed them nowhere on the search screen. Fixed with a phone-only 'Friend requests' entry with its count under the search field, opening to the same requesters.",
+  "regressionTest": "libs/friends-client-ts/tests/search-requests-on-phone.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The inbox's group and day headings ('Needs you', 'Activity', 'Today') were inset 16px more than the screen title and the filter chips, so the page had two left edges. Fixed by starting every heading on the list's own edge.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-needs-you-first.test.tsx"
+}

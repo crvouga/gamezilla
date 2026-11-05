@@ -200,3 +200,19 @@ test('Archive is not a control on the card face; it waits in the menu', () => {
   expect(screen.queryByTestId(Handles.notificationsArchive(CARD))).toBeNull();
   expect(screen.getByRole('button', { name: 'More' })).toBeTruthy();
 });
+
+// regression: notifications-update-dismiss-solid
+test("an update's only choice stays outlined; a card that waits on you keeps its solid answer", () => {
+  mountCard({
+    ...invite([{ id: 'dismiss', label: 'Dismiss', variant: 'ghost' }]),
+    category: 'informational',
+    title: 'You won your daily game against @jordan_plays',
+  });
+  const dismiss = screen.getByTestId(`${CARD}-dismiss`);
+  expect(dismiss.getAttribute('data-face')).toBe('neutral-outline');
+  cleanup();
+  mountCard(invite([{ id: 'accept', label: 'Accept', variant: 'solid' }]));
+  expect(screen.getByTestId(`${CARD}-accept`).getAttribute('data-face')).toBe(
+    'primary'
+  );
+});

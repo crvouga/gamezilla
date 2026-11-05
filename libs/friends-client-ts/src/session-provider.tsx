@@ -23,6 +23,7 @@ import { ProfileFriendsPlaying } from './profile-friends-playing';
 import { ProfileFriendsStats } from './profile-friends-stats-view';
 import { SearchFriendResultRow } from './search-friend-result-row';
 import { SearchRequestsAside } from './search-requests-aside';
+import { SearchRequestsEntry } from './search-requests-entry';
 import { useFriendsClientDeps } from './use-friends-client-deps';
 
 const PROFILE_SLOTS = {
@@ -36,6 +37,7 @@ const SEARCH_SLOTS = {
     <SearchFriendResultRow user={user} query={query} />
   ),
   aside: () => <SearchRequestsAside />,
+  requests: () => <SearchRequestsEntry />,
 };
 
 export default function FriendsSession(props: {
