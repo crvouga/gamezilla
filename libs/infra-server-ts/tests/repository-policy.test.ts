@@ -89,7 +89,7 @@ test('the declared merge settings pass the bootstrap repository policy', () => {
       'allow_rebase_merge',
     ].map((name) => [name, setting(name)])
   );
-  expect(after.allow_auto_merge).toBe(true);
+  expect(after['allow_auto_merge']).toBe(true);
   const conftest = Bun.spawnSync(['mise', 'which', 'conftest'])
     .stdout.toString()
     .trim();
