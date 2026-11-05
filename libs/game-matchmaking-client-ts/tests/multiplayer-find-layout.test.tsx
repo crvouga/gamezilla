@@ -124,7 +124,21 @@ test('a provisional rating keeps its "?" quietly, its tag saying what it means',
   expect(mark?.className).toContain('text-text-secondary');
   const tag = screen.getByTestId('multiplayer-rating-game-provisional');
   expect(tag.textContent).toBe('Provisional');
-  expect(tag.getAttribute('data-intent')).toBe('info');
+});
+
+// regression: provisional-rating-loud — beside Find an opponent the
+// provisional rating drew an accent tag, a progress bar and a two-part
+// footnote, outweighing the search itself. The tag is neutral, there is no
+// bar, and how far the rating is from settling is one quiet footnote.
+test('a provisional rating is quiet beside the search: a neutral tag, no bar', () => {
+  mount(1440);
+  const stat = screen.getByTestId('multiplayer-rating-game');
+  const tag = screen.getByTestId('multiplayer-rating-game-provisional');
+  expect(tag.getAttribute('data-intent')).toBe('neutral');
+  expect(stat.querySelector('[data-component="ProgressBar"]')).toBeNull();
+  expect(screen.getByTestId('multiplayer-rating-game-games').textContent).toBe(
+    '7 of 12 rated games'
+  );
 });
 
 // regression: matchmaking-card-too-wide — wide, the search card spanned the

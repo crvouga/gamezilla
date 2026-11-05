@@ -5436,10 +5436,6 @@ msgstr "Rapid"
 msgid "Rated"
 msgstr "Rated"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Rated games toward a settled rating"
-msgstr "Rated games toward a settled rating"
-
 #: libs/game-puzzle-client-ts/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"
 msgstr "Rating after each puzzle"

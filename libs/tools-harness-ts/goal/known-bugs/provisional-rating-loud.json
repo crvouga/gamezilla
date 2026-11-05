@@ -1,0 +1,4 @@
+{
+  "summary": "Beside Find an opponent the provisional rating drew an accent \"Provisional\" tag, a progress bar and a two-part footnote, so the explanation outweighed the search itself. The tag is neutral, there is no bar, and how far the rating is from settling is one quiet footnote.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}
