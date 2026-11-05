@@ -211,6 +211,9 @@ test('phone: a turn too long for the strip wraps between its moves, never cut', 
   expect(strip.getAttribute('data-overflow')).toBe('wrap');
   const list = strip.querySelector('[data-component="GameMoveList"]');
   expect(list?.getAttribute('data-wrap')).toBe('true');
+  // The row holding the moves may shrink to the well (a box keeps its
+  // width otherwise), so they wrap inside it instead of running out.
+  expect(list?.parentElement?.classList.contains('shrink')).toBe(true);
   const css = readFileSync(
     join(
       import.meta.dirname,

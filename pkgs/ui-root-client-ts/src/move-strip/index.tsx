@@ -85,7 +85,9 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
           </ScrollView>
         }
       >
-        <div class="box flex-row flex-wrap items-center gap-2 grow min-w-0">
+        {/* Shrinks to the row (a box keeps its width unless it may
+            shrink), so its moves wrap inside it instead of running out. */}
+        <div class="box flex-row flex-wrap items-center gap-2 grow shrink min-w-0">
           {props.children}
         </div>
       </Show>
