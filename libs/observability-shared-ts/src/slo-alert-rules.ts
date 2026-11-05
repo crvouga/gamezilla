@@ -47,9 +47,10 @@ import type { AlertRule } from './alert-rule';
 import { percent, ruleKey } from './alert-rule';
 import {
   certificateRules,
-  lowTrafficRules,
+  failureCountRules,
   silenceRules,
 } from './companion-alerts';
+import { integrityRules } from './integrity-alerts';
 import { PIPELINE_ALERTS } from './pipeline-alerts';
 import {
   grafanaSeverity,
@@ -183,10 +184,11 @@ export function generateAlertRules(
   const bundle: AlertBundle = sloAlertBundle(docs);
   const fast: AlertRule[] = [
     ...PIPELINE_ALERTS,
+    ...integrityRules(docs),
     ...syncPerformanceAlerts(),
     ...certificateRules(),
     ...silenceRules(docs),
-    ...lowTrafficRules(docs),
+    ...failureCountRules(docs),
   ];
   const slow: AlertRule[] = [];
   for (const slo of metricBackedSlos(docs)) {

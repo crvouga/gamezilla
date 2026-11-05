@@ -2,7 +2,7 @@
 
 One section per service level objective, headed by its OpenSLO
 `metadata.name` (the anchor every alert's `runbook_url` points at). Each
-section says what the objective measures, why its target is what it is, what
+section says what the objective measures, where its target is defined, what
 a breach means for people, and where to start. What the objectives promise is
 in `specs/<context>/*.openslo.yaml`; how they are measured, generated and
 routed is in
@@ -27,8 +27,7 @@ Every alert carries:
   one failing route group pages on its own even while the total looks fine.
 
 Its labels say how it was routed: `route` is `page` (Grafana IRM pages, only
-production's tier 0 and 1), `push` (IRM push, never a page) or `digest` (one
-email a day); `tier`, `capability` and `slo` say what it defends.
+production's tier 0 and 1), or `push` (normal IRM mobile notification); `tier`, `capability` and `slo` say what it defends.
 
 1. Open `dashboard_url` and find the slice that is failing (route group,
    check or probe): one failing slice inside a healthy total is the usual
@@ -39,15 +38,19 @@ email a day); `tier`, `capability` and `slo` say what it defends.
    Never write to a production database by hand.
 4. The alert resolves by itself once its short window is clean.
 
-### "… bad in 1h at low traffic"
+### Failure counts
 
-While fewer events arrive than a burn rate needs to judge (today, nearly
-always for people's own requests), the bad ones are counted instead: one
-failure a person meets, or one request left waiting past 2.5 s, pushes; three
-in an hour page. Saves and sign-ins slower than a second push at three and
-page at ten. These rules fall silent once traffic is enough for the burn
-rates. Every one of them is a real person who met the failure: find them with
-`bun obs errors --since 1h --source prod`.
+Counts alert independently of burn ratios and traffic volume. One real failure
+pushes; three in five minutes page. One failed scheduled Health check notifies
+at the next evaluation. Start with the alert's exact window and command.
+A large healthy denominator must not suppress an individual failure.
+
+### Integrity violations
+
+A 100% objective has no error budget. Any observed violation pages without a
+hold or traffic floor. Contain the affected action, preserve evidence and use
+the linked objective runbook. A clean five-minute alert window resolves the
+active notification; it does not erase the historical readiness breach.
 
 ### "A certificate people are shown expires within …"
 
@@ -59,7 +62,7 @@ broker expires within 14 days (push) or 3 days (page). See the README's
 
 Fires when nothing an objective is judged by was counted for a while, so
 the objective cannot look perfect while nobody is measuring it. One rule
-per source:
+per source and expected slice:
 
 | Source | Silent for | Usual cause |
 | --- | --- | --- |
@@ -78,10 +81,9 @@ which needs the database to answer) every minute in production, every hour
 elsewhere, from Oregon. The share of one-minute slices in which every check
 passed.
 
-**Target: 99.95% of minutes over 7 days (tier 0).** Five unreachable minutes
-a week. Nothing can be played while the app is unreachable. It is the only
-tier 0 objective sampled often enough to resolve a 99.95% rate (10,080
-minutes a week); the Health-run objectives can resolve about 97%.
+**Target and window:** [the-app-is-always-reachable](../specs/runtime/always-reachable.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** People cannot open the app, or the API cannot reach what
 people saved.
@@ -99,12 +101,9 @@ minutes before it pages, so a lone flaky probe does not page.
 (DNS, connect, TLS, request, answer; `probe_duration_seconds`): the share of
 minutes in which every check finished within 1 s.
 
-**Target: 99% of minutes over 7 days (tier 0).** Opening the app is the
-first wait of every visit. A sample from outside on 2026-10-26 (25 runs
-each, a fresh connection every time) measured the app shell at p50 95 ms,
-p90 104 ms, max 0.86 s and readiness at p50 200 ms, p90 707 ms, max 0.75 s;
-**re-baseline after the first week of Oregon data**, and tighten if it
-holds.
+**Target and window:** [the-app-opens-quickly](../specs/runtime/always-reachable.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Opening the app is slow for people, before their own
 requests are many enough to show it.
@@ -117,8 +116,9 @@ Both slow: DNS, TLS or the edge.
 
 **Measures.** The same, within 2.5 s.
 
-**Target: 99.9% of minutes over 7 days (tier 0).** About ten minutes a
-week. Past 2.5 s a person assumes the app is broken.
+**Target and window:** [the-app-never-hangs-on-opening](../specs/runtime/always-reachable.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Opening the app hangs for people.
 
@@ -130,11 +130,9 @@ week. Past 2.5 s a person assumes the app is broken.
 `runtime.serving-people` checks: the share of checked hours in which both
 passed.
 
-**Target: 97% of checked hours over 7 days (tier 0).** The Health workflow
-runs at most hourly (GitHub delivered about five runs a day in October), so a
-week holds 35 to 170 samples; 97% is the strictest rate they can tell apart
-from one unlucky run. The minute-by-minute objective above watches the same
-promise more closely.
+**Target and window:** [the-app-answers-people](../specs/runtime/availability.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** In several recent runs the team could not open the app or
 the app did not answer it like a person.
@@ -146,8 +144,9 @@ health` dispatches a fresh run and blocks on its verdict.
 
 **Measures.** The Health run's `auth.sign-in` check, by the hour.
 
-**Target: 97% of checked hours over 7 days (tier 0).** As above: the
-resolution of an hourly check. No one can play who cannot sign in.
+**Target and window:** [people-can-sign-in](../specs/auth/signing-in.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** A step of signing in with Google that the team can follow
 from outside (offered, handed to Google with the way back, Google agreeing to
@@ -166,8 +165,9 @@ session route group in "Signing in is quick".
 **Measures.** The Health run's `spaces.spaces` check: people can host a
 space and join it in this environment.
 
-**Target: 97% of checked hours over 7 days (tier 0).** Joining a space is how
-every multiplayer game starts.
+**Target and window:** [people-can-host-and-join-spaces](../specs/spaces/spaces-and-live-updates.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Creating or joining spaces fails for people.
 
@@ -182,8 +182,9 @@ environment's spaces, and nobody can listen in with a well-known password.
 Two players really seeing each other's moves is the multiplayer journey in
 people-can-play-games-end-to-end.
 
-**Target: 97% of checked hours over 7 days (tier 0).** A game in which the
-other player never sees your move cannot be played.
+**Target and window:** [live-updates-can-reach-everyone](../specs/spaces/spaces-and-live-updates.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Moves and changes do not reach other players live (they
 may arrive on refresh), or do not persist.
@@ -200,8 +201,9 @@ Monitoring asks the broker (`https://<broker host>/mqtt`) for the answer a
 browser gets just before upgrading to live updates (426, "requires use of
 the Websockets protocol"): DNS, TLS and the broker are up.
 
-**Target: 99.5% of checks over 7 days (tier 0).** A week holds about 1,000
-checks: five may fail. Two failed checks in a row page (about 20 minutes).
+**Target and window:** [live-updates-can-connect](../specs/spaces/spaces-and-live-updates.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** People's apps cannot connect for live updates: nobody sees
 anyone else's moves until they refresh, and maybe not then.
@@ -218,8 +220,9 @@ own health check, each game a slice: the share of checked hours in which
 all of them passed. A run counts bad when any game failed, and the Grafana
 rules burn per game, so one broken game pages by itself.
 
-**Target: 97% of checked hours over 7 days (tier 0).** An hour counts bad
-when any one game failed, so one broken game cannot hide behind the others.
+**Target and window:** [people-can-play-games-end-to-end](../specs/journeys/game-journeys.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** At least one game cannot be found, played to the end, or
 found again afterwards.
@@ -235,19 +238,15 @@ media, app) the server answered without a 5xx. Machine traffic (health
 probes, the synthetic population, telemetry uploads) is not counted. A 4xx
 is a correct answer (a refusal, or a missing thing) and counts as good.
 
-**Target: 99.95% of requests over 7 days (tier 0).** A visit is about a
-hundred requests, so this keeps about 95 visits in 100 free of any failure.
-**Currently breached**: 5xx on 2026-10-24 (3 sync and 1 session POSTs about
-14:00 UTC, 1 session POST about 15:01 UTC) in 404 requests leave it at
-98.76% until they age out on 2026-10-31. Replayed against that data, the
-per-slice fast burn pages for sync at about 14:03 and session at about
-14:05, and the low-traffic count pushes the 15:01 failure.
+**Target and window:** [the-app-serves-people](../specs/runtime/request-success.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** People met failures.
 
 **First steps.** The alert's `slice` (route group); `bun obs errors --since
 1h --source prod`. Below 60 requests an hour the burn rates cannot judge, and
-the low-traffic count takes over: one failure pushes, three in an hour
+failure counts also alert: one failure pushes, three in five minutes
 page.
 
 ## changes-are-saved
@@ -256,8 +255,9 @@ page.
 changes, profile edits) that were decided (applied, duplicate or rejected by
 the rules) rather than failing.
 
-**Target: 99.95% over 7 days (tier 0).** A failed replay is retried, so
-nothing is lost, but the change arrives late on other devices.
+**Target and window:** [changes-are-saved](../specs/runtime/request-success.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Saves fail on the server side and are being retried.
 
@@ -269,11 +269,9 @@ database (`runtime.connected-services`).
 **Measures.** Sync requests (`/api/query`, `/api/mutations`) answered within
 0.5 s.
 
-**Target: 85% over 7 days (tier 0).** Measured 88.98% over the last 7 days
-(sync p50 283 ms, p90 750 ms, p99 1.45 s over 14 days). The target holds
-today's line; reaching 95% needs sync latency work (see SLO_COVERAGE.md). At
-85% the fastest possible burn is 6.7x, so its pages fire at 5x (three in
-four saves slow).
+**Target and window:** [saves-and-loads-are-quick](../specs/runtime/request-speed.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Moves and changes feel sluggish for most people.
 
@@ -284,8 +282,9 @@ and their SQL spans.
 
 **Measures.** Sync requests answered within 1 s.
 
-**Target: 97% over 7 days (tier 0).** Measured 97.71%, a thin margin; the
-team works towards 99%.
+**Target and window:** [saves-and-loads-never-stall](../specs/runtime/request-speed.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** One save or load in thirty or more takes over a second.
 
@@ -296,7 +295,9 @@ dominating the slow traces.
 
 **Measures.** Session requests answered within 0.25 s.
 
-**Target: 95% over 7 days (tier 0).** Measured 99.39%.
+**Target and window:** [signing-in-is-quick](../specs/runtime/request-speed.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Opening the app and staying signed in got slow.
 
@@ -307,7 +308,9 @@ the app (`runtime.connected-services`).
 
 **Measures.** Session requests answered within 1 s.
 
-**Target: 99% over 7 days (tier 0).** Measured 99.40%.
+**Target and window:** [signing-in-never-stalls](../specs/runtime/request-speed.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Some people wait over a second just to be signed in.
 
@@ -318,9 +321,9 @@ the app (`runtime.connected-services`).
 **Measures.** Every request people wait on (sync, session, room, billing,
 app) answered within 2.5 s.
 
-**Target: 99% over 7 days (tier 1).** Measured 99.74%. Past 2.5 s people tap
-again or leave. It covers room and billing, which the sync and sign-in
-objectives do not.
+**Target and window:** [the-app-never-leaves-people-waiting](../specs/runtime/request-speed.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** A visible share of requests hang.
 
@@ -332,9 +335,9 @@ objectives do not.
 `success`). The drain delivers notices, match steps, account erasure and
 telemetry.
 
-**Target: 99.9% of rounds over 7 days (tier 1).** It runs every minute, the
-only indicator with enough events for a stable ratio today; a failed round
-retries a minute later.
+**Target and window:** [background-work-gets-done](../specs/runtime/background-work.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Notices arrive late and matches wait on their next step.
 
@@ -349,9 +352,9 @@ service the app relies on still lets the app use it) and
 `runtime.stored-files` (an upload is kept, shown again and removed) checks,
 by the hour.
 
-**Target: 95% of checked hours over 7 days (tier 1).** People can often
-still play while one is down, so it is held a little looser; its job is to
-say whose failure an outage is.
+**Target and window:** [outside-services-answer](../specs/runtime/outside-services.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** A dependency is failing or slow; the tier 0 objectives
 will usually say what people feel.
@@ -364,7 +367,9 @@ provider's status page before changing anything here.
 **Measures.** The Health run's `billing.payments` check (paying for Plus is
 real only in production).
 
-**Target: 95% of checked hours over 7 days (tier 1).**
+**Target and window:** [people-can-pay](../specs/billing/payments.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** People may not be able to upgrade, or not see what they
 paid for.
@@ -377,9 +382,9 @@ refused"; the Stripe dashboard's webhook deliveries.
 **Measures.** The Health run's `runtime.request-records`,
 `runtime.declared-environment` and `profile.finding-a-person` checks.
 
-**Target: 90% of checked hours over 7 days (tier 2).** Nobody playing
-notices; the team is slower to find what people do notice. Pages only push;
-tickets go to the daily digest.
+**Target and window:** [the-team-can-see-what-happened](../specs/runtime/team-tools.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
 
 **Breach means.** Request trails, the environment-matches-plan check or
 finding a person's trouble are broken.

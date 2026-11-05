@@ -6,7 +6,7 @@ import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-shared-ts/alert-lin
 import type { AlertRule } from '@libs/observability-shared-ts/alert-rule';
 import { ruleKey } from '@libs/observability-shared-ts/alert-rule';
 import {
-  lowTrafficRules,
+  failureCountRules,
   silenceRules,
 } from '@libs/observability-shared-ts/companion-alerts';
 import {
@@ -19,7 +19,6 @@ import {
   README_URL,
   runbookFor,
   sloAlertBundle,
-  tierOf,
   tiersFor,
 } from '@libs/observability-shared-ts/slo-alerts';
 import { ruleIssues } from '@libs/observability-shared-ts/slo-checks';
@@ -164,11 +163,8 @@ describe('every alert rule', () => {
       if (rule.capability !== 'pipeline')
         expect(['0', '1']).toContain(rule.tier);
     }
-    const digest = rules().filter((r) => r.route === 'digest');
-    expect(digest.length).toBeGreaterThan(0);
-    for (const rule of digest) {
-      expect(rule.tier).toBe('2');
-      expect(rule.severity).toBe('warning');
+    for (const rule of rules().filter((rule) => rule.severity === 'warning')) {
+      expect(rule.route).toBe('push');
     }
   });
 
@@ -237,30 +233,30 @@ describe('every objective rule', () => {
   });
 });
 
-describe('the low-traffic rules', () => {
-  const rules = () => lowTrafficRules(docs());
+describe('the failure-count rules', () => {
+  const rules = () => failureCountRules(docs());
 
   test('push and page on bad events for every objective that counts them', () => {
     const counted = slos().filter(
-      (slo) => metricIndicatorOf(slo).lowTraffic !== undefined
+      (slo) => metricIndicatorOf(slo).failureCounts !== undefined
     );
     expect(rules()).toHaveLength(counted.length * 2);
     expect(counted.map((s) => s.name)).toContain('the-app-serves-people');
     for (const rule of rules()) {
       expect(['push', 'page']).toContain(rule.route);
-      // Silent once traffic is enough for the burn rates to judge.
-      expect(rule.expr).toContain(') and on() (');
+      // A healthy majority cannot hide a real failure.
+      expect(rule.expr).not.toContain('and on()');
+      expect(rule.for).toBe('0s');
     }
   });
 });
 
 describe('the silence rules', () => {
-  test('cover every tier 0 and 1 objective exactly once, and no tier 2 one', () => {
-    const covered = silenceRules(docs())
-      .flatMap((r) => r.covers.split(', '))
-      .sort();
+  test('cover every objective including supporting checks and every slice', () => {
+    const covered = [
+      ...new Set(silenceRules(docs()).flatMap((r) => r.covers.split(', '))),
+    ].sort();
     const expected = slos()
-      .filter((slo) => tierOf(slo) <= 1)
       .map((slo) => slo.name)
       .sort();
     expect(covered).toEqual(expected);
@@ -379,8 +375,8 @@ describe('the OpenTofu module', () => {
     const routing = readRepoFile(
       'libs/infra-shared-ts/tofu/modules/alert-routing/main.tf'
     );
-    for (const route of ['page', 'push', 'digest'])
-      expect(routing).toContain(`"${route}"`);
+    expect(routing).toContain('value = "page|push"');
+    expect(routing).not.toContain('grafana_contact_point.digest');
     expect(routing).toContain('label = "route"');
   });
 });

@@ -70,33 +70,38 @@ export function generateGrafanaSlos(
 ): GrafanaSloArtifact {
   return {
     generated: GENERATED_NOTE,
-    slos: metricBackedSlos(docs).map((slo) => {
-      const indicator = metricIndicatorOf(slo);
-      const window = slo.timeWindow.duration;
-      const longest = parseDuration(LONGEST_SLO_WINDOW) ?? 0;
-      if (!slo.timeWindow.isRolling || (parseDuration(window) ?? 0) > longest) {
-        throw new Error(
-          `observability: SLO ${slo.name} needs a rolling window of at most ${LONGEST_SLO_WINDOW} (the metrics backend's retention), not ${window}`
-        );
-      }
-      return {
-        key: slo.name,
-        name: slo.displayName ?? slo.name,
-        description: (slo.description ?? '').replace(/\s+/g, ' ').trim(),
-        query: sloRatioQuery({
-          indicator,
-          environment: ENVIRONMENT_PLACEHOLDER,
-        }),
-        objective: alertedObjective(slo).target,
-        window,
-        labels: {
-          [TIER_LABEL]: String(tierOf(slo)),
-          service: slo.service,
-          slo: slo.name,
-          owner: indicator.owner,
-        },
-      };
-    }),
+    slos: metricBackedSlos(docs)
+      .filter((slo) => alertedObjective(slo).target < 1)
+      .map((slo) => {
+        const indicator = metricIndicatorOf(slo);
+        const window = slo.timeWindow.duration;
+        const longest = parseDuration(LONGEST_SLO_WINDOW) ?? 0;
+        if (
+          !slo.timeWindow.isRolling ||
+          (parseDuration(window) ?? 0) > longest
+        ) {
+          throw new Error(
+            `observability: SLO ${slo.name} needs a rolling window of at most ${LONGEST_SLO_WINDOW} (the metrics backend's retention), not ${window}`
+          );
+        }
+        return {
+          key: slo.name,
+          name: slo.displayName ?? slo.name,
+          description: (slo.description ?? '').replace(/\s+/g, ' ').trim(),
+          query: sloRatioQuery({
+            indicator,
+            environment: ENVIRONMENT_PLACEHOLDER,
+          }),
+          objective: alertedObjective(slo).target,
+          window,
+          labels: {
+            [TIER_LABEL]: String(tierOf(slo)),
+            service: slo.service,
+            slo: slo.name,
+            owner: indicator.owner,
+          },
+        };
+      }),
   };
 }
 

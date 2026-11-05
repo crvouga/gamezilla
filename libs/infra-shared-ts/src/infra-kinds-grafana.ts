@@ -96,6 +96,12 @@ export const GRAFANA_KINDS: Readonly<Record<string, Kind>> = {
     links: (c) =>
       link('Escalation chains', grafana(c, '/a/grafana-irm-app/escalations')),
   },
+  grafana_oncall_user_notification_rule: {
+    title: 'IRM mobile notification step',
+    logo: 'grafana',
+    category: 'Observability',
+    links: (c) => link('IRM', grafana(c, '/a/grafana-irm-app')),
+  },
   grafana_oncall_route: {
     title: 'IRM route',
     logo: 'grafana',

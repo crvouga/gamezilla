@@ -11,11 +11,11 @@
  * - Grafana evaluates the rules generated into `alert-rules.generated.json`
  *   (`slo-alert-rules`) whenever its instance is active, and routes each by
  *   its `route` label: `page` to Grafana IRM's paging chain, `push` to its
- *   push-only chain, `digest` to the daily summary.
+ *   normal mobile notification chain.
  *
  * The objective's tier (`tier` in the objective file's labels) decides
  * how loudly: a page of tier 0 or 1 pages; a tier 2 page only pushes; a
- * ticket pushes, and a tier 2 ticket waits for the digest.
+ * ticket pushes, including supporting objectives.
  */
 
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
@@ -73,13 +73,13 @@ export function tierOf(slo: Slo): Tier {
   return tier;
 }
 
-export const ROUTES = ['page', 'push', 'digest'] as const;
+export const ROUTES = ['page', 'push'] as const;
 export type Route = (typeof ROUTES)[number];
 
 /** Where an alert of `severity` on an objective of `tier` goes. */
 export function routeOf(severity: 'critical' | 'warning', tier: Tier): Route {
   if (severity === 'critical') return tier <= 1 ? 'page' : 'push';
-  return tier <= 1 ? 'push' : 'digest';
+  return 'push';
 }
 
 /**
@@ -149,15 +149,28 @@ const REACHABLE_SHARE = 0.75;
  * could never fire; it pages at 5x, when three in four events are bad.
  */
 export function tiersFor(slo: Slo): readonly BurnTier[] {
+  if (alertedObjective(slo).target === 1) return [];
   const indicator = metricIndicatorOf(slo);
   const base = TIERS_BY_CADENCE[indicator.cadence];
+  const weekly =
+    indicator.cadence === 'standard' && slo.timeWindow.duration === '7d';
+  const factors: Readonly<Record<string, number>> = {
+    'fast-burn': 3.36,
+    'slow-burn': 1.4,
+    'daily-burn': 0.7,
+    'budget-drift': 1,
+  };
   const ceiling =
     Math.floor(
       maxBurnRate(alertedObjective(slo).target) * REACHABLE_SHARE * 10
     ) / 10;
-  return base.map((tier) =>
-    tier.factor <= ceiling ? tier : { ...tier, factor: ceiling }
-  );
+  return base.map((tier) => ({
+    ...tier,
+    factor: Math.min(
+      weekly ? (factors[tier.name] ?? tier.factor) : tier.factor,
+      ceiling
+    ),
+  }));
 }
 
 const HEALTH_JOB: AlertNotificationTarget = {
@@ -183,12 +196,6 @@ const ROUTE_TARGETS: Readonly<Record<Route, AlertNotificationTarget>> = {
     description:
       'Grafana raises the alert into Grafana IRM, whose push chain notifies the person on call with their default notification rules and never pages.',
     target: 'grafana-irm',
-  },
-  digest: {
-    name: 'grafana-daily-digest',
-    displayName: null,
-    description: 'Grafana holds the alert and sends it in one summary a day.',
-    target: 'grafana',
   },
 };
 

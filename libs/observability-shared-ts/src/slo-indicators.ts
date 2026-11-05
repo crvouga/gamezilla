@@ -54,7 +54,7 @@ export type Matcher = {
  * wait for traffic to be large enough for a ratio. Silent once the window
  * holds the indicator's `minimumEventsPerHour`, where the burn rates judge.
  */
-export type LowTrafficCount = {
+export type FailureCount = {
   readonly window: string;
   readonly push: number;
   readonly page: number;
@@ -98,8 +98,8 @@ type Described = {
    * past the fast threshold.
    */
   readonly fastBurnHold?: string;
-  /** Bad events that notify while traffic is too low for a burn rate. */
-  readonly lowTraffic?: LowTrafficCount;
+  /** Bad events that notify regardless of traffic volume. */
+  readonly failureCounts?: FailureCount;
 };
 
 /** Good events over all events, counted by one counter. */
@@ -189,6 +189,7 @@ function healthChecks(input: {
     sliceBy: SYNTHETIC_CHECK_DIMENSION,
     cadence: 'sparse',
     silence: HEALTH_SILENCE,
+    failureCounts: { window: '1h', push: 1, page: 1 },
     metric: SYNTHETIC_CHECK_METRIC.name,
     scope: [
       { dimension: SYNTHETIC_CHECK_DIMENSION, op: 'is', values: input.checks },
@@ -200,10 +201,12 @@ function under(input: {
   readonly sli: string;
   readonly groups: readonly string[];
   readonly seconds: number;
-  readonly lowTraffic?: LowTrafficCount;
+  readonly failureCounts?: FailureCount;
 }): HistogramUnderIndicator {
   return {
-    ...(input.lowTraffic === undefined ? {} : { lowTraffic: input.lowTraffic }),
+    ...(input.failureCounts === undefined
+      ? {}
+      : { failureCounts: input.failureCounts }),
     kind: 'histogram-under',
     sli: input.sli,
     owner: 'runtime',
@@ -261,8 +264,8 @@ export const INDICATORS: readonly Indicator[] = [
     sliceBy: ROUTE_GROUP,
     cadence: 'standard',
     silence: PEOPLE_SILENCE,
-    // One failure a person meets notifies; three in an hour page.
-    lowTraffic: { window: '1h', push: 1, page: 3 },
+    // One failure notifies; three within five minutes page.
+    failureCounts: { window: '5m', push: 1, page: 3 },
     metric: HTTP_REQUESTS_METRIC,
     scope: peopleRequests,
     good: [
@@ -279,7 +282,7 @@ export const INDICATORS: readonly Indicator[] = [
     cadence: 'standard',
     silence: PEOPLE_SILENCE,
     // A failed save is retried, but one is a person's move arriving late.
-    lowTraffic: { window: '1h', push: 1, page: 3 },
+    failureCounts: { window: '5m', push: 1, page: 3 },
     metric: MUTATION_REPLAYS_METRIC.name,
     scope: [],
     good: [
@@ -295,8 +298,8 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'saves-and-loads-answered-within-a-second',
     groups: ['sync'],
     seconds: 1,
-    // Today 2 in 100 saves take over a second: three in an hour is a trend.
-    lowTraffic: { window: '1h', push: 3, page: 10 },
+    // Every excessive wait notifies; repeated failures page.
+    failureCounts: { window: '5m', push: 1, page: 3 },
   }),
   under({
     sli: 'sign-in-requests-answered-within-a-quarter-second',
@@ -307,14 +310,14 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'sign-in-requests-answered-within-a-second',
     groups: ['session'],
     seconds: 1,
-    lowTraffic: { window: '1h', push: 3, page: 10 },
+    failureCounts: { window: '5m', push: 1, page: 3 },
   }),
   under({
     sli: 'people-requests-answered-within-two-and-a-half-seconds',
     groups: INTERACTIVE_ROUTE_GROUPS,
     seconds: 2.5,
     // Past 2.5 s a person gives up: one notifies, three in an hour page.
-    lowTraffic: { window: '1h', push: 1, page: 3 },
+    failureCounts: { window: '5m', push: 1, page: 3 },
   }),
   {
     kind: 'sample-share',

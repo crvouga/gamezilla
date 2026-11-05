@@ -9,8 +9,8 @@ locals {
   envs           = var.envs
   production_env = one([for name, env in local.envs : name if env.protection == "production"])
   routing_ready = alltrue([
-    for value in [var.alerting.irm_responder, var.alerting.digest_email] :
-    value != null
+    for value in [var.alerting.irm_responder] :
+    value != null && try(trimspace(value) != "", false)
   ])
 }
 
@@ -58,7 +58,7 @@ module "synthetic_monitoring" {
 
 # ---- Routing: IRM and the notification policy -----------------------------
 # Off until `alerting` in global.tfvars.json names the responder's IRM
-# username and the digest address. Until then alerts keep the stack's
+# username. Until then alerts keep the stack's
 # existing notification policy. In Grafana Cloud the provider reaches IRM
 # through the instance `url` and `auth`; no IRM address is needed.
 
@@ -88,7 +88,6 @@ module "alert_routing" {
   count              = local.routing_ready ? 1 : 0
   source             = "../../modules/alert-routing"
   responder          = var.alerting.irm_responder
-  digest_email       = var.alerting.digest_email
   paging_environment = local.production_env
   brand_name         = var.brand_name
   providers = {

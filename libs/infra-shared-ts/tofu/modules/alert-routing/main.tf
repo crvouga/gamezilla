@@ -7,7 +7,6 @@
 # | ------ | ---------------------------------------------------------- |
 # | page   | IRM, paging chain (important notification rules), prd only |
 # | push   | IRM, push chain (default notification rules, never pages)  |
-# | digest | one email a day                                            |
 #
 # A `page` from any environment but production is pushed, not paged.
 #
@@ -24,11 +23,6 @@ variable "responder" {
   description = "The IRM username of the person on call."
 }
 
-variable "digest_email" {
-  type        = string
-  description = "Where the daily digest goes."
-}
-
 variable "paging_environment" {
   type        = string
   description = "The only environment whose `page` alerts page."
@@ -36,7 +30,7 @@ variable "paging_environment" {
 
 variable "brand_name" {
   type        = string
-  description = "The name people see, in the integration's name and the digest's subject."
+  description = "The name people see in the integration."
 }
 
 data "grafana_oncall_user" "responder" {
@@ -90,31 +84,9 @@ resource "grafana_contact_point" "irm" {
   }
 }
 
-resource "grafana_contact_point" "digest" {
-  name = "Daily digest"
-  email {
-    addresses    = [var.digest_email]
-    single_email = true
-    subject      = "${var.brand_name}: what needs a look today"
-  }
-}
-
 resource "grafana_notification_policy" "this" {
   contact_point = grafana_contact_point.irm.name
   group_by      = ["alertname", "environment"]
-
-  policy {
-    matcher {
-      label = "route"
-      match = "="
-      value = "digest"
-    }
-    contact_point   = grafana_contact_point.digest.name
-    group_by        = ["environment"]
-    group_wait      = "5m"
-    group_interval  = "24h"
-    repeat_interval = "24h"
-  }
 
   policy {
     matcher {
@@ -123,11 +95,40 @@ resource "grafana_notification_policy" "this" {
       value = "page|push"
     }
     contact_point = grafana_contact_point.irm.name
-    # One notification per burst: when the checks stop, every objective
-    # they feed fires together.
-    group_by        = ["environment", "route"]
-    group_wait      = "30s"
-    group_interval  = "5m"
+    # Group related repeats without hiding a different failing capability.
+    group_by        = ["environment", "route", "capability", "alertname"]
+    group_wait      = "0s"
+    group_interval  = "1m"
     repeat_interval = "4h"
   }
+}
+
+# Personal rules are required as well as the contact point: an IRM alert
+# does not reach a phone unless its responder has a mobile notification step.
+resource "grafana_oncall_user_notification_rule" "mobile" {
+  user_id  = data.grafana_oncall_user.responder.id
+  position = 0
+  type     = "notify_by_mobile_app"
+}
+
+resource "grafana_oncall_user_notification_rule" "important_mobile" {
+  user_id   = data.grafana_oncall_user.responder.id
+  important = true
+  position  = 0
+  type      = "notify_by_mobile_app_critical"
+}
+
+resource "grafana_oncall_user_notification_rule" "important_wait" {
+  user_id   = data.grafana_oncall_user.responder.id
+  important = true
+  position  = 1
+  type      = "wait"
+  duration  = 60
+}
+
+resource "grafana_oncall_user_notification_rule" "important_repeat" {
+  user_id   = data.grafana_oncall_user.responder.id
+  important = true
+  position  = 2
+  type      = "notify_by_mobile_app_critical"
 }

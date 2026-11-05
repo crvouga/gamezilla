@@ -41,6 +41,8 @@ deletable := {
 	"grafana_oncall_escalation",
 	"grafana_oncall_escalation_chain",
 	"grafana_oncall_route",
+	# Personal delivery definitions contain no alert history or product data.
+	"grafana_oncall_user_notification_rule",
 	"grafana_slo",
 	"grafana_synthetic_monitoring_check",
 	"infisical_secret",

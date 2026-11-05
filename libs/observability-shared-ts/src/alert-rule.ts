@@ -20,7 +20,7 @@ export type AlertRule = {
   readonly slo: string;
   /** The objective's tier (`0`, `1`, `2`), or empty when it defends none. */
   readonly tier: string;
-  /** Who is told and how: `page`, `push` or `digest`. */
+  /** Who is told and how: `page` or `push`. */
   readonly route: Route;
   /** The capability (the objective's service), or `pipeline`. */
   readonly capability: string;

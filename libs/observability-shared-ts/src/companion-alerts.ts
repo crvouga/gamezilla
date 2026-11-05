@@ -14,7 +14,6 @@
  */
 
 import type { OpenSloDoc, Slo } from '@pkgs/openslo-shared-ts/model';
-import { parseDuration } from '@pkgs/openslo-shared-ts/window';
 import {
   ENVIRONMENT_PLACEHOLDER,
   exploreLookback,
@@ -36,7 +35,6 @@ import {
 import type { Matcher, MetricIndicator } from './slo-indicators';
 import {
   badCount,
-  numberText,
   scopeClauses,
   sliceLabel,
   windowQueries,
@@ -87,10 +85,10 @@ function unionScope(
 }
 
 /**
- * One rule per source of events behind the tier 0 and 1 objectives (a
+ * One rule per source of events behind the objectives (a
  * metric, read at one cadence): it fires when the source counted none of
  * their events for `silence.after`. Objectives counted by the same source
- * share a rule, so one stopped source is one alert; a source sampled less
+ * share a rule only within the same expected slice; a source sampled less
  * often (the broker check) has its own, so a busier one cannot mask it.
  */
 export function silenceRules(
@@ -101,21 +99,23 @@ export function silenceRules(
     { slos: Slo[]; indicators: MetricIndicator[] }
   >();
   for (const slo of metricBackedSlos(docs)) {
-    if (tierOf(slo) > 1) continue;
-    const indicator = metricIndicatorOf(slo);
-    const source = `${indicator.metric} ${indicator.silence.after} ${indicator.silence.severity}`;
-    const found = bySource.get(source) ?? { slos: [], indicators: [] };
-    found.slos.push(slo);
-    if (!found.indicators.includes(indicator)) found.indicators.push(indicator);
-    bySource.set(source, found);
+    for (const indicator of silenceSlices(metricIndicatorOf(slo))) {
+      const source = `${indicator.metric} ${indicator.silence.after} ${indicator.silence.severity} ${JSON.stringify(indicator.scope)}`;
+      const found = bySource.get(source) ?? { slos: [], indicators: [] };
+      found.slos.push(slo);
+      if (!found.indicators.includes(indicator))
+        found.indicators.push(indicator);
+      bySource.set(source, found);
+    }
   }
   return [...bySource.entries()].map(([source, { slos, indicators }]) => {
     const [first] = slos;
     const [indicator] = indicators;
     if (first === undefined || indicator === undefined)
       throw new Error('a silence source has no SLO');
-    const tier = Math.min(...slos.map(tierOf)) as 0 | 1;
+    const tier = Math.min(...slos.map(tierOf)) as 0 | 1 | 2;
     const names = slos.map((slo) => slo.displayName ?? slo.name);
+    const slice = indicator.scope.flatMap((scope) => scope.values).join(', ');
     const { after, severity } = indicator.silence;
     const { total } = windowQueries({
       indicator: { ...indicator, scope: unionScope(indicators) },
@@ -125,10 +125,10 @@ export function silenceRules(
     return {
       ...blank(),
       key: ruleKey(`silence:${source}`),
-      name: `No events for ${names.join(', ')} (${after})`,
+      name: `No events for ${names.join(', ')} [${slice || 'all'}] (${after})`,
       // `bool`: the rule fires on a value above zero, never on the count itself.
       expr: `(${total} or vector(0)) < bool 1`,
-      for: '5m',
+      for: '0s',
       severity,
       owner: indicator.owner,
       tier: String(tier),
@@ -145,17 +145,15 @@ export function silenceRules(
 }
 
 /**
- * For each objective whose indicator states a `lowTraffic` count: a push
- * rule and a page rule on the number of bad events in the window, slice by
- * slice, active only while the whole window held fewer events than its burn
- * rates need (`minimumEventsPerHour`). Above that the burn rates judge.
+ * Absolute bad-event counts notify at any traffic volume. Each slice is
+ * judged independently, alongside the ratio-based burn policies.
  */
-export function lowTrafficRules(
+export function failureCountRules(
   docs: readonly OpenSloDoc[]
 ): readonly AlertRule[] {
   return metricBackedSlos(docs).flatMap((slo): AlertRule[] => {
     const indicator = metricIndicatorOf(slo);
-    const count = indicator.lowTraffic;
+    const count = indicator.failureCounts;
     if (count === undefined) return [];
     const by = sliceLabel(indicator);
     const queries = (split: string | null) =>
@@ -165,9 +163,6 @@ export function lowTrafficRules(
         environment: ENVIRONMENT_PLACEHOLDER,
         by: split,
       });
-    const hours = (parseDuration(count.window) ?? 0) / 3_600_000;
-    const floor = numberText(indicator.minimumEventsPerHour * hours);
-    const quiet = `on() (${queries(null).total} < ${floor})`;
     const name = slo.displayName ?? slo.name;
     const lookback = exploreLookback(count.window);
     return (
@@ -177,10 +172,10 @@ export function lowTrafficRules(
       ] as const
     ).map(([level, threshold, severity]) => ({
       ...blank(),
-      key: ruleKey(`low-traffic:${slo.name}:${level}`),
-      name: `${name}: ${String(threshold)} or more bad in ${count.window} at low traffic (${level})`,
-      expr: `(${badCount(queries(by))} >= ${String(threshold)}) and ${quiet}`,
-      for: '1m',
+      key: ruleKey(`failure-count:${slo.name}:${level}`),
+      name: `${name}: ${String(threshold)} or more bad in ${count.window} (${level})`,
+      expr: `(${badCount(queries(by))} >= ${String(threshold)})`,
+      for: '0s',
       severity,
       owner: indicator.owner,
       tier: String(tierOf(slo)),
@@ -188,7 +183,7 @@ export function lowTrafficRules(
       capability: slo.service,
       covers: slo.name,
       slice_label: by ?? '',
-      summary: `${String(threshold)} or more of the events ${name} is judged by were bad in the last ${count.window}, while traffic is too low (under ${floor} events) for its burn rate to judge. Every one is a person who met it.`,
+      summary: `${String(threshold)} or more of the events ${name} is judged by were bad in the last ${count.window}. This count alerts independently of traffic volume; a healthy majority cannot hide an individual failure.`,
       runbook_url: runbookFor(slo.name),
       investigate_command: investigationCommand({
         indicator,
@@ -238,5 +233,20 @@ export function certificateRules(): readonly AlertRule[] {
     investigate_command: 'bun obs last --window 1h --source prod',
     logs_path: logsPath('1h'),
     traces_path: tracesPath('1h'),
+  }));
+}
+
+/** A healthy scheduled sibling must never conceal a missing expected slice. */
+function silenceSlices(indicator: MetricIndicator): readonly MetricIndicator[] {
+  const dimension = indicator.sliceBy;
+  const matcher = indicator.scope.find(
+    (scope) => scope.dimension === dimension
+  );
+  if (matcher === undefined || matcher.op !== 'is') return [indicator];
+  return matcher.values.map((value) => ({
+    ...indicator,
+    scope: indicator.scope.map((scope) =>
+      scope === matcher ? { ...scope, values: [value] } : scope
+    ),
   }));
 }

@@ -1,4 +1,8 @@
-# SLO coverage
+# SLO coverage — historical baseline
+
+> This is the October 26 audit. Its targets, routing and incident status are
+> historical. Current targets are the OpenSLO files; implementation progress is
+> [SLO_IMPLEMENTATION.md](SLO_IMPLEMENTATION.md).
 
 What the service level objectives cover, what they are measured from, how
 quickly a failure pages, and what they still cannot see. Measured

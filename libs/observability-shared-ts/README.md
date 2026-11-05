@@ -141,7 +141,7 @@ cadence allows (`slo-alerts.ts`, `tiersFor`):
 
 | Cadence | Page (critical) | Ticket (warning) |
 | --- | --- | --- |
-| standard | 14.4x over 1 h and 5 min; 6x over 6 h and 30 min | 3x over 1 d and 2 h; 1x over 3 d and 6 h |
+| standard | 3.36x over 1 h and 5 min; 1.4x over 6 h and 30 min | 0.7x over 1 d and 2 h; 1x over 3 d and 6 h |
 | sparse (Health, about hourly) | 10x over 12 h and 4 h | 1x over 3 d and 12 h |
 
 The page tiers are Grafana SLO's fast burn, the ticket tiers its slow burn. No
@@ -152,17 +152,19 @@ OpenSLO (`slo-alert-policies.openslo.yaml`): OpenSLO lets a policy name one
 condition, so the short window is named in its
 `openslo-alerting/and-conditions` annotation.
 
-OpenSLO's conditions are burn rates only, so three companions are generated from
+OpenSLO's conditions are burn rates only, so companions are generated from
 the same files (`companion-alerts.ts`):
 
-- **Silence**: each source of evidence behind a tier 0 or 1 objective (a metric
-  at one cadence) has a rule that fires when nothing was counted for the
+- **Silence**: each source of evidence behind a objective (a metric
+  at one cadence and expected slice) has a rule that fires when nothing was counted for the
   indicator's `silence.after`, so no traffic or no checks can never look like a
   perfect objective.
-- **Low traffic**: while a window holds fewer events than the burn rates need,
-  an indicator's `lowTraffic` counts the bad ones instead: for people's
-  requests, one failure (or one wait past 2.5 s) pushes and three in an hour
-  page. Zero tolerance cannot wait for traffic large enough for a ratio.
+- **Failure counts**: an indicator's `failureCounts` notifies regardless of
+  traffic volume. One request failure pushes; three in five minutes page.
+  A failed scheduled Health check pushes and pages on its next evaluation.
+- **Integrity**: a target of exactly 100% has no burn policies or hosted budget
+  object. A direct bad-event rule pages with no traffic floor or hold. Health
+  still judges its full objective window; silence remains independently alerted.
 - **Certificates**: the certificate the checks are shown, 14 days (push) and 3
   days (page) before it expires.
 
@@ -170,14 +172,15 @@ the same files (`companion-alerts.ts`):
 objective) `slo` labels, and annotations with the budget spent and remaining,
 the burn rate, the SLO dashboard, Explore already scoped to the environment's
 error logs and failed traces, the runbook section and the `bun obs` command.
-`route` is decided by `routeOf`: a critical alert on a tier 0 or 1 objective
+`route` is decided by `routeOf`: a critical alert on a objective
 pages (Grafana IRM's paging chain, production only); any other critical alert
-and every tier 0 or 1 warning pushes (IRM, never pages); a tier 2 warning waits
-for the daily digest. The one notification policy and IRM integration for the
+and every warning pushes through IRM, including tier 2. The one notification policy and IRM integration for the
 stack are in `libs/infra-shared-ts/tofu/modules/alert-routing`, applied by the
 bootstrap stack once `alerting` in `global.tfvars.json` names the responder's
-IRM username and the digest address (the provider reaches IRM through the
-instance itself); until then alerts keep the stack's existing policy. Rules use
+IRM username (the provider reaches IRM through the
+instance itself); until then alerts keep the stack's existing policy. OpenTofu also provisions
+the responder's normal and Important mobile notification steps. A registered
+device with OS notification permission is still required. Rules use
 a threshold condition, so each slice of a split rule is its own alert instance.
 
 **Grafana SLO.** Each live objective becomes one `grafana_slo` per environment
@@ -449,3 +452,6 @@ the general search hit its 1,000-trace limit. These inspected examples were tagg
 
 These are individual observations, not percentile estimates, prevalence estimates,
 or a before/after comparison. No production speedup is claimed by this implementation.
+
+Implementation progress and remaining production evidence are recorded in
+[`SLO_IMPLEMENTATION.md`](../../docs/SLO_IMPLEMENTATION.md).

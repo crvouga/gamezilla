@@ -130,11 +130,11 @@ export function indicatorIssues(indicator: MetricIndicator): readonly string[] {
     );
   }
   if (
-    indicator.lowTraffic !== undefined &&
-    indicator.lowTraffic.page < indicator.lowTraffic.push
+    indicator.failureCounts !== undefined &&
+    indicator.failureCounts.page < indicator.failureCounts.push
   ) {
     issues.push(
-      `${indicator.sli}: its low-traffic page (${String(indicator.lowTraffic.page)}) needs at least as many bad events as its push (${String(indicator.lowTraffic.push)})`
+      `${indicator.sli}: its failure-count page (${String(indicator.failureCounts.page)}) needs at least as many bad events as its push (${String(indicator.failureCounts.push)})`
     );
   }
   return issues;

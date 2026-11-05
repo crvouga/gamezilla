@@ -13,10 +13,12 @@
 import type { PrometheusClient } from '@pkgs/observability-root-shared-ts/prometheus';
 import { PrometheusQueryError } from '@pkgs/observability-root-shared-ts/prometheus';
 import type { Measure } from '@pkgs/openslo-shared-ts/registry';
+import { labelOf } from './emitted-metrics';
 import { ObservabilitySecretName } from './secret-names';
 import type { MetricIndicator } from './slo-indicators';
 import { isSampled, metricIndicators } from './slo-indicators';
 import { sampleSelector, windowQueries } from './slo-promql';
+import { SYNTHETIC_CHECK_DIMENSION } from './synthetic-checks';
 
 export type MetricSettings = {
   readonly baseUrl: string;
@@ -121,17 +123,35 @@ function samplesOf(
       sampleSelector({ indicator, window: `${String(seconds)}s`, environment }),
       endMs
     );
-    const runs = new Map<number, { atMs: number; good: boolean }>();
-    for (const point of series.flatMap((each) => each.points)) {
-      const key = runOf(indicator, point.atMs);
-      const good = goodSample(indicator, point.value);
-      const seen = runs.get(key);
-      runs.set(key, {
-        atMs: Math.max(seen?.atMs ?? point.atMs, point.atMs),
-        good: (seen?.good ?? true) && good,
-      });
+    const expected =
+      indicator.scope.find(
+        (scope) => scope.dimension === SYNTHETIC_CHECK_DIMENSION
+      )?.values ?? [];
+    const runs = new Map<
+      number,
+      { atMs: number; good: boolean; checks: Set<string> }
+    >();
+    for (const each of series) {
+      for (const point of each.points) {
+        const key = runOf(indicator, point.atMs);
+        const good = goodSample(indicator, point.value);
+        const seen = runs.get(key);
+        const checks = seen?.checks ?? new Set<string>();
+        const check = each.labels[labelOf(SYNTHETIC_CHECK_DIMENSION)];
+        if (check !== undefined) checks.add(check);
+        runs.set(key, {
+          checks,
+          atMs: Math.max(seen?.atMs ?? point.atMs, point.atMs),
+          good: (seen?.good ?? true) && good,
+        });
+      }
     }
-    const events = [...runs.values()].sort((a, b) => a.atMs - b.atMs);
+    const events = [...runs.values()]
+      .map((run) => ({
+        atMs: run.atMs,
+        good: run.good && expected.every((check) => run.checks.has(check)),
+      }))
+      .sort((a, b) => a.atMs - b.atMs);
     return { kind: 'events', events };
   };
 }

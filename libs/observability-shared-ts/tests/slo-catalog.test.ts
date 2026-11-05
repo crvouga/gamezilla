@@ -275,14 +275,14 @@ describe('the burn tiers of an objective', () => {
 
   test('never ask for a burn the target cannot reach', () => {
     const quick = tiersFor(slo('saves-and-loads-are-quick'));
-    // 85 in 100 burns at most 6.7x; three quarters of that is 5x.
+    // Weekly windows spend 2%, 5%, and 10% in the first three long windows.
     expect(quick.map((t) => [t.name, t.factor])).toEqual([
-      ['fast-burn', 5],
-      ['slow-burn', 5],
-      ['daily-burn', 3],
+      ['fast-burn', 3.36],
+      ['slow-burn', 1.4],
+      ['daily-burn', 0.7],
       ['budget-drift', 1],
     ]);
-    expect(tiersFor(slo('the-app-serves-people'))[0]?.factor).toBe(14.4);
+    expect(tiersFor(slo('the-app-serves-people'))[0]?.factor).toBe(3.36);
   });
 
   test('look back long enough to hold a sample of a check that runs hourly', () => {

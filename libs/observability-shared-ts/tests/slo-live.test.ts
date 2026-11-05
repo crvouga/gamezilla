@@ -377,12 +377,12 @@ describe("the team's checks from outside", () => {
     return only.evaluation;
   };
 
-  test('are judged by the hour: five failed hours a week keep the promise, six break it', async () => {
-    const five = await judge(hourly(new Set([3, 30, 60, 90, 120])));
-    expect(five.met, five.detail).toBe(true);
-    expect(five.detail).toContain('163/168 good 1h slices');
-    const six = await judge(hourly(new Set([3, 30, 60, 90, 120, 150])));
-    expect(six.met).toBe(false);
+  test('one failed checked hour breaches the strict weekly promise', async () => {
+    const healthy = await judge(hourly(new Set()));
+    expect(healthy.met, healthy.detail).toBe(true);
+    const failed = await judge(hourly(new Set([3])));
+    expect(failed.met).toBe(false);
+    expect(failed.detail).toContain('167/168 good 1h slices');
   });
 
   test('that did not run are no evidence, never a pass', async () => {
@@ -456,6 +456,23 @@ describe('one broken game among the journeys', () => {
         value: game === 'journeys.pong-game' && i < brokenFor ? 0 : 1,
       })),
     }));
+
+  // regression: slo-missing-game-check-judged-healthy
+  test('a missing game check cannot borrow the other games successful results', async () => {
+    const checked = await checkObjectiveSpec({
+      text: JOURNEYS,
+      binding: {
+        spec: 'live',
+        nowMs: () => NOW,
+        measure: metricMeasures({
+          client: fakeMetrics([], runs(0).slice(1)),
+          environment: ENV,
+          slis: ['game-journeys-passing'],
+        }),
+      },
+    });
+    expect(checked.results[0]?.evaluation.met).toBe(false);
+  });
 
   test('pages after a few hours, though twelve of thirteen checks still pass', async () => {
     const parsed = parseOpenSlo(JOURNEYS);

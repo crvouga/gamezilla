@@ -1,0 +1,4 @@
+{
+  "summary": "Live readiness combined only received check results, so a missing game check passed using healthy siblings.",
+  "regressionTest": "libs/observability-shared-ts/tests/slo-live.test.ts"
+}
