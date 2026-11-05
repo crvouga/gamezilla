@@ -11,8 +11,10 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { FrameActionsView } from './game-frame-actions-view';
 import {
   arenaRecordShown,
@@ -93,6 +95,12 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
   readonly board?: JSX.Element;
   /** The game's own private setup board, while the viewer arranges theirs. */
   readonly setupBoard?: JSX.Element;
+  /**
+   * The game's own words on how it is played: beside a wide setup, under
+   * the board preview in the card paired with the players, so the two
+   * columns balance with what the game is about.
+   */
+  readonly about?: (() => JSX.Element) | undefined;
   /** Public render state on the board stage, for automated observers. */
   readonly boardState?: Readonly<Record<string, string>> | undefined;
   readonly people?: FramePeople | undefined;
@@ -120,6 +128,31 @@ function FrameStartSlot(
         onReady={props.onReady}
       />
     </>
+  );
+}
+
+/**
+ * Beside a wide setup, under the board preview: how the game is played, in
+ * its own words, so the card beside the players says what the game is
+ * about. A phone keeps the preview a slim row and leaves this out.
+ */
+function FrameAboutView(props: {
+  readonly about: (() => JSX.Element) | undefined;
+}): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show when={mode() === 'wide' ? props.about : undefined}>
+      {(about) => (
+        <StackVertical gap="xs" testId="custom-game-about">
+          <P variant="label">
+            <Trans>How to play</Trans>
+          </P>
+          <P variant="caption" tone="secondary">
+            <Dynamic component={about()} />
+          </P>
+        </StackVertical>
+      )}
+    </Show>
   );
 }
 
@@ -184,6 +217,7 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 media={
                   <Show when={previewInSeats(props)}>
                     <FrameBoardStage {...props} />
+                    <FrameAboutView about={props.about} />
                   </Show>
                 }
               />

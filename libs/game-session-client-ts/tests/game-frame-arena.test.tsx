@@ -297,6 +297,51 @@ test('phone and wide: the board preview of a game being set up is paired with th
   }
 });
 
+// regression: wide-setup-unbalanced — wide, a game being set up was a
+// Players card beside a card holding only a small board preview, two short
+// blocks at the top of the window. The preview's card also says how the
+// game is played, in the game's own words; a phone keeps the slim preview.
+test('wide: the card beside the players says how the game is played', () => {
+  const RULES = 'Take turns dropping a disc into a column.';
+  for (const width of [390, 1440]) {
+    const time = createHarnessClock();
+    renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+          <GameFrameScreenView
+            {...props()}
+            phase="configuring"
+            record={null}
+            about={() => RULES}
+            setup={{
+              viewerNotice: null,
+              takeSeat: null,
+              seats: [],
+              privateSetup: null,
+              options: null,
+              start: {
+                reason: null,
+                hostStarts: false,
+                readiness: { ready: true, blocked: false },
+                canStart: true,
+              },
+            }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const about = screen.queryByTestId('custom-game-about');
+    if (width === 390) expect(about).toBeNull();
+    else {
+      expect(about?.textContent).toBe(`How to play${RULES}`);
+      // In the preview's own card, beside the Players card.
+      const preview = screen.getByTestId('custom-game-public');
+      expect(preview.parentElement?.contains(about)).toBe(true);
+    }
+    cleanup();
+  }
+});
+
 // regression: battleship-own-seat-below-fold — on a 900px-tall window
 // Battleship's turn line sat under the board, pushing the person's own seat
 // ("Your move") below the fold. Beside a wide board during play the game's
