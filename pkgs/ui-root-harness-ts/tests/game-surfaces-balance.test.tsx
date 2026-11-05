@@ -313,4 +313,27 @@ describe('game surfaces', () => {
       )
     ).toMatch(/justify-content:\s*flex-start;/);
   });
+
+  // regression: setup-players-card-stretched — wide, the board preview's
+  // card (a 176px board, its label and how the game is played) stood taller
+  // than the Players card, so the pair stretched the Players card about
+  // 54px past "Ready to start". The wide thumbnail is 120px, so the picture's
+  // card is no taller than the section.
+  // regression: setup-seat-cards-uneven — the bot's seat card stood 4px
+  // shorter than the host's beside it: its facts line held no "Host" tag.
+  // A compact seat's facts line is a tag's height either way.
+  test("a wide setup's preview card is no taller than its players, and seat rows stay level", () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    const wide = css.slice(css.indexOf('@container game-section (min-width: 40rem)'));
+    const media = wide.slice(wide.indexOf('.sectionMedia {'));
+    expect(media.slice(0, media.indexOf('}'))).toMatch(
+      /--game-board-preview-measure:\s*120px;/
+    );
+    expect(
+      rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')
+    ).toMatch(/min-height:\s*var\(--ui-space-6\);/);
+  });
 });

@@ -132,21 +132,24 @@ function FrameStartSlot(
 }
 
 /**
- * Beside a wide setup, under the board preview: how the game is played, in
- * its own words, so the card beside the players says what the game is
- * about. A phone keeps the preview a slim row and leaves this out.
+ * Beside the board preview: how the game is played, in its own words, so
+ * the card paired with the players says what the game is about. Wide, under
+ * the preview with its heading; on a phone the line itself beside the slim
+ * preview's thumbnail, in place of the bare `Board preview` label.
  */
 function FrameAboutView(props: {
   readonly about: (() => JSX.Element) | undefined;
 }): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <Show when={mode() === 'wide' ? props.about : undefined}>
+    <Show when={props.about}>
       {(about) => (
-        <StackVertical gap="xs" testId="custom-game-about">
-          <P variant="label">
-            <Trans>How to play</Trans>
-          </P>
+        <StackVertical gap="xs" grow testId="custom-game-about">
+          <Show when={mode() === 'wide'}>
+            <P variant="label">
+              <Trans>How to play</Trans>
+            </P>
+          </Show>
           <P variant="caption" tone="secondary">
             <Dynamic component={about()} />
           </P>
@@ -591,7 +594,13 @@ function FrameBoardStage(props: Props): JSX.Element {
   return (
     <GameBoardStage
       preview={!seated()}
-      previewLabel={<Trans>Board preview</Trans>}
+      // A phone's slim preview row says how the game is played beside its
+      // thumbnail instead, when the game says it.
+      previewLabel={
+        mode() === 'wide' || props.about === undefined ? (
+          <Trans>Board preview</Trans>
+        ) : undefined
+      }
       dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
       others={
         <Show when={seatsAround()}>

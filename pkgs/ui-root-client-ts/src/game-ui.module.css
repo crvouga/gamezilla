@@ -216,6 +216,11 @@
   gap: var(--ui-space-1);
   min-width: 0;
 }
+/* A compact seat's facts line is a tag's height whether or not it holds a
+   tag (`Host`), so two seat cards side by side keep their rows level. */
+.player[data-density="compact"] .playerTags {
+  min-height: var(--ui-space-6);
+}
 /* A compact seat's controls on a line under its name, starting where the
    name does (past the 32px avatar and the row's gap). */
 .playerBelow {

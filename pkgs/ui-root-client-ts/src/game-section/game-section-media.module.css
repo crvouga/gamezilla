@@ -20,6 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  gap: var(--ui-space-3);
   min-width: 0;
   padding: var(--ui-space-2) var(--ui-space-3);
 }
@@ -45,8 +46,11 @@
     grid-template-columns: minmax(0, 1fr) 15rem;
     align-items: stretch;
   }
+  /* A thumbnail small enough that the picture's card, with how the game
+     is played under it, is no taller than the section it pairs with, so
+     neither card is stretched around empty room. */
   .sectionMedia {
-    --game-board-preview-measure: 176px;
+    --game-board-preview-measure: 120px;
     grid-column: 2;
     grid-row: 1;
     flex-direction: column;

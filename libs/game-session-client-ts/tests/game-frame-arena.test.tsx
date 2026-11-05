@@ -331,12 +331,18 @@ test('wide: the card beside the players says how the game is played', () => {
       </ClockProvider>
     ));
     const about = screen.queryByTestId('custom-game-about');
-    if (width === 390) expect(about).toBeNull();
-    else {
+    // In the preview's own card, paired with the Players card.
+    const preview = screen.getByTestId('custom-game-public');
+    expect(preview.parentElement?.contains(about)).toBe(true);
+    if (width === 390) {
+      // regression: phone-setup-preview-uninformative — a phone's slim
+      // preview row said only "Board preview" beside a tiny thumbnail; it
+      // says how the game is played there instead.
+      expect(about?.textContent).toBe(RULES);
+      expect(preview.textContent).not.toContain('Board preview');
+    } else {
       expect(about?.textContent).toBe(`How to play${RULES}`);
-      // In the preview's own card, beside the Players card.
-      const preview = screen.getByTestId('custom-game-public');
-      expect(preview.parentElement?.contains(about)).toBe(true);
+      expect(preview.textContent).toContain('Board preview');
     }
     cleanup();
   }

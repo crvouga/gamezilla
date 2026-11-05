@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game being set up paired its Players card with a board preview card (a 176px board, its label and how the game is played) that stood taller, so the Players card was stretched about 54px past \"Ready to start\". The wide thumbnail is now 120px, so the picture's card is no taller than the players it pairs with.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}
