@@ -30,6 +30,12 @@ export type TabsProps<V extends string = string> = {
   variant?: TabsVariant | undefined;
   /** The selected tab's panel. */
   children?: ((value: V) => JSX.Element) | undefined;
+  /**
+   * Render every tab's panel and hide the unselected ones, instead of
+   * rendering only the selected one: a list keeps its loaded pages and
+   * place when the person comes back to its tab.
+   */
+  keepMounted?: boolean | undefined;
   'aria-label'?: string | undefined;
   'aria-labelledby'?: string | undefined;
   /** Rendered as `data-testid`; each tab gets `<testId>-<value>`. */
@@ -116,7 +122,8 @@ function onTabKeyDown(tab: HTMLElement, event: KeyboardEvent): void {
  *   state from `defaultValue` (default: the first enabled tab).
  * - The panel is the `children` render prop, called with the selected value.
  *   Every tab has a panel element so `aria-controls` always resolves; only the
- *   selected one renders content.
+ *   selected one renders content, unless `keepMounted` keeps every panel
+ *   rendered and hides the others.
  *
  * Variants:
  * - `underline` (default): the profile-tab look. A hairline track under the
@@ -222,7 +229,9 @@ export function Tabs<V extends string = string>(
             tabIndex={0}
             hidden={item.value !== selected()}
           >
-            <Show when={item.value === selected()}>
+            <Show
+              when={props.keepMounted === true || item.value === selected()}
+            >
               {props.children?.(item.value)}
             </Show>
           </div>

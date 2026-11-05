@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-/** The puzzle library: playing in one column, building in the other, said once. */
+/** The puzzle library: Browse, Continue and My creations, each said once. */
 
 import { afterEach, expect, test } from 'bun:test';
 import {
@@ -13,6 +13,15 @@ import { cleanup, screen } from '@solidjs/testing-library';
 afterEach(cleanup);
 
 const none = (): void => undefined;
+
+const PUBLISHED_PUZZLE = {
+  id: 'revision-1',
+  document_id: 'document-1',
+  kind: 'puzzle',
+  title: 'Count to seven',
+  description: '',
+  difficulty: 'Easy',
+} as const;
 
 const VIEW: ContentLibraryScreenViewProps = {
   status: 'ready',
@@ -53,9 +62,13 @@ const VIEW: ContentLibraryScreenViewProps = {
 // regression: content-library-scrolled-past-title — every list stacked in
 // one column, so opening the last published puzzle scrolled the title out
 // of view, and each saved attempt repeated "Your progress is kept at this
-// edition." Playing and building are now two columns, and the note is said
-// once for the section.
-test('playing and building are separate columns, the attempt note said once', () => {
+// edition." Playing and building are now separate tabs, and the note is
+// said once for the section.
+// regression: content-library-one-long-page — playing, finished attempts,
+// publishing, drafts and playtests competed on one long page. Browse,
+// Continue and My creations are tabs; finished attempts sit apart from
+// the ones to continue.
+test('browsing, continuing and building are separate tabs, the attempt note said once', () => {
   renderWithI18n(() => (
     <ThemeProvider
       colorScheme="dark"
@@ -64,20 +77,19 @@ test('playing and building are separate columns, the attempt note said once', ()
       <ContentLibraryScreenView {...VIEW} />
     </ThemeProvider>
   ));
-  const play = screen.getByTestId('content-library-play');
-  const create = screen.getByTestId('content-library-create');
-  expect(play.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
+  const browse = screen.getByTestId('content-library-browse');
+  const resume = screen.getByTestId('content-library-continue');
+  const mine = screen.getByTestId('content-library-mine');
+  expect(
+    browse.contains(screen.getByTestId('content-published-revision-1'))
+  ).toBe(true);
+  expect(resume.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
     true
   );
   expect(
-    play.contains(screen.getByTestId('content-published-revision-1'))
+    resume.contains(screen.getByTestId('content-attempt-playtest-1'))
   ).toBe(true);
-  expect(create.contains(screen.getByTestId('content-draft-draft-1'))).toBe(
-    true
-  );
-  expect(
-    create.contains(screen.getByTestId('content-attempt-playtest-1'))
-  ).toBe(true);
+  expect(mine.contains(screen.getByTestId('content-draft-draft-1'))).toBe(true);
   expect(
     screen.getAllByText(
       'Each attempt keeps your progress at the edition you started.'
@@ -86,6 +98,84 @@ test('playing and building are separate columns, the attempt note said once', ()
   expect(
     screen.queryByText('Your progress is kept at this edition.')
   ).toBeNull();
+  // Something is unfinished, so the library opens on Continue; the other
+  // tabs are hidden until chosen.
+  const tab = (value: string) =>
+    screen.getByTestId(`content-library-tab-${value}`);
+  expect(tab('continue').getAttribute('aria-selected')).toBe('true');
+  expect(browse.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(
+    true
+  );
+  tab('mine').click();
+  expect(mine.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(false);
+  expect(resume.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(
+    true
+  );
+});
+
+test('finished attempts sit apart from the ones to continue, without status pills', () => {
+  renderLibrary(VIEW);
+  const unfinished = screen.getByTestId('content-attempt-attempt-1');
+  const finished = screen.getByTestId('content-attempt-attempt-2');
+  const section = (row: HTMLElement) =>
+    row.closest('[data-component="MenuSection"]');
+  expect(section(unfinished)).not.toBe(section(finished));
+  expect(section(unfinished)?.textContent).toContain('Continue playing');
+  expect(section(finished)?.textContent).toContain('Finished');
+  expect(
+    screen
+      .getByTestId('content-library-continue')
+      .querySelector('[data-testid="content-chip-status"]')
+  ).toBeNull();
+});
+
+test('with nothing unfinished the library opens on Browse', () => {
+  renderLibrary({
+    ...VIEW,
+    attempts: [{ id: 'attempt-2', title: 'Count to nine', completed: true }],
+  });
+  expect(
+    screen
+      .getByTestId('content-library-tab-browse')
+      .getAttribute('aria-selected')
+  ).toBe('true');
+});
+
+// regression: content-library-create-off-screen — on a phone the create
+// controls sat at the end of the page, after every list. They come first,
+// under the title, before any tab.
+test('creating a puzzle or pack comes before the tabs on a phone', () => {
+  renderLibrary({
+    ...VIEW,
+    createControls: <button type="button" data-testid="create" />,
+  });
+  const create = screen.getByTestId('create');
+  const tabs = screen.getByTestId('content-library-tab');
+  expect(
+    (create.compareDocumentPosition(tabs) &
+      Node.DOCUMENT_POSITION_FOLLOWING) !==
+      0
+  ).toBe(true);
+});
+
+// Library rows lead with the larger thumbnail, a pack's on stacked sheets
+// (their alignment: pkgs/ui-root-harness-ts/tests/preview-thumbnail-stack).
+test("every library row leads with the large thumbnail, a pack's stacked", () => {
+  renderLibrary({
+    ...VIEW,
+    published: [
+      { ...PUBLISHED_PUZZLE },
+      { ...PUBLISHED_PUZZLE, id: 'revision-2', kind: 'pack' },
+    ],
+  });
+  const thumbnails = ['revision-1', 'revision-2'].map((id) =>
+    chip(screen.getByTestId(`content-published-${id}`), 'content-thumbnail')
+  );
+  expect(thumbnails.map((t) => t.getAttribute('data-size'))).toEqual([
+    'xl',
+    'xl',
+  ]);
+  expect(thumbnails[1]?.getAttribute('data-stacked')).toBe('true');
 });
 
 function renderLibrary(view: ContentLibraryScreenViewProps): void {
