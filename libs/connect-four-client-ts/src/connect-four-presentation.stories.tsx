@@ -28,6 +28,8 @@ function columnsPlayed(columns: string): readonly string[] {
 
 /** Eight discs in: Red to move. */
 const MID_GAME = '33244521';
+/** Ten discs in, five each: Red to move, as a real game's middle reads. */
+const MID_GAME_LONGER = `${MID_GAME}63`;
 /** Yellow's reply to it waits. */
 const MID_GAME_REPLY = `${MID_GAME}6`;
 
@@ -52,15 +54,15 @@ type Story = StoryObj<typeof meta>;
 export const Opening: Story = {};
 
 /**
- * Mid-game on the person's turn: every open column offers a drop. The one
- * pointed at (column 6) takes a tint and a red chip on its number, a
- * see-through red disc waits where it would land, and the line under the
- * board says `Drop in column 6`.
+ * Mid-game on the person's turn, ten discs in: every open column offers a
+ * drop. The one pointed at (column 6) takes a tint and a red ring round its
+ * number, a dashed red outline marks where the disc would land, and the
+ * line under the board says `Drop in column 6`.
  */
 export const YourTurn: Story = {
-  args: { position: after(MID_GAME) },
+  args: { position: after(MID_GAME_LONGER) },
   parameters: {
-    table: { turn: 'white', moves: columnsPlayed(MID_GAME) },
+    table: { turn: 'white', moves: columnsPlayed(MID_GAME_LONGER) },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

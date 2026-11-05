@@ -14,6 +14,20 @@ const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const ITALIAN =
   'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
 const ITALIAN_MOVES = ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'];
+/** A quiet Giuoco Piano after 7...a6: both castled, White to move. */
+const GIUOCO =
+  'r1bq1rk1/1pp2ppp/p1np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQR1K1 w - - 0 8';
+const GIUOCO_MOVES = [
+  ...ITALIAN_MOVES,
+  'c3',
+  'Nf6',
+  'd3',
+  'd6',
+  'O-O',
+  'O-O',
+  'Re1',
+  'a6',
+];
 /** After 3.Bb5+: Black's king is in check. */
 const CHECK = 'rnbqkbnr/ppp2ppp/8/1B1pp3/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 3';
 /** The fool's mate: White is checkmated on move two. */
@@ -46,8 +60,17 @@ type Story = StoryObj<typeof meta>;
 /** A new game: White moves first, legal moves highlighted on pick-up. */
 export const Opening: Story = {};
 
-/** Mid-game on White's turn, the last move highlighted. */
+/**
+ * Mid-game on White's turn, seven moves each in the record, the last move
+ * highlighted: the record a real game shows, not three lonely rows.
+ */
 export const YourTurn: Story = {
+  args: { position: GIUOCO, lastAction: 'a7a6' },
+  parameters: { table: { turn: 'white', moves: GIUOCO_MOVES } },
+};
+
+/** Three moves in, on White's turn: a short record. */
+export const EarlyGame: Story = {
   args: { position: ITALIAN, lastAction: 'f8c5' },
   parameters: { table: { turn: 'white', moves: ITALIAN_MOVES } },
 };

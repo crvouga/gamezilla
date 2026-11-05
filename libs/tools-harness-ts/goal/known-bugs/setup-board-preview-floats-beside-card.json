@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game being set up showed its 200px board preview floating top-right of the page, unrelated to the Players card beside it. The preview now sits inside the Players card, beside the seats, with Start closing the card under both.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle's move list showed \"4… g6\" between step arrows with nothing naming it a move of the line. The list is now headed \"Moves\", as a game's record is.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-turn-cue.test.tsx"
+}

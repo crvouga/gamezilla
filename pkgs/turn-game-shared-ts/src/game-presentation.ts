@@ -75,4 +75,10 @@ export type GamePresentation<View = unknown> = {
    * or `undefined` for a reason only the platform words.
    */
   readonly refusalDescription?: (reason: string) => string | undefined;
+  /**
+   * A short word the record shows before each move (`col` before `3`), for
+   * a game whose notation alone is a bare number; absent when the notation
+   * reads on its own (`e4`). The move itself stays as the game writes it.
+   */
+  readonly movePrefix?: () => string;
 };

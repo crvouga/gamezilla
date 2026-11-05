@@ -1,62 +1,53 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import {
-  ListEntry,
-  UnorderedList,
-} from '@pkgs/ui-root-client-ts/semantic-list';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 
-/** One thing a search does, as a short title over its plain explanation. */
+/** One thing a search does: a short title over one plain line. */
 function GuidePoint(props: {
   readonly title: JSX.Element;
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <ListEntry>
-      <StackVertical gap="xs">
-        <P variant="bodyBold">{props.title}</P>
-        <P variant="caption" tone="secondary">
-          {props.children}
-        </P>
-      </StackVertical>
-    </ListEntry>
+    <StackVertical gap="xs" role="listitem">
+      <P variant="label">{props.title}</P>
+      <P variant="caption" tone="secondary">
+        {props.children}
+      </P>
+    </StackVertical>
   );
 }
 
 /**
- * Beside the search on a wide screen: what a search does, in three plain
- * points, so the person knows what they start before they press Find.
+ * Under the search on a wide screen, past its card's hairline: what a
+ * search does, in three short points side by side, quieter than the
+ * choice above it so it never outweighs the decision.
  */
 export function MultiplayerGuide(): JSX.Element {
   return (
-    <GameSection
-      title={<Trans>How matchmaking works</Trans>}
-      dataSet={{ testid: 'multiplayer-guide' }}
-    >
-      <StackVertical gap="md">
-        <UnorderedList aria-label={t`How matchmaking works`}>
-          <GuidePoint title={<Trans>Every match is rated</Trans>}>
-            <Trans>
-              Each finished game moves your rating once, win, lose or draw.
-            </Trans>
-          </GuidePoint>
-          <GuidePoint title={<Trans>Stop whenever you like</Trans>}>
-            <Trans>
-              A search waits as long as it takes. Stop it any time before you're
-              matched.
-            </Trans>
-          </GuidePoint>
-          <GuidePoint title={<Trans>Only people you can play</Trans>}>
-            <Trans>
-              You're never paired with someone you've blocked, or who blocked
-              you.
-            </Trans>
-          </GuidePoint>
-        </UnorderedList>
-      </StackVertical>
-    </GameSection>
+    <StackVertical gap="sm" testId="multiplayer-guide">
+      <H3 size="label" tone="secondary">
+        <Trans>How matchmaking works</Trans>
+      </H3>
+      <Grid
+        columns={3}
+        gap="lg"
+        role="list"
+        aria-label={t`How matchmaking works`}
+      >
+        <GuidePoint title={<Trans>Every match is rated</Trans>}>
+          <Trans>Win, lose or draw, your rating moves once.</Trans>
+        </GuidePoint>
+        <GuidePoint title={<Trans>Stop whenever you like</Trans>}>
+          <Trans>A search waits until you stop it or are matched.</Trans>
+        </GuidePoint>
+        <GuidePoint title={<Trans>Only people you can play</Trans>}>
+          <Trans>Never someone you've blocked, or who blocked you.</Trans>
+        </GuidePoint>
+      </Grid>
+    </StackVertical>
   );
 }

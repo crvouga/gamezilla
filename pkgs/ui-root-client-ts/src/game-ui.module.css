@@ -30,7 +30,8 @@
 }
 .column:has(.layout[data-has-stage="true"][data-has-aside="true"]),
 .column:has(.layout[data-has-stage="true"][data-has-setup="true"]),
-.column:has([data-setup-split="true"]) {
+.column:has([data-setup-split="true"]),
+.column:has([data-section-media="true"]) {
   max-width: calc(
     var(--game-board-measure) +
     var(--ui-space-6) +
@@ -133,6 +134,35 @@
   padding: var(--ui-space-5);
   min-width: 0;
 }
+/* A section with a picture beside its body: the body takes the room, the
+   picture (a board preview) keeps a thumbnail's size at the top. */
+.sectionSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--ui-space-6);
+  align-items: start;
+  min-width: 0;
+}
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.sectionMedia {
+  --game-board-preview-measure: 200px;
+  display: flex;
+  flex-direction: column;
+  width: var(--game-board-preview-measure);
+  min-width: 0;
+}
+.railFoot {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ui-space-4) var(--ui-space-5);
+  margin-top: auto;
+  min-width: 0;
+}
 .sectionFooter {
   border-top: 1px solid var(--ui-color-border);
   padding-top: var(--ui-space-4);
@@ -207,6 +237,22 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-1);
+  min-width: 0;
+}
+/* A compact seat's controls on a line under its name, starting where the
+   name does (past the 32px avatar and the row's gap). */
+.playerBelow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  padding-inline-start: calc(32px + var(--ui-space-3));
+  min-width: 0;
+}
+.playerBelowControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
   min-width: 0;
 }
 .playerTrailing {
@@ -437,6 +483,14 @@
     grid-column: 2;
     grid-row: 1;
     max-width: var(--game-board-preview-measure);
+  }
+  /* A search that holds its own context (the person's ratings beside its
+     command) spans the game column as one card, never a form's measure
+     stranded at the column's start. */
+  .column
+    .layout[data-has-aside][data-has-setup]
+    > .stage:has([data-setup-split="true"]) {
+    max-width: none;
   }
   /* In document order, each in the next free row of the rail. */
   .layout[data-has-stage="true"][data-has-aside="true"]

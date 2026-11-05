@@ -101,4 +101,50 @@ describe('GameMoveList', () => {
     setCurrent(0);
     expect(screen.getByTestId('move-1')).not.toHaveAttribute('aria-current');
   });
+
+  // regression: connect-four-moves-read-as-bare-numbers — the phone strip
+  // read "4 ● 3 ◆ 2": nothing said 4 was a move's number and 3 a column.
+  test('a bare-number move is read with its word, and the shown turn is named', () => {
+    const columns: readonly GameMoveListEntry[] = ['3', '2'].map(
+      (label, index) => ({
+        ply: index + 7,
+        label,
+        prefix: 'col',
+        swatch: index === 0 ? { mark: '●' } : { mark: '◆' },
+        accessibleName: `Move ${String(index + 7)}: column ${label}`,
+        testId: `move-${String(index + 7)}`,
+      })
+    );
+    renderUi(() => (
+      <GameMoveList
+        layout="turn"
+        aria-label="Moves played"
+        perTurn={2}
+        current={8}
+        moves={columns}
+        onSelect={() => undefined}
+        turnLabel={(turn) => `Move ${String(turn)}`}
+      />
+    ));
+    const list = screen.getByRole('list', { name: 'Moves played' });
+    expect(list.textContent).toBe('Move 4●col3◆col2');
+    // The button keeps the move exactly as the game writes it.
+    expect(screen.getByTestId('move-7').textContent).toBe('3');
+    expect(screen.getByTestId('move-8').textContent).toBe('2');
+  });
+
+  test('the table keeps bare turn numbers', () => {
+    renderUi(() => (
+      <GameMoveList
+        layout="table"
+        aria-label="Moves played"
+        perTurn={2}
+        current={3}
+        moves={MOVES}
+        onSelect={() => undefined}
+        turnLabel={(turn) => `Move ${String(turn)}`}
+      />
+    ));
+    expect(screen.queryByText('Move 1')).toBeNull();
+  });
 });

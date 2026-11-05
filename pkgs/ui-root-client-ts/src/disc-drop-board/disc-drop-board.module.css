@@ -106,8 +106,9 @@
   color: var(--ui-color-text-secondary);
   text-align: center;
 }
-/* A column's number, quiet; the column pointed at sets it in a chip of the
-   dropping side's colour, the column's clear mark. */
+/* A column's number, quiet; the column pointed at rings it in the dropping
+   side's colour, a hollow disc waiting in the drop slot above the column:
+   the disc in hand, never one on the board. */
 .drop {
   display: flex;
   flex-direction: column;
@@ -115,24 +116,29 @@
   padding-block: var(--ui-space-1) var(--ui-space-hairline);
 }
 .number {
-  min-width: 1lh;
-  padding-inline: var(--ui-space-2);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: calc(1lh + var(--ui-space-2));
+  min-height: calc(1lh + var(--ui-space-2));
+  padding-inline: var(--ui-space-1);
   font-weight: 700;
+  border: 3px solid transparent;
   border-radius: var(--ui-radius-full);
   color: var(--ui-color-text-secondary);
   font-variant-numeric: tabular-nums;
   text-align: center;
   transition:
     color var(--ui-duration-fast) var(--ui-easing-standard),
-    background-color var(--ui-duration-fast) var(--ui-easing-standard);
+    border-color var(--ui-duration-fast) var(--ui-easing-standard);
 }
 .drop[data-disc="1"] .number {
-  background: var(--ui-color-destructive);
+  border-color: var(--ui-color-destructive);
   color: var(--ui-color-text);
 }
 .drop[data-disc="2"] .number {
-  background: var(--ui-color-warning);
-  color: var(--ui-color-on-warning);
+  border-color: var(--ui-color-warning);
+  color: var(--ui-color-text);
 }
 .cell {
   display: grid;
@@ -160,23 +166,15 @@
   background: var(--ui-color-warning);
   color: var(--ui-color-background);
 }
-/* Where the disc would land: the dropping side's own disc, see-through and
-   with no mark, inside a solid edge of its full colour, so it reads as
-   that side's disc still to come, never as one already played. */
+/* Where the disc would land: an empty hole ringed by a dashed edge of the
+   dropping side's colour, breathing slowly. No fill and no mark: a played
+   disc is always solid, so the outline can only read as a disc to come. */
 .cell[data-preview-disc="1"] .disc,
 .cell[data-preview-disc="2"] .disc {
-  position: relative;
   box-sizing: border-box;
-  border: 3px solid var(--disc-preview);
-}
-.cell[data-preview-disc="1"] .disc::before,
-.cell[data-preview-disc="2"] .disc::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--disc-preview);
-  opacity: 0.45;
+  border: 3px dashed var(--disc-preview);
+  animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
+    alternate;
 }
 .cell[data-preview-disc="1"] {
   --disc-preview: var(--ui-color-destructive);
@@ -209,6 +207,14 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+@keyframes disc-preview-breathe {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
 @keyframes disc-drop {
   from {
     transform: translateY(var(--disc-distance));
@@ -227,7 +233,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cell[data-last="true"] .disc {
+  .cell[data-last="true"] .disc,
+  .cell[data-preview-disc="1"] .disc,
+  .cell[data-preview-disc="2"] .disc {
     animation: none;
   }
   .column::before,

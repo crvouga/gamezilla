@@ -1,0 +1,4 @@
+{
+  "summary": "The search card said \"Find someone to play with.\" and \"This search finds / A rated game with no clock\" before its one command. It now says \"Rated · No clock\" in one line above Find an opponent.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

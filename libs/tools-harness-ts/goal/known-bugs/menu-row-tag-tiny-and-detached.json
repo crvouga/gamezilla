@@ -1,0 +1,4 @@
+{
+  "summary": "A menu row's tag (\"2 players\", \"Recommended\") was a 10px grey chip on a line of its own under the title, reading as a disabled chip. It now follows the title at the readable tag size, in the accent for the main way in.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/main-menu-item-emphasis.test.tsx"
+}

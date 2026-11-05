@@ -162,9 +162,11 @@ export function useFrameRecord(
     }
   );
   const movers = useRecordMovers(review);
+  const presentation = useGamePresentation();
   return createMemo(() => {
     if (model.current() === null) return null;
     return {
+      movePrefix: presentation(review.fen()).movePrefix?.() ?? '',
       earlier: model.games().history.map((game) => game.id),
       selection: review.selection(),
       turns: rules.turnsForPosition(review.fen()) !== undefined,

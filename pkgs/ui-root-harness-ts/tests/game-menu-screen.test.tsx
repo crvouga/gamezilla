@@ -74,6 +74,27 @@ describe('GameMenuScreen', () => {
     view.unmount();
   });
 
+  // regression: game-menu-recommended-badge-detached — wide, the
+  // "Recommended" tag was a 10px chip at the tile's far corner, far from its
+  // title, and the tile's chevron sat at the foot of a mostly empty card.
+  test('wide: the lead tag sits beside its title at a readable size, the tile one line across', () => {
+    const view = menu(1440, () => undefined);
+    const play = view.getByTestId('choice-play');
+    const badge = view
+      .getByText('Recommended')
+      .closest('[data-component="Badge"]');
+    expect(badge?.getAttribute('data-size')).toBe('md');
+    expect(badge?.getAttribute('data-intent')).toBe('brand');
+    expect(
+      badge?.parentElement?.contains(
+        view.getByText('Play with friends or bots')
+      )
+    ).toBe(true);
+    // Picture, words, chevron: three children across, no head row.
+    expect(play.children).toHaveLength(3);
+    view.unmount();
+  });
+
   test('phone: the same choices as one panel of menu rows', () => {
     const view = menu(390, () => undefined);
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(

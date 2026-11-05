@@ -22,6 +22,8 @@ import {
   WON_LINE,
   WON_MOVES,
   WON_RECORD,
+  YOUR_TURN_MOVES,
+  YOUR_TURN_RECORD,
 } from './game-frame-story.example';
 
 /** The frame with Connect Four's board at the position `moves` reach. */
@@ -68,13 +70,22 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Red circle moves first, so after six drops it is the viewer's turn again. */
-const YOUR_TURN_MOVES = MID_GAME_MOVES.slice(0, 6);
-
-/** The viewer's turn: their seat below the board glows and the board takes a move. */
+/**
+ * The viewer's turn ten drops in: their seat below the board glows, the
+ * board takes a move, and the record holds five moves each.
+ */
 export const YourTurn: Story = {
-  args: { ...PLAYING, record: record(MID_GAME_RECORD.slice(0, 6)) },
+  args: { ...PLAYING, record: record(YOUR_TURN_RECORD) },
   render: (args) => onBoard(YOUR_TURN_MOVES)(args),
+};
+
+/** Red circle moves first, so after six drops it is the viewer's turn again. */
+const EARLY_MOVES = MID_GAME_MOVES.slice(0, 6);
+
+/** The viewer's turn early on: a short record of three moves each. */
+export const EarlyTurn: Story = {
+  args: { ...PLAYING, record: record(MID_GAME_RECORD.slice(0, 6)) },
+  render: (args) => onBoard(EARLY_MOVES)(args),
 };
 
 /** The opponent's turn: the turn line is neutral and their strip is the active one. */

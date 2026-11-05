@@ -1,0 +1,4 @@
+{
+  "summary": "The Connect Four landing preview was the dropping side's own disc, see-through inside a solid edge, so it read as a translucent disc already on the board. The landing cell now shows an empty dashed outline that breathes (and holds still under reduced motion) and the column's number a hollow ring in the side's colour.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

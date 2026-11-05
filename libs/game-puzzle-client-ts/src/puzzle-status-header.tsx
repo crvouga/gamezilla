@@ -1,5 +1,6 @@
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -72,7 +73,16 @@ export function PuzzleStatusHeader(
             when={props.kind === 'started' ? props.solverSide : null}
             fallback={statusLabel(props.kind)}
           >
-            {(side) => yourTurnLabel(side())}
+            {/* The solver's turn in the accent pill the game screens put on
+                the seat to move, right above (or beside) the board. */}
+            {(side) => (
+              <Badge
+                intent="brand"
+                tone="solid"
+                label={yourTurnLabel(side())}
+                dataSet={{ testid: 'chess-puzzle-your-move' }}
+              />
+            )}
           </Show>
         </P>
       </StackVertical>

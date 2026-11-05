@@ -1,0 +1,4 @@
+{
+  "summary": "A phone seat row said only \"Change\" beside the holder's name, and spelling out \"Change player\" there cut \"Bot (medium)\" short. On a phone the toggle now sits on its own line under the name, beside the seat's own controls, and always says \"Change player\".",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

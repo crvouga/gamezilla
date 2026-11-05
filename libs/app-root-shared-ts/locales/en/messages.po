@@ -70,11 +70,6 @@ msgstr "{0, plural, one {# person in this space} other {# people in this space}}
 msgid "{0, plural, one {# player} other {# players}}"
 msgstr "{0, plural, one {# player} other {# players}}"
 
-#. placeholder {0}: props.count
-#: libs/spaces-client-ts/src/space-games-screen-view.tsx
-msgid "{0, plural, one {# plays, others watch} other {# play, others watch}}"
-msgstr "{0, plural, one {# plays, others watch} other {# play, others watch}}"
-
 #. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
@@ -765,14 +760,14 @@ msgstr "A draw has been offered."
 msgid "A draw needs every participant to be a person."
 msgstr "A draw needs every participant to be a person."
 
-#. placeholder {0}: count()
-#. placeholder {1}: count() - 1
+#. placeholder {0}: props.count
+#. placeholder {1}: props.count - 1
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "A game needs {0} players including you. Find {1} other players at the same clock choice."
 msgstr "A game needs {0} players including you. Find {1} other players at the same clock choice."
 
-#. placeholder {0}: count()
-#. placeholder {1}: count() - 1
+#. placeholder {0}: props.count
+#. placeholder {1}: props.count - 1
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "A game needs {0} players including you. Find {1} other players."
 msgstr "A game needs {0} players including you. Find {1} other players."
@@ -816,22 +811,13 @@ msgstr "A player left the round."
 msgid "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 msgstr "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 
-#. placeholder {0}: timeControlText(props.timeControl)
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "A rated game at {0}"
-msgstr "A rated game at {0}"
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "A rated game with no clock"
-msgstr "A rated game with no clock"
-
 #: libs/hearts-client-ts/src/hearts-presentation.tsx
 msgid "A score reached 100, and the lowest score wins."
 msgstr "A score reached 100, and the lowest score wins."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
-msgid "A search waits as long as it takes. Stop it any time before you're matched."
-msgstr "A search waits as long as it takes. Stop it any time before you're matched."
+msgid "A search waits until you stop it or are matched."
+msgstr "A search waits until you stop it or are matched."
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "A space"
@@ -1481,11 +1467,6 @@ msgstr "Change size"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
-#. placeholder {0}: props.seat.sideLabel
-#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
-msgid "Change<0> player: {0}</0>"
-msgstr "Change<0> player: {0}</0>"
-
 #: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
@@ -1754,6 +1735,10 @@ msgstr "Closed seat"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "clubs"
 msgstr "clubs"
+
+#: libs/connect-four-client-ts/src/connect-four-presentation.tsx
+msgid "col"
+msgstr "col"
 
 #: pkgs/ui-devtools-client-ts/src/json-view/index.tsx
 msgid "Collapse all"
@@ -2518,10 +2503,6 @@ msgstr "e.g. ff5733"
 msgid "Each asks first"
 msgstr "Each asks first"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
-msgid "Each finished game moves your rating once, win, lose or draw."
-msgstr "Each finished game moves your rating once, win, lose or draw."
-
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Each side chooses a private setup before the first move."
 msgstr "Each side chooses a private setup before the first move."
@@ -2823,10 +2804,6 @@ msgstr "Find people"
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 msgid "Find players"
 msgstr "Find players"
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "Find someone to play with."
-msgstr "Find someone to play with."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Find Synthetic Users"
@@ -3953,6 +3930,10 @@ msgstr "Move {ply}, {0}: {label}"
 msgid "Move {ply}: {label}"
 msgstr "Move {ply}: {label}"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Move {turn}"
+msgstr "Move {turn}"
+
 #: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
 msgid "Move endpoints inside the smaller board before resizing it."
 msgstr "Move endpoints inside the smaller board before resizing it."
@@ -3986,6 +3967,7 @@ msgid "Move your paddle to return the ball. A ball past the other paddle scores 
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-move-history.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Moves"
@@ -4087,6 +4069,10 @@ msgstr "Neither side can checkmate."
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "network"
 msgstr "network"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Never someone you've blocked, or who blocked you."
+msgstr "Never someone you've blocked, or who blocked you."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 msgid "New attempt saved"
@@ -5284,6 +5270,15 @@ msgstr "Randomize"
 msgid "Rapid"
 msgstr "Rapid"
 
+#. placeholder {0}: timeControlText(props.timeControl)
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "Rated · {0}"
+msgstr "Rated · {0}"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "Rated · No clock"
+msgstr "Rated · No clock"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "Rated games toward a settled rating"
 msgstr "Rated games toward a settled rating"
@@ -6332,10 +6327,6 @@ msgstr "Sokoban board preview"
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Solo"
 msgstr "Solo"
-
-#: libs/spaces-client-ts/src/space-games-screen-view.tsx
-msgid "Solo, others watch"
-msgstr "Solo, others watch"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Solution"
@@ -7423,10 +7414,6 @@ msgstr "This screen has not been ported to the web app yet."
 msgid "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 msgstr "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "This search finds"
-msgstr "This search finds"
-
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "This space can't be found"
 msgstr "This space can't be found"
@@ -7961,6 +7948,10 @@ msgstr "While you work offline, nobody can play with you: a game with others dis
 msgid "White"
 msgstr "White"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
+msgid "Win, lose or draw, your rating moves once."
+msgstr "Win, lose or draw, your rating moves once."
+
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Wins"
 msgstr "Wins"
@@ -8269,10 +8260,6 @@ msgstr "You'll be signed out on this device."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
-msgid "You're never paired with someone you've blocked, or who blocked you."
-msgstr "You're never paired with someone you've blocked, or who blocked you."
-
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "You're offline"
@@ -8473,6 +8460,7 @@ msgid "Your live spaces"
 msgstr "Your live spaces"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Your move"
 msgstr "Your move"

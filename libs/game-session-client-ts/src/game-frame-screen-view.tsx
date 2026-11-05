@@ -120,12 +120,25 @@ function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
 }
 
 /**
+ * While a game is set up on a wide screen, its board preview sits inside
+ * the Players card, beside the seats, so the card and its picture read as
+ * one unit; a phone shows the preview under the card.
+ */
+function previewInSeats(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  return props.phase === 'configuring' && mode() === 'wide';
+}
+
+/**
  * Before a game, the starter; while one is set up, its seats and options,
  * then starting it as the foot of the last of those cards, so Start sits
  * with the players it starts with on every size (the board preview is
- * only a thumbnail beside them).
+ * only a thumbnail beside them, inside the Players card when wide).
  */
 function FrameSetupSlot(props: Props): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <Show
       when={props.phase !== 'none'}
@@ -161,6 +174,11 @@ function FrameSetupSlot(props: Props): JSX.Element {
                   />
                 }
                 footer={footer('seats')}
+                media={
+                  <Show when={previewInSeats(props, mode)}>
+                    <FrameBoardStage {...props} />
+                  </Show>
+                }
               />
               <Show when={setup().privateSetup}>
                 {(own) => (
@@ -265,8 +283,8 @@ function asideRecord(
 }
 
 /**
- * Beside a wide board the game's commands close the record's panel, in one
- * row pinned to the board's foot, instead of floating above it.
+ * Beside a wide board the game's commands sit in a card of their own at
+ * the rail's foot, level with the board's, apart from the record above.
  */
 function commandsInRecord(
   props: Props,
@@ -423,7 +441,7 @@ function FrameContent(props: Props): JSX.Element {
         <FrameWatchingView phase={props.phase} viewerSide={props.viewerSide} />
       }
     >
-      <Show when={props.phase !== 'none'}>
+      <Show when={props.phase !== 'none' && !previewInSeats(props, mode)}>
         <FrameBoardStage {...props} />
       </Show>
     </GameSessionLayout>

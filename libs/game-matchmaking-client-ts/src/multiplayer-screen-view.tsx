@@ -113,16 +113,13 @@ function finding(props: Props): boolean {
 }
 
 /**
- * Before any game on a phone, the search and the person's ratings are one
- * card: the choice and its command, then what they bring. A wide screen
- * gives the search the board's column and its context the rail beside it
- * (the ratings, how matchmaking works), so the screen fills the column.
+ * Before any game, the search and the person's ratings are one card on
+ * every size: the choice and its command, then what they bring (beside it
+ * when wide, under it on a phone), so no column stands taller than the
+ * other. Wide, how matchmaking works closes the card in three short points.
  */
-function ratingsInSearch(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): boolean {
-  return finding(props) && mode() !== 'wide';
+function ratingsInSearch(props: Props): boolean {
+  return finding(props);
 }
 
 /** The search under way, or the choice of a time control for a new one. */
@@ -142,8 +139,13 @@ function NextGame(props: Props): JSX.Element {
             timed={next().timed}
             onFind={props.onFind}
             aside={
-              <Show when={ratingsInSearch(props, mode)}>
+              <Show when={ratingsInSearch(props)}>
                 <MultiplayerRatings ratings={props.ratings} framed={false} />
+              </Show>
+            }
+            details={
+              <Show when={mode() === 'wide'}>
+                <MultiplayerGuide />
               </Show>
             }
           />
@@ -197,7 +199,6 @@ function Stage(props: Props): JSX.Element {
  * denied state. `MultiplayerScreen` wires it to matchmaking.
  */
 export function MultiplayerScreenView(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <GameScreen screenId="multiplayer" title={props.title}>
       <Show
@@ -218,14 +219,10 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
             aside={
               <>
                 <Show when={props.stage === 'game'}>{props.moves}</Show>
-                {/* Beside the board (or a search) when wide; under it on a
-                    phone. Before a search on a phone the search's own card
-                    holds them. */}
-                <Show when={!ratingsInSearch(props, mode)}>
+                {/* Beside the board when wide; under it on a phone. Before
+                    a search the search's own card holds them. */}
+                <Show when={!ratingsInSearch(props)}>
                   <MultiplayerRatings ratings={props.ratings} />
-                </Show>
-                <Show when={finding(props) && mode() === 'wide'}>
-                  <MultiplayerGuide />
                 </Show>
               </>
             }

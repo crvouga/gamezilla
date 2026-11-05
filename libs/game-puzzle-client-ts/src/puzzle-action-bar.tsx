@@ -34,7 +34,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         slot.id === 'skip'
     );
   return (
-    <StackHorizontal gap="sm" align="center" wrap paddingX="md">
+    <StackHorizontal gap="sm" align="center" wrap>
       <For each={actions()}>
         {(slot) => <PuzzleActionButton slot={slot} model={props} />}
       </For>

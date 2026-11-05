@@ -67,6 +67,13 @@ export type GamePlayerBarProps = {
    */
   options?: JSX.Element;
   optionsLabel?: JSX.Element;
+  /**
+   * Where the options toggle sits: `end` (default) at the row's far edge;
+   * `below` on a line of its own under the name, before the seat's own
+   * controls, so a phone's row keeps the holder's name whole and the
+   * toggle can say what it changes in full ("Change player").
+   */
+  optionsPlacement?: 'end' | 'below' | undefined;
   /** `data-*` for the toggle (its test id). */
   optionsDataSet?: ComponentDataSet | undefined;
   dataSet?: ComponentDataSet;
@@ -169,6 +176,8 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
   const controls = createScreenSlot(() => props.children);
   const options = useSeatOptions(() => props.options);
   const compact = (): boolean => props.density === 'compact';
+  const below = (): boolean =>
+    options.present() && props.optionsPlacement === 'below';
   return (
     <section
       class={`${styles['player']} rounded-card py-1`}
@@ -209,7 +218,7 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
         <Show when={props.trailing}>
           <div class={styles['playerTrailing']}>{props.trailing}</div>
         </Show>
-        <Show when={options.present()}>
+        <Show when={options.present() && !below()}>
           <SeatOptionsToggle
             state={options}
             label={props.optionsLabel}
@@ -217,8 +226,28 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
           />
         </Show>
       </div>
-      <Show when={controls.present()}>
-        <div class="box gap-3">{controls.content()}</div>
+      <Show
+        when={below()}
+        fallback={
+          <Show when={controls.present()}>
+            <div class="box gap-3">{controls.content()}</div>
+          </Show>
+        }
+      >
+        {/* Under the name, level with it: the toggle, then the seat's own
+            controls, one row of every control the seat has. */}
+        <div class={styles['playerBelow']}>
+          <SeatOptionsToggle
+            state={options}
+            label={props.optionsLabel}
+            dataSet={props.optionsDataSet}
+          />
+          <Show when={controls.present()}>
+            <div class={styles['playerBelowControls']}>
+              {controls.content()}
+            </div>
+          </Show>
+        </div>
       </Show>
       <SeatOptions state={options} />
     </section>

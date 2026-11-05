@@ -56,11 +56,14 @@ function ChoiceIcon(props: {
   );
 }
 
-/** The main way in's tag, only when it leads. */
+/**
+ * The main way in's tag, only when it leads: beside its title at a
+ * readable size, in the accent, so the lead is said where the eye lands.
+ */
 function ChoiceBadge(props: { choice: GameMenuChoice }): JSX.Element {
   return (
     <Show when={props.choice.emphasis === 'primary' && props.choice.badge}>
-      <Badge intent="neutral" size="sm" label={props.choice.badge} />
+      <Badge intent="brand" size="md" label={props.choice.badge} />
     </Show>
   );
 }
@@ -80,7 +83,12 @@ export type GameMenuScreenProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** A choice as a large tile: its picture, name, what it opens, a chevron. */
+/**
+ * A choice as a tile, read in one line across: its picture, its name with
+ * the main way in's tag beside it and what it opens under them, then a
+ * chevron centred at the far edge. Sized by its words, never a tall card
+ * of empty room.
+ */
 function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   return (
@@ -91,13 +99,13 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
       onClick={() => confirmNavigation(() => props.choice.onClick())}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
-      <span class={styles['tileTop']}>
-        <ChoiceIcon choice={props.choice} size="tile" />
-        <ChoiceBadge choice={props.choice} />
-      </span>
+      <ChoiceIcon choice={props.choice} size="tile" />
       <span class={styles['words']}>
-        <span class={`${styles['title']} text textHeading`}>
-          {props.choice.title}
+        <span class={styles['titleRow']}>
+          <span class={`${styles['title']} text textHeading`}>
+            {props.choice.title}
+          </span>
+          <ChoiceBadge choice={props.choice} />
         </span>
         <Show when={props.choice.caption}>
           <span class={`${styles['caption']} text textCaption`}>

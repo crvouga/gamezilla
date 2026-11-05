@@ -1,0 +1,4 @@
+{
+  "summary": "A chess puzzle said whose turn it was as plain text, with none of the accent the game screens give the seat to move. The solver's prompt (\"White to move\") is now the accent pill, right above (or beside) the board.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-turn-cue.test.tsx"
+}
