@@ -16,6 +16,7 @@ import {
   faces,
   GAMES,
   GUESTS,
+  HOSTED_SPACE,
   JORDAN,
   MEMBERS,
 } from './spaces-story.example';
@@ -75,6 +76,7 @@ const meta = {
   },
   args: {
     title: 'Friday game night',
+    spaceId: HOSTED_SPACE.spaceId,
     status: 'ready',
     hostOffline: false,
     canRename: true,
@@ -101,13 +103,12 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * The host in their space, choosing what to play. The bar reads the same on
- * every size: ⌄ Minimize at the leading edge (stepping out to the lobby; the
- * space goes on in the miniplayer), the space's name, then the members
- * button and ⋯ at the far edge with Share and Rename, then, after a divider
- * and in red, Leave and End space, each behind a confirm. Wide says Minimize
- * in words and shows everyone's faces; on a phone the members button is the
- * people glyph with how many are here. Under the Games title, who is here
- * and who hosts.
+ * every size: where you are (the room, with its own tile beside the
+ * sidebar), then at the far edge the members, Minimize (the space goes on in
+ * the miniplayer) and ⋯ with Share and Rename, then, after a divider and in
+ * red, Leave and End space, each behind a confirm. Wide shows everyone's
+ * faces; on a phone the members button is the people glyph with how many
+ * are here. Under the Games title, who is here and who hosts.
  */
 export const HostChoosingGame: Story = {};
 
@@ -124,13 +125,13 @@ export const Guest: Story = {
 };
 
 /**
- * A game in progress: after Minimize, ‹ Games goes back to the space's
- * games, named so moving within the room never reads like leaving it. A
- * phone shows ‹ alone, so the room's name keeps its room; Minimize is then
- * the first item in ⋯. The game area is a slot.
+ * A game's own menu: the trail reads "Friday game night › Chess", and the
+ * room is the one way back (to the space's games), so moving within the
+ * room never reads like leaving it. A phone shows ‹ (named for the room)
+ * with the room's name small over the game's. The game area is a slot.
  */
 export const GameInProgress: Story = {
-  args: { onPressBack: fn(), backLabel: 'Games' },
+  args: { onPressBack: fn(), backLabel: 'Games', place: 'Chess' },
   render: (args) =>
     withSlots(args, {
       body: () => <GameAreaExample title="A game in progress" />,
@@ -139,12 +140,15 @@ export const GameInProgress: Story = {
 
 /**
  * A screen a game's choices open (custom setup, finding an opponent, a
- * board, puzzles): ‹ Connect Four names the game's own menu it returns to,
- * whose Back says ‹ Games, so the way back to the space's games is always
- * in view.
+ * board, puzzles): the trail reads "Friday game night › Connect Four", and
+ * the game is the way back to its own menu, whose way back is the room.
  */
 export const InsideAGame: Story = {
-  args: { onPressBack: fn(), backLabel: 'Connect Four' },
+  args: {
+    onPressBack: fn(),
+    backLabel: 'Connect Four',
+    place: 'Connect Four',
+  },
   render: (args) =>
     withSlots(args, {
       body: () => <GameAreaExample title="Connect Four" />,
@@ -219,13 +223,23 @@ export const ShareOpen: Story = {
 
 /**
  * Minimize steps out of the space screen (the space keeps running in the
- * miniplayer). The id stays `close-space` so its baselines keep their paths.
+ * miniplayer); it may sit in ⋯ on a short row. The id stays `close-space`
+ * so its baselines keep their paths.
  */
 export const CloseSpace: Story = {
   name: 'Minimize space',
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId(Handles.spaceClose));
+    if (canvas.queryByTestId(Handles.spaceClose) === null) {
+      await userEvent.click(
+        await canvas.findByTestId(Handles.spaceChromeOverflow)
+      );
+    }
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByTestId(
+        Handles.spaceClose
+      )
+    );
     await expect(args.onPressHome).toHaveBeenCalled();
   },
 };

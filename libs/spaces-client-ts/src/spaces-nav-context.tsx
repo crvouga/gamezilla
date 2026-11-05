@@ -38,6 +38,10 @@ type SpacesNavContextValue = {
   readonly current: SpacesNavBackHandler | null;
   /** The active back control's destination name, when it gave one. */
   readonly label: string | undefined;
+  /** The selected game's name, while its choices or a screen they open show. */
+  readonly place: string | undefined;
+  /** Names (or, with `undefined`, clears) the selected game for the bar. */
+  readonly setPlace: (id: string, name: string | undefined) => void;
   /** Pass a non-null handler to register/replace, `null` to clear. */
   readonly setHandler: (
     id: string,
@@ -54,6 +58,15 @@ export type SpacesNavProviderProps = {
 
 export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   const [entries, setEntries] = createSignal<readonly Entry[]>([]);
+  const [places, setPlaces] = createSignal<
+    readonly { readonly id: string; readonly name: string }[]
+  >([]);
+  const setPlace: SpacesNavContextValue['setPlace'] = (id, name) => {
+    setPlaces((prev) => {
+      const filtered = prev.filter((e) => e.id !== id);
+      return name === undefined ? filtered : [...filtered, { id, name }];
+    });
+  };
 
   const setHandler: SpacesNavContextValue['setHandler'] = (
     id,
@@ -80,6 +93,10 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
     get label() {
       return top()?.label;
     },
+    get place() {
+      return places().at(-1)?.name;
+    },
+    setPlace,
     setHandler,
   };
 
@@ -110,6 +127,15 @@ export function useSpacesNavBack(): Accessor<SpacesNavBackHandler | null> {
 export function useSpacesNavBackLabel(): Accessor<string | undefined> {
   const nav = useSpacesNavContext();
   return () => nav.label;
+}
+
+/**
+ * The selected game's name, for the bar's trail (`Friday game night ›
+ * Chess`); `undefined` on the space's list of games.
+ */
+export function useSpacesNavPlace(): Accessor<string | undefined> {
+  const nav = useSpacesNavContext();
+  return () => nav.place;
 }
 
 export type DefineBackButtonProps = {
@@ -164,11 +190,19 @@ const GameChoicesNameContext = createContext<Accessor<string | undefined>>(
  * Names the selected game's choices (the game's own menu, titled with its
  * name) for every screen they open, so a Back that returns there says
  * where it goes ("‹ Connect Four"), as the menu's own Back says "Games".
+ * It also names the game to the space's bar, whose trail then reads
+ * "Friday game night › Connect Four" while any of them shows.
  */
 export function GameChoicesName(props: {
   readonly name: string;
   readonly children: JSX.Element;
 }): JSX.Element {
+  const nav = useContext(SpacesNavContext);
+  const id = createUniqueId();
+  createEffect(() => {
+    nav?.setPlace(id, props.name);
+    onCleanup(() => nav?.setPlace(id, undefined));
+  });
   return (
     <GameChoicesNameContext.Provider value={() => props.name}>
       {props.children}

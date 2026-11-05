@@ -63,7 +63,7 @@ export async function expectSpaceEnded(ui: Driver): Promise<void> {
 
 /**
  * Inside the space: its bar is up, with its ⋯ menu (the same signal as an
- * active space; Minimize is in ⋯ on a phone showing Back).
+ * active space; Minimize folds into ⋯ on a short row).
  */
 export async function expectInSpace(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceChromeOverflow);

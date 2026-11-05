@@ -1,0 +1,4 @@
+{
+  "summary": "Inside a space, the wide bar showed \"⌄ Minimize\", \"‹ Chess\" and the room's name side by side, and the phone an unlabelled arrow, so it was unclear which control went back and which left the room. The bar is now one trail (\"Friday game night › Chess\") whose parent place is the one way back, named for where it goes; Minimize is its own picture-in-picture control at the far edge beside the members (in ⋯ only on a row too short for it); a phone shows ‹ named for the parent with the room's name small over the game's.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+}

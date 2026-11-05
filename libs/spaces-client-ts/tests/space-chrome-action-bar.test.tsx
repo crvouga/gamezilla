@@ -2,10 +2,13 @@
 /** What the space's top bar offers on a phone and beside the sidebar. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { SpaceChromeTrailingActionBar } from '@libs/spaces-client-ts/space-chrome-action-bar';
 import {
-  SpaceChromeLeadingActionBar,
-  SpaceChromeTrailingActionBar,
-} from '@libs/spaces-client-ts/space-chrome-action-bar';
+  SpaceChromeBack,
+  SpaceChromeCompactTitle,
+  type SpaceChromeNavProps,
+  SpaceChromeTrail,
+} from '@libs/spaces-client-ts/space-chrome-nav';
 import { SpacePresenceStripView } from '@libs/spaces-client-ts/space-presence-strip-view';
 import {
   AVERY,
@@ -19,7 +22,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -36,21 +39,44 @@ const CALLBACKS = {
   onPressLeave: () => undefined,
 };
 
+type Where = {
+  /** The selected game, or none on the space's list of games. */
+  readonly place?: string | undefined;
+  /** Where Back goes, as the screen names it. */
+  readonly backLabel?: string | undefined;
+};
+
+const ROOM = 'Friday game night';
+
 function renderBar(
   layout: { width: number; height: number },
   canEnd: boolean,
-  back: () => (() => void) | null = () => CALLBACKS.onPressBack
+  back: () => (() => void) | null = () => CALLBACKS.onPressBack,
+  where: Where = { place: 'Chess', backLabel: 'Games' }
 ): HTMLElement {
   const harness = createHarnessClock();
+  const nav = (): SpaceChromeNavProps => ({
+    title: ROOM,
+    spaceId: 'space-1',
+    place: where.place,
+    onPressBack: back(),
+    backLabel: where.backLabel,
+  });
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={layout}>
         <SurfaceStackProvider>
-          <SpaceChromeLeadingActionBar
-            {...CALLBACKS}
-            onPressBack={back()}
-            backLabel="Games"
-          />
+          <Show
+            when={layout.width >= WIDE.width}
+            fallback={
+              <>
+                <SpaceChromeBack {...nav()} />
+                <SpaceChromeCompactTitle {...nav()} />
+              </>
+            }
+          >
+            <SpaceChromeTrail {...nav()} />
+          </Show>
           <SpaceChromeTrailingActionBar
             canRename
             canEnd={canEnd}
@@ -65,7 +91,7 @@ function renderBar(
               get onPressBack() {
                 return back();
               },
-              backLabel: 'Games',
+              backLabel: where.backLabel,
             }}
           />
         </SurfaceStackProvider>
@@ -89,50 +115,92 @@ function inPage(handle: string): Element | null {
   return document.querySelector(`[data-testid="${handle}"]`);
 }
 
-// regression: space-close-label-hides-step-out
-test('beside the sidebar Minimize and Back say what they do, side by side', () => {
-  const container = renderBar(WIDE, true);
-  const minimize = byHandle(container, Handles.spaceClose);
-  expect(minimize?.textContent).toContain('Minimize');
-  expect(minimize?.getAttribute('aria-label')).toBe('Minimize space');
-  expect(minimize?.textContent).not.toContain('Close');
-  expect(byHandle(container, Handles.navBack)?.textContent).toContain('Games');
-});
-
-// regression: space-close-label-hides-step-out
-test("on a phone without Back, the bar's one glyph is Minimize, named so", () => {
-  const container = renderBar(PHONE, true, () => null);
-  expect(
-    byHandle(container, Handles.spaceClose)?.getAttribute('aria-label')
-  ).toBe('Minimize space');
-  expect(byHandle(container, Handles.navBack)).toBeNull();
-  openMenu(container);
-  // Once on the bar, never a second time in ⋯.
-  expect(
-    document.querySelectorAll(`[data-testid="${Handles.spaceClose}"]`).length
-  ).toBe(1);
-});
-
-// regression: space-close-label-hides-step-out
-// regression: space-phone-bar-crowds-title
-test("on a phone showing Back, the bar's one glyph is Back and Minimize leads ⋯", () => {
-  const container = renderBar(PHONE, true);
-  expect(byHandle(container, Handles.navBack)?.getAttribute('aria-label')).toBe(
-    'Games'
-  );
-  // No second chevron beside Back to crowd the room's name.
-  expect(byHandle(container, Handles.spaceClose)).toBeNull();
-  openMenu(container);
-  const minimize = inPage(Handles.spaceClose);
-  expect(minimize?.textContent).toContain('Minimize space');
-  expect(minimize?.textContent).not.toContain('Close');
-  // The first item, before Share.
-  const items = [
-    ...document.querySelectorAll(
-      `[data-testid="${Handles.spaceClose}"], [data-testid="${Handles.spaceShare}"]`
-    ),
+/** Minimize, wherever the row put it: on the bar, or in ⋯. */
+function minimizeControls(container: HTMLElement): Element[] {
+  if (byHandle(container, Handles.spaceClose) === null) openMenu(container);
+  return [
+    ...document.querySelectorAll(`[data-testid="${Handles.spaceClose}"]`),
   ];
-  expect(items[0]).toBe(minimize ?? undefined);
+}
+
+// regression: space-bar-competing-nav-controls
+test('beside the sidebar the bar is one trail, the room its way back from a game’s menu', () => {
+  const container = renderBar(WIDE, true);
+  const back = byHandle(container, Handles.navBack);
+  const room = byHandle(container, Handles.spaceTitle);
+  expect(room?.textContent).toBe(ROOM);
+  // The room's tile is a mark beside its name, hidden from assistive tech.
+  expect(back?.contains(room)).toBe(true);
+  const current = container.querySelector('[aria-current="page"]');
+  expect(current?.textContent).toBe('Chess');
+  // One way back, never a second "‹ Games" beside the trail.
+  expect(
+    container.querySelectorAll(`[data-testid="${Handles.navBack}"]`).length
+  ).toBe(1);
+  expect(container.textContent).not.toContain('Games');
+});
+
+// regression: space-bar-competing-nav-controls
+test('on a screen a game opens, the game is the way back and the room is plain', () => {
+  const container = renderBar(WIDE, true, undefined, {
+    place: 'Chess',
+    backLabel: 'Chess',
+  });
+  expect(byHandle(container, Handles.navBack)?.textContent).toBe('Chess');
+  const room = byHandle(container, Handles.spaceTitle);
+  expect(room?.closest('button')).toBeNull();
+});
+
+// regression: space-bar-competing-nav-controls
+test('on the list of games the room is where you are, with no way back', () => {
+  const container = renderBar(WIDE, true, () => null, {});
+  expect(byHandle(container, Handles.navBack)).toBeNull();
+  const current = container.querySelector('[aria-current="page"]');
+  expect(current?.contains(byHandle(container, Handles.spaceTitle))).toBe(true);
+});
+
+// regression: space-close-label-hides-step-out
+// regression: space-bar-competing-nav-controls
+test('Minimize is its own control at the far edge, named so, never Close', () => {
+  for (const layout of [WIDE, PHONE]) {
+    const container = renderBar(layout, true);
+    const minimize = minimizeControls(container);
+    expect(minimize.length).toBe(1);
+    const control = minimize[0];
+    const name =
+      control?.getAttribute('aria-label') ?? control?.textContent ?? '';
+    expect(name).toContain('Minimize space');
+    expect(name).not.toContain('Close');
+    // Never inside the trail, where it would read as a way back.
+    expect(control?.closest('nav')).toBeNull();
+    cleanup();
+  }
+});
+
+// regression: space-phone-bar-crowds-title
+// regression: space-bar-competing-nav-controls
+test('on a phone ‹ is named for where it goes, under a two-line title', () => {
+  const menu = renderBar(PHONE, true);
+  expect(byHandle(menu, Handles.navBack)?.getAttribute('aria-label')).toBe(
+    ROOM
+  );
+  expect(byHandle(menu, Handles.spaceTitle)?.textContent).toBe(ROOM);
+  expect(menu.textContent).toContain('Chess');
+  cleanup();
+  const inside = renderBar(PHONE, true, undefined, {
+    place: 'Chess',
+    backLabel: 'Chess',
+  });
+  expect(byHandle(inside, Handles.navBack)?.getAttribute('aria-label')).toBe(
+    'Chess'
+  );
+});
+
+// regression: space-close-label-hides-step-out
+test('on a phone without Back, no leading glyph; Minimize is reachable once', () => {
+  const container = renderBar(PHONE, true, () => null, {});
+  expect(byHandle(container, Handles.navBack)).toBeNull();
+  expect(minimizeControls(container).length).toBe(1);
 });
 
 // regression: space-phone-bar-crowds-title
@@ -145,7 +213,7 @@ test('the members button keeps its element while Back comes and goes', () => {
   expect(byHandle(container, Handles.navBack)).not.toBeNull();
   expect(byHandle(container, Handles.spaceMembersButton)).toBe(before);
   setBack(null);
-  expect(byHandle(container, Handles.spaceClose)).not.toBeNull();
+  expect(byHandle(container, Handles.navBack)).toBeNull();
   expect(byHandle(container, Handles.spaceMembersButton)).toBe(before);
 });
 

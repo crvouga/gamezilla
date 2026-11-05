@@ -14,16 +14,16 @@ const WAIT_MS = 15_000;
 
 /**
  * Inside an open space: its top bar is up. Its ⋯ menu is on that bar on
- * every screen and size (Minimize is not: a phone showing Back keeps
- * Minimize in ⋯).
+ * every screen and size (Minimize is not: a row too short for it folds it
+ * into ⋯).
  */
 export async function spaceBarShown(ui: Driver): Promise<boolean> {
   return ui.get(Handles.spaceChromeOverflow).isVisible();
 }
 
 /**
- * Minimize the open space, as a person would: ⌄ on its bar, or the first
- * item in its ⋯ menu where the bar shows Back instead.
+ * Minimize the open space, as a person would: its control at the bar's far
+ * edge, or the first item in its ⋯ menu where the row had no room for it.
  */
 export async function minimizeSpace(
   ui: Driver,

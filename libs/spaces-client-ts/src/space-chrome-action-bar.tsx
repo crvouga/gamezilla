@@ -3,31 +3,25 @@ import { Plural, Trans, useLingui } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
 import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
-import { actionBarGlyphSize } from '@pkgs/ui-root-client-ts/action-bar-logic';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { iconButtonAvatarContentSize } from '@pkgs/ui-root-client-ts/icon-button';
 import {
-  IconButton,
-  iconButtonAvatarContentSize,
-} from '@pkgs/ui-root-client-ts/icon-button';
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
   CircleStopIcon,
   LogOutIcon,
+  PictureInPicture2Icon,
   ShareIcon,
   SquarePenIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
 /** Leaving the space's screen, and going back inside it when there is a way. */
 export type SpaceChromeNavCallbacks = {
+  /** Minimize: step out to the lobby; the space goes on in the miniplayer. */
   readonly onPressHome: () => void;
-  /** Back inside the space; null at the games menu, where it would be Close. */
+  /** Back inside the space; null on the space's list of games. */
   readonly onPressBack: (() => void) | null;
-  /** Where Back goes ("Games"), when the screen named it; else "Back". */
+  /** Where Back goes ("Games", "Chess"), when the screen named it. */
   readonly backLabel?: string | undefined;
 };
 
@@ -39,83 +33,6 @@ export type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
   readonly onPressEnd: () => void;
   readonly onPressLeave: () => void;
 };
-
-/**
- * Minimize and Back at the leading edge of the space bar. Minimize steps
- * out to the Spaces lobby: the person stays in the space, which goes on in
- * the miniplayer, so it says that instead of a bare Close. ‹ moves within
- * the space and names where it goes ("Games"). Wide has room to say each in
- * words, side by side. A phone shows one glyph, so two look-alike chevrons
- * never crowd the room's name: ‹ while there is a way back (Minimize is
- * then the first item in ⋯), otherwise ⌄. Each is named for assistive tech
- * and on hover.
- */
-export function SpaceChromeLeadingActionBar(
-  props: SpaceChromeNavCallbacks
-): JSX.Element {
-  const { t } = useLingui();
-  const chrome = useActionBarChrome();
-  const mode = useLayoutMode();
-  const backName = (): string => props.backLabel ?? t`Back`;
-  const glyph = (): number => actionBarGlyphSize(chrome().buttonSize);
-  return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <Show
-          when={props.onPressBack}
-          fallback={
-            <IconButton
-              label={t`Minimize space`}
-              size={chrome().buttonSize}
-              onClick={() => props.onPressHome()}
-              dataSet={{ testid: Handles.spaceClose }}
-            >
-              <ChevronDownIcon size={glyph()} color="icon" />
-            </IconButton>
-          }
-        >
-          {(onPressBack) => (
-            <IconButton
-              label={backName()}
-              size={chrome().buttonSize}
-              onClick={() => onPressBack()()}
-              dataSet={{ testid: Handles.navBack }}
-            >
-              <ChevronLeftIcon size={glyph()} color="icon" />
-            </IconButton>
-          )}
-        </Show>
-      }
-    >
-      <StackHorizontal align="center" gap="xs">
-        <Button
-          title={<Trans>Minimize</Trans>}
-          aria-label={t`Minimize space`}
-          icon={ChevronDownIcon}
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          onClick={() => props.onPressHome()}
-          dataSet={{ testid: Handles.spaceClose }}
-        />
-        <Show when={props.onPressBack}>
-          {(onPressBack) => (
-            <Button
-              title={backName()}
-              icon={ChevronLeftIcon}
-              intent="neutral"
-              variant="ghost"
-              size="sm"
-              onClick={() => onPressBack()()}
-              dataSet={{ testid: Handles.navBack }}
-            />
-          )}
-        </Show>
-      </StackHorizontal>
-    </Show>
-  );
-}
 
 /**
  * The members button's name. It follows the count itself, so the bar's items
@@ -148,7 +65,7 @@ type TrailingLabels = {
 };
 
 type TrailingArgs = {
-  /** Minimize's accessible name, as the bar's ⌄ says it. */
+  /** Minimize's accessible name. */
   readonly minimizeName: string;
   readonly canRename: boolean;
   readonly canEnd: boolean;
@@ -213,17 +130,19 @@ function exitItems(args: TrailingArgs): ActionBarItem[] {
 }
 
 /**
- * Minimize as the first item in ⋯, on a phone whose bar shows Back instead
- * (one leading glyph): the same name and handle as the bar's ⌄.
+ * Minimize: its own control beside the members, never beside the trail, so
+ * stepping out of the space never reads like going back inside it. The
+ * picture-in-picture glyph says what happens: the space goes on, small, in
+ * the miniplayer. On a row too short for it, it is the first item in ⋯.
  */
 function minimizeItem(args: TrailingArgs): ActionBarItem {
   return {
     id: 'minimize',
     label: args.labels.minimize,
     'aria-label': args.minimizeName,
-    icon: ChevronDownIcon,
+    icon: PictureInPicture2Icon,
     onClick: args.callbacks.onPressHome,
-    overflow: 'always',
+    overflow: 'auto',
     priority: 80,
     dataSet: { testid: Handles.spaceClose },
   };
@@ -231,11 +150,9 @@ function minimizeItem(args: TrailingArgs): ActionBarItem {
 
 function buildTrailingItems(
   args: TrailingArgs,
-  members: ActionBarItem,
-  minimizeInMenu: boolean
+  members: ActionBarItem
 ): ActionBarItem[] {
   const everyday: ActionBarItem[] = [
-    ...(minimizeInMenu ? [minimizeItem(args)] : []),
     {
       id: 'share',
       label: args.labels.invite,
@@ -260,6 +177,7 @@ function buildTrailingItems(
   const last = everyday.length - 1;
   return [
     members,
+    minimizeItem(args),
     ...everyday.map((item, index) =>
       index === last ? { ...item, endsGroup: true } : item
     ),
@@ -282,16 +200,14 @@ export type SpaceChromeTrailingActionBarProps = {
 };
 
 /**
- * Members, then ⋯ at the far edge with the rest: (on a phone showing Back,
- * Minimize,) share and rename, then, set apart in red, the way out (leave,
- * and the host's end).
+ * Members, Minimize, then ⋯ at the far edge with the rest: share and
+ * rename, then, set apart in red, the way out (leave, and the host's end).
  */
 export function SpaceChromeTrailingActionBar(
   props: SpaceChromeTrailingActionBarProps
 ): JSX.Element {
   const { t } = useLingui();
   const chrome = useActionBarChrome();
-  const mode = useLayoutMode();
   const args = createMemo(
     (): TrailingArgs => ({
       minimizeName: t`Minimize space`,
@@ -312,17 +228,10 @@ export function SpaceChromeTrailingActionBar(
       callbacks: props.callbacks,
     })
   );
-  // A phone whose bar shows Back keeps Minimize in ⋯ (the leading edge has
-  // room for one glyph beside the room's name).
-  const minimizeInMenu = createMemo(
-    () => mode() !== 'wide' && props.callbacks.onPressBack !== null
-  );
   // Built once per change of size or rights, so the members button keeps its
   // element while people come and go, and while Back comes and goes.
   const members = createMemo(() => membersItem(args()));
-  const items = createMemo(() =>
-    buildTrailingItems(args(), members(), minimizeInMenu())
-  );
+  const items = createMemo(() => buildTrailingItems(args(), members()));
   return (
     <ActionBar
       items={items()}

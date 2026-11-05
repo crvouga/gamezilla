@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 /** `navigationTitle` (18) in a compact bar, `subtitle` (21) in a wide one. */
 export type ChromeTitleSize = 'navigationTitle' | 'subtitle';
@@ -13,6 +13,11 @@ export type ChromeTitleProps = {
   size?: ChromeTitleSize | undefined;
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
+  /**
+   * A small secondary line above the title, naming what holds it (the room
+   * a game is in), so a compact bar reads both without a second control.
+   */
+  eyebrow?: JSX.Element | undefined;
 };
 
 const SIZE: Readonly<Record<ChromeTitleSize, string>> = {
@@ -31,10 +36,11 @@ const SIZE: Readonly<Record<ChromeTitleSize, string>> = {
  * ```tsx
  * <TopBar center={<ChromeTitle>{spaceName()}</ChromeTitle>} … />
  * <ChromeTitle size="subtitle">{spaceName()}</ChromeTitle>
+ * <ChromeTitle eyebrow={spaceName()}>{gameName()}</ChromeTitle>
  * ```
  */
 export function ChromeTitle(props: ChromeTitleProps): JSX.Element {
-  return (
+  const title = (): JSX.Element => (
     <p
       class={`text ${SIZE[props.size ?? 'navigationTitle']} line-clamp-1 min-w-0 max-w-full`}
       data-testid={props.testId}
@@ -42,5 +48,15 @@ export function ChromeTitle(props: ChromeTitleProps): JSX.Element {
     >
       {props.children}
     </p>
+  );
+  return (
+    <Show when={props.eyebrow} fallback={title()}>
+      <div class="box min-w-0 max-w-full">
+        <p class="text textFootnote line-clamp-1 min-w-0 max-w-full">
+          {props.eyebrow}
+        </p>
+        {title()}
+      </div>
+    </Show>
   );
 }
