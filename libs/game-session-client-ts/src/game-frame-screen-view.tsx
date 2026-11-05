@@ -145,7 +145,13 @@ function FrameAboutView(props: {
   return (
     <Show when={props.about}>
       {(about) => (
-        <StackVertical gap="xs" grow testId="custom-game-about">
+        // On a phone it takes the row beside the thumbnail; wide it keeps
+        // its own height, so the card centres the board and it together.
+        <StackVertical
+          gap="xs"
+          grow={mode() !== 'wide'}
+          testId="custom-game-about"
+        >
           <Show when={mode() === 'wide'}>
             <P variant="label" align="center">
               <Trans>How to play</Trans>
