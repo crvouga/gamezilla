@@ -10,6 +10,9 @@
     ]
   },
   "scripts": {
+    "apply:alerting": "bun run scripts/tofu.ts apply --stack bootstrap --alerting",
+    "drift:alerting": "bun run scripts/tofu.ts drift --stack bootstrap --alerting",
+    "plan:alerting": "bun run scripts/tofu.ts plan --stack bootstrap --alerting",
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
     "apply:fleet": "bun run scripts/tofu.ts apply --stack fleet",

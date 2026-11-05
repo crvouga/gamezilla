@@ -48,11 +48,10 @@ export type Matcher = {
 };
 
 /**
- * While too few events arrive for a burn rate to mean anything, count the
- * bad ones instead: `push` of them in `window` tells the person on call,
+ * Count bad events independently of a ratio: `push` of them in `window` tells the person on call,
  * `page` of them pages. Zero tolerance for people meeting failures cannot
- * wait for traffic to be large enough for a ratio. Silent once the window
- * holds the indicator's `minimumEventsPerHour`, where the burn rates judge.
+ * wait for traffic to be large enough for a ratio. Burn-rate rules continue
+ * to judge budget consumption independently.
  */
 export type FailureCount = {
   readonly window: string;
@@ -316,7 +315,7 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'people-requests-answered-within-two-and-a-half-seconds',
     groups: INTERACTIVE_ROUTE_GROUPS,
     seconds: 2.5,
-    // Past 2.5 s a person gives up: one notifies, three in an hour page.
+    // Past 2.5 s a person gives up: one notifies, three in five minutes page.
     failureCounts: { window: '5m', push: 1, page: 3 },
   }),
   {

@@ -105,6 +105,8 @@ jobs:
           fi
       - name: Detect repository configuration drift through OpenTofu
         run: bunx turbo run @libs/infra-server-ts#drift:repository-policy
+      - name: Detect alert delivery and probe configuration drift
+        run: bunx turbo run @libs/infra-server-ts#drift:alerting
 
   health-cleanup:
     name: health:cleanup

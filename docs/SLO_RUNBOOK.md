@@ -38,6 +38,22 @@ production's tier 0 and 1), or `push` (normal IRM mobile notification); `tier`, 
    Never write to a production database by hand.
 4. The alert resolves by itself once its short window is clean.
 
+### Mobile delivery
+
+Grafana IRM (Incident Response Management) receives alerts and applies the
+responder's notification rules. The configured stack and responder are in
+[`global.tfvars.json`](../libs/infra-shared-ts/tofu/global.tfvars.json).
+Release applies routing, personal mobile rules, CI failure delivery and
+independent probes after verification. Health checks configuration drift.
+Branch rehearsals plan those same resources without applying them; a successful
+plan alone does not establish delivery.
+
+The responder must sign in to that stack in the Grafana mobile app, enable IRM
+and allow notifications. Critical delivery also needs the phone's critical
+notification permission. Follow [Grafana's mobile setup](https://grafana.com/docs/grafana-cloud/platform/mobile-app/get-started/).
+Account lookup, provisioned rules and provider notification receipts are separate
+evidence; no source check proves the phone received an alert.
+
 ### Failure counts
 
 Counts alert independently of burn ratios and traffic volume. One real failure
@@ -286,7 +302,8 @@ and their SQL spans.
 Use the declared objective and generated alert thresholds; historical baseline
 measurements are not the reliability requirement.
 
-**Breach means.** One save or load in thirty or more takes over a second.
+**Breach means.** Too many saves or loads exceed a second for the declared
+objective.
 
 **First steps.** As above; look for one query or one database round trip
 dominating the slow traces.
@@ -342,8 +359,9 @@ measurements are not the reliability requirement.
 **Breach means.** Notices arrive late and matches wait on their next step.
 
 **First steps.** See the README's "Scheduled outbox drain keeps failing".
-**Currently silent in production**: no drain run and no telemetry heartbeat
-has reached the backend since 2026-10-23 17:21 UTC.
+The historical missing-drain evidence is recorded in
+[`SLO_COVERAGE.md`](SLO_COVERAGE.md); query current evidence before assessing
+production.
 
 ## outside-services-answer
 

@@ -1,9 +1,9 @@
 # Stack-wide alerting: Grafana Synthetic Monitoring and its checks of every
-# environment, and the one notification policy and IRM integration every
+# environment, and the notification policy and IRM integrations every
 # environment's rules route through. The stack is shared by every
-# environment, so these live here, applied once by a person, rather than in
-# each environment's foundation (which owns that environment's rules, SLOs and
-# dashboards, modules/observability-views).
+# environment. Release reconciles these through the guarded --alerting scope.
+# Each environment's foundation owns its rules, SLOs and dashboards
+# (modules/observability-views).
 
 locals {
   envs           = var.envs

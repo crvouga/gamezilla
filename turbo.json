@@ -3263,6 +3263,18 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@libs/infra-server-ts#plan:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#apply:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#drift:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@libs/infra-server-ts#plan:repository-policy": {
       "cache": false,
       "passThroughEnv": ["*"]

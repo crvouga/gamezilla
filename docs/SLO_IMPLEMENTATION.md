@@ -15,6 +15,9 @@ are owned by [`observability`](../libs/observability-shared-ts/README.md).
   scheduled Health check notifies immediately after its result is exported.
 - Every warning routes to Grafana IRM push. OpenTofu provisions personal normal
   and Important mobile steps, including an Important repeat after one minute.
+- Release reconciles shared routing, the CI failure webhook and independent
+  probes through a guarded scope; branch rehearsals plan it and Health detects
+  drift. The configured responder is checked against the actual IRM account.
 - Zero-budget objectives generate direct violation rules, not divide-by-zero
   burn expressions or hosted Grafana budget objects. No integrity measurement
   is claimed merely because the generator can now represent its alert.
@@ -36,8 +39,8 @@ are owned by [`observability`](../libs/observability-shared-ts/README.md).
    isolated recovery exercises and coverage/freshness monitoring.
 7. Provision the external check cadence/locations and independent watchdog;
    verify telemetry queryability, rule evaluation and alert delivery end to end.
-8. Set the actual IRM responder (currently null in global configuration),
-   verify device registration and automated delivery receipts. Phone permissions
+8. Verify the configured responder `crvouga` on stack `shortawning2091`,
+   device registration and automated delivery receipts. Phone permissions
    are not established by Terraform. Do not invent a username or report delivery
    from source validation.
 9. Run the complete local gate and hosted infrastructure rehearsal, finish

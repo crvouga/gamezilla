@@ -90,6 +90,8 @@ jobs:
           fi
       - name: Plan repository policy without changing configuration
         run: bunx turbo run @libs/infra-server-ts#plan:repository-policy
+      - name: Plan alert delivery and independent probes
+        run: bunx turbo run @libs/infra-server-ts#plan:alerting
       - name: Plan fleet without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
@@ -130,6 +132,8 @@ jobs:
           fi
       - name: Apply reviewed repository configuration through OpenTofu
         run: bunx turbo run @libs/infra-server-ts#apply:repository-policy
+      - name: Apply reviewed alert delivery and independent probes
+        run: bunx turbo run @libs/infra-server-ts#apply:alerting
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's

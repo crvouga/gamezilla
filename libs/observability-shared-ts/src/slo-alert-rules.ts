@@ -22,7 +22,7 @@ import { README_URL } from './slo-alerts';
  * - each objective's burn-rate policies (`slo` set), routed by tier and
  *   judged slice by slice (one alert per failing route group, check or
  *   probe);
- * - their companions (`companion-alerts`): silence, low-traffic counts and
+ * - their companions (`companion-alerts`): silence, failure counts and
  *   certificate expiry;
  * - the telemetry pipeline's own health (`pipeline-alerts`).
  */
