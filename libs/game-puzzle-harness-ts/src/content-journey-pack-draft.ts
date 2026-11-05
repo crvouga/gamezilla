@@ -46,7 +46,7 @@ export async function createJourneyPackWithPuzzle(args: {
     .expect.text('Saved on this device.', { ...device, exact: false });
   await contentTap(device, args.backId);
   await contentTap(device, `content-draft-${documentId}`);
-  await m.group(1) or ''device.ui
+  await device.ui
     .get(`content-pack-item-${puzzleId}`)
     .get('content-pack-menu')
     .tap(device);

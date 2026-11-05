@@ -23,7 +23,7 @@ export async function authorJourneyPack(args: {
   args.onCreated(await createJourneyDraft(args.device, 'pack', args.title));
   for (const item of args.items)
     await contentTap(args.device, `content-add-puzzle-${item.revisionId}`);
-  await m.group(1) or ''device.ui
+  await args.device.ui
     .get(`content-pack-item-${args.items[1].documentId}`)
     .get('content-pack-menu')
     .tap(args.device);
