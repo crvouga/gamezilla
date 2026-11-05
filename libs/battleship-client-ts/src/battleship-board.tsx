@@ -12,7 +12,6 @@ import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
@@ -23,7 +22,8 @@ type BoardView = 'own' | 'target';
 
 /**
  * One fleet's waters. The ships it has lost are its seat's facts and the
- * latest shot is the frame's turn line, so the panel is the grid alone.
+ * latest shot is the frame's turn line, so the panel is the grid alone:
+ * the pair names it (its switch, or a title when both show side by side).
  */
 function BoardPanel(props: {
   label: string;
@@ -33,18 +33,15 @@ function BoardPanel(props: {
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
-    <>
-      <H3 size="label">{props.label}</H3>
-      <CellGridBoard
-        label={props.label}
-        testId={`${props.testId}-${props.view}-grid`}
-        cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={props.cells}
-        onActivate={props.onFire}
-      />
-    </>
+    <CellGridBoard
+      label={props.label}
+      testId={`${props.testId}-${props.view}-grid`}
+      cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
+      columnLabels={COLUMN_LABELS}
+      rowLabels={ROW_LABELS}
+      cells={props.cells}
+      onActivate={props.onFire}
+    />
   );
 }
 /** The cell just fired at, until the position (or a resync) answers it. */
@@ -119,6 +116,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         labels={labels()}
         selected={view()}
         onSelect={setView}
+        titled
         first={
           <BoardPanel
             label={labels().own}

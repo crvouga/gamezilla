@@ -17,6 +17,11 @@
 .panel[data-shown="false"] {
   display: none;
 }
+/* Only side by side: behind the switch, the switch names the panel. */
+.title {
+  display: none;
+  margin: 0;
+}
 @container (min-width: 44rem) {
   .pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -27,5 +32,8 @@
   }
   .panel[data-shown="false"] {
     display: grid;
+  }
+  .title {
+    display: block;
   }
 }

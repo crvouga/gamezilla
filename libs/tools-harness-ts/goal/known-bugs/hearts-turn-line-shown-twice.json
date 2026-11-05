@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts table printed its sentence (\"Choose three cards to pass to the left. Nobody has passed yet.\") in the middle of the felt while the turn line under the hand said the same words. The felt keeps the sentence for a listener and the eye reads it once, on the turn line.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

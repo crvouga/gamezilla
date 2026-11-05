@@ -61,6 +61,9 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       center={
         awaitingHand() ? t`Your cards are on their way.` : tableCenter(props)
       }
+      // The game's turn line beside the table says the same sentence.
+      centerSpokenOnly={!awaitingHand()}
+      trick={decodeHearts(props.position)?.phase === 'play'}
       hand={handCards(props, chosen())}
       handLabel={t`Your hand`}
       cardTestId={(id) => `${props.testId}-card-${id}`}
