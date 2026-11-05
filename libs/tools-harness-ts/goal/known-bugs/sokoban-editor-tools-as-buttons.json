@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban builder's eight tools were eight separate pill buttons, the chosen one filled like a command, and walls were drawn as a white bar glyph. The tools are now one named group of chips with the chosen tool marked, and walls are filled blocks in the puzzle's own colours.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

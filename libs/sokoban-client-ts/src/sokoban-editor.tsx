@@ -6,13 +6,13 @@ import {
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { cellOf, squareLabel } from './sokoban-board-view';
@@ -32,8 +32,9 @@ function glyphOf(board: SokobanBoard, index: number): string {
   if (board.worker !== null && sameCell(board.worker, cell)) return '☻';
   if (board.crates.some((crate) => sameCell(crate, cell)))
     return square === 'goal' ? '▣' : '▢';
+  // A wall is drawn by its fill (the board's `occupied` tone), not a glyph.
   return square === 'wall'
-    ? '█'
+    ? ''
     : square === 'goal'
       ? '○'
       : square === 'outside'
@@ -41,6 +42,10 @@ function glyphOf(board: SokobanBoard, index: number): string {
         : '';
 }
 
+/**
+ * One tool at a time, as one compact group: squares to lay down, then the
+ * pieces to place or take away. The chosen tool is the marked chip.
+ */
 function ToolPalette(props: { editor: Editor; disabled: boolean }) {
   const { t } = useLingui();
   const names = (): Readonly<Record<SokobanTool, string>> => ({
@@ -54,21 +59,18 @@ function ToolPalette(props: { editor: Editor; disabled: boolean }) {
     erase: t`Erase`,
   });
   return (
-    <StackHorizontal gap="sm" wrap>
-      <For each={SOKOBAN_TOOLS}>
-        {(tool) => (
-          <Button
-            title={names()[tool]}
-            intent="neutral"
-            variant={props.editor.tool() === tool ? 'solid' : 'outline'}
-            aria-pressed={props.editor.tool() === tool}
-            disabled={props.disabled}
-            onClick={() => props.editor.setTool(tool)}
-            dataSet={{ testid: `sokoban-tool-${tool}` }}
-          />
-        )}
-      </For>
-    </StackHorizontal>
+    <ChipGroup
+      label={t`Tool`}
+      options={SOKOBAN_TOOLS.map((tool) => ({
+        key: tool,
+        label: names()[tool],
+        testid: `sokoban-tool-${tool}`,
+      }))}
+      selected={props.editor.tool()}
+      onSelect={(tool) => props.editor.setTool(tool)}
+      disabled={props.disabled}
+      dataSet={{ testid: 'sokoban-tools' }}
+    />
   );
 }
 
@@ -154,6 +156,7 @@ function Board(props: {
   );
   return (
     <CellGridBoard
+      boardTheme="sokoban"
       label={t`Sokoban board being built`}
       testId="sokoban-editor-board"
       cellTestId={(id) => `sokoban-square-${id}`}
@@ -181,12 +184,7 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
-        <StackVertical gap="lg">
-          <SokobanSizeControls
-            board={board()}
-            disabled={props.disabled}
-            onResize={editor.resize}
-          />
+        <StackVertical gap="md">
           <ToolPalette editor={editor} disabled={props.disabled} />
           <Board editor={editor} board={board()} disabled={props.disabled} />
           <P variant="caption" tone="secondary">
@@ -196,6 +194,11 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
             </Trans>
           </P>
           <Feedback editor={editor} board={board()} />
+          <SokobanSizeControls
+            board={board()}
+            disabled={props.disabled}
+            onResize={editor.resize}
+          />
         </StackVertical>
       )}
     </Show>

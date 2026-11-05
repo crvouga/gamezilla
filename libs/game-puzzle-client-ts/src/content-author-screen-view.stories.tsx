@@ -16,7 +16,7 @@ import {
   StoryCountingPlayer,
   StoryDraftHistory,
   StoryKeptCopies,
-  StoryPackOverview,
+  StoryPackEditor,
   StoryPlaytest,
 } from './content-story.example';
 
@@ -259,16 +259,27 @@ export const PublishDenied: Story = {
     })),
 };
 
-/** A pack: its puzzles instead of a game editor, and no playtest. */
+/**
+ * A pack: its puzzles in order, each with its tools, published puzzles to
+ * add and a new one to create, instead of a game editor; no playtest.
+ */
 export const PackBuilder: Story = {
   args: {
     kind: 'pack',
-    body: { ...COUNTING_BODY, title: 'Weekend counts' },
+    body: {
+      ...COUNTING_BODY,
+      title: 'Weekend counts',
+      description: 'Three counts that get harder.',
+      difficulty: '',
+    },
   },
   render: (args) =>
     renderWith(args, () => ({
-      stage: <StoryPackOverview />,
+      stage: <StoryPackEditor />,
       publication: publication({ kind: 'pack' }),
+      keptCopies: (
+        <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
+      ),
     })),
 };
 

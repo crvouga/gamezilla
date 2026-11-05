@@ -45,8 +45,16 @@ export type CellGridBoardProps = {
    * coordinates do: row labels at the top left of the first column, column
    * labels at the bottom right of the last row, so the board is square and
    * its insets equal on both sides.
+   * `sokoban` is a Sokoban board being built, in the puzzle's own colours:
+   * `occupied` cells are its walls, drawn as filled blocks; `quiet` cells
+   * are outside it; its squares are larger, so the board leads its screen.
    */
-  readonly boardTheme?: 'battleship' | 'quoridor' | 'checkered' | undefined;
+  readonly boardTheme?:
+    | 'battleship'
+    | 'quoridor'
+    | 'checkered'
+    | 'sokoban'
+    | undefined;
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
