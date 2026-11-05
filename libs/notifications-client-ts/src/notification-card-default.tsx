@@ -202,7 +202,14 @@ function CardAnswers(props: {
     | ((action: NotificationAction) => string | undefined)
     | undefined;
 }): JSX.Element {
-  const primaryId = createMemo(() => primaryNotificationActionId(props.inline));
+  // Only a card that waits on the person has a main answer: an update's
+  // own choices (Dismiss on a game result) stay outlined, so the timeline
+  // never fills with solid pills competing with what needs the person.
+  const primaryId = createMemo(() =>
+    props.interaction.category === 'action_required'
+      ? primaryNotificationActionId(props.inline)
+      : undefined
+  );
   return (
     <For each={props.inline}>
       {(action) => (

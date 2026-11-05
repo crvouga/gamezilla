@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop the inbox moved its 'Needs you' items into the narrow side column while the 'All' filter was selected, so what waited on the person sat in the secondary place and 'All' did not show all of it in one list. Fixed by keeping Needs you first in the main list on every size, Activity under it, and dropping the side column.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-needs-you-first.test.tsx"
+}

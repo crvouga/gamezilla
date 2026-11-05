@@ -113,10 +113,20 @@ export function FriendRequestSentTag(): JSX.Element {
 }
 
 /**
+ * "Asked you": they asked the person to be friends, as the same info tag
+ * under their name as "Request sent", so a row's Confirm / Delete says what
+ * it answers. Short, so it fits beside both pills on a phone.
+ */
+export function FriendRequestReceivedTag(): JSX.Element {
+  return <Badge label={<Trans>Asked you</Trans>} intent="info" />;
+}
+
+/**
  * A request is out. At a row's end, "Cancel request" is the row's one
- * control (said in full, so it never reads as dismissing the screen): a
- * quiet ghost pill, so the row's "Request sent" status under the name reads
- * first and taking a request back never looks like the row's main action.
+ * control (said in full, so it never reads as dismissing the screen): the
+ * same small outlined pill as "Add friend" in the row above it, so every
+ * row's action has one weight, one size and one trailing edge; the row's
+ * "Request sent" status under the name says what is going on.
  * On a profile, the status sits over the outlined "Cancel request".
  */
 function renderPendingOutgoing(
@@ -136,7 +146,6 @@ function renderPendingOutgoing(
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
       variant="outline"
-      quiet={compact}
       {...(named ? { testID: Handles.friendCancel(username) } : {})}
     />
   );

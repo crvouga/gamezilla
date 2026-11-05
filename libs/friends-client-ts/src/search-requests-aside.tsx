@@ -12,7 +12,7 @@ import { useFriendRequests } from './use-friend-requests';
 
 const FACE_SIZE = 32;
 /** The column lists a few; the inbox has every request. */
-const REQUESTS_SHOWN = 4;
+export const REQUESTS_SHOWN = 4;
 
 function RequestRow(props: {
   readonly profile: FriendProfile;
@@ -49,7 +49,8 @@ function useRequester(userId: () => string): () => FriendProfile {
   });
 }
 
-function IncomingRequest(props: {
+/** One person who asked to be friends, as a row that opens them. */
+export function IncomingRequest(props: {
   readonly userId: string;
   readonly onOpen: (profile: FriendProfile) => void;
 }): JSX.Element {
@@ -59,16 +60,10 @@ function IncomingRequest(props: {
   );
 }
 
-/**
- * Friend requests beside the search on a desktop, from synced requests: who
- * asked to be friends (each opens their profile, where it is answered, as
- * in the inbox), and how many the person sent are still waiting. Nothing
- * while there are none.
- */
-export function SearchRequestsAside(): JSX.Element {
+/** Opens a requester's profile, where their request is answered. */
+export function useOpenRequester(): (profile: FriendProfile) => void {
   const router = useRouter();
-  const requests = useFriendRequests();
-  const open = (profile: FriendProfile): void =>
+  return (profile) =>
     router.push({
       pathname: '/profile/user/[userId]',
       params: {
@@ -77,6 +72,17 @@ export function SearchRequestsAside(): JSX.Element {
         avatarConfig: profile.avatarConfig ?? '',
       },
     });
+}
+
+/**
+ * Friend requests beside the search on a desktop, from synced requests: who
+ * asked to be friends (each opens their profile, where it is answered, as
+ * in the inbox), and how many the person sent are still waiting. Nothing
+ * while there are none.
+ */
+export function SearchRequestsAside(): JSX.Element {
+  const requests = useFriendRequests();
+  const open = useOpenRequester();
   return (
     <Show
       when={requests.incoming().length > 0 || requests.outgoing().length > 0}

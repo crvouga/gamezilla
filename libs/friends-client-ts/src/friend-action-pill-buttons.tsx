@@ -88,13 +88,11 @@ export function SingleActionPill(props: {
   success: string;
   error: string;
   variant?: 'solid' | 'outline' | 'ghost';
-  /** A row's trailing control: the small secondary pill. */
-  compact?: boolean;
   /**
-   * A row's quieter control beside a status: the small ghost pill, so the
-   * status reads first.
+   * A row's trailing control: the small outlined pill every row's single
+   * action shares, whatever it does, so the rows end alike.
    */
-  quiet?: boolean;
+  compact?: boolean;
   icon?: IconComponent;
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
@@ -124,11 +122,9 @@ export function SingleActionPill(props: {
     },
     onPhaseChange,
   });
-  const small = (): boolean => props.compact === true || props.quiet === true;
-  const variant = (): 'solid' | 'outline' | 'ghost' => {
-    if (props.quiet === true) return 'ghost';
-    return props.compact === true ? 'outline' : (props.variant ?? 'solid');
-  };
+  const small = (): boolean => props.compact === true;
+  const variant = (): 'solid' | 'outline' | 'ghost' =>
+    small() ? 'outline' : (props.variant ?? 'solid');
   return (
     <Button
       variant={variant()}

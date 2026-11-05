@@ -36,14 +36,16 @@ function renderPills(status: FriendshipStatus, compact: boolean): void {
   ));
 }
 
-test('a row with a request out ends in a quiet Cancel request, under its status', () => {
+// regression: search-row-actions-mismatched
+test('a row with a request out ends in Cancel request, the same pill as Add friend', () => {
   renderPills('pending_outgoing', true);
   const cancel = screen.getByTestId(Handles.friendCancel(USERNAME));
   // A bare "Cancel" reads as dismissing the screen, not the request.
   expect(cancel.textContent).toContain('Cancel request');
+  // One weight, size and edge for every row's action: a plain-text Cancel
+  // request beside an outlined Add friend read as two kinds of control.
   expect(cancel.getAttribute('data-size')).toBe('sm');
-  // Quieter than Add friend's outline: the row's "Request sent" reads first.
-  expect(cancel.getAttribute('data-face')).toBe('neutral-ghost');
+  expect(cancel.getAttribute('data-face')).toBe('neutral-outline');
   expect(screen.getAllByRole('button')).toHaveLength(1);
 });
 

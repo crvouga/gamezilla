@@ -1,0 +1,4 @@
+{
+  "summary": "In people search 'Cancel request' was a plain-text ghost button while 'Add friend' was an outlined pill, so the rows' actions had different weights. Fixed by giving every row's single action the same small outlined pill.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-action-pills.test.tsx"
+}

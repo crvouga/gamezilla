@@ -1156,6 +1156,10 @@ msgstr "Arrow keys move focus. Enter or Space chooses a square. For a wall, choo
 msgid "Ask for a new export"
 msgstr "Ask for a new export"
 
+#: libs/friends-client-ts/src/friend-action-status-renderers.tsx
+msgid "Asked you"
+msgstr "Asked you"
+
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
 msgstr "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
@@ -2978,6 +2982,7 @@ msgid "Friend request not sent"
 msgstr "Friend request not sent"
 
 #: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/search-requests-entry.tsx
 msgid "Friend requests"
 msgstr "Friend requests"
 
