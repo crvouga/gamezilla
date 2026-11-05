@@ -218,13 +218,17 @@ test("an update's only choice stays outlined; a card that waits on you keeps its
 });
 
 // regression: notification-unread-dot-shifts-title
-test('read and unread titles start at the same x: a read card keeps the dot room', () => {
+test('read and unread titles start at the same x: the dot lives in a fixed gutter', () => {
   for (const isUnread of [true, false]) {
     mountCard({ ...invite([]), isUnread });
     const title = screen.getByText(/invited you to Quick connect four/);
-    const dot = title.querySelector('[data-component="StatusDot"]');
-    expect(dot).not.toBeNull();
-    expect(dot?.getAttribute('aria-hidden') === 'true').toBe(!isUnread);
+    // The title itself never carries the dot.
+    expect(title.querySelector('[data-component="StatusDot"]')).toBeNull();
+    // The gutter always holds one dot, visible only while unread (one card
+    // is mounted, so the document holds just its dots).
+    const dots = document.querySelectorAll('[data-component="StatusDot"]');
+    expect(dots).toHaveLength(1);
+    expect(dots[0]?.getAttribute('aria-hidden') === 'true').toBe(!isUnread);
     cleanup();
   }
 });

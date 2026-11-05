@@ -72,31 +72,15 @@ function metaLine(parts: readonly (string | undefined)[]): string {
 }
 
 /**
- * The card's title, in the body weight. Waiting on the person (unread, with
- * something still to answer), it leads with the named accent unread dot:
- * one mark for unread, not a dot and a heavier weight too.
+ * The card's title, in the body weight. Unread is marked once, by the dot
+ * in the card's leading gutter, never by a heavier weight too.
  */
 function CardTitle(props: {
   readonly title: string;
-  readonly waiting: boolean;
   readonly inactive: boolean;
 }): JSX.Element {
-  const { t } = useLingui();
   return (
     <P variant="body" tone={props.inactive ? 'secondary' : undefined} lines={3}>
-      {/* A read card keeps the dot's room (an invisible dot), so every
-          title in the feed starts at the same x. */}
-      <Show
-        when={props.waiting}
-        fallback={<StatusDot color="transparent" size={UNREAD_DOT_SIZE} />}
-      >
-        <StatusDot
-          status="unread"
-          size={UNREAD_DOT_SIZE}
-          label={t`Unread`}
-          dataSet={{ 'inbox-unread': 'true' }}
-        />
-      </Show>{' '}
       {props.title}
     </P>
   );
@@ -117,11 +101,7 @@ function InteractionRowText(props: {
       : undefined;
   return (
     <StackVertical grow>
-      <CardTitle
-        title={props.interaction.title}
-        waiting={props.interaction.isUnread && !props.inactive}
-        inactive={props.inactive}
-      />
+      <CardTitle title={props.interaction.title} inactive={props.inactive} />
       <P variant="caption">{meta()}</P>
       <Show when={body()} keyed>
         {(text) => (
@@ -436,6 +416,22 @@ export function NotificationCardDefault(
       testId={idOnWords() ? undefined : props.testID}
       dataSet={idOnWords() ? undefined : state()}
     >
+      {/* The unread dot lives in a fixed gutter before the face: a read
+          card keeps the gutter empty, so faces and titles line up on every
+          row of the feed. */}
+      <StackVertical paddingTop="md">
+        <Show
+          when={shown().isUnread && !inactive()}
+          fallback={<StatusDot color="transparent" size={UNREAD_DOT_SIZE} />}
+        >
+          <StatusDot
+            status="unread"
+            size={UNREAD_DOT_SIZE}
+            label={t`Unread`}
+            dataSet={{ 'inbox-unread': 'true' }}
+          />
+        </Show>
+      </StackVertical>
       {props.leading ?? <DefaultLeading interaction={shown()} />}
       {/* A desktop's feed is short and wide enough for the answers beside
           the words; a phone stacks them under the words. */}
