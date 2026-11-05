@@ -132,16 +132,19 @@ test('the table passes the accessibility audit', () => {
 // regression: hearts-cards-text-tiles — cards were text tiles in two
 // wrapped rows, a chosen card a faint outline, and a played card sat beside
 // its seat's name instead of on the table.
-test('cards are drawn as cards in one fanned hand, and the trick sits on the table', () => {
+test('cards are drawn as cards in one flat hand, and the trick sits on the table', () => {
   example();
   const queen = at('example-card-QS');
   // The corner index leads the face: the rank, then the large pip, then the name.
   expect(queen.firstElementChild?.textContent).toBe('Q');
-  // One fanned row: every card knows its place from the middle of the hand.
+  // Six cards lie in one row, each a step further along than the last.
   const hand = at('example-card-table-hand');
-  expect(hand.style.getPropertyValue('--hand-count')).toBe('6');
-  expect(at('example-card-2C').style.getPropertyValue('--fan')).toBe('-2.5');
-  expect(at('example-card-KH').style.getPropertyValue('--fan')).toBe('2.5');
+  expect(hand.querySelectorAll('button')).toHaveLength(6);
+  expect(hand.style.getPropertyValue('--hand-span')).toBe('5');
+  expect(at('example-card-2C').style.getPropertyValue('--hand-row')).toBe('0');
+  expect(at('example-card-2C').style.getPropertyValue('--hand-step')).toBe('0');
+  expect(at('example-card-KH').style.getPropertyValue('--hand-row')).toBe('0');
+  expect(at('example-card-KH').style.getPropertyValue('--hand-step')).toBe('5');
   // The played card is on the table, on its seat's side, not in the seat's plate.
   const played = at('example-seat-left-played');
   expect(played.closest('section')).toBeNull();
@@ -182,50 +185,57 @@ function rule(sheet: string, head: string): string {
 // regression: hearts-phone-hand-overflows — on a 390px phone the thirteen
 // card hand ran past the screen's right edge: every card kept 30px in view,
 // so the row was 412px wide in a 342px hand, the J and Q cut off with no
-// sign the row scrolled. A narrow crowded hand fits its row and never
-// scrolls.
+// sign the row scrolled. The hand fits its row and never scrolls.
 // regression: hearts-phone-hand-thin-strips — the one row that fitted left
 // each of thirteen cards a 24px strip on a phone, too thin to read or tap.
-// A narrow crowded hand is two staggered rows: every card steps by what the
-// longer row leaves it (about 48px on a phone, never under 28px on a 320px
-// phone), and the lower row starts below the upper cards' corners, even
-// with a chosen card lifted and ringed.
-test('a narrow hand of thirteen cards fits two rows, each card a strip to read and tap', () => {
+// regression: hearts-hand-cards-overlap — two overlapping rows then covered
+// the upper row's centre pips on a phone, and the wide fan left each card a
+// 20px corner. Cards never overlap: each steps by its own width and a gap,
+// is as wide as the longer row leaves it (about 46px of thirteen on a
+// phone, 72px on a wide table), and the lower row starts a card's height
+// and a gap below the upper, the gap wider than a chosen card's 8px lift
+// and 3px ring.
+test('a hand of thirteen cards lies in two rows of whole cards that never overlap', () => {
   const sheet = css('card-table/card-table.module.css');
-  const narrow = sheet.slice(sheet.indexOf('@container (max-width: 32rem)'));
-  const row = rule(narrow, '.hand[data-crowded="true"] {');
+  const row = rule(sheet, '.hand {\n  --hand-gap');
   expect(row).not.toMatch(/overflow-x:\s*(auto|scroll)/);
-  expect(row).toMatch(/--hand-row-step:\s*var\(--ui-space-12\);/);
-  const card = rule(narrow, '.hand[data-crowded="true"] > .card {');
-  expect(card).toMatch(/--card-w:\s*56px;/);
-  // Each card steps by the row's width shared out over the hand's span.
+  expect(row).toMatch(/--hand-gap:\s*var\(--ui-space-1\);/);
+  expect(row).toMatch(/--hand-row-gap:\s*var\(--ui-space-3\);/);
+  const card = rule(sheet, '.hand > .card {');
+  // Each card is as wide as the row leaves it, at most 72px…
   expect(card).toMatch(
-    /\(100cqw - var\(--card-w\)\)\s*\/\s*var\(--hand-span\)/
+    /--card-w:\s*min\(\s*72px,\s*\(100cqw - var\(--hand-span\) \* var\(--hand-gap\)\) \/ \(var\(--hand-span\) \+ 1\)\s*\);/
+  );
+  // …and steps along by its own width and the gap, never less.
+  expect(card).toMatch(/--step:\s*calc\(var\(--card-w\) \+ var\(--hand-gap\)\);/);
+  expect(card).toMatch(
+    /margin-top:\s*calc\(\s*var\(--hand-row\) \* \(var\(--card-w\) \* 1\.4 \+ var\(--hand-row-gap\)\)\s*\);/
   );
   expect(card).toMatch(
-    /margin-top:\s*calc\(var\(--hand-row\) \* var\(--hand-row-step\)\);/
+    /margin-inline-start:\s*calc\(var\(--hand-step\) \* var\(--step\)\);/
   );
-  // A chosen card lifts 8px: with its 5px ring it stays 35px below the
-  // upper row's top, past a corner index 4px down, 15px rank over 12px pip.
-  expect(
-    rule(
-      narrow,
-      '.hand[data-crowded="true"] > button.card[aria-pressed="true"] {'
-    )
-  ).toMatch(/translateY\(calc\(-1 \* var\(--ui-space-2\)\)\)/);
-  expect(48 - 8 - 5).toBeGreaterThan(4 + 15 + 1 + 12);
+  expect(card).not.toMatch(/rotate|--fan/);
+  // A chosen card lifts 8px with a 3px ring: 11px, inside the 12px row gap.
+  const chosen = rule(sheet, 'button.card[aria-pressed="true"] {');
+  expect(chosen).toMatch(/translateY\(calc\(-1 \* var\(--ui-space-2\)\)\)/);
+  expect(chosen).toMatch(/0 0 0 3px var\(--ui-color-tint\)/);
+  expect(8 + 3).toBeLessThan(12);
   const places = Array.from({ length: 13 }, (_, at) => handPlace(at, 13));
   expect(places.filter((place) => place.row === 0)).toHaveLength(7);
   expect(places.filter((place) => place.row === 1)).toHaveLength(6);
   // The lower row sits half a step along, between the upper row's cards.
   expect(places[7]).toEqual({ row: 1, step: 0.5 });
-  // The span the steps share: thirteen 56px cards on a 320px phone's 272px
-  // row, and on a 390px phone's 342px row.
+  // Thirteen cards on a 390px phone's 350px row are 46px or wider; on a
+  // 320px phone's 280px row still 36px.
   const span = handSpan(13);
-  expect((272 - 56) / span).toBeGreaterThanOrEqual(28);
-  expect((342 - 56) / span).toBeGreaterThanOrEqual(44);
+  const width = (row: number) => Math.min(72, (row - span * 4) / (span + 1));
+  expect(width(350)).toBeGreaterThanOrEqual(46);
+  expect(width(280)).toBeGreaterThanOrEqual(36);
+  expect(width(532)).toBe(72);
   // An even hand's lower row ends half a step past the upper's last card.
   expect(handSpan(8)).toBe(3.5);
+  // Seven cards or fewer lie in one row.
+  expect(handPlace(6, 7)).toEqual({ row: 0, step: 6 });
   example();
   const hand = document.querySelector<HTMLElement>('[role="toolbar"]');
   if (hand === null) throw new Error('No hand');

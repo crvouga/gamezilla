@@ -1,5 +1,6 @@
-.table,
-.hand {
+/* The felt takes the table's colours; the hand under it sits on the page
+   and keeps the app's, so a chosen card wears the app's selection ring. */
+.table {
   --ui-color-background: var(--ui-color-game-hearts-canvas);
   --color-background: var(--ui-color-background);
   --ui-color-surface: var(--ui-color-game-hearts-surface);
@@ -259,9 +260,9 @@
 }
 /*
  * A card as a card prints it, at the width its row gives it (`--card-w`,
- * five by seven): the rank in the top corner with a small pip under it and
- * the suit's name running down the same edge, so the strip of a card that
- * shows in a fanned hand still names it in full; a large pip in the middle.
+ * five by seven): the rank in the top corner with a small pip under it,
+ * and a large pip in the middle (in the bottom corner of a phone's small
+ * card).
  */
 .card {
   --pip: "";
@@ -331,52 +332,58 @@
   line-height: 1;
 }
 /*
- * The hand: one fanned row of overlapping cards, every corner index in
- * view. Each card steps along by what the row leaves it (never more than
- * its own width), tilts a little away from the middle and sits a little
- * lower towards the ends, as a hand of cards is held.
+ * The hand: flat rows of cards side by side, never overlapping, so every
+ * card shows its whole face (rank and pip in the corner, the suit's large
+ * pip). Up to seven cards lie in one row; more lie in two, the upper a card
+ * longer and the lower centred under it, half a step along. Every card
+ * shares one grid cell, placed by its row and its step along it (set on the
+ * card), so the hand is as tall as its rows and as wide as its furthest
+ * card. A card is as wide as the longer row leaves it, at most 72px:
+ * thirteen cards on a 390px phone are about 46px each, on a wide table 72px.
+ * The rows sit far enough apart that a chosen card, lifted 8px with its
+ * 3px ring, never touches the row above it, and cards far enough apart that
+ * a ring never touches its neighbour.
  */
 .hand {
-  --card-w: 58px;
+  --hand-gap: var(--ui-space-1);
+  --hand-row-gap: var(--ui-space-3);
   container-type: inline-size;
-  display: flex;
+  display: grid;
   justify-content: center;
   width: 100%;
-  /* Room for the tilted ends of the fan and a chosen card's lift. */
-  padding: var(--ui-space-5) var(--ui-space-3) var(--ui-space-3);
-}
-@container (min-width: 30rem) {
-  .hand {
-    --card-w: 64px;
-  }
+  /* Room for a chosen card's lift and ring above the row and at its ends. */
+  padding: var(--ui-space-4) var(--ui-space-1) var(--ui-space-1);
 }
 .hand > .card {
-  flex: 0 0 var(--card-w);
-  transform-origin: 50% 100%;
-  transform: translateY(calc(var(--fan) * var(--fan) * 0.3px))
-    rotate(calc(var(--fan) * 1deg));
-}
-.hand > .card + .card {
-  margin-inline-start: calc(
-    min(
-      var(--card-w) +
-      var(--ui-space-1),
-      (100cqw - var(--card-w)) /
-      max(1, var(--hand-count) - 1)
-    ) -
-    var(--card-w)
+  --card-w: min(
+    72px,
+    (100cqw - var(--hand-span) * var(--hand-gap)) / (var(--hand-span) + 1)
   );
+  --step: calc(var(--card-w) + var(--hand-gap));
+  grid-area: 1 / 1;
+  align-self: start;
+  justify-self: start;
+  margin-top: calc(
+    var(--hand-row) * (var(--card-w) * 1.4 + var(--hand-row-gap))
+  );
+  margin-inline-start: calc(var(--hand-step) * var(--step));
+}
+/* A small card (a phone's hand): the large pip moves to the bottom corner,
+   clear of the rank and small pip in the top one. */
+@container (max-width: 32rem) {
+  .hand > .card .suit {
+    place-items: end;
+    padding: 0 var(--ui-space-1) var(--ui-space-1) 0;
+    font-size: calc(var(--card-w) * 0.44);
+  }
 }
 button.card {
   cursor: pointer;
 }
 @media (hover: hover) and (pointer: fine) {
-  button.card:not([aria-disabled="true"]):hover {
+  button.card:not([aria-disabled="true"], [aria-pressed="true"]):hover {
     z-index: 1;
-    transform: translateY(
-        calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-1))
-      )
-      rotate(calc(var(--fan) * 1deg));
+    transform: translateY(calc(-1 * var(--ui-space-1)));
   }
 }
 button.card[aria-disabled="true"] {
@@ -388,72 +395,21 @@ button.card[aria-disabled="true"] {
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
   filter: brightness(0.72);
 }
-/* Chosen: lifted 12px out of the fan and ringed twice, the felt's green
-   inside the table's accent, so it reads at a glance on a light page and a
-   dark one, without motion. */
+/* Chosen: lifted 8px out of its row and ringed 3px in the app's selection
+   accent (the hand sits on the page, not the felt), so it reads at a
+   glance on a light page and a dark one, without motion. */
 button.card[aria-pressed="true"] {
-  border-color: var(--ui-color-game-hearts-canvas);
+  z-index: 1;
+  border-color: var(--ui-color-tint);
   box-shadow:
-    0 0 0 2px var(--ui-color-game-hearts-canvas),
-    0 0 0 5px var(--ui-color-game-hearts-accent),
+    0 0 0 3px var(--ui-color-tint),
     var(--ui-shadow-float);
-  transform: translateY(
-      calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-3))
-    )
-    rotate(calc(var(--fan) * 1deg));
+  transform: translateY(calc(-1 * var(--ui-space-2)));
 }
 button.card:focus-visible {
   z-index: 2;
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
-}
-/*
- * A narrow table with more than seven cards: two staggered rows of
- * overlapping cards that always fit the row, never scrolling. Every card
- * shares one grid cell, placed by its row and its step along it (set on the
- * card), so the hand is as tall as the two rows and as wide as its furthest
- * card. A step is what the row leaves each card (about 48px of thirteen on
- * a phone). The lower row starts `--hand-row-step` below the upper, past
- * the upper cards' corner index (rank over suit, about 32px), so a corner is
- * never covered, even by a chosen card lifted 8px with its ring.
- */
-@container (max-width: 32rem) {
-  .hand[data-crowded="true"] {
-    --hand-row-step: var(--ui-space-12);
-    display: grid;
-    justify-content: center;
-    /* Room for a chosen card's ring at either end of the row. */
-    padding-inline: var(--ui-space-2);
-  }
-  .hand[data-crowded="true"] > .card {
-    --card-w: 56px;
-    --step: min(
-      var(--card-w) +
-      var(--ui-space-1),
-      (100cqw - var(--card-w)) /
-      var(--hand-span)
-    );
-    grid-area: 1 / 1;
-    align-self: start;
-    justify-self: start;
-    margin-top: calc(var(--hand-row) * var(--hand-row-step));
-    margin-inline-start: calc(var(--hand-step) * var(--step));
-    transform: none;
-  }
-  .hand[data-crowded="true"] > .card + .card {
-    margin-inline-start: calc(var(--hand-step) * var(--step));
-  }
-  .hand[data-crowded="true"] > button.card[aria-pressed="true"] {
-    transform: translateY(calc(-1 * var(--ui-space-2)));
-  }
-}
-@media (hover: hover) and (pointer: fine) {
-  @container (max-width: 32rem) {
-    .hand[data-crowded="true"]
-      > button.card:not([aria-disabled="true"], [aria-pressed="true"]):hover {
-      transform: translateY(calc(-1 * var(--ui-space-1)));
-    }
-  }
 }
 /* How far the selection is, beside the action that confirms it. */
 .action {

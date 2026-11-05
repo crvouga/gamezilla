@@ -129,8 +129,8 @@ function spokenName(card: CardTableCard): string {
  * small suit pip under it (drawn by the stylesheet, so a listener and a
  * reader of the words meet the suit once) and a large pip in the middle, so
  * a suit is never told by colour alone. The suit's name is in the card's
- * words and its spoken name, not printed on the face: a fanned card shows
- * only its corner, where a name would be too small to read.
+ * words and its spoken name, not printed on the face: a phone's small card
+ * has no room for a name that could be read.
  */
 function CardFace(props: { card: CardTableCard }): JSX.Element {
   return (
@@ -232,33 +232,27 @@ const MOVES: Readonly<Record<string, (at: number, last: number) => number>> = {
   End: (_at, last) => last,
 };
 
-/** How far a card sits from the middle of the fanned hand, in cards. */
-function fanOffset(index: number, count: number): number {
-  return index - (count - 1) / 2;
-}
-
 /**
- * More cards than one narrow row shows whole: a narrow hand lays them out
- * in two overlapping rows, never scrolling, the top row a card longer. The
- * lower row sits low enough over the upper that every card's corner (rank
- * over suit) stays in view, and is staggered half a step so each card of
- * either row shows a strip wide enough to read and tap: thirteen cards on a
- * 390px phone step by about 48px, where one row left them 24px.
+ * More cards than one row shows at a readable size lie in two rows: the
+ * upper a card longer, the lower half a step along, centred under it. Cards
+ * never overlap, so every card shows its whole face; thirteen cards on a
+ * 390px phone are about 46px wide each.
  */
 const ONE_ROW_MAX = 7;
 
-/** Where a card sits in a crowded hand: its row, and how far along, in steps. */
+/** Where a card sits in the hand: its row, and how far along, in steps. */
 export function handPlace(
   index: number,
   count: number
 ): { readonly row: 0 | 1; readonly step: number } {
+  if (count <= ONE_ROW_MAX) return { row: 0, step: index };
   const top = Math.ceil(count / 2);
   return index < top
     ? { row: 0, step: index }
     : { row: 1, step: index - top + 0.5 };
 }
 
-/** How many steps the furthest card of a crowded hand sits from the first. */
+/** How many steps the furthest card of the hand sits from the first. */
 export function handSpan(count: number): number {
   return Math.max(
     1,
@@ -266,11 +260,10 @@ export function handSpan(count: number): number {
   );
 }
 
-/** Where a hand's card sits: its tilt in the fan, and its place in two rows. */
+/** Where a hand's card sits: its row, and its step along it. */
 function handCardStyle(index: number, count: number): JSX.CSSProperties {
   const place = handPlace(index, count);
   return {
-    '--fan': String(fanOffset(index, count)),
     '--hand-row': String(place.row),
     '--hand-step': String(place.step),
   };
@@ -325,7 +318,6 @@ function Hand(
       ref={row}
       class={styles['hand']}
       style={{
-        '--hand-count': String(Math.max(1, props.hand.length)),
         '--hand-span': String(handSpan(props.hand.length)),
       }}
       role="toolbar"
@@ -409,7 +401,8 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
 /**
  * The action under the hand: how far the selection is, in words, beside
  * the button that confirms it. Once sent the button goes quiet and says it
- * is on its way, as a status rather than a filled button.
+ * is on its way in ink, a status rather than a filled or link-coloured
+ * button.
  */
 function ActionRow(props: { action: CardTableAction }): JSX.Element {
   const pending = (): boolean => props.action.pending === true;
@@ -421,6 +414,7 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
       <Button
         title={props.action.label}
         variant={pending() ? 'ghost' : 'solid'}
+        intent={pending() ? 'neutral' : undefined}
         disabled={!props.action.enabled}
         loading={pending()}
         loadingLabel={props.action.label}
@@ -449,11 +443,10 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * shows that line beside the table keeps it for listeners only
  * (`centerSpokenOnly`). Cards are drawn as cards: the rank and a small pip
  * in the corner and a large pip in the middle, at full contrast; only a card
- * the rules refuse is dimmed. The hand is a fanned, overlapping row of card
- * buttons whose corners stay readable (on a narrow table more than seven
- * cards lie in two staggered rows that never scroll, the lower row clear of
- * the upper's corners, each card a strip wide enough to read and tap); a
- * chosen card lifts out of the row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * the rules refuse is dimmed. The hand is a row of card buttons side by
+ * side, never overlapping, so every face reads whole (more than seven cards
+ * lie in two rows that never scroll, each card as wide as the longer row
+ * leaves it); a chosen card lifts 8px out of its row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
  * written as symbols and named in each card's words, never told by colour
