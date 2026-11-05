@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a space's game list was four game tiles across the top of an otherwise empty page, and the people here appeared only as small faces in the header while a phone showed them in the page. Wide, a \"Who's here\" section now follows the games: everyone here by face and name, the host marked, with Invite friends at its head.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-games-header.test.tsx"
+}

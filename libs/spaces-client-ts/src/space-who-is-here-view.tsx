@@ -1,17 +1,23 @@
 /**
- * Who is in the space, said under the games list's title while a game is
- * chosen: one line ("5 here · avery hosts") and Invite friends beside it.
- * On a phone the header folds the people into a counted members button, so
- * the line shows their whole faces too; a desktop header already shows
- * those faces, so the line never repeats them.
+ * Who is in the space while a game is chosen. On a phone, under the games
+ * list's title, one line of their faces and words ("5 here · avery
+ * hosts") with Invite friends under it: the header folds the people into a
+ * counted members button. On a desktop, under the games, a "Who's here"
+ * section: each person here by face and name, the host marked, and Invite
+ * friends at its head, so the page shows who the game is for, not only
+ * the header's small faces.
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
+import { HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
@@ -120,39 +126,94 @@ function HereFaces(props: {
   );
 }
 
+/** A desktop person's face: a row's size, larger than the header's. */
+const PERSON_SIZE = 40;
+
+/** People to a row in the desktop section: the games' four tiles above. */
+const PEOPLE_COLUMNS = 4;
+
+/** One person here, by face and name, the host marked. */
+function HerePerson(props: {
+  readonly person: SpacePerson;
+  readonly hosts: boolean;
+}): JSX.Element {
+  return (
+    <StackHorizontal align="center" gap="sm" role="listitem">
+      <SpacePersonAvatar person={props.person} size={PERSON_SIZE} />
+      <P variant="body" lines={1}>
+        {props.person.name}
+      </P>
+      <Show when={props.hosts}>
+        {/* Its own box, so the tag centres on the name's line. */}
+        <StackVertical>
+          <HostBadge />
+        </StackVertical>
+      </Show>
+    </StackHorizontal>
+  );
+}
+
 /**
- * Who is here and who hosts, then Invite friends. A desktop header already
- * shows the faces, so there the line is the words with Invite friends right
- * beside them; a phone's header shows only a count, so its line leads with
- * the faces and Invite friends sits under them. Nothing before anyone is
- * connected.
+ * A desktop's "Who's here": its heading with how many and who hosts, and
+ * Invite friends at its end; then everyone here whose profile is known, by
+ * face and name, in one panel, four to a row like the games above.
+ */
+function WhoIsHereSection(props: SpaceWhoIsHereViewProps): JSX.Element {
+  const people = (): readonly SpacePerson[] =>
+    props.faces.flatMap((face) => (face.person === null ? [] : [face.person]));
+  const hostId = (): string | undefined => props.host?.id;
+  return (
+    <StackVertical gap="sm" testId="space-who-is-here">
+      <StackHorizontal align="center" gap="md">
+        <StackHorizontal align="center" gap="sm" grow>
+          <H2 size="subtitle">
+            <Trans>Who's here</Trans>
+          </H2>
+          <RoomCaption {...props} />
+        </StackHorizontal>
+        <Show when={props.onInvite}>
+          {(onInvite) => <InviteFriendsButton onInvite={onInvite()} />}
+        </Show>
+      </StackHorizontal>
+      <Show when={people().length > 0}>
+        <Surface tone="surface" radius="card" border padding="lg">
+          <Grid columns={PEOPLE_COLUMNS} gap="md" role="list">
+            <For each={people()}>
+              {(person) => (
+                <HerePerson person={person} hosts={person.id === hostId()} />
+              )}
+            </For>
+          </Grid>
+        </Surface>
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
+ * Who is here and who hosts, then Invite friends. On a desktop, the "Who's
+ * here" section (under the games, see `SpaceGamesScreenView`); a phone's
+ * header shows only a count, so its line leads with the faces and Invite
+ * friends sits under them. Nothing before anyone is connected.
  */
 export function SpaceWhoIsHereView(
   props: SpaceWhoIsHereViewProps
 ): JSX.Element {
   const mode = useLayoutMode();
-  const invite = (): JSX.Element => (
-    <Show when={props.onInvite}>
-      {(onInvite) => <InviteFriendsButton onInvite={onInvite()} />}
-    </Show>
-  );
   return (
     <Show when={props.faces.length > 0}>
       <Show
         when={mode() === 'compact'}
-        fallback={
-          <StackHorizontal align="center" gap="md">
-            <RoomCaption {...props} />
-            {invite()}
-          </StackHorizontal>
-        }
+        fallback={<WhoIsHereSection {...props} />}
       >
         <StackVertical gap="sm" align="start">
           <StackHorizontal align="center" gap="sm">
             <HereFaces faces={props.faces} />
             <RoomCaption {...props} />
           </StackHorizontal>
-          {invite()}
+          <Show when={props.onInvite}>
+            {(onInvite) => <InviteFriendsButton onInvite={onInvite()} />}
+          </Show>
         </StackVertical>
       </Show>
     </Show>

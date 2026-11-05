@@ -4008,6 +4008,10 @@ msgstr "More"
 msgid "More for {0}"
 msgstr "More for {0}"
 
+#: libs/game-puzzle-client-ts/src/content-library-picks.tsx
+msgid "More to play"
+msgstr "More to play"
+
 #. placeholder {0}: props.ply
 #. placeholder {1}: props.moves
 #. placeholder {2}: props.label
@@ -8223,6 +8227,10 @@ msgstr "Where you are signed in"
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "White"
 msgstr "White"
+
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
+msgid "Who's here"
+msgstr "Who's here"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
 msgid "Win, lose or draw, your rating moves once."

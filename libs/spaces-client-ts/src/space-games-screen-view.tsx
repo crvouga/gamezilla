@@ -72,10 +72,14 @@ function PlayersTag(props: { readonly count: number }): JSX.Element {
  * rest watch ({@link someoneWatches}).
  */
 function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
+  const mode = useLayoutMode();
+  // Wide, who is here is a section of its own under the games.
+  const here = (): JSX.Element | undefined =>
+    mode() === 'wide' ? undefined : props.whoIsHere;
   return (
-    <Show when={props.whoIsHere !== undefined || !props.canSelectGame}>
+    <Show when={here() !== undefined || !props.canSelectGame}>
       <StackVertical gap="sm">
-        {props.whoIsHere}
+        {here()}
         <Show when={!props.canSelectGame}>
           <HostChoosesNotice />
         </Show>
@@ -130,6 +134,11 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       }
       helper={<ListHelper {...props} />}
       items={items()}
+      footer={
+        <Show when={mode() === 'wide'}>
+          <StackVertical paddingTop="lg">{props.whoIsHere}</StackVertical>
+        </Show>
+      }
     />
   );
 }
