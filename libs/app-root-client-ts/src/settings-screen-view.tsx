@@ -169,6 +169,7 @@ function useConnectionGroup(
   return () => ({
     key: 'connection',
     title: t`Connection`,
+    description: t`Playing with others and syncing`,
     footer: t`While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online.`,
     rows: [
       {

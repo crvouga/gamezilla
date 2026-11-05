@@ -4886,6 +4886,10 @@ msgstr "Playing"
 msgid "Playing now"
 msgstr "Playing now"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Playing with others and syncing"
+msgstr "Playing with others and syncing"
+
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Playtest"
 msgstr "Playtest"
