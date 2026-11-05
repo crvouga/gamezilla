@@ -1,10 +1,7 @@
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
-import type {
-  GameBoardProps,
-  GameSimulationControls,
-} from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   createEffect,
   createMemo,
@@ -13,10 +10,10 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-import { PongBoardView } from './pong-board-view';
+import { PongBoardView, type PongBoardViewProps } from './pong-board-view';
 
 /** The court with its sounds, releasing its controls when it closes. */
-export function PongBoard(props: GameBoardProps): JSX.Element {
+export function PongBoard(props: PongBoardViewProps): JSX.Element {
   const state = createMemo(() => pongPositionCodec.decode(props.position));
   usePongInputRelease(() => props.simulation);
   usePongSounds(state, () => props.sound);

@@ -238,13 +238,43 @@ function fanOffset(index: number, count: number): number {
 }
 
 /**
- * More cards than one narrow row shows whole: a narrow hand overlaps them
- * to fit the row, never scrolling, each card showing at least this much of
- * its left edge, where its rank and suit are printed. Thirteen cards on a
- * 320px phone still step by more than this.
+ * More cards than one narrow row shows whole: a narrow hand lays them out
+ * in two overlapping rows, never scrolling, the top row a card longer. The
+ * lower row sits low enough over the upper that every card's corner (rank
+ * over suit) stays in view, and is staggered half a step so each card of
+ * either row shows a strip wide enough to read and tap: thirteen cards on a
+ * 390px phone step by about 48px, where one row left them 24px.
  */
 const ONE_ROW_MAX = 7;
-const CORNER_PEEK = '18px';
+
+/** Where a card sits in a crowded hand: its row, and how far along, in steps. */
+export function handPlace(
+  index: number,
+  count: number
+): { readonly row: 0 | 1; readonly step: number } {
+  const top = Math.ceil(count / 2);
+  return index < top
+    ? { row: 0, step: index }
+    : { row: 1, step: index - top + 0.5 };
+}
+
+/** How many steps the furthest card of a crowded hand sits from the first. */
+export function handSpan(count: number): number {
+  return Math.max(
+    1,
+    ...Array.from({ length: count }, (_, at) => handPlace(at, count).step)
+  );
+}
+
+/** Where a hand's card sits: its tilt in the fan, and its place in two rows. */
+function handCardStyle(index: number, count: number): JSX.CSSProperties {
+  const place = handPlace(index, count);
+  return {
+    '--fan': String(fanOffset(index, count)),
+    '--hand-row': String(place.row),
+    '--hand-step': String(place.step),
+  };
+}
 
 function Hand(
   props: CardTableProps & { readonly onRefused: (reason: string) => void }
@@ -296,7 +326,7 @@ function Hand(
       class={styles['hand']}
       style={{
         '--hand-count': String(Math.max(1, props.hand.length)),
-        '--hand-peek': CORNER_PEEK,
+        '--hand-span': String(handSpan(props.hand.length)),
       }}
       role="toolbar"
       aria-label={props.handLabel}
@@ -310,7 +340,7 @@ function Hand(
               <button
                 type="button"
                 class={styles['card']}
-                style={{ '--fan': String(fanOffset(index(), ids().length)) }}
+                style={handCardStyle(index(), ids().length)}
                 data-refused={String(card().refusal !== undefined)}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
@@ -421,8 +451,9 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * in the corner and a large pip in the middle, at full contrast; only a card
  * the rules refuse is dimmed. The hand is a fanned, overlapping row of card
  * buttons whose corners stay readable (on a narrow table more than seven
- * cards overlap to fit one row that never scrolls, each card's corner in
- * view); a chosen card lifts 12px out of the row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * cards lie in two staggered rows that never scroll, the lower row clear of
+ * the upper's corners, each card a strip wide enough to read and tap); a
+ * chosen card lifts out of the row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
  * written as symbols and named in each card's words, never told by colour

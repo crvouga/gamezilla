@@ -8,8 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { Index, type JSX, Show } from 'solid-js';
@@ -35,17 +34,21 @@ type SeatProps = {
   readonly ownReadiness?: JSX.Element | undefined;
 };
 
-/** Holders whose readiness the seat shows: a person, a guest here, a bot. */
+/**
+ * Holders whose readiness the seat shows: a person, or a guest here. A bot
+ * is always ready and never what the game waits for, so its seat says
+ * nothing about it.
+ */
 function showsReadiness(seat: FrameSetupSeat): boolean {
   const kind = seat.holder.kind;
-  return kind === 'person' || kind === 'local' || kind === 'bot';
+  return kind === 'person' || kind === 'local';
 }
 
 /**
  * The seat's facts in one line: the side's name in words (the swatch shows
  * its look), one tag for the host's own seat or the viewer's seat at
  * someone else's table, and whether its holder is ready as a dot and a
- * word. Open, closed and invited seats show no readiness.
+ * word. Bots, open, closed and invited seats show no readiness.
  */
 function SetupSeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
   return (
@@ -156,7 +159,7 @@ function SeatOptionsLabel(props: {
 }
 
 /**
- * One seat while the game is set up, as a compact player card on every
+ * One seat while the game is set up, as a compact player row on every
  * size: who holds it, its look and readiness, then on the line under the
  * name every control the seat has (Change player, I'm not ready), so a
  * player's actions sit with the player, never across the card. Its other
@@ -207,9 +210,9 @@ function SetupSeatView(props: SeatProps): JSX.Element {
 }
 
 /**
- * Every seat while the game is set up, each a player card holding its own
- * choices: one column on a phone, two side by side when wide, with the
- * board preview beside them. A person who may take a seat sits in the
+ * Every seat while the game is set up, one plain list of player rows in
+ * the Players card (never cards inside the card), each holding its own
+ * choices, with the board preview beside them. A person who may take a seat sits in the
  * first open one; someone who may not, or finds every seat taken, is told
  * they watch.
  */
@@ -250,20 +253,18 @@ export function FrameSetupSeatsView(props: {
           </GameActions>
         )}
       </Show>
-      <Grid columns={{ base: 1, lg: 2 }} gap="md">
+      <StackVertical gap="sm" testId="custom-game-setup-seats">
         <Index each={props.setup.seats}>
           {(seat) => (
-            <Surface tone="surface" radius="card" border padding="sm">
-              <SetupSeatView
-                seat={seat()}
-                people={props.people}
-                onChoose={props.onChoose}
-                ownReadiness={props.ownReadiness}
-              />
-            </Surface>
+            <SetupSeatView
+              seat={seat()}
+              people={props.people}
+              onChoose={props.onChoose}
+              ownReadiness={props.ownReadiness}
+            />
           )}
         </Index>
-      </Grid>
+      </StackVertical>
     </GameSection>
   );
 }

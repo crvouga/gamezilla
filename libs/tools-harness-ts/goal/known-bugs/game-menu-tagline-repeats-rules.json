@@ -1,0 +1,4 @@
+{
+  "summary": "Under a game's name its menu said the tagline (\"Drop discs and line up four\") and then how to play (\"Take turns dropping a disc into a column. Four in a row, column or diagonal wins.\"), the same instruction twice. With how to play, the menu leaves the tagline out; a game without instructions keeps it.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-menu-screen-view.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the three Light Cycles riders' chips stacked avatar over name over figures over \"You\", about 130px tall, shrinking the arena under them. Three chips across a phone are now each the rider's name over one line of a smaller avatar, swatch and figure, with \"You\" wrapping under them.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

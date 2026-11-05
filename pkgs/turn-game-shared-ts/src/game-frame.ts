@@ -111,10 +111,25 @@ export type GameFrameAction = {
   readonly run: () => void;
 };
 
+/**
+ * One step of what a game has ahead, in order (Hearts' deals, each passing
+ * one way): what it is, what happens in it, and whether it is open now.
+ */
+export type GameOutlineStep = {
+  readonly label: string;
+  readonly detail: string;
+  readonly current: boolean;
+};
+
 /** One seat of the game, as the frame shows it. */
 export type GameFrameSeat = {
   readonly side: GameSide;
   readonly look: GameSeatLook;
+  /**
+   * Who plays the seat, by name, when the host knows them: a board that
+   * marks its sides (Pong's halves) names the other player there.
+   */
+  readonly name?: string | undefined;
 };
 
 /**
@@ -183,6 +198,13 @@ export type GameFrame<View> = {
   ) => string | null;
   /** The finished game in `position`, which `winner` won. */
   readonly result: (position: string, winner: GameWinner) => GameResultSummary;
+  /**
+   * What the game has ahead in `position`, the step open now marked
+   * (Hearts' passing order by deal): beside a wide board the record card
+   * lists it until the first move, so the card always holds something of
+   * the game's own. Absent for a game with no such steps.
+   */
+  readonly outline?: (position: string) => readonly GameOutlineStep[];
 };
 
 /** First place first; seats sharing a place keep their seat order. */

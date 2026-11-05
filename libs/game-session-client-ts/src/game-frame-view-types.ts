@@ -1,4 +1,7 @@
-import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
+import type {
+  GameOptionGroup,
+  GameOutlineStep,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   BotDifficulty,
   GameSide,
@@ -296,4 +299,9 @@ export type FrameRecord = {
   /** A refused review, in words; `''` for none. */
   readonly error: string;
   readonly history: boolean;
+  /**
+   * What the game has ahead, the step open now marked (Hearts' passing
+   * order by deal), listed beside a wide board until the first move.
+   */
+  readonly outline?: readonly GameOutlineStep[] | undefined;
 };

@@ -116,7 +116,8 @@ function finding(props: Props): boolean {
  * Before any game, the search and the person's ratings are one card on
  * every size: the choice and its command, then what they bring (beside it
  * when wide, under it on a phone), so no column stands taller than the
- * other. Wide, how matchmaking works closes the card in three short points.
+ * other. Wide, how matchmaking works is the card's third column, so the
+ * card fills the game column; a phone keeps it behind a disclosure.
  */
 function ratingsInSearch(props: Props): boolean {
   return finding(props);
@@ -144,6 +145,7 @@ function NextGame(props: Props): JSX.Element {
               </Show>
             }
             details={<MultiplayerGuide wide={mode() === 'wide'} />}
+            detailsBeside={mode() === 'wide'}
           />
         )}
       </Match>

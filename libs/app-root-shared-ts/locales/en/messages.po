@@ -2250,6 +2250,10 @@ msgstr "Dark"
 msgid "day"
 msgstr "day"
 
+#: libs/hearts-client-ts/src/hearts-frame.tsx
+msgid "Deal {deal}"
+msgstr "Deal {deal}"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "debug"
 msgstr "debug"
@@ -2470,8 +2474,8 @@ msgid "Drag from a number to its match to draw a path."
 msgstr "Drag from a number to its match to draw a path."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag on your side of the court or use the slider beside it."
-msgstr "Drag on your side of the court or use the slider beside it."
+msgid "Drag up and down on your half of the court."
+msgstr "Drag up and down on your half of the court."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
@@ -4367,6 +4371,10 @@ msgid "No participant"
 msgstr "No participant"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "No passing"
+msgstr "No passing"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "No passing this deal"
 msgstr "No passing this deal"
 
@@ -4535,6 +4543,10 @@ msgstr "Notifications"
 #: libs/notifications-client-ts/src/notifications-empty-state.tsx
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Now"
+msgstr "Now"
 
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "Numberlink board"
@@ -5215,10 +5227,6 @@ msgstr "Prove the account again to continue"
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Proven: a finished playtest shows it can be solved."
 msgstr "Proven: a finished playtest shows it can be solved."
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Provisional"
-msgstr "Provisional"
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"

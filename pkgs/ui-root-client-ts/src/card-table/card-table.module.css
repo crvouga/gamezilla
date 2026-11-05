@@ -408,35 +408,43 @@ button.card:focus-visible {
   outline-offset: 2px;
 }
 /*
- * A narrow table with more than seven cards: one flat row of overlapping
- * cards that always fits the row, never scrolling, so no card is ever out
- * of view. Each card steps along by what the row leaves it (about 24px of
- * thirteen on a phone), never less than `--hand-peek`, so every corner
- * (rank over suit) reads whole. A chosen card lifts 12px out of the row,
- * inside the row's top padding.
+ * A narrow table with more than seven cards: two staggered rows of
+ * overlapping cards that always fit the row, never scrolling. Every card
+ * shares one grid cell, placed by its row and its step along it (set on the
+ * card), so the hand is as tall as the two rows and as wide as its furthest
+ * card. A step is what the row leaves each card (about 48px of thirteen on
+ * a phone). The lower row starts `--hand-row-step` below the upper, past
+ * the upper cards' corner index (rank over suit, about 32px), so a corner is
+ * never covered, even by a chosen card lifted 8px with its ring.
  */
 @container (max-width: 32rem) {
   .hand[data-crowded="true"] {
-    justify-content: flex-start;
+    --hand-row-step: var(--ui-space-12);
+    display: grid;
+    justify-content: center;
     /* Room for a chosen card's ring at either end of the row. */
     padding-inline: var(--ui-space-2);
   }
   .hand[data-crowded="true"] > .card {
-    --card-w: 52px;
+    --card-w: 56px;
+    --step: min(
+      var(--card-w) +
+      var(--ui-space-1),
+      (100cqw - var(--card-w)) /
+      var(--hand-span)
+    );
+    grid-area: 1 / 1;
+    align-self: start;
+    justify-self: start;
+    margin-top: calc(var(--hand-row) * var(--hand-row-step));
+    margin-inline-start: calc(var(--hand-step) * var(--step));
     transform: none;
   }
   .hand[data-crowded="true"] > .card + .card {
-    margin-inline-start: calc(
-      max(
-        var(--hand-peek),
-        (100cqw - var(--card-w)) /
-        max(1, var(--hand-count) - 1)
-      ) -
-      var(--card-w)
-    );
+    margin-inline-start: calc(var(--hand-step) * var(--step));
   }
   .hand[data-crowded="true"] > button.card[aria-pressed="true"] {
-    transform: translateY(calc(-1 * var(--ui-space-3)));
+    transform: translateY(calc(-1 * var(--ui-space-2)));
   }
 }
 @media (hover: hover) and (pointer: fine) {

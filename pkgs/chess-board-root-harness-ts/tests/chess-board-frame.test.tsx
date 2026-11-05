@@ -63,3 +63,39 @@ test('every playing board shows the outside labels, and its corner labels step a
   expect(board.indexOf(PLAYING_QUERY)).toBeGreaterThan(-1);
   expect(corner).toMatch(/\.coords\s*\{\s*display:\s*none;/);
 });
+
+// regression: chess-board-inset-from-seats — the rank labels stood in a
+// 20px gutter inside the board's column, so the squares started 20px in
+// from the player bars above and below them. The frame marks that gutter,
+// and a game's board stage starts its seats past it: the bars and the
+// squares share both edges, and the labels stand out in the margin.
+test('the frame marks its labels gutter, and the stage starts its seats past it', () => {
+  const view = render(() => (
+    <ChessBoardFrame orientation="white">
+      <div />
+    </ChessBoardFrame>
+  ));
+  const host = view.container.querySelector('[data-board-gutter]');
+  expect(host?.getAttribute('data-board-gutter')).toBe('start');
+  view.unmount();
+  const frame = readFileSync(
+    join(SRC, 'chess-board-frame/chess-board-frame.module.css'),
+    'utf8'
+  );
+  const playing = frame.slice(frame.indexOf(PLAYING_QUERY));
+  // 16px of ranks and a 4px gap: a 20px gutter.
+  expect(playing).toMatch(/grid-template-columns: 16px minmax\(0, 1fr\);/);
+  expect(playing).toMatch(/column-gap: 4px;/);
+  const stage = readFileSync(
+    join(import.meta.dirname, '../../ui-root-client-ts/src/game-ui.module.css'),
+    'utf8'
+  );
+  const rule = stage.slice(
+    stage.indexOf(
+      '.boardStage:not([data-preview="true"]):has([data-board-gutter="start"])'
+    )
+  );
+  expect(rule.slice(0, rule.indexOf('}'))).toMatch(
+    />\s*:not\(\.board\)\s*\{\s*margin-inline-start: 20px;/
+  );
+});

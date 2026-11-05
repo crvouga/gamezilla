@@ -65,7 +65,7 @@ export type GameMenuScreenViewProps = {
   readonly title: string;
   /** The game's picture (its `GameTile` motif), before its name. */
   readonly tile: GameTileMotif;
-  /** One line under the name. */
+  /** One line under the name, when there is no way to play said instead. */
   readonly subtitle: JSX.Element;
   /** How to play, under the choices. */
   readonly instructions?: JSX.Element | undefined;
@@ -105,7 +105,8 @@ export function GameMenuScreenView(
       dataSet={{ testid: Handles.gameChoices }}
       title={props.title}
       motif={props.tile}
-      subtitle={props.subtitle}
+      // How to play says what the game is; its tagline would say it twice.
+      subtitle={props.instructions === undefined ? props.subtitle : undefined}
       description={props.instructions}
       choices={choices()}
     />

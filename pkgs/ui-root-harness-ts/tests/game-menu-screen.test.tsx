@@ -197,8 +197,8 @@ describe('GameMenuScreen', () => {
   // tile and the look back, 180px tall with its words floating in its
   // middle, beside titles of two sizes. The two ways to play are tiles of
   // one size and one title style, as tall as their words; the look back is
-  // a compact row under them that never spans the menu alone.
-  test('wide: two ways to play are tiles of one size, the look back a half-width row under them', () => {
+  // a compact row that never spans the menu alone.
+  test("wide: two ways to play are tiles of one size, the look back at the hero's end", () => {
     const view = threeChoices(1440);
     const play = view.getByTestId('choice-play');
     const find = view.getByTestId('choice-find');
@@ -209,10 +209,14 @@ describe('GameMenuScreen', () => {
       choice.querySelector('.textHeading')?.textContent;
     expect(titleClass(play)).toBe('Play with friends');
     expect(titleClass(find)).toBe('Find an opponent');
-    const links = view
-      .getByTestId('choice-history')
-      .closest('[data-layout="links"]') as HTMLElement | null;
-    expect(links?.style.getPropertyValue('--game-menu-link-columns')).toBe('2');
+    // regression: game-menu-history-orphaned — the look back was then a
+    // half-width row alone under the two tiles. One quiet choice alone sits
+    // at the hero's end, level with the game's name.
+    const history = view.getByTestId('choice-history');
+    const links = history.closest('[data-layout="links"]');
+    expect(links?.getAttribute('data-place')).toBe('hero');
+    expect(links?.closest('[data-layout="hero"]')).not.toBeNull();
+    expect(history.closest('[data-layout="grid"]')).toBeNull();
     view.unmount();
   });
 

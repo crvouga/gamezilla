@@ -18,6 +18,7 @@ import {
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { customGameCanMove } from './custom-game-can-move';
+import { useSeatNames } from './custom-game-status';
 import { frameTable } from './game-frame-table';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -72,6 +73,7 @@ function useFrameBoardProps(
 ): GameFrameBoardProps {
   const sounds = useSoundsPreference();
   const presentation = useGamePresentation();
+  const names = useSeatNames(model);
   const simulation = model.simulation;
   const live = (): boolean => review.live();
   return {
@@ -117,7 +119,11 @@ function useFrameBoardProps(
       const game = model.current();
       if (game === null) return [];
       const frame = presentation(game.fen).frame;
-      return game.sides.map((side) => ({ side, look: frame.seats.look(side) }));
+      return game.sides.map((side) => ({
+        side,
+        look: frame.seats.look(side),
+        name: names[side](),
+      }));
     },
   };
 }

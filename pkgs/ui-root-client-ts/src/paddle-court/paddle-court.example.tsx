@@ -23,7 +23,11 @@ export default function PaddleCourtExample() {
               label={enabled ? 'Interactive court' : 'Spectator court'}
               instructionsId="court-example-help"
               testId={`court-example-${enabled}`}
-              ownLabel={enabled ? 'You' : undefined}
+              sideLabels={
+                enabled
+                  ? { first: 'You', second: 'Robin' }
+                  : { first: 'Avery', second: 'Robin' }
+              }
               paddles={[
                 {
                   side: 'first',

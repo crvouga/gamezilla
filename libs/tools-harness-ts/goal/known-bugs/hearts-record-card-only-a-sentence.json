@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Hearts table while hands were passed, the \"Game record\" card held only the line \"Pass three cards to the left. Nobody has passed yet.\" and the commands: no record at all. A game may now give the frame what it has ahead (Hearts: the passing order of the four deals, the deal under way marked \"Now\"), and the record card lists it until the first move.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

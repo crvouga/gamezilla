@@ -34,10 +34,12 @@
   gap: var(--ui-space-3);
 }
 /* A wrapping turn breaks between its moves, never inside one, and keeps
-   its lines centred in the strip's well. */
+   its lines centred in the strip's well. Slim side padding and a tighter
+   step between moves keep a two-move turn (`Move 5 ● col 7 ◆ col 4`) on
+   one line in a phone's well, so the record stays one short row. */
 .list[data-layout="turn"][data-wrap="true"] {
   max-width: 100%;
-  padding: var(--ui-space-1) var(--ui-space-3);
+  padding: var(--ui-space-1);
 }
 .list[data-layout="turn"][data-wrap="true"] .turns,
 .list[data-layout="turn"][data-wrap="true"] .turn {
@@ -47,6 +49,7 @@
   min-width: 0;
 }
 .list[data-layout="turn"][data-wrap="true"] .turn {
+  column-gap: var(--ui-space-2);
   row-gap: var(--ui-space-1);
 }
 /* The shown turn's number in words reads as a label, not a stray digit. */

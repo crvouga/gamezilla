@@ -40,6 +40,26 @@
   --ui-color-on-info: var(--ui-color-game-pong-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* The court, and over each half this device controls, its own slider. */
+.stage {
+  position: relative;
+  width: 100%;
+}
+.half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  /* A finger drags on the court under it; only keys reach the slider. */
+  pointer-events: none;
+}
+.half[data-side="first"] {
+  left: 0;
+}
+.half[data-side="second"] {
+  right: 0;
+}
 .court {
   width: 100%;
   overflow: hidden;
@@ -90,7 +110,7 @@
   stroke: var(--ui-color-text);
   stroke-width: 3;
 }
-/* `You`, low in the person's own half. */
+/* Who plays each half, low in it: `You` in the person's own. */
 .own {
   fill: var(--ui-color-text);
   font-family: inherit;

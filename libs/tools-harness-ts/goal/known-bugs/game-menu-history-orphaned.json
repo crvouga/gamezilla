@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game's menu showed its two ways to play as tiles and \"History and stats\" as a half-width row alone under them, at a different height and type size, reading as an orphan. One quiet choice alone now sits at the hero's end, level with the game's name; two or more keep their row under the tiles.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

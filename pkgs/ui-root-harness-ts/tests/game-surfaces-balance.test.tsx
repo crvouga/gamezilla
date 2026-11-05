@@ -106,9 +106,12 @@ describe('game surfaces', () => {
 
   // regression: phone-three-players-two-rows — on a phone three players'
   // chips wrapped as two and one, the third alone on a second row, pushing
-  // a Light Cycles arena down. Three players make one row of three stacked
-  // chips.
-  test('three players on a phone share one row of stacked chips', () => {
+  // a Light Cycles arena down. Three players make one row of three chips.
+  // regression: light-cycles-phone-chips-tall — those chips then stacked
+  // avatar over name over figures over "You", about 130px tall, shrinking
+  // the arena. Each is its name over one line of its avatar, a size
+  // smaller, swatch and figure.
+  test('three players on a phone share one row of short chips', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -119,7 +122,14 @@ describe('game surfaces', () => {
     expect(phone).toMatch(
       /\.playerRail:has\(> :nth-child\(3\):last-child\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
     );
-    expect(phone).toMatch(/\.chipFrame \{\s*flex-direction: column;/);
+    const frame = phone.slice(phone.indexOf('.chipFrame {'));
+    expect(frame.slice(0, frame.indexOf('}'))).toMatch(
+      /display: grid;[\s\S]*grid-template-areas:\s*"name name"\s*"avatar facts";/
+    );
+    expect(phone).toMatch(/\.chipText \{\s*display: contents;/);
+    expect(phone).toMatch(
+      /\.chipAvatar \{\s*grid-area: avatar;\s*zoom: 0\.75;/
+    );
   });
 
   // regression: battleship-phone-targets-small — on a phone each of the
@@ -321,7 +331,7 @@ describe('game surfaces', () => {
         'game-player-rail/game-player-rail.module.css',
         '  .playerRail:has(> :nth-child(3):last-child) .chipFrame'
       )
-    ).toMatch(/justify-content:\s*flex-start;/);
+    ).toMatch(/align-content:\s*start;/);
   });
 
   // regression: setup-players-card-stretched — wide, the board preview's
@@ -341,8 +351,11 @@ describe('game surfaces', () => {
       css.indexOf('@container game-section (min-width: 40rem)')
     );
     const media = wide.slice(wide.indexOf('.sectionMedia {'));
+    // regression: setup-preview-tiny — the 120px board then read as a
+    // speck beside "How to play"; at 160px in a 17rem card, with its label
+    // left to how to play, the card still ends level with the players.
     expect(media.slice(0, media.indexOf('}'))).toMatch(
-      /--game-board-preview-measure:\s*120px;/
+      /--game-board-preview-measure:\s*160px;/
     );
     expect(
       rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')

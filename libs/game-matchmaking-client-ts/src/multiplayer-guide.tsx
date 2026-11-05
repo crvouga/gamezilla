@@ -2,9 +2,10 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 /** One thing a search does: a short title over one plain line. */
 function GuidePoint(props: {
@@ -21,12 +22,12 @@ function GuidePoint(props: {
   );
 }
 
-/** The three things a search does, one per line on a phone, side by side when wide. */
-function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
+/** The three things a search does, one under another. */
+function GuidePoints(props: { readonly columns: 1 }): JSX.Element {
   return (
     <Grid
       columns={props.columns}
-      gap={props.columns === 1 ? 'md' : 'lg'}
+      gap="md"
       role="list"
       aria-label={t`How matchmaking works`}
     >
@@ -44,24 +45,34 @@ function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
 }
 
 /**
- * Under the search, past its card's hairline: what a search does, behind
- * one closed disclosure on every size, so the explanation never outweighs
- * the decision above it and both sizes say the same things the same way.
- * Opened, the three short points sit side by side when `wide`, one per
- * line on a phone.
+ * What a search does. On a phone, under the search past its card's
+ * hairline, behind one closed disclosure, so the explanation never
+ * outweighs the decision above it. Wide, the card's own third column
+ * beside the search and the ratings, headed like them, its three short
+ * points one under another, so a short search fills the game column.
  */
 export function MultiplayerGuide(props: {
   readonly wide?: boolean | undefined;
 }): JSX.Element {
   return (
-    <StackVertical testId="multiplayer-guide">
-      <GameDisclosure
-        title={<Trans>How matchmaking works</Trans>}
-        rule={false}
-        dataSet={{ testid: 'multiplayer-guide-toggle' }}
+    <StackVertical testId="multiplayer-guide" gap="md">
+      <Show
+        when={props.wide === true}
+        fallback={
+          <GameDisclosure
+            title={<Trans>How matchmaking works</Trans>}
+            rule={false}
+            dataSet={{ testid: 'multiplayer-guide-toggle' }}
+          >
+            <GuidePoints columns={1} />
+          </GameDisclosure>
+        }
       >
-        <GuidePoints columns={props.wide === true ? 3 : 1} />
-      </GameDisclosure>
+        <H3 size="label">
+          <Trans>How matchmaking works</Trans>
+        </H3>
+        <GuidePoints columns={1} />
+      </Show>
     </StackVertical>
   );
 }

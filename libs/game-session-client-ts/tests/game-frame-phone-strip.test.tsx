@@ -141,6 +141,30 @@ test('phone: one strip pinned above the board says the turn and the last move', 
   expect(status.closest('[data-spoken-only="true"]')).not.toBeNull();
 });
 
+// regression: battleship-phone-strip-cramped — under the game's own line
+// ("Red fleet fired at C4 and missed. Your turn to fire.") the strip still
+// said "Live" beside the shown turn, which then wrapped into a cramped
+// two-line block and pushed the person's own seat off a phone's screen.
+// That line already says the board is live: the turn has the row to itself.
+test("phone: beside the game's own line the shown turn has the row to itself", () => {
+  mount(390);
+  expect(screen.getByTestId('custom-game-record-caption').textContent).toBe(
+    FIRED
+  );
+  expect(screen.queryByTestId('custom-game-move-strip-place')).toBeNull();
+  const head = screen.getByTestId('custom-game-move-strip-head');
+  expect(head.contains(screen.getByTestId('custom-game-move-strip'))).toBe(
+    true
+  );
+});
+
+test('phone: with no line of its own the strip says the board is live', () => {
+  mount(390, true);
+  expect(screen.getByTestId('custom-game-move-strip-place').textContent).toBe(
+    'Live'
+  );
+});
+
 test('phone: the plain turn stays with the seat to move, not the strip', () => {
   mount(390, true);
   expect(screen.queryByTestId('custom-game-record-caption')).toBeNull();
@@ -231,5 +255,32 @@ test('phone: a turn too long for the strip wraps between its moves, never cut', 
   const button = css.slice(css.indexOf('.moveButton {'));
   expect(button.slice(0, button.indexOf('}'))).toMatch(
     /white-space:\s*nowrap;/
+  );
+});
+
+// regression: phone-strip-two-moves-two-lines — under a phone's top bar the
+// record strip spent two lines on "Move 5 ● col 7 ◆ col 4": the well's
+// 12px side padding and 12px step between moves left the turn 7px short of
+// one line, so the strip stood 86px tall above the board. Slim padding and
+// an 8px step keep a two-move turn on one line.
+test('phone: a two-move turn keeps one line in the strip’s well', () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+    ),
+    'utf8'
+  );
+  // The last rule opened by `head`: the one that sets this alone.
+  const body = (head: string): string => {
+    const start = css.lastIndexOf(`${head} {`);
+    expect(start).toBeGreaterThan(-1);
+    return css.slice(start, css.indexOf('}', start));
+  };
+  expect(body('.list[data-layout="turn"][data-wrap="true"]')).toMatch(
+    /padding: var\(--ui-space-1\);/
+  );
+  expect(body('.list[data-layout="turn"][data-wrap="true"] .turn')).toMatch(
+    /column-gap: var\(--ui-space-2\);/
   );
 });
