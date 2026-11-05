@@ -156,12 +156,15 @@ export function SpaceGuestsView(props: {
 }
 
 /** What pressing a lobby card does: go back in, open your own, or join. */
-export type SpaceCardAction = 'resume' | 'open' | 'join';
+export type SpaceCardAction = 'open' | 'join';
 
-/** "Resume" where the viewer already is, "Open" for their own, else "Join". */
+/**
+ * "Open" for a space the viewer already belongs to (their own, or the one
+ * they are in), "Join" for someone else's: one word per action, the same
+ * words a friend's row and the profile use.
+ */
 export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
-  if (space.active) return 'resume';
-  return space.hostedByViewer ? 'open' : 'join';
+  return space.active || space.hostedByViewer ? 'open' : 'join';
 }
 
 /** Who hosts the space: "Hosted by you", or the host's name. */
@@ -221,20 +224,59 @@ export function SpaceGuestsPhrase(props: {
   );
 }
 
+/** The row's guest faces: small, a few at most, then a count. */
+const ROW_GUEST_FACE_SIZE = 20;
+const ROW_GUEST_FACES_SHOWN = 3;
+
 /**
- * Everything under the card's title on one line: who hosts it, then who
- * else is in it ("Hosted by sam · avery and 6 others"). One sentence, so a
- * narrow card ends it in one ellipsis instead of breaking the list.
+ * Who is in the space, compactly, at the end of the card's second line:
+ * their faces (a few, then "+N"), or "No guests yet".
+ */
+function SpaceCardGuests(props: {
+  readonly guests: readonly SpacePerson[];
+}): JSX.Element {
+  return (
+    <Show
+      when={props.guests.length > 0}
+      fallback={
+        <P variant="caption" lines={1}>
+          <Trans>No guests yet</Trans>
+        </P>
+      }
+    >
+      <AvatarGroup
+        size={ROW_GUEST_FACE_SIZE}
+        maxVisible={ROW_GUEST_FACES_SHOWN}
+        ringColor="surface"
+      >
+        <Index each={props.guests}>
+          {(guest) => (
+            <SpacePersonAvatar person={guest()} size={ROW_GUEST_FACE_SIZE} />
+          )}
+        </Index>
+      </AvatarGroup>
+    </Show>
+  );
+}
+
+/**
+ * The card's second line: who hosts it, then, at the line's end, who else
+ * is in it as a few faces ("Hosted by jordan_plays … [faces +2]"). Host and
+ * guests are separate pieces, so a long host name ends in its own ellipsis
+ * and the guests never vanish into one ("robin_42 and …").
  */
 function SpaceCardMetaLine(props: {
   readonly space: SpaceCardData;
 }): JSX.Element {
   return (
-    <P variant="caption" lines={1}>
-      <SpaceHostPhrase space={props.space} />
-      {' · '}
-      <SpaceGuestsPhrase guests={props.space.guests} />
-    </P>
+    <StackHorizontal align="center" justify="between" gap="sm">
+      <StackVertical shrink>
+        <P variant="caption" lines={1}>
+          <SpaceHostPhrase space={props.space} />
+        </P>
+      </StackVertical>
+      <SpaceCardGuests guests={props.space.guests} />
+    </StackHorizontal>
   );
 }
 
@@ -250,17 +292,9 @@ export function SpaceCardActionLabel(props: {
     <StackHorizontal align="center" gap="xs">
       {/* Medium, like the title: the verb never outweighs the space it opens. */}
       <Text variant="rowTitle" tone="tint">
-        <Switch>
-          <Match when={props.action === 'resume'}>
-            <Trans>Resume</Trans>
-          </Match>
-          <Match when={props.action === 'open'}>
-            <Trans>Open</Trans>
-          </Match>
-          <Match when={props.action === 'join'}>
-            <Trans>Join</Trans>
-          </Match>
-        </Switch>
+        <Show when={props.action === 'open'} fallback={<Trans>Join</Trans>}>
+          <Trans>Open</Trans>
+        </Show>
       </Text>
       <ChevronRightIcon size={ACTION_ICON_SIZE} color="tint" />
     </StackHorizontal>
@@ -272,7 +306,6 @@ export function useSpaceCardLabel(space: () => SpaceCardData): () => string {
   const { t } = useLingui();
   return () => {
     const action = spaceCardAction(space());
-    if (action === 'resume') return t`Resume space ${space().title}`;
     if (action === 'open') return t`Open space ${space().title}`;
     return t`Join space ${space().title}`;
   };
@@ -287,11 +320,10 @@ export function spaceCardTestId(space: SpaceCardData): string | undefined {
 /**
  * One row in the lobby panel, in one anatomy for every space: the space's
  * own mark; the name, with what pressing it does at the end of the name's line,
- * over one full-width line of who hosts it and who else is in it. The
- * action is Resume where the
- * viewer already is, Open for their own, Join for someone else's. Every
- * space listed is live, so the row names the next step instead of tagging
- * it "Live", and says "Resume" once instead of tagging it "Current" too.
+ * over who hosts it and who else is in it. The action is Open for a space
+ * the viewer already belongs to (their own, or the one they are in), Join
+ * for someone else's. Every space listed is live, so the row names the next
+ * step instead of tagging it "Live".
  * Pressing anywhere on the row does that.
  */
 export function SpaceCardView(props: {

@@ -61,11 +61,12 @@ export function FriendLiveSpaceStatusView(
 }
 
 /** What pressing a friend's live space does: go in, or back in. */
-export type FriendLiveSpaceAction = 'join' | 'resume';
+export type FriendLiveSpaceAction = 'join' | 'open';
 
 /**
- * The way into a friend's live space at the row's end: "Join", or "Resume"
- * when this device already has it open. A small outlined pill, like every
+ * The way into a friend's live space at the row's end: "Join", or "Open"
+ * when this device already has it open, the lobby's words for the same
+ * two actions. A small outlined pill, like every
  * row's one control.
  */
 export function FriendLiveSpaceJoinView(props: {
@@ -80,8 +81,8 @@ export function FriendLiveSpaceJoinView(props: {
   return (
     <Button
       title={
-        <Show when={props.action === 'resume'} fallback={<Trans>Join</Trans>}>
-          <Trans>Resume</Trans>
+        <Show when={props.action === 'open'} fallback={<Trans>Join</Trans>}>
+          <Trans>Open</Trans>
         </Show>
       }
       intent="neutral"
@@ -135,7 +136,7 @@ function FriendLiveSpaceJoinFor(props: {
   const isOpen = useIsSpaceOpenLocally(props.spaceId);
   return (
     <FriendLiveSpaceJoinView
-      action={isOpen() ? 'resume' : 'join'}
+      action={isOpen() ? 'open' : 'join'}
       onPress={() => openSpaceDetail(router, props.spaceId)}
       hostAccountId={props.hostAccountId}
     />
@@ -143,7 +144,7 @@ function FriendLiveSpaceJoinFor(props: {
 }
 
 /**
- * Join (or Resume) a friend's live space, while they are in one; otherwise
+ * Join (or Open) a friend's live space, while they are in one; otherwise
  * the `fallback`, such as the row's chevron.
  */
 export function FriendLiveSpaceJoin(props: {

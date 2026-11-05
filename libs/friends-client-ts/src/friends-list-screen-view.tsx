@@ -12,6 +12,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { FriendRowDisclosure, FriendUserRow } from './friend-user-row';
@@ -41,6 +42,12 @@ export type FriendsListScreenViewProps = {
    * the only way to reach something.
    */
   readonly aside?: JSX.Element | undefined;
+  /**
+   * The phone's way to what the desktop column holds, at the top of the
+   * list: an entry to the friend requests waiting. A desktop never shows
+   * it, so the requests are never listed twice.
+   */
+  readonly requests?: JSX.Element | undefined;
   readonly onOpenFriend: (friend: Friend) => void;
   readonly onFindFriends: () => void;
   readonly onRetry: () => void;
@@ -151,7 +158,8 @@ function useFindFriendsAction(
 /**
  * `/profile/friends`, presentational: the accepted friends list with Find
  * friends in the header (friends in a live space first, as the container
- * orders them), a desktop column of friend requests, and its loading,
+ * orders them), a desktop column of friend requests (on a phone, an entry
+ * to them at the top of the list instead), and its loading,
  * failed, empty and permission-denied states. Data and navigation arrive as props;
  * `FriendsListScreen` wires them to the sync engine.
  */
@@ -159,6 +167,7 @@ export function FriendsListScreenView(
   props: FriendsListScreenViewProps
 ): JSX.Element {
   const headerActions = useFindFriendsAction(props);
+  const mode = useLayoutMode();
   return (
     <Show
       when={props.denial}
@@ -167,7 +176,12 @@ export function FriendsListScreenView(
           screenId="friends-list"
           breadcrumbs={BREADCRUMBS()}
           actions={headerActions()}
-          controls={props.notice}
+          controls={
+            <>
+              {props.notice}
+              <Show when={mode() === 'compact'}>{props.requests}</Show>
+            </>
+          }
           aside={props.aside}
         >
           <ScreenBodyVirtualList

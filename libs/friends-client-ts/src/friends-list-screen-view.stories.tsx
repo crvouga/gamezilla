@@ -10,6 +10,7 @@ import {
   FriendRequestRow,
   FriendRequestsAsideView,
 } from './friend-requests-aside';
+import { FriendRequestsEntryView } from './friend-requests-entry';
 import { FriendsListScreenView } from './friends-list-screen-view';
 import {
   FriendRoomStatusView,
@@ -150,6 +151,7 @@ const meta = {
         'friendStatus',
         'friendTrailing',
         'aside',
+        'requests',
       ],
     },
   },
@@ -172,8 +174,9 @@ type Story = StoryObj<typeof meta>;
  * the online dot — and ends in Join, which goes in; every other row ends
  * in the chevron, so a row never offers two targets (a profile not yet on
  * this device shows its initials). On a desktop the friend requests
- * waiting on an answer sit in a column beside the list; Join lives only on
- * the rows. Find friends sits in the header as the page's next step.
+ * waiting on an answer sit in a column beside the list; on a phone a
+ * "Friend requests" row with their count tops the list instead, as on
+ * Search. Join lives only on the rows. Find friends sits in the header as the page's next step.
  */
 export const Populated: Story = {
   args: {
@@ -201,6 +204,14 @@ export const Populated: Story = {
         <FriendRequestsAsideView
           incomingIds={ASKERS.map((entry) => entry.userId)}
           outgoingCount={1}
+          request={(userId) => (
+            <FriendRequestRow profile={askerById(userId)} onOpen={fn()} />
+          )}
+        />
+      }
+      requests={
+        <FriendRequestsEntryView
+          incomingIds={ASKERS.map((entry) => entry.userId)}
           request={(userId) => (
             <FriendRequestRow profile={askerById(userId)} onOpen={fn()} />
           )}
