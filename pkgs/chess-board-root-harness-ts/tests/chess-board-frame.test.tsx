@@ -99,3 +99,26 @@ test('the frame marks its labels gutter, and the stage starts its seats past it'
     />\s*:not\(\.board\)\s*\{\s*margin-inline-start: 20px;/
   );
 });
+
+// regression: chess-board-inset-from-title — wide, the squares still began
+// 20px in from the screen's title, the rank labels' gutter standing inside
+// the board's column. Wide, the labels now hang in the page's margin,
+// outside the column: the whole stage shifts by the gutter, so the squares
+// start at the column's edge, under the title, and the seats (still past
+// the gutter) share both edges with them. A phone, whose margin is
+// narrower than the gutter, keeps it inside.
+test('wide, the labels gutter hangs outside the column, the squares under the title', () => {
+  const stage = readFileSync(
+    join(import.meta.dirname, '../../ui-root-client-ts/src/game-ui.module.css'),
+    'utf8'
+  );
+  const wide = stage.slice(
+    stage.indexOf('@container game-column (min-width: 880px) {\n  .boardStage')
+  );
+  const rule = wide.slice(0, wide.indexOf('}'));
+  expect(rule).toMatch(
+    /\.boardStage:not\(\[data-preview="true"\]\):has\(\[data-board-gutter="start"\]\) \{/
+  );
+  expect(rule).toMatch(/width: calc\(100% \+ 20px\);/);
+  expect(rule).toMatch(/margin-inline-start: -20px;/);
+});

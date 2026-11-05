@@ -119,6 +119,14 @@
 > :not(.board) {
   margin-inline-start: 20px;
 }
+/* Wide, the gutter hangs in the margin: the squares start under the title. */
+@container game-column (min-width: 880px) {
+  .boardStage:not([data-preview="true"]):has([data-board-gutter="start"]) {
+    width: calc(100% + 20px);
+    max-width: calc(var(--game-board-measure, 560px) + 20px);
+    margin-inline-start: -20px;
+  }
+}
 /* Before play: a small thumbnail in the board's own colours, its top level
    with the setup beside it, over a quiet label that names it; its size and
    the label say it is a preview, never where to play. */
@@ -153,7 +161,8 @@
   min-width: 144px;
   max-width: 320px;
 }
-.player {
+.player,
+.playerBelowControls {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-3);
@@ -238,12 +247,6 @@
   align-items: center;
   gap: var(--ui-space-2);
   padding-inline-start: calc(32px + var(--ui-space-3));
-  min-width: 0;
-}
-.playerBelowControls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-3);
   min-width: 0;
 }
 .playerTrailing {

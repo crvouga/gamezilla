@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the chess board's squares began 20px in from the screen's title because the rank labels' gutter stood inside the board's column. Wide, the labels now hang in the page's margin outside the column, so the squares start under the title and the seats share both edges with them; a phone keeps the gutter inside.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx"
+}
