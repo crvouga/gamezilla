@@ -245,39 +245,6 @@ function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
   );
 }
 
-/**
- * `MenuRow` -- a tappable navigation row with title, optional caption, and a
- * trailing disclosure chevron.
- *
- * One anatomy for every row in the product: at least 52px tall with 16px
- * insets, a 24px leading slot (icons in the `icon` tone, or an avatar), a
- * one-line `textBody` title that ends in an ellipsis, an optional caption,
- * an optional right-aligned secondary value, and a 20px trailing chevron.
- * Rows live inside a panel (`MenuList`), which owns the surface and the
- * radius; a row never paints its own. The hairline above a row starts at its
- * text column, past the leading slot.
- * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
- * inside the panel, and a disabled row fades to the disabled opacity.
- *
- * Interactive rows use native buttons and links. Static detail rows and rows
- * whose trailing control owns the interaction use plain boxes. `MenuList`
- * groups these mixed controls without imposing command-menu keyboard semantics.
- * An `accessory` (a "…" menu) sits at the row's end beside its press
- * target, never inside it, on the same hairline.
- * Pass `selected` to opt into a `tintSubtle` row fill; `tone="destructive"`
- * paints the title in the destructive ink. `submit` carries
- * `name=value` into the surrounding form. `expanded` makes the row a
- * disclosure for the rows after it (a down / up chevron, `aria-expanded`).
- *
- * @example
- * ```tsx
- * <MenuRow
- *   title="Appearance"
- *   caption="Light, dark, or system theme"
- *   onClick={() => router.push('/more/theme')}
- * />
- * ```
- */
 /** The row's press target: a link, or a button that acts or submits. */
 function MenuRowPressable(
   props: MenuRowProps & MenuRowPart & { host: MenuRowHost }
@@ -315,6 +282,39 @@ function MenuRowSplit(
   );
 }
 
+/**
+ * `MenuRow` -- a tappable navigation row with title, optional caption, and a
+ * trailing disclosure chevron.
+ *
+ * One anatomy for every row in the product: at least 52px tall with 16px
+ * insets, a 24px leading slot (icons in the `icon` tone, or an avatar), a
+ * one-line `textBody` title that ends in an ellipsis, an optional caption,
+ * an optional right-aligned secondary value, and a 20px trailing chevron.
+ * Rows live inside a panel (`MenuList`), which owns the surface and the
+ * radius; a row never paints its own. The hairline above a row starts at its
+ * text column, past the leading slot.
+ * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
+ * inside the panel, and a disabled row fades to the disabled opacity.
+ *
+ * Interactive rows use native buttons and links. Static detail rows and rows
+ * whose trailing control owns the interaction use plain boxes. `MenuList`
+ * groups these mixed controls without imposing command-menu keyboard semantics.
+ * An `accessory` (a "…" menu) sits at the row's end beside its press
+ * target, never inside it, on the same hairline.
+ * Pass `selected` to opt into a `tintSubtle` row fill; `tone="destructive"`
+ * paints the title in the destructive ink. `submit` carries
+ * `name=value` into the surrounding form. `expanded` makes the row a
+ * disclosure for the rows after it (a down / up chevron, `aria-expanded`).
+ *
+ * @example
+ * ```tsx
+ * <MenuRow
+ *   title="Appearance"
+ *   caption="Light, dark, or system theme"
+ *   onClick={() => router.push('/more/theme')}
+ * />
+ * ```
+ */
 export function MenuRow(props: MenuRowProps): JSX.Element {
   const host = (): MenuRowHost =>
     menuRowHost({
