@@ -143,10 +143,13 @@
    the actions at its end, as wide as what it holds rather than the whole
    column. */
 @container (min-width: 40rem) {
+  /* A band across the whole column: its edges are the columns' edges
+     below, so the page reads as one grid instead of a short card beside
+     empty space. */
   .profile[data-rail="true"] > .profileAside > .identity {
     display: flex;
-    align-self: flex-start;
-    width: fit-content;
+    align-self: stretch;
+    width: auto;
     max-width: 100%;
     flex-direction: row;
     align-items: center;

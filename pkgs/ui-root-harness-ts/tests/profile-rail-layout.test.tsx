@@ -82,3 +82,15 @@ test('a profile without a rail keeps the identity card beside its sections', () 
   expect(frame?.getAttribute('data-rail')).toBe('false');
   expect(frame?.getAttribute('data-split')).toBe('true');
 });
+
+// regression: profile-identity-card-narrower-than-columns
+test('on desktop the identity is a band across the column, edge to edge with the columns below', () => {
+  const css = readFileSync(LAYOUTS_CSS, 'utf8');
+  const selector = '.profile[data-rail="true"] > .profileAside > .identity';
+  // The wide rule is the last one for this selector (inside the container
+  // query); it stretches instead of shrinking to its content.
+  const start = css.lastIndexOf(`${selector} {`);
+  const body = css.slice(css.indexOf('{', start) + 1, css.indexOf('}', start));
+  expect(body).toContain('align-self: stretch');
+  expect(body).not.toContain('fit-content');
+});
