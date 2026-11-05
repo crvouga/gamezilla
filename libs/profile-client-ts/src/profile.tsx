@@ -13,6 +13,7 @@ export default function ProfileRoute(): JSX.Element {
           {(Stats) => <Stats />}
         </Show>
       }
+      friendsCount={slots.count === undefined ? undefined : <slots.count />}
       friendsActions={
         <Show when={slots.actions} keyed>
           {(Actions) => <Actions />}

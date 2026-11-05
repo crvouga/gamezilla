@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop the inbox's rows spanned the whole ~960px column, so a card's \"…\" sat about 500px from its words. The inbox now keeps to the 720px reading measure on the column's leading edge, header included.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-desktop-feed.test.tsx"
+}

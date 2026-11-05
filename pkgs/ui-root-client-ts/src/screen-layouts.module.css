@@ -111,12 +111,43 @@
 .profileRail:empty {
   display: none;
 }
+/* With a rail, a phone's identity is a compact panel read from the start
+   edge: a small picture, and beside it the name and its facts over the
+   actions, so the picture never echoes the header's at hero size. */
+.profile[data-rail="true"] > .profileAside > .identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--ui-space-lg);
+  row-gap: var(--ui-space-2);
+  box-sizing: border-box;
+  padding: var(--ui-space-lg);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+  grid-row: 1 / span 2;
+  align-self: start;
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityText {
+  align-items: flex-start;
+  gap: var(--ui-space-1);
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityActions {
+  grid-column: 2;
+}
 /* With a rail, the identity is a band across the top once there is room
    for it in one line: a panel with the picture at its start, the name
-   beside it (read from the start edge, not centered) and the actions at
-   its end. */
+   and its facts beside it (read from the start edge, not centered) and
+   the actions at its end, as wide as what it holds rather than the whole
+   column. */
 @container (min-width: 40rem) {
   .profile[data-rail="true"] > .profileAside > .identity {
+    display: flex;
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
     flex-direction: row;
     align-items: center;
     gap: var(--ui-space-lg);
@@ -131,6 +162,9 @@
     align-items: flex-start;
     align-self: center;
     gap: var(--ui-space-1);
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+    align-self: center;
   }
 }
 /* A desktop column has room for the rail beside the main sections: the

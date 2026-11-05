@@ -133,7 +133,9 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         <MenuSection
           title={<Trans>Your data</Trans>}
           description={
-            <Trans>A copy of your profile, friends, progress and preferences</Trans>
+            <Trans>
+              A copy of your profile, friends, progress and preferences
+            </Trans>
           }
         >
           <MenuRow

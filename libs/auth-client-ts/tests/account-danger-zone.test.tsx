@@ -57,13 +57,13 @@ function mountAccount(): void {
               onOpenDeletion={() => undefined}
               onSignIn={() => undefined}
               onSignOut={() => undefined}
-              onConnectMethod={async () => undefined}
+              onConnectMethod={() => Promise.resolve()}
               onRemoveMethod={() => undefined}
               onCancelRemoveMethod={() => undefined}
-              onConfirmRemoveMethod={async () => undefined}
+              onConfirmRemoveMethod={() => Promise.resolve()}
               onSignOutEverywhere={() => undefined}
               onCancelSignOutEverywhere={() => undefined}
-              onConfirmSignOutEverywhere={async () => undefined}
+              onConfirmSignOutEverywhere={() => Promise.resolve()}
             />
           </StaticAppRouterProvider>
         </SurfaceStackProvider>

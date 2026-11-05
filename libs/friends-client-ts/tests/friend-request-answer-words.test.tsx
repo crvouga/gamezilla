@@ -18,15 +18,18 @@ test('a request row answers with Accept and Decline, never Confirm or Delete', (
   const harness = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-    <ThemeProvider colorScheme="light" fixedLayout={{ width: 390, height: 844 }}>
-      <AcceptDeclinePills
-        compact
-        onAccept={async () => undefined}
-        onDecline={async () => undefined}
-        acceptTestID="accept"
-        declineTestID="decline"
-      />
-    </ThemeProvider>
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <AcceptDeclinePills
+          compact
+          onAccept={() => Promise.resolve()}
+          onDecline={() => Promise.resolve()}
+          acceptTestID="accept"
+          declineTestID="decline"
+        />
+      </ThemeProvider>
     </ClockProvider>
   ));
   expect(screen.getByTestId('accept').textContent).toContain('Accept');

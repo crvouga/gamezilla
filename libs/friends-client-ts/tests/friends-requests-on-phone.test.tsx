@@ -38,29 +38,31 @@ function renderFriends(size: { width: number; height: number }): HTMLElement {
       <ThemeProvider colorScheme="light" fixedLayout={size}>
         <StaticAppRouterProvider router={router}>
           <ModerationProvider rules={shippedModerationRules()}>
-          <TestViewportProvider value={size}>
-            <FriendsListScreenView
-              status="ready"
-              friends={[
-                {
-                  userId: 'casey',
-                  username: 'casey',
-                  avatarConfig: null,
-                  friendsSince: '2024-01-01T00:00:00.000Z',
-                },
-              ]}
-              aside={<span data-testid="requests-column">column</span>}
-              requests={
-                <FriendRequestsEntryView
-                  incomingIds={ASKERS}
-                  request={(id) => <span data-testid={`asker-${id}`}>{id}</span>}
-                />
-              }
-              onOpenFriend={() => undefined}
-              onFindFriends={() => undefined}
-              onRetry={() => undefined}
-            />
-          </TestViewportProvider>
+            <TestViewportProvider value={size}>
+              <FriendsListScreenView
+                status="ready"
+                friends={[
+                  {
+                    userId: 'casey',
+                    username: 'casey',
+                    avatarConfig: null,
+                    friendsSince: '2024-01-01T00:00:00.000Z',
+                  },
+                ]}
+                aside={<span data-testid="requests-column">column</span>}
+                requests={
+                  <FriendRequestsEntryView
+                    incomingIds={ASKERS}
+                    request={(id) => (
+                      <span data-testid={`asker-${id}`}>{id}</span>
+                    )}
+                  />
+                }
+                onOpenFriend={() => undefined}
+                onFindFriends={() => undefined}
+                onRetry={() => undefined}
+              />
+            </TestViewportProvider>
           </ModerationProvider>
         </StaticAppRouterProvider>
       </ThemeProvider>

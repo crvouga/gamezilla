@@ -15,6 +15,7 @@ import {
 import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { useSpaceShareDialog } from './space-share-dialog-context';
 import { SpaceShareSheet } from './space-share-sheet';
 import {
   useSpacesNavBack,
@@ -59,7 +60,15 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const place = useSpacesNavPlace();
   const membersDialog = useSpaceMembersDialog();
   const onPressMembers = useOpenMembers();
-  const [shareOpen, setShareOpen] = createSignal(false);
+  // Shared with Invite friends in the body; a screen mounted without the
+  // route's provider keeps its own.
+  const [ownShareOpen, setOwnShareOpen] = createSignal(false);
+  const shareDialog = useSpaceShareDialog();
+  const shareOpen = (): boolean => shareDialog?.open() ?? ownShareOpen();
+  const setShareOpen = (open: boolean): void => {
+    if (shareDialog === undefined) setOwnShareOpen(open);
+    else shareDialog.setOpen(open);
+  };
   const presenceCount = useSpacePresenceCount();
   const canRename = useSpaceCan(
     () => sessionUi.spaceId,

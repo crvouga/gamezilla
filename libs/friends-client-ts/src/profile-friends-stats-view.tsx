@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Plural } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -14,33 +14,35 @@ const FACE_SIZE = 28;
 const FACES_SHOWN = 4;
 
 /**
- * The friends row: how many, with the first few faces at its end, so the
- * count reads as people.
+ * How many friends, as the number the profile's identity shows beside the
+ * name ("Friends 11"): the friends sub owns the count, the profile its
+ * place.
+ */
+export function ProfileFriendsCount(): JSX.Element {
+  // Keep the store object — destructuring `friends` snapshots the array once
+  // in Solid and freezes the count at the first paint (often 0).
+  const friendsState = useFriends();
+  return (
+    <Text variant="stat" numeral testId={Handles.profileFriendsCount}>
+      {String(friendsState.friends().length)}
+    </Text>
+  );
+}
+
+/**
+ * The friends panel's way to the list: their first few faces at its end,
+ * so the row reads as people. The count itself is the identity's fact, so
+ * the row never says it twice.
  */
 export function ProfileFriendsStats(): JSX.Element {
   const navigate = useFriendsProfileNavigation();
-  // Keep the store object — destructuring `friends` snapshots the array once
-  // in Solid and freezes the count at the first paint (often 0).
   const friendsState = useFriends();
 
   // A bare row: the profile groups it with Find friends in one panel.
   return (
     <MenuRow
       leading={<UsersIcon size={20} color="icon" />}
-      title={
-        <>
-          <Text variant="bodyBold" numeral testId={Handles.profileFriendsCount}>
-            {String(friendsState.friends().length)}
-          </Text>{' '}
-          <Text tone="secondary">
-            <Plural
-              value={friendsState.friends().length}
-              one="friend"
-              other="friends"
-            />
-          </Text>
-        </>
-      }
+      title={<Trans>All friends</Trans>}
       value={
         <Show when={friendsState.friends().length > 0}>
           <AvatarGroup

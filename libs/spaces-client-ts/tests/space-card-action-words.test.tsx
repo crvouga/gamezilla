@@ -20,7 +20,10 @@ afterEach(cleanup);
 
 function mount(ui: () => JSX.Element): void {
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={{ width: 390, height: 844 }}>
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 844 }}
+    >
       {ui()}
     </ThemeProvider>
   ));
