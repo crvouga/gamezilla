@@ -6,8 +6,8 @@
 import {
   PuzzlePlayScreenView,
   type PuzzlePlayScreenViewProps,
-} from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
-import type { StoryPuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
+  type StoryPuzzleBoardProps,
+} from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import {
   AudioPlaybackProvider,

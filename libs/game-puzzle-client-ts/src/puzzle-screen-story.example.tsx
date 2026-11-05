@@ -346,6 +346,13 @@ export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
 /** The play view's props, for a game's own puzzle stories. */
 export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
 
+/**
+ * The puzzle play screen for a game's own stories (chess draws its real
+ * puzzle board in it), through this story-fixture module rather than the
+ * framework's implementation.
+ */
+export { PuzzlePlayScreenView, type PuzzlePlayScreenViewProps };
+
 /** The play view solving the line's first move, every callback a spy. */
 export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
   pick: 'playing',
