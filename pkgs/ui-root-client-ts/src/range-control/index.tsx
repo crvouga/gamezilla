@@ -23,6 +23,13 @@ export type RangeControlProps = {
    * the court's colours whose thumb is a paddle in this player's colour.
    */
   paddle?: 'player1' | 'player2' | undefined;
+  /**
+   * With `paddle`: laid over the paddle's half of its court instead of
+   * beside it, drawn as nothing but a focus ring around that half. The
+   * court is the lane and a finger drags on it; keys and assistive
+   * technology still reach this native slider.
+   */
+  overlay?: boolean | undefined;
   dataSet?: ComponentDataSet;
 };
 
@@ -38,6 +45,11 @@ export function RangeControl(props: RangeControlProps) {
       }
       aria-orientation={props.orientation}
       data-paddle={props.orientation === 'vertical' ? props.paddle : undefined}
+      data-overlay={
+        props.orientation === 'vertical' && props.overlay === true
+          ? 'true'
+          : undefined
+      }
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}

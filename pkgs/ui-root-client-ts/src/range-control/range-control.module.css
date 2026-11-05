@@ -66,3 +66,34 @@
   cursor: default;
   opacity: var(--ui-opacity-disabled);
 }
+/* Over its paddle's half of the court: no lane, no thumb, the court
+   showing through; a finger drags on the court under it. Focused by keys,
+   it rings the half it moves. */
+.vertical[data-paddle][data-overlay="true"] {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-radius-card);
+  background: transparent;
+}
+.vertical[data-paddle][data-overlay="true"]::-webkit-slider-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+.vertical[data-paddle][data-overlay="true"]::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+.vertical[data-paddle][data-overlay="true"]:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: -2px;
+}
+.vertical[data-paddle][data-overlay="true"]:disabled {
+  opacity: 1;
+}

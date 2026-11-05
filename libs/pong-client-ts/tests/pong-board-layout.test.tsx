@@ -17,6 +17,10 @@ function mount(width: number): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
       <PongBoardView
+        seats={[
+          { side: 'white', look: { color: 1 }, name: 'avery' },
+          { side: 'black', look: { color: 2 }, name: 'jordan_plays' },
+        ]}
         position={pongPositionCodec.encode(
           initialPongState(pongConfig(), () => 0)
         )}
@@ -56,23 +60,35 @@ test('wide: no paddle slider, one short line on keys and the points that win', (
 
 // regression: pong-slider-sideways — a horizontal slider under the court
 // moved a paddle that travels up and down. The phone's slider stands
-// upright beside the court, on its paddle's side, top to bottom.
-test('phone: an upright slider beside the court moves the paddle on its side', () => {
+// upright, top to bottom.
+// regression: pong-lane-beside-court — the upright slider then stood in a
+// lane of its own beside the court, which read as a layout fault. It lies
+// over the person's own half of the court, and a finger drags there.
+test("phone: the paddle's upright slider lies over its own half of the court", () => {
   mount(390);
   const slider = screen.getByTestId('pong-white-control');
   expect(slider.getAttribute('aria-orientation')).toBe('vertical');
+  expect(slider.getAttribute('data-overlay')).toBe('true');
+  const half = slider.parentElement;
+  expect(half?.getAttribute('data-side')).toBe('first');
+  // The half sits with the court in one stage, over it, not in a row.
   const court = screen.getByTestId('pong');
-  // The slider and the court share one row, the slider first (Left's side).
-  const row = slider.parentElement;
-  expect(row?.contains(court)).toBe(true);
-  expect(row?.firstElementChild).toBe(slider);
+  expect(half?.parentElement).toBe(court.parentElement);
+  expect(rule('paddle-court/paddle-court.module.css', '.half')).toMatch(
+    /position:\s*absolute;[\s\S]*width:\s*50%;[\s\S]*pointer-events:\s*none;/
+  );
+  // Only the person's own paddle has a slider.
+  expect(screen.queryByTestId('pong-black-control')).toBeNull();
+  expect(screen.getByText(/Drag up and down on your half/)).toBeTruthy();
 });
 
 // regression: pong-markers-unmatched — the players' swatches were blue and
 // orange while both paddles were drawn in the court's own ink, and nothing
 // on the court said which paddle was the person's. Each paddle takes its
 // seat's color, and the person's own half says "You".
-test("each paddle takes its seat's color and the person's own half says You", () => {
+// regression: pong-other-half-unnamed — only the person's own half was
+// named. The other half names the player there.
+test("each paddle takes its seat's color and each half names who plays it", () => {
   mount(390);
   expect(
     screen.getByTestId('pong-first-paddle').getAttribute('data-color')
@@ -81,11 +97,15 @@ test("each paddle takes its seat's color and the person's own half says You", ()
     screen.getByTestId('pong-second-paddle').getAttribute('data-color')
   ).toBe('player2');
   const drawing = screen.getByTestId('pong-drawing');
-  const own = [...drawing.querySelectorAll('text')].filter(
-    (text) => text.textContent === 'You'
-  );
-  expect(own).toHaveLength(1);
-  expect(own[0]?.getAttribute('data-side')).toBe('first');
+  const marks = [...drawing.querySelectorAll('text[data-own]')].map((text) => [
+    text.getAttribute('data-side'),
+    text.getAttribute('data-own'),
+    text.textContent,
+  ]);
+  expect(marks).toEqual([
+    ['first', 'true', 'You'],
+    ['second', 'false', 'jordan_plays'],
+  ]);
 });
 
 test('the scores and a plain status are said to a listener only', () => {
@@ -124,15 +144,23 @@ function rule(file: string, selector: string): string {
 
 // regression: pong-phone-court-small — on a phone the court was about
 // 305 by 200 px beside a 44px slider column, and its score digits were
-// drawn at a third of their colour, too faint to read. The slider column
-// is narrow and close, so the court (its shape fixed) takes the width, and
-// the digits keep most of their colour.
-test('phone: the court takes the width the slider leaves, its score readable', () => {
+// drawn at a third of their colour, too faint to read. The court takes the
+// whole width, and the digits keep most of their colour.
+// regression: pong-phone-court-small-again — the court then still shared
+// its row with a slider lane, and its paddles were 5px wide. Nothing
+// shares its row; each paddle is drawn 1.5 times its playing width.
+test('phone: the court takes the whole width, its paddles and score readable', () => {
   mount(390);
-  const row = screen.getByTestId('pong-white-control').parentElement;
-  expect(row?.className).toContain('gap-ui-xs');
-  expect(rule('range-control/range-control.module.css', '.vertical')).toContain(
-    'width: 2rem'
+  // The court's stage holds the court and its slider, and no lane beside.
+  const stage = screen.getByTestId('pong').parentElement;
+  expect(stage?.children).toHaveLength(2);
+  expect(stage?.querySelectorAll('input[type="range"]')).toHaveLength(1);
+  expect(
+    stage?.parentElement?.querySelectorAll('input[type="range"]')
+  ).toHaveLength(1);
+  const paddle = screen.getByTestId('pong-first-paddle');
+  expect(Number(paddle.getAttribute('width'))).toBe(
+    pongConfig().paddleWidth * 1.5
   );
   const opacity = /opacity: ([\d.]+)/.exec(
     rule('paddle-court/paddle-court.module.css', '.score')
@@ -141,38 +169,35 @@ test('phone: the court takes the width the slider leaves, its score readable', (
 });
 
 // regression: pong-slider-stray — on a phone the slider beside the court
-// was a bare grey bar with a blue knob, reading as a stray element rather
-// than the paddle's control. It is drawn as the paddle's lane: a groove in
-// the court's colours whose thumb is a paddle in the seat's colour.
-test("phone: the slider beside the court is drawn as its paddle's lane", () => {
+// was a bare grey bar with a blue knob, reading as a stray element. Laid
+// over its half, it draws nothing but a ring around that half when keys
+// focus it: the court is its lane.
+test("phone: the paddle's slider draws only a focus ring around its half", () => {
   mount(390);
   const control = screen.getByTestId('pong-white-control');
   expect(control.getAttribute('data-paddle')).toBe('player1');
   expect(control.getAttribute('aria-label')).toBe('Left paddle');
-  // The thumb (the paddle) has a width of its own: a percentage of an
-  // upright range's track resolves to nothing, and the paddle vanished.
-  const css = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../../pkgs/ui-root-client-ts/src/range-control/range-control.module.css'
-    ),
-    'utf8'
+  const thumb = rule(
+    'range-control/range-control.module.css',
+    '.vertical[data-paddle][data-overlay="true"]::-webkit-slider-thumb'
   );
-  const start = css.indexOf('.vertical[data-paddle]::-webkit-slider-thumb {');
-  expect(start).toBeGreaterThan(-1);
-  const thumb = css.slice(start, css.indexOf('}', start));
-  expect(thumb).toMatch(/width:\s*calc\(/);
-  expect(thumb).not.toMatch(/width:\s*100%/);
+  expect(thumb).toMatch(/width:\s*0;/);
+  expect(
+    rule(
+      'range-control/range-control.module.css',
+      '.vertical[data-paddle][data-overlay="true"]:focus-visible'
+    )
+  ).toMatch(/outline:\s*2px solid var\(--ui-color-focus-ring\)/);
 });
 
 // regression: pong-ball-tiny — the ball was a 20-unit square on a
-// 1200-unit court, about 5px across on a phone. It is drawn round and 1.6
+// 1200-unit court, about 5px across on a phone. It is drawn round and 1.8
 // times its playing size, centred where it plays.
 test('the ball is drawn round, larger than it plays, centred where it plays', () => {
   mount(390);
   const config = pongConfig();
   const ball = screen.getByTestId('pong-ball');
   expect(ball.tagName.toLowerCase()).toBe('circle');
-  expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.6);
+  expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.8);
   expect(Number(ball.getAttribute('cx'))).toBe(config.width / 2);
 });

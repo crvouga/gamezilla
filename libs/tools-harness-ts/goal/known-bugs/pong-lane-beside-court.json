@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Pong paddle slider stood in a lane of its own beside the court, which read as a layout fault and narrowed the court. The slider now lies over the person's own half of the court, drawing only a focus ring, while a finger drags on the court itself; the court takes the whole width.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

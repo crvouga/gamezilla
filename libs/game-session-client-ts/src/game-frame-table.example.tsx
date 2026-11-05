@@ -237,6 +237,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
         return props.sides.map((side) => ({
           side,
           look: props.presentation.frame.seats.look(side),
+          name: HOLDERS[side].name,
         }));
       },
     });

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Pong court still shared its row with a slider lane, its paddles were about 5px wide and its ball 9px across. The court now takes the whole width, each paddle is drawn 1.5 times its playing width and the ball 1.8 times its playing size, both centred where they play.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

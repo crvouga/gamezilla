@@ -125,6 +125,11 @@ export type GameOutlineStep = {
 export type GameFrameSeat = {
   readonly side: GameSide;
   readonly look: GameSeatLook;
+  /**
+   * Who plays the seat, by name, when the host knows them: a board that
+   * marks its sides (Pong's halves) names the other player there.
+   */
+  readonly name?: string | undefined;
 };
 
 /**

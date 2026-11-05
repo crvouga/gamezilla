@@ -3,6 +3,7 @@ import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
   GameSimulationControls,
@@ -16,7 +17,7 @@ import {
   PaddleCourt,
 } from '@pkgs/ui-root-client-ts/paddle-court';
 import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -35,11 +36,17 @@ const seat = (side: CourtSide) =>
 const paddleName = (side: GameSide) =>
   requireTwoPlayerSide(side) === 'white' ? t`Left paddle` : t`Right paddle`;
 
+/** The court with each seat's player, when the host names them. */
+export type PongBoardViewProps = GameBoardProps & {
+  readonly seats?: readonly GameFrameSeat[] | undefined;
+};
+
 /**
- * A phone's paddle control: an upright slider beside the court, on the
- * paddle's own side, moving top to bottom as the paddle does, drawn as that
- * paddle's lane (its thumb the paddle, in the seat's colour). A wide screen
- * moves paddles by keys and a drag on the court instead.
+ * A phone's paddle control: an upright slider laid over the paddle's own
+ * half of the court, moving top to bottom as the paddle does. It draws
+ * nothing but a focus ring: a finger drags on the court itself, and keys
+ * and assistive technology reach the slider. A wide screen moves paddles by
+ * keys and a drag on the court alone.
  */
 function PaddleSlider(props: {
   side: GameSide;
@@ -60,6 +67,7 @@ function PaddleSlider(props: {
         <RangeControl
           orientation="vertical"
           paddle={props.side === 'white' ? 'player1' : 'player2'}
+          overlay
           label={paddleName(props.side)}
           min={0}
           max={1000}
@@ -132,8 +140,8 @@ function CourtStatus(props: {
 
 /**
  * Under the court: the points that win, then how to move a paddle — by
- * keys on a wide screen, by drag or the upright slider beside the court on a phone. It also
- * describes the court to a listener.
+ * keys on a wide screen, by a drag on the person's own half on a phone. It
+ * also describes the court to a listener.
  */
 function CourtHint(props: {
   id: string;
@@ -150,11 +158,7 @@ function CourtHint(props: {
       {' · '}
       <Show
         when={mode() === 'wide'}
-        fallback={
-          <Trans>
-            Drag on your side of the court or use the slider beside it.
-          </Trans>
-        }
+        fallback={<Trans>Drag up and down on your half of the court.</Trans>}
       >
         <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
           <Match when={shared()}>
@@ -169,9 +173,33 @@ function CourtHint(props: {
   );
 }
 
+/** The most of a name one half of the court shows whole. */
+const HALF_NAME_MAX = 16;
+
+/** A name as one half of the court shows it: a long one ends in `…`. */
+function fitHalf(name: string | undefined): string | undefined {
+  if (name === undefined || name.length <= HALF_NAME_MAX) return name;
+  return `${name.slice(0, HALF_NAME_MAX - 1)}…`;
+}
+
+/**
+ * Who plays each half, low in it: `You` in each half this device controls,
+ * the other player's name in theirs when the host names them.
+ */
+function sideLabels(
+  board: PongBoardViewProps,
+  controlled: readonly CourtSide[]
+): Partial<Record<CourtSide, string | undefined>> {
+  const label = (side: CourtSide): string | undefined =>
+    controlled.includes(side)
+      ? t`You`
+      : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
+  return { first: label('first'), second: label('second') };
+}
+
 function PongScene(props: {
   state: PongState;
-  board: GameBoardProps;
+  board: PongBoardViewProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
   const controlled = (): CourtSide[] =>
@@ -187,69 +215,60 @@ function PongScene(props: {
     <StackVertical gap="md">
       <CourtScores state={props.state} testId={props.board.testId} />
       <CourtStatus state={props.state} board={props.board} />
-      {/* On a phone the slider beside the court takes as little of the
-          width as it can, so the court (its shape fixed) grows. */}
-      <StackHorizontal gap="xs" align="stretch">
-        <PaddleSlider
-          side="white"
-          state={props.state}
-          controls={props.board.simulation}
-          testId={props.board.testId}
-        />
-        <StackVertical grow>
-          <PaddleCourt
-            ownLabel={t`You`}
-            width={config.width}
-            height={config.height}
+      {/* On a phone each controlled half holds its own slider, so the
+          court (its shape fixed) takes the whole width. */}
+      <PaddleCourt
+        sideLabels={sideLabels(props.board, controlled())}
+        halfControl={(side) => (
+          <PaddleSlider
+            side={seat(side)}
+            state={props.state}
+            controls={props.board.simulation}
             testId={props.board.testId}
-            label={t`Pong court`}
-            instructionsId={instructionsId}
-            score={{
-              first: String(props.state.score.left),
-              second: String(props.state.score.right),
-            }}
-            paddles={(['first', 'second'] as const).map((side) => ({
-              side,
-              x:
-                side === 'first'
-                  ? config.paddleInset
-                  : config.width - config.paddleInset,
-              y: props.state.paddles[side === 'first' ? 'left' : 'right'].y,
-              width: config.paddleWidth,
-              height: config.paddleHeight,
-              // Each paddle in its seat's color (Left blue, Right orange).
-              color:
-                side === 'first' ? ('player1' as const) : ('player2' as const),
-            }))}
-            ball={{
-              x: props.state.ball.x,
-              y: props.state.ball.y,
-              size: config.ballRadius * 2,
-            }}
-            controlled={controlled()}
-            enabled={enabled()}
-            onDirection={(side, direction) =>
-              props.board.simulation?.onInput(seat(side), {
-                kind: 'direction',
-                direction,
-              })
-            }
-            onTarget={(side, target) =>
-              props.board.simulation?.onInput(seat(side), {
-                kind: 'target',
-                target,
-              })
-            }
-            onRelease={() => props.board.simulation?.onRelease()}
           />
-        </StackVertical>
-        <PaddleSlider
-          side="black"
-          state={props.state}
-          controls={props.board.simulation}
-          testId={props.board.testId}
-        />
-      </StackHorizontal>
+        )}
+        width={config.width}
+        height={config.height}
+        testId={props.board.testId}
+        label={t`Pong court`}
+        instructionsId={instructionsId}
+        score={{
+          first: String(props.state.score.left),
+          second: String(props.state.score.right),
+        }}
+        paddles={(['first', 'second'] as const).map((side) => ({
+          side,
+          x:
+            side === 'first'
+              ? config.paddleInset
+              : config.width - config.paddleInset,
+          y: props.state.paddles[side === 'first' ? 'left' : 'right'].y,
+          width: config.paddleWidth,
+          height: config.paddleHeight,
+          // Each paddle in its seat's color (Left blue, Right orange).
+          color: side === 'first' ? ('player1' as const) : ('player2' as const),
+        }))}
+        ball={{
+          x: props.state.ball.x,
+          y: props.state.ball.y,
+          size: config.ballRadius * 2,
+        }}
+        controlled={controlled()}
+        enabled={enabled()}
+        onDirection={(side, direction) =>
+          props.board.simulation?.onInput(seat(side), {
+            kind: 'direction',
+            direction,
+          })
+        }
+        onTarget={(side, target) =>
+          props.board.simulation?.onInput(seat(side), {
+            kind: 'target',
+            target,
+          })
+        }
+        onRelease={() => props.board.simulation?.onRelease()}
+      />
       <CourtHint id={instructionsId} state={props.state} board={props.board} />
     </StackVertical>
   );
@@ -276,7 +295,7 @@ export function pongStatus(
  * slider per side this device controls. `PongBoard` adds the sounds and
  * releases the controls when the court closes.
  */
-export function PongBoardView(props: GameBoardProps): JSX.Element {
+export function PongBoardView(props: PongBoardViewProps): JSX.Element {
   const state = createMemo(() => pongPositionCodec.decode(props.position));
   return (
     <Show
