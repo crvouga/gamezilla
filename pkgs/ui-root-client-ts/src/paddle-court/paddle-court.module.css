@@ -110,14 +110,43 @@
   stroke: var(--ui-color-text);
   stroke-width: 3;
 }
-/* Who plays each half, small under its points: `You` in the person's own. */
+/* The court under its scoreboard. */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  width: 100%;
+}
+/* Over the court, outside the play: each side's points at its own end. */
+.scoreboard {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ui-space-4);
+  min-width: 0;
+  padding-inline: var(--ui-space-1);
+}
+.side {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* The second side reads from its own end: its name, then its points. */
+.side[data-side="second"] {
+  flex-direction: row-reverse;
+}
+/* Who plays each side, small beside its points: `You` in the person's own. */
 .own {
-  fill: var(--ui-color-text);
-  opacity: 0.86;
-  font-family: inherit;
+  overflow: hidden;
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-sm);
   font-weight: var(--ui-font-weight-semibold);
-  text-anchor: middle;
-  dominant-baseline: hanging;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.own[data-own="true"] {
+  color: var(--ui-color-text);
 }
 /* Where the person's thumb drags their paddle: a slim lane of the court's
    lighter violet along their half's outer edge, shown only while a thumb is
@@ -142,15 +171,12 @@
   stroke: var(--ui-color-border);
   stroke-width: 4;
 }
-/* The points in each half: large and in the court's bright ink, the first
-   thing read (over 12:1 against the court, which keeps its colours in both
-   themes). */
+/* The points: large and in the page's bright ink, the first thing read. */
 .score {
-  fill: var(--ui-color-text);
-  opacity: 0.94;
-  font-family: inherit;
+  color: var(--ui-color-text);
+  opacity: 1;
+  font-size: var(--ui-font-size-2xl);
   font-weight: var(--ui-font-weight-bold);
   font-variant-numeric: tabular-nums;
-  text-anchor: middle;
-  dominant-baseline: hanging;
+  line-height: 1;
 }

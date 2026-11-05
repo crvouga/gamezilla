@@ -237,7 +237,11 @@ export function useSideClocks(
   ) as Record<CustomGameSide, Accessor<FrameClock | null>>;
 }
 
-/** The line is only the default `<Side> to move.` (see `gameStateDescription`). */
+/**
+ * The line is only a default (`<Side> to move.`, or `Game in progress.`
+ * while a real-time game runs): the game has no line of its own about the
+ * turn (see `gameStateDescription`).
+ */
 function plainTurnLine(
   game: CustomGame,
   presentation: GamePresentation,
@@ -246,7 +250,7 @@ function plainTurnLine(
   return (
     game.status === 'active' &&
     game.awaiting.length === 0 &&
-    game.execution === undefined &&
+    game.execution?.phase !== 'paused' &&
     !game.standIns.includes(game.turn) &&
     presentation.frame.turnStatus(game.fen, viewer, game.committed) === null
   );

@@ -101,12 +101,21 @@ function props(): GameFrameScreenViewProps {
   };
 }
 
-function mount(width: number): void {
+function mount(width: number, plain = false): void {
   const time = createHarnessClock();
+  const shown = props();
+  const status = shown.status;
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
-        <GameFrameScreenView {...props()} />
+        <GameFrameScreenView
+          {...shown}
+          status={
+            plain && status !== null
+              ? { ...status, description: 'Game in progress.', plainTurn: true }
+              : status
+          }
+        />
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -490,6 +499,25 @@ test("wide: the players' card shows each figure on one quiet line", () => {
     .querySelector('[data-component="GameSeatStat"]');
   expect(figure?.textContent).toBe('Wins 0');
   expect(figure?.querySelector('.textStat')).toBeNull();
+});
+
+// regression: pong-panel-repeats-hint — beside Pong's court the players'
+// card was captioned "Keep the ball in play.", and on a phone the same line
+// sat under the court's hint, repeating how play goes on. A real-time
+// game's default line is for a listener only, on every size.
+test("a real-time game's default line is for a listener only", () => {
+  for (const width of [1440, 390]) {
+    mount(width, true);
+    expect(
+      screen.queryByTestId('custom-game-scoreboard')?.textContent ?? ''
+    ).not.toContain('Game in progress.');
+    const status = screen.getByTestId('custom-game-status');
+    expect(
+      status.closest('[data-component="VisuallyHidden"]') ??
+        status.querySelector('[data-component="VisuallyHidden"]')
+    ).not.toBeNull();
+    cleanup();
+  }
 });
 
 // regression: pong-status-reads-as-button — on a phone the line under a

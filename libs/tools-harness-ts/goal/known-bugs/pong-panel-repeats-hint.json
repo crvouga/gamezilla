@@ -1,0 +1,4 @@
+{
+  "summary": "Beside Pong's court the players' card was captioned \"Keep the ball in play.\", and on a phone the same line sat under the court's hint, repeating how play goes on. While play simply goes on Pong has no turn line, and a real-time game's default line is for a listener only.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

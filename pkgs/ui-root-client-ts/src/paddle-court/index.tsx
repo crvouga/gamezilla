@@ -31,13 +31,14 @@ export type PaddleCourtProps = CourtControls & {
   readonly instructionsId: string;
   readonly testId: string;
   /**
-   * Each side's points, drawn large and bright at the top of its own half
-   * of the court as a court's scoreboard is, so the score reads where the
-   * play is. Drawn for the eye only: the host says the score to a listener.
+   * Each side's points, drawn large and bright at its own end of a
+   * scoreboard over the court, outside the play, so the ball never runs
+   * under them. Drawn for the eye only: the host says the score to a
+   * listener.
    */
   readonly score?: { readonly first: string; readonly second: string };
   /**
-   * Who plays each half, written small under its points (`You` in a half
+   * Who plays each half, written small beside its points (`You` in a half
    * this device controls, the other player's name in theirs), so both
    * paddles are named in words, not by colour alone.
    */
@@ -55,50 +56,69 @@ export type PaddleCourtProps = CourtControls & {
 
 const SIDES: readonly CourtSide[] = ['first', 'second'];
 
-/** Where a side's points stand, and how tall they are drawn. */
-const SCORE_TOP = 0.06;
-const SCORE_SIZE = 0.18;
-
 /**
- * Who plays each half, under its points as a scoreboard names its sides:
- * `You` in the person's own, the other player's name in theirs. Set well
- * under the points' size, so the score stays the first thing read.
+ * The scoreboard over the court, outside the play, so the ball never runs
+ * under it: each side's points, large and bright, at its own end, with who
+ * plays it (`You` in the person's own half, the other player's name in
+ * theirs) small beside them. Drawn for the eye only: the host says the
+ * score to a listener.
  */
-function SideMarks(props: PaddleCourtProps): JSX.Element {
+function Scoreboard(props: PaddleCourtProps): JSX.Element {
   return (
-    <For each={SIDES}>
-      {(side) => (
-        <Show when={props.sideLabels?.[side]}>
-          {(label) => (
-            <text
-              class={styles['own']}
-              data-side={side}
-              data-own={String(props.controlled.includes(side))}
-              x={side === 'first' ? props.width / 4 : (props.width * 3) / 4}
-              y={props.height * (SCORE_TOP + SCORE_SIZE)}
-              font-size={String(props.height * 0.06)}
-            >
-              {label()}
-            </text>
-          )}
-        </Show>
+    <Show when={props.score}>
+      {(score) => (
+        <div
+          class={styles['scoreboard']}
+          aria-hidden="true"
+          data-testid={`${props.testId}-scoreboard`}
+        >
+          <For each={SIDES}>
+            {(side) => (
+              <span class={styles['side']} data-side={side}>
+                <span
+                  class={styles['score']}
+                  data-testid={`${props.testId}-court-score-${side}`}
+                >
+                  {side === 'first' ? score().first : score().second}
+                </span>
+                <Show when={props.sideLabels?.[side]}>
+                  {(label) => (
+                    <span
+                      class={styles['own']}
+                      data-side={side}
+                      data-own={String(props.controlled.includes(side))}
+                    >
+                      {label()}
+                    </span>
+                  )}
+                </Show>
+              </span>
+            )}
+          </For>
+        </div>
       )}
-    </For>
+    </Show>
   );
 }
 
+/** The share of the court's width a thumb's drag lane takes at the least. */
+const LANE_SHARE = 1 / 6;
+
 /**
- * Where a person's thumb drags their paddle: a slim lane along the outer
- * edge of each half this device controls, as far in as the paddle, so a
- * thumb there moves the paddle without covering the ball's path. A drag
- * anywhere in the half still moves it; the lane shows where it is best.
+ * Where a person's thumb drags their paddle: a thumb-wide lane along the
+ * outer edge of each half this device controls (a sixth of the court, and
+ * at least as far in as the paddle), so a thumb there moves the paddle
+ * without covering most of the ball's path. A drag anywhere in the half
+ * still moves it; the lane shows where it is best.
  */
 function DragLanes(props: PaddleCourtProps): JSX.Element {
   const lane = (side: CourtSide): number => {
     const paddle = props.paddles.find((one) => one.side === side);
     if (paddle === undefined) return 0;
     const reach = (paddle.width * PADDLE_DRAWN_SCALE) / 2 + paddle.width;
-    return side === 'first' ? paddle.x + reach : props.width - paddle.x + reach;
+    const past =
+      side === 'first' ? paddle.x + reach : props.width - paddle.x + reach;
+    return Math.max(past, props.width * LANE_SHARE);
   };
   return (
     <Show when={props.enabled}>
@@ -153,9 +173,9 @@ function HalfControls(props: PaddleCourtProps): JSX.Element {
 }
 
 /**
- * Geometric play surface: the centre line and circle, each side's points
- * large in its half (`score`) with who plays it under them
- * (`sideLabels`), a slim drag lane along the outer edge of each half this
+ * Geometric play surface under its scoreboard (each side's points large
+ * at its own end, `score`, with who plays it beside them, `sideLabels`):
+ * the centre line and circle, a thumb-wide drag lane along the outer edge of each half this
  * device controls while it can move, the paddles and the ball, and over
  * each such half its own slider (`halfControl`).
  * Resizing changes its viewBox projection, never the court coordinates.
@@ -164,96 +184,74 @@ function HalfControls(props: PaddleCourtProps): JSX.Element {
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
   return (
-    <div class={styles['stage']}>
-      <div
-        {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
-        class={styles['court']}
-        data-interactive={props.enabled && props.controlled.length > 0}
-        role="application"
-        aria-label={props.label}
-        aria-describedby={props.instructionsId}
-        tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
-        onKeyDown={input.keyDown}
-        onKeyUp={input.keyUp}
-        onBlur={input.release}
-        onPointerDown={input.pointerDown}
-        onPointerMove={input.pointerMove}
-        onPointerUp={input.pointerUp}
-        onPointerCancel={input.pointerUp}
-        onLostPointerCapture={input.pointerUp}
-      >
-        <svg
-          class={styles['drawing']}
-          data-testid={`${props.testId}-drawing`}
-          viewBox={`0 0 ${props.width} ${props.height}`}
-          aria-hidden="true"
+    <div class={styles['frame']}>
+      <Scoreboard {...props} />
+      <div class={styles['stage']}>
+        <div
+          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
+          class={styles['court']}
+          data-interactive={props.enabled && props.controlled.length > 0}
+          role="application"
+          aria-label={props.label}
+          aria-describedby={props.instructionsId}
+          tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
+          onKeyDown={input.keyDown}
+          onKeyUp={input.keyUp}
+          onBlur={input.release}
+          onPointerDown={input.pointerDown}
+          onPointerMove={input.pointerMove}
+          onPointerUp={input.pointerUp}
+          onPointerCancel={input.pointerUp}
+          onLostPointerCapture={input.pointerUp}
         >
-          <DragLanes {...props} />
-          <path
-            class={styles['line']}
-            d={`M ${props.width / 2} 0 V ${props.height}`}
-          />
-          <circle
-            class={styles['ring']}
-            cx={props.width / 2}
-            cy={props.height / 2}
-            r={props.height * 0.14}
-          />
-          <Show when={props.score}>
-            {(score) => (
-              <>
-                <text
-                  class={styles['score']}
-                  data-testid={`${props.testId}-court-score-first`}
-                  x={props.width / 4}
-                  y={props.height * SCORE_TOP}
-                  font-size={String(props.height * SCORE_SIZE)}
-                >
-                  {score().first}
-                </text>
-                <text
-                  class={styles['score']}
-                  data-testid={`${props.testId}-court-score-second`}
-                  x={(props.width * 3) / 4}
-                  y={props.height * SCORE_TOP}
-                  font-size={String(props.height * SCORE_SIZE)}
-                >
-                  {score().second}
-                </text>
-              </>
-            )}
-          </Show>
-          <SideMarks {...props} />
-          <For each={props.paddles}>
-            {(paddle) => (
-              <rect
-                class={styles['paddle']}
-                data-side={paddle.side}
-                data-color={paddle.color}
-                data-testid={`${props.testId}-${paddle.side}-paddle`}
-                data-controlled={props.controlled.includes(paddle.side)}
-                x={paddle.x - (paddle.width * PADDLE_DRAWN_SCALE) / 2}
-                y={paddle.y - paddle.height / 2}
-                width={paddle.width * PADDLE_DRAWN_SCALE}
-                height={paddle.height}
-              />
-            )}
-          </For>
-          <circle
-            class={styles['ball']}
-            data-testid={`${props.testId}-ball`}
-            // The ball as the game plays it (court units), apart from how
-            // large it is drawn: what a reader of the court relies on.
-            data-ball-x={props.ball.x}
-            data-ball-y={props.ball.y}
-            data-ball-size={props.ball.size}
-            cx={props.ball.x}
-            cy={props.ball.y}
-            r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
-          />
-        </svg>
+          <svg
+            class={styles['drawing']}
+            data-testid={`${props.testId}-drawing`}
+            viewBox={`0 0 ${props.width} ${props.height}`}
+            aria-hidden="true"
+          >
+            <DragLanes {...props} />
+            <path
+              class={styles['line']}
+              d={`M ${props.width / 2} 0 V ${props.height}`}
+            />
+            <circle
+              class={styles['ring']}
+              cx={props.width / 2}
+              cy={props.height / 2}
+              r={props.height * 0.14}
+            />
+            <For each={props.paddles}>
+              {(paddle) => (
+                <rect
+                  class={styles['paddle']}
+                  data-side={paddle.side}
+                  data-color={paddle.color}
+                  data-testid={`${props.testId}-${paddle.side}-paddle`}
+                  data-controlled={props.controlled.includes(paddle.side)}
+                  x={paddle.x - (paddle.width * PADDLE_DRAWN_SCALE) / 2}
+                  y={paddle.y - paddle.height / 2}
+                  width={paddle.width * PADDLE_DRAWN_SCALE}
+                  height={paddle.height}
+                />
+              )}
+            </For>
+            <circle
+              class={styles['ball']}
+              data-testid={`${props.testId}-ball`}
+              // The ball as the game plays it (court units), apart from how
+              // large it is drawn: what a reader of the court relies on.
+              data-ball-x={props.ball.x}
+              data-ball-y={props.ball.y}
+              data-ball-size={props.ball.size}
+              cx={props.ball.x}
+              cy={props.ball.y}
+              r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
+            />
+          </svg>
+        </div>
+        <HalfControls {...props} />
       </div>
-      <HalfControls {...props} />
     </div>
   );
 }

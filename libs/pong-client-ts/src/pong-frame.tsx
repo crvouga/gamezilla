@@ -50,9 +50,13 @@ export const pongFrame: GameFrame<JSX.Element> = {
     out: () => false,
   },
   createBoard: boardOnly(PongBoard),
+  // The serve and the result; while play simply goes on, the hint under
+  // the court says how to play, so the game has no line of its own.
   turnStatus: (position) => {
     const state = pongPositionCodec.decode(position);
-    return state === null ? null : pongStatus(state, undefined);
+    return state === null || state.phase === 'playing'
+      ? null
+      : pongStatus(state, undefined);
   },
   result: (position, winner) => ({
     scoreLabel: t`Points`,

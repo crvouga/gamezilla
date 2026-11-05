@@ -391,6 +391,17 @@ function arenaBeside(
 }
 
 /**
+ * A real-time game's default line (`Game in progress.`): the hint under its
+ * arena already says how play goes on, so the line is for a listener only.
+ */
+function plainArenaLine(props: Props): boolean {
+  return (
+    props.status?.plainTurn === true &&
+    frameArena(props.phase, shownRecord(props))
+  );
+}
+
+/**
  * Beside a wide arena, or a board whose record holds no move yet, a plain
  * line about the game (the round, the serve, the pass) is the rail card's
  * caption, not a pill under the board; a warning (reconnecting, a
@@ -405,7 +416,8 @@ function railCaption(
     status === null ||
     status.tone !== 'neutral' ||
     status.sending ||
-    status.description === ''
+    status.description === '' ||
+    plainArenaLine(props)
   )
     return undefined;
   return arenaBeside(props, mode) ||
@@ -591,6 +603,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             status={props.status}
             arena={frameArena(props.phase, shownRecord(props))}
             spokenOnly={
+              plainArenaLine(props) ||
               turnInSeats(props, mode) ||
               railCaption(props, mode) !== undefined ||
               stripCaption(props, mode) !== undefined

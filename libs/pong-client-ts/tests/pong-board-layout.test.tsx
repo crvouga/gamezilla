@@ -96,8 +96,8 @@ test("each paddle takes its seat's color and each half names who plays it", () =
   expect(
     screen.getByTestId('pong-second-paddle').getAttribute('data-color')
   ).toBe('player2');
-  const drawing = screen.getByTestId('pong-drawing');
-  const marks = [...drawing.querySelectorAll('text[data-own]')].map((text) => [
+  const board = screen.getByTestId('pong-scoreboard');
+  const marks = [...board.querySelectorAll('[data-own]')].map((text) => [
     text.getAttribute('data-side'),
     text.getAttribute('data-own'),
     text.textContent,
@@ -118,18 +118,30 @@ test('the scores and a plain status are said to a listener only', () => {
 
 // regression: pong-score-off-court — the score sat only in the players'
 // panel beside a bare court (an 8px ball on a flat field). Each side's
-// points are drawn large in its own half of the court, behind the play.
-test('the court draws each side’s points in its own half', () => {
+// points are drawn large at its own end of the court.
+// regression: pong-score-over-ball-path — the points were then drawn large
+// in the top of each half, where the ball travels, so the ball ran under
+// the digits. They now sit on a scoreboard over the court, outside the
+// play, each side at its own end.
+test('the scoreboard over the court shows each side’s points at its own end, outside the play', () => {
   mount(1440);
   const first = screen.getByTestId('pong-court-score-first');
   const second = screen.getByTestId('pong-court-score-second');
   expect([first.textContent, second.textContent]).toEqual(['0', '0']);
-  expect(Number(first.getAttribute('x'))).toBeLessThan(
-    Number(second.getAttribute('x'))
+  const follows = (a: Element, b: Element): boolean =>
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  expect(follows(first, second)).toBe(true);
+  // Outside the court's drawing, where the ball plays, and over it.
+  const drawing = screen.getByTestId('pong-drawing');
+  const board = screen.getByTestId('pong-scoreboard');
+  expect(drawing.contains(first)).toBe(false);
+  expect(screen.getByTestId('pong').contains(board)).toBe(false);
+  expect(follows(board, drawing)).toBe(true);
+  expect(rule('paddle-court/paddle-court.module.css', '.scoreboard')).toMatch(
+    /justify-content:\s*space-between;/
   );
-  // Drawn for the eye: the court's drawing is hidden from a listener, who
-  // hears the score from the court's own words.
-  expect(first.closest('svg')?.getAttribute('aria-hidden')).toBe('true');
+  // Drawn for the eye: a listener hears the score from the court's words.
+  expect(board.getAttribute('aria-hidden')).toBe('true');
   expect(screen.getByTestId('pong-score-left').textContent).toBe('Left 0');
 });
 
@@ -173,39 +185,41 @@ test('phone: the court takes the whole width, its paddles and score readable', (
 // decoration, and the side names were set larger than the points. The
 // points take the court's bright ink, and each side's name sits small
 // under its points.
-test('the score is drawn in the court’s bright ink, each side named small under it', () => {
+test('the score is drawn in the bright ink, each side named small beside it', () => {
   mount(390);
   const score = rule('paddle-court/paddle-court.module.css', '.score');
-  expect(score).toMatch(/fill:\s*var\(--ui-color-text\);/);
+  expect(score).toMatch(/color:\s*var\(--ui-color-text\);/);
   expect(Number(/opacity: ([\d.]+)/.exec(score)?.[1])).toBeGreaterThanOrEqual(
     0.9
   );
+  expect(score).toMatch(/font-size:\s*var\(--ui-font-size-2xl\);/);
+  expect(rule('paddle-court/paddle-court.module.css', '.own')).toMatch(
+    /font-size:\s*var\(--ui-font-size-sm\);/
+  );
+  // Beside its points: in the same side of the scoreboard.
   const first = screen.getByTestId('pong-court-score-first');
   const mark = screen
-    .getByTestId('pong-drawing')
-    .querySelector('text[data-side="first"][data-own]');
+    .getByTestId('pong-scoreboard')
+    .querySelector('[data-side="first"][data-own]');
   if (mark === null) throw new Error('no side name');
-  const size = (text: Element) => Number(text.getAttribute('font-size'));
-  expect(size(mark)).toBeLessThan(size(first) / 2);
-  // Under its points: below them, and in the same half.
-  expect(Number(mark.getAttribute('y'))).toBeGreaterThanOrEqual(
-    Number(first.getAttribute('y')) + size(first)
-  );
-  expect(mark.getAttribute('x')).toBe(first.getAttribute('x'));
+  expect(mark.parentElement).toBe(first.parentElement);
 });
 
 // regression: pong-thumb-over-play — a phone's drag happened anywhere on
-// the person's half, so the thumb sat over the ball's path. A slim lane
-// along their half's outer edge, as far in as the paddle, shows where to
-// drag; the other half has none.
-test('phone: a slim drag lane runs along the outer edge of the person’s own half', () => {
+// the person's half, so the thumb sat over the ball's path. A lane along
+// their half's outer edge shows where to drag; the other half has none.
+// regression: pong-drag-lane-narrow — that lane went only as far in as the
+// paddle, a sliver beside a narrow paddle on a phone. It is now
+// thumb-wide, a sixth of the court, still clear of most of the ball's path.
+test('phone: a thumb-wide drag lane runs along the outer edge of the person’s own half', () => {
   mount(390);
   const config = pongConfig();
   const lane = screen.getByTestId('pong-first-lane');
   expect(Number(lane.getAttribute('x'))).toBe(0);
   const width = Number(lane.getAttribute('width'));
   expect(width).toBeGreaterThan(config.paddleInset);
-  expect(width).toBeLessThan(config.width / 10);
+  expect(width).toBeGreaterThanOrEqual(config.width / 6);
+  expect(width).toBeLessThan(config.width / 4);
   expect(screen.queryByTestId('pong-second-lane')).toBeNull();
 });
 
