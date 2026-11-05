@@ -125,13 +125,17 @@ export const Guest: Story = {
 };
 
 /**
- * A game's own menu: the trail reads "Friday game night › Chess", and the
+ * A game's own menu: the trail reads "Friday game night › Connect Four", and the
  * room is the one way back (to the space's games), so moving within the
  * room never reads like leaving it. A phone shows ‹ (named for the room)
  * with the room's name small over the game's. The game area is a slot.
  */
 export const GameInProgress: Story = {
-  args: { onPressBack: fn(), backLabel: 'Games', place: 'Chess' },
+  args: {
+    onPressBack: fn(),
+    backLabel: 'Games',
+    place: 'Connect Four',
+  },
   render: (args) =>
     withSlots(args, {
       body: () => <GameAreaExample title="A game in progress" />,

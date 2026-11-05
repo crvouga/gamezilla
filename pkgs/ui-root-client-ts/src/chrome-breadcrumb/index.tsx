@@ -40,12 +40,18 @@ const SEPARATOR_SIZE = 18;
 function CrumbBody(props: {
   crumb: ChromeCrumb;
   size: ChromeBreadcrumbSize;
+  /** The current place in the full ink; every other in the quiet one. */
+  current: boolean;
 }): JSX.Element {
   return (
     <>
       {props.crumb.leading}
       <span
         class={`text ${SIZE[props.size]} line-clamp-1 min-w-0`}
+        classList={{
+          'text-text': props.current,
+          'text-text-secondary': !props.current,
+        }}
         data-testid={props.crumb.nameTestId}
       >
         {props.crumb.name}
@@ -100,13 +106,13 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                 fallback={
                   <span
                     class="box flex-row items-center gap-2 min-w-0"
-                    classList={{
-                      'text-text': index() === last(),
-                      'text-text-secondary': index() !== last(),
-                    }}
                     aria-current={index() === last() ? 'page' : undefined}
                   >
-                    <CrumbBody crumb={crumb} size={size()} />
+                    <CrumbBody
+                      crumb={crumb}
+                      size={size()}
+                      current={index() === last()}
+                    />
                   </span>
                 }
               >
@@ -114,12 +120,12 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                   <button
                     type="button"
                     role="link"
-                    class="clickable clickableTint box flex-row items-center gap-2 min-w-0 h-10 px-2 -mx-2 rounded-control text-text-secondary"
+                    class="clickable clickableTint box flex-row items-center gap-2 min-w-0 h-10 px-2 -mx-2 rounded-control"
                     data-component="ChromeBreadcrumbLink"
                     data-testid={crumb.linkTestId}
                     onClick={() => onClick()()}
                   >
-                    <CrumbBody crumb={crumb} size={size()} />
+                    <CrumbBody crumb={crumb} size={size()} current={false} />
                   </button>
                 )}
               </Show>
