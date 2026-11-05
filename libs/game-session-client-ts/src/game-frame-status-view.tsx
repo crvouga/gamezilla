@@ -1,12 +1,12 @@
 import { plural, t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -20,12 +20,9 @@ import type {
 } from './game-frame-view-types';
 
 /** The agreed clock: minutes + added seconds. */
-function TimeControlBadge(props: {
-  readonly status: FrameStatus;
-}): JSX.Element {
+function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
   return (
-    <Badge
-      intent="neutral"
+    <GameFact
       label={
         <Show when={props.status.minutes > 0} fallback={<Trans>Untimed</Trans>}>
           {props.status.minutes}+{props.status.increment}
@@ -35,21 +32,24 @@ function TimeControlBadge(props: {
   );
 }
 
-/** The game's facts for the title row: unrated, and its clock. */
+/**
+ * The game's facts for the title row, as one quiet line (`Unrated ·
+ * Untimed`): settings, never pills that look pressable, in the same words
+ * a search for an opponent uses.
+ */
 export function FrameFactsView(props: {
   readonly status: FrameStatus | null;
 }): JSX.Element {
   return (
     <Show when={props.status}>
       {(status) => (
-        <StackHorizontal align="center" gap="sm">
-          <Badge
-            intent="neutral"
+        <GameFacts>
+          <GameFact
             label={<Trans>Unrated</Trans>}
-            dataSet={{ testid: 'custom-game-unrated' }}
+            testId="custom-game-unrated"
           />
-          <TimeControlBadge status={status()} />
-        </StackHorizontal>
+          <TimeControlFact status={status()} />
+        </GameFacts>
       )}
     </Show>
   );

@@ -11,11 +11,13 @@ import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   CellGridBoard,
   type CellGridCell,
+  CellGridLegend,
+  type CellGridLegendItem,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
-import { COLUMN_LABELS, ROW_LABELS, sideName } from './battleship-copy';
+import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
 
 type BoardView = 'own' | 'target';
@@ -45,6 +47,21 @@ function BoardPanel(props: {
     />
   );
 }
+/**
+ * The key to the marks on the boards: a ship (on the viewer's own fleet
+ * only), a miss, a hit and a sunk ship, each drawn as the grid draws it.
+ */
+function marks(ships: boolean): readonly CellGridLegendItem[] {
+  const shots: readonly CellGridLegendItem[] = [
+    { glyph: GLYPHS.miss, tone: 'quiet', label: t`Miss` },
+    { glyph: GLYPHS.hit, tone: 'alert', label: t`Hit` },
+    { glyph: GLYPHS.sunk, tone: 'critical', outlined: true, label: t`Sunk` },
+  ];
+  return ships
+    ? [{ glyph: GLYPHS.ship, tone: 'occupied', label: t`Ship` }, ...shots]
+    : shots;
+}
+
 /** The cell just fired at, until the position (or a resync) answers it. */
 function createAim(props: GameBoardProps) {
   const [aiming, setAiming] = createSignal<string | null>(null);
@@ -135,6 +152,11 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             onFire={aim.fire}
           />
         }
+      />
+      <CellGridLegend
+        label={t`Key`}
+        items={marks(viewer() !== null)}
+        testId={`${props.testId}-key`}
       />
     </StackVertical>
   );

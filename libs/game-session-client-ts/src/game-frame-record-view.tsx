@@ -43,6 +43,12 @@ type RecordProps = FrameReviewHandlers & {
    * it holds.
    */
   readonly commands?: JSX.Element | undefined;
+  /**
+   * The game's line about what happens now, under the card's title, while
+   * the record holds no move yet (beside a wide board: Hearts while hands
+   * are passed), so the card is never empty.
+   */
+  readonly caption?: string | undefined;
 };
 
 /**
@@ -385,6 +391,7 @@ function RecordPanel(props: RecordProps): JSX.Element {
   return (
     <GameSection
       title={<Trans>Game record</Trans>}
+      description={props.caption}
       dataSet={{ component: 'CustomGameReview' }}
       trailing={<HistoryButton {...props} quiet />}
       footer={<GameActions>{props.commands}</GameActions>}

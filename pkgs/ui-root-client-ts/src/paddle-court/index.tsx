@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { For, type JSX, Show } from 'solid-js';
+import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
   type CourtSide,
@@ -18,6 +19,8 @@ export type PaddleCourtProps = CourtControls & {
     readonly y: number;
     readonly width: number;
     readonly height: number;
+    /** The seat's player color, so the paddle matches its player's swatch. */
+    readonly color?: AvatarSeatColor | undefined;
   }[];
   readonly ball: {
     readonly x: number;
@@ -33,7 +36,35 @@ export type PaddleCourtProps = CourtControls & {
    * for the eye only: the host says the score to a listener.
    */
   readonly score?: { readonly first: string; readonly second: string };
+  /**
+   * Written low in each half this device controls (`You`), so the person's
+   * own paddle is marked in words, not by colour alone.
+   */
+  readonly ownLabel?: string | undefined;
 };
+
+/** `You`, low in each half this device controls. */
+function OwnMarks(props: PaddleCourtProps): JSX.Element {
+  return (
+    <Show when={props.ownLabel}>
+      {(label) => (
+        <For each={props.controlled}>
+          {(side) => (
+            <text
+              class={styles['own']}
+              data-side={side}
+              x={side === 'first' ? props.width / 4 : (props.width * 3) / 4}
+              y={props.height * 0.94}
+              font-size={String(props.height * 0.07)}
+            >
+              {label()}
+            </text>
+          )}
+        </For>
+      )}
+    </Show>
+  );
+}
 
 /**
  * Geometric play surface: the centre line and circle, each side's points
@@ -101,11 +132,13 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
             </>
           )}
         </Show>
+        <OwnMarks {...props} />
         <For each={props.paddles}>
           {(paddle) => (
             <rect
               class={styles['paddle']}
               data-side={paddle.side}
+              data-color={paddle.color}
               data-testid={`${props.testId}-${paddle.side}-paddle`}
               data-controlled={props.controlled.includes(paddle.side)}
               x={paddle.x - paddle.width / 2}

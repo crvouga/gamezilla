@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone the space's top bar said \"Chess\" and the game's body said \"Chess\" again in the display face above its Unrated / Untimed chips, pushing the board down. A game in play now keeps its title for a listener and, on a phone's column, shows only its facts.",
+  "summary": "On a phone the space's top bar said \"Chess\" and the game's body said \"Chess\" again in the display face above its Unrated / Untimed chips, pushing the board down. The body now shows the title in a compact size on the same line as its facts.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/game-screen-phone-title.test.tsx"
 }

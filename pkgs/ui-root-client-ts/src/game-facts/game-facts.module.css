@@ -1,0 +1,17 @@
+/* A game's settings: quiet words on one line, a dot between them. */
+.facts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--ui-space-2);
+  min-width: 0;
+  color: var(--ui-color-text-secondary);
+}
+.fact {
+  color: inherit;
+  white-space: nowrap;
+}
+.fact + .fact::before {
+  content: "·";
+  margin-inline-end: var(--ui-space-2);
+}

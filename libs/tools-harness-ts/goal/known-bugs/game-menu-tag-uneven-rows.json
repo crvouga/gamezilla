@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the \"Recommended\" tag sat over the lead's title, making its row taller than every other. The lead's title is shorter (\"Play with friends\") and its tag sits beside it on the title's line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

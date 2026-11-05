@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone, the board preview of a custom game being set up fell under the Players card, after the Start button, so the screen ended on a stray thumbnail. The preview now heads the Players card on a phone (it sits beside the seats when wide), always before Start.",
+  "summary": "On a phone, the board preview of a custom game being set up fell under the Players card, after the Start button, so the screen ended on a stray thumbnail. The preview's own card now leads the Players card on a phone (it sits beside it when wide), always before Start.",
   "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
 }

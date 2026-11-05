@@ -8,6 +8,7 @@ import {
   type GamePlayerState,
   GamePlayerStateBadge,
   type GameSeatStat,
+  GameSeatStatInline,
   GameSeatStatValue,
 } from '../game-player-parts/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
@@ -39,6 +40,12 @@ export type GamePlayerBarProps = {
   tags?: JSX.Element;
   /** The seat's figure at the far edge (score, walls). */
   stat?: GameSeatStat | null | undefined;
+  /**
+   * `inline`: the figure on one quiet line (`Wins 0`), for a list of every
+   * player beside a board whose own score is the thing to watch. Defaults
+   * to `figure`, the figure large under its label.
+   */
+  statStyle?: 'figure' | 'inline' | undefined;
   /** Out of the round, or reconnecting: shown as a word. */
   state?: GamePlayerState | null | undefined;
   /** Far edge of the row, after the figure: typically a `GameClock`. */
@@ -213,7 +220,14 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
           )}
         </Show>
         <Show when={props.stat}>
-          {(stat) => <GameSeatStatValue stat={stat()} active={active()} />}
+          {(stat) => (
+            <Show
+              when={props.statStyle === 'inline'}
+              fallback={<GameSeatStatValue stat={stat()} active={active()} />}
+            >
+              <GameSeatStatInline stat={stat()} active={active()} />
+            </Show>
+          )}
         </Show>
         <Show when={props.trailing}>
           <div class={styles['playerTrailing']}>{props.trailing}</div>

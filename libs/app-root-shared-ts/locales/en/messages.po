@@ -167,6 +167,11 @@ msgstr "{0} of {1} puzzles match."
 msgid "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
 msgstr "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
 
+#. placeholder {0}: chosen.length
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "{0} of 3 chosen"
+msgstr "{0} of 3 chosen"
+
 #. placeholder {0}: position.scoreless
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "{0} of 6 scoreless turns"
@@ -2444,8 +2449,8 @@ msgid "Drag from a number to its match, or press Enter on a number, draw with th
 msgstr "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag on your side of the court or use the slider."
-msgstr "Drag on your side of the court or use the slider."
+msgid "Drag on your side of the court or use the slider beside it."
+msgstr "Drag on your side of the court or use the slider beside it."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
@@ -3207,6 +3212,10 @@ msgstr "Hint: move the {side} {piece} on {0}."
 msgid "History and stats"
 msgstr "History and stats"
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Hit"
+msgstr "Hit"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
@@ -3504,9 +3513,17 @@ msgstr "Keep the current changes first. Try saving again."
 msgid "Keep working from this copy?"
 msgstr "Keep working from this copy?"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Keep your cards"
+msgstr "Keep your cards"
+
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
 msgstr "Kept"
+
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Key"
+msgstr "Key"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "King"
@@ -3907,6 +3924,10 @@ msgstr "Minutes per player + seconds added after each move, or days for every mo
 msgid "Minutes per side"
 msgstr "Minutes per side"
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Miss"
+msgstr "Miss"
+
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
@@ -4175,10 +4196,6 @@ msgstr "No active session"
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "No clock"
-msgstr "No clock"
-
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No completed games yet."
 msgstr "No completed games yet."
@@ -4254,6 +4271,10 @@ msgstr "No one connected yet"
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No participant"
 msgstr "No participant"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "No passing this deal"
+msgstr "No passing this deal"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "No passing this deal."
@@ -4695,10 +4716,17 @@ msgstr "Pair label"
 msgid "Pass"
 msgstr "Pass"
 
-#. placeholder {0}: count()
-#: libs/hearts-client-ts/src/hearts-board.tsx
-msgid "Pass {0} of 3 cards"
-msgstr "Pass {0} of 3 cards"
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass across"
+msgstr "Pass across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass left"
+msgstr "Pass left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass right"
+msgstr "Pass right"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards across."
@@ -4716,9 +4744,33 @@ msgstr "Pass three cards to the right."
 msgid "Passed"
 msgstr "Passed"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed across"
+msgstr "Passed across"
+
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Passed its check"
 msgstr "Passed its check"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to the left"
+msgstr "Passed to the left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to the right"
+msgstr "Passed to the right"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing across"
+msgstr "Passing across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to the left"
+msgstr "Passing to the left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to the right"
+msgstr "Passing to the right"
 
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Passing your cards…"
@@ -4874,8 +4926,8 @@ msgid "Play published puzzles, continue your attempts, or build something of you
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Play with friends or bots"
-msgstr "Play with friends or bots"
+msgid "Play with friends"
+msgstr "Play with friends"
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
@@ -6161,6 +6213,10 @@ msgstr "Sharing your friend request…"
 msgid "Sharing your username change…"
 msgstr "Sharing your username change…"
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Ship"
+msgstr "Ship"
+
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Ships"
 msgstr "Ships"
@@ -6670,6 +6726,10 @@ msgstr "Subscribing needs a connection. Connect to the internet to start your me
 msgid "Suggested"
 msgstr "Suggested"
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Sunk"
+msgstr "Sunk"
+
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Swap sides"
 msgstr "Swap sides"
@@ -7056,6 +7116,10 @@ msgstr "The game is over. Final scores: {scores}. {head} and {last} win."
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "The game is over. Final scores: {scores}. {last} wins."
 msgstr "The game is over. Final scores: {scores}. {last} wins."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "The game opens in this space, where everyone can watch. Your opponent plays from their own space."
+msgstr "The game opens in this space, where everyone can watch. Your opponent plays from their own space."
 
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
@@ -7777,6 +7841,7 @@ msgstr "Unread"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Untimed"
@@ -8151,6 +8216,7 @@ msgid "Yesterday"
 msgstr "Yesterday"
 
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "You"
 msgstr "You"

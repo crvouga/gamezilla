@@ -87,21 +87,15 @@ export type GameMenuScreenProps = {
  * A choice as a tile, read in one line across: its picture, its name with
  * the main way in's tag beside it and what it opens under them, then a
  * chevron centred at the far edge, level with the words. Sized by its
- * words, never a tall card of empty room. `lead`: the featured tile that
- * spans its neighbours' height, read the same way across with a larger
- * picture, its words and chevron on one axis in the middle of the card.
+ * words, never a tall card of empty room.
  */
-function ChoiceTile(props: {
-  choice: GameMenuChoice;
-  lead?: boolean | undefined;
-}): JSX.Element {
+function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   return (
     <button
       type="button"
       class={`${styles['tile']} clickable clickableTint`}
       data-emphasis={props.choice.emphasis}
-      data-lead={props.lead === true}
       onClick={() => confirmNavigation(() => props.choice.onClick())}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
@@ -160,58 +154,10 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
 }
 
 /**
- * Two ways to play and one or two quiet choices: the lead tile spans the
- * height of the other way to play and the quiet rows stacked beside it,
- * so the menu is one balanced block instead of two cards over a lone
- * full-width row.
- */
-function featured(split: {
-  tiles: readonly GameMenuChoice[];
-  links: readonly GameMenuChoice[];
-}): boolean {
-  return (
-    split.tiles.length === 2 &&
-    split.links.length >= 1 &&
-    split.links.length <= 2
-  );
-}
-
-/** The lead tile, then the other way to play and the quiet rows beside it. */
-function FeaturedChoices(props: {
-  tiles: readonly GameMenuChoice[];
-  links: readonly GameMenuChoice[];
-}): JSX.Element {
-  return (
-    <div
-      class={styles['featured']}
-      style={{ '--game-menu-side-rows': String(1 + props.links.length) }}
-      role="list"
-      data-layout="featured"
-    >
-      <For each={props.tiles}>
-        {(choice, index) => (
-          <div class={styles['item']} role="listitem">
-            <ChoiceTile choice={choice} lead={index() === 0} />
-          </div>
-        )}
-      </For>
-      <For each={props.links}>
-        {(choice) => (
-          <div class={styles['item']} role="listitem">
-            <ChoiceLink choice={choice} />
-          </div>
-        )}
-      </For>
-    </div>
-  );
-}
-
-/**
- * Wide: the game's hero block, then every way to play as a large tile and,
- * under them, the quiet choices (history, stats, settings) as compact
- * rows. Two ways to play beside one or two quiet choices share one
- * balanced block (`FeaturedChoices`). A menu of quiet choices only shows
- * them all as tiles.
+ * Wide: the game's hero block, then every way to play as a tile of one
+ * size (the same title, as tall as its words) and, under them, the quiet
+ * choices (history, stats, settings) as compact rows, never spanning the
+ * row alone. A menu of quiet choices only shows them all as tiles.
  */
 function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
@@ -246,48 +192,40 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           </Show>
         </div>
       </header>
-      <Show
-        when={featured(split())}
-        fallback={
-          <>
-            <div
-              class={styles['grid']}
-              style={{ '--game-menu-columns': String(columns()) }}
-              role="list"
-              data-layout="grid"
-            >
-              <For each={split().tiles}>
-                {(choice) => (
-                  <div class={styles['item']} role="listitem">
-                    <ChoiceTile choice={choice} />
-                  </div>
-                )}
-              </For>
-            </div>
-            <Show when={split().links.length > 0}>
-              <div
-                class={styles['links']}
-                style={{
-                  '--game-menu-link-columns': String(
-                    Math.min(3, split().links.length)
-                  ),
-                }}
-                role="list"
-                data-layout="links"
-              >
-                <For each={split().links}>
-                  {(choice) => (
-                    <div class={styles['item']} role="listitem">
-                      <ChoiceLink choice={choice} />
-                    </div>
-                  )}
-                </For>
-              </div>
-            </Show>
-          </>
-        }
+      <div
+        class={styles['grid']}
+        style={{ '--game-menu-columns': String(columns()) }}
+        role="list"
+        data-layout="grid"
       >
-        <FeaturedChoices tiles={split().tiles} links={split().links} />
+        <For each={split().tiles}>
+          {(choice) => (
+            <div class={styles['item']} role="listitem">
+              <ChoiceTile choice={choice} />
+            </div>
+          )}
+        </For>
+      </div>
+      <Show when={split().links.length > 0}>
+        <div
+          class={styles['links']}
+          style={{
+            // Never one row across the whole menu: at least two columns.
+            '--game-menu-link-columns': String(
+              Math.max(2, Math.min(3, split().links.length))
+            ),
+          }}
+          role="list"
+          data-layout="links"
+        >
+          <For each={split().links}>
+            {(choice) => (
+              <div class={styles['item']} role="listitem">
+                <ChoiceLink choice={choice} />
+              </div>
+            )}
+          </For>
+        </div>
       </Show>
     </EmbeddedScreen>
   );
@@ -331,10 +269,9 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
       onClick: choice.onClick,
       leading: <ChoiceIcon choice={choice} size="row" />,
       meta: choice.emphasis === 'primary' ? choice.badge : undefined,
-      // The lead's tag heads its row: beside a long title it would take a
-      // line of its own between the title and the caption, and at the
-      // start of the caption it broke the caption's sentence.
-      metaPlacement: 'above',
+      // The lead's tag sits beside its title, so its row is the same shape
+      // as every other row (a tag over the title made the rows uneven).
+      metaPlacement: 'title',
     }))
   );
   return (

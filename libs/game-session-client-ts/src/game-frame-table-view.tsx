@@ -14,6 +14,10 @@ import {
   GamePlayerChip,
   GamePlayerRail,
 } from '@pkgs/ui-root-client-ts/game-player-rail';
+import {
+  GAME_TABLE_SEAT_AVATAR_SIZE,
+  GameTableSeat,
+} from '@pkgs/ui-root-client-ts/game-table-seat';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
@@ -77,6 +81,10 @@ function PlaySeatTags(props: { readonly seat: FramePlaySeat }): JSX.Element {
 
 type SeatProps = {
   readonly seat: FramePlaySeat;
+  /** The person's own seat, in a list of every player: tagged `You`. */
+  readonly own?: boolean | undefined;
+  /** The seat's figure on one quiet line, in a list beside an arena. */
+  readonly quietStat?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
   /** The viewer's own seat; `null` while watching. */
@@ -134,8 +142,16 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
       }
       swatch={props.seat.swatch}
       swatchLabel={props.seat.sideLabel}
-      tags={<PlaySeatTags seat={props.seat} />}
+      tags={
+        <>
+          <Show when={props.own === true}>
+            <Badge intent="info" label={<Trans>You</Trans>} />
+          </Show>
+          <PlaySeatTags seat={props.seat} />
+        </>
+      }
       stat={props.seat.stat}
+      statStyle={props.quietStat === true ? 'inline' : 'figure'}
       state={props.seat.state}
       trailing={
         props.seat.clock === null ? undefined : (
@@ -245,6 +261,9 @@ export function tableShowsTurn(
   table: FrameTable,
   compact?: boolean | undefined
 ): boolean {
+  // A board that seats its players says the turn by its table and the
+  // turn line, never a strip.
+  if (table.shape === 'board') return false;
   // A chip in the rail says nothing of the turn: the turn line does.
   const nearStrip =
     nearInRail({ table, compact, onChoose: async () => undefined }) === null;
@@ -294,12 +313,24 @@ export function FrameOthersView(props: TableProps): JSX.Element {
 }
 
 /**
+ * The person's own strip below the board: always, except where a phone's
+ * rail leads with it, or a board seats every player itself (there the strip
+ * shows only to take the side back).
+ */
+function nearStrip(props: TableProps): FramePlaySeat | null {
+  const near = props.table.near;
+  if (props.table.shape === 'board')
+    return near?.reclaim === true ? near : null;
+  return nearInRail(props) === null ? near : null;
+}
+
+/**
  * The seat below the board, nearest the person holding the device (on a
  * phone at a bigger table it leads the rail above instead).
  */
 export function FrameNearSeatView(props: TableProps): JSX.Element {
   return (
-    <Show when={nearInRail(props) === null ? props.table.near : null}>
+    <Show when={nearStrip(props)}>
       {(seat) => (
         <StackVertical testId="custom-game-seat-near">
           <FrameSeatStripView
@@ -310,6 +341,76 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
           />
         </StackVertical>
       )}
+    </Show>
+  );
+}
+
+/**
+ * One player at their place at a table the board draws itself: their
+ * avatar and name, `You` for the person's own, a stand-in or a secret
+ * choice made, and the game's own facts (the seat's name). Whether the seat
+ * still chooses, and whose turn it is, the table itself says.
+ */
+export function FrameBoardSeatView(
+  props: Omit<TableProps, 'onChoose' | 'compact'> & { readonly side: string }
+): JSX.Element {
+  const seat = (): FramePlaySeat | null =>
+    [props.table.near, ...props.table.others].find(
+      (each) => each?.side === props.side
+    ) ?? null;
+  const own = (): boolean =>
+    props.viewerSide !== null &&
+    props.viewerSide !== undefined &&
+    props.side === props.viewerSide;
+  return (
+    <Show when={seat()}>
+      {(shown) => {
+        // The own strip below the table, there only to take the side
+        // back, carries the seat's marks then.
+        const marked = (): boolean => !(own() && shown().reclaim);
+        return (
+          <GameTableSeat
+            dataSet={
+              marked() ? { testid: `custom-game-${shown().side}` } : undefined
+            }
+            placeTestId={
+              own() && marked() ? 'custom-game-seat-near' : undefined
+            }
+            name={
+              <Text
+                variant="inherit"
+                testId={
+                  marked() ? `custom-game-${shown().side}-person` : undefined
+                }
+              >
+                <FrameHolderName
+                  holder={shown().holder}
+                  plainName={shown().plainName}
+                  people={props.people}
+                />
+              </Text>
+            }
+            avatar={
+              <FrameHolderAvatar
+                holder={shown().holder}
+                plainName={shown().plainName}
+                size={GAME_TABLE_SEAT_AVATAR_SIZE}
+                people={props.people}
+              />
+            }
+            swatch={shown().swatch}
+            tags={
+              <>
+                <Show when={own()}>
+                  <Badge intent="info" label={<Trans>You</Trans>} />
+                </Show>
+                <PlaySeatTags seat={{ ...shown(), choosing: false }} />
+              </>
+            }
+            onPress={shown().onPress}
+          />
+        );
+      }}
     </Show>
   );
 }

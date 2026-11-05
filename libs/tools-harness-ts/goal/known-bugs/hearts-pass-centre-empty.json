@@ -1,0 +1,4 @@
+{
+  "summary": "While Hearts cards were passed the middle of the table was bare felt. It now says where the pass goes and fills a place for each card as it is chosen.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

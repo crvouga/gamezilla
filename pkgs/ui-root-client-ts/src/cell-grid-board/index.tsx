@@ -298,3 +298,57 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
     </div>
   );
 }
+
+/** One mark a board's cells can show, and what it means. */
+export type CellGridLegendItem = {
+  readonly glyph: string;
+  readonly tone: CellGridTone;
+  readonly outlined?: boolean | undefined;
+  /** What the mark means (`Miss`). */
+  readonly label: string;
+};
+
+/**
+ * `CellGridLegend` -- the key to a battleship-palette board's marks: each
+ * mark drawn as a small cell exactly as the board draws it, beside what it
+ * means, in one quiet row that wraps. The marks are pictures of the words,
+ * so a listener hears only the words.
+ *
+ * @example
+ * ```tsx
+ * <CellGridLegend label="Key" items={[
+ *   { glyph: '•', tone: 'quiet', label: 'Miss' },
+ *   { glyph: '✕', tone: 'alert', label: 'Hit' },
+ * ]} />
+ * ```
+ */
+export function CellGridLegend(props: {
+  readonly label: string;
+  readonly items: readonly CellGridLegendItem[];
+  readonly testId?: string | undefined;
+}): JSX.Element {
+  return (
+    <ul
+      class={styles['legend']}
+      aria-label={props.label}
+      {...dataAttrs({ component: 'CellGridLegend' })}
+      data-testid={props.testId}
+    >
+      <For each={props.items}>
+        {(item) => (
+          <li class={styles['legendItem']}>
+            <span
+              class={`${styles['cell']} ${styles['legendMark']}`}
+              data-tone={item.tone}
+              data-outlined={String(item.outlined === true)}
+              aria-hidden="true"
+            >
+              <span class={styles['glyph']}>{item.glyph}</span>
+            </span>
+            {item.label}
+          </li>
+        )}
+      </For>
+    </ul>
+  );
+}

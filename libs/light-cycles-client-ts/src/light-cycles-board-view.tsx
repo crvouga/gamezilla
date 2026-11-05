@@ -77,7 +77,7 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
 
 /**
  * How to steer, in one line under the arena: by keys on a wide screen
- * (keyboard first, so no pad is drawn there), by swipe or the pad below
+ * (keyboard first, so no pad is drawn there), by swipe or the pad beside it
  * on a phone. It also describes the arena to a listener.
  */
 function SteeringHint(props: { id: string }): JSX.Element {
@@ -114,8 +114,13 @@ function Pads(props: {
         <For each={props.board.simulation?.sides ?? []}>
           {(side) => (
             <StackVertical gap="xs" align="center">
-              <Text variant="label">{riderName(side)}</Text>
+              {/* One pad is the person's own rider, named above the arena;
+                  pads for two riders on one device say whose each is. */}
+              <Show when={(props.board.simulation?.sides.length ?? 0) > 1}>
+                <Text variant="label">{riderName(side)}</Text>
+              </Show>
               <DirectionPad
+                size="compact"
                 labels={{
                   up: t`Steer ${riderName(side)} up`,
                   right: t`Steer ${riderName(side)} right`,
@@ -178,8 +183,13 @@ function Arena(props: {
         instructionsId={instructionsId}
         testId={`${props.board.testId}-arena`}
       />
-      <SteeringHint id={instructionsId} />
-      <Pads state={props.state} board={props.board} steerable={steerable} />
+      {/* A phone's thumb pad sits beside how to steer, under the arena. */}
+      <StackHorizontal gap="md" align="center">
+        <StackVertical grow>
+          <SteeringHint id={instructionsId} />
+        </StackVertical>
+        <Pads state={props.state} board={props.board} steerable={steerable} />
+      </StackHorizontal>
     </StackVertical>
   );
 }

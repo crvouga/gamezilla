@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship had no key to its marks, so a miss, a hit (outlined ✕) and a sunk ship (filled ✖) had to be guessed. A key under the boards now draws each mark as the grid does, beside its name.",
+  "regressionTest": "libs/battleship-client-ts/tests/panel-titles.test.tsx"
+}

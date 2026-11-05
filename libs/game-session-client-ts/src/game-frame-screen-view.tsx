@@ -8,6 +8,7 @@ import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
@@ -43,6 +44,7 @@ import {
   frameWatchersLabel,
 } from './game-frame-status-view';
 import {
+  FrameBoardSeatView,
   FrameNearSeatView,
   FrameOthersView,
   tableShowsTurn,
@@ -128,9 +130,9 @@ function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
 }
 
 /**
- * While a game is set up, its board preview sits inside the Players card,
- * so the card and its picture read as one unit: beside the seats when
- * wide, heading the card on a phone, never under Start.
+ * While a game is set up, its board preview is a card of its own paired
+ * with the Players card, so the two read as one unit: beside it and as tall
+ * as it when wide, above it on a phone, never under Start.
  */
 function previewInSeats(props: Props): boolean {
   return props.phase === 'configuring' && props.setup !== null;
@@ -293,8 +295,9 @@ function asideRecord(
 /**
  * Beside a wide board, a game played by turns whose record holds nothing
  * yet (no move, no earlier game, no refusal: Hearts while hands are
- * passed) shows no empty "Game record" card: the rail holds only the
- * game's commands and its way to the history, until the first move lands.
+ * passed): its "Game record" card holds the game's line about what happens
+ * now, the way to the history and the game's commands, so the rail is the
+ * same card as every other game's and never an empty one.
  */
 function unplayedBeside(
   props: Props,
@@ -311,17 +314,23 @@ function unplayedBeside(
   );
 }
 
-/** The rail beside a board whose record holds nothing yet: commands and history only. */
+/**
+ * The rail beside a board whose record holds nothing yet: the record's card,
+ * its caption the game's line about what happens now.
+ */
 function FrameUnplayedRail(props: Props): JSX.Element {
   const mode = useLayoutMode();
   return (
     <Show when={unplayedBeside(props, mode) ? shownRecord(props) : null}>
       {(shown) => (
-        <StackVertical gap="sm" testId="custom-game-unplayed-rail">
-          <FrameActions {...props} width="content" />
-          <GameActions>
-            <FrameHistoryLink {...props} record={shown()} quiet />
-          </GameActions>
+        <StackVertical testId="custom-game-unplayed-rail">
+          <FrameRecordView
+            {...props}
+            record={shown()}
+            layout="panel"
+            caption={railCaption(props, mode)}
+            commands={<FrameActions {...props} width="content" />}
+          />
         </StackVertical>
       )}
     </Show>
@@ -340,30 +349,56 @@ function arenaBeside(
 }
 
 /**
- * Beside a wide arena a plain line about the game (the round, the serve)
- * is the scoreboard's caption, not a pill under the arena; a warning
- * (reconnecting, a stand-in) still shows by the arena.
+ * Beside a wide arena, or a board whose record holds no move yet, a plain
+ * line about the game (the round, the serve, the pass) is the rail card's
+ * caption, not a pill under the board; a warning (reconnecting, a
+ * stand-in) still shows by the board.
  */
-function arenaCaption(
+function railCaption(
   props: Props,
   mode: ReturnType<typeof useLayoutMode>
 ): string | undefined {
-  return arenaBeside(props, mode) &&
-    props.status !== null &&
-    props.status.tone === 'neutral' &&
-    !props.status.sending &&
-    props.status.description !== ''
-    ? props.status.description
+  const status = props.status;
+  if (
+    status === null ||
+    status.tone !== 'neutral' ||
+    status.sending ||
+    status.description === ''
+  )
+    return undefined;
+  return arenaBeside(props, mode) ||
+    unplayedBeside(props, mode) ||
+    recordCaptioned(props, mode)
+    ? status.description
     : undefined;
 }
 
 /**
- * A phone's real-time game keeps its way to the space's history beside
- * the play actions, as its record has no card of its own.
+ * Beside a wide board during play, the game's own line about the turn
+ * (`Red fleet fired at C4 and missed. Your turn to fire.`) heads the record
+ * card, so the board and the seats around it fit the window's height. The
+ * plain `<Side> to move.` stays with the seat that says it.
  */
-function FrameArenaHistory(props: Props): JSX.Element {
+function recordCaptioned(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  return (
+    props.phase === 'active' &&
+    props.status?.plainTurn !== true &&
+    asideRecord(props, mode) !== null &&
+    commandsInRecord(props, mode)
+  );
+}
+
+/**
+ * A phone's real-time game keeps its way to the space's history in one row
+ * with the play actions (Resign, then History and stats), as its record
+ * has no card of its own; every other game's actions stand alone.
+ */
+function FramePlayActions(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  const record = (): FrameRecord | null => {
+  const history = (): FrameRecord | null => {
     const shown = shownRecord(props);
     return shown !== null &&
       !arenaBeside(props, mode) &&
@@ -373,8 +408,13 @@ function FrameArenaHistory(props: Props): JSX.Element {
       : null;
   };
   return (
-    <Show when={record()}>
-      {(shown) => <FrameHistoryLink {...props} record={shown()} quiet />}
+    <Show when={history()} fallback={<FrameActions {...props} />}>
+      {(shown) => (
+        <GameActions>
+          <FrameActions {...props} width="content" />
+          <FrameHistoryLink {...props} record={shown()} quiet />
+        </GameActions>
+      )}
     </Show>
   );
 }
@@ -420,7 +460,7 @@ function FrameRecordAside(props: Props): JSX.Element {
           <FrameArenaRailView
             {...props}
             record={shown()}
-            caption={arenaCaption(props, mode)}
+            caption={railCaption(props, mode)}
             commands={
               <Show when={!arenaRecordShown(shown())}>
                 <FrameActions {...props} width="content" />
@@ -444,6 +484,7 @@ function FrameRecordPanelAside(props: Props): JSX.Element {
           {...props}
           record={shown()}
           layout="panel"
+          caption={railCaption(props, mode)}
           commands={
             <Show when={commandsInRecord(props, mode)}>
               <FrameActions {...props} width="content" />
@@ -504,8 +545,7 @@ function FrameBoardStage(props: Props): JSX.Element {
           <FrameStatusView
             status={props.status}
             spokenOnly={
-              turnInSeats(props, mode) ||
-              arenaCaption(props, mode) !== undefined
+              turnInSeats(props, mode) || railCaption(props, mode) !== undefined
             }
           />
         </Show>
@@ -522,7 +562,20 @@ function FrameBoardStage(props: Props): JSX.Element {
         </Show>
       }
     >
-      {props.board}
+      <Show when={props.table.shape === 'board'} fallback={props.board}>
+        <GameTableSeats
+          seat={(side) => (
+            <FrameBoardSeatView
+              table={props.table}
+              people={props.people}
+              viewerSide={props.viewerSide}
+              side={side}
+            />
+          )}
+        >
+          {props.board}
+        </GameTableSeats>
+      </Show>
       <FrameErrorView
         text={
           props.stopped
@@ -572,8 +625,7 @@ function FrameContent(props: Props): JSX.Element {
       status={<FrameStatusRow {...props} />}
       actions={
         <Show when={!commandsInRecord(props, mode)}>
-          <FrameActions {...props} />
-          <FrameArenaHistory {...props} />
+          <FramePlayActions {...props} />
         </Show>
       }
       footer={

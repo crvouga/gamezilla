@@ -17,6 +17,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
 
@@ -168,9 +169,11 @@ test('phone: every player shows above the arena, the person first and marked as 
 
 // regression: unplayed-game-record-card — beside a wide Hearts table, while
 // the hands were passed and nothing was played yet, the rail was a "Game
-// record" card with nothing in it but History and stats. A game played by
-// turns shows its record card only once it holds something.
-test('wide: a game played by turns with no move yet has no empty record card', () => {
+// record" card with nothing in it but History and stats. Then it was only a
+// stray Resign and History. A game played by turns with no move yet keeps
+// the record card every game's rail has, its caption the game's line about
+// what happens now, so the card is never empty.
+test('wide: a game played by turns with no move yet captions its record card with the turn line', () => {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
@@ -190,24 +193,71 @@ test('wide: a game played by turns with no move yet has no empty record card', (
       </ThemeProvider>
     </ClockProvider>
   ));
-  expect(
-    document.querySelector('[data-component="CustomGameReview"]')
-  ).toBeNull();
   const rail = screen.getByTestId('custom-game-unplayed-rail');
+  const card = rail.querySelector('[data-component="CustomGameReview"]');
+  expect(card?.textContent).toContain('Game record');
+  expect(card?.textContent).toContain('Round 1 · first to 3');
   expect(
-    rail.querySelector('[data-testid="custom-game-resign"]')
+    card?.querySelector('[data-testid="custom-game-resign"]')
   ).not.toBeNull();
   expect(
-    rail.querySelector('[data-testid="custom-game-history-stats"]')
+    card?.querySelector('[data-testid="custom-game-history-stats"]')
   ).not.toBeNull();
-  // The commands show once, in the rail.
+  // The commands show once, in the card; the line is not drawn twice.
   expect(screen.getAllByTestId('custom-game-resign')).toHaveLength(1);
+  expect(
+    screen
+      .getByTestId('custom-game-status')
+      .closest('[data-component="GameTurnPill"]')
+      ?.getAttribute('data-spoken-only')
+  ).toBe('true');
+});
+
+// regression: hearts-seats-shown-twice — at a Hearts table every player
+// showed twice: as a chip above the table and as a seat plate on it. A
+// board that seats its players is lent each one, at their place at the
+// table, and the frame draws no seats around it.
+test('a board that seats its players is lent each player and no seat is drawn around it', () => {
+  const time = createHarnessClock();
+  const Seated = () => {
+    const lend = useGameTableSeat();
+    return <>{lend?.('black')}</>;
+  };
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          record={{ ...RECORD, turns: true }}
+          table={{
+            shape: 'board',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan'), seat('red', 'morgan')],
+          }}
+          board={<Seated />}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  expect(
+    document.querySelector('[data-component="GamePlayerRail"]')
+  ).toBeNull();
+  expect(screen.queryByTestId('custom-game-seat-near')).toBeNull();
+  const lent = screen.getByTestId('custom-game-black');
+  expect(lent.getAttribute('data-component')).toBe('GameTableSeat');
+  expect(screen.getByTestId('custom-game-black-person').textContent).toBe(
+    'jordan'
+  );
+  expect(screen.getAllByTestId('custom-game-black')).toHaveLength(1);
 });
 
 // regression: setup-preview-below-start — on a phone the board preview of a
-// game being set up fell under the Players card, after Start. It now heads
-// the Players card on a phone, as it sits beside the seats when wide.
-test('phone and wide: the board preview of a game being set up is in the Players card, before Start', () => {
+// game being set up fell under the Players card, after Start. It now leads
+// the Players card's pair on a phone, as it sits beside the card when wide.
+test('phone and wide: the board preview of a game being set up is paired with the Players card, before Start', () => {
   for (const width of [390, 1440]) {
     const time = createHarnessClock();
     renderWithI18n(() => (
@@ -236,12 +286,91 @@ test('phone and wide: the board preview of a game being set up is in the Players
     ));
     const preview = screen.getByTestId('custom-game-public');
     const start = screen.getByTestId('custom-game-start');
-    const card = preview.closest('[data-component="GameSection"]');
-    expect(card).not.toBeNull();
-    expect(card?.contains(start)).toBe(true);
+    // Paired with the Players card, which Start closes.
+    const pair = preview.closest('[data-component="GameSectionPair"]');
+    expect(pair).not.toBeNull();
+    expect(pair?.contains(start)).toBe(true);
     expect(
       preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
     cleanup();
   }
+});
+
+// regression: battleship-own-seat-below-fold — on a 900px-tall window
+// Battleship's turn line sat under the board, pushing the person's own seat
+// ("Your move") below the fold. Beside a wide board during play the game's
+// own line heads the record card instead; the plain `<Side> to move.` stays
+// with the seat that says it.
+test("wide: during play the game's own turn line heads the record card, not the board", () => {
+  const time = createHarnessClock();
+  const line = 'Red fleet fired at C4 and missed. Your turn to fire.';
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          status={{ ...props().status!, description: line }}
+          record={{
+            ...RECORD,
+            turns: true,
+            moves: ['a1', 'b2'],
+            displayedPly: 2,
+          }}
+          table={{
+            shape: 'strip',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const card = document.querySelector('[data-component="CustomGameReview"]');
+  expect(card?.textContent).toContain(line);
+  expect(
+    screen
+      .getByTestId('custom-game-status')
+      .closest('[data-component="GameTurnPill"]')
+      ?.getAttribute('data-spoken-only')
+  ).toBe('true');
+});
+
+// regression: arena-commands-loose — on a phone a real-time game's Resign
+// and History and stats sat as two loose links, one under the other. They
+// share one actions row, as every game's commands do.
+test('phone: a real-time game keeps Resign and its history in one actions row', () => {
+  mount(390);
+  const resign = screen.getByTestId('custom-game-resign');
+  const history = screen.getByTestId('custom-game-history-stats');
+  const row = resign.closest('[data-component="GameActions"]');
+  expect(row).not.toBeNull();
+  expect(row?.contains(history)).toBe(true);
+});
+
+// regression: arena-own-seat-unmarked — beside a wide arena the players'
+// card listed every player alike, so the person could not tell which was
+// theirs. Their own strip says "You".
+test("wide: the players' card tags the person's own strip You", () => {
+  mount(1440);
+  const own = screen.getByTestId('custom-game-white');
+  expect(own.textContent).toContain('You');
+  expect(screen.getByTestId('custom-game-black').textContent).not.toContain(
+    'You'
+  );
+});
+
+// regression: arena-scores-loud — beside a wide Light Cycles arena each
+// player's round wins were large figures that competed with the arena. In
+// the players' card each figure sits on one quiet line with its label.
+test("wide: the players' card shows each figure on one quiet line", () => {
+  mount(1440);
+  const figure = screen
+    .getByTestId('custom-game-white')
+    .querySelector('[data-component="GameSeatStat"]');
+  expect(figure?.textContent).toBe('Wins 0');
+  expect(figure?.querySelector('.textStat')).toBeNull();
 });

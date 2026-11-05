@@ -39,6 +39,17 @@ export type CardTableSeat = {
   /** The card this seat put on the table in the trick under way. */
   readonly played: CardTableCard | null;
   readonly testId: string;
+  /**
+   * The person in the seat (`GameTableSeat`: avatar, name, tags), when the
+   * host knows them; the seat's `name` stays its accessible name.
+   */
+  readonly player?: JSX.Element | undefined;
+  /**
+   * Where the seat is in the phase open now (`Choosing`, `Passed`): shown
+   * among its facts, or, with a `player` whose tags already say it, kept
+   * for a listener only.
+   */
+  readonly status?: string | undefined;
 };
 
 export type CardTableHandCard = CardTableCard & {
@@ -52,6 +63,8 @@ export type CardTableHandCard = CardTableCard & {
 
 export type CardTableAction = {
   readonly label: string;
+  /** Beside the action, how far the selection is (`2 of 3 chosen`). */
+  readonly status?: string | undefined;
   readonly enabled: boolean;
   /** Sent and awaiting the game: shown in progress, not pressable again. */
   readonly pending?: boolean | undefined;
@@ -81,7 +94,19 @@ export type CardTableProps = {
   readonly cardTestId: (id: string) => string;
   readonly onCard: (id: string) => void;
   readonly action?: CardTableAction | undefined;
+  /**
+   * While cards are chosen to pass: the middle of the table shows where
+   * they go (`Passing left`) and a place for each, filled as they are chosen.
+   */
+  readonly pass?: CardTablePass | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
+};
+
+/** The pass being chosen: where it goes, how many cards, and those chosen. */
+export type CardTablePass = {
+  readonly label: string;
+  readonly size: number;
+  readonly cards: readonly CardTableCard[];
 };
 
 const SYMBOLS: Readonly<Record<CardSuit, string>> = {
@@ -102,8 +127,10 @@ function spokenName(card: CardTableCard): string {
 /**
  * A card's face as a real card prints it: the rank in the top corner with a
  * small suit pip under it (drawn by the stylesheet, so a listener and a
- * reader of the words meet the suit once), a large pip in the middle, and
- * the suit's name across the foot, so a suit is never told by colour alone.
+ * reader of the words meet the suit once) and a large pip in the middle, so
+ * a suit is never told by colour alone. The suit's name is in the card's
+ * words and its spoken name, not printed on the face: a fanned card shows
+ * only its corner, where a name would be too small to read.
  */
 function CardFace(props: { card: CardTableCard }): JSX.Element {
   return (
@@ -112,7 +139,7 @@ function CardFace(props: { card: CardTableCard }): JSX.Element {
       <span aria-hidden="true" class={styles['suit']}>
         {SYMBOLS[props.card.suit]}
       </span>{' '}
-      <span class={styles['suitName']}>{props.card.suitName}</span>
+      <span class={styles['spoken']}>{props.card.suitName}</span>
     </>
   );
 }
@@ -124,17 +151,34 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
     <section
       class={styles['seat']}
       data-trick={String(props.trick)}
+      data-player={String(seat().player !== undefined)}
       data-position={seat().position}
       data-active={String(seat().active)}
       data-testid={seat().testId}
       aria-label={seat().name}
       aria-current={seat().active ? 'step' : undefined}
     >
-      <span class={styles['name']}>{seat().name}</span>
+      <Show
+        when={seat().player}
+        fallback={<span class={styles['name']}>{seat().name}</span>}
+      >
+        {seat().player}
+      </Show>
       <span class={styles['facts']}>
         <Index each={seat().facts}>
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
         </Index>
+        <Show when={seat().status}>
+          {(status) => (
+            <span
+              class={
+                seat().player === undefined ? styles['fact'] : styles['spoken']
+              }
+            >
+              {status()}
+            </span>
+          )}
+        </Show>
       </span>
     </section>
   );
@@ -193,6 +237,17 @@ function fanOffset(index: number, count: number): number {
   return index - (count - 1) / 2;
 }
 
+/**
+ * More cards than one narrow row shows whole: a narrow hand lays them in two
+ * staggered rows (the first holding one more), every corner in view.
+ */
+const ONE_ROW_MAX = 7;
+
+/** The row a card sits in when a narrow hand needs two: 0 or 1. */
+function handRow(index: number, count: number): number {
+  return count > ONE_ROW_MAX && index >= Math.ceil(count / 2) ? 1 : 0;
+}
+
 function Hand(
   props: CardTableProps & { readonly onRefused: (reason: string) => void }
 ): JSX.Element {
@@ -244,6 +299,7 @@ function Hand(
       style={{ '--hand-count': String(Math.max(1, props.hand.length)) }}
       role="toolbar"
       aria-label={props.handLabel}
+      data-rows={props.hand.length > ONE_ROW_MAX ? '2' : '1'}
       data-testid={`${props.testId}-hand`}
     >
       <For each={ids()}>
@@ -254,6 +310,8 @@ function Hand(
                 type="button"
                 class={styles['card']}
                 style={{ '--fan': String(fanOffset(index(), ids().length)) }}
+                data-row={String(handRow(index(), ids().length))}
+                data-refused={String(card().refusal !== undefined)}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
                 data-card={id}
@@ -284,24 +342,92 @@ function Hand(
 }
 
 /**
+ * While cards are chosen to pass, the middle of the table: where they go,
+ * and a place for each, filled with the chosen cards in the order chosen.
+ * The hand already says which are chosen, so this is drawn, not spoken.
+ */
+function PassArea(props: { pass: CardTablePass }): JSX.Element {
+  const places = createMemo((): readonly (CardTableCard | null)[] => {
+    const cards = props.pass.cards;
+    return Array.from(
+      { length: props.pass.size },
+      (_, at) => cards[at] ?? null
+    );
+  });
+  return (
+    <div class={styles['pass']} aria-hidden="true">
+      <span class={styles['passLabel']}>{props.pass.label}</span>
+      <span class={styles['passPlaces']}>
+        <Index each={places()}>
+          {(card) => (
+            <span class={styles['slot']} data-filled={String(card() !== null)}>
+              <Show when={card()}>
+                {(shown) => (
+                  <span class={styles['card']} data-suit={shown().suit}>
+                    <CardFace card={shown()} />
+                  </span>
+                )}
+              </Show>
+            </span>
+          )}
+        </Index>
+      </span>
+    </div>
+  );
+}
+
+/**
+ * The action under the hand: how far the selection is, in words, beside
+ * the button that confirms it. Once sent the button goes quiet and says it
+ * is on its way, as a status rather than a filled button.
+ */
+function ActionRow(props: { action: CardTableAction }): JSX.Element {
+  const pending = (): boolean => props.action.pending === true;
+  return (
+    <div class={styles['action']}>
+      <p class={styles['actionStatus']} aria-live="polite">
+        {props.action.status}
+      </p>
+      <Button
+        title={props.action.label}
+        variant={pending() ? 'ghost' : 'solid'}
+        disabled={!props.action.enabled}
+        loading={pending()}
+        loadingLabel={props.action.label}
+        onClick={() => {
+          if (!pending()) props.action.onActivate();
+        }}
+        dataSet={{ testid: props.action.testId }}
+      />
+    </div>
+  );
+}
+
+/**
  * `CardTable` -- four seats around a card game's shared play, and the
  * viewer's own hand.
  *
- * Each seat is a plate at its edge of the felt: who sits there, its facts
- * on one quiet line (cards held, score), and whether it is deciding now (a
- * strong accent ring, and `aria-current`). The middle of the table holds the
- * trick: every seat's card on its own side, an empty place for a seat yet to
- * play. The centre says what the table is doing; a host that already shows
- * that line beside the table keeps it for listeners only
+ * Each seat is a plate at its edge of the felt: the person sitting there
+ * when the host lends them (`player`, a `GameTableSeat`), else the seat's
+ * name, then its facts on one quiet line (cards held, score), and whether it
+ * is deciding now (`aria-current`; while tricks are played also a strong
+ * accent ring, while cards are passed every seat chooses at once and the
+ * ring stays off). The middle of the table holds the trick: every seat's
+ * card on its own side, an empty place for a seat yet to play; while cards
+ * are passed it shows where they go and a place for each card chosen
+ * (`pass`). The centre says what the table is doing; a host that already
+ * shows that line beside the table keeps it for listeners only
  * (`centerSpokenOnly`). Cards are drawn as cards: the rank and a small pip
- * in the corner, a large pip in the middle, the suit's name at the foot.
- * The hand is a fanned, overlapping row of card buttons whose corners stay
- * readable; a chosen card lifts out of the fan with a strong ring. Arrow
- * keys, Home and End move between them, Enter or Space plays or selects a
- * card, and a card the rules do not allow says why instead of acting. Focus
- * stays in the hand when a played card leaves it. Suits are written as
- * symbols and names, never told by colour alone. An optional action
- * confirms a selection (passing cards) and shows when it is sent.
+ * in the corner and a large pip in the middle, at full contrast; only a card
+ * the rules refuse is dimmed. The hand is a fanned, overlapping row of card
+ * buttons whose corners stay readable (on a narrow table, more than seven
+ * cards sit in two staggered rows); a chosen card lifts out with a strong
+ * ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * selects a card, and a card the rules do not allow says why instead of
+ * acting. Focus stays in the hand when a played card leaves it. Suits are
+ * written as symbols and named in each card's words, never told by colour
+ * alone. An optional action confirms a selection (passing cards), with how
+ * far the selection is beside it, and shows when it is sent.
  *
  * @example
  * ```tsx
@@ -333,6 +459,9 @@ export function CardTable(props: CardTableProps): JSX.Element {
         <Show when={props.seats.length > 0}>
           <Trick seats={props.seats} trick={props.trick === true} />
         </Show>
+        <Show when={props.trick !== true && props.pass}>
+          {(pass) => <PassArea pass={pass()} />}
+        </Show>
         <p
           class={styles['center']}
           data-spoken-only={String(props.centerSpokenOnly === true)}
@@ -351,20 +480,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
         {refusal()}
       </p>
       <Show when={props.action}>
-        {(action) => (
-          <Button
-            title={action().label}
-            variant="solid"
-            fullWidth
-            disabled={!action().enabled}
-            loading={action().pending === true}
-            loadingLabel={action().label}
-            onClick={() => {
-              if (action().pending !== true) action().onActivate();
-            }}
-            dataSet={{ testid: action().testId }}
-          />
-        )}
+        {(action) => <ActionRow action={action()} />}
       </Show>
     </div>
   );

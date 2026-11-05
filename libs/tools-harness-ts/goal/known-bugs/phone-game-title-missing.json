@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a game in play hid its title, so its Unrated / Untimed chips floated alone under the space's bar. The title now shows with its facts on one compact line, smaller than the display face so it never pushes the board down.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-screen-phone-title.test.tsx"
+}

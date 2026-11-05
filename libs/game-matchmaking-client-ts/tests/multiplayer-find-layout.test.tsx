@@ -2,6 +2,8 @@
 /** Before a search: one card holds the choice, its conditions and what the person brings. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { MultiplayerScreenView } from '@libs/game-matchmaking-client-ts/multiplayer-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -60,14 +62,19 @@ test('wide: the search, the ratings and a short guide are one card, with no rail
 // regression: match-conditions-unlike-game-chips — the conditions were
 // plain "Rated · No clock" text while a game's title showed "Unrated"
 // "Untimed" as chips, and wide they floated about 60px above the command.
-test("the conditions are the game's settings chips, right above the command", () => {
+// regression: match-chips-look-pressable — the conditions were then pills
+// that looked pressable and said "No clock" where a game says "Untimed".
+// They are the game's own quiet settings line, in the game's words.
+test("the conditions are the game's settings line, right above the command", () => {
   for (const width of [390, 1440]) {
     mount(width);
     const conditions = screen.getByTestId('multiplayer-find-conditions');
-    const chips = [
-      ...conditions.querySelectorAll('[data-component="Badge"]'),
-    ].map((chip) => chip.textContent);
-    expect(chips).toEqual(['Rated', 'No clock']);
+    expect(conditions.getAttribute('data-component')).toBe('GameFacts');
+    expect(conditions.querySelector('[data-component="Badge"]')).toBeNull();
+    const facts = [
+      ...conditions.querySelectorAll('[data-component="GameFact"]'),
+    ].map((fact) => fact.textContent);
+    expect(facts).toEqual(['Rated', 'Untimed']);
     // The chips and the command are one group: the command comes next.
     const actions = conditions.nextElementSibling;
     expect(
@@ -118,4 +125,35 @@ test('a provisional rating keeps its "?" quietly, its tag saying what it means',
   const tag = screen.getByTestId('multiplayer-rating-game-provisional');
   expect(tag.textContent).toBe('Provisional');
   expect(tag.getAttribute('data-intent')).toBe('info');
+});
+
+// regression: matchmaking-card-too-wide — wide, the search card spanned the
+// whole 960px game column for three items, and nothing said what a found
+// opponent meant for the space. The card holds two form-width columns at
+// the column's start, and under Find an opponent it says the game opens in
+// this space, where everyone can watch.
+test('wide: the search card keeps two form-width columns and says what happens to the space', () => {
+  mount(1440);
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-ui.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toContain('--game-search-split-measure: 45rem;');
+  const wide = css.slice(
+    css.indexOf('@container game-column (min-width: 880px)')
+  );
+  expect(wide).toMatch(
+    /\[data-setup-split="true"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+  );
+  const note = screen.getByTestId('multiplayer-find-space');
+  expect(note.textContent).toContain('opens in this space');
+  expect(note.textContent).toContain('everyone can watch');
+  // The note follows the command, in the same group.
+  expect(
+    screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
 });

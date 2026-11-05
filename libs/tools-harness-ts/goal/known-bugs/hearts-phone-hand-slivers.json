@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the thirteen-card Hearts hand was one fan of narrow slivers with the suit's name printed sideways in tiny type. A narrow hand of more than seven cards now sits in two staggered rows with each corner readable, and the suit's name is in each card's words rather than printed on its edge.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

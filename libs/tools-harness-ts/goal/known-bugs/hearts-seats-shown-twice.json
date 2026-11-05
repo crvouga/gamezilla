@@ -1,0 +1,4 @@
+{
+  "summary": "At a Hearts table every player showed twice, as a chip above the table and as a bordered seat box repeating \"13 cards Score 0 Choosing\" on it. The frame now lends each player to the table, which seats them once at their place with their avatar, and draws no seats around it.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

@@ -1,4 +1,4 @@
 {
-  "summary": "Matchmaking said its conditions as plain \"Rated · No clock\" text while a game's title showed its settings as \"Unrated\" \"Untimed\" chips, and on a wide card the text floated about 60px above Find an opponent. The conditions are now the same settings chips, grouped right above the command.",
+  "summary": "Matchmaking said its conditions as plain \"Rated · No clock\" text while a game's title showed its settings as \"Unrated\" \"Untimed\" chips, and on a wide card the text floated about 60px above Find an opponent. Both now use the same quiet settings line, grouped right above the command.",
   "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
 }

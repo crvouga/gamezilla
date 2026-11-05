@@ -94,3 +94,34 @@ export function heartsRefusal(reason: string): string | undefined {
   };
   return refusals[reason];
 }
+
+/** The pass button, named by where the cards go: `Pass left`. */
+export function passAction(direction: PassDirection): string {
+  const actions: Readonly<Record<PassDirection, string>> = {
+    left: t`Pass left`,
+    right: t`Pass right`,
+    across: t`Pass across`,
+    hold: t`Keep your cards`,
+  };
+  return actions[direction];
+}
+
+/**
+ * Over the places for the pass in the middle of the table: where the cards
+ * go, while they are chosen (`To the left`) and once passed.
+ */
+export function passHeading(direction: PassDirection, passed: boolean): string {
+  const choosing: Readonly<Record<PassDirection, string>> = {
+    left: t`Passing to the left`,
+    right: t`Passing to the right`,
+    across: t`Passing across`,
+    hold: t`No passing this deal`,
+  };
+  const sent: Readonly<Record<PassDirection, string>> = {
+    left: t`Passed to the left`,
+    right: t`Passed to the right`,
+    across: t`Passed across`,
+    hold: t`No passing this deal`,
+  };
+  return (passed ? sent : choosing)[direction];
+}

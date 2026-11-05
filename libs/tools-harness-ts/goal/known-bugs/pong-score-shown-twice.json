@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Pong's score showed twice: large in the court's halves and again as \"Points\" on each player's strip. The court alone shows the points.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-frame-commands.test.ts"
+}

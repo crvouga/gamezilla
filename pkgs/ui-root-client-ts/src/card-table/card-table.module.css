@@ -58,19 +58,19 @@
  * one trick.
  */
 .table {
-  --card-w: 44px;
+  --card-w: 40px;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   grid-template-areas:
-    ". top ."
+    "top top top"
     "left center right"
-    ". bottom .";
+    "bottom bottom bottom";
   align-items: center;
   justify-items: center;
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-2) var(--ui-space-1);
   width: 100%;
-  padding: var(--ui-space-3);
+  padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
   border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
@@ -88,9 +88,31 @@
   border: 2px solid transparent;
   background: var(--ui-color-background);
 }
-/* Deciding now: a strong ring in the table's accent, never colour alone
-   (the seat is also `aria-current`). */
-.seat[data-active="true"] {
+/* A seat with its person: one compact plate, the person over their facts. */
+.seat[data-player="true"] {
+  container-type: inline-size;
+  gap: var(--ui-space-1);
+  width: 100%;
+  padding: var(--ui-space-2) var(--ui-space-1);
+}
+/* A narrow seat (beside a phone's table) lists its facts one under another. */
+@container (max-width: 7.5rem) {
+  .seat[data-player="true"] .facts {
+    flex-direction: column;
+    align-items: center;
+  }
+  .seat[data-player="true"] .fact + .fact::before {
+    content: none;
+  }
+}
+.seat[data-player="true"][data-position="top"],
+.seat[data-player="true"][data-position="bottom"] {
+  max-width: 16rem;
+}
+/* Deciding now, while tricks are played: a strong ring in the table's
+   accent, never colour alone (the seat is also `aria-current`). While cards
+   are passed every seat chooses at once, and its tags say so. */
+.seat[data-trick="true"][data-active="true"] {
   border-color: var(--ui-color-game-hearts-accent);
   box-shadow: var(--ui-shadow-float);
 }
@@ -124,6 +146,41 @@
 }
 .fact {
   white-space: nowrap;
+}
+.fact + .fact::before {
+  content: "·";
+  margin-inline-end: var(--ui-space-2);
+}
+/* Said to a listener and kept in the words, not drawn. */
+.spoken {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/* While cards are passed: where they go, and a place for each. */
+.pass {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-2);
+}
+.passLabel {
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-xs, 0.75rem);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
+}
+.passPlaces {
+  display: flex;
+  gap: var(--ui-space-1);
+}
+.pass .slot[data-filled="false"] {
+  border: 1px dashed var(--ui-color-outline);
 }
 /*
  * The trick: a cross of four places, each seat's card on the side of the
@@ -273,23 +330,6 @@
   font-size: calc(var(--card-w) * 0.52);
   line-height: 1;
 }
-/* The suit's name down the corner's edge, under the index. */
-.suitName {
-  position: absolute;
-  top: 2.375rem;
-  left: var(--ui-space-1);
-  width: 1.25rem;
-  max-height: calc(100% - 2.625rem);
-  overflow: hidden;
-  writing-mode: vertical-rl;
-  font-size: 0.5rem;
-  font-weight: var(--ui-font-weight-bold);
-  letter-spacing: 0.08em;
-  line-height: 1.25rem;
-  text-align: start;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
 /*
  * The hand: one fanned row of overlapping cards, every corner index in
  * view. Each card steps along by what the row leaves it (never more than
@@ -342,8 +382,10 @@ button.card {
 button.card[aria-disabled="true"] {
   cursor: default;
 }
-/* Not playable now: the face dims, still a card, never see-through. */
-button.card[aria-disabled="true"]:not([aria-pressed="true"]) {
+/* Refused by the rules now: the face dims, still a card, never
+   see-through. A card that is only waiting (another seat's turn, a pass on
+   its way) keeps full contrast. */
+button.card[data-refused="true"]:not([aria-pressed="true"]) {
   filter: brightness(0.72);
 }
 /* Chosen: lifted 14px out of the fan and ringed in the table's accent, so
@@ -363,6 +405,60 @@ button.card:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
 }
+/*
+ * A narrow table with more than seven cards: two staggered rows, the second
+ * overlapping the first's lower half, so every card's corner reads whole.
+ * Seven cards step across the row, each nearly its whole width in view.
+ */
+@container (max-width: 32rem) {
+  .hand[data-rows="2"] {
+    flex-wrap: wrap;
+    padding-inline: 0;
+  }
+  .hand[data-rows="2"]::before {
+    content: "";
+    order: 1;
+    flex-basis: 100%;
+    height: 0;
+  }
+  .hand[data-rows="2"] > .card {
+    --card-w: min(60px, 100cqw / 6.4);
+    transform: none;
+  }
+  .hand[data-rows="2"] > .card[data-row="1"] {
+    order: 2;
+    margin-top: calc(var(--card-w) * -0.72);
+  }
+  .hand[data-rows="2"] > .card + .card {
+    margin-inline-start: calc((100cqw - var(--card-w)) / 6 - var(--card-w));
+  }
+  .hand[data-rows="2"] > .card[data-row="0"] + .card[data-row="1"] {
+    margin-inline-start: 0;
+  }
+  .hand[data-rows="2"] > button.card[aria-pressed="true"] {
+    transform: translateY(calc(-1 * var(--ui-space-3)));
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  @container (max-width: 32rem) {
+    .hand[data-rows="2"] > button.card:not([aria-disabled="true"]):hover {
+      transform: translateY(calc(-1 * var(--ui-space-1)));
+    }
+  }
+}
+/* How far the selection is, beside the action that confirms it. */
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-3);
+  min-height: 2.75rem;
+}
+.actionStatus {
+  margin: 0;
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-sm);
+}
 .refusal {
   margin: 0;
   text-align: center;
@@ -377,9 +473,4 @@ button.card:focus-visible {
   .card {
     transition: none;
   }
-}
-/* A card in the trick is read by its corner and pip (and named in full to
-   a listener); its name's edge stays clear at the trick's smaller size. */
-.trick .suitName {
-  display: none;
 }

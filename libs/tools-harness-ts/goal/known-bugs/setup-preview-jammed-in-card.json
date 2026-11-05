@@ -1,0 +1,4 @@
+{
+  "summary": "While a custom game was set up, its board preview sat inside the Players card: under the Players heading on a phone, and as a third \"player\" column beside the seats when wide. The preview is now a card of its own paired with the Players card: above it on a phone, beside it and as tall as it when wide.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

@@ -10,7 +10,7 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
       screen: 'custom-game',
-      title: 'Play with friends or bots',
+      title: 'Play with friends',
       caption: 'With the people in this space, or bots',
     },
     {
@@ -88,7 +88,7 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Play with friends or bots',
+        title: 'Play with friends',
         caption: 'With the people in this space, or bots',
       },
       {

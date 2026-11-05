@@ -24,7 +24,7 @@ function threeChoices(width: number) {
         choices={[
           {
             key: 'custom-game',
-            title: 'Play with friends or bots',
+            title: 'Play with friends',
             caption: 'With the people in this space, or bots',
             icon: UsersIcon,
             emphasis: 'primary',
@@ -146,7 +146,7 @@ describe('GameMenuScreen', () => {
   // regression: game-menu-lead-empty-top — wide, the featured lead tile
   // stacked its picture over its words, leaving an empty top, with its
   // chevron centred apart from the words. It reads across like every tile.
-  test("wide: the featured lead reads across, its chevron on its words' axis", () => {
+  test("wide: the lead reads across, its chevron on its words' axis", () => {
     const css = readFileSync(
       join(
         import.meta.dirname,
@@ -154,10 +154,10 @@ describe('GameMenuScreen', () => {
       ),
       'utf8'
     );
-    const lead = css.slice(css.indexOf('.tile[data-lead="true"] {'));
-    const rule = lead.slice(0, lead.indexOf('}'));
-    expect(rule).not.toContain('flex-direction: column');
-    expect(css).not.toMatch(/\.tile\[data-lead="true"\] \.chevron/);
+    const tile = css.slice(css.indexOf('.tile {'));
+    const rule = tile.slice(0, tile.indexOf('}'));
+    expect(rule).toContain('flex-direction: row');
+    expect(rule).toContain('align-items: center');
     const view = threeChoices(1440);
     expect(view.getByTestId('choice-play').children).toHaveLength(3);
     view.unmount();
@@ -193,33 +193,37 @@ describe('GameMenuScreen', () => {
 
   // regression: game-menu-uneven-hierarchy — wide, two large tiles sat over
   // one slim full-width "History and stats" row, an uneven block.
-  test('wide: two ways to play and a look back are one balanced block, the lead spanning both rows beside it', () => {
+  // regression: game-menu-lead-tall-empty — the lead then spanned the other
+  // tile and the look back, 180px tall with its words floating in its
+  // middle, beside titles of two sizes. The two ways to play are tiles of
+  // one size and one title style, as tall as their words; the look back is
+  // a compact row under them that never spans the menu alone.
+  test('wide: two ways to play are tiles of one size, the look back a half-width row under them', () => {
     const view = threeChoices(1440);
-    const block = view
-      .getByTestId('choice-play')
-      .closest('[data-layout="featured"]');
-    if (block === null) throw new Error('No featured block');
-    expect(block.contains(view.getByTestId('choice-find'))).toBe(true);
-    expect(block.contains(view.getByTestId('choice-history'))).toBe(true);
-    expect(view.getByTestId('choice-play').getAttribute('data-lead')).toBe(
-      'true'
-    );
-    expect(view.getByTestId('choice-find').getAttribute('data-lead')).toBe(
-      'false'
-    );
-    expect(
-      (block as HTMLElement).style.getPropertyValue('--game-menu-side-rows')
-    ).toBe('2');
-    expect(view.container.querySelector('[data-layout="links"]')).toBeNull();
+    const play = view.getByTestId('choice-play');
+    const find = view.getByTestId('choice-find');
+    const grid = play.closest('[data-layout="grid"]') as HTMLElement | null;
+    expect(grid?.contains(find)).toBe(true);
+    expect(grid?.style.getPropertyValue('--game-menu-columns')).toBe('2');
+    const titleClass = (choice: HTMLElement) =>
+      choice.querySelector('.textHeading')?.textContent;
+    expect(titleClass(play)).toBe('Play with friends');
+    expect(titleClass(find)).toBe('Find an opponent');
+    const links = view
+      .getByTestId('choice-history')
+      .closest('[data-layout="links"]') as HTMLElement | null;
+    expect(links?.style.getPropertyValue('--game-menu-link-columns')).toBe('2');
     view.unmount();
   });
 
   // regression: game-menu-recommended-own-line — on a phone the
   // "Recommended" tag took a line of its own between the title and caption.
   // regression: game-menu-recommended-splits-sentence — moved to the start
-  // of the caption, it then broke the caption's sentence. It heads the row,
-  // over the title: never between the title and its caption, never in it.
-  test("phone: the lead's tag heads its row, never between the title and caption or inside the caption", () => {
+  // of the caption, it then broke the caption's sentence.
+  // regression: game-menu-tag-uneven-rows — then it headed the row over the
+  // title, making the lead's row taller than the rest. It sits beside its
+  // (shorter) title on the title's own line, never in the caption.
+  test("phone: the lead's tag sits beside its title, never on a line of its own or in the caption", () => {
     const view = threeChoices(390);
     const caption = view.getByText('With the people in this space, or bots');
     expect(caption.querySelector('[data-component="Badge"]')).toBeNull();
@@ -227,12 +231,14 @@ describe('GameMenuScreen', () => {
       .getByTestId('choice-play')
       .querySelector('[data-component="Badge"]');
     expect(badge?.textContent).toBe('Recommended');
-    const title = view.getByText('Play with friends or bots');
+    const title = view.getByText('Play with friends');
     const before = (a: Node, b: Node): boolean =>
       (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
     if (badge === null) throw new Error('No tag');
-    expect(before(badge, title)).toBe(true);
-    expect(before(title, caption)).toBe(true);
+    // On the title's own line: the tag and the title share one row box.
+    expect(badge.parentElement?.contains(title)).toBe(true);
+    expect(before(title, badge)).toBe(true);
+    expect(before(badge, caption)).toBe(true);
     view.unmount();
   });
 });

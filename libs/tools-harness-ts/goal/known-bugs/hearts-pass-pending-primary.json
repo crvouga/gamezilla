@@ -1,0 +1,4 @@
+{
+  "summary": "A Hearts pass on its way showed as a filled primary button reading \"Passing your cards\u2026\", and the count chosen was buried in the button's label. The count now sits beside an explicit Pass button named by where the cards go, which goes quiet once the pass is sent.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

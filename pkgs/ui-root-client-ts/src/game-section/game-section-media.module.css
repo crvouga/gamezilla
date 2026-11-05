@@ -1,40 +1,39 @@
-/* A section with a picture beside its body: the body takes the room, the
-   picture (a board preview) keeps a thumbnail's size at the top. */
-.sectionSplit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--ui-space-6);
-  align-items: start;
+/* A section and the picture of what it sets up (a board preview), as two
+   cards that read as one pair: the picture's card first, so a phone shows
+   it above the section; wide, beside the section and as tall as it. */
+/* The pair measures the room it is given (a container cannot measure
+   itself), and lays its two cards out by it. */
+.sectionRoom {
+  container: game-section / inline-size;
   min-width: 0;
 }
-.sectionBody {
-  display: flex;
-  flex-direction: column;
+.sectionPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--ui-space-4);
   min-width: 0;
 }
-/* A thumbnail about as tall as two player cards beside it, so the card's
-   body and its picture end close together. */
+/* A phone: a compact card, the thumbnail beside its label. */
 .sectionMedia {
-  --game-board-preview-measure: 160px;
+  --game-board-preview-measure: 96px;
   display: flex;
-  flex-direction: column;
-  width: var(--game-board-preview-measure);
+  align-items: center;
+  justify-content: center;
   min-width: 0;
+  padding: var(--ui-space-3);
 }
-/* A section with a picture measures itself: on a phone's width the picture
-   heads the card, centred, above what it sets up, never after its foot. */
-section[data-section-media="true"] {
-  container: game-section / inline-size;
-}
-@container game-section (max-width: 34rem) {
-  .sectionSplit {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--ui-space-4);
+/* Wide: the section takes the room, the picture's card sits at its end,
+   as tall as the section, the picture centred in it. */
+@container game-section (min-width: 40rem) {
+  .sectionPair {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: stretch;
   }
   .sectionMedia {
-    --game-board-preview-measure: 128px;
-    order: -1;
-    justify-self: center;
+    --game-board-preview-measure: 176px;
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    padding: var(--ui-space-5);
   }
 }

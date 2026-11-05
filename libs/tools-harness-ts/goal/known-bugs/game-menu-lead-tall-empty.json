@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game's menu led with a 180px \"Play with friends or bots\" tile spanning its neighbours, its words floating in its middle, beside tiles titled in two different sizes. The two ways to play are now tiles of one size and one title style, as tall as their words, with the look back as a compact row under them.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}
