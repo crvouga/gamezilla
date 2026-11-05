@@ -33,6 +33,11 @@ are owned by [`observability`](../libs/observability-server-ts/README.md).
 
 ## Remaining work before readiness
 
+Grafana availability is an accepted dependency for this rollout. The independent
+watchdog and a non-Grafana notification destination are deferred at the owner's
+request; they do not block this PR. This does not establish delivery during a
+Grafana outage.
+
 1. Bind the proposed client startup, error-free activity, local interaction and
    accessibility measures to real outcomes and timed independent journeys.
 2. Instrument complete identity and profile outcomes, including consent return,
@@ -46,7 +51,7 @@ are owned by [`observability`](../libs/observability-server-ts/README.md).
    reconciliation. Successful HTTP status alone is insufficient evidence.
 6. Implement authoritative integrity and privacy-deadline reconciliation,
    isolated recovery exercises and coverage/freshness monitoring.
-7. Provision the external check cadence/locations and independent watchdog;
+7. Provision the external check cadence/locations;
    verify telemetry queryability, rule evaluation and alert delivery end to end.
 8. Verify the configured responder `crvouga` on stack `shortawning2091`,
    device registration and automated delivery receipts. Phone permissions
