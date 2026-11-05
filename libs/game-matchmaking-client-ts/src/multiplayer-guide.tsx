@@ -29,13 +29,15 @@ function GuidePoint(props: {
         </StackVertical>
       }
     >
-      <P variant="caption" tone="secondary" role="listitem">
-        <Text variant="inherit" tone="default">
-          {props.title}
-        </Text>
-        {'. '}
-        {props.children}
-      </P>
+      <StackVertical role="listitem">
+        <P variant="caption" tone="secondary">
+          <Text variant="inherit" tone="default">
+            {props.title}
+          </Text>
+          {'. '}
+          {props.children}
+        </P>
+      </StackVertical>
     </Show>
   );
 }
