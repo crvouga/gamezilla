@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a chess puzzle's panel was a fixed 376px beside a board the window held under 560px, so its right edge stopped 20px short of the column's (at 1300px instead of 1320px in a 1440px window), unlike every other screen. A square board's panel now takes the rest of the column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-screen.test.tsx"
+}

@@ -111,10 +111,13 @@ export function StoryCelebration(props: {
 export function StoryTimeline(props: {
   readonly plies: readonly PuzzleHistoryPly[];
   readonly selectedSolveIdx?: number | undefined;
+  /** The solver is to move at the line's end. */
+  readonly awaiting?: boolean | undefined;
 }): JSX.Element {
   return (
     <PuzzleMoveHistory
       plies={props.plies}
+      awaiting={props.awaiting}
       selectedSolveIdx={props.selectedSolveIdx ?? props.plies.length}
       interactive
       writing={WRITING}
@@ -411,6 +414,7 @@ export function renderPuzzlePlayScene(
           plies={
             args.pick === 'playing' ? STORY_PLIES.slice(0, scene.plies) : []
           }
+          awaiting={args.pick === 'playing' && args.status === 'solving'}
         />
       }
       board={(size) => (

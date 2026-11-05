@@ -368,6 +368,15 @@
        every game screen share), its tracks from that column's start, so
        the title, the board and the bar above all begin on one edge. */
     max-width: calc(560px + var(--ui-space-6) + var(--puzzle-panel-measure));
+    /* The panel takes the rest of that column, so when the window leaves
+       the board under 560px the panel still ends on the column's edge, as
+       a game's rail and every other screen do. */
+    grid-template-columns:
+      min(
+        var(--puzzle-board-block),
+        calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6))
+      )
+      minmax(var(--puzzle-panel-measure), 1fr);
     justify-content: start;
   }
   .title {

@@ -1,0 +1,15 @@
+/* The move still to come: an empty chip drawn as a dashed outline at a
+   move chip's size, so a line of one move reads as a line in progress. */
+.slot {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--ui-space-6);
+  padding: 0 var(--ui-space-2);
+  border: 1px dashed var(--ui-color-border);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-leading-sm);
+  white-space: nowrap;
+}

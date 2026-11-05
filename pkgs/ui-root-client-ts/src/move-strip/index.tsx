@@ -4,6 +4,7 @@ import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import type { PointerHandlers } from '../board-fit/index';
 import { ScrollView } from '../scroll-view/index';
+import styles from './move-strip.module.css';
 
 export type MoveStripProps = {
   /** The moves. Unset renders the empty row at its full height. */
@@ -95,5 +96,25 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
         {props.trailing}
       </div>
     </div>
+  );
+}
+
+/**
+ * `MoveStripSlot` -- the move still to come, after the last move in a
+ * `MoveStrip`: a dashed empty chip naming whose it is (`Your move`), so a
+ * line of one move reads as a line in progress rather than unfinished.
+ */
+export function MoveStripSlot(props: {
+  label: string;
+  testId?: string | undefined;
+}): JSX.Element {
+  return (
+    <span
+      class={styles['slot']}
+      data-testid={props.testId}
+      data-component={componentId('MoveStripSlot')}
+    >
+      {props.label}
+    </span>
   );
 }

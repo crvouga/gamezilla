@@ -1,7 +1,7 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared-ts/puzzle-swipe-handlers';
-import { Trans } from '@lingui/solid/macro';
-import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
@@ -18,6 +18,12 @@ export type PuzzleMoveHistoryProps = {
   /** §7 jump-to-start / jump-to-end (and step controls on review). */
   nav: PuzzleMoveNavProps;
   writing: PuzzleMoveWriting;
+  /**
+   * The solver is to move at the end of the line: a dashed "Your move"
+   * slot follows the last move, so a line of one move reads as a line in
+   * progress.
+   */
+  awaiting?: boolean | undefined;
 };
 
 function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
@@ -44,9 +50,11 @@ function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
  * mid-word ("Mov / es") and a scrolling strip cut a chip at its edge
  * ("ке5"). A horizontal swipe over the moves steps through them. With no
  * moves yet the row stays empty at its full height, so nothing under the
- * board jumps when the first move lands.
+ * board jumps when the first move lands. While the solver is to move at
+ * the line's end, a dashed "Your move" slot follows the last move.
  */
 export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
+  const { t } = useLingui();
   const swipe = puzzleSwipeHandlers((intent) => props.nav.onNavigate(intent));
   const hasPlies = (): boolean => props.plies.length > 0;
   return (
@@ -74,6 +82,12 @@ export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
       >
         <Show when={hasPlies()}>
           <MoveHistoryPlies {...props} />
+          <Show when={props.awaiting === true}>
+            <MoveStripSlot
+              label={t`Your move`}
+              testId="chess-puzzle-move-slot"
+            />
+          </Show>
         </Show>
       </MoveStrip>
     </StackVertical>

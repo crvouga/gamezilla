@@ -64,11 +64,12 @@ function PuzzleFixedRegion(props: {
 /**
  * Host-chrome puzzle play: largest fitting square, fixed controls, no second
  * bar. On a phone one column: the title and its facts, the header (feed,
- * coaching), the board, the legend, the move list, the actions; every
+ * coaching), the board, the legend, the actions, the move list; every
  * region's content keeps the page's one inset. Wide, the game screens' template:
  * the title over everything, the board on the left, and beside it one
  * panel card, as a game's record is, top to bottom: the header (feed, the
  * prompt), the actions right under the prompt, the move list, the legend.
+ * A square board's panel runs to the column's end, as a game's rail does.
  */
 export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
   const ratio = createMemo(() =>
@@ -121,11 +122,14 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         <PuzzleFixedRegion name="PuzzleLegend" area="legend">
           {props.legend}
         </PuzzleFixedRegion>
-        <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
-          {props.timeline}
-        </PuzzleFixedRegion>
+        {/* On a phone the actions (help, skip) come right under the board,
+            before the move list, so moving through the line never stands
+            between the board and them. Wide, the grid places each. */}
         <PuzzleFixedRegion name="PuzzleActions" area="actions">
           {props.actions}
+        </PuzzleFixedRegion>
+        <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
+          {props.timeline}
         </PuzzleFixedRegion>
         <div class={styles['overlay']}>{props.overlay}</div>
       </div>

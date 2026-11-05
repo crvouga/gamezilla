@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a chess puzzle's move list and its steps sat between the board and Hint / Skip puzzle, so the actions on the puzzle came after moving through its line. PuzzleScreen now places the actions right under the board (and its legend), the move list after them.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-screen.test.tsx"
+}

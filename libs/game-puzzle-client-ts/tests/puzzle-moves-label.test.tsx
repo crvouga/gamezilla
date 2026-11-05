@@ -107,3 +107,55 @@ test("the puzzle's steps are quiet at the latest move and plated while reviewing
   expect(plated(false)).toBe(false);
   expect(plated(true)).toBe(true);
 });
+
+function mountLine(awaiting: boolean): void {
+  const time = createHarnessClock();
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <PuzzleMoveHistory
+          plies={PLIES.slice(0, 1)}
+          selectedSolveIdx={2}
+          interactive
+          awaiting={awaiting}
+          onSeek={() => undefined}
+          nav={{
+            canGoBack: true,
+            canGoForward: false,
+            onNavigate: () => undefined,
+          }}
+          writing={{
+            notation: () => 'san',
+            format: (label) => label,
+            moveNumber: () => null,
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+}
+
+// regression: puzzle-move-list-lone-chip — with one move played, the move
+// list was a lone highlighted chip ("4… g6") in an empty row, which read as
+// unfinished. While the solver is to move at the line's end, a dashed
+// "Your move" slot follows the last move, so the line reads as in progress.
+test("while the solver is to move, a 'Your move' slot follows the last move", () => {
+  mountLine(true);
+  const strip = screen.getByTestId('chess-puzzle-move-history');
+  const slot = screen.getByTestId('chess-puzzle-move-slot');
+  expect(strip.contains(slot)).toBe(true);
+  expect(slot.textContent).toBe('Your move');
+  expect(slot.getAttribute('data-component')).toBe('MoveStripSlot');
+  const ply = screen.getByTestId('chess-puzzle-move-ply-1');
+  expect(
+    (ply.compareDocumentPosition(slot) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  ).toBe(true);
+});
+
+test('reviewing or finished, no slot follows the moves', () => {
+  mountLine(false);
+  expect(screen.queryByTestId('chess-puzzle-move-slot')).toBeNull();
+});

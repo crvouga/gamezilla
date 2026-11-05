@@ -93,6 +93,10 @@ export function PuzzleMoveHistoryBar(): JSX.Element {
       interactive={interactive()}
       writing={writing}
       onSeek={onSeek}
+      awaiting={
+        status() === PUZZLE_PLAY_STATUS.solving &&
+        solveIdx() === furthestSolveIdx()
+      }
       nav={{
         canGoBack: nav().canGoBack,
         canGoForward: nav().canGoForward,
