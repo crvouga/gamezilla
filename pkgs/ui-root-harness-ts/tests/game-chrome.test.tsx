@@ -84,6 +84,22 @@ describe('Game chrome', () => {
     expect(pill).toHaveAttribute('data-tone', 'neutral');
   });
 
+  // regression: game-turn-pill-words-overflow
+  test('a long turn line wraps inside its pill instead of running out of it', () => {
+    renderUi(() => (
+      <GameTurnPill
+        live
+        emphasis="yours"
+        title="Choose three cards to pass to the left. Nobody has passed yet."
+      />
+    ));
+    // Every box keeps its size unless it says `shrink`; the words' box did
+    // not, so on a phone a long line ran past the pill's edge.
+    const box = mustQuery('[data-component="GameTurnPillBody"]');
+    expect(box.className).toContain('shrink');
+    expect(box.className).not.toContain('shrink-0');
+  });
+
   test('a turn pill that is not live is no status region', () => {
     renderUi(() => <GameTurnPill title="Erin to move." tone="success" />);
     expect(screen.queryByRole('status')).toBeNull();

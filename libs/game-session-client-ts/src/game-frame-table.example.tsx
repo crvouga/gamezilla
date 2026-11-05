@@ -84,6 +84,11 @@ export type GameTableStory = {
   };
   /** The moves played to reach the position, as the game writes them. */
   readonly moves?: readonly string[];
+  /**
+   * `false` for a game played in real time: it has no turns, so its record
+   * lists no moves, as the app shows it. Defaults to `true`.
+   */
+  readonly turns?: boolean;
 };
 
 /** Who holds each side: the space stories' people, Avery first. */
@@ -202,6 +207,7 @@ function tableRecord(props: TableProps): FrameRecord {
   }));
   return {
     ...record(moves),
+    turns: props.turns ?? true,
     movePrefix: props.presentation.movePrefix?.() ?? '',
     perTurn: movers.length,
     movers: moves.flatMap((_, index) => {
