@@ -54,6 +54,13 @@ export type GameMoveListProps = {
    * under a phone's board never leaves a bare number beside the moves.
    */
   turnLabel?: ((turn: number) => JSX.Element) | undefined;
+  /**
+   * `turn` only: a turn too long for its line (`Move 4 ● G2 hit ● C4 miss`
+   * on a phone) wraps between its moves onto a second line, every move
+   * whole, instead of running past the strip's edge. For a `MoveStrip`
+   * with `overflow="wrap"`.
+   */
+  wrap?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -174,6 +181,7 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
       ref={root}
       class={styles['list']}
       data-layout={props.layout}
+      data-wrap={props.layout === 'turn' && props.wrap === true}
       style={{ '--move-columns': String(columns()) }}
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
     >

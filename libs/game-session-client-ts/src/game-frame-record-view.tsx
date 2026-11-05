@@ -234,6 +234,7 @@ function RecordMoves(
       onSelect={(ply) => props.onSeek(ply)}
       leading={<EarlierMoves count={first()} />}
       turnLabel={turnWords}
+      wrap
     />
   );
 }
@@ -449,7 +450,8 @@ function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
  * A phone's record as one compact strip pinned under the host's top bar:
  * the game's own line about the turn when it says more than the seat to
  * move does (`caption`), then one row: whether the board is live, the
- * shown turn in words on a well of its own (`Move 4 · ● col 3 · ◆ col 2`)
+ * shown turn in words on a well of its own (`Move 4 · ● col 3 · ◆ col 2`),
+ * wrapping between its moves rather than cutting one at the well's edge,
  * and the chevron that opens the rest of the record in place. During live
  * play the four steps wait behind that chevron with every move, a move
  * by number and earlier games, so
@@ -487,13 +489,15 @@ function RecordStrip(props: RecordProps): JSX.Element {
           <StripPlace record={props.record} />
         </Show>
         <Surface tone="muted" radius="control" grow>
-          <MoveStrip testId="custom-game-move-strip">
+          <MoveStrip testId="custom-game-move-strip" overflow="wrap">
             <Show
               when={props.record.moves.length > 0}
               fallback={
-                <P variant="caption" tone="secondary">
-                  <Trans>No moves yet.</Trans>
-                </P>
+                <StackHorizontal paddingX="md">
+                  <P variant="caption" tone="secondary">
+                    <Trans>No moves yet.</Trans>
+                  </P>
+                </StackHorizontal>
               }
             >
               <RecordMoves {...props} layout="turn" />

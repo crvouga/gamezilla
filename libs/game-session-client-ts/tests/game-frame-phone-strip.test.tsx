@@ -1,6 +1,8 @@
 /** A phone's turn game: one status strip pinned under the top bar, above the board. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
@@ -192,4 +194,32 @@ test("History and stats ends the game's commands on a phone and beside a wide bo
     ).toBeTruthy();
     cleanup();
   }
+});
+
+// regression: battleship-phone-strip-clips-move — under a phone's top bar
+// the Battleship strip read "Move 4 ● G2 hit ● C4 mi": the shown turn was
+// one line wider than its well, cut mid-word at the well's edge. The turn
+// wraps between its moves onto a second line instead, every move whole.
+test('phone: a turn too long for the strip wraps between its moves, never cut', () => {
+  mount(390);
+  const strip = screen.getByTestId('custom-game-move-strip');
+  expect(strip.getAttribute('data-overflow')).toBe('wrap');
+  const list = strip.querySelector('[data-component="GameMoveList"]');
+  expect(list?.getAttribute('data-wrap')).toBe('true');
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+    ),
+    'utf8'
+  );
+  const head =
+    '.list[data-layout="turn"][data-wrap="true"] .turns,\n.list[data-layout="turn"][data-wrap="true"] .turn {';
+  const start = css.indexOf(head);
+  expect(start).toBeGreaterThan(-1);
+  const rule = css.slice(start, css.indexOf('}', start));
+  expect(rule).toMatch(/flex-wrap:\s*wrap;/);
+  // A move itself never breaks: its button keeps one line.
+  const button = css.slice(css.indexOf('.moveButton {'));
+  expect(button.slice(0, button.indexOf('}'))).toMatch(/white-space:\s*nowrap;/);
 });
