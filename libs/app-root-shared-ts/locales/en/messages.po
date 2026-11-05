@@ -3299,7 +3299,7 @@ msgstr "How matchmaking works"
 msgid "How to find people"
 msgstr "How to find people"
 
-#: libs/game-session-client-ts/src/game-frame-screen-view.tsx
+#: libs/game-session-client-ts/src/game-frame-about-view.tsx
 msgid "How to play"
 msgstr "How to play"
 
