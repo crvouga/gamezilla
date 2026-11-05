@@ -24,17 +24,25 @@ export function GameSection(props: {
    * height.
    */
   fill?: boolean | undefined;
+  /**
+   * Beside the body, inside the card: a picture of what the section sets
+   * up (a game's board preview), at a thumbnail's size, so the card and
+   * its picture read as one unit instead of a stray tile beside it.
+   */
+  media?: JSX.Element | undefined;
   dataSet?: ComponentDataSet;
 }): JSX.Element {
   const id = createUniqueId();
   const description = createScreenSlot(() => props.description);
   const footer = createScreenSlot(() => props.footer);
   const trailing = createScreenSlot(() => props.trailing);
+  const media = createScreenSlot(() => props.media);
   return (
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
       data-fill={props.fill === true}
+      data-section-media={media.present()}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1">
@@ -54,11 +62,39 @@ export function GameSection(props: {
           </p>
         </Show>
       </div>
-      {props.children}
+      <Show when={media.present()} fallback={props.children}>
+        <div class={styles['sectionSplit']}>
+          <div class={styles['sectionBody']}>{props.children}</div>
+          <div class={styles['sectionMedia']}>{media.content()}</div>
+        </div>
+      </Show>
       <Show when={footer.present()}>
         <div class={styles['sectionFooter']}>{footer.content()}</div>
       </Show>
     </section>
+  );
+}
+
+/**
+ * The game's commands beside a wide board (offer a draw, resign), in a
+ * card of their own pinned to the foot of the rail, so they end on the
+ * board's line and never read as part of the record above them. Phones
+ * keep their commands under the board and never use it.
+ */
+export function GameRailFoot(props: {
+  children: JSX.Element;
+  dataSet?: ComponentDataSet;
+}): JSX.Element {
+  const content = createScreenSlot(() => props.children);
+  return (
+    <Show when={content.present()}>
+      <div
+        class={`${styles['railFoot']} rounded-card border border-border bg-surface`}
+        {...dataAttrs({ component: 'GameRailFoot', ...props.dataSet })}
+      >
+        {content.content()}
+      </div>
+    </Show>
   );
 }
 

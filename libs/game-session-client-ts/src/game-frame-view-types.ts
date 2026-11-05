@@ -283,6 +283,11 @@ export type FrameRecord = {
    * decides who moves next, so the record names no mover.
    */
   readonly movers: readonly FrameMover[];
+  /**
+   * The word before each move when the game's notation is a bare number
+   * (`col`); `''` when the notation reads on its own.
+   */
+  readonly movePrefix?: string | undefined;
   readonly displayedPly: number;
   /** A refused review, in words; `''` for none. */
   readonly error: string;

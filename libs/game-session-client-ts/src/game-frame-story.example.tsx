@@ -153,6 +153,8 @@ export function record(moves: readonly string[]): FrameRecord {
     moves,
     perTurn: 2,
     movers: moves.map((_, index) => LOOKS[index % 2 === 0 ? 'white' : 'black']),
+    // Connect Four's moves are column numbers: the record says `col 3`.
+    movePrefix: 'col',
     displayedPly: moves.length,
     error: '',
     history: true,
@@ -214,6 +216,9 @@ function columnRecord(moves: readonly number[]): readonly string[] {
 
 export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
 export const MID_GAME_RECORD = columnRecord(MID_GAME_MOVES);
+/** Ten drops, five each: Red circle to move, as a real game's middle reads. */
+export const YOUR_TURN_MOVES = [3, 3, 2, 4, 4, 5, 2, 1, 6, 3];
+export const YOUR_TURN_RECORD = columnRecord(YOUR_TURN_MOVES);
 /** Red circle drops four in column 4. */
 export const WON_MOVES = [3, 2, 3, 2, 3, 2, 3];
 /** The four cells of Red circle's line in column 4, bottom row first. */

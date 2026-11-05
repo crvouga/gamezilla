@@ -56,8 +56,8 @@ function DiscCell(props: {
 }): JSX.Element {
   const index = () => props.row * props.board.columns + props.column;
   const disc = () => props.board.cells[index()] ?? 0;
-  // A played disc carries its side's mark; the landing preview never does,
-  // so it can never be read as a disc already played.
+  // A played disc carries its side's mark; the landing preview never does
+  // (a dashed, empty outline), so it can never be read as a disc played.
   const marker = () => (disc() !== 0 ? discMark(disc()) : '');
   return (
     <span
@@ -84,9 +84,9 @@ function discMark(disc: number): string {
 
 /**
  * Above a column: its number, as the record writes its moves (counted from
- * 1). The column pointed at or focused sets its number in a chip of the
- * dropping side's colour, over the column's tint and the see-through disc
- * waiting in its landing cell. A preview draws no numbers.
+ * 1). The column pointed at or focused rings its number in the dropping
+ * side's colour (a hollow disc in the drop slot), over the column's tint
+ * and the dashed outline where it would land. A preview draws no numbers.
  */
 function DropMarker(props: {
   board: DiscDropBoardProps;
@@ -188,10 +188,11 @@ function Column(props: {
  * The prompt (`Pick a column to drop your disc`) says what to do in one
  * line under the columns while it is the viewer's move, and describes the
  * board to assistive technology. While the board takes a drop the column
- * pointed at or focused takes a tint and its number a chip in the dropping
- * side's colour, its landing cell shows that side's disc see-through and
- * with no mark (never a disc already played), and the prompt names the
- * column (`Drop in column 6`).
+ * pointed at or focused takes a tint and its number a hollow ring in the
+ * dropping side's colour, its landing cell shows a dashed, empty outline in
+ * that colour (never a disc already played; it breathes slowly, and holds
+ * still under reduced motion), and the prompt names the column (`Drop in
+ * column 6`).
  * The last disc played falls into place (not under reduced motion), and
  * once four connect the rest of the board steps back behind them. As a
  * `GameBoardStage` preview (a game still being set up) it draws only its

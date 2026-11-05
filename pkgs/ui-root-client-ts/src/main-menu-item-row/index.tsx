@@ -13,9 +13,10 @@ export type MainMenuItem = {
   title: JSX.Element | string;
   caption?: JSX.Element | string | undefined;
   /**
-   * One short fact about the row, as a small neutral tag on its own line
-   * under the title (`2 players`), so it never crowds the name. Rows of one
-   * menu give it all or none, so it reads as a column.
+   * One short fact about the row, as a tag right after the title (`2
+   * players`), wrapping under it only when the line is too short; the
+   * `primary` row's tag (`Recommended`) is in the accent. Rows of one menu
+   * give it all or none, so it reads alike down the list.
    */
   meta?: JSX.Element | string | undefined;
   /** Before the title: a `GameTile` or an icon that says what the row is. */
@@ -97,14 +98,18 @@ function ItemBody(props: {
           so it starts past a leading picture. */}
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
-          <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
-            {props.item.title}
-          </p>
-          <Show when={props.item.meta}>
-            <div class="box flex-row pt-1 pb-1 min-w-0 max-w-full">
-              <Badge intent="neutral" size="sm" label={props.item.meta} />
-            </div>
-          </Show>
+          <div class="box flex-row flex-wrap items-center gap-2 min-w-0 max-w-full">
+            <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
+              {props.item.title}
+            </p>
+            <Show when={props.item.meta}>
+              <Badge
+                intent={props.item.emphasis === 'primary' ? 'brand' : 'neutral'}
+                size="md"
+                label={props.item.meta}
+              />
+            </Show>
+          </div>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
             <p
               class="text textCaption max-w-full"

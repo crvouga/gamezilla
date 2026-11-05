@@ -6,7 +6,11 @@ import {
   GameMoveList,
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
-import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import {
+  GameActions,
+  GameRailFoot,
+  GameSection,
+} from '@pkgs/ui-root-client-ts/game-section';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
@@ -18,6 +22,7 @@ import {
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
@@ -35,16 +40,18 @@ export type FrameReviewHandlers = {
 type RecordProps = FrameReviewHandlers & {
   readonly record: FrameRecord;
   /**
-   * The game's commands, beside a wide board: they close the record's
-   * panel in one row, pinned to its foot.
+   * The game's commands, beside a wide board: a card of their own at the
+   * foot of the rail, apart from the record.
    */
   readonly commands?: JSX.Element | undefined;
 };
 
-const STEP_SIZE = 32;
-
-/** The steps under a phone's board: a full control, easy to hit. */
-const STRIP_STEP_SIZE = 40;
+/**
+ * Every step is a bounded disc on the sunken well, so it reads as a
+ * control (and its edge as its target), never as a stray glyph.
+ */
+const STEP_SIZE = 36;
+const STEP_PLATE = 'surfaceMuted';
 
 /** How many of the latest moves the record lists; earlier ones are reached by number. */
 const LISTED_MOVES = 40;
@@ -62,6 +69,7 @@ function StepToStart(props: StepProps): JSX.Element {
     <IconButton
       label={t`Go to the start`}
       size={props.size ?? STEP_SIZE}
+      background={STEP_PLATE}
       disabled={props.record.displayedPly === 0}
       onClick={() => props.onSeek(0)}
       dataSet={{ testid: 'custom-game-review-first' }}
@@ -77,6 +85,7 @@ function StepBack(props: StepProps): JSX.Element {
     <IconButton
       label={t`Previous move`}
       size={props.size ?? STEP_SIZE}
+      background={STEP_PLATE}
       disabled={props.record.displayedPly === 0}
       onClick={() => props.onSeek(props.record.displayedPly - 1)}
       dataSet={{ testid: 'custom-game-review-back' }}
@@ -91,6 +100,7 @@ function StepForward(props: StepProps): JSX.Element {
     <IconButton
       label={t`Next move`}
       size={props.size ?? STEP_SIZE}
+      background={STEP_PLATE}
       disabled={props.record.displayedPly >= props.record.moves.length}
       onClick={() => props.onSeek(props.record.displayedPly + 1)}
       dataSet={{ testid: 'custom-game-review-forward' }}
@@ -105,6 +115,7 @@ function ReturnLive(props: StepProps): JSX.Element {
     <IconButton
       label={t`Return to current position`}
       size={props.size ?? STEP_SIZE}
+      background={STEP_PLATE}
       onClick={() => props.onReturnLive()}
       dataSet={{ testid: 'custom-game-review-live' }}
     >
@@ -156,9 +167,15 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
   );
 }
 
+/** The shown turn's number in words, for the strip under a phone's board. */
+function turnWords(turn: number): JSX.Element {
+  return <Trans>Move {turn}</Trans>;
+}
+
 /**
- * The listed moves as numbered turns, each behind its mover's swatch: the
- * shown turn in the strip under a phone's board (any turn can be stepped
+ * The listed moves as numbered turns, each behind its mover's swatch (and
+ * the game's word for a bare-number move, `col 3`): the shown turn in the
+ * strip under a phone's board, named `Move 4` (any turn can be stepped
  * to), the latest moves in the table beside a wide one.
  */
 function RecordMoves(
@@ -179,6 +196,11 @@ function RecordMoves(
         ply,
         label,
         swatch: mover?.swatch,
+        prefix:
+          props.record.movePrefix === undefined ||
+          props.record.movePrefix === ''
+            ? undefined
+            : props.record.movePrefix,
         accessibleName:
           mover === undefined
             ? t`Move ${ply}: ${label}`
@@ -199,6 +221,7 @@ function RecordMoves(
       moves={moves()}
       onSelect={(ply) => props.onSeek(ply)}
       leading={<EarlierMoves count={first()} />}
+      turnLabel={turnWords}
     />
   );
 }
@@ -258,19 +281,27 @@ function RecordHistory(props: RecordProps): JSX.Element {
 }
 
 /**
- * The panel's last row, pinned to its foot: the game's own commands (offer
- * a draw, what next), resigning last and quietest.
+ * The steps through the record, in order: to the start, back a move,
+ * forward a move, back to the position being played.
  */
-function RecordFooter(props: RecordProps): JSX.Element {
-  return <GameActions>{props.commands}</GameActions>;
+function RecordSteps(props: RecordProps): JSX.Element {
+  return (
+    <StackHorizontal gap="xs" align="center">
+      <StepToStart {...props} />
+      <StepBack {...props} />
+      <StepForward {...props} />
+      <ReturnLive {...props} />
+    </StackHorizontal>
+  );
 }
 
 /**
- * The record beside a wide board, as tall as the board: the moves as a
- * table of turns that takes the room, the steps right under them, a quiet
+ * The record beside a wide board, as tall as what it holds: the moves as a
+ * table of turns with the steps right under them as one group, a quiet
  * disclosure to jump by number, then earlier games; the space's history is
- * a quiet link at its title, and its last row, pinned to the board's foot,
- * holds the game's commands. A game played by turns lists its moves only
+ * a quiet link at its title. A long game's table scrolls inside. The
+ * game's commands are not part of it: they sit apart, at the rail's foot
+ * (`FrameRecordAsideView`). A game played by turns lists its moves only
  * once there are any.
  */
 function RecordPanel(props: RecordProps): JSX.Element {
@@ -281,17 +312,13 @@ function RecordPanel(props: RecordProps): JSX.Element {
       title={<Trans>Game record</Trans>}
       dataSet={{ component: 'CustomGameReview' }}
       trailing={<HistoryButton {...props} quiet />}
-      footer={<RecordFooter {...props} />}
-      fill
     >
       <RecordSelect {...props} />
       <Show when={played()}>
-        <RecordMoves {...props} layout="table" />
-        <StackHorizontal gap="xs" align="center">
-          <StepBack {...props} />
-          <StepForward {...props} />
-          <ReturnLive {...props} />
-        </StackHorizontal>
+        <StackVertical gap="sm">
+          <RecordMoves {...props} layout="table" />
+          <RecordSteps {...props} />
+        </StackVertical>
         <GameDisclosure
           title={<Trans>Go to a move by number</Trans>}
           dataSet={{ testid: 'custom-game-review-jump' }}
@@ -332,12 +359,14 @@ function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
 }
 
 /**
- * The record under a phone's board, its one history control, labelled
- * "Moves": the shown turn, whole and centred between the steps (to the start and back a move
- * on one side, forward a move and to the current position on the other),
- * and the rest of the record (every move as a table, a move by number,
- * earlier games, the space's history) behind one disclosure. The strip keeps its height
- * before the first move, so the board above never moves when it lands.
+ * The record under a phone's board, its one history control: a head row
+ * naming it ("Moves", and whether it shows the game as it stands) with the
+ * four steps as one group at its end, then the shown turn in words on a
+ * well of its own the width of the board (`Move 4 · ● col 3 · ◆ col 2`),
+ * so a move is never squeezed between arrows; the rest of the record
+ * (every move as a table, a move by number, earlier games, the space's
+ * history) waits behind one disclosure. The well keeps its height before
+ * the first move, so the board above never moves when it lands.
  */
 function RecordStrip(props: RecordProps): JSX.Element {
   return (
@@ -345,32 +374,23 @@ function RecordStrip(props: RecordProps): JSX.Element {
       {/* Named, with whether it shows the game as it stands, so moving
           through the moves never reads as playing one. */}
       <StackHorizontal justify="between" align="center" gap="sm">
-        <P
-          variant="caption"
-          tone="secondary"
-          testId="custom-game-move-strip-label"
-        >
-          <Trans>Moves</Trans>
-        </P>
-        <StripPlace record={props.record} />
+        <StackHorizontal align="center" gap="sm">
+          <P
+            variant="caption"
+            tone="secondary"
+            testId="custom-game-move-strip-label"
+          >
+            <Trans>Moves</Trans>
+          </P>
+          <StripPlace record={props.record} />
+        </StackHorizontal>
+        <RecordSteps {...props} />
       </StackHorizontal>
-      <MoveStrip
-        testId="custom-game-move-strip"
-        leading={
-          <>
-            <StepToStart {...props} size={STRIP_STEP_SIZE} />
-            <StepBack {...props} size={STRIP_STEP_SIZE} />
-          </>
-        }
-        trailing={
-          <>
-            <StepForward {...props} size={STRIP_STEP_SIZE} />
-            <ReturnLive {...props} size={STRIP_STEP_SIZE} />
-          </>
-        }
-      >
-        <RecordMoves {...props} layout="turn" />
-      </MoveStrip>
+      <Surface tone="muted" radius="control">
+        <MoveStrip testId="custom-game-move-strip">
+          <RecordMoves {...props} layout="turn" />
+        </MoveStrip>
+      </Surface>
       <FrameErrorView text={props.record.error} />
       <GameDisclosure
         title={<Trans>Game record</Trans>}
@@ -391,7 +411,8 @@ function RecordStrip(props: RecordProps): JSX.Element {
  * The game's record: its moves, and the earlier games of this space. A
  * game played by turns shows it as a strip under a phone's board
  * (`strip`) and as a panel beside a wide one (`panel`); a game without
- * turns always shows the panel.
+ * turns always shows the panel. Beside a wide board the game's commands
+ * follow the panel in a card of their own at the rail's foot.
  */
 export function FrameRecordView(
   props: RecordProps & { readonly layout: 'panel' | 'strip' }
@@ -399,7 +420,14 @@ export function FrameRecordView(
   return (
     <Show
       when={props.layout === 'strip' && props.record.turns}
-      fallback={<RecordPanel {...props} />}
+      fallback={
+        <>
+          <RecordPanel {...props} />
+          <GameRailFoot dataSet={{ testid: 'custom-game-rail-commands' }}>
+            <GameActions>{props.commands}</GameActions>
+          </GameRailFoot>
+        </>
+      }
     >
       <RecordStrip {...props} />
     </Show>

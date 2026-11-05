@@ -7,35 +7,67 @@ import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
 
 /**
- * What the search will find, right above it, as a labelled line in words:
- * a rated game, with no clock or at the chosen time control. The time
- * control is changed by its choices above; a search is always rated.
+ * What the search will find, right above its command, in one short line:
+ * `Rated · No clock`, or `Rated · 5+0` at the chosen time control. The
+ * time control is changed by its choices above; a search is always rated.
  */
 function MatchConditions(props: {
   readonly timed: boolean;
   readonly timeControl: string;
 }): JSX.Element {
   return (
-    <StackVertical gap="xs" dataSet={{ testid: 'multiplayer-find-conditions' }}>
-      <P variant="caption" tone="secondary">
-        <Trans>This search finds</Trans>
-      </P>
-      <P variant="bodyBold">
+    <P
+      variant="bodyBold"
+      tone="secondary"
+      dataSet={{ testid: 'multiplayer-find-conditions' }}
+    >
+      <Show when={props.timed} fallback={<Trans>Rated · No clock</Trans>}>
+        <Trans>Rated · {timeControlText(props.timeControl)}</Trans>
+      </Show>
+    </P>
+  );
+}
+
+/**
+ * Only what the choice needs said: how many players a bigger game finds,
+ * and what a time control's numbers mean. A plain two-player search says
+ * nothing more than its conditions line.
+ */
+function FindDescription(props: {
+  readonly count: number;
+  readonly timed: boolean;
+}): JSX.Element {
+  return (
+    <>
+      <Show when={props.count > 2}>
         <Show
           when={props.timed}
-          fallback={<Trans>A rated game with no clock</Trans>}
+          fallback={
+            <Trans>
+              A game needs {props.count} players including you. Find{' '}
+              {props.count - 1} other players.
+            </Trans>
+          }
         >
-          <Trans>A rated game at {timeControlText(props.timeControl)}</Trans>
-        </Show>
-      </P>
-    </StackVertical>
+          <Trans>
+            A game needs {props.count} players including you. Find{' '}
+            {props.count - 1} other players at the same clock choice.
+          </Trans>
+        </Show>{' '}
+      </Show>
+      <Show when={props.timed}>
+        <Trans>
+          Minutes per player + seconds added after each move, or days for every
+          move in a daily game.
+        </Trans>
+      </Show>
+    </>
   );
 }
 
@@ -52,6 +84,8 @@ export function MultiplayerFindPanel(props: {
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
   /** The person's ratings, in the same card as the search. */
   readonly aside?: JSX.Element | undefined;
+  /** Under the search and ratings, past a hairline: how a search works. */
+  readonly details?: JSX.Element | undefined;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const count = () => props.players;
@@ -59,34 +93,11 @@ export function MultiplayerFindPanel(props: {
     <GameSetupPanel
       title={<Trans>New game</Trans>}
       aside={props.aside}
+      details={props.details}
       description={
-        <>
-          <Show when={count() > 2}>
-            <Show
-              when={props.timed}
-              fallback={
-                <Trans>
-                  A game needs {count()} players including you. Find{' '}
-                  {count() - 1} other players.
-                </Trans>
-              }
-            >
-              <Trans>
-                A game needs {count()} players including you. Find {count() - 1}{' '}
-                other players at the same clock choice.
-              </Trans>
-            </Show>{' '}
-          </Show>
-          <Show
-            when={props.timed}
-            fallback={<Trans>Find someone to play with.</Trans>}
-          >
-            <Trans>
-              Minutes per player + seconds added after each move, or days for
-              every move in a daily game.
-            </Trans>
-          </Show>
-        </>
+        <Show when={count() > 2 || props.timed}>
+          <FindDescription count={count()} timed={props.timed} />
+        </Show>
       }
       actions={
         <GameActionButton

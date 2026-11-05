@@ -31,7 +31,11 @@
   align-items: center;
 }
 .list[data-layout="turn"] .turn {
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-3);
+}
+/* The shown turn's number in words reads as a label, not a stray digit. */
+.list[data-layout="turn"] .number {
+  white-space: nowrap;
 }
 .list[data-layout="table"] .turns {
   flex-direction: column;
@@ -65,6 +69,11 @@
 }
 .list[data-layout="table"] .move {
   grid-column: var(--move-column);
+}
+/* The word a bare-number move is read with (`col 3`), quiet beside it. */
+.prefix {
+  color: var(--ui-color-text-secondary);
+  white-space: nowrap;
 }
 .moveButton {
   display: inline-flex;

@@ -1,4 +1,6 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -268,4 +270,44 @@ test('while a column would take the disc, the prompt names it', () => {
   fireEvent.pointerLeave(second);
   expect(prompt.textContent).toBe('Choose a column');
   view.unmount();
+});
+
+/** The body of the first rule whose selector starts with `selector`. */
+function boardRule(selector: string): string {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../ui-root-client-ts/src/disc-drop-board/disc-drop-board.module.css'
+    ),
+    'utf8'
+  );
+  const start = css.indexOf(selector);
+  if (start < 0) throw new Error(`no rule ${selector}`);
+  const open = css.indexOf('{', start);
+  return css.slice(open + 1, css.indexOf('}', open));
+}
+
+// regression: connect-four-preview-reads-as-placed-disc — the landing
+// preview was the side's own disc, see-through inside a solid edge, so it
+// read as a translucent disc already on the board.
+test('the landing preview is an empty dashed outline and the drop slot a hollow ring', () => {
+  const landing = boardRule('.cell[data-preview-disc="1"] .disc,');
+  expect(landing).toMatch(/border:\s*3px dashed var\(--disc-preview\);/);
+  expect(landing).not.toMatch(/background/);
+  expect(
+    readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/disc-drop-board/disc-drop-board.module.css'
+      ),
+      'utf8'
+    )
+  ).not.toMatch(/\[data-preview-disc="1"\] \.disc::before/);
+  const ring = boardRule('.drop[data-disc="1"] .number');
+  expect(ring).toMatch(/border-color:\s*var\(--ui-color-destructive\);/);
+  expect(ring).not.toMatch(/background/);
+  // The outline breathes, and holds still for reduced motion.
+  expect(boardRule('@media (prefers-reduced-motion: reduce)')).toContain(
+    '.cell[data-preview-disc="1"] .disc'
+  );
 });

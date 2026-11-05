@@ -140,29 +140,18 @@ function SetupSeatOptions(props: SeatProps): JSX.Element {
 }
 
 /**
- * What the seat's toggle changes: the player, said in full where the row
- * has room for it; a phone's row keeps the holder's name whole and says
- * "Change" with the rest for assistive technology.
+ * What the seat's toggle changes, in full on every size: the player (and,
+ * for assistive technology, which side's). A phone's row puts the toggle
+ * on its own line under the name, so both read whole.
  */
 function SeatOptionsLabel(props: {
   readonly seat: FrameSetupSeat;
 }): JSX.Element {
-  const mode = useLayoutMode();
   return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <Trans>
-          Change
-          <VisuallyHidden> player: {props.seat.sideLabel}</VisuallyHidden>
-        </Trans>
-      }
-    >
-      <Trans>
-        Change player
-        <VisuallyHidden>: {props.seat.sideLabel}</VisuallyHidden>
-      </Trans>
-    </Show>
+    <Trans>
+      Change player
+      <VisuallyHidden>: {props.seat.sideLabel}</VisuallyHidden>
+    </Trans>
   );
 }
 
@@ -172,9 +161,11 @@ function SeatOptionsLabel(props: {
  * that control. Once the game is played the board's seats show it.
  */
 function SetupSeatView(props: SeatProps): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <GamePlayerBar
       density="compact"
+      optionsPlacement={mode() === 'wide' ? 'end' : 'below'}
       dataSet={{ testid: `custom-game-${props.seat.side}` }}
       swatch={props.seat.swatch}
       name={
@@ -227,9 +218,15 @@ export function FrameSetupSeatsView(props: {
   readonly ownReadiness?: JSX.Element | undefined;
   /** Starting the game, when this is the last setup card. */
   readonly footer?: JSX.Element | undefined;
+  /** Beside the seats on a wide screen: the board the game is played on. */
+  readonly media?: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <GameSection title={<Trans>Players</Trans>} footer={props.footer}>
+    <GameSection
+      title={<Trans>Players</Trans>}
+      footer={props.footer}
+      media={props.media}
+    >
       <Show when={props.setup.viewerNotice}>
         {(text) => (
           <P tone="secondary" testId="custom-game-viewer">

@@ -14,6 +14,12 @@ export type GameMoveListEntry = {
   readonly label: string;
   /** The look of the seat that made it; unset when the game names no mover. */
   readonly swatch?: GameSeatLook | undefined;
+  /**
+   * A short word before the move, outside its button (`col` before `3`),
+   * when the game's notation alone is a bare number. The button keeps the
+   * move exactly as the game writes it.
+   */
+  readonly prefix?: string | undefined;
   /** Accessible name of the move's button ("Move 3, Red circle: 5"). */
   readonly accessibleName: string;
   /** Rendered as the button's `data-testid`. */
@@ -40,6 +46,11 @@ export type GameMoveListProps = {
   'aria-label': string;
   /** Before the first turn, inside the list: how many earlier moves are not listed. */
   leading?: JSX.Element | undefined;
+  /**
+   * `turn` only: the shown turn's number in words (`Move 4`), so a strip
+   * under a phone's board never leaves a bare number beside the moves.
+   */
+  turnLabel?: ((turn: number) => JSX.Element) | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -84,6 +95,16 @@ function MoveButton(props: {
     <span class={styles['move']} style={{ '--move-column': String(column()) }}>
       <Show when={props.move.swatch}>
         {(look) => <GameSeatSwatch look={look()} />}
+      </Show>
+      <Show when={props.move.prefix}>
+        {(prefix) => (
+          <span
+            class={`${styles['prefix']} text textCaption`}
+            aria-hidden="true"
+          >
+            {prefix()}
+          </span>
+        )}
       </Show>
       <button
         type="button"
@@ -163,7 +184,12 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
                 class={`${styles['number']} text textCaption`}
                 aria-hidden="true"
               >
-                {turn().number}
+                <Show
+                  when={props.layout === 'turn' && props.turnLabel}
+                  fallback={turn().number}
+                >
+                  {(label) => label()(turn().number)}
+                </Show>
               </span>
               <Index each={turn().moves}>
                 {(move) => (

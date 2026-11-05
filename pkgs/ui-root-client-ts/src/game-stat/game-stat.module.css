@@ -1,4 +1,5 @@
 .statProgress {
-  max-width: 240px;
+  /* As wide as the stat, so the bar spans the card it sits in. */
+  width: 100%;
   padding-block: var(--ui-space-1);
 }

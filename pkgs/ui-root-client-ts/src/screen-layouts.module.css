@@ -164,14 +164,28 @@
   max-height: 100%;
   overflow: hidden;
 }
-/* On a phone the board needs the height: the title is for assistive
-   technology only there. */
+/* On a phone the title opens the column at the page's inset, its facts
+   on the same line, so the mode is named without costing the board a row
+   of its own. */
 .title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+  padding-inline: var(--ui-space-lg);
+  padding-top: var(--ui-space-2);
+}
+/* The title and its facts share one line, the facts after the title as a
+   game screen's are, wrapping only when the line is too short. */
+.puzzleHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2) var(--ui-space-3);
+  min-width: 0;
+}
+.puzzleFacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
 }
 /* The wide panel's card; a phone has no panel. */
 .panelCard {
@@ -231,11 +245,8 @@
   }
   .title {
     grid-area: title;
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
+    padding-inline: 0;
+    padding-top: 0;
     padding-bottom: var(--ui-space-3);
   }
   .puzzle > .header,

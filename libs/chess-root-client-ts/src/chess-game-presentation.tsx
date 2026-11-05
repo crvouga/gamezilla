@@ -2,6 +2,7 @@ import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
+import { ChessBoardFrame } from '@pkgs/chess-board-root-client-ts/chess-board-frame';
 import {
   boardOnly,
   fixedPlayers,
@@ -31,27 +32,31 @@ export function chessMoveSquares(
 /**
  * Chess as every game screen mounts it: the shared chess board in the
  * game's theme, a move sent as its from and to squares and any promotion.
+ * A phone-sized board reads its coordinates outside the squares
+ * (`ChessBoardFrame`), larger than a corner holds.
  */
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
   return (
-    <ChessBoard
-      theme={BOARD_THEME}
-      fen={props.position}
-      fenSyncKey={props.syncKey}
-      lastMove={chessMoveSquares(props.lastAction)}
-      orientation={requireTwoPlayerSide(props.orientation)}
-      interactive={props.interactive}
-      sound={props.sound}
-      premoves={false}
-      autoPromoteQueen={false}
-      showCoordinates
-      highlightLastMove
-      highlightLegalMoves
-      onMove={(move) =>
-        props.onAction(move.from + move.to + (move.promotion ?? ''))
-      }
-      dataSet={{ testid: props.testId }}
-    />
+    <ChessBoardFrame orientation={requireTwoPlayerSide(props.orientation)}>
+      <ChessBoard
+        theme={BOARD_THEME}
+        fen={props.position}
+        fenSyncKey={props.syncKey}
+        lastMove={chessMoveSquares(props.lastAction)}
+        orientation={requireTwoPlayerSide(props.orientation)}
+        interactive={props.interactive}
+        sound={props.sound}
+        premoves={false}
+        autoPromoteQueen={false}
+        showCoordinates
+        highlightLastMove
+        highlightLegalMoves
+        onMove={(move) =>
+          props.onAction(move.from + move.to + (move.promotion ?? ''))
+        }
+        dataSet={{ testid: props.testId }}
+      />
+    </ChessBoardFrame>
   );
 }
 export const chessPresentation: GameClientPresentation = {

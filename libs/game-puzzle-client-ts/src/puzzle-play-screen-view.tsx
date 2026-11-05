@@ -201,9 +201,13 @@ function BoardWell(props: {
   );
 }
 
+/**
+ * What is done about the puzzle, at the page's one inset, so the actions
+ * start where the feed and the coach above them do.
+ */
 function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <StackVertical gap="md">
+    <StackVertical paddingX="lg">
       <PuzzleActionBar
         status={props.status}
         hintStage={props.hintStage}
@@ -214,15 +218,14 @@ function PlayActions(props: PuzzlePlayScreenViewProps): JSX.Element {
         onSkip={props.onSkip}
         onNext={props.onNext}
       />
-      <PlayProgress progress={props.progress} />
     </StackVertical>
   );
 }
 
 /**
- * The run so far, as two quiet counts: solved puzzles in a row (lit while
- * there is a streak to keep) and solved in all, so each puzzle reads as a
- * step toward the next.
+ * The run so far, as two quiet counts on the title's line: solved puzzles
+ * in a row (lit while there is a streak to keep) and solved in all, so
+ * each puzzle reads as a step toward the next.
  */
 function PlayProgress(props: {
   readonly progress: PuzzlePlayScreenViewProps['progress'];
@@ -268,6 +271,11 @@ export function PuzzlePlayScreenView(
       <PuzzleScreen
         screenId="chess-puzzle-play"
         title={<Trans>Puzzles</Trans>}
+        facts={
+          <Show when={!props.spectator}>
+            <PlayProgress progress={props.progress} />
+          </Show>
+        }
         dataSet={{ testid: 'chess-puzzle-play-layout' }}
         header={
           <>

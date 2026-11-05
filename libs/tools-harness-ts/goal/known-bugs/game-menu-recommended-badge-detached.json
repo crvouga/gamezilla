@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game menu's \"Recommended\" tag was a tiny chip at the tile's far corner, far from its title, and each tile's chevron sat at the foot of a tall, mostly empty card. Tiles now read in one line across with the tag beside the title, and the main way in has an accent edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

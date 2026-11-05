@@ -58,4 +58,42 @@ describe('MainMenuItemRow emphasis', () => {
     );
     expect(screen.getByText('Find').closest('[data-emphasis]')).toBeNull();
   });
+
+  // regression: menu-row-tag-tiny-and-detached — the row's tag was a 10px
+  // grey chip on a line of its own under the title, reading as a disabled
+  // chip; the main way in's "Recommended" looked like any other fact.
+  test("a row's tag follows its title at a readable size; the main way in's is in the accent", () => {
+    renderUi(() => (
+      <>
+        <MainMenuItemRow
+          item={{
+            key: 'play',
+            title: 'Play with friends',
+            meta: 'Recommended',
+            emphasis: 'primary',
+            onClick: () => undefined,
+          }}
+        />
+        <MainMenuItemRow
+          item={{
+            key: 'chess',
+            title: 'Chess',
+            meta: '2 players',
+            onClick: () => undefined,
+          }}
+        />
+      </>
+    ));
+    for (const [title, tag, intent] of [
+      ['Play with friends', 'Recommended', 'brand'],
+      ['Chess', '2 players', 'neutral'],
+    ] as const) {
+      const badge = screen.getByText(tag).closest('[data-component="Badge"]');
+      expect(badge?.getAttribute('data-size')).toBe('md');
+      expect(badge?.getAttribute('data-intent')).toBe(intent);
+      expect(badge?.parentElement?.contains(screen.getByText(title))).toBe(
+        true
+      );
+    }
+  });
 });

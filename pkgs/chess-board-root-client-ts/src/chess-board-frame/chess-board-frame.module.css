@@ -1,0 +1,53 @@
+/* A chess board's outside coordinates: a slim frame, only on a
+   phone-sized board, where a square's corner holds no readable label. */
+.host {
+  container: chess-frame / inline-size;
+  width: 100%;
+  min-width: 0;
+}
+.frame {
+  display: grid;
+  grid-template-columns: 0 minmax(0, 1fr);
+  grid-template-rows: auto 0;
+  min-width: 0;
+}
+.board {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+.ranks,
+.files {
+  display: none;
+}
+.label {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-color-text-secondary);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+@container chess-frame (min-width: 280px) and (max-width: 479px) {
+  .frame {
+    grid-template-columns: 16px minmax(0, 1fr);
+    grid-template-rows: auto 20px;
+    column-gap: 4px;
+  }
+  .ranks {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .files {
+    display: flex;
+    flex-direction: row;
+    grid-column: 2;
+    grid-row: 2;
+  }
+}

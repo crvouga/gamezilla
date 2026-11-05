@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone-sized chess board the corner coordinates were capped at what a square's corner holds beside a piece, about 9px. A phone-sized game board now labels its ranks and files outside the squares at 12px in a slim frame; larger boards keep the corner labels.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx"
+}

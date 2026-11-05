@@ -12,8 +12,11 @@ import {
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX } from 'solid-js';
 
-/** Each jump and step is a full control beside the moves, easy to read and hit. */
-const NAV_SIZE = 40;
+/**
+ * Each jump and step is a bounded disc on the sunken well beside the
+ * moves, as the game record's steps are: its edge is its target.
+ */
+const NAV_SIZE = 36;
 
 export type PuzzleMoveNavProps = {
   canGoBack: boolean;
@@ -66,6 +69,7 @@ function NavButton(props: {
     <IconButton
       label={props.slot.label}
       size={NAV_SIZE}
+      background="surfaceMuted"
       disabled={props.slot.disabled}
       dataSet={{ testid: `chess-puzzle-move-nav-${props.slot.intent}` }}
       onClick={() => props.onNavigate(props.slot.intent)}
@@ -94,7 +98,7 @@ export function PuzzleMoveNav(props: {
     });
   };
   return (
-    <StackHorizontal align="center">
+    <StackHorizontal align="center" gap="xs">
       <For each={slots()}>
         {(slot) => <NavButton slot={slot} onNavigate={props.nav.onNavigate} />}
       </For>
