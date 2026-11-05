@@ -5,6 +5,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ProfileScreenView } from './profile-screen-view';
 import {
+  STORY_FRIEND_COUNT,
   STORY_IDENTITY,
   StoryFriendsActions,
   StoryFriendsPlaying,
@@ -46,7 +47,7 @@ const meta = {
     <ProfileScreenView
       {...args}
       friendsPlaying={<StoryFriendsPlaying />}
-      friendsStats={<StoryFriendsStats count={5} />}
+      friendsStats={<StoryFriendsStats count={STORY_FRIEND_COUNT} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),
@@ -55,9 +56,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The person's own profile: avatar, name, Edit profile, the friends playing
- * now (what each is doing, and Join), the friends row with their faces, and
- * the way to Settings — identity beside the sections on a wide screen.
+ * The person's own profile: avatar, name, Edit profile, the rooms friends
+ * are playing in now (each by its tile, who is there, and one Join), the
+ * friends row with their faces, and the way to Settings. On a wide screen
+ * the identity is a band across the top, the rooms the main column, and
+ * Friends and Settings the rail beside it.
  */
 export const Ready: Story = {};
 
@@ -128,7 +131,7 @@ export const RefusedAvatarChange: Story = {
         />
       }
       friendsPlaying={<StoryFriendsPlaying />}
-      friendsStats={<StoryFriendsStats count={5} />}
+      friendsStats={<StoryFriendsStats count={STORY_FRIEND_COUNT} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),

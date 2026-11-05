@@ -10,6 +10,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import {
   createMemo,
@@ -53,9 +54,8 @@ export type ProfileScreenViewProps = {
   /** The friends panel's action rows, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
   /**
-   * Friends in a live space right now, each with Join: its own titled
-   * section above the friends panel, drawn by the friends sub (nothing while
-   * nobody is playing).
+   * The rooms friends are in right now, each with Join: the page's main
+   * section, drawn by the friends sub (nothing while nobody is playing).
    */
   readonly friendsPlaying?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
@@ -152,30 +152,38 @@ function ProfileFriendsSection(props: {
   );
 }
 
+/** The face in the profile's own identity: smaller in the desktop's header band than atop a phone's column. */
+const AVATAR_SIZE = { compact: 96, wide: 64 } as const;
+
 /**
  * `/profile`, presentational: the person's own avatar, name, username and
- * avatar notices, Edit profile, the friends playing now (each with Join),
- * the friends panel (count and faces, then Find friends) and the way to
- * Settings. On a wide screen the identity is a card in its
- * own column, its top level with the sections beside it.
+ * avatar notices, Edit profile, the rooms friends are playing in now (each
+ * with Join), the friends panel (count and faces, then Find friends) and
+ * the way to Settings. On a phone they stack in that order under the
+ * centered identity; on a desktop the identity is a compact band across
+ * the top, the rooms take the wide main column, and Friends and Settings
+ * sit in the rail beside them.
  * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
 export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
   const { t } = useLingui();
+  const mode = useLayoutMode();
   return (
     <ProfileScreenLayout
       screenId="profile"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
+      avatar={
+        <ProfileAvatarFigure>
+          <DeviceAvatar
+            avatarConfig={props.identity?.avatarConfig ?? null}
+            seedFallback={props.identity?.profileId ?? 'pending'}
+            size={AVATAR_SIZE[mode()]}
+            vividBackdrop={false}
+          />
+        </ProfileAvatarFigure>
+      }
       identity={
         <>
-          <ProfileAvatarFigure>
-            <DeviceAvatar
-              avatarConfig={props.identity?.avatarConfig ?? null}
-              seedFallback={props.identity?.profileId ?? 'pending'}
-              size={96}
-              vividBackdrop={false}
-            />
-          </ProfileAvatarFigure>
           <ProfileName
             status={props.status}
             identity={props.identity}
@@ -192,8 +200,9 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
         </>
       }
       identityActions={
-        // A compact pill under the name: editing is part of who you are,
-        // not the page's main call to action.
+        // A compact pill (under the name on a phone, at the band's end on a
+        // desktop): editing is part of who you are, not the page's main
+        // call to action.
         <Button
           title={t`Edit profile`}
           intent="neutral"
@@ -204,13 +213,17 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
           dataSet={{ testid: Handles.profileEdit }}
         />
       }
+      rail={
+        <>
+          <ProfileFriendsSection
+            stats={props.friendsStats}
+            actions={props.friendsActions}
+          />
+          <ProfileSettingsEntry onOpen={() => props.onOpenSettings()} />
+        </>
+      }
     >
       {props.friendsPlaying}
-      <ProfileFriendsSection
-        stats={props.friendsStats}
-        actions={props.friendsActions}
-      />
-      <ProfileSettingsEntry onOpen={() => props.onOpenSettings()} />
     </ProfileScreenLayout>
   );
 }

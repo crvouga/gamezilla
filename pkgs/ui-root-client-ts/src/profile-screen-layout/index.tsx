@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import { ContentScreen } from '../content-screen/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import styles from '../screen-layouts.module.css';
@@ -9,13 +10,27 @@ export type ProfileScreenLayoutProps = Pick<
   ScreenBaseProps,
   'screenId' | 'breadcrumbs' | 'actions' | 'dataSet'
 > & {
+  /**
+   * The person's picture, apart from the rest of the identity. Given, a
+   * wide profile with a `rail` draws the identity as one header band: the
+   * picture, the name beside it, the actions at the band's end.
+   */
+  avatar?: JSX.Element | undefined;
   identity: JSX.Element;
   identityActions?: JSX.Element | undefined;
+  /** The main sections: what is happening now. */
   children?: JSX.Element | undefined;
+  /**
+   * Secondary sections, the ways elsewhere (friends, settings). After the
+   * main sections on a phone; on a desktop a narrower column beside them,
+   * under the identity band.
+   */
+  rail?: JSX.Element | undefined;
 };
 
 /** Shared identity grouping for an owner profile or another person's profile. */
 export function ProfileIdentity(props: {
+  avatar?: JSX.Element | undefined;
   identity: JSX.Element;
   actions?: JSX.Element | undefined;
 }): JSX.Element {
@@ -24,11 +39,33 @@ export function ProfileIdentity(props: {
       class={styles['identity']}
       {...dataAttrs({ component: 'ProfileIdentity' })}
     >
-      {props.identity}
-      {props.actions}
+      <Show
+        when={props.avatar}
+        fallback={
+          <>
+            {props.identity}
+            {props.actions}
+          </>
+        }
+      >
+        {(avatar) => (
+          <>
+            <div class={styles['identityAvatar']}>{avatar()}</div>
+            <div class={styles['identityText']}>{props.identity}</div>
+            <Show when={props.actions}>
+              {(actions) => (
+                <div class={styles['identityActions']}>{actions()}</div>
+              )}
+            </Show>
+          </>
+        )}
+      </Show>
     </div>
   );
 }
+
+/** How the profile composes: one column, identity beside sections, or a header band over a main column and a rail. */
+type ProfileArrangement = 'stack' | 'split' | 'rail';
 
 /**
  * Identity first, then the supporting sections. On a phone they stack in
@@ -37,11 +74,21 @@ export function ProfileIdentity(props: {
  * the left, its top aligned with the first section, and the sections run
  * beside it, so a profile reads as one composed page rather than a narrow
  * strip. A profile without sections keeps one column.
+ *
+ * With a `rail` the page composes differently: the identity is a compact
+ * band across the top (picture, name, actions in one line), and below it
+ * the main sections take the wide column while the rail's sections stack
+ * in a narrower one beside them; on a phone everything stacks in order.
  */
 export function ProfileScreenLayout(
   props: ProfileScreenLayoutProps
 ): JSX.Element {
   const sections = createScreenSlot(() => props.children);
+  const rail = createScreenSlot(() => props.rail);
+  const arrangement = (): ProfileArrangement => {
+    if (rail.present()) return 'rail';
+    return sections.present() ? 'split' : 'stack';
+  };
   return (
     <ContentScreen
       screenId={props.screenId}
@@ -53,15 +100,20 @@ export function ProfileScreenLayout(
       <div class={styles['profileFrame']}>
         <div
           class={styles['profile']}
-          data-split={sections.present() ? 'true' : 'false'}
+          data-split={arrangement() === 'split' ? 'true' : 'false'}
+          data-rail={arrangement() === 'rail' ? 'true' : 'false'}
         >
           <div class={styles['profileAside']}>
             <ProfileIdentity
+              avatar={props.avatar}
               identity={props.identity}
               actions={props.identityActions}
             />
           </div>
           <div class={styles['profileSections']}>{sections.content()}</div>
+          <Show when={rail.present()}>
+            <div class={styles['profileRail']}>{rail.content()}</div>
+          </Show>
         </div>
       </div>
     </ContentScreen>

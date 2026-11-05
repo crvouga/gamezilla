@@ -28,79 +28,186 @@ function person(username: string, suffix: string) {
   };
 }
 
-const INVITE = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000001',
-  category: 'action_required',
-  title: '@jordan_plays invited you to Friday chess',
-  subtitle: 'Space invite',
-  avatar: person('jordan_plays', '02'),
-  isUnread: true,
-  actions: [
-    { id: 'accept', label: 'Join', variant: 'ghost' },
-    { id: 'decline', label: 'Decline', variant: 'ghost', destructive: true },
-  ],
-});
-
-const STARTED = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000002',
-  sourceType: 'space_started',
-  title: '@morgan started a space',
-  body: 'Tap to watch or join the next game.',
-  avatar: person('morgan', '03'),
-  createdAt: '2023-11-14T18:30:00.000Z',
-  isUnread: true,
-  deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'friday-chess' } },
-});
-
-const DISABLED = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000003',
-  category: 'action_required',
-  title: '@sam invited you to Quick connect four',
-  subtitle: 'Space invite',
-  avatar: person('sam', '05'),
-  createdAt: '2023-11-13T20:00:00.000Z',
-  actions: [
-    {
-      id: 'accept',
-      label: 'Join',
-      variant: 'ghost',
-      disabled: true,
-      disabledReason: 'Space is full',
+/** A friend request waiting, with the inbox's own Accept / Decline. */
+function friendRequest(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  createdAt: string,
+  isUnread: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    sourceNamespace: 'friends',
+    sourceType: 'friend-request',
+    category: 'action_required',
+    title: `@${username} sent you a friend request`,
+    avatar: person(username, suffix),
+    createdAt,
+    isUnread,
+    actions: [
+      { id: 'accept', label: 'Accept', variant: 'solid' },
+      { id: 'decline', label: 'Decline', variant: 'ghost' },
+    ],
+    deepLink: {
+      path: '/profile/user/[userId]',
+      params: { userId: `5a1e0000-0000-4000-8000-0000000000${suffix}` },
     },
-  ],
-});
+  });
+}
 
-const TURN = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000006',
-  sourceNamespace: 'game-session',
-  sourceType: 'multiplayer_turn',
-  category: 'action_required',
-  title: 'Your move against @robin_42',
-  avatar: person('robin_42', '04'),
-  createdAt: '2023-11-13T21:40:00.000Z',
-  isUnread: true,
-  deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'robin-game' } },
-});
+/** A daily game notice: whose turn it is, or how a game ended. */
+function dailyGame(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  text: {
+    readonly title: string;
+    readonly body?: string;
+    readonly createdAt: string;
+    readonly isUnread: boolean;
+  },
+  ended: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    // The game platform's own namespace; the inbox never names a game.
+    sourceNamespace: 'game-session',
+    sourceType: ended ? 'multiplayer-result' : 'multiplayer-turn',
+    category: ended ? 'informational' : 'action_required',
+    avatar: person(username, suffix),
+    ...text,
+    actions: ended
+      ? [{ id: 'dismiss', label: 'Dismiss', variant: 'ghost' }]
+      : [],
+    deepLink: { path: '/daily-game/multiplayer' },
+  });
+}
 
-const SYSTEM = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000004',
-  sourceNamespace: 'app',
-  sourceType: 'release_notes',
-  category: 'system',
-  title: 'Puzzles now remember where you left off',
-  createdAt: '2023-11-02T09:00:00.000Z',
-});
+/** A friend request avery sent was accepted. */
+function accepted(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  createdAt: string,
+  isUnread: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    sourceNamespace: 'friends',
+    sourceType: 'friend-request-accepted',
+    title: `@${username} accepted your friend request`,
+    avatar: person(username, suffix),
+    createdAt,
+    isUnread,
+    deepLink: {
+      path: '/profile/user/[userId]',
+      params: { userId: `5a1e0000-0000-4000-8000-0000000000${suffix}` },
+    },
+  });
+}
+
+const JORDAN = ['jordan', '10'] as const;
+const RILEY = ['riley_k', '12'] as const;
+const ROBIN = ['robin_42', '04'] as const;
+const SAM = ['sam', '05'] as const;
+const MORGAN = ['morgan', '03'] as const;
+const JORDAN_PLAYS = ['jordan_plays', '02'] as const;
+const CASEY = ['casey', '09'] as const;
+
+const ID = 'b51c7a90-0000-4000-8000-0000000000';
+
+const NEEDS_YOU = [
+  friendRequest(`${ID}01`, JORDAN, '2023-11-14T21:48:00.000Z', true),
+  dailyGame(
+    `${ID}02`,
+    ROBIN,
+    {
+      title: "It's your turn in your daily game against @robin_42",
+      createdAt: '2023-11-14T20:05:00.000Z',
+      isUnread: true,
+    },
+    false
+  ),
+  dailyGame(
+    `${ID}03`,
+    SAM,
+    {
+      title: "You're low on time in your daily game against @sam",
+      body: "It's your turn. You have 3 hours left to move.",
+      createdAt: '2023-11-14T13:10:00.000Z',
+      isUnread: true,
+    },
+    false
+  ),
+  friendRequest(`${ID}04`, RILEY, '2023-11-13T16:30:00.000Z', false),
+];
+
+const TODAY = [
+  accepted(`${ID}05`, MORGAN, '2023-11-14T18:20:00.000Z', true),
+  dailyGame(
+    `${ID}06`,
+    JORDAN_PLAYS,
+    {
+      title: 'You won your daily game against @jordan_plays',
+      body: 'By resignation.',
+      createdAt: '2023-11-14T15:45:00.000Z',
+      isUnread: true,
+    },
+    true
+  ),
+];
+
+const YESTERDAY = [
+  dailyGame(
+    `${ID}07`,
+    ROBIN,
+    {
+      title: 'Your daily game against @robin_42 is drawn',
+      body: 'Drawn by agreement.',
+      createdAt: '2023-11-13T21:15:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+  accepted(`${ID}08`, CASEY, '2023-11-13T11:00:00.000Z', false),
+];
+
+const EARLIER = [
+  dailyGame(
+    `${ID}09`,
+    SAM,
+    {
+      title: 'You lost your daily game against @sam',
+      body: 'White ran out of time.',
+      createdAt: '2023-11-11T19:30:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+  dailyGame(
+    `${ID}10`,
+    MORGAN,
+    {
+      title: 'Your daily game against @morgan was aborted',
+      createdAt: '2023-11-09T08:40:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+];
 
 const SECTIONS = storySections([
-  ['Needs you', [INVITE, TURN]],
-  ['Today', [STARTED]],
-  ['Yesterday', [DISABLED]],
-  ['Earlier', [SYSTEM]],
+  ['Needs you', NEEDS_YOU],
+  ['Today', TODAY],
+  ['Yesterday', YESTERDAY],
+  ['Earlier', EARLIER],
 ]);
 
+/** The same week once every item has been read. */
 const READ_SECTIONS = storySections([
-  ['Yesterday', [DISABLED]],
-  ['Earlier', [SYSTEM]],
+  ['Yesterday', YESTERDAY],
+  ['Earlier', EARLIER],
 ]);
 
 const meta = {
@@ -128,17 +235,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * What needs you first (an invite with Join / Decline, a turn waiting on
- * you with an explicit Open step, whose profile has not synced, so its
- * initials), then updates by day: one that opens its space, an invite whose
- * Join is unavailable (an inactive card: "Space is full" as a tag and its
- * words stepped back, instead of a dead button), and a system note. Each
- * card says when and what in one caption line ("1h ago · Space invite");
- * unread items lead with the named accent dot, read ones have none, and
- * every title keeps the body weight. Only a card's own main answer (Join)
- * is solid; Open is an outline. Archive is the quiet icon at each card's top
- * trailing corner. While anything is unread, Mark all read ends the filter
- * row.
+ * An active week. What needs you comes first, on every size: two friend
+ * requests with Accept / Decline, and two daily games waiting on your move
+ * (one low on time) with an explicit Open step. Then the Activity timeline
+ * by day: a request accepted, games won, drawn, lost and aborted, each
+ * result with its reason and a quiet Dismiss. Unread items lead with the
+ * named accent dot, read ones have none, and every title keeps the body
+ * weight. Only a card's own main answer (Accept) is solid; Open is an
+ * outline. Archive is the quiet icon at each card's top trailing corner.
+ * Every heading starts on the edge the title and the filter chips start on.
+ * While anything is unread, Mark all read sits beside the title.
  */
 export const Populated: Story = {};
 

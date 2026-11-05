@@ -4,11 +4,12 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpacesScreenView } from './spaces-screen-view';
 import {
+  FRIEND_SPACE,
   HOSTED_SPACE,
   JOINED_SPACE,
+  LOBBY_SPACES,
   LONG_SPACE,
   SECOND_HOSTED_SPACE,
-  SPACES,
 } from './spaces-story.example';
 
 const meta = {
@@ -22,8 +23,8 @@ const meta = {
   },
   args: {
     status: 'ready',
-    hostedCount: 1,
-    spaces: SPACES,
+    hostedCount: 2,
+    spaces: LOBBY_SPACES,
     onCreateSpace: fn(() => Promise.resolve()),
     onOpenSpace: fn(),
   },
@@ -32,11 +33,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The viewer's own space (open here, so "Resume") under "Hosting 1 space",
- * then a friend's live space nobody has joined yet ("No guests yet") and a
- * crowded one (two names, "+5 more") under "Shared with you", each "Join".
- * Every row has the same anatomy: name, host and guests, with what pressing
- * it does centred at its trailing edge.
+ * An active person's lobby: under "Hosting 2 spaces" the one open here
+ * ("Resume") and their other ("Open"), then under "Shared with you" four
+ * friends' spaces, from filling up to "No guests yet", each "Join". Every
+ * space wears its own mark (its colour and initial), the host's face is
+ * secondary, and every row has the same anatomy: name, host and guests,
+ * with what pressing it does at its trailing edge.
  */
 export const Populated: Story = {};
 
@@ -48,7 +50,10 @@ export const Loading: Story = {
 /** The lobby has answered with nothing: the empty state offers to start one. */
 export const Empty: Story = { args: { hostedCount: 0, spaces: [] } };
 
-/** Spaces to join but none hosted: no "Hosting" group, only "Shared with you". */
+/**
+ * Spaces to join but none hosted: no "Hosting" group, only "Shared with
+ * you"; a lone card spans the row on a wide screen.
+ */
 export const JoinableOnly: Story = {
   args: { hostedCount: 0, spaces: [JOINED_SPACE] },
 };
@@ -85,7 +90,7 @@ export const OpenAndCreate: Story = {
     await userEvent.click(
       await canvas.findByTestId(Handles.spaceCard('robin_42'))
     );
-    await expect(args.onOpenSpace).toHaveBeenCalledWith(SPACES[1]?.spaceId);
+    await expect(args.onOpenSpace).toHaveBeenCalledWith(FRIEND_SPACE.spaceId);
     await userEvent.click(await canvas.findByTestId(Handles.spaceCreate));
     await expect(args.onCreateSpace).toHaveBeenCalled();
   },

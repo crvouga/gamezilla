@@ -42,8 +42,8 @@ export async function spaceScreenOf(
     return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
-  // Its ⋯ is on the space's bar on every screen (Minimize is in it on a
-  // phone showing Back).
+  // Its ⋯ is on the space's bar on every screen (Minimize folds into it
+  // on a short row).
   if (await visible(s, actorId, [Handles.spaceChromeOverflow])) return 'space';
   if (await visible(s, actorId, [Handles.spaceCreate])) return 'lobby';
   if (await visible(s, actorId, [Handles.spaceJoin])) return 'left';

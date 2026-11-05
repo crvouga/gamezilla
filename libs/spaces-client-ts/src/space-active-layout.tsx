@@ -16,7 +16,11 @@ import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceShareSheet } from './space-share-sheet';
-import { useSpacesNavBack, useSpacesNavBackLabel } from './spaces-nav-context';
+import {
+  useSpacesNavBack,
+  useSpacesNavBackLabel,
+  useSpacesNavPlace,
+} from './spaces-nav-context';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 import { useSpaceRoomDispatch } from './use-space-room-selector';
@@ -52,6 +56,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const title = useSpaceDisplayTitle(() => sessionUi.spaceId);
   const onPressBack = useSpacesNavBack();
   const backLabel = useSpacesNavBackLabel();
+  const place = useSpacesNavPlace();
   const membersDialog = useSpaceMembersDialog();
   const onPressMembers = useOpenMembers();
   const [shareOpen, setShareOpen] = createSignal(false);
@@ -65,6 +70,8 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   return (
     <SpaceDetailScreenView
       title={title()}
+      spaceId={sessionUi.spaceId}
+      place={place()}
       status={props.status}
       hostOffline={props.hostOffline}
       canRename={canRename()}

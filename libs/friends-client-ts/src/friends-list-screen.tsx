@@ -3,23 +3,23 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useFirstSyncError } from '@libs/profile-client-ts/use-first-sync-error';
-import {
-  FriendLiveSpaceJoin,
-  FriendLiveSpaceStatus,
-} from '@libs/spaces-client-ts/friend-live-space';
+import { FriendLiveSpaceJoin } from '@libs/spaces-client-ts/friend-live-space';
 import { useLiveSpacesByPerson } from '@libs/spaces-client-ts/use-live-spaces-by-person';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createMemo, type JSX } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
+import { FriendRequestsAside } from './friend-requests-aside';
 import { FriendRowDisclosure } from './friend-user-row';
 import { FriendsListScreenView } from './friends-list-screen-view';
 import {
-  FriendsPlayingNowView,
+  FriendRoomStatusView,
   liveFriendsFirst,
+  roomsByFriend,
   usePlayingRooms,
 } from './friends-playing-now';
 import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
+import { useFriendRequests } from './use-friend-requests';
 import { useFriends } from './use-friends';
 
 /** Navigation shared by the allowed and denied states of the screen. */
@@ -50,11 +50,18 @@ function FriendsListContainer(): JSX.Element {
   const ordered = createMemo(() =>
     liveFriendsFirst(friendsState.friends(), live())
   );
+  // The room each live friend is in, so their row names it by its tile.
   const rooms = usePlayingRooms(friendsState.friends);
-  // Built once per appearance: the column is read more than once per render.
-  const playing = createMemo(() => rooms().length > 0);
+  const roomOf = createMemo(() => roomsByFriend(rooms()));
+  // Beside the list on a desktop: who is waiting on an answer. Every Join
+  // is on its friend's row, so the column never repeats one. Built once
+  // per appearance: the column is read more than once per render.
+  const requests = useFriendRequests();
+  const waiting = createMemo(
+    () => requests.incoming().length > 0 || requests.outgoing().length > 0
+  );
   const aside = createMemo(() =>
-    playing() ? <FriendsPlayingNowView rooms={rooms()} /> : undefined
+    waiting() ? <FriendRequestsAside /> : undefined
   );
   const status = () => {
     if (friendsState.isLoading()) return 'loading';
@@ -67,7 +74,11 @@ function FriendsListContainer(): JSX.Element {
       notice={<FriendsRefusedChangeNotice />}
       aside={aside()}
       friendStatus={(friend) => (
-        <FriendLiveSpaceStatus hostAccountId={friend.userId} />
+        <Show when={roomOf().get(friend.userId)}>
+          {(live) => (
+            <FriendRoomStatusView room={live().room} hosting={live().hosting} />
+          )}
+        </Show>
       )}
       friendTrailing={(friend) => (
         <FriendLiveSpaceJoin

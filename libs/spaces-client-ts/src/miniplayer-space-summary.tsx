@@ -3,8 +3,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 
-import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceHostNameText } from './space-host-name-text';
+import { SpaceMark } from './space-mark';
 import { SpaceTitleText } from './space-title-text';
 import { useSpaceMemberCount } from './use-space-member-count';
 
@@ -12,11 +12,10 @@ export type MiniplayerSpaceSummaryProps = {
   spaceId: string;
 };
 
-const HOST_AVATAR_SIZE = 40;
-
 /**
- * One live space at a glance inside the miniplayer and its sheet: the host's
- * face, the space title, then who hosts it and how many people are there.
+ * One live space at a glance inside the miniplayer and its sheet: the
+ * space's own mark, its title, then who hosts it and how many people are
+ * there.
  */
 export function MiniplayerSpaceSummary(
   props: MiniplayerSpaceSummaryProps
@@ -24,11 +23,7 @@ export function MiniplayerSpaceSummary(
   const count = useSpaceMemberCount(props.spaceId);
   return (
     <StackHorizontal grow align="center" gap="md">
-      <SpaceHostAvatar
-        spaceId={props.spaceId}
-        size={HOST_AVATAR_SIZE}
-        vividBackdrop
-      />
+      <SpaceMark spaceId={props.spaceId} />
       <StackVertical grow>
         <SpaceTitleText spaceId={props.spaceId} variant="bodyBold" lines={1} />
         <StackHorizontal align="center" gap="sm">

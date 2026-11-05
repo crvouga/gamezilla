@@ -74,6 +74,47 @@ function SpacesGroupLabel(props: { readonly title: JSX.Element }): JSX.Element {
 }
 
 /**
+ * A group's cards two by two. An odd count leads with its first card
+ * across the full width (the one open here, or the newest), so the grid
+ * never ends in an empty slot beside a lone card.
+ */
+function SpacesCardGrid(props: {
+  readonly spaces: readonly SpaceCardData[];
+  readonly onOpenSpace: (spaceId: string) => void;
+}): JSX.Element {
+  const lead = createMemo(() =>
+    props.spaces.length % 2 === 1 ? props.spaces[0] : undefined
+  );
+  const paired = createMemo(() =>
+    lead() === undefined ? props.spaces : props.spaces.slice(1)
+  );
+  return (
+    <StackVertical gap="md">
+      <Show when={lead()}>
+        {(space) => (
+          <SpaceCardTileView
+            space={space()}
+            onOpen={() => props.onOpenSpace(space().spaceId)}
+          />
+        )}
+      </Show>
+      <Show when={paired().length > 0}>
+        <Grid columns={2} gap="md">
+          <Index each={paired()}>
+            {(space) => (
+              <SpaceCardTileView
+                space={space()}
+                onOpen={() => props.onOpenSpace(space().spaceId)}
+              />
+            )}
+          </Index>
+        </Grid>
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
  * One group of the lobby: its label above one panel of space rows, or on
  * desktop above a two-column grid of cards, so the page uses its width for
  * the faces of who is in each space instead of stretching rows.
@@ -102,16 +143,7 @@ function SpacesGroup(props: {
     >
       <StackVertical gap="sm">
         <SpacesGroupLabel title={props.title} />
-        <Grid columns={2} gap="md">
-          <Index each={props.spaces}>
-            {(space) => (
-              <SpaceCardTileView
-                space={space()}
-                onOpen={() => props.onOpenSpace(space().spaceId)}
-              />
-            )}
-          </Index>
-        </Grid>
+        <SpacesCardGrid spaces={props.spaces} onOpenSpace={props.onOpenSpace} />
       </StackVertical>
     </Show>
   );

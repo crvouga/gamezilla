@@ -18,6 +18,7 @@ export function SearchScreen(): JSX.Element {
   return (
     <SearchScreenView
       aside={slots.aside?.()}
+      requests={slots.requests?.()}
       query={query()}
       recentQueries={queries}
       search={state}

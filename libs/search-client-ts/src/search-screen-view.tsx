@@ -20,6 +20,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { SearchRecentQueries } from './search-recent-queries';
 
@@ -57,6 +58,11 @@ export type SearchScreenViewProps = {
    * note on how to find people (such as friend requests waiting).
    */
   readonly aside?: JSX.Element | undefined;
+  /**
+   * What another sub puts under the search field on a phone, which has no
+   * desktop column (such as an entry to the friend requests waiting).
+   */
+  readonly requests?: JSX.Element | undefined;
   readonly onQueryChange: (query: string) => void;
   readonly onSelectRecent: (query: string) => void;
   readonly onClearRecent: () => void;
@@ -221,12 +227,16 @@ function SearchIdleState(): JSX.Element {
  * `/search`, presentational: the people search field, recent searches or
  * the idle invitation while it is empty, and for a typed query its
  * searching, results, nobody-found, offline, failed and denied states.
+ * On a desktop a column beside the results holds what another sub adds
+ * (friend requests waiting) over how finding people works; a phone has the
+ * same requests as an entry under the field instead.
  * `SearchScreen` wires the debounced search, history and permission.
  */
 export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const trimmed = () => props.query.trim();
   const showRecent = () => trimmed().length === 0;
+  const mode = useLayoutMode();
   // Built once: the column is read more than once per render.
   const aside = <SearchAside extra={props.aside} />;
   return (
@@ -235,19 +245,22 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
       breadcrumbs={[{ name: t`Find people` }]}
       aside={aside}
       controls={
-        <TextInput
-          value={props.query}
-          onChangeText={(query) => props.onQueryChange(query)}
-          placeholder={t`Search people by username`}
-          aria-label={t`Search people`}
-          startAdornment={
-            <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />
-          }
-          autocapitalize="none"
-          autocorrect="off"
-          autofocus
-          dataSet={{ testid: Handles.searchInput }}
-        />
+        <>
+          <TextInput
+            value={props.query}
+            onChangeText={(query) => props.onQueryChange(query)}
+            placeholder={t`Search people by username`}
+            aria-label={t`Search people`}
+            startAdornment={
+              <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />
+            }
+            autocapitalize="none"
+            autocorrect="off"
+            autofocus
+            dataSet={{ testid: Handles.searchInput }}
+          />
+          <Show when={mode() === 'compact'}>{props.requests}</Show>
+        </>
       }
     >
       <Show when={showRecent() && props.recentQueries.length === 0}>

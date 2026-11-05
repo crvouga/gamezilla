@@ -17,12 +17,13 @@ import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-t
 import { createMemo, type JSX } from 'solid-js';
 
 import { FriendRequestDecisionProvider } from './friend-request-decision-state';
+import { FriendRequestsAside } from './friend-requests-aside';
 import { createFriendsNotificationProvider } from './friends-notification-provider';
 import { ProfileFriendsActions } from './profile-friends-actions-view';
 import { ProfileFriendsPlaying } from './profile-friends-playing';
 import { ProfileFriendsStats } from './profile-friends-stats-view';
 import { SearchFriendResultRow } from './search-friend-result-row';
-import { SearchRequestsAside } from './search-requests-aside';
+import { SearchRequestsEntry } from './search-requests-entry';
 import { useFriendsClientDeps } from './use-friends-client-deps';
 
 const PROFILE_SLOTS = {
@@ -35,7 +36,8 @@ const SEARCH_SLOTS = {
   userRow: (user: UserSearchResult, query: string) => (
     <SearchFriendResultRow user={user} query={query} />
   ),
-  aside: () => <SearchRequestsAside />,
+  aside: () => <FriendRequestsAside />,
+  requests: () => <SearchRequestsEntry />,
 };
 
 export default function FriendsSession(props: {

@@ -4,14 +4,20 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SearchScreenView } from './search-screen-view';
 import {
   StoryRequestsAside,
+  StoryRequestsEntry,
   StoryUserRow,
   storyResult,
 } from './search-screen-view.example';
 
+/** Everyone whose username starts with "jor", in the order search lists them. */
 const RESULTS = [
   storyResult('10', 'jordan'),
   storyResult('02', 'jordan_plays'),
+  storyResult('13', 'jordana'),
   storyResult('11', 'jordy', { synced: false }),
+  storyResult('14', 'jorge_m'),
+  storyResult('15', 'jorn_k'),
+  storyResult('16', 'jory'),
 ];
 
 const IDLE = {
@@ -59,17 +65,23 @@ export const Searching: Story = {
 /**
  * People whose username starts with the query, in one panel: each face, and
  * the typed "jor" emphasised where it matched in each handle
- * (a profile not yet on this device shows its initials). Each row ends in
- * one control on one shared edge: a Friends tag, Cancel request for one that
- * is out (a Request sent tag under the name), or Add friend. The panel sits
- * on the search field's inset. On a desktop a column beside it holds the
- * friend requests waiting (filled by the friends sub) over how finding
- * people works.
+ * (a profile not yet on this device shows its initials). Each row ends on
+ * one shared edge: a Friends tag, Confirm / Delete for one who asked to be
+ * friends (an Asked you tag under the name), and Cancel request for
+ * one that is out (a Request sent tag) as the same small outlined pill as
+ * Add friend. The panel sits on the search field's inset. On a desktop a
+ * column beside it holds the friend requests waiting (filled by the friends
+ * sub) over how finding people works; a phone has them as a Friend requests
+ * entry with their count under the field.
  */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },
   render: (args) => (
-    <SearchScreenView {...args} aside={<StoryRequestsAside />} />
+    <SearchScreenView
+      {...args}
+      aside={<StoryRequestsAside />}
+      requests={<StoryRequestsEntry />}
+    />
   ),
 };
 

@@ -1,22 +1,21 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   useAppFrameGlobalTrailing,
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
-import { ChromeTitle } from '@pkgs/ui-root-client-ts/chrome-title';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
 import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import type { SpaceChromeTrailingCallbacks } from './space-chrome-action-bar';
+import { SpaceChromeTrailingActionBar } from './space-chrome-action-bar';
 import {
-  SpaceChromeLeadingActionBar,
-  SpaceChromeTrailingActionBar,
-} from './space-chrome-action-bar';
+  SpaceChromeBack,
+  SpaceChromeCompactTitle,
+  SpaceChromeTrail,
+} from './space-chrome-nav';
 import { SpaceHostConnectionStatus } from './space-host-connection-status';
 import { SpacePresenceStripView } from './space-presence-strip-view';
 
@@ -26,6 +25,10 @@ export type SpaceDetailStatus = 'loading' | 'ready';
 export type SpaceDetailScreenViewProps = SpaceChromeTrailingCallbacks & {
   /** Custom title, or the localized "<host>'s space" fallback. */
   readonly title: string;
+  /** Seeds the room's tile in the wide bar. */
+  readonly spaceId?: string | undefined;
+  /** The selected game's name, after the room in the bar's trail. */
+  readonly place?: string | undefined;
   readonly status: SpaceDetailStatus;
   /** A guest's host has gone; shared features wait for them. */
   readonly hostOffline: boolean;
@@ -52,19 +55,6 @@ export type SpaceDetailScreenViewProps = SpaceChromeTrailingCallbacks & {
 type LayoutProps = Omit<SpaceDetailScreenViewProps, 'children'> & {
   readonly body: JSX.Element;
 };
-
-function SpaceChromeTitle(props: {
-  readonly title: string;
-  readonly size: 'subtitle' | 'navigationTitle';
-}): JSX.Element {
-  return (
-    <StackVertical shrink testId={Handles.spaceTitle}>
-      <ChromeTitle size={props.size}>
-        <Text variant="inherit">{props.title}</Text>
-      </ChromeTitle>
-    </StackVertical>
-  );
-}
 
 /**
  * Space actions, the host status (a guest's), then the global avatar menu at
@@ -104,13 +94,14 @@ function SpaceLayoutWide(props: LayoutProps): JSX.Element {
     <StackVertical grow gap="sm">
       <AppHeaderIsland
         leading={
-          <StackHorizontal grow align="center" gap="lg">
-            <SpaceChromeLeadingActionBar
-              onPressHome={props.onPressHome}
+          <StackHorizontal grow align="center">
+            <SpaceChromeTrail
+              title={props.title}
+              spaceId={props.spaceId}
+              place={props.place}
               onPressBack={props.onPressBack}
               backLabel={props.backLabel}
             />
-            <SpaceChromeTitle title={props.title} size="subtitle" />
           </StackHorizontal>
         }
         trailing={<SpaceTrailing {...props} compact={false} />}
@@ -127,14 +118,26 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
   return (
     <StackVertical grow>
       <TopBar
+        // No empty leading slot on the list of games: the title keeps the
+        // bar's edge, as a tab screen's does.
         leading={
-          <SpaceChromeLeadingActionBar
-            onPressHome={props.onPressHome}
+          props.onPressBack === null ? undefined : (
+            <SpaceChromeBack
+              title={props.title}
+              place={props.place}
+              onPressBack={props.onPressBack}
+              backLabel={props.backLabel}
+            />
+          )
+        }
+        center={
+          <SpaceChromeCompactTitle
+            title={props.title}
+            place={props.place}
             onPressBack={props.onPressBack}
             backLabel={props.backLabel}
           />
         }
-        center={<SpaceChromeTitle title={props.title} size="navigationTitle" />}
         trailing={<SpaceTrailing {...props} compact />}
         centerPosition="flex"
       />
@@ -153,8 +156,9 @@ function HideAppFrameHeaderWhileWide(): null {
 }
 
 /**
- * `/space/:id` in a space, presentational: Minimize (and Back), the title, the
- * members / share / rename / end-or-leave actions and the host status over
+ * `/space/:id` in a space, presentational: where the person is (the room,
+ * then the selected game, its parent the one way back), the members,
+ * Minimize and ⋯ (share / rename / end-or-leave) and the host status over
  * the space's body. Wide paints this chrome as the single top bar; compact
  * nests it in a TopBar. `SpaceActiveLayout` wires it to the space session.
  */

@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-/** What the Settings Offline mode row tells a person about playing with others. */
+/** What the Settings Work offline row tells a person about playing with others. */
 
 import { afterEach, expect, test } from 'bun:test';
 import { SettingsScreenView } from '@libs/app-root-client-ts/settings-screen-view';
@@ -25,13 +25,11 @@ function mountSettings(offline: boolean): void {
 // regression: work-offline-silent-on-multiplayer
 test('online, the row says turning it on pauses multiplayer', () => {
   mountSettings(false);
-  expect(screen.getByText('Offline mode')).toBeTruthy();
+  expect(screen.getByText('Work offline')).toBeTruthy();
   expect(
-    screen.getByText(
-      'Pause syncing and multiplayer; a game with others disconnects'
-    )
+    screen.getByText('Disconnects multiplayer and pauses syncing')
   ).toBeTruthy();
-  const toggle = screen.getByRole('switch', { name: 'Offline mode' });
+  const toggle = screen.getByRole('switch', { name: 'Work offline' });
   expect(toggle.getAttribute('aria-checked')).toBe('false');
 });
 
@@ -39,10 +37,21 @@ test('online, the row says turning it on pauses multiplayer', () => {
 test('offline, the row says multiplayer is paused', () => {
   mountSettings(true);
   expect(
+    screen.getByText('Multiplayer is disconnected and syncing is paused')
+  ).toBeTruthy();
+  const toggle = screen.getByRole('switch', { name: 'Work offline' });
+  expect(toggle.getAttribute('aria-checked')).toBe('true');
+});
+
+// regression: work-offline-looks-like-a-preference
+test('the switch sits in its own Connection group that says what it ends', () => {
+  mountSettings(false);
+  expect(screen.getByText('Connection')).toBeTruthy();
+  expect(
     screen.getByText(
-      'Syncing and multiplayer are paused; games with others are disconnected'
+      'While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online.'
     )
   ).toBeTruthy();
-  const toggle = screen.getByRole('switch', { name: 'Offline mode' });
-  expect(toggle.getAttribute('aria-checked')).toBe('true');
+  // Not grouped with look and sound, as if it were one more preference.
+  expect(screen.queryByText('Look, sound and connection')).toBeNull();
 });
