@@ -53,7 +53,10 @@ describe('Game frame: the players', () => {
     ]);
     expect(chips[1]).toHaveAttribute('data-active', 'true');
     expect(rail).toHaveAttribute('data-component', 'GamePlayerRail');
-    expect(rail.className).toContain('scrollHorizontal');
+    // The chips wrap onto rows, never a strip cut off at the screen's edge
+    // (phone-player-rail-clipped); a long name truncates inside its chip.
+    expect(rail.className).toContain('playerRail');
+    expect(rail.className).not.toContain('scrollHorizontal');
   });
 
   test('out and reconnecting are told in words, not color alone', () => {

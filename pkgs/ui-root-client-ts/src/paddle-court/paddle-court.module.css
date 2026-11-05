@@ -75,3 +75,18 @@
 .paddle[data-controlled="true"] {
   fill: var(--ui-color-tint);
 }
+.ring {
+  fill: none;
+  stroke: var(--ui-color-border);
+  stroke-width: 4;
+}
+/* The points in each half: large, faint, behind the play. */
+.score {
+  fill: var(--ui-color-text-secondary);
+  opacity: 0.35;
+  font-family: inherit;
+  font-weight: var(--ui-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-anchor: middle;
+  dominant-baseline: hanging;
+}

@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import {
   type CourtControls,
   type CourtSide,
@@ -27,9 +27,19 @@ export type PaddleCourtProps = CourtControls & {
   readonly label: string;
   readonly instructionsId: string;
   readonly testId: string;
+  /**
+   * Each side's points, drawn large and faint in its own half of the court
+   * as a court's scoreboard is, so the score reads where the play is. Drawn
+   * for the eye only: the host says the score to a listener.
+   */
+  readonly score?: { readonly first: string; readonly second: string };
 };
 
-/** Geometric play surface. Resizing changes its viewBox projection, never the court coordinates. */
+/**
+ * Geometric play surface: the centre line and circle, each side's points
+ * large and faint in its half (`score`), the paddles and the ball.
+ * Resizing changes its viewBox projection, never the court coordinates.
+ */
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
@@ -61,6 +71,36 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           class={styles['line']}
           d={`M ${props.width / 2} 0 V ${props.height}`}
         />
+        <circle
+          class={styles['ring']}
+          cx={props.width / 2}
+          cy={props.height / 2}
+          r={props.height * 0.14}
+        />
+        <Show when={props.score}>
+          {(score) => (
+            <>
+              <text
+                class={styles['score']}
+                data-testid={`${props.testId}-court-score-first`}
+                x={props.width / 4}
+                y={props.height * 0.08}
+                font-size={props.height * 0.22}
+              >
+                {score().first}
+              </text>
+              <text
+                class={styles['score']}
+                data-testid={`${props.testId}-court-score-second`}
+                x={(props.width * 3) / 4}
+                y={props.height * 0.08}
+                font-size={props.height * 0.22}
+              >
+                {score().second}
+              </text>
+            </>
+          )}
+        </Show>
         <For each={props.paddles}>
           {(paddle) => (
             <rect
