@@ -5,8 +5,7 @@
    inside answers to this column's width, not the window's, so a frame
    narrowed by the host's own chrome never squeezes a rail beside the board. */
 .column,
-.layout,
-.footer {
+.layout {
   /* A board's width: the stage column, and the seats around the board. */
   --game-board-measure: 560px;
   /* The rail beside the board on wide screens: with the board and the gap
@@ -28,18 +27,6 @@
   flex-direction: column;
   gap: var(--ui-space-lg);
   width: 100%;
-  min-width: 0;
-  margin-inline: auto;
-}
-/* A game screen's footer: as wide as a column holding a board and its
-   rail, centered the same way, so its edges meet the column's. */
-.footer {
-  width: 100%;
-  max-width: calc(
-    var(--game-board-measure) +
-    var(--ui-space-6) +
-    var(--game-rail-measure)
-  );
   min-width: 0;
   margin-inline: auto;
 }

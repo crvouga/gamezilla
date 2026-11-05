@@ -175,9 +175,10 @@ function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * The last step, in the screen's footer under the scroll area: where the
- * draft stands, a puzzle's playtest, then the check and publication, the
- * one filled next step last. Nothing scrolls beneath it.
+ * The last step, the builder's last section: where the draft stands, a
+ * puzzle's playtest, then the check and publication. It scrolls with the
+ * stage instead of being pinned over it, so it never covers the board or
+ * the pack's puzzles.
  */
 function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -195,8 +196,7 @@ function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
  * One builder in three numbered steps, read top to bottom at every size:
  * the details (one row once titled), the stage with its tools across the
  * whole column (a game's editor sets its own tools beside its board), the
- * draft's other saved copies after it, and checking and publishing in the
- * screen's footer.
+ * draft's other saved copies after it, and checking and publishing last.
  */
 function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -210,7 +210,6 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
         </Text>
       }
       subtitle={props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
-      footer={<AuthorPublish {...props} />}
     >
       <GameSessionLayout
         notices={
@@ -227,6 +226,7 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
             {props.stage}
           </StackVertical>
           {props.keptCopies}
+          <AuthorPublish {...props} />
         </StackVertical>
       </GameSessionLayout>
     </GameScreen>
@@ -237,8 +237,8 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
  * The puzzle or pack builder, presentational, one layout for both, in
  * three numbered steps: the draft's details; the stage (the game's editor,
  * the pack's puzzles, or a preview) headed by its editing tools, with the
- * draft's other saved copies; and checking and publishing it in the
- * screen's footer — or loading, denied and not-on-this-device states. The
+ * draft's other saved copies; and checking and publishing it last — or
+ * loading, denied and not-on-this-device states. The
  * host's bar holds the way back to the puzzles. Smart widgets arrive as
  * slots.
  */

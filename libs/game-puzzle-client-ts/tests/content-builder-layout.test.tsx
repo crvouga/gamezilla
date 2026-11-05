@@ -223,8 +223,8 @@ function builder(
 // publishing controls, and Validate / Publish sat in a card far from the
 // stage. The builder now reads as numbered steps (details, then the stage
 // headed by its tools, then the copies), and checking and publishing is
-// the screen's footer.
-test('the builder reads as steps, with publishing in the screen footer', () => {
+// the last step.
+test('the builder reads as steps, with publishing the last step', () => {
   mount(() => builder());
   const details = screen.getByTestId('content-author-details');
   const stage = screen.getByTestId('content-author-stage');
@@ -251,25 +251,34 @@ test('the builder reads as steps, with publishing in the screen footer', () => {
 // regression: builder-publish-bar-covers-content — the publish bar was a
 // sticky card inside the scroll area, so on both sizes it covered the
 // board's last row, the pack's puzzle list and the helper text under it.
-// It is now the screen's footer: a strip after the scroll area, outside
-// it, so nothing can scroll beneath it.
+// regression: builder-publish-strip-clips-stage — then it was a strip
+// pinned under the scroll area, which cut the pack builder's "Create puzzle
+// in this pack" in half and hid the phone's Sokoban board. It is now the
+// builder's last section, in the scroll content's flow, and nothing is
+// pinned at the screen's foot.
 for (const [size, name] of [
   [PHONE, 'a phone'],
   [DESKTOP, 'a desktop'],
 ] as const)
-  test(`on ${name} the publish step sits under the scroll area, never in it`, () => {
+  test(`on ${name} the publish step is the scroll content's last section, never pinned over it`, () => {
     mount(() => builder(), size);
     const publish = screen.getByTestId('content-author-publish');
     // The screen's own scroll area carries its screen id.
     const scroller = document.querySelector(
       '[data-screen="puzzle-content-author"]'
     );
-    const footer = publish.closest('[data-component="EmbeddedScreenFooter"]');
     expect(scroller).not.toBeNull();
-    expect(footer).not.toBeNull();
-    expect(scroller?.contains(publish)).toBe(false);
-    expect(scroller?.parentElement).toBe(footer?.parentElement ?? null);
-    expect(before(scroller as Element, footer as Element)).toBe(true);
+    expect(scroller?.contains(publish)).toBe(true);
+    // Nothing follows it in the scroll content: it ends the scroll.
+    const after = Array.from(scroller?.querySelectorAll('*') ?? []).filter(
+      (element) => before(publish, element) && !publish.contains(element)
+    );
+    expect(after).toEqual([]);
+    // No strip outside the scroll area holds a screen footer.
+    expect(scroller?.parentElement?.children.length).toBe(1);
+    expect(
+      document.querySelector('[data-component="EmbeddedScreenFooter"]')
+    ).toBeNull();
   });
 
 // regression: builder-step-two-left-of-step-one — wide, the details sat in
