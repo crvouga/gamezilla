@@ -92,7 +92,7 @@
    title still lines up with the host's bar. */
 .column
   .layout[data-has-aside][data-has-setup]
-  > .stage:has([data-setup-split="true"]) {
+  > .stage:has([data-setup-split="true"][data-details-beside="false"]) {
   max-width: var(--game-search-measure);
 }
 /* The seats hug the board: one column, the board the widest thing in it. */
@@ -511,7 +511,7 @@
      edge: never stretched across the whole game column for three items. */
   .column
     .layout[data-has-aside][data-has-setup]
-    > .stage:has([data-setup-split="true"]) {
+    > .stage:has([data-setup-split="true"][data-details-beside="false"]) {
     max-width: var(--game-search-split-measure);
   }
   /* In document order, each in the next free row of the rail. */

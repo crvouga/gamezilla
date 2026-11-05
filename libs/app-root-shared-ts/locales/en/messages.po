@@ -5197,10 +5197,6 @@ msgstr "Proven by a playtest"
 msgid "Proven: a finished playtest shows it can be solved."
 msgstr "Proven: a finished playtest shows it can be solved."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Provisional"
-msgstr "Provisional"
-
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
 msgstr "Publication did not go ahead"

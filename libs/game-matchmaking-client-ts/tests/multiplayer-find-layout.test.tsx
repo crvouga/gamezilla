@@ -89,32 +89,58 @@ test("the conditions are the game's settings line, right above the command", () 
 // regression: matchmaking-phone-drops-guide — a phone left out "How
 // matchmaking works", which the wide card explains.
 // regression: matchmaking-guide-dominates — wide, the three points of the
-// guide sat open under the search and outweighed its one command, while a
-// phone kept them closed. Every size keeps them behind one closed disclosure.
-test.each([390, 1440])(
-  'at %ipx the ratings are in the card and the guide behind one closed disclosure',
-  (width) => {
-    const container = mount(width);
-    const card = container.querySelector('[data-component="GameSetupPanel"]');
-    expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
-      true
-    );
-    const guide = screen.getByTestId('multiplayer-guide');
-    expect(card?.contains(guide)).toBe(true);
-    const toggle = screen.getByTestId('multiplayer-guide-toggle');
-    expect(toggle.textContent).toContain('How matchmaking works');
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.queryByText('Every match is rated')).toBeNull();
-    toggle.click();
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByText('Every match is rated')).toBeTruthy();
-  }
-);
+// guide sat open under the search and outweighed its one command. A phone
+// keeps them behind one closed disclosure.
+test('phone: the ratings are in the card and the guide behind one closed disclosure', () => {
+  const container = mount(390);
+  const card = container.querySelector('[data-component="GameSetupPanel"]');
+  expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
+    true
+  );
+  const guide = screen.getByTestId('multiplayer-guide');
+  expect(card?.contains(guide)).toBe(true);
+  const toggle = screen.getByTestId('multiplayer-guide-toggle');
+  expect(toggle.textContent).toContain('How matchmaking works');
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByText('Every match is rated')).toBeNull();
+  toggle.click();
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByText('Every match is rated')).toBeTruthy();
+});
+
+// regression: matchmaking-card-lonely — wide, a 720px card sat at the
+// game column's start with about 70% of the canvas empty beside and under
+// it. The card fills the game column in three columns: the search, the
+// ratings, then the guide's three short points, never under the command.
+test("wide: the search, the ratings and the guide are the card's three columns", () => {
+  const container = mount(1440);
+  const card = container.querySelector('[data-component="GameSetupPanel"]');
+  const split = card?.querySelector('[data-setup-split="true"]');
+  expect(split?.getAttribute('data-details-beside')).toBe('true');
+  const guide = screen.getByTestId('multiplayer-guide');
+  expect(card?.contains(guide)).toBe(true);
+  // Open, headed like the ratings, with no disclosure to press.
+  expect(screen.queryByTestId('multiplayer-guide-toggle')).toBeNull();
+  expect(guide.textContent).toContain('How matchmaking works');
+  expect(screen.getByText('Every match is rated')).toBeTruthy();
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-setup-panel/game-setup-panel.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toMatch(
+    /section:has\(> \.setupSplit\[data-details-beside="true"\]\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+  );
+});
 
 // regression: provisional-rating-reads-as-error — "1512?" read like an
-// error: the "?" the spec keeps is a quiet glyph beside the number, and the
-// tag beside it says the rating is provisional.
-test('a provisional rating keeps its "?" quietly, its tag saying what it means', () => {
+// error: the "?" the spec keeps is a quiet glyph beside the number.
+// regression: provisional-rating-said-three-ways — the "?", a
+// "Provisional" tag and a footnote all said the rating was provisional.
+// The "?" stays, and the footnote alone says what it means.
+test('a provisional rating keeps its "?" quietly, explained once under it', () => {
   mount(1440);
   const value = screen.getByTestId('multiplayer-rating-game-value');
   expect(value.textContent).toBe('1512?');
@@ -122,19 +148,23 @@ test('a provisional rating keeps its "?" quietly, its tag saying what it means',
     (span) => span.textContent === '?'
   );
   expect(mark?.className).toContain('text-text-secondary');
-  const tag = screen.getByTestId('multiplayer-rating-game-provisional');
-  expect(tag.textContent).toBe('Provisional');
+  expect(
+    screen.queryByTestId('multiplayer-rating-game-provisional')
+  ).toBeNull();
+  const stat = screen.getByTestId('multiplayer-rating-game');
+  expect(stat.querySelector('[data-component="Badge"]')).toBeNull();
+  expect(
+    screen.getByTestId('multiplayer-rating-game-settles').textContent
+  ).toBe('the “?” goes once your rating settles');
 });
 
 // regression: provisional-rating-loud — beside Find an opponent the
 // provisional rating drew an accent tag, a progress bar and a two-part
-// footnote, outweighing the search itself. The tag is neutral, there is no
-// bar, and how far the rating is from settling is one quiet footnote.
-test('a provisional rating is quiet beside the search: a neutral tag, no bar', () => {
+// footnote, outweighing the search itself. There is no bar, and how far
+// the rating is from settling is one quiet footnote.
+test('a provisional rating is quiet beside the search: no tag, no bar', () => {
   mount(1440);
   const stat = screen.getByTestId('multiplayer-rating-game');
-  const tag = screen.getByTestId('multiplayer-rating-game-provisional');
-  expect(tag.getAttribute('data-intent')).toBe('neutral');
   expect(stat.querySelector('[data-component="ProgressBar"]')).toBeNull();
   expect(screen.getByTestId('multiplayer-rating-game-games').textContent).toBe(
     '7 of 12 rated games'
@@ -143,10 +173,11 @@ test('a provisional rating is quiet beside the search: a neutral tag, no bar', (
 
 // regression: matchmaking-card-too-wide — wide, the search card spanned the
 // whole 960px game column for three items, and nothing said what a found
-// opponent meant for the space. The card holds two form-width columns at
-// the column's start, and under Find an opponent it says the game opens in
-// this space, where everyone can watch.
-test('wide: the search card keeps two form-width columns and says what happens to the space', () => {
+// opponent meant for the space. A two-column card holds form-width columns
+// at the column's start (a three-column one fills the column), and under
+// Find an opponent it says the game opens in this space, where everyone
+// can watch.
+test('wide: a two-column search card keeps form-width columns and says what happens to the space', () => {
   mount(1440);
   const css = readFileSync(
     join(
@@ -160,7 +191,7 @@ test('wide: the search card keeps two form-width columns and says what happens t
     css.indexOf('@container game-column (min-width: 880px)')
   );
   expect(wide).toMatch(
-    /\[data-setup-split="true"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+    /\[data-setup-split="true"\]\[data-details-beside="false"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
   );
   const note = screen.getByTestId('multiplayer-find-space');
   expect(note.textContent).toContain('opens in this space');

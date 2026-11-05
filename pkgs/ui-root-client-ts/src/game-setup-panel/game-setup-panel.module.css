@@ -65,4 +65,20 @@
     grid-column: 1 / -1;
     grid-row: 3;
   }
+  /* Details beside: three columns across the game column (the choice,
+     what the person brings, then the details), each past a hairline, so a
+     short search fills the column instead of a corner of it. The title's
+     row keeps its own height: the taller columns grow the row under it. */
+  section:has(> .setupSplit[data-details-beside="true"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+  }
+  section > .setupSplit[data-details-beside="true"] ~ * {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    border-top: 0;
+    padding-top: 0;
+    border-left: 1px solid var(--ui-color-border);
+    padding-left: var(--ui-space-8);
+  }
 }

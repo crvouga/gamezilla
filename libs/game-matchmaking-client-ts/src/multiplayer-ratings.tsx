@@ -9,7 +9,6 @@ import {
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
@@ -106,7 +105,7 @@ function RatingGameCount(props: {
   );
 }
 
-/** One pool's rating: the number, its quiet "Provisional" tag and how far it is from settling. */
+/** One pool's rating: the number, its quiet "?" while provisional, and how far it is from settling. */
 function RatingStat(props: {
   readonly rating: MultiplayerRatingView;
 }): JSX.Element {
@@ -129,25 +128,14 @@ function RatingStat(props: {
         >
           {props.rating.rating}
           {/* The "?" a provisional rating keeps is quiet beside the number,
-              the tag after it saying what it means, so it never reads as
-              an error. */}
+              and the footnote under it says once what it means, so it
+              never reads as an error. */}
           <Show when={provisional()}>
             <Text variant="inherit" tone="secondary">
               ?
             </Text>
           </Show>
         </Text>
-      }
-      tag={
-        <Show when={provisional()}>
-          <Badge
-            intent="neutral"
-            label={<Trans>Provisional</Trans>}
-            dataSet={{
-              testid: `multiplayer-rating-${props.rating.pool}-provisional`,
-            }}
-          />
-        </Show>
       }
       detail={<RatingGames rating={props.rating} />}
     />
@@ -169,8 +157,8 @@ function RatingGrid(props: {
 
 /**
  * The person's own multiplayer rating and rated games in every pool. A
- * provisional rating keeps its "?" and says so in a tag, with how many of
- * the games that settle it are played. `framed={false}` draws it without
+ * provisional rating keeps its "?", and one footnote says how many of the
+ * games that settle it are played and that the "?" goes then. `framed={false}` draws it without
  * a card of its own, under a heading, for the search's card to hold.
  */
 export function MultiplayerRatings(props: {
