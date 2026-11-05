@@ -243,11 +243,15 @@ test('on a phone the board follows its tools, then the size a closed row, the no
 // controls were a wrapping row of text buttons ("← Left", "↑ Up"), not
 // laid out the way the moves go. They are now a spatial pad of icon
 // buttons (up over left and right, down below), named for listeners.
+// regression: sokoban-phone-puzzle-too-tall — the pad's 48px buttons, the
+// commands and a headed puzzle card made a phone's Sokoban screen taller
+// than its viewport. The pad is now the 44px thumb pad (every button still
+// a full touch target), and the puzzle card is headed by the pack's place.
 test('on a phone the moves are a spatial pad of named icon buttons', () => {
   const { view, actions } = player();
   const pad = view.getByTestId('sokoban-move');
   expect(pad.getAttribute('data-component')).toBe('DirectionPad');
-  expect(pad.getAttribute('data-size')).toBe('md');
+  expect(pad.getAttribute('data-size')).toBe('sm');
   for (const [heading, name] of [
     ['up', 'Move up'],
     ['left', 'Move left'],

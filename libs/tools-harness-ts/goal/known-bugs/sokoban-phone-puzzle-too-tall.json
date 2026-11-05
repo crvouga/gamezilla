@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Sokoban puzzle screen ran past the viewport: a 48px movement pad, the commands row and a puzzle card with its own \"This puzzle\" heading over the pack's place and a two-line save note. The pad is now the 44px thumb pad (every button still a full touch target) and the card is headed by the pack's place, so the board, pad, commands and card fit one screen.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

@@ -90,7 +90,7 @@ function Steering(props: {
         {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
         <Show when={!wide()}>
           <DirectionPad
-            size="md"
+            size="sm"
             labels={{
               up: t`Move up`,
               right: t`Move right`,
