@@ -65,12 +65,13 @@
   color: var(--ui-color-text);
   font-weight: var(--ui-font-weight-medium);
 }
-/* The step's state in a word, quieter than its name. */
+/* The step's state in a word, at its name's size in the quieter ink, so
+   the step reads as one line: `2 Validate · Locked`. */
 .state {
   white-space: nowrap;
   color: var(--ui-color-text-secondary);
-  font-size: var(--ui-font-size-xs);
-  line-height: var(--ui-leading-xs);
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-leading-sm);
 }
 /* Too narrow for one row: one step a line, markers in a column. */
 @container step-track (max-width: 33rem) {
