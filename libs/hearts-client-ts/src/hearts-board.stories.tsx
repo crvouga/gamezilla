@@ -186,16 +186,41 @@ export const GameOver: Story = {
   },
 };
 
-/** Choosing three cards readies the pass, which sends them together. */
+/** The three cards to pass, chosen in the story's hand. */
+const PASSED = heldBy(DEAL.hands, 0).slice(0, 3);
+
+/** Chooses the three cards to pass, as a person taps them. */
+async function chooseThree(canvasElement: HTMLElement): Promise<void> {
+  const canvas = within(canvasElement);
+  for (const card of PASSED)
+    await userEvent.click(
+      await canvas.findByTestId(`custom-game-board-card-${card}`)
+    );
+}
+
+/**
+ * Three cards chosen, the moment before passing: the filled Pass button
+ * beside the count is ready to send them together.
+ */
 export const PassThreeCards: Story = {
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    const chosen = heldBy(DEAL.hands, 0).slice(0, 3);
-    for (const card of chosen)
-      await userEvent.click(
-        await canvas.findByTestId(`custom-game-board-card-${card}`)
-      );
-    await userEvent.click(await canvas.findByTestId('custom-game-board-pass'));
-    await expect(args.onAction).toHaveBeenCalledWith(writeCards(chosen));
+    await chooseThree(canvasElement);
+    const pass = await within(canvasElement).findByTestId(
+      'custom-game-board-pass'
+    );
+    await expect(pass).toBeEnabled();
+    await expect(pass).toHaveAttribute('data-variant', 'solid');
+    await expect(args.onAction).not.toHaveBeenCalled();
+  },
+};
+
+/** The pass sent: the hand locks and the button says the cards are on their way. */
+export const PassSending: Story = {
+  play: async ({ args, canvasElement }) => {
+    await chooseThree(canvasElement);
+    await userEvent.click(
+      await within(canvasElement).findByTestId('custom-game-board-pass')
+    );
+    await expect(args.onAction).toHaveBeenCalledWith(writeCards(PASSED));
   },
 };

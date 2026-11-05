@@ -257,3 +257,36 @@ test("a narrow seat's name is set smaller and wraps, never cut", () => {
   expect(name).toMatch(/-webkit-line-clamp:\s*2;/);
   expect(name).not.toMatch(/white-space:\s*nowrap|text-overflow/);
 });
+
+// regression: hearts-phone-table-crowds-hand — on a 390px phone the table's
+// four plates stood about 360px tall (the seats above and below each a
+// stack of person over facts), squeezing the hand and its Pass button to
+// the screen's bottom edge. A phone's table sets the seats above and below
+// as one strip each, the person beside their facts, and every plate a step
+// shallower; a wide table keeps its plates as they were.
+test("a phone's table sets the seats above and below as strips, the person beside the facts", () => {
+  const sheet = css('card-table/card-table.module.css');
+  // The table's own width decides, never a seat's (a seat is a container
+  // too, and every seat is narrower than 30rem, even on a wide table).
+  expect(rule(sheet, '.root {')).toMatch(
+    /container:\s*card-table \/ inline-size;/
+  );
+  const start = sheet.indexOf('@container card-table not (min-width: 30rem) {');
+  expect(start).toBeGreaterThan(-1);
+  const phone = sheet.slice(start, sheet.indexOf('\n}\n', start));
+  expect(phone).toMatch(
+    /\.seat\[data-player="true"\] \{\s*padding: var\(--ui-space-1\);/
+  );
+  const strip = rule(
+    phone,
+    '.seat[data-player="true"][data-position="top"],\n  .seat[data-player="true"][data-position="bottom"] {'
+  );
+  expect(strip).toMatch(/flex-direction:\s*row;/);
+  expect(strip).toMatch(/max-width:\s*none;/);
+  // The facts stack beside the person, never under it.
+  expect(phone).toMatch(
+    /\[data-position="bottom"\] \.facts \{\s*flex: 0 0 auto;\s*flex-direction: column;/
+  );
+  // The hand keeps its cards side by side and whole.
+  expect(rule(sheet, '.hand > .card {')).not.toMatch(/rotate|--fan/);
+});
