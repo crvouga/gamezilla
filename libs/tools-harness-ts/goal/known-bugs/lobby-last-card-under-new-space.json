@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the floating New space button sits over the end of the spaces lobby. The lobby's list ends with the floating action's clearance after its last card, so the last space scrolls fully clear of the button; this pins it for the lobby itself.",
+  "regressionTest": "libs/spaces-client-ts/tests/spaces-lobby-headings.test.tsx"
+}

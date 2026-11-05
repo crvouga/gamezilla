@@ -1,0 +1,4 @@
+{
+  "summary": "The spaces lobby's group labels (\"Hosting 2 spaces\", \"Shared with you\") were 12px muted eyebrows over the cards, weaker than every other page's section titles. They are now section headings at the subtitle size the inbox and a space's \"Who's here\" use, on the page's own edge, on phone and desktop.",
+  "regressionTest": "libs/spaces-client-ts/tests/spaces-lobby-headings.test.tsx"
+}

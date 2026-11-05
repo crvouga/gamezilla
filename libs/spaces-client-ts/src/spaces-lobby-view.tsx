@@ -6,8 +6,8 @@ import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Index, Show } from 'solid-js';
@@ -49,27 +49,26 @@ function SpacesEmptyState(props: {
   );
 }
 
-/** "Hosting 2 spaces": the label of the viewer's own group. */
+/** "Hosting 2 spaces": the title of the viewer's own group. */
 function SpacesHostingCount(props: { readonly count: number }): JSX.Element {
   return (
-    <Text variant="sectionLabel" testId={Handles.spacesHostingCount}>
-      <Plural
-        value={props.count}
-        one="Hosting # space"
-        other="Hosting # spaces"
-      />
-    </Text>
+    <Plural value={props.count} one="Hosting # space" other="Hosting # spaces" />
   );
 }
 
-/** A group's label over its desktop cards, on the cards' text edge. */
-function SpacesGroupLabel(props: { readonly title: JSX.Element }): JSX.Element {
+/**
+ * A group's title over its cards, on the page's own edge (the edge the
+ * screen's title starts on), at the size every page's section titles take
+ * ("Needs you", "Who's here"): never a faint eyebrow over the cards.
+ */
+function SpacesGroupHeading(props: {
+  readonly title: JSX.Element;
+  readonly testId?: string | undefined;
+}): JSX.Element {
   return (
-    <StackVertical paddingX="lg">
-      <Text variant="sectionLabel" lines={1}>
-        {props.title}
-      </Text>
-    </StackVertical>
+    <H2 size="subtitle" lines={1} testId={props.testId}>
+      {props.title}
+    </H2>
   );
 }
 
@@ -121,31 +120,32 @@ function SpacesCardGrid(props: {
  */
 function SpacesGroup(props: {
   readonly title: JSX.Element;
+  readonly titleTestId?: string | undefined;
   readonly spaces: readonly SpaceCardData[];
   readonly onOpenSpace: (spaceId: string) => void;
 }): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <MenuSection title={props.title}>
-          <Index each={props.spaces}>
-            {(space) => (
-              <SpaceCardView
-                space={space()}
-                onOpen={() => props.onOpenSpace(space().spaceId)}
-              />
-            )}
-          </Index>
-        </MenuSection>
-      }
-    >
-      <StackVertical gap="sm">
-        <SpacesGroupLabel title={props.title} />
+    <StackVertical gap="sm">
+      <SpacesGroupHeading title={props.title} testId={props.titleTestId} />
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <MenuSection>
+            <Index each={props.spaces}>
+              {(space) => (
+                <SpaceCardView
+                  space={space()}
+                  onOpen={() => props.onOpenSpace(space().spaceId)}
+                />
+              )}
+            </Index>
+          </MenuSection>
+        }
+      >
         <SpacesCardGrid spaces={props.spaces} onOpenSpace={props.onOpenSpace} />
-      </StackVertical>
-    </Show>
+      </Show>
+    </StackVertical>
   );
 }
 
@@ -170,14 +170,16 @@ function HostedSpaces(props: {
       when={props.spaces.length > 0}
       fallback={
         <Show when={props.count > 0}>
-          <StackVertical paddingX="lg">
-            <SpacesHostingCount count={props.count} />
-          </StackVertical>
+          <SpacesGroupHeading
+            title={<SpacesHostingCount count={props.count} />}
+            testId={Handles.spacesHostingCount}
+          />
         </Show>
       }
     >
       <SpacesGroup
         title={title()}
+        titleTestId={props.count > 0 ? Handles.spacesHostingCount : undefined}
         spaces={props.spaces}
         onOpenSpace={props.onOpenSpace}
       />
