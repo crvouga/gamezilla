@@ -27,7 +27,7 @@ const TOOLS: readonly CellGridPaletteItem<Tool>[] = [
   { key: 'crate', label: 'Crate', tone: 'open', glyph: '▢', identity: 'one' },
   {
     key: 'remove-crate',
-    label: 'Remove crate',
+    label: 'Lift crate',
     tone: 'open',
     glyph: '−',
     identity: 'one',

@@ -81,7 +81,9 @@ function Swatch(props: {
         data-tone={props.item.tone}
         data-identity={props.item.identity}
       >
-        <span class={board['glyph']}>{props.item.glyph ?? ''}</span>
+        <span class={`${board['glyph']} ${styles['swatchGlyph']}`}>
+          {props.item.glyph ?? ''}
+        </span>
       </span>
     </span>
   );
@@ -94,10 +96,10 @@ function Swatch(props: {
  * board's own palette (a wall as the board's wall, a crate as its crate),
  * over the tool's name. One tool is chosen at a time (`role="radiogroup"`):
  * the chosen tile takes the selection tint and edge, as a segmented
- * control's chosen segment does. Measured on its own width: from 400px the
- * tiles sit four to a row with their names; narrower (a phone) they are
- * one row of swatches, each named for a listener, and the chosen tool's
- * name follows the group's label, so the palette costs the board one row.
+ * control's chosen segment does. Tiles sit four to a row, each a swatch
+ * over its name on one line, at every width, so no tool is a bare icon to
+ * tell apart from its neighbours and every tile is the same height;
+ * narrower than 400px (a phone) the swatches are smaller.
  * Keyboard: one tab stop; the arrow keys choose the next or previous
  * tool, wrapping.
  *
@@ -126,18 +128,11 @@ export function CellGridPalette<K extends string = string>(
       class={styles['palette']}
       {...dataAttrs({ component: 'CellGridPalette' })}
     >
-      <span class={`text textCaption text-text-secondary ${styles['label']}`}>
-        <span id={id}>{props.label}</span>
-        {/* Narrow, the tiles are swatches alone: the chosen tool's name is
-            said here, as a sighted reader's cue; a listener hears each
-            tool's own name and its checked state. */}
-        <span class={styles['chosen']} aria-hidden="true">
-          {props.items.find((item) => item.key === props.selected)?.label}
-        </span>
+      <span id={id} class="text textCaption text-text-secondary">
+        {props.label}
       </span>
       <div
         class={styles['track']}
-        style={{ '--cell-grid-palette-count': props.items.length }}
         role="radiogroup"
         aria-labelledby={id}
         aria-disabled={props.disabled === true ? true : undefined}

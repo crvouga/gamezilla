@@ -75,7 +75,7 @@ function ToolPalette(props: { editor: Editor; disabled: boolean }) {
     outside: t`Outside`,
     worker: t`Worker`,
     crate: t`Crate`,
-    'remove-crate': t`Remove crate`,
+    'remove-crate': t`Lift crate`,
     erase: t`Erase`,
   });
   return (
