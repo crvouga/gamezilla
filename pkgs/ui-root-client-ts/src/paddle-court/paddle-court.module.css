@@ -102,10 +102,11 @@
   stroke: var(--ui-color-border);
   stroke-width: 4;
 }
-/* The points in each half: large, faint, behind the play. */
+/* The points in each half: large, behind the play, yet read at a glance
+   (about 5:1 against the court, which keeps its colours in both themes). */
 .score {
   fill: var(--ui-color-text-secondary);
-  opacity: 0.35;
+  opacity: 0.72;
   font-family: inherit;
   font-weight: var(--ui-font-weight-bold);
   font-variant-numeric: tabular-nums;

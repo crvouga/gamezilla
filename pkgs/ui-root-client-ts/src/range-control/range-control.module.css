@@ -3,6 +3,6 @@
 .vertical {
   writing-mode: vertical-lr;
   align-self: stretch;
-  width: 2.75rem;
+  width: 2rem;
   min-height: 8rem;
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Pong court was about 305 by 200 px beside a wide slider column, and its score digits were drawn at a third of their colour, too faint to read in either theme. The slider column is now narrow and close to the court, so the court takes the width, and the digits keep most of their colour (about 5:1 against the court).",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

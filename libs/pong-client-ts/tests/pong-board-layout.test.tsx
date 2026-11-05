@@ -1,6 +1,8 @@
 /** Pong's court on a wide screen and a phone: how to move, and the score once. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { PongBoardView } from '@libs/pong-client-ts/pong-board-view';
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
@@ -109,4 +111,31 @@ test('the court draws each side’s points in its own half', () => {
   // hears the score from the court's own words.
   expect(first.closest('svg')?.getAttribute('aria-hidden')).toBe('true');
   expect(screen.getByTestId('pong-score-left').textContent).toBe('Left 0');
+});
+
+const UI_SRC = join(import.meta.dirname, '../../../pkgs/ui-root-client-ts/src');
+
+/** The body of the first rule whose selector is exactly `selector`. */
+function rule(file: string, selector: string): string {
+  const css = readFileSync(join(UI_SRC, file), 'utf8');
+  const open = css.indexOf('{', css.indexOf(`${selector} {`));
+  return css.slice(open + 1, css.indexOf('}', open));
+}
+
+// regression: pong-phone-court-small — on a phone the court was about
+// 305 by 200 px beside a 44px slider column, and its score digits were
+// drawn at a third of their colour, too faint to read. The slider column
+// is narrow and close, so the court (its shape fixed) takes the width, and
+// the digits keep most of their colour.
+test('phone: the court takes the width the slider leaves, its score readable', () => {
+  mount(390);
+  const row = screen.getByTestId('pong-white-control').parentElement;
+  expect(row?.className).toContain('gap-ui-xs');
+  expect(rule('range-control/range-control.module.css', '.vertical')).toContain(
+    'width: 2rem'
+  );
+  const opacity = /opacity: ([\d.]+)/.exec(
+    rule('paddle-court/paddle-court.module.css', '.score')
+  )?.[1];
+  expect(Number(opacity)).toBeGreaterThanOrEqual(0.7);
 });
