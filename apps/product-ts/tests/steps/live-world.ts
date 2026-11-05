@@ -7,6 +7,7 @@ import {
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
 import {
   actOnLiveDevice,
+  navigateLiveDevice,
   type LiveDevices,
   openGuestDevice,
   requireDevice,
@@ -186,7 +187,9 @@ function liveJourneyHost(
         await readLocation(requireDevice(devices.host, 'device').view)
       ),
     openLink: (link) =>
-      requireDevice(devices.host, 'device').view.navigate(
+      navigateLiveDevice(
+        devices,
+        requireDevice(devices.host, 'device'),
         new URL(link, target.webOrigin).href
       ),
     openGuest: (link) => openGuestDevice(target, devices, link),
@@ -204,7 +207,8 @@ function liveJourneyHost(
         }
       );
     },
-    reopen: () => requireDevice(devices.host, 'device').driver.launch(),
+    reopen: () =>
+      navigateLiveDevice(devices, requireDevice(devices.host, 'device')),
     defer: (key, cleanup) => {
       cleanups.set(key, cleanup);
     },

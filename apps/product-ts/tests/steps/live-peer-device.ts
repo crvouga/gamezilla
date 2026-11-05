@@ -7,6 +7,7 @@ import {
 } from '@apps/product-ts/live-browser';
 import {
   actOnLiveDevice,
+  navigateLiveDevice,
   type LiveDevices,
   requireDevice,
 } from '@apps/product-ts/live-journey-devices';
@@ -50,7 +51,7 @@ export function liveJourneyPeerDevice(
     },
     spaceLink: async () =>
       spaceLinkFromLocation(await readLocation(current().view)),
-    reopen: () => current().driver.launch(),
+    reopen: () => navigateLiveDevice(devices, current()),
     offline: () => emulateOffline(current().view),
     online: async () => {
       await current().view.cdp('Network.emulateNetworkConditions', {
