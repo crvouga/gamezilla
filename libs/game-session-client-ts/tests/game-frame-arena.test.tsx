@@ -399,10 +399,19 @@ test('phone: a real-time game keeps Resign and its history in one actions row', 
 // regression: arena-own-seat-unmarked — beside a wide arena the players'
 // card listed every player alike, so the person could not tell which was
 // theirs. Their own strip says "You".
+// regression: light-cycles-you-badge-wraps — the "You" tag then sat on a
+// line of its own under the name, so the person's strip stood taller than
+// every other in the card. It sits on the name's own line, after it.
 test("wide: the players' card tags the person's own strip You", () => {
   mount(1440);
   const own = screen.getByTestId('custom-game-white');
   expect(own.textContent).toContain('You');
+  const name = screen.getByTestId('custom-game-white-person');
+  const you = [...own.querySelectorAll('[data-component="Badge"]')].find(
+    (badge) => badge.textContent === 'You'
+  );
+  expect(you).toBeDefined();
+  expect(name.parentElement?.parentElement?.contains(you ?? null)).toBe(true);
   expect(screen.getByTestId('custom-game-black').textContent).not.toContain(
     'You'
   );

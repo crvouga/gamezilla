@@ -295,4 +295,22 @@ describe('game surfaces', () => {
       /max-height:\s*max\(320px, calc\(var\(--game-board-measure\) - 120px\)\);/
     );
   });
+
+  // regression: light-cycles-you-badge-wraps — on a phone the three riders'
+  // chips were as tall as their own lines, so the person's, with "You" on
+  // a line of its own, stood taller than the rest and its name sat higher.
+  // Every chip of a row takes the row's height and a stacked chip's lines
+  // start at its top, so avatars, names and figures line up.
+  test("a rail's chips share their row's height, a stacked chip's lines from its top", () => {
+    const source = readFileSync(join(UI_SRC, 'game-player-rail/index.tsx'), 'utf8');
+    const frame = source.slice(source.indexOf('const CHIP_FRAME ='));
+    expect(frame.slice(0, frame.indexOf(';'))).toMatch(/\bflex-1'/);
+    expect(source).toMatch(/class="box min-w-0 flex-1"\s*role=/);
+    expect(
+      rule(
+        'game-player-rail/game-player-rail.module.css',
+        '  .playerRail:has(> :nth-child(3):last-child) .chipFrame'
+      )
+    ).toMatch(/justify-content:\s*flex-start;/);
+  });
 });

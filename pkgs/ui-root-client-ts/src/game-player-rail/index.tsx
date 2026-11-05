@@ -34,7 +34,9 @@ export type GamePlayerRailProps = {
  * at once and none is cut off at the screen's edge. Each chip shows the player's
  * avatar and name on its first line, then their swatch, figure, out /
  * reconnecting word and any short facts (`tags`) on the second, so the
- * name keeps the chip's width.
+ * name keeps the chip's width. The chips of a row share its height, and a
+ * stacked chip's lines start at its top, so avatars, names and figures line
+ * up across the row whichever chip carries an extra fact (`You`).
  *
  * The active chip (the player to move) is the soft tint (`tintSubtle` fill,
  * `primaryStrong` border) and `aria-current="step"`. With `onPress` a chip is
@@ -135,8 +137,10 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
   );
 }
 
+// Every chip in a row is the row's height, so the rail's chips are one
+// even band whichever of them carries an extra fact (`You`).
 const CHIP_FRAME =
-  'flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0';
+  'flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1';
 
 export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
   const active = (): boolean => props.active === true;
@@ -146,7 +150,7 @@ export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
   });
   const chip = (): JSX.Element => (
     <div
-      class="box min-w-0"
+      class="box min-w-0 flex-1"
       role={props.placeTestId === undefined ? 'listitem' : undefined}
       aria-current={active() ? 'step' : undefined}
       {...dataAttrs({ component: 'GamePlayerChip', ...props.dataSet })}

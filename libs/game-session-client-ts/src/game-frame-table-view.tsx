@@ -150,6 +150,9 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
           <PlaySeatTags seat={props.seat} />
         </>
       }
+      // In the players' card beside an arena every strip is one line: the
+      // person's own `You` sits after their name, not on a row of its own.
+      tagsPlacement={props.quietStat === true ? 'inline' : 'below'}
       stat={props.seat.stat}
       statStyle={props.quietStat === true ? 'inline' : 'figure'}
       state={props.seat.state}
