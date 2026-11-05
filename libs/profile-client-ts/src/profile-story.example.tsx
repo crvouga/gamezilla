@@ -4,8 +4,8 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { UserPlusIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX } from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
@@ -25,18 +25,39 @@ export const STORY_IDENTITY: ProfileIdentity = {
   isBot: false,
 };
 
-/** The story's friends, by the ids the space fixtures give the same people. */
+/**
+ * The story's friends, by the ids the space and friends-list fixtures give
+ * the same people (the friends list story shows the same circle).
+ */
 const STORY_FRIENDS: readonly { readonly id: string; readonly name: string }[] =
   [
     { id: '02', name: 'jordan_plays' },
     { id: '03', name: 'morgan' },
+    { id: '10', name: 'priya_k' },
     { id: '04', name: 'robin_42' },
+    { id: '11', name: 'theo' },
+    { id: '09', name: 'casey' },
+    { id: '12', name: 'nadia' },
     { id: '05', name: 'sam' },
-    { id: '08', name: 'casey' },
+    { id: '13', name: 'kai_99' },
+    { id: '14', name: 'ellis' },
+    { id: '15', name: 'rowan_b' },
   ].map((friend) => ({
     id: `5a1e0000-0000-4000-8000-0000000000${friend.id}`,
     name: friend.name,
   }));
+
+/** How many friends the story's person has: everyone in {@link STORY_FRIENDS}. */
+export const STORY_FRIEND_COUNT = STORY_FRIENDS.length;
+
+function storyFriend(name: string): {
+  readonly id: string;
+  readonly name: string;
+} {
+  const found = STORY_FRIENDS.find((friend) => friend.name === name);
+  if (found === undefined) throw new Error(`no story friend ${name}`);
+  return found;
+}
 
 function StoryFace(props: {
   readonly id: string;
@@ -102,34 +123,58 @@ export function StoryFriendsActions(): JSX.Element {
 }
 
 /**
- * Stand-in for the playing slot: friends in a live space right now, hosts
- * first, each with the room they are in and Join (the friends sub draws the
- * same rows).
+ * The rooms friends are in right now, as the friends list story has them:
+ * jordan_plays hosts "Friday chess" with robin_42 and theo, sam hosts
+ * "Quick connect four" with priya_k, and morgan hosts a space with no name
+ * of its own, which goes by theirs.
+ */
+const STORY_ROOMS = [
+  {
+    spaceId: '5bace000-0000-4000-8000-000000000010',
+    title: 'Friday chess',
+    caption: 'jordan_plays hosts',
+    people: ['jordan_plays', 'robin_42', 'theo'],
+  },
+  {
+    spaceId: '5bace000-0000-4000-8000-000000000011',
+    title: 'Quick connect four',
+    caption: 'sam hosts',
+    people: ['sam', 'priya_k'],
+  },
+  {
+    spaceId: '5bace000-0000-4000-8000-000000000012',
+    title: "morgan's space",
+    caption: 'morgan hosts',
+    people: ['morgan'],
+  },
+].map((room) => ({ ...room, people: room.people.map(storyFriend) }));
+
+/**
+ * Stand-in for the playing slot: the rooms friends are in right now, each
+ * by its tile and name, who of them is there (their faces and who hosts)
+ * and one Join (the friends sub draws the same rows).
  */
 export function StoryFriendsPlaying(): JSX.Element {
-  const playing = [
-    { ...STORY_FRIENDS[0], doing: 'Hosting Friday chess' },
-    { ...STORY_FRIENDS[3], doing: 'Hosting Quick connect four' },
-    { ...STORY_FRIENDS[2], doing: 'In Friday chess' },
-  ];
   return (
     <MenuSection title="Playing now">
-      <For each={playing}>
-        {(friend) => (
+      <For each={STORY_ROOMS}>
+        {(room) => (
           <MenuRow
             leading={
-              <StoryFace
-                id={friend.id ?? ''}
-                name={friend.name ?? ''}
-                size={32}
-              />
+              <MonogramTile name={room.title} seed={room.spaceId} size="md" />
             }
-            title={`@${friend.name ?? ''}`}
+            title={room.title}
             caption={
               <StackHorizontal align="center" gap="xs">
-                <StatusDot status="online" size={8} />
+                <AvatarGroup size={20} maxVisible={3} ringColor="surface">
+                  <For each={room.people}>
+                    {(friend) => (
+                      <StoryFace id={friend.id} name={friend.name} size={20} />
+                    )}
+                  </For>
+                </AvatarGroup>
                 <P variant="caption" lines={1}>
-                  {friend.doing}
+                  {room.caption}
                 </P>
               </StackHorizontal>
             }

@@ -7,7 +7,7 @@ import {
   IncomingRequest,
   REQUESTS_SHOWN,
   useOpenRequester,
-} from './search-requests-aside';
+} from './friend-requests-aside';
 import { useFriendRequests } from './use-friend-requests';
 
 /**

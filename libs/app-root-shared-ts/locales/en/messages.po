@@ -105,8 +105,8 @@ msgstr "{0, plural, one {Waiting for # invitation to be answered.} other {Waitin
 msgid "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 
-#. placeholder {0}: requests.outgoing().length
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#. placeholder {0}: props.outgoingCount
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 
@@ -340,10 +340,6 @@ msgstr "{held, plural, one {# card} other {# cards}}"
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "{host} hosts"
 msgstr "{host} hosts"
-
-#: libs/friends-client-ts/src/friends-playing-now.tsx
-msgid "{host} hosts, with {others}"
-msgstr "{host} hosts, with {others}"
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "{host}'s space"
@@ -781,10 +777,6 @@ msgstr "A game needs {0} players including you. Find {1} other players at the sa
 msgid "A game needs {0} players including you. Find {1} other players."
 msgstr "A game needs {0} players including you. Find {1} other players."
 
-#: libs/spaces-client-ts/src/space-games-screen-view.tsx
-msgid "A game seats the players it needs; everyone else here watches."
-msgstr "A game seats the players it needs; everyone else here watches."
-
 #. placeholder {0}: count()
 #. placeholder {1}: timeControlText(props.game.time_control)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
@@ -1210,7 +1202,7 @@ msgstr "Available transitions"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
+#: libs/spaces-client-ts/src/space-chrome-nav.tsx
 #: pkgs/ui-root-client-ts/src/back-icon-button/index.tsx
 msgid "Back"
 msgstr "Back"
@@ -1355,6 +1347,7 @@ msgstr "Bot Observatory could not be loaded."
 msgid "Both players are ready."
 msgstr "Both players are ready."
 
+#: pkgs/ui-root-client-ts/src/chrome-breadcrumb/index.tsx
 #: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/index.tsx
 #: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/pills.tsx
 msgid "Breadcrumb"
@@ -1916,6 +1909,7 @@ msgid "Connecting…"
 msgstr "Connecting…"
 
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Connection"
@@ -2406,6 +2400,10 @@ msgstr "disconnect"
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Disconnected"
 msgstr "Disconnected"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Disconnects multiplayer and pauses syncing"
+msgstr "Disconnects multiplayer and pauses syncing"
 
 #: pkgs/ui-root-client-ts/src/dismissible-top-banner/index.tsx
 #: pkgs/ui-root-client-ts/src/notice/index.tsx
@@ -2981,7 +2979,7 @@ msgstr "Friend request"
 msgid "Friend request not sent"
 msgstr "Friend request not sent"
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 #: libs/friends-client-ts/src/search-requests-entry.tsx
 msgid "Friend requests"
 msgstr "Friend requests"
@@ -3095,6 +3093,7 @@ msgstr "Getting ready"
 msgid "Give your space a name"
 msgstr "Give your space a name"
 
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
 msgid "Go back"
 msgstr "Go back"
@@ -3109,6 +3108,7 @@ msgid "Go to a move by number"
 msgstr "Go to a move by number"
 
 #: libs/app-root-client-ts/src/crash-screen-view.tsx
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/app-root-client-ts/src/route-stub-screen-view.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "Go to Spaces"
@@ -3795,8 +3795,8 @@ msgid "Long tasks"
 msgstr "Long tasks"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Look, sound and connection"
-msgstr "Look, sound and connection"
+msgid "Look and sound"
+msgstr "Look and sound"
 
 #. placeholder {0}: count() - 1
 #. placeholder {1}: props.search.gameName
@@ -3901,10 +3901,6 @@ msgstr "Membership ended {0} · Plus access until {1}"
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Memberships aren't available right now."
 msgstr "Memberships aren't available right now."
-
-#: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
-msgid "Minimize"
-msgstr "Minimize"
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 msgid "Minimize space"
@@ -4041,6 +4037,10 @@ msgstr "Multiplayer draw offered"
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Multiplayer game is paused."
 msgstr "Multiplayer game is paused."
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Multiplayer is disconnected and syncing is paused"
+msgstr "Multiplayer is disconnected and syncing is paused"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "Multiplayer rematch offered"
@@ -4303,7 +4303,7 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Nobody is waiting on you"
 msgstr "Nobody is waiting on you"
 
@@ -4435,11 +4435,6 @@ msgstr "offline"
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-#: libs/app-root-client-ts/src/work-offline-status.tsx
-msgid "Offline mode"
-msgstr "Offline mode"
 
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
@@ -4703,10 +4698,6 @@ msgstr "Passing your cards…"
 msgid "Pause"
 msgstr "Pause"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Pause syncing and multiplayer; a game with others disconnects"
-msgstr "Pause syncing and multiplayer; a game with others disconnects"
-
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
@@ -4892,7 +4883,6 @@ msgid "Playing"
 msgstr "Playing"
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
-#: libs/friends-client-ts/src/profile-friends-playing.tsx
 msgid "Playing now"
 msgstr "Playing now"
 
@@ -5000,6 +4990,7 @@ msgstr "Production"
 #: libs/app-root-client-ts/src/client-events-screen-view.tsx
 #: libs/app-root-client-ts/src/client-sql-screen-view.tsx
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sound-screen-view.tsx
@@ -5907,6 +5898,7 @@ msgstr "Scores {total} points. Checking the words…"
 msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
 msgid "Search"
 msgstr "Search"
@@ -6645,10 +6637,6 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Syncing"
 msgstr "Syncing"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Syncing and multiplayer are paused; games with others are disconnected"
-msgstr "Syncing and multiplayer are paused; games with others are disconnected"
-
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Synthetic Population"
 msgstr "Synthetic Population"
@@ -7027,10 +7015,6 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
-#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "The link may be old or mistyped. Your spaces are still here."
-msgstr "The link may be old or mistyped. Your spaces are still here."
-
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
 msgstr "The link may be out of date. Pick a game from your list."
@@ -7185,9 +7169,9 @@ msgstr "There is no passing now."
 msgid "There is no secret choice to make now."
 msgstr "There is no secret choice to make now."
 
-#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
-msgid "There's nothing at this address"
-msgstr "There's nothing at this address"
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
+msgid "There's nothing at this address. The link may be old or mistyped; your spaces are still here."
+msgstr "There's nothing at this address. The link may be old or mistyped; your spaces are still here."
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "They already asked you"
@@ -7922,7 +7906,7 @@ msgstr "Walls"
 msgid "Walls must fit between four squares. Choose an anchor from a1 to h8."
 msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Wants to be friends"
 msgstr "Wants to be friends"
 
@@ -7963,6 +7947,10 @@ msgstr "What Plus includes"
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Where you are signed in"
 msgstr "Where you are signed in"
+
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online."
+msgstr "While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online."
 
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
@@ -8018,6 +8006,7 @@ msgid "Words have at least two letters."
 msgstr "Words have at least two letters."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Work offline"
 msgstr "Work offline"
 
@@ -8050,6 +8039,7 @@ msgid "Working copy chosen"
 msgstr "Working copy chosen"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
+#: libs/app-root-client-ts/src/work-offline-status.tsx
 msgid "Working offline"
 msgstr "Working offline"
 
@@ -8167,8 +8157,8 @@ msgid "You can't join this space"
 msgstr "You can't join this space"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "You chose to work offline. Turn off Offline mode in Settings to share what you do."
-msgstr "You chose to work offline. Turn off Offline mode in Settings to share what you do."
+msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
+msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "You didn't leave the space"

@@ -20,7 +20,7 @@ export type ProfileScreenProps = {
   readonly friendsStats?: JSX.Element | undefined;
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
-  /** Friends playing now, above the friends panel. */
+  /** The rooms friends are playing in now: the main section (beside the rail on a desktop). */
   readonly friendsPlaying?: JSX.Element | undefined;
 };
 

@@ -14,7 +14,8 @@ const FACE_SIZE = 32;
 /** The column lists a few; the inbox has every request. */
 export const REQUESTS_SHOWN = 4;
 
-function RequestRow(props: {
+/** One person who asked to be friends; the row opens their profile. */
+export function FriendRequestRow(props: {
   readonly profile: FriendProfile;
   readonly onOpen: () => void;
 }): JSX.Element {
@@ -39,6 +40,52 @@ function RequestRow(props: {
   );
 }
 
+/**
+ * Friend requests in a desktop column, presentational: who asked to be
+ * friends (each row opens their profile, where it is answered, as in the
+ * inbox), and how many the person sent are still waiting. Nothing while
+ * there are none.
+ */
+export function FriendRequestsAsideView(props: {
+  /** Who asked to be friends, by account id, newest first. */
+  readonly incomingIds: readonly string[];
+  /** How many requests the person sent are still waiting. */
+  readonly outgoingCount: number;
+  /** One asker's row ({@link FriendRequestRow}). */
+  readonly request: (userId: string) => JSX.Element;
+}): JSX.Element {
+  return (
+    <Show when={props.incomingIds.length > 0 || props.outgoingCount > 0}>
+      <MenuSection
+        title={<Trans>Friend requests</Trans>}
+        footer={
+          <Show when={props.outgoingCount > 0}>
+            <Plural
+              value={props.outgoingCount}
+              one="You sent # request that is still waiting."
+              other="You sent # requests that are still waiting."
+            />
+          </Show>
+        }
+      >
+        <Show
+          when={props.incomingIds.length > 0}
+          fallback={
+            <MenuRow
+              title={<Trans>Nobody is waiting on you</Trans>}
+              hideChevron
+            />
+          }
+        >
+          <For each={props.incomingIds.slice(0, REQUESTS_SHOWN)}>
+            {(userId) => props.request(userId)}
+          </For>
+        </Show>
+      </MenuSection>
+    </Show>
+  );
+}
+
 /** One requester as this device knows them (username empty until synced). */
 function useRequester(userId: () => string): () => FriendProfile {
   const row = useProfileRow(userId);
@@ -56,7 +103,10 @@ export function IncomingRequest(props: {
 }): JSX.Element {
   const profile = useRequester(() => props.userId);
   return (
-    <RequestRow profile={profile()} onOpen={() => props.onOpen(profile())} />
+    <FriendRequestRow
+      profile={profile()}
+      onOpen={() => props.onOpen(profile())}
+    />
   );
 }
 
@@ -75,46 +125,17 @@ export function useOpenRequester(): (profile: FriendProfile) => void {
 }
 
 /**
- * Friend requests beside the search on a desktop, from synced requests: who
- * asked to be friends (each opens their profile, where it is answered, as
- * in the inbox), and how many the person sent are still waiting. Nothing
- * while there are none.
+ * Friend requests beside a list of people on a desktop (search, the
+ * friends list), from synced requests. Nothing while there are none.
  */
-export function SearchRequestsAside(): JSX.Element {
+export function FriendRequestsAside(): JSX.Element {
   const requests = useFriendRequests();
   const open = useOpenRequester();
   return (
-    <Show
-      when={requests.incoming().length > 0 || requests.outgoing().length > 0}
-    >
-      <MenuSection
-        title={<Trans>Friend requests</Trans>}
-        footer={
-          <Show when={requests.outgoing().length > 0}>
-            <Plural
-              value={requests.outgoing().length}
-              one="You sent # request that is still waiting."
-              other="You sent # requests that are still waiting."
-            />
-          </Show>
-        }
-      >
-        <Show
-          when={requests.incoming().length > 0}
-          fallback={
-            <MenuRow
-              title={<Trans>Nobody is waiting on you</Trans>}
-              hideChevron
-            />
-          }
-        >
-          <For each={requests.incoming().slice(0, REQUESTS_SHOWN)}>
-            {(request) => (
-              <IncomingRequest userId={request.fromUserId} onOpen={open} />
-            )}
-          </For>
-        </Show>
-      </MenuSection>
-    </Show>
+    <FriendRequestsAsideView
+      incomingIds={requests.incoming().map((request) => request.fromUserId)}
+      outgoingCount={requests.outgoing().length}
+      request={(userId) => <IncomingRequest userId={userId} onOpen={open} />}
+    />
   );
 }

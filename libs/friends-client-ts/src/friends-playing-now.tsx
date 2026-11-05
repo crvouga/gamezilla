@@ -4,6 +4,7 @@ import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import {
   type FriendLiveSpaceAction,
   FriendLiveSpaceJoinView,
+  FriendLiveSpaceStatusView,
 } from '@libs/spaces-client-ts/friend-live-space';
 import { openSpaceDetail } from '@libs/spaces-client-ts/space-routes';
 import { useLiveSpaceTitles } from '@libs/spaces-client-ts/use-live-space-titles';
@@ -14,11 +15,17 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 
-const FACE_SIZE = 28;
+/** Faces in a room's caption line, beside its words. */
+const FACE_SIZE = 20;
 const FACES_SHOWN = 3;
+/** A profile lists a few rooms; the friends list has everyone in them. */
+const ROOMS_SHOWN = 3;
 
 /** One friend in a room, and whether they run it. */
 export type RoomFriend = {
@@ -52,7 +59,7 @@ function useNames(
 }
 
 /** The room's name: its own, its host's ("jordan_plays's space"), or "A space". */
-function useRoomTitle(room: () => PlayingRoom): () => string {
+export function useRoomTitle(room: () => PlayingRoom): () => string {
   const { t } = useLingui();
   const names = useNames(() => room().friends, false);
   return () => {
@@ -64,8 +71,9 @@ function useRoomTitle(room: () => PlayingRoom): () => string {
 }
 
 /**
- * Who of your friends is there, short enough for the narrow column:
- * "jordan_plays hosts, with robin_42", or the names of those in it.
+ * Who of your friends is there, in words short enough for a phone's row
+ * (their faces stand beside them): "jordan_plays hosts", or, when no
+ * friend hosts, the names of those in it.
  */
 function useRoomCaption(room: () => PlayingRoom): () => string {
   const { t } = useLingui();
@@ -74,38 +82,52 @@ function useRoomCaption(room: () => PlayingRoom): () => string {
     const all = names();
     if (room().friends[0]?.hosting !== true) return all.join(', ');
     const host = all[0] ?? '';
-    const others = all.slice(1).join(', ');
-    return others.length > 0
-      ? t`${host} hosts, with ${others}`
-      : t`${host} hosts`;
+    return t`${host} hosts`;
   };
 }
 
+/** Who of your friends is in a room: their faces, the host first, then the words. */
+function RoomCaption(props: { readonly room: PlayingRoom }): JSX.Element {
+  const names = useNames(() => props.room.friends, true);
+  const caption = useRoomCaption(() => props.room);
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <AvatarGroup
+        size={FACE_SIZE}
+        maxVisible={FACES_SHOWN}
+        ringColor="surface"
+      >
+        <For each={props.room.friends}>
+          {(entry, index) => (
+            <FriendProfileAvatar
+              profile={entry.friend}
+              name={names()[index()] ?? ''}
+              size={FACE_SIZE}
+            />
+          )}
+        </For>
+      </AvatarGroup>
+      <P variant="caption" lines={1}>
+        {caption()}
+      </P>
+    </StackHorizontal>
+  );
+}
+
+/**
+ * One room: its own tile and name (every room wears the same tile
+ * wherever it is shown), who of your friends is there (their faces and
+ * who hosts), and one Join.
+ */
 function PlayingRoomRow(props: { readonly room: PlayingRoom }): JSX.Element {
   const title = useRoomTitle(() => props.room);
-  const caption = useRoomCaption(() => props.room);
-  const names = useNames(() => props.room.friends, true);
   return (
     <MenuRow
       leading={
-        <AvatarGroup
-          size={FACE_SIZE}
-          maxVisible={FACES_SHOWN}
-          ringColor="surface"
-        >
-          <For each={props.room.friends}>
-            {(entry, index) => (
-              <FriendProfileAvatar
-                profile={entry.friend}
-                name={names()[index()] ?? ''}
-                size={FACE_SIZE}
-              />
-            )}
-          </For>
-        </AvatarGroup>
+        <MonogramTile name={title()} seed={props.room.spaceId} size="md" />
       }
       title={title()}
-      caption={caption()}
+      caption={<RoomCaption room={props.room} />}
       trailing={
         <FriendLiveSpaceJoinView
           action={props.room.action}
@@ -117,10 +139,11 @@ function PlayingRoomRow(props: { readonly room: PlayingRoom }): JSX.Element {
 }
 
 /**
- * "Playing now" by room, for the desktop column beside the friends list:
- * each live space friends are in, by its name, who of them is there, and
- * Join. Every Join here is also on that friend's row, so a phone (which has
- * no column) loses nothing. Nothing at all while nobody is playing.
+ * "Playing now" by room, on the person's own profile: each live space
+ * friends are in (the first few), by its tile and name, who of them is
+ * there, and one Join for the room — so two friends in one room never
+ * offer two ways into it. Nothing at all while nobody is playing, so the
+ * profile never shows an empty panel.
  */
 export function FriendsPlayingNowView(props: {
   readonly rooms: readonly PlayingRoom[];
@@ -128,10 +151,52 @@ export function FriendsPlayingNowView(props: {
   return (
     <Show when={props.rooms.length > 0}>
       <MenuSection title={<Trans>Playing now</Trans>}>
-        <For each={props.rooms}>{(room) => <PlayingRoomRow room={room} />}</For>
+        <For each={props.rooms.slice(0, ROOMS_SHOWN)}>
+          {(room) => <PlayingRoomRow room={room} />}
+        </For>
       </MenuSection>
     </Show>
   );
+}
+
+/**
+ * What a friend is doing, under their name in the friends list: the
+ * room's tile, then the online dot and the words ("Hosting Friday chess",
+ * "In morgan's space"), so the same room reads the same on every row.
+ */
+export function FriendRoomStatusView(props: {
+  readonly room: PlayingRoom;
+  readonly hosting: boolean;
+}): JSX.Element {
+  const title = useRoomTitle(() => props.room);
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <MonogramTile name={title()} seed={props.room.spaceId} size="xs" />
+      <FriendLiveSpaceStatusView
+        hosting={props.hosting}
+        title={props.room.title}
+      />
+    </StackHorizontal>
+  );
+}
+
+/** Each friend in a live space, by their id: the room they are in, and whether they host it. */
+export function roomsByFriend(
+  rooms: readonly PlayingRoom[]
+): ReadonlyMap<
+  string,
+  { readonly room: PlayingRoom; readonly hosting: boolean }
+> {
+  const byFriend = new Map<
+    string,
+    { readonly room: PlayingRoom; readonly hosting: boolean }
+  >();
+  for (const room of rooms) {
+    for (const entry of room.friends) {
+      byFriend.set(entry.friend.userId, { room, hosting: entry.hosting });
+    }
+  }
+  return byFriend;
 }
 
 /** Live friends first (hosts before guests), each group in its given order. */

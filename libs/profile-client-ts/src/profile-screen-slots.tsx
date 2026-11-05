@@ -19,7 +19,7 @@ export type ProfileScreenSlots = {
   readonly stats?: () => JSX.Element;
   /** Actions in the profile header (e.g. add friend / unblock). */
   readonly actions?: () => JSX.Element;
-  /** Who is playing now (friends in a live space), above the friends panel. */
+  /** The rooms friends are playing in now: the main section, before the friends panel. */
   readonly playing?: () => JSX.Element;
 };
 

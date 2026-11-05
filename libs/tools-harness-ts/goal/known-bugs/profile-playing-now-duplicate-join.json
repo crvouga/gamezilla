@@ -1,0 +1,4 @@
+{
+  "summary": "The profile's Playing now listed each friend in a live space with their own Join, so two friends in one room (jordan_plays hosting Friday chess, robin_42 in it) offered two Joins into the same room. Playing now is now one row per room with one Join.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-playing-now.test.tsx"
+}

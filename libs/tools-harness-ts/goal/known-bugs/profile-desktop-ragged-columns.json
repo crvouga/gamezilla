@@ -1,0 +1,4 @@
+{
+  "summary": "On desktop the own profile split into three unequal columns (identity card about 230px tall, Playing now about 200px, Friends and Settings about 260px), leaving ragged bottoms; the narrow middle column truncated \"Hosting Quick connect …\" and the narrow third column wrapped the Settings caption to three lines. The profile now composes as a compact identity band over a flexible main column (Playing now) and a 24rem rail (Friends, Settings) whose captions fit on one line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/profile-rail-layout.test.tsx"
+}

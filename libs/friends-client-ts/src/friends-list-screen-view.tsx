@@ -27,7 +27,7 @@ export type FriendsListScreenViewProps = {
   readonly denial?: DenialView | undefined;
   /** Inline notice for a refused friend change, above the list. */
   readonly notice?: JSX.Element;
-  /** What the friend is doing, under their name (hosting a space). */
+  /** What the friend is doing, under their name (the room they host or are in). */
   readonly friendStatus?: ((friend: Friend) => JSX.Element) | undefined;
   /**
    * The row's one control, such as Join for their live space. A row without
@@ -35,8 +35,10 @@ export type FriendsListScreenViewProps = {
    */
   readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
   /**
-   * Desktop context beside the list, such as who is playing now by room.
-   * A phone shows the list alone, so every way in here is also on a row.
+   * Desktop context beside the list, such as the friend requests waiting
+   * on an answer: never a second copy of a row's own control (Join is on
+   * the friend's row). A phone shows the list alone, so nothing here may be
+   * the only way to reach something.
    */
   readonly aside?: JSX.Element | undefined;
   readonly onOpenFriend: (friend: Friend) => void;
@@ -149,7 +151,7 @@ function useFindFriendsAction(
 /**
  * `/profile/friends`, presentational: the accepted friends list with Find
  * friends in the header (friends in a live space first, as the container
- * orders them), a desktop column of who is playing now, and its loading,
+ * orders them), a desktop column of friend requests, and its loading,
  * failed, empty and permission-denied states. Data and navigation arrive as props;
  * `FriendsListScreen` wires them to the sync engine.
  */
