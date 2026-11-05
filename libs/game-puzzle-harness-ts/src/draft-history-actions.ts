@@ -6,6 +6,7 @@ import {
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
+import { builderField } from './builder-session';
 import { contentClient, createDraftFor } from './content-actions';
 import type { ContentHarness } from './content-system';
 import {
@@ -50,7 +51,7 @@ function settle(
 }
 
 async function typeTitle(editing: Editing, title: string): Promise<void> {
-  fireEvent.input(editing.view.getByLabelText('Title'), {
+  fireEvent.input(builderField(editing.view, 'Title'), {
     target: { value: title },
   });
   await settle(editing, (draft) => draft.title === title);
