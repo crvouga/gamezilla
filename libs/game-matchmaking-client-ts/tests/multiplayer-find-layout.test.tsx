@@ -2,6 +2,8 @@
 /** Before a search: one card holds the choice, its conditions and what the person brings. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { MultiplayerScreenView } from '@libs/game-matchmaking-client-ts/multiplayer-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -123,4 +125,35 @@ test('a provisional rating keeps its "?" quietly, its tag saying what it means',
   const tag = screen.getByTestId('multiplayer-rating-game-provisional');
   expect(tag.textContent).toBe('Provisional');
   expect(tag.getAttribute('data-intent')).toBe('info');
+});
+
+// regression: matchmaking-card-too-wide — wide, the search card spanned the
+// whole 960px game column for three items, and nothing said what a found
+// opponent meant for the space. The card holds two form-width columns at
+// the column's start, and under Find an opponent it says the game opens in
+// this space, where everyone can watch.
+test('wide: the search card keeps two form-width columns and says what happens to the space', () => {
+  mount(1440);
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-ui.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toContain('--game-search-split-measure: 45rem;');
+  const wide = css.slice(
+    css.indexOf('@container game-column (min-width: 880px)')
+  );
+  expect(wide).toMatch(
+    /\[data-setup-split="true"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+  );
+  const note = screen.getByTestId('multiplayer-find-space');
+  expect(note.textContent).toContain('opens in this space');
+  expect(note.textContent).toContain('everyone can watch');
+  // The note follows the command, in the same group.
+  expect(
+    screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
 });

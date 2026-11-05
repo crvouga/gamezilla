@@ -7117,6 +7117,10 @@ msgstr "The game is over. Final scores: {scores}. {head} and {last} win."
 msgid "The game is over. Final scores: {scores}. {last} wins."
 msgstr "The game is over. Final scores: {scores}. {last} wins."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "The game opens in this space, where everyone can watch. Your opponent plays from their own space."
+msgstr "The game opens in this space, where everyone can watch. Your opponent plays from their own space."
+
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
 msgstr "The game stopped. Your last saved score is kept. Reopen the game to try again."

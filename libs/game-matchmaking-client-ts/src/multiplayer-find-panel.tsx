@@ -8,6 +8,8 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
@@ -103,28 +105,39 @@ export function MultiplayerFindPanel(props: {
         </Show>
       }
       actions={
-        <GameActionButton
-          title={
-            <Show when={count() > 2} fallback={<Trans>Find an opponent</Trans>}>
-              <Trans>Find players</Trans>
-            </Show>
-          }
-          successLabel={
-            <Show
-              when={count() > 2}
-              fallback={<Trans>Opponent search accepted</Trans>}
-            >
-              <Trans>Player search accepted</Trans>
-            </Show>
-          }
-          operation={() =>
-            props.onFind(props.timed ? timeControl() : undefined)
-          }
-          variant="solid"
-          // The search's one command spans its card on every size.
-          fullWidth
-          dataSet={{ testid: 'multiplayer-find' }}
-        />
+        <StackVertical gap="sm">
+          <GameActionButton
+            title={
+              <Show
+                when={count() > 2}
+                fallback={<Trans>Find an opponent</Trans>}
+              >
+                <Trans>Find players</Trans>
+              </Show>
+            }
+            successLabel={
+              <Show
+                when={count() > 2}
+                fallback={<Trans>Opponent search accepted</Trans>}
+              >
+                <Trans>Player search accepted</Trans>
+              </Show>
+            }
+            operation={() =>
+              props.onFind(props.timed ? timeControl() : undefined)
+            }
+            variant="solid"
+            // The search's one command spans its card on every size.
+            fullWidth
+            dataSet={{ testid: 'multiplayer-find' }}
+          />
+          <P variant="caption" tone="secondary" testId="multiplayer-find-space">
+            <Trans>
+              The game opens in this space, where everyone can watch. Your
+              opponent plays from their own space.
+            </Trans>
+          </P>
+        </StackVertical>
       }
     >
       <Show when={props.timed}>

@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking card spanned the whole 960px game column for three items, and nothing said what finding an opponent meant for the space. The card now holds two form-width columns at the column's start, and under Find an opponent it says the game opens in this space, where everyone can watch, while the opponent plays from their own.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

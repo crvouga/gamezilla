@@ -15,6 +15,9 @@
   --game-board-chrome-block: 284px;
   /* A search's card: one column, its command as wide as the card. */
   --game-search-measure: 600px;
+  /* A search beside what the person brings (their ratings): two columns,
+     each a form's width, never stretched across the whole game column. */
+  --game-search-split-measure: 45rem;
   /* Beside a real-time game's arena: room for a player's full strip. */
   --game-arena-rail-measure: 304px;
 }
@@ -475,12 +478,12 @@
     max-width: var(--game-board-preview-measure);
   }
   /* A search that holds its own context (the person's ratings beside its
-     command) spans the game column as one card, never a form's measure
-     stranded at the column's start. */
+     command) is one card of two form-width columns at the column's start
+     edge: never stretched across the whole game column for three items. */
   .column
     .layout[data-has-aside][data-has-setup]
     > .stage:has([data-setup-split="true"]) {
-    max-width: none;
+    max-width: var(--game-search-split-measure);
   }
   /* In document order, each in the next free row of the rail. */
   .layout[data-has-stage="true"][data-has-aside="true"]
