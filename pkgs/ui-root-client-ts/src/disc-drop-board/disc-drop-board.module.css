@@ -141,11 +141,13 @@
   color: var(--ui-color-text);
 }
 .cell {
+  /* The hole's own colour, which also sets a landing preview off the board. */
+  --disc-hole: var(--ui-color-background);
   display: grid;
   place-items: center;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--ui-color-background);
+  background: var(--disc-hole);
   overflow: visible;
 }
 .disc {
@@ -166,13 +168,16 @@
   background: var(--ui-color-warning);
   color: var(--ui-color-background);
 }
-/* Where the disc would land: an empty hole ringed by a dashed edge of the
-   dropping side's colour, breathing slowly. No fill and no mark: a played
-   disc is always solid, so the outline can only read as a disc to come. */
+/* Where the disc would land: an empty hole ringed by a thick dashed edge
+   of the dropping side's colour, set off from the board by a dark halo and
+   breathing slowly, so it reads against the board. No fill and no mark: a
+   played disc is always solid, so the outline can only read as a disc to
+   come. */
 .cell[data-preview-disc="1"] .disc,
 .cell[data-preview-disc="2"] .disc {
   box-sizing: border-box;
-  border: 3px dashed var(--disc-preview);
+  border: 4px dashed var(--disc-preview);
+  box-shadow: 0 0 0 2px var(--disc-hole);
   animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
     alternate;
 }
@@ -212,7 +217,7 @@
     opacity: 1;
   }
   to {
-    opacity: 0.5;
+    opacity: 0.7;
   }
 }
 @keyframes disc-drop {

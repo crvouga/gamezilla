@@ -292,7 +292,7 @@ function boardRule(selector: string): string {
 // read as a translucent disc already on the board.
 test('the landing preview is an empty dashed outline and the drop slot a hollow ring', () => {
   const landing = boardRule('.cell[data-preview-disc="1"] .disc,');
-  expect(landing).toMatch(/border:\s*3px dashed var\(--disc-preview\);/);
+  expect(landing).toMatch(/border:\s*4px dashed var\(--disc-preview\);/);
   expect(landing).not.toMatch(/background/);
   expect(
     readFileSync(
@@ -310,4 +310,27 @@ test('the landing preview is an empty dashed outline and the drop slot a hollow 
   expect(boardRule('@media (prefers-reduced-motion: reduce)')).toContain(
     '.cell[data-preview-disc="1"] .disc'
   );
+});
+
+// regression: connect-four-preview-weak — the landing preview was a thin
+// dashed ring of the dropping side's colour, faint against the blue board
+// and fading to half at each breath. The ring is thick, set off from the
+// board by a dark halo, and never fades below 70%; still never filled.
+test('the landing preview reads against the board yet stays an outline', () => {
+  const landing = boardRule('.cell[data-preview-disc="1"] .disc,');
+  expect(landing).toContain('border: 4px dashed var(--disc-preview)');
+  expect(landing).toContain('box-shadow: 0 0 0 2px var(--disc-hole)');
+  expect(landing).not.toMatch(/background/);
+  expect(boardRule('@keyframes disc-preview-breathe')).not.toContain(
+    'opacity: 0.5'
+  );
+  expect(
+    readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/disc-drop-board/disc-drop-board.module.css'
+      ),
+      'utf8'
+    )
+  ).toContain('opacity: 0.7;');
 });
