@@ -74,6 +74,8 @@ export const Handles = {
   /** This device's last activity in the space, for the harness clock. */
   spaceOwnActivity: 'space-own-activity',
   spaceClose: 'space-close',
+  /** A phone's ‹ at the room's root: back to Spaces (the space goes on, small). */
+  spaceBackToSpaces: 'space-back-to-spaces',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',

@@ -6643,6 +6643,7 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
+#: libs/spaces-client-ts/src/space-chrome-nav.tsx
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx

@@ -118,17 +118,16 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
   return (
     <StackVertical grow>
       <TopBar
-        // No empty leading slot on the list of games: the title keeps the
-        // bar's edge, as a tab screen's does.
+        // ‹ always leads: back inside the space, or at the list of games
+        // back to Spaces, named over the room's name.
         leading={
-          props.onPressBack === null ? undefined : (
-            <SpaceChromeBack
-              title={props.title}
-              place={props.place}
-              onPressBack={props.onPressBack}
-              backLabel={props.backLabel}
-            />
-          )
+          <SpaceChromeBack
+            title={props.title}
+            place={props.place}
+            onPressBack={props.onPressBack}
+            backLabel={props.backLabel}
+            onPressSpaces={props.onPressHome}
+          />
         }
         center={
           <SpaceChromeCompactTitle
@@ -136,6 +135,7 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
             place={props.place}
             onPressBack={props.onPressBack}
             backLabel={props.backLabel}
+            onPressSpaces={props.onPressHome}
           />
         }
         trailing={<SpaceTrailing {...props} compact />}

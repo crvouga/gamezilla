@@ -28,6 +28,12 @@ export type SpaceChromeNavProps = {
   readonly onPressBack: (() => void) | null;
   /** Where Back goes ("Games", "Chess"), when the screen named it. */
   readonly backLabel?: string | undefined;
+  /**
+   * A phone's way out at the room's root (the space's list of games), back
+   * to Spaces while the space goes on small: shown as ‹ with "Spaces" over
+   * the room's name. Absent where the bar offers no such way.
+   */
+  readonly onPressSpaces?: (() => void) | undefined;
 };
 
 function trailInput(props: SpaceChromeNavProps) {
@@ -84,15 +90,39 @@ export function SpaceChromeTrail(props: SpaceChromeNavProps): JSX.Element {
 }
 
 /**
- * A phone's ‹, named for where it goes (the parent place), while there is a
- * way back inside the space. Minimize is never a second leading glyph.
+ * A phone's ‹, named for where it goes: the parent place while there is a
+ * way back inside the space; at the room's root, Spaces (`onPressSpaces`),
+ * so the way out of the room is never only Minimize's glyph at the far
+ * edge. Minimize is never a second leading glyph.
  */
 export function SpaceChromeBack(props: SpaceChromeNavProps): JSX.Element {
   const { t } = useLingui();
   const chrome = useActionBarChrome();
   const name = (): string => spaceBackName(trailInput(props)) ?? t`Back`;
+  const chevron = (): JSX.Element => (
+    <ChevronLeftIcon
+      size={actionBarGlyphSize(chrome().buttonSize)}
+      color="icon"
+    />
+  );
   return (
-    <Show when={props.onPressBack}>
+    <Show
+      when={props.onPressBack}
+      fallback={
+        <Show when={props.onPressSpaces}>
+          {(onPressSpaces) => (
+            <IconButton
+              label={t`Spaces`}
+              size={chrome().buttonSize}
+              onClick={() => onPressSpaces()()}
+              dataSet={{ testid: Handles.spaceBackToSpaces }}
+            >
+              {chevron()}
+            </IconButton>
+          )}
+        </Show>
+      }
+    >
       {(onPressBack) => (
         <IconButton
           label={name()}
@@ -100,10 +130,7 @@ export function SpaceChromeBack(props: SpaceChromeNavProps): JSX.Element {
           onClick={() => onPressBack()()}
           dataSet={{ testid: Handles.navBack }}
         >
-          <ChevronLeftIcon
-            size={actionBarGlyphSize(chrome().buttonSize)}
-            color="icon"
-          />
+          {chevron()}
         </IconButton>
       )}
     </Show>
@@ -111,18 +138,26 @@ export function SpaceChromeBack(props: SpaceChromeNavProps): JSX.Element {
 }
 
 /**
- * A phone's title: the room alone on the space's list of games; inside a
- * game, the room's name small over the game's, so ‹ reads against both.
+ * A phone's title: on the space's list of games the room, under "Spaces"
+ * where ‹ leads there; inside a game, the room's name small over the
+ * game's. Either way the small line names where ‹ goes.
  */
 export function SpaceChromeCompactTitle(
   props: SpaceChromeNavProps
 ): JSX.Element {
+  const { t } = useLingui();
   return (
     <StackVertical shrink>
       <Show
         when={props.place}
         fallback={
-          <ChromeTitle>
+          <ChromeTitle
+            eyebrow={
+              props.onPressBack === null && props.onPressSpaces !== undefined
+                ? t`Spaces`
+                : undefined
+            }
+          >
             <RoomName title={props.title} />
           </ChromeTitle>
         }

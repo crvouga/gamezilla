@@ -264,3 +264,35 @@ test('the members button draws no ring of its own around the faces', () => {
     )
   ).toBe('faces');
 });
+
+// regression: space-root-no-way-out — on a phone the space's list of games
+// showed neither the tabs nor a way back to Spaces: only Minimize's glyph
+// at the bar's far edge. At the room's root ‹ leads, named Spaces, with
+// "Spaces" over the room's name, and takes the person back to Spaces.
+test('phone: at the room’s root ‹ leads back to Spaces, named over the room', () => {
+  const harness = createHarnessClock();
+  const pressed: string[] = [];
+  const nav: SpaceChromeNavProps = {
+    title: ROOM,
+    spaceId: 'space-1',
+    place: undefined,
+    onPressBack: null,
+    onPressSpaces: () => pressed.push('spaces'),
+  };
+  const { container } = renderWithI18n(() => (
+    <ClockProvider clock={harness.clock} timers={harness.timers}>
+      <ThemeProvider colorScheme="dark" fixedLayout={PHONE}>
+        <SpaceChromeBack {...nav} />
+        <SpaceChromeCompactTitle {...nav} />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const back = byHandle(container, Handles.spaceBackToSpaces);
+  if (!(back instanceof HTMLElement)) throw new Error('no way back to Spaces');
+  expect(back.getAttribute('aria-label')).toBe('Spaces');
+  expect(byHandle(container, Handles.navBack)).toBeNull();
+  expect(container.textContent).toContain('Spaces');
+  expect(byHandle(container, Handles.spaceTitle)?.textContent).toBe(ROOM);
+  fireEvent.click(back);
+  expect(pressed).toEqual(['spaces']);
+});
