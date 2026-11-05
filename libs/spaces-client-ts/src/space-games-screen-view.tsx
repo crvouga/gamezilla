@@ -67,8 +67,8 @@ function PlayersTag(props: { readonly count: number }): JSX.Element {
 
 /**
  * Above the list: who is here, and for a guest that the host picks. Each
- * game's own tag says who plays and that the rest watch, so the summary
- * never explains seats a second time.
+ * game's tag says only who plays; the list's subtitle says once that the
+ * rest watch ({@link someoneWatches}).
  */
 function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
   return (
@@ -80,6 +80,14 @@ function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
         </Show>
       </StackVertical>
     </Show>
+  );
+}
+
+/** More people are here than some game seats, so someone would watch. */
+function someoneWatches(props: SpaceGamesScreenViewProps): boolean {
+  const present = props.present ?? 0;
+  return props.games.some(
+    (game) => game.players !== undefined && present > game.players
   );
 }
 
@@ -107,7 +115,14 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       screenId="games-main-menu"
       wideLayout="grid"
       title={<Trans>Games</Trans>}
-      subtitle={<Trans>Pick a game to play.</Trans>}
+      subtitle={
+        <Show
+          when={someoneWatches(props)}
+          fallback={<Trans>Pick a game to play.</Trans>}
+        >
+          <Trans>Pick a game to play; everyone else here watches.</Trans>
+        </Show>
+      }
       helper={<ListHelper {...props} />}
       items={items()}
     />

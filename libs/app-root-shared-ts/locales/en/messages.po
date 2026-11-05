@@ -4776,6 +4776,10 @@ msgid "Pick a fun emoji look"
 msgstr "Pick a fun emoji look"
 
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "Pick a game to play; everyone else here watches."
+msgstr "Pick a game to play; everyone else here watches."
+
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
@@ -8460,7 +8464,6 @@ msgid "Your live spaces"
 msgstr "Your live spaces"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Your move"
 msgstr "Your move"

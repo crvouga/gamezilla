@@ -42,7 +42,8 @@ test('with more here than a game seats, the header never explains seats again', 
   ));
   const text = container.textContent ?? '';
   expect(text).toContain('5 here · you host');
-  expect(text).not.toContain('everyone else here watches');
-  // Each game's own tag still says the rest watch.
-  expect(text).toContain('others watch');
+  // Said once, in the list's subtitle; never again in the header.
+  expect(text.split('everyone else here watches')).toHaveLength(2);
+  // No game's tag repeats it.
+  expect(text).not.toContain('others watch');
 });
