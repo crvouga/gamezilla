@@ -1,0 +1,4 @@
+{
+  "summary": "A tab's count was bare quiet text right after its label, so the puzzle library's \"Continue 2\" read as one label. A tab's count is now a small neutral pill apart from the label.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/tabs.test.tsx"
+}
