@@ -1,0 +1,4 @@
+{
+  "summary": "A daily game's turn reminder kept its turn notice's priority and first arrival time, so a turn with 3 hours left listed under a newer turn and a routine friend request, and its time left read in the same quiet caption as every other card. A turn reminder now publishes at the time-critical priority, so the inbox lists it before everything else that needs the person, and its card shows the time left with a clock in the warning ink.",
+  "regressionTest": "libs/game-session-server-ts/tests/multiplayer-turn-notice-priority.test.ts"
+}

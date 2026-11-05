@@ -4,6 +4,7 @@ import type { MultiplayerNoticePerson } from '@libs/game-matchmaking-shared-ts/m
 import { multiplayerTurnNoticeSource } from '@libs/game-matchmaking-shared-ts/multiplayer-notices';
 import type { Notifications } from '@libs/notifications-server-ts/notifications-service';
 import { findNotificationBySource } from '@libs/notifications-server-ts/publish';
+import { TIME_CRITICAL_PRIORITY } from '@libs/notifications-shared-ts/notifications-sections';
 import type { PublishNotificationInput } from '@libs/notifications-shared-ts/publish-types';
 import type { ProfileReadRepository } from '@libs/profile-shared-ts/read-profile';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
@@ -13,6 +14,9 @@ import {
   turnReminderBody,
   turnReminderTitle,
 } from './multiplayer-notice-text';
+
+/** A turn waiting on the person, ahead of answers that can wait. */
+const TURN_NOTICE_PRIORITY = 10;
 
 export type NoticeOpponent = {
   readonly userId: string;
@@ -125,7 +129,9 @@ export async function sendTurnNotice(
       ...(left === null ? {} : { reminder: true, left }),
     },
     groupKey: 'chess:multiplayer-turns',
-    priority: 10,
+    // A turn reminder's clock is low on time: it lists before every other
+    // notice that needs the person, however long ago the turn began.
+    priority: left === null ? TURN_NOTICE_PRIORITY : TIME_CRITICAL_PRIORITY,
     resurface:
       !held.thisTurn || (remindLeft !== null && held.reminderLeft === null),
   });

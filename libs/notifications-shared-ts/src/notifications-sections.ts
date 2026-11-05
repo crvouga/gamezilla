@@ -45,6 +45,18 @@ export function notificationNeedsYou(item: Notification): boolean {
 }
 
 /**
+ * The priority of a notice whose time is running out (a turn about to be
+ * lost on time). The inbox lists by priority, so it comes before anything
+ * else that needs the person, and its card says how little time is left.
+ */
+export const TIME_CRITICAL_PRIORITY = 20;
+
+/** A notice that needs the person and whose time is running out. */
+export function notificationTimeCritical(item: Notification): boolean {
+  return item.priority >= TIME_CRITICAL_PRIORITY && notificationNeedsYou(item);
+}
+
+/**
  * The inbox's groups: what needs the person first, then everything else by
  * day (today, yesterday, this week, earlier). Order inside a group is the
  * order given.

@@ -143,3 +143,20 @@ test('on a phone every heading starts on the list edge, like the title and chips
     expect(insetsBetween(heading, body as Element)).toEqual([]);
   }
 });
+
+// regression: notifications-filter-chip-echoes-heading — under All the
+// "Needs you" filter chip sat right above the "Needs you" heading, the same
+// words twice. The chip says "Action needed"; no chip repeats a heading.
+test('no filter chip repeats a heading of the list under it', () => {
+  renderInbox(DESKTOP);
+  const chips = screen.getAllByRole('radio').map((chip) => chip.textContent);
+  expect(chips).toEqual(['All', 'Action needed', 'Archived']);
+  const headings = screen
+    .getAllByRole('heading')
+    .map((heading) => heading.textContent ?? '');
+  for (const chip of chips) {
+    expect(headings.some((heading) => heading.startsWith(chip ?? ''))).toBe(
+      false
+    );
+  }
+});

@@ -65,6 +65,8 @@ function dailyGame(
     readonly body?: string;
     readonly createdAt: string;
     readonly isUnread: boolean;
+    /** As the game platform publishes it: a turn 10, a turn reminder 20. */
+    readonly priority?: number;
   },
   ended: boolean
 ) {
@@ -117,18 +119,9 @@ const CASEY = ['casey', '09'] as const;
 
 const ID = 'b51c7a90-0000-4000-8000-0000000000';
 
+// In the order the inbox lists them (priority, then newest): the turn whose
+// clock is low on time first, then the other turn, then the requests.
 const NEEDS_YOU = [
-  friendRequest(`${ID}01`, JORDAN, '2023-11-14T21:48:00.000Z', true),
-  dailyGame(
-    `${ID}02`,
-    ROBIN,
-    {
-      title: "It's your turn in your daily game against @robin_42",
-      createdAt: '2023-11-14T20:05:00.000Z',
-      isUnread: true,
-    },
-    false
-  ),
   dailyGame(
     `${ID}03`,
     SAM,
@@ -137,9 +130,22 @@ const NEEDS_YOU = [
       body: "It's your turn. You have 3 hours left to move.",
       createdAt: '2023-11-14T13:10:00.000Z',
       isUnread: true,
+      priority: 20,
     },
     false
   ),
+  dailyGame(
+    `${ID}02`,
+    ROBIN,
+    {
+      title: "It's your turn in your daily game against @robin_42",
+      createdAt: '2023-11-14T20:05:00.000Z',
+      isUnread: true,
+      priority: 10,
+    },
+    false
+  ),
+  friendRequest(`${ID}01`, JORDAN, '2023-11-14T21:48:00.000Z', true),
   friendRequest(`${ID}04`, RILEY, '2023-11-13T16:30:00.000Z', false),
 ];
 
@@ -323,7 +329,9 @@ export const Denied: Story = {
 export const ChangeFilter: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const needsYou = await canvas.findByRole('radio', { name: 'Needs you' });
+    const needsYou = await canvas.findByRole('radio', {
+      name: 'Action needed',
+    });
     await userEvent.click(needsYou);
     await expect(args.onFilterChange).toHaveBeenCalledWith('action_required');
   },

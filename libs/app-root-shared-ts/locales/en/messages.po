@@ -939,6 +939,10 @@ msgstr "Ace"
 msgid "across"
 msgstr "across"
 
+#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
+msgid "Action needed"
+msgstr "Action needed"
+
 #. placeholder {0}: date()
 #: libs/billing-client-ts/src/billing-status-line.tsx
 msgid "Active · renews {0}"
@@ -4172,7 +4176,6 @@ msgstr "Navigation"
 msgid "Needs corrections"
 msgstr "Needs corrections"
 
-#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 #: libs/notifications-client-ts/src/use-notifications.tsx
 msgid "Needs you"
 msgstr "Needs you"

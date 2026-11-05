@@ -5,6 +5,7 @@ import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-ru
 import { NotificationCardDefault } from '@libs/notifications-client-ts/notification-card-default';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationAction } from '@libs/notifications-shared-ts/notification-action';
+import { TIME_CRITICAL_PRIORITY } from '@libs/notifications-shared-ts/notifications-sections';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -231,4 +232,35 @@ test('read and unread titles start at the same x: the dot lives in a fixed gutte
     expect(dots[0]?.getAttribute('aria-hidden') === 'true').toBe(!isUnread);
     cleanup();
   }
+});
+
+function turn(priority: number, body: string): Notification {
+  return {
+    ...invite([]),
+    id: `turn-${priority}`,
+    sourceNamespace: 'game-session',
+    sourceType: 'multiplayer-turn',
+    title: "You're low on time in your daily game against @sam",
+    body,
+    priority,
+  };
+}
+
+// regression: inbox-low-on-time-turn-ranks-late — a turn with 3 hours left
+// looked like every routine card, its time left in the quiet caption ink.
+// A notice whose time is running out shows that time with a clock in the
+// warning ink; a plain turn keeps the quiet caption.
+test('a turn running out of time says so in the warning ink', () => {
+  mountCard(
+    turn(
+      TIME_CRITICAL_PRIORITY,
+      "It's your turn. You have 3 hours left to move."
+    )
+  );
+  const urgent = document.querySelector('[data-inbox-urgency="time-critical"]');
+  expect(urgent?.textContent).toContain('3 hours left');
+  cleanup();
+  mountCard(turn(10, "It's your turn."));
+  expect(document.querySelector('[data-inbox-urgency]')).toBeNull();
+  expect(screen.getByText("It's your turn.")).toBeTruthy();
 });

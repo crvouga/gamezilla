@@ -6,12 +6,15 @@ import type {
   NotificationAction,
   NotificationCardActions,
 } from '@libs/notifications-shared-ts/notification-action';
+import { notificationTimeCritical } from '@libs/notifications-shared-ts/notifications-sections';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { useLingui } from '@lingui/solid/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Icon } from '@pkgs/ui-root-client-ts/icon';
+import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -86,6 +89,25 @@ function CardTitle(props: {
   );
 }
 
+/**
+ * How little time is left, on a notice whose time is running out: a clock
+ * and the words in the warning ink, so it reads before the routine cards.
+ */
+function TimeCriticalLine(props: { readonly text: string }): JSX.Element {
+  return (
+    <StackHorizontal
+      align="center"
+      gap="xs"
+      dataSet={{ 'inbox-urgency': 'time-critical' }}
+    >
+      <Icon icon={ClockIcon} size="sm" tone="warning" />
+      <P variant="label" tone="warning" lines={2}>
+        {props.text}
+      </P>
+    </StackHorizontal>
+  );
+}
+
 function InteractionRowText(props: {
   readonly interaction: Notification;
   /** Nothing can be answered any more: the words step back. */
@@ -105,9 +127,16 @@ function InteractionRowText(props: {
       <P variant="caption">{meta()}</P>
       <Show when={body()} keyed>
         {(text) => (
-          <P variant="caption" lines={2}>
-            {text}
-          </P>
+          <Show
+            when={notificationTimeCritical(props.interaction)}
+            fallback={
+              <P variant="caption" lines={2}>
+                {text}
+              </P>
+            }
+          >
+            <TimeCriticalLine text={text} />
+          </Show>
         )}
       </Show>
     </StackVertical>
