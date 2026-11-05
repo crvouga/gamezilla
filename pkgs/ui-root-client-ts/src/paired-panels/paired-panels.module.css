@@ -17,6 +17,10 @@
 .panel[data-shown="false"] {
   display: none;
 }
+/* The switch after the panel it chooses: the panel starts a row higher. */
+.pair[data-switch-placement="below"] > .switch {
+  order: 1;
+}
 /* Only side by side: behind the switch, the switch names the panel. */
 .title {
   display: none;

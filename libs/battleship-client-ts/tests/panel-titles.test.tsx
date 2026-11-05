@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
-/** Each board is named once: by the switch above it, or its own title side by side. */
+/** Each board is named once: by the switch beside it, or its own title side by side. */
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { cleanup } from '@solidjs/testing-library';
@@ -101,4 +103,39 @@ test('a key under the boards names every mark the grids draw', () => {
   cleanup();
   board(null);
   expect(byTestId('board-key').textContent).not.toContain('Ship');
+});
+
+// regression: battleship-phone-grid-pushed-down — on a phone the turn line,
+// the opponent's strip and the fleet switch stacked above the grid, pushing
+// its targets about 400px down the screen. The grid leads its pair and the
+// switch to the other fleet follows it, so the grid starts a row higher.
+test('on a phone the switch to the other fleet follows the grid', () => {
+  renderBoard(() => (
+    <BattleshipBoard
+      position={encodeBattleshipPosition(['a1:hit'])}
+      orientation="white"
+      interactive
+      sound={false}
+      syncKey={0}
+      setup={FLEET}
+      hand={null}
+      committed={[]}
+      commitment={null}
+      testId="board"
+      onAction={() => undefined}
+    />
+  ));
+  const pair = byTestId('board-view');
+  const row = pair.querySelector('[data-switch-placement]');
+  expect(row?.getAttribute('data-switch-placement')).toBe('below');
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/paired-panels/paired-panels.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toMatch(
+    /\.pair\[data-switch-placement="below"\] > \.switch \{\s*order: 1;/
+  );
 });

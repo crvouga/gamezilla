@@ -21,6 +21,13 @@ export type PairedPanelsProps<K extends string> = {
    * panel never repeats the segment chosen just above it.
    */
   readonly titled?: boolean | undefined;
+  /**
+   * Where the switch sits while one panel shows at a time: `above` the
+   * panel (the default), or `below` it, so a board that is the point of
+   * the screen (a game's grid) starts a row higher and the switch, a
+   * secondary view, follows it.
+   */
+  readonly switchPlacement?: 'above' | 'below' | undefined;
 };
 
 function PanelTitle(props: {
@@ -40,9 +47,10 @@ function PanelTitle(props: {
 }
 
 /**
- * Two related panels: side by side where both fit, one at a time behind a
- * segmented switch where they do not. Both stay mounted either way, so
- * switching keeps each panel's state and focus.
+ * Two related panels: side by side where both fit, one at a time with a
+ * segmented switch (above the panel, or below it with `switchPlacement`)
+ * where they do not. Both stay mounted either way, so switching keeps each
+ * panel's state and focus.
  */
 export function PairedPanels<K extends string>(
   props: PairedPanelsProps<K>
@@ -56,7 +64,10 @@ export function PairedPanels<K extends string>(
       data-selected={props.selected}
       data-paired-panels="true"
     >
-      <div class={styles['pair']}>
+      <div
+        class={styles['pair']}
+        data-switch-placement={props.switchPlacement ?? 'above'}
+      >
         <div class={styles['switch']}>
           <SegmentedControl
             segments={props.keys.map((key) => ({

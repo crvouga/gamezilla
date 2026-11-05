@@ -135,6 +135,9 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         selected={view()}
         onSelect={setView}
         titled
+        // On a phone the grid leads, as high as the frame allows; the
+        // switch to the other fleet follows it.
+        switchPlacement="below"
         first={
           <BoardPanel
             label={labels().own}

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Battleship stacked the turn line, the opponent's strip and the Your fleet / Targeting switch above the grid, pushing the targets far down the screen. The grid now leads its pair and the switch follows it, so the grid starts a row higher.",
+  "regressionTest": "libs/battleship-client-ts/tests/panel-titles.test.tsx"
+}
