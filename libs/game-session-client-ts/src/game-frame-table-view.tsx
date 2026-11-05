@@ -81,6 +81,8 @@ function PlaySeatTags(props: { readonly seat: FramePlaySeat }): JSX.Element {
 
 type SeatProps = {
   readonly seat: FramePlaySeat;
+  /** The person's own seat, in a list of every player: tagged `You`. */
+  readonly own?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
   /** The viewer's own seat; `null` while watching. */
@@ -138,7 +140,14 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
       }
       swatch={props.seat.swatch}
       swatchLabel={props.seat.sideLabel}
-      tags={<PlaySeatTags seat={props.seat} />}
+      tags={
+        <>
+          <Show when={props.own === true}>
+            <Badge intent="info" label={<Trans>You</Trans>} />
+          </Show>
+          <PlaySeatTags seat={props.seat} />
+        </>
+      }
       stat={props.seat.stat}
       state={props.seat.state}
       trailing={

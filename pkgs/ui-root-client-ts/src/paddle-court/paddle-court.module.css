@@ -72,8 +72,30 @@
 .ball {
   fill: currentColor;
 }
+/* Each paddle in its player's color, as their swatch beside their name. */
+.paddle[data-color="player1"] {
+  fill: var(--ui-color-player1);
+}
+.paddle[data-color="player2"] {
+  fill: var(--ui-color-player2);
+}
+.paddle[data-color="player3"] {
+  fill: var(--ui-color-player3);
+}
+.paddle[data-color="player4"] {
+  fill: var(--ui-color-player4);
+}
+/* The person's own paddle: ringed in the court's ink as well. */
 .paddle[data-controlled="true"] {
-  fill: var(--ui-color-tint);
+  stroke: var(--ui-color-text);
+  stroke-width: 3;
+}
+/* `You`, low in the person's own half. */
+.own {
+  fill: var(--ui-color-text);
+  font-family: inherit;
+  font-weight: var(--ui-font-weight-semibold);
+  text-anchor: middle;
 }
 .ring {
   fill: none;

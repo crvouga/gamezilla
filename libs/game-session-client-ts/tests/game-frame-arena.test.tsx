@@ -337,3 +337,27 @@ test("wide: during play the game's own turn line heads the record card, not the 
       ?.getAttribute('data-spoken-only')
   ).toBe('true');
 });
+
+// regression: arena-commands-loose — on a phone a real-time game's Resign
+// and History and stats sat as two loose links, one under the other. They
+// share one actions row, as every game's commands do.
+test('phone: a real-time game keeps Resign and its history in one actions row', () => {
+  mount(390);
+  const resign = screen.getByTestId('custom-game-resign');
+  const history = screen.getByTestId('custom-game-history-stats');
+  const row = resign.closest('[data-component="GameActions"]');
+  expect(row).not.toBeNull();
+  expect(row?.contains(history)).toBe(true);
+});
+
+// regression: arena-own-seat-unmarked — beside a wide arena the players'
+// card listed every player alike, so the person could not tell which was
+// theirs. Their own strip says "You".
+test("wide: the players' card tags the person's own strip You", () => {
+  mount(1440);
+  const own = screen.getByTestId('custom-game-white');
+  expect(own.textContent).toContain('You');
+  expect(screen.getByTestId('custom-game-black').textContent).not.toContain(
+    'You'
+  );
+});

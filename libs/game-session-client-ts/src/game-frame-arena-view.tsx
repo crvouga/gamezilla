@@ -80,6 +80,7 @@ export function FrameArenaRailView(
               people={props.people}
               onChoose={props.onChoose}
               viewerSide={props.viewerSide}
+              own={seat.side === props.viewerSide}
             />
           )}
         </For>

@@ -2449,8 +2449,8 @@ msgid "Drag from a number to its match, or press Enter on a number, draw with th
 msgstr "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag on your side of the court or use the slider."
-msgstr "Drag on your side of the court or use the slider."
+msgid "Drag on your side of the court or use the slider beside it."
+msgstr "Drag on your side of the court or use the slider beside it."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
@@ -8215,6 +8215,7 @@ msgid "Yesterday"
 msgstr "Yesterday"
 
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "You"
 msgstr "You"

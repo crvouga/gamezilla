@@ -23,9 +23,24 @@ export default function PaddleCourtExample() {
               label={enabled ? 'Interactive court' : 'Spectator court'}
               instructionsId="court-example-help"
               testId={`court-example-${enabled}`}
+              ownLabel={enabled ? 'You' : undefined}
               paddles={[
-                { side: 'first', x: 64, y: height(), width: 20, height: 144 },
-                { side: 'second', x: 1136, y: 400, width: 20, height: 144 },
+                {
+                  side: 'first',
+                  x: 64,
+                  y: height(),
+                  width: 20,
+                  height: 144,
+                  color: 'player1',
+                },
+                {
+                  side: 'second',
+                  x: 1136,
+                  y: 400,
+                  width: 20,
+                  height: 144,
+                  color: 'player2',
+                },
               ]}
               ball={{ x: 700, y: 300, size: 20 }}
               onDirection={(_side, direction) =>

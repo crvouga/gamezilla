@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide real-time arena the players' card listed every player alike, so the person could not tell which strip was theirs. Their own strip now says \"You\".",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

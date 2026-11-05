@@ -6,6 +6,7 @@ import { Trans } from '@lingui/solid/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
@@ -391,12 +392,13 @@ function recordCaptioned(
 }
 
 /**
- * A phone's real-time game keeps its way to the space's history beside
- * the play actions, as its record has no card of its own.
+ * A phone's real-time game keeps its way to the space's history in one row
+ * with the play actions (Resign, then History and stats), as its record
+ * has no card of its own; every other game's actions stand alone.
  */
-function FrameArenaHistory(props: Props): JSX.Element {
+function FramePlayActions(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  const record = (): FrameRecord | null => {
+  const history = (): FrameRecord | null => {
     const shown = shownRecord(props);
     return shown !== null &&
       !arenaBeside(props, mode) &&
@@ -406,8 +408,13 @@ function FrameArenaHistory(props: Props): JSX.Element {
       : null;
   };
   return (
-    <Show when={record()}>
-      {(shown) => <FrameHistoryLink {...props} record={shown()} quiet />}
+    <Show when={history()} fallback={<FrameActions {...props} />}>
+      {(shown) => (
+        <GameActions>
+          <FrameActions {...props} width="content" />
+          <FrameHistoryLink {...props} record={shown()} quiet />
+        </GameActions>
+      )}
     </Show>
   );
 }
@@ -618,8 +625,7 @@ function FrameContent(props: Props): JSX.Element {
       status={<FrameStatusRow {...props} />}
       actions={
         <Show when={!commandsInRecord(props, mode)}>
-          <FrameActions {...props} />
-          <FrameArenaHistory {...props} />
+          <FramePlayActions {...props} />
         </Show>
       }
       footer={

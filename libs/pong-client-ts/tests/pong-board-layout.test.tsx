@@ -52,9 +52,38 @@ test('wide: no paddle slider, one short line on keys and the points that win', (
   ).toBeTruthy();
 });
 
-test('phone: the slider stays under the court', () => {
+// regression: pong-slider-sideways — a horizontal slider under the court
+// moved a paddle that travels up and down. The phone's slider stands
+// upright beside the court, on its paddle's side, top to bottom.
+test('phone: an upright slider beside the court moves the paddle on its side', () => {
   mount(390);
-  expect(screen.getByTestId('pong-white-control')).toBeTruthy();
+  const slider = screen.getByTestId('pong-white-control');
+  expect(slider.getAttribute('aria-orientation')).toBe('vertical');
+  const court = screen.getByTestId('pong');
+  // The slider and the court share one row, the slider first (Left's side).
+  const row = slider.parentElement;
+  expect(row?.contains(court)).toBe(true);
+  expect(row?.firstElementChild).toBe(slider);
+});
+
+// regression: pong-markers-unmatched — the players' swatches were blue and
+// orange while both paddles were drawn in the court's own ink, and nothing
+// on the court said which paddle was the person's. Each paddle takes its
+// seat's color, and the person's own half says "You".
+test("each paddle takes its seat's color and the person's own half says You", () => {
+  mount(390);
+  expect(
+    screen.getByTestId('pong-first-paddle').getAttribute('data-color')
+  ).toBe('player1');
+  expect(
+    screen.getByTestId('pong-second-paddle').getAttribute('data-color')
+  ).toBe('player2');
+  const drawing = screen.getByTestId('pong-drawing');
+  const own = [...drawing.querySelectorAll('text')].filter(
+    (text) => text.textContent === 'You'
+  );
+  expect(own).toHaveLength(1);
+  expect(own[0]?.getAttribute('data-side')).toBe('first');
 });
 
 test('the scores and a plain status are said to a listener only', () => {
