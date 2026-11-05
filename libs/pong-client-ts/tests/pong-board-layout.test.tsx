@@ -175,4 +175,6 @@ test('the ball is drawn round, larger than it plays, centred where it plays', ()
   expect(ball.tagName.toLowerCase()).toBe('circle');
   expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.6);
   expect(Number(ball.getAttribute('cx'))).toBe(config.width / 2);
+  // Its playing size stays readable on the court, for whatever reads it.
+  expect(Number(ball.getAttribute('data-size'))).toBe(config.ballRadius * 2);
 });
