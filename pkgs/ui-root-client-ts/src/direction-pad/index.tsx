@@ -16,6 +16,11 @@ export type DirectionPadProps = {
   readonly onDirection: (heading: DirectionPadHeading) => void;
   /** The group's `data-testid`; each button is `${testId}-<heading>`. */
   readonly testId: string;
+  /**
+   * `compact`: 44px buttons, a thumb's pad that fits under a phone's board
+   * with the board in view. Defaults to `regular` (64px).
+   */
+  readonly size?: 'regular' | 'compact' | undefined;
 };
 
 /** Up on top, left and right beside an empty centre, down below. */
@@ -86,6 +91,7 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
       class={styles['pad']}
       role="group"
       data-disabled={props.disabled}
+      data-size={props.size ?? 'regular'}
     >
       <For each={HEADINGS}>
         {(heading) => <PadButton heading={heading} pad={props} />}

@@ -12,6 +12,16 @@
   user-select: none;
   -webkit-user-select: none;
 }
+/* A thumb's pad: 44px buttons, every one still a full touch target. */
+.pad[data-size="compact"] {
+  grid-template-columns: repeat(3, 2.75rem);
+  grid-template-rows: repeat(3, 2.75rem);
+  gap: var(--ui-space-1);
+}
+.pad[data-size="compact"] .glyph {
+  width: var(--ui-icon-size-md);
+  height: var(--ui-icon-size-md);
+}
 .button {
   display: grid;
   place-items: center;

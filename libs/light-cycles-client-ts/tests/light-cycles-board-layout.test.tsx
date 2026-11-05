@@ -69,3 +69,21 @@ test('the scores and the round are said to a listener, not drawn over the arena 
     expect(hidden).not.toBeNull();
   }
 });
+
+// regression: light-cycles-pad-off-screen — on a phone the 64px direction
+// pad (about 230px with its rider's name over it) ran past the bottom of
+// the screen under the arena. One rider's pad is a compact thumb pad beside
+// how to steer, its rider already named above the arena.
+test('phone: one rider steers from a compact pad beside the steering line', () => {
+  mount(390);
+  const pad = screen.getByTestId('arena-white-pad');
+  expect(pad.getAttribute('data-size')).toBe('compact');
+  const hint = screen.getByText(/Swipe the arena or use the pad to steer/);
+  // The pad and the line share one row under the arena: the nearest box
+  // holding both is a row, not the arena's column.
+  let shared = pad.parentElement;
+  while (shared !== null && !shared.contains(hint))
+    shared = shared.parentElement;
+  expect(shared?.getAttribute('data-component')).toBe('StackHorizontal');
+  expect(pad.parentElement?.textContent).not.toContain('Comet');
+});

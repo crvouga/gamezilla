@@ -361,3 +361,15 @@ test("wide: the players' card tags the person's own strip You", () => {
     'You'
   );
 });
+
+// regression: arena-scores-loud — beside a wide Light Cycles arena each
+// player's round wins were large figures that competed with the arena. In
+// the players' card each figure sits on one quiet line with its label.
+test("wide: the players' card shows each figure on one quiet line", () => {
+  mount(1440);
+  const figure = screen
+    .getByTestId('custom-game-white')
+    .querySelector('[data-component="GameSeatStat"]');
+  expect(figure?.textContent).toBe('Wins 0');
+  expect(figure?.querySelector('.textStat')).toBeNull();
+});

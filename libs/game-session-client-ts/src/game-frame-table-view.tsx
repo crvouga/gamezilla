@@ -83,6 +83,8 @@ type SeatProps = {
   readonly seat: FramePlaySeat;
   /** The person's own seat, in a list of every player: tagged `You`. */
   readonly own?: boolean | undefined;
+  /** The seat's figure on one quiet line, in a list beside an arena. */
+  readonly quietStat?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   readonly onChoose: Choose;
   /** The viewer's own seat; `null` while watching. */
@@ -149,6 +151,7 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
         </>
       }
       stat={props.seat.stat}
+      statStyle={props.quietStat === true ? 'inline' : 'figure'}
       state={props.seat.state}
       trailing={
         props.seat.clock === null ? undefined : (

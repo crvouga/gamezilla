@@ -81,6 +81,7 @@ export function FrameArenaRailView(
               onChoose={props.onChoose}
               viewerSide={props.viewerSide}
               own={seat.side === props.viewerSide}
+              quietStat
             />
           )}
         </For>
