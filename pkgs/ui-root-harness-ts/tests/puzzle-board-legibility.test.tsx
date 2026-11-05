@@ -128,8 +128,14 @@ describe('Sokoban walls', () => {
   // regression: sokoban-wall-grout-strips — each wall tile drew a lit top
   // edge (an inset shadow in the board's surface tone) and a surface
   // border, so a run of walls showed lighter horizontal strips that read as
-  // a rendering glitch. Walls are now running-bond brickwork drawn edge to
-  // edge, in the player's board and the builder's alike.
+  // a rendering glitch. No wall draws a lit edge or any stripe inside it.
+  //
+  // regression: sokoban-wall-bricks-off-grid — walls were running-bond
+  // brickwork, two courses to a tile with the upper course's joint at half
+  // a tile, so the bricks' joints fell between the builder's column labels
+  // and the floor's grid lines and the walls looked offset by half a
+  // square. Each wall is now one block to its square: a dark fill, its
+  // mortar an even border on the square's own four edges.
   const walls = [
     ['tile-board/tile-board.module.css', '.tile[data-terrain="solid"]'],
     [
@@ -138,19 +144,18 @@ describe('Sokoban walls', () => {
     ],
   ] as const;
   test.each(walls)(
-    '%s draws walls as brick courses, no lit edge',
+    '%s draws each wall as one block, its joints on the grid',
     (file, selector) => {
       const wall = rule(file, selector);
       expect(wall).not.toContain('box-shadow');
-      expect(wall).toMatch(/border(?:-color)?:[^;]*transparent;/);
-      // Four mortar joints: two bed joints across, a head joint in each course.
-      expect(
-        declared(wall, 'background-image').match(/linear-gradient/g)
-      ).toHaveLength(4);
-      expect(declared(wall, 'background-position').replace(/\s+/g, ' ')).toBe(
-        '0 0, 0 50%, 50% 0, 0 100%'
+      expect(wall).not.toContain('background-image');
+      expect(wall).not.toContain('background-position');
+      // One even border on all four edges: the mortar is the square's outline.
+      expect(wall).not.toMatch(/border-(?:top|right|bottom|left|block|inline)/);
+      expect(declared(wall, 'border')).toMatch(
+        /^max\(1px, calc\(2cqw \/ var\(--[a-z-]+-columns\)\)\) solid\s+var\(--[a-z-]+\)$/
       );
-      expect(declared(wall, 'background-origin')).toBe('border-box');
+      expect(declared(wall, 'border')).not.toContain('transparent');
     }
   );
 });

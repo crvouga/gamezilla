@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban walls were running-bond brickwork, two courses to a tile with the upper course's head joint at half a tile, so the bricks' joints fell between the builder's A–G column labels and the floor's grid lines and the walls looked offset by half a square, in the builder and the player alike. Each wall is now one block to its square: a dark fill with its mortar an even border on the square's own four edges.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}

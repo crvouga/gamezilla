@@ -110,29 +110,12 @@
   border-color: var(--tile-board-grout);
 }
 .tile[data-terrain="solid"] {
-  /* Brickwork, by its dark fill and its courses, not by colour alone: two
-     running-bond courses to a tile, drawn edge to edge, so a run of walls
-     reads as one built mass rather than tiles with seams. */
-  --tile-board-mortar: max(1px, calc(2cqw / var(--tile-board-columns)));
+  /* A wall is one block to its square: a dark fill with its mortar on the
+     square's own edges, where the floor's grout runs, so every wall sits on
+     the board's grid and a run of walls reads as blocks laid side by side. */
   background: var(--tile-board-wall);
-  background-image:
-    linear-gradient(var(--tile-board-wall-edge), var(--tile-board-wall-edge)),
-    linear-gradient(var(--tile-board-wall-edge), var(--tile-board-wall-edge)),
-    linear-gradient(var(--tile-board-wall-edge), var(--tile-board-wall-edge)),
-    linear-gradient(var(--tile-board-wall-edge), var(--tile-board-wall-edge));
-  background-size:
-    100% var(--tile-board-mortar),
-    100% var(--tile-board-mortar),
-    var(--tile-board-mortar) 50%,
-    var(--tile-board-mortar) 50%;
-  background-position:
-    0 0,
-    0 50%,
-    50% 0,
-    0 100%;
-  background-repeat: no-repeat;
-  background-origin: border-box;
-  border-color: transparent;
+  border: max(1px, calc(2cqw / var(--tile-board-columns))) solid
+    var(--tile-board-wall-edge);
 }
 .tile[data-terrain="none"] {
   background: transparent;
