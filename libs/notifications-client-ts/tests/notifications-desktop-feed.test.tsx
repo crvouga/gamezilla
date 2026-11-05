@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * A desktop inbox reads as a feed: capped at the reading measure on the
- * column's edge, with each card's answers beside its words and its "…"
- * right after them; a phone stacks the answers under the words.
+ * A desktop inbox reads as a feed across the content column, with each
+ * card's answers beside its words and its "…" right after them; a phone
+ * stacks the answers under the words, with when the card came on their row.
  */
 import { afterEach, expect, mock, test } from 'bun:test';
 import { ModerationProvider } from '@libs/moderation-client-ts/moderation-context';
@@ -157,4 +157,43 @@ test('on a phone the answers stay stacked under the words', () => {
   mount(PHONE, card);
   const accept = screen.getByTestId(`${CARD}-accept`);
   expect(wordsColumn()?.contains(accept)).toBe(true);
+});
+
+// regression: inbox-phone-rows-tall — on a phone four cards that need the
+// person filled the whole view (title, a caption line for the time, the
+// answers on a row of their own), pushing Activity under the fold. A card
+// with answers carries its time at the end of their row, one line fewer.
+test('on a phone a card with answers says when it came on their row', () => {
+  mount(PHONE, card);
+  const metas = screen.getAllByTestId('notification-card-meta');
+  expect(metas).toHaveLength(1);
+  const meta = metas[0] as HTMLElement;
+  expect(meta.textContent).toBe('25m ago');
+  const accept = screen.getByTestId(`${CARD}-accept`);
+  const row = accept.closest('[data-component="StackHorizontal"]');
+  expect(row?.contains(meta)).toBe(true);
+  // The words keep only the title.
+  expect(screen.getByTestId(`${CARD}-open`).contains(meta)).toBe(false);
+});
+
+test('a desktop card and a phone card with no answers keep the time under the title', () => {
+  mount(DESKTOP, card);
+  const meta = screen.getByTestId('notification-card-meta');
+  expect(screen.getByTestId(`${CARD}-open`).contains(meta)).toBe(true);
+  cleanup();
+  mount(PHONE, () => (
+    <NotificationCardDefault
+      interaction={{ ...REQUEST, category: 'informational', actions: [] }}
+      actions={{
+        performAction: mock(() => Promise.resolve()),
+        markRead: mock(() => Promise.resolve()),
+        archive: mock((_id: string) => Promise.resolve()),
+      }}
+      onOpen={() => undefined}
+      testID={CARD}
+    />
+  ));
+  expect(
+    screen.getByTestId(CARD).contains(screen.getByTestId('notification-card-meta'))
+  ).toBe(true);
 });

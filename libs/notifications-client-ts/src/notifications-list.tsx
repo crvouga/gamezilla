@@ -148,12 +148,16 @@ function GroupHeading(props: {
       <H2 size="subtitle">{props.title}</H2>
       <Show when={props.count}>
         {(count) => (
-          <Badge
-            label={String(count())}
-            intent="brand"
-            tone="solid"
-            size="sm"
-          />
+          // A badge keeps to its own top; held in a box of its own, the
+          // row centres it on the heading's line instead.
+          <StackVertical testId="notifications-group-count">
+            <Badge
+              label={String(count())}
+              intent="brand"
+              tone="solid"
+              size="sm"
+            />
+          </StackVertical>
         )}
       </Show>
     </StackHorizontal>

@@ -108,15 +108,26 @@ function TimeCriticalLine(props: { readonly text: string }): JSX.Element {
   );
 }
 
-function InteractionRowText(props: {
-  readonly interaction: Notification;
-  /** Nothing can be answered any more: the words step back. */
-  readonly inactive: boolean;
-}): JSX.Element {
+/** When it came and what kind it is, as one quiet caption. */
+function CardMeta(props: { readonly interaction: Notification }): JSX.Element {
   const relative = useRelativeTimeLabel(() => props.interaction.createdAt);
   const meta = createMemo(() =>
     metaLine([relative(), props.interaction.subtitle])
   );
+  return (
+    <P variant="caption" testId="notification-card-meta">
+      {meta()}
+    </P>
+  );
+}
+
+function InteractionRowText(props: {
+  readonly interaction: Notification;
+  /** Nothing can be answered any more: the words step back. */
+  readonly inactive: boolean;
+  /** The caption saying when; false when it rides on the answers' row. */
+  readonly showMeta: boolean;
+}): JSX.Element {
   const body = (): string | undefined =>
     props.interaction.body !== undefined && props.interaction.body.length > 0
       ? props.interaction.body
@@ -124,7 +135,9 @@ function InteractionRowText(props: {
   return (
     <StackVertical grow>
       <CardTitle title={props.interaction.title} inactive={props.inactive} />
-      <P variant="caption">{meta()}</P>
+      <Show when={props.showMeta}>
+        <CardMeta interaction={props.interaction} />
+      </Show>
       <Show when={body()} keyed>
         {(text) => (
           <Show
@@ -147,6 +160,7 @@ function InteractionRowText(props: {
 function CardHeadline(props: {
   readonly interaction: Notification;
   readonly inactive: boolean;
+  readonly showMeta: boolean;
   readonly onOpen: (() => void) | undefined;
   readonly testId: string | undefined;
   readonly dataSet: ComponentDataSet | undefined;
@@ -159,6 +173,7 @@ function CardHeadline(props: {
         <InteractionRowText
           interaction={props.interaction}
           inactive={props.inactive}
+          showMeta={props.showMeta}
         />
       }
     >
@@ -175,6 +190,7 @@ function CardHeadline(props: {
           <InteractionRowText
             interaction={props.interaction}
             inactive={props.inactive}
+            showMeta={props.showMeta}
           />
         </Pressable>
       )}
@@ -307,6 +323,26 @@ function CardMenu(props: {
  * tag, or its one explicit open step. Nothing is drawn when the card has
  * neither, so an update stays one compact block.
  */
+/** The explicit open step a card shows when it publishes no answers. */
+function openStepLabel(
+  inline: readonly NotificationAction[],
+  openLabel: string | undefined
+): string | undefined {
+  return inline.length === 0 ? openLabel : undefined;
+}
+
+/** Whether the card draws a row of answers (or its one open step). */
+function hasAnswerRow(
+  inline: readonly NotificationAction[],
+  openLabel: string | undefined,
+  onOpen: (() => void) | undefined
+): boolean {
+  return (
+    inline.length > 0 ||
+    (openStepLabel(inline, openLabel) !== undefined && onOpen !== undefined)
+  );
+}
+
 function CardActionsRow(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
@@ -318,14 +354,11 @@ function CardActionsRow(props: {
     | undefined;
   /** Beside the words (a desktop): one line that never wraps. */
   readonly beside?: boolean | undefined;
+  /** After the answers on their row (a phone): when the card came. */
+  readonly trailing?: JSX.Element | undefined;
 }): JSX.Element {
-  const openStep = (): string | undefined =>
-    props.inline.length === 0 ? props.openLabel : undefined;
-  const hasRow = (): boolean =>
-    props.inline.length > 0 ||
-    (openStep() !== undefined && props.onOpen !== undefined);
   return (
-    <Show when={hasRow()}>
+    <Show when={hasAnswerRow(props.inline, props.openLabel, props.onOpen)}>
       <StackHorizontal align="center" gap="sm" wrap={props.beside !== true}>
         <CardAnswers
           interaction={props.interaction}
@@ -333,7 +366,11 @@ function CardActionsRow(props: {
           inline={props.inline}
           actionTestID={props.actionTestID}
         />
-        <CardOpenAnswer label={openStep()} onOpen={props.onOpen} />
+        <CardOpenAnswer
+          label={openStepLabel(props.inline, props.openLabel)}
+          onOpen={props.onOpen}
+        />
+        {props.trailing}
       </StackHorizontal>
     </Show>
   );
@@ -371,7 +408,8 @@ export type NotificationCardDefaultProps = {
  * The inbox's card for one notification, in one compact anatomy: the face;
  * a column whose words wrap (and open the notification) — the title, led
  * by the accent unread dot while it waits on the person, then one caption
- * line saying when and what ("1h ago · Space invite") — and, beneath on a
+ * line saying when and what ("1h ago · Space invite"; on a phone, at the end
+ * of the answers' row when the card has answers) — and, beneath on a
  * phone or beside the words on a desktop, the card's answers (the main answer as the solid pill, other choices as
  * outlines, an unavailable answer as its reason in a neutral tag) or, when
  * it waits on the person without answers of its own, one explicit Open
@@ -416,10 +454,15 @@ export function NotificationCardDefault(
       : cardState(props.interaction.isUnread);
 
   const mode = useLayoutMode();
+  // A phone saves the card a line: when it has answers, when it came rides
+  // at the end of their row instead of a caption line of its own.
+  const metaOnAnswers = (): boolean =>
+    mode() !== 'wide' && hasAnswerRow(inline(), openLabel(), open());
   const headline = (): JSX.Element => (
     <CardHeadline
       interaction={shown()}
       inactive={inactive()}
+      showMeta={!metaOnAnswers()}
       onOpen={open()}
       testId={wordsTestId()}
       dataSet={idOnWords() ? state() : undefined}
@@ -434,6 +477,11 @@ export function NotificationCardDefault(
       onOpen={open()}
       actionTestID={props.actionTestID}
       beside={beside}
+      trailing={
+        <Show when={metaOnAnswers()}>
+          <CardMeta interaction={shown()} />
+        </Show>
+      }
     />
   );
 

@@ -160,3 +160,17 @@ test('no filter chip repeats a heading of the list under it', () => {
     );
   }
 });
+
+// regression: inbox-count-badge-floats — the "4" beside Needs you kept to
+// its own top (a badge's `self-start`), so it sat 4px above the heading's
+// middle. It sits in a box of its own the heading row centres.
+test('the Needs you count is centred on its heading', () => {
+  renderInbox(DESKTOP);
+  const count = screen.getByTestId('notifications-group-count');
+  expect(count.querySelector('[data-component="Badge"]')?.textContent).toBe(
+    '1'
+  );
+  const row = count.parentElement;
+  expect(row?.className).toContain('items-center');
+  expect(row?.querySelector('h2')?.textContent).toBe('Needs you');
+});

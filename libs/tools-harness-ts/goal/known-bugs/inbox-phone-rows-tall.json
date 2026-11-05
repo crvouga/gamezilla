@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the four cards under Needs you filled almost the whole view: each had its title, a caption line for when it came, and its answers on a row of their own, and the low-on-time card said its urgency twice. A card with answers now carries when it came at the end of their row, and the turn reminder's body says only the time left, so Activity starts above the fold.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-desktop-feed.test.tsx"
+}

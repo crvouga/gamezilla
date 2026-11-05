@@ -119,4 +119,31 @@ describe('buildNotificationSections', () => {
     const sections = buildNotificationSections([item('update')], now);
     expect(sections.map((section) => section.key)).toEqual(['today']);
   });
+
+  // regression: inbox-needs-you-out-of-order — Needs you read 9h, 2h, 25m,
+  // 1d: requests were listed after every turn, whatever their age. It is
+  // the most urgent first, then the newest among equally urgent notices.
+  test('Needs you lists the most urgent first, then the newest', () => {
+    const waiting = (
+      id: string,
+      priority: number,
+      createdAt: string
+    ): Notification =>
+      item(id, { category: 'action_required', priority, createdAt });
+    const sections = buildNotificationSections(
+      [
+        waiting('request-1d', 10, '2023-11-13T16:30:00.000Z'),
+        waiting('turn-2h', 10, '2023-11-14T20:05:00.000Z'),
+        waiting('request-25m', 10, '2023-11-14T21:48:00.000Z'),
+        waiting('low-on-time-9h', 20, '2023-11-14T13:10:00.000Z'),
+      ],
+      now
+    );
+    expect(sections[0]?.items.map((entry) => entry.id)).toEqual([
+      'low-on-time-9h',
+      'request-25m',
+      'turn-2h',
+      'request-1d',
+    ]);
+  });
 });

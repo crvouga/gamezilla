@@ -57,9 +57,22 @@ export function notificationTimeCritical(item: Notification): boolean {
 }
 
 /**
- * The inbox's groups: what needs the person first, then everything else by
- * day (today, yesterday, this week, earlier). Order inside a group is the
- * order given.
+ * The order of what needs the person: the most urgent first (a notice whose
+ * time is running out, then a turn or a request), and among equally urgent
+ * ones the newest first, as the inbox query lists them
+ * (`priority DESC, created_at DESC, id DESC`).
+ */
+export function compareNeedsYou(a: Notification, b: Notification): number {
+  if (a.priority !== b.priority) return b.priority - a.priority;
+  if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? 1 : -1;
+  if (a.id === b.id) return 0;
+  return a.id < b.id ? 1 : -1;
+}
+
+/**
+ * The inbox's groups: what needs the person first, by urgency and then
+ * newest ({@link compareNeedsYou}), then everything else by day (today,
+ * yesterday, this week, earlier) in the order given.
  */
 export function buildNotificationSections(
   items: readonly Notification[],
@@ -89,7 +102,10 @@ export function buildNotificationSections(
     sections.push({
       key,
       title: titleForKey(key),
-      items: bucket,
+      items:
+        key === NEEDS_YOU_SECTION_KEY
+          ? [...bucket].sort(compareNeedsYou)
+          : bucket,
     });
   }
   return sections;

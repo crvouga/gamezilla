@@ -68,8 +68,13 @@ export function turnReminderTitle(opponent: string): string {
   return `You're low on time in your daily game against ${opponent}`;
 }
 
+/**
+ * What a turn reminder says under its title: only the time left. The
+ * title already says the person is low on time on their own turn, so the
+ * card reads as one message, never the urgency twice.
+ */
 export function turnReminderBody(left: string): string {
-  return `It's your turn. You have ${left} left to move.`;
+  return `${left} left to move.`;
 }
 
 const MINUTE_MS = 60_000;

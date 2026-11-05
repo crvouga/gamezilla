@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { buildNotificationSections } from '@libs/notifications-shared-ts/notifications-sections';
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -45,6 +46,8 @@ function friendRequest(
     avatar: person(username, suffix),
     createdAt,
     isUnread,
+    // As the friends sub publishes it: as urgent as a turn waiting on you.
+    priority: 10,
     actions: [
       { id: 'accept', label: 'Accept', variant: 'solid' },
       { id: 'decline', label: 'Decline', variant: 'ghost' },
@@ -119,15 +122,16 @@ const CASEY = ['casey', '09'] as const;
 
 const ID = 'b51c7a90-0000-4000-8000-0000000000';
 
-// In the order the inbox lists them (priority, then newest): the turn whose
-// clock is low on time first, then the other turn, then the requests.
+// What waits on avery, in no particular order: the inbox lists it (the
+// section builder below) the most urgent first, the turn low on time, then
+// the newest of the rest.
 const NEEDS_YOU = [
   dailyGame(
     `${ID}03`,
     SAM,
     {
       title: "You're low on time in your daily game against @sam",
-      body: "It's your turn. You have 3 hours left to move.",
+      body: '3 hours left to move.',
       createdAt: '2023-11-14T13:10:00.000Z',
       isUnread: true,
       priority: 20,
@@ -146,7 +150,7 @@ const NEEDS_YOU = [
     false
   ),
   friendRequest(`${ID}01`, JORDAN, '2023-11-14T21:48:00.000Z', true),
-  friendRequest(`${ID}04`, RILEY, '2023-11-13T16:30:00.000Z', false),
+  friendRequest(`${ID}04`, RILEY, '2023-11-13T16:30:00.000Z', true),
 ];
 
 const TODAY = [
@@ -203,12 +207,14 @@ const EARLIER = [
   ),
 ];
 
-const SECTIONS = storySections([
-  ['Needs you', NEEDS_YOU],
-  ['Today', TODAY],
-  ['Yesterday', YESTERDAY],
-  ['Earlier', EARLIER],
-]);
+/** The Storybook virtual clock's now, the inbox's "now" in every story. */
+const STORY_NOW = Date.parse('2023-11-14T22:13:20.000Z');
+
+/** Grouped and ordered the way the inbox does it, never by hand. */
+const SECTIONS = buildNotificationSections(
+  [...NEEDS_YOU, ...TODAY, ...YESTERDAY, ...EARLIER],
+  () => STORY_NOW
+);
 
 /** The same week once every item has been read. */
 const READ_SECTIONS = storySections([
