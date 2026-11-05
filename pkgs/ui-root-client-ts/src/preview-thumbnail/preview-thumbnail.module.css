@@ -15,6 +15,18 @@
 .thumbnail[data-size="xl"] {
   --preview-thumbnail-size: 5rem;
 }
+/* The host's picture area, whatever its shape: the picture is a square on
+   the area's shorter side, centred, its board filling more of it than a
+   small thumbnail's does. */
+.thumbnail[data-size="fill"] {
+  container-type: size;
+  --preview-thumbnail-size: min(100cqi, 100cqb);
+  width: 100%;
+  height: 100%;
+}
+.thumbnail[data-size="fill"] .content {
+  padding: calc(var(--preview-thumbnail-size) * 0.08);
+}
 /* A collection: a second sheet behind the first, offset up and right,
    inside the same square, so a pack's row starts its title where a
    puzzle's does. */

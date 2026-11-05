@@ -1,8 +1,12 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
-import { ContentThumbnail } from './content-thumbnail';
+import { ContentChips, ContentDifficultyChip } from './content-chips';
+import {
+  ContentLibraryCard,
+  type ContentLibraryProgress,
+  ContentProgressLine,
+} from './content-library-card';
 
 /** A saved attempt or playtest, as the library lists it. */
 type ListedAttempt = {
@@ -11,6 +15,12 @@ type ListedAttempt = {
   readonly title: string;
   /** The puzzle definition its thumbnail draws. */
   readonly preview?: string | undefined;
+  /** The difficulty its author gave the puzzle; empty when none. */
+  readonly difficulty?: string | undefined;
+  /** The pack it was started in, and how much of that pack is solved. */
+  readonly pack?:
+    | (ContentLibraryProgress & { readonly title: string })
+    | undefined;
 };
 
 /**
@@ -50,7 +60,23 @@ function ListFooter(props: { list: ContentAttemptList }): JSX.Element {
   );
 }
 
-/** One list of the person's attempts, each row opening where they left it. */
+/** The puzzle's difficulty as a chip, when its author gave one. */
+function difficultyOf(difficulty: string | undefined): JSX.Element | undefined {
+  return difficulty ? (
+    <ContentChips>
+      <ContentDifficultyChip difficulty={difficulty} />
+    </ContentChips>
+  ) : undefined;
+}
+
+/** The pack it was started in and how much of it is solved, when any. */
+function packOf(pack: ListedAttempt['pack']): JSX.Element | undefined {
+  return pack === undefined ? undefined : (
+    <ContentProgressLine progress={pack} pack={pack.title} />
+  );
+}
+
+/** One list of the person's attempts, each card opening where they left it. */
 export function ContentAttemptSection(props: {
   list: ContentAttemptList;
   attempts: readonly ListedAttempt[];
@@ -60,7 +86,7 @@ export function ContentAttemptSection(props: {
   const { t } = useLingui();
   return (
     <Show when={props.attempts.length > 0}>
-      <MenuSection
+      <PreviewCardGrid
         title={<ListTitle list={props.list} />}
         footer={
           props.list === 'finished' ? undefined : (
@@ -73,23 +99,20 @@ export function ContentAttemptSection(props: {
             const attempt = () =>
               props.attempts.find((entry) => entry.id === id);
             return (
-              <MenuRow
-                leading={
-                  <ContentThumbnail
-                    size="xl"
-                    renderPreview={props.renderPreview}
-                    kind="puzzle"
-                    preview={attempt()?.preview}
-                  />
-                }
+              <ContentLibraryCard
+                kind="puzzle"
                 title={(attempt()?.title ?? '') || t`Saved puzzle`}
-                onClick={() => props.onOpenAttempt(id)}
-                dataSet={{ testid: `content-attempt-${id}` }}
+                preview={attempt()?.preview}
+                renderPreview={props.renderPreview}
+                caption={difficultyOf(attempt()?.difficulty)}
+                meta={packOf(attempt()?.pack)}
+                onOpen={() => props.onOpenAttempt(id)}
+                testid={`content-attempt-${id}`}
               />
             );
           }}
         </For>
-      </MenuSection>
+      </PreviewCardGrid>
     </Show>
   );
 }

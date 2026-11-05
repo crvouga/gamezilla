@@ -23,6 +23,7 @@ const BUNDLED: readonly ContentLibraryEdition[] = [
     description: 'Five short counts to learn the rules.',
     difficulty: '',
     preview: 'target:5',
+    progress: { completed: 2, total: 5 },
   },
 ];
 
@@ -44,7 +45,7 @@ const PUBLISHED: readonly ContentLibraryEdition[] = [
     kind: 'puzzle',
     title: 'Thirteen without overshooting',
     description: '',
-    difficulty: '',
+    difficulty: 'Medium',
     preview: 'target:13',
   },
   {
@@ -55,6 +56,7 @@ const PUBLISHED: readonly ContentLibraryEdition[] = [
     description: 'Three puzzles that get harder.',
     difficulty: '',
     preview: 'target:5',
+    progress: { completed: 1, total: 3 },
   },
 ];
 
@@ -171,19 +173,24 @@ const meta = {
         id: 'attempt-1',
         title: 'Count to seven',
         completed: false,
+        difficulty: 'Easy',
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
         preview: 'target:7',
-      },
-      {
-        id: 'attempt-2',
-        title: 'Weekend counts: Friday',
-        completed: true,
-        preview: 'target:9',
       },
       {
         id: 'attempt-3',
         title: 'Thirteen without overshooting',
         completed: false,
+        difficulty: 'Medium',
         preview: 'target:13',
+      },
+      {
+        id: 'attempt-2',
+        title: 'Count to five',
+        completed: true,
+        difficulty: 'Easy',
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
+        preview: 'target:5',
       },
     ],
     playtests: [
