@@ -72,9 +72,13 @@ function variants(): { validate: string | null; publish: string | null } {
 
 // regression: content-builder-two-primary-actions — Validate and Publish
 // were both filled, so the builder offered two equally loud next steps.
+// regression: builder-publish-three-button-weights — then the next step
+// was filled, Publish a text-only ghost and the other steps outlined, so
+// one tier of action came in three weights. The next step is filled and
+// every other step is an outline.
 test('until the draft passes its check, Validate is the one filled step', () => {
   mount(() => publication());
-  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
+  expect(variants()).toEqual({ validate: 'solid', publish: 'outline' });
 });
 
 test('once the draft passes its check, Publish is the one filled step', () => {
@@ -86,7 +90,8 @@ test('once the draft passes its check, Publish is the one filled step', () => {
 // "Finish a playtest, then validate" while Validate was the filled button
 // and Publish an outline beside it, as available as any other step. The
 // playtest is now the one filled step until it proves the puzzle, and
-// Publish stays a quiet ghost until the draft passes its check.
+// Publish is never filled before the draft passes its check; the steps'
+// track marks it a later step.
 test('until a playtest proves a puzzle, the playtest is the one filled step', () => {
   const next: boolean[] = [];
   mount(() =>
@@ -99,7 +104,7 @@ test('until a playtest proves a puzzle, the playtest is the one filled step', ()
     })
   );
   expect(next).toEqual([true]);
-  expect(variants()).toEqual({ validate: 'outline', publish: 'ghost' });
+  expect(variants()).toEqual({ validate: 'outline', publish: 'outline' });
 });
 
 test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', () => {
@@ -115,7 +120,7 @@ test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', 
     })
   );
   expect(next).toEqual([false]);
-  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
+  expect(variants()).toEqual({ validate: 'solid', publish: 'outline' });
 });
 
 function row(id: string, first: boolean, last: boolean): JSX.Element {
@@ -431,7 +436,7 @@ test('the publish footer says where the draft stands in its own text', () => {
   );
   expect(status.tagName).toBe('P');
   expect(status.textContent).toBe(
-    'Not proven yet · Not checked yet. Finish a playtest, then validate.'
+    'Next: finish a playtest to show the puzzle can be solved.'
   );
   expect(
     screen.getByTestId('content-proof').closest('[data-component="Badge"]')

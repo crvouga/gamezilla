@@ -3,6 +3,8 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createUniqueId, type JSX } from 'solid-js';
+import { bindElementTargets } from '../element-targets';
+import type { ScrollTarget } from '../scroll';
 import styles from './step-footer.module.css';
 
 export type StepFooterProps = {
@@ -13,6 +15,8 @@ export type StepFooterProps = {
    * actions in one row (the one filled next step among them).
    */
   children: JSX.Element;
+  /** From `createScrollTarget()`: lets the screen take the person here. */
+  scrollTarget?: ScrollTarget | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -29,6 +33,7 @@ export function StepFooter(props: StepFooterProps): JSX.Element {
   const id = createUniqueId();
   return (
     <section
+      ref={(element) => bindElementTargets(element, props)}
       class={styles['footer']}
       aria-labelledby={id}
       {...dataAttrs({ component: 'StepFooter', ...props.dataSet })}

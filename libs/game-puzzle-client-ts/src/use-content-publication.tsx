@@ -1,3 +1,5 @@
+import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library';
+import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { contentDraftProof } from '@libs/game-puzzle-shared-ts/content-proof';
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
 import { publishPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/publish-content-mutation';
@@ -62,10 +64,25 @@ export function useContentPublication(props: ContentPublicationProps) {
           t`The draft could not be checked. Try again.`
       );
   };
+  // A pack's puzzles that are still drafts: they are published first.
+  const waitingOn = (): readonly string[] => {
+    if (props.document.kind !== 'pack') return [];
+    const pack = decodePackDefinition(props.writer.body().definition);
+    const library = data.content();
+    return (pack?.items ?? []).flatMap((item) => {
+      const doc = library.documents.find(
+        (entry) => entry.id === item.puzzleId && entry.deleted_at === null
+      );
+      if (doc === undefined || doc.status === 'published') return [];
+      const title = workingContentDraft(library, doc.id)?.title.trim() ?? '';
+      return [title === '' ? t`Untitled draft` : title];
+    });
+  };
   return {
     draft,
     validate: () => run(false),
     publish: () => run(true),
     proven: () => currentProof() !== null,
+    waitingOn,
   };
 }

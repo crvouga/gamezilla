@@ -83,6 +83,7 @@ export function ContentPublicationControls(props: {
       validation={tools.draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools.draft())}
       proven={tools.proven()}
+      waitingOn={tools.waitingOn()}
       pending={status.pending()}
       refusal={status.refusal()}
       publishDenial={publishDenial()}

@@ -1,0 +1,4 @@
+{
+  "summary": "A pack holding a puzzle that was still a draft said \"Not checked yet. Validate, then publish.\" with Validate filled, though the pack could not publish until that puzzle was. Its first step is now publishing its puzzles, the next-step line names the draft puzzles, and no pack action is filled until they are published.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

@@ -2407,6 +2407,7 @@ msgid "Dismiss"
 msgstr "Dismiss"
 
 #: libs/auth-client-ts/src/sign-in-modal.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 #: libs/notifications-client-ts/src/notification-action-button.tsx
 #: pkgs/ui-root-client-ts/src/combobox-body/index.tsx
@@ -2852,10 +2853,6 @@ msgstr "Finding players"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Finish a game before asking for a rematch."
 msgstr "Finish a game before asking for a rematch."
-
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Finish a playtest, then validate."
-msgstr "Finish a playtest, then validate."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Finish or cancel this game before creating another."
@@ -3586,6 +3583,10 @@ msgstr "Last seen"
 msgid "Last successful action"
 msgstr "Last successful action"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Later"
+msgstr "Later"
+
 #. placeholder {0}: latestExpires()
 #: libs/auth-client-ts/src/account-device-active-session-line.tsx
 msgid "Latest expires {0}"
@@ -4139,10 +4140,6 @@ msgstr "Name, activity, region or worker"
 msgid "Navigation"
 msgstr "Navigation"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Needs changes"
-msgstr "Needs changes"
-
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 msgid "Needs corrections"
 msgstr "Needs corrections"
@@ -4189,6 +4186,7 @@ msgstr "New space"
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
@@ -4225,6 +4223,38 @@ msgstr "Next puzzle: {0}"
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "Next round soon."
 msgstr "Next round soon."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: finish a playtest to show the puzzle can be solved."
+msgstr "Next: finish a playtest to show the puzzle can be solved."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: make the changes it needs, then validate again."
+msgstr "Next: make the changes it needs, then validate again."
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Next: publish"
+msgstr "Next: publish"
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: publish {titles} first. A pack holds only published puzzles."
+msgstr "Next: publish {titles} first. A pack holds only published puzzles."
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Next: publish its puzzles"
+msgstr "Next: publish its puzzles"
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Next: start a playtest"
+msgstr "Next: start a playtest"
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Next: validate"
+msgstr "Next: validate"
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: validate the draft, then publish it."
+msgstr "Next: validate the draft, then publish it."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "night"
@@ -4419,10 +4449,6 @@ msgstr "Not available in this app"
 msgid "Not available on this account"
 msgstr "Not available on this account"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Not checked yet"
-msgstr "Not checked yet"
-
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Not confirmed yet"
 msgstr "Not confirmed yet"
@@ -4443,10 +4469,6 @@ msgstr "Not in the word list: {missing}"
 #: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "Not now"
 msgstr "Not now"
-
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Not proven yet"
-msgstr "Not proven yet"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Not proven yet: finish a playtest of this version to show it can be solved."
@@ -4811,10 +4833,6 @@ msgstr "Passed"
 msgid "Passed across"
 msgstr "Passed across"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Passed its check"
-msgstr "Passed its check"
-
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passed to the left"
 msgstr "Passed to the left"
@@ -5034,6 +5052,7 @@ msgid "Playing with others and syncing"
 msgstr "Playing with others and syncing"
 
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Playtest"
 msgstr "Playtest"
 
@@ -5178,10 +5197,6 @@ msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Proven by a playtest"
-msgstr "Proven by a playtest"
-
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Proven: a finished playtest shows it can be solved."
 msgstr "Proven: a finished playtest shows it can be solved."
 
@@ -5206,6 +5221,7 @@ msgid "Publication waits for your connection. Your draft is kept on this device.
 msgstr "Publication waits for your connection. Your draft is kept on this device."
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Publish"
 msgstr "Publish"
 
@@ -5213,9 +5229,9 @@ msgstr "Publish"
 msgid "Publish it before the pack"
 msgstr "Publish it before the pack"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Publish to share it with everyone who plays."
-msgstr "Publish to share it with everyone who plays."
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Publish its puzzles"
+msgstr "Publish its puzzles"
 
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
@@ -5399,6 +5415,10 @@ msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 msgid "Puzzles processed"
 msgstr "Puzzles processed"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Puzzles published"
+msgstr "Puzzles published"
+
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Puzzles you start from Browse wait here, at the move you left them."
 msgstr "Puzzles you start from Browse wait here, at the move you left them."
@@ -5494,6 +5514,10 @@ msgstr "Ready by {0}"
 #: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
 msgid "Ready to start."
 msgstr "Ready to start."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Ready: publish to share it with everyone who plays."
+msgstr "Ready: publish to share it with everyone who plays."
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
@@ -6726,6 +6750,10 @@ msgstr "Steer with the arrow keys or W, A, S and D. Avoid the edge and every tra
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Steps to publish"
+msgstr "Steps to publish"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Stop loading"
 msgstr "Stop loading"
@@ -7911,6 +7939,7 @@ msgstr "Untimed"
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
 msgid "Untitled draft"
 msgstr "Untitled draft"
 
@@ -8018,12 +8047,9 @@ msgid "Username was changed recently"
 msgstr "Username was changed recently"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Validate"
 msgstr "Validate"
-
-#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
-msgid "Validate, then publish."
-msgstr "Validate, then publish."
 
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Version"

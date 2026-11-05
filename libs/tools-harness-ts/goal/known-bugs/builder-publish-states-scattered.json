@@ -1,0 +1,4 @@
+{
+  "summary": "Where a draft stood on its way to publishing was spread over a proof phrase, a check phrase and a hint beside three buttons, so publishing read as a scatter of draft, validation and publication states. It is now one StepTrack of steps in order (playtest or the pack's puzzles, validate, publish), each marked done, next or later with its own action, under one line naming the single next step.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

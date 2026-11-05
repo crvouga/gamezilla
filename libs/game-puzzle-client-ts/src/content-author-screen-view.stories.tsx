@@ -113,6 +113,7 @@ const meta = {
     metadataDisabled: false,
     disabled: false,
     preview: false,
+    nextStep: 'playtest',
     onChangeBody: fn(),
     onSaveAgain: fn(),
     onTogglePreview: fn(),
@@ -180,6 +181,7 @@ export const Conflicted: Story = {
 
 /** The draft passed validation and a completed playtest proves it. */
 export const Validated: Story = {
+  args: { nextStep: 'publish' },
   render: (args) =>
     renderWith(args, () => ({
       publication: publication({ validation: 'valid', proven: true }),
@@ -254,7 +256,10 @@ const renderPublished = (args: ContentAuthorScreenViewProps) =>
   }));
 
 /** An edition is out: it can be viewed or withdrawn from discovery. */
-export const Published: Story = { render: (args) => renderPublished(args) };
+export const Published: Story = {
+  args: { nextStep: 'publish' },
+  render: (args) => renderPublished(args),
+};
 
 /** The author may draft but not publish; the denial replaces Publish. */
 export const PublishDenied: Story = {
@@ -277,6 +282,7 @@ export const PublishDenied: Story = {
 export const PackBuilder: Story = {
   args: {
     kind: 'pack',
+    nextStep: 'puzzles',
     body: {
       ...COUNTING_BODY,
       title: 'Weekend counts',
@@ -287,7 +293,10 @@ export const PackBuilder: Story = {
   render: (args) =>
     renderWith(args, () => ({
       stage: <StoryPackEditor />,
-      publication: publication({ kind: 'pack' }),
+      publication: publication({
+        kind: 'pack',
+        waitingOn: ['Count to nine'],
+      }),
       keptCopies: (
         <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
       ),

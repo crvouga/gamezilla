@@ -16,7 +16,9 @@ import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
 import { ContentPublicationControls } from './content-publication-controls';
+import { publicationNextStep } from './content-publication-steps';
 import { useContentAuthorWorkspace } from './use-content-author-workspace';
+import { useContentPublication } from './use-content-publication';
 import { useDeniedView } from './use-denied-view';
 
 type AuthorWorkspace = ReturnType<typeof useContentAuthorWorkspace>;
@@ -75,6 +77,18 @@ function AuthorWorkspaceScreen(props: {
     () => props.initial
   );
   const { writer } = workspace;
+  const tools = useContentPublication({
+    get document() {
+      return props.document;
+    },
+    writer,
+  });
+  const nextStep = () =>
+    publicationNextStep({
+      validation: tools.draft()?.validation_status ?? null,
+      needsProof: props.document.kind === 'puzzle' && !tools.proven(),
+      waiting: tools.waitingOn().length > 0,
+    });
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -92,6 +106,7 @@ function AuthorWorkspaceScreen(props: {
       }
       disabled={workspace.disabled()}
       preview={workspace.preview()}
+      nextStep={nextStep()}
       history={
         <ContentDraftHistory
           writer={writer}
