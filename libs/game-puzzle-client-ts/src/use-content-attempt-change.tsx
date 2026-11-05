@@ -22,7 +22,10 @@ export function useContentAttemptChange(attempt: () => ContentAttempt) {
   const [adopting, setAdopting] = createSignal<string | null>(null);
   createEffect(() => {
     const id = adopting();
-    if (data.play().positions.some((entry) => entry.id === id))
+    if (
+      attempt().current_position_id === id &&
+      data.play().positions.some((entry) => entry.id === id)
+    )
       setAdopting(null);
   });
   const change = createAsync({
