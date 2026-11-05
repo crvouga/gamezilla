@@ -8461,7 +8461,6 @@ msgid "Your live spaces"
 msgstr "Your live spaces"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Your move"
 msgstr "Your move"
