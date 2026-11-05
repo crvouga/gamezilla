@@ -1,0 +1,4 @@
+{
+  "summary": "A space's monogram tile took a player hue whose value differs by scheme, so the same space was coral in dark and maroon in light and lost its identity across themes; tiles now use six colours that are identical in both schemes, with white ink holding AA.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/monogram-tile.test.tsx"
+}

@@ -11,28 +11,28 @@ import type { JSX } from 'solid-js';
 export type MonogramTileSize = 'xs' | 'sm' | 'md' | 'lg';
 
 /**
- * The paints a tile may take: the player and status hues whose canvas-ink
- * letter holds AA in both schemes (never the white or black seat, never
- * the indigo of what is chosen).
+ * The paints a tile may take: six tile colours that are the same in both
+ * schemes (so a space keeps its colour when the theme changes), each
+ * holding AA with white ink, and none of them the indigo of what is chosen.
  */
 export const MONOGRAM_PAINTS = [
-  'player1',
-  'player3',
-  'player4',
-  'player7',
-  'success',
-  'warning',
+  'monogram1',
+  'monogram2',
+  'monogram3',
+  'monogram4',
+  'monogram5',
+  'monogram6',
 ] as const;
 
 export type MonogramPaint = (typeof MONOGRAM_PAINTS)[number];
 
 const PAINT_CLASS: Readonly<Record<MonogramPaint, string>> = {
-  player1: 'bg-player1',
-  player3: 'bg-player3',
-  player4: 'bg-player4',
-  player7: 'bg-player7',
-  success: 'bg-success',
-  warning: 'bg-warning',
+  monogram1: 'bg-monogram1',
+  monogram2: 'bg-monogram2',
+  monogram3: 'bg-monogram3',
+  monogram4: 'bg-monogram4',
+  monogram5: 'bg-monogram5',
+  monogram6: 'bg-monogram6',
 };
 
 const SIZE: Readonly<Record<MonogramTileSize, string>> = {
@@ -62,7 +62,9 @@ function hashSeed(seed: string): number {
 
 /** The paint `seed` picks (stable across runs and devices). */
 export function monogramPaint(seed: string): MonogramPaint {
-  return MONOGRAM_PAINTS[hashSeed(seed) % MONOGRAM_PAINTS.length] ?? 'player1';
+  return (
+    MONOGRAM_PAINTS[hashSeed(seed) % MONOGRAM_PAINTS.length] ?? 'monogram1'
+  );
 }
 
 /** Whole user-perceived characters, so an emoji or accent stays whole. */
@@ -94,10 +96,9 @@ export type MonogramTileProps = {
 
 /**
  * `MonogramTile` -- a thing's own mark where it has no picture: a rounded
- * square in one of the player hues, picked from a stable seed so the same
- * thing always wears the same color, carrying the first letter of its name
- * in the canvas ink (as a seat swatch carries its mark), so it reads in
- * both themes. Decorative: its name is always written beside it.
+ * square in one of six tile colours, picked from a stable seed so the same
+ * thing always wears the same colour in both themes, carrying the first
+ * letter of its name in white. Decorative: its name is always written beside it.
  *
  * @example
  * ```tsx
@@ -108,7 +109,7 @@ export function MonogramTile(props: MonogramTileProps): JSX.Element {
   const paint = (): MonogramPaint => monogramPaint(props.seed);
   return (
     <span
-      class={`box inline-flex shrink-0 items-center justify-center text text-background select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
+      class={`box inline-flex shrink-0 items-center justify-center text text-on-primary select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
       aria-hidden="true"
       {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}
       data-paint={paint()}

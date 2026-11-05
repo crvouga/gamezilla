@@ -367,9 +367,9 @@
    first row's title. */
 .sectionAside {
   display: grid;
-  /* The label stays near its rows, and short rows don't stretch across the
-     whole desktop column. */
-  grid-template-columns: 168px minmax(0, 640px);
+  /* A narrow label column keeps each label near its rows; the rows end on
+     the same right edge as every other desktop page. */
+  grid-template-columns: 168px minmax(0, 1fr);
   column-gap: var(--ui-space-6);
   align-items: start;
   min-width: 0;

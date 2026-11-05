@@ -41,12 +41,20 @@ describe('monogram paints', () => {
     expect(new Set(seeds.map(monogramPaint)).size).toBe(MONOGRAM_PAINTS.length);
   });
 
+  // regression: space-tile-colour-changes-with-theme
+  test('a paint is the same colour in both themes, so a space keeps its colour', () => {
+    const differ = MONOGRAM_PAINTS.filter(
+      (paint) => COLOR_PALETTE.light[paint] !== COLOR_PALETTE.dark[paint]
+    );
+    expect(differ).toEqual([]);
+  });
+
   for (const scheme of ['light', 'dark'] as const) {
     test(`${scheme}: every paint's letter holds AA`, () => {
       const colors = COLOR_PALETTE[scheme];
       const low = MONOGRAM_PAINTS.flatMap((paint) => {
         const plate = parseColor(colors[paint]);
-        const ink = parseColor(colors.background);
+        const ink = parseColor(colors.onPrimary);
         if (plate === null || ink === null) return [`${paint}: unparseable`];
         const ratio = contrastRatio(ink, plate);
         return ratio >= 4.5 ? [] : [`${paint}: ${ratio.toFixed(2)}`];

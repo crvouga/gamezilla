@@ -183,6 +183,12 @@
   --color-player6: var(--ui-color-player6);
   --color-player7: var(--ui-color-player7);
   --color-player8: var(--ui-color-player8);
+  --color-monogram1: var(--ui-color-monogram1);
+  --color-monogram2: var(--ui-color-monogram2);
+  --color-monogram3: var(--ui-color-monogram3);
+  --color-monogram4: var(--ui-color-monogram4);
+  --color-monogram5: var(--ui-color-monogram5);
+  --color-monogram6: var(--ui-color-monogram6);
   --color-board-light: var(--ui-color-board-light);
   --color-board-dark: var(--ui-color-board-dark);
   --color-board-highlight: var(--ui-color-board-highlight);
