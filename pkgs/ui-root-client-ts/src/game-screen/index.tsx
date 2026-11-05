@@ -31,6 +31,12 @@ export function GameScreen(props: {
    */
   facts?: JSX.Element | undefined;
   /**
+   * The title names what the host's bar does not (a puzzle by its own
+   * name, under a bar that names its game): a phone keeps it beside the
+   * facts instead of leaving it for a listener only.
+   */
+  keepTitle?: boolean | undefined;
+  /**
    * The step that finishes the screen (a `StepFooter`, such as checking
    * and publishing a draft): held in the screen's footer under the scroll
    * area, as wide as the game column, so nothing scrolls beneath it.
@@ -61,6 +67,7 @@ export function GameScreen(props: {
         >
           <div
             class={heading['heading']}
+            data-keep-title={props.keepTitle === true}
             {...dataAttrs({ component: 'GameHeading' })}
           >
             <div

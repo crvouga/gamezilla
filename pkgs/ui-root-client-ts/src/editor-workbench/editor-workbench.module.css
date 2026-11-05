@@ -17,9 +17,6 @@
   gap: var(--ui-space-4);
   min-width: 0;
 }
-.grid[data-order="tools-first"] > .tools {
-  order: -1;
-}
 @container editor-workbench (min-width: 720px) {
   .grid {
     display: grid;
@@ -27,7 +24,12 @@
     column-gap: var(--ui-space-6);
     align-items: start;
   }
-  .grid[data-order="tools-first"] > .tools {
-    order: 0;
+  .canvas {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .tools {
+    grid-column: 2;
+    grid-row: 1;
   }
 }

@@ -60,3 +60,31 @@ for (const width of [390, 1440]) {
     expect(controls.closest('[data-component="GameActions"]')).not.toBe(null);
   });
 }
+
+// regression: puzzle-attempt-rule-at-bottom — what the puzzle asks ("Join
+// each pair of numbers and fill every square.") sat in the "This puzzle"
+// card at the foot of a phone's screen. It now sits right above the board.
+for (const width of [390, 1440]) {
+  test(`at ${width}px the puzzle's rule is said right above the board`, () => {
+    mount(width);
+    const rule = screen.getByTestId('puzzle-attempt-rule');
+    expect(rule.textContent).toBe(
+      'Push each of the two crates onto its own goal.'
+    );
+    expect(follows(rule, screen.getByTestId('player'))).toBe(true);
+    expect(screen.getByTestId('puzzle-attempt-panel').contains(rule)).toBe(
+      false
+    );
+  });
+}
+
+// regression: puzzle-attempt-title-hidden-on-phone — a phone hid the
+// puzzle's own name ("Five pairs") as it hides a game's (the top bar names
+// the game), but the bar names only the game, never the puzzle. The
+// attempt keeps its title on a phone.
+test("a phone keeps the puzzle's own title beside its difficulty", () => {
+  mount(390);
+  const heading = document.querySelector('[data-component="GameHeading"]');
+  expect(heading?.getAttribute('data-keep-title')).toBe('true');
+  expect(heading?.textContent).toContain('Two crates');
+});

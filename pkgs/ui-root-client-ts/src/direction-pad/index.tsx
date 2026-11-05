@@ -16,6 +16,11 @@ export type DirectionPadProps = {
   readonly onDirection: (heading: DirectionPadHeading) => void;
   /** The group's `data-testid`; each button is `${testId}-<heading>`. */
   readonly testId: string;
+  /**
+   * `lg` (default): 64px buttons, for steering in real time. `md`: 48px
+   * buttons, for stepping a turn at a time beside other controls.
+   */
+  readonly size?: 'md' | 'lg' | undefined;
 };
 
 /** Up on top, left and right beside an empty centre, down below. */
@@ -84,6 +89,7 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
     <div
       {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       class={styles['pad']}
+      data-size={props.size ?? 'lg'}
       role="group"
       data-disabled={props.disabled}
     >

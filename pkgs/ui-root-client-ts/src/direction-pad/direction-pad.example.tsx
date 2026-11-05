@@ -27,6 +27,15 @@ export default function DirectionPadExample(): JSX.Element {
           onDirection={onDirection}
         />
       </ExampleSection>
+      <ExampleSection title="Medium: a step at a time, beside other controls">
+        <DirectionPad
+          labels={DIRECTION_LABELS}
+          disabled={false}
+          size="md"
+          testId="direction-pad-example-md"
+          onDirection={onDirection}
+        />
+      </ExampleSection>
       <ExampleSection title="Disabled: between rounds or while watching">
         <DirectionPad
           labels={DIRECTION_LABELS}

@@ -42,6 +42,7 @@ export function ContentAttemptRestart(props: {
         title={t`Restart`}
         intent="neutral"
         variant="outline"
+        size="sm"
         disabled={props.disabled}
         onClick={() =>
           setRequest({

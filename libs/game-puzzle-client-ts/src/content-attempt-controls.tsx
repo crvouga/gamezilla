@@ -22,6 +22,7 @@ export function ContentAttemptControls(props: {
           title={t`Undo`}
           intent="neutral"
           variant="outline"
+          size="sm"
           disabled={props.writer.pending() || !props.progress?.canUndo}
           onClick={() => props.writer.execute({ kind: 'undo' })}
           dataSet={{ testid: 'content-undo' }}
@@ -30,6 +31,7 @@ export function ContentAttemptControls(props: {
           title={t`Redo`}
           intent="neutral"
           variant="outline"
+          size="sm"
           disabled={props.writer.pending() || !props.progress?.canRedo}
           onClick={() => props.writer.execute({ kind: 'redo' })}
           dataSet={{ testid: 'content-redo' }}

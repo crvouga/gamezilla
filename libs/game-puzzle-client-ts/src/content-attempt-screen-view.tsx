@@ -114,6 +114,20 @@ function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
   );
 }
 
+/**
+ * What the puzzle asks ("Join each pair of numbers and fill every
+ * square."), right above the board it is played on, at every size.
+ */
+function AttemptRule(props: ContentAttemptScreenViewProps): JSX.Element {
+  return (
+    <Show when={props.attempt.description}>
+      <P tone="secondary" testId="puzzle-attempt-rule">
+        {props.attempt.description}
+      </P>
+    </Show>
+  );
+}
+
 /** `Puzzle 3 of 4 in Warehouse basics`, for a puzzle played from a pack. */
 function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
   return (
@@ -127,7 +141,7 @@ function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
 
 /**
  * The puzzle panel: beside the board when wide, under it on a phone, as a
- * game's record is. Where the puzzle sits in its pack, what it asks, a
+ * game's record is. Where the puzzle sits in its pack, a
  * playtest's note, the completion and the save status. It is secondary:
  * the attempt's commands sit with the board, not at the panel's foot.
  */
@@ -140,9 +154,6 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
     >
       <StackVertical gap="sm">
         <Show when={props.pack}>{(pack) => <PackPlace pack={pack()} />}</Show>
-        <Show when={props.attempt.description}>
-          <P tone="secondary">{props.attempt.description}</P>
-        </Show>
         <SaveStatus {...props} />
       </StackVertical>
       <Show when={props.playtest}>
@@ -180,6 +191,7 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         packrevisionid: props.attempt.packRevisionId ?? '',
       }}
       title={props.attempt.title}
+      keepTitle
       facts={
         <Show when={props.attempt.difficulty}>
           {(difficulty) => <Badge intent="neutral" label={difficulty()} />}
@@ -190,7 +202,12 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
           right under it on a phone, heading the rail beside it when wide,
           so the puzzle panel never stands between the board and them. */}
       <GameSessionLayout
-        notices={<AttemptAlerts {...props} />}
+        notices={
+          <>
+            <AttemptRule {...props} />
+            <AttemptAlerts {...props} />
+          </>
+        }
         actions={props.controls}
         actionsBeside
         aside={<AttemptPanel {...props} />}

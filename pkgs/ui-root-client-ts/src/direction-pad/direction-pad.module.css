@@ -12,6 +12,16 @@
   user-select: none;
   -webkit-user-select: none;
 }
+/* A step at a time beside other controls: the same pad at a 48px step. */
+.pad[data-size="md"] {
+  grid-template-columns: repeat(3, var(--ui-space-12));
+  grid-template-rows: repeat(3, var(--ui-space-12));
+  gap: var(--ui-space-1);
+}
+.pad[data-size="md"] .glyph {
+  width: var(--ui-icon-size-lg);
+  height: var(--ui-icon-size-lg);
+}
 .button {
   display: grid;
   place-items: center;

@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import styles from './editor-workbench.module.css';
 
 export type EditorWorkbenchProps = {
@@ -25,7 +25,8 @@ export type EditorWorkbenchProps = {
  * Measured on its own width: where there is room (720px and up) the canvas
  * takes a board's measure at the start edge and the tools fill a column
  * beside it, top-aligned, so every control stays in view with what it
- * changes. Narrower, the two stack in `narrowOrder`.
+ * changes. Narrower, the two stack in `narrowOrder`, which is also their
+ * reading order at every size.
  */
 export function EditorWorkbench(props: EditorWorkbenchProps): JSX.Element {
   return (
@@ -33,12 +34,21 @@ export function EditorWorkbench(props: EditorWorkbenchProps): JSX.Element {
       class={styles['workbench']}
       {...dataAttrs({ component: 'EditorWorkbench', ...props.dataSet })}
     >
-      <div
-        class={styles['grid']}
-        data-order={props.narrowOrder ?? 'tools-first'}
-      >
-        <div class={styles['canvas']}>{props.canvas}</div>
-        <div class={styles['tools']}>{props.tools}</div>
+      {/* The narrow order is the reading order too; wide, each side takes
+          its own column whatever comes first. */}
+      <div class={styles['grid']}>
+        <Show
+          when={props.narrowOrder === 'canvas-first'}
+          fallback={
+            <>
+              <div class={styles['tools']}>{props.tools}</div>
+              <div class={styles['canvas']}>{props.canvas}</div>
+            </>
+          }
+        >
+          <div class={styles['canvas']}>{props.canvas}</div>
+          <div class={styles['tools']}>{props.tools}</div>
+        </Show>
       </div>
     </div>
   );

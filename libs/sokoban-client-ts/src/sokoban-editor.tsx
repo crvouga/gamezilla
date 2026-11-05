@@ -6,12 +6,12 @@ import {
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
+import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';

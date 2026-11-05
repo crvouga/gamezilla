@@ -19,7 +19,7 @@
    play: the body keeps its title for a listener and shows only the game's
    facts, so the board is not pushed down by the name said twice. */
 @container game-column (max-width: 879px) {
-  .headingTitle {
+  .heading:not([data-keep-title="true"]) .headingTitle {
     position: absolute;
     width: 1px;
     height: 1px;
