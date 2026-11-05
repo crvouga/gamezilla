@@ -8,6 +8,13 @@
   min-width: 0;
   padding-block: var(--ui-space-4) var(--ui-space-2);
 }
+/* One quiet choice alone (History and stats): at the hero's end, level
+   with the game's name, a compact row the width of its words. */
+.heroLink {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  min-width: 16rem;
+}
 .heroWords {
   display: flex;
   flex-direction: column;
