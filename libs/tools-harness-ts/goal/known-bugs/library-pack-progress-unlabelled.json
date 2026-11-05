@@ -1,0 +1,4 @@
+{
+  "summary": "A finished puzzle's library card said \"Weekend counts · Solved 1/3\", which read as the puzzle's own progress though it counts the pack's puzzles. The line now names the pack as such (\"Pack: Weekend counts · 1 of 3 solved\"), and a pack's own card says \"2 of 5 solved\".",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

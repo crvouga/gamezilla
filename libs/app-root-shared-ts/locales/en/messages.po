@@ -100,12 +100,6 @@ msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for #
 msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 
-#. placeholder {0}: pack()
-#. placeholder {1}: solved()
-#: libs/game-puzzle-client-ts/src/content-library-card.tsx
-msgid "{0} · {1}"
-msgstr "{0} · {1}"
-
 #. placeholder {0}: riderName(rider.seat)
 #. placeholder {1}: props.state.scores[index()] ?? 0
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -167,6 +161,12 @@ msgstr "{0} of {1} puzzles completed"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "{0} of {1} puzzles match."
 msgstr "{0} of {1} puzzles match."
+
+#. placeholder {0}: props.progress.completed
+#. placeholder {1}: props.progress.total
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "{0} of {1} solved"
+msgstr "{0} of {1} solved"
 
 #. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
@@ -4790,6 +4790,12 @@ msgstr "Pack overview"
 msgid "Pack preview"
 msgstr "Pack preview"
 
+#. placeholder {0}: pack()
+#. placeholder {1}: solved()
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "Pack: {0} · {1}"
+msgstr "Pack: {0} · {1}"
+
 #: pkgs/ui-devtools-client-ts/src/data-table-pagination/index.tsx
 msgid "Page {current} of {total}"
 msgstr "Page {current} of {total}"
@@ -6574,12 +6580,6 @@ msgstr "solved"
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"
-
-#. placeholder {0}: props.progress.completed
-#. placeholder {1}: props.progress.total
-#: libs/game-puzzle-client-ts/src/content-library-card.tsx
-msgid "Solved {0}/{1}"
-msgstr "Solved {0}/{1}"
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
