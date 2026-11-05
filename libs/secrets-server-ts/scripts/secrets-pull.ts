@@ -61,7 +61,7 @@ async function main(): Promise<number> {
     if (!canFetchInfisicalSecrets(coords)) {
       console.error(
         `secrets:pull: Infisical export failed for env=${env}. ` +
-          'Run `infisical login` and retry.'
+          'Run `bun run secrets:login` and retry.'
       );
       return 1;
     }

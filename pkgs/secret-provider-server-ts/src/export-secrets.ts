@@ -4,6 +4,10 @@
  */
 import { spawnSync } from 'node:child_process';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared-ts/defaults';
+import {
+  infisicalProjectArgs,
+  infisicalProjectEnv,
+} from '@pkgs/secret-provider-shared-ts/infisical-auth';
 import { parseInfisicalExportJson } from '@pkgs/secret-provider-shared-ts/local-secrets-cache';
 
 export type InfisicalExportCoords = {
@@ -14,26 +18,11 @@ export type InfisicalExportCoords = {
 };
 
 function infisicalCliEnv(): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
+  const env: NodeJS.ProcessEnv = infisicalProjectEnv(process.env);
   delete env['CURSOR_AGENT'];
   delete env['CURSOR_TRACE_ID'];
   env['INFISICAL_DISABLE_MIGRATION_NOTICE'] = '1';
   return env;
-}
-
-function infisicalProjectArgs(args: {
-  readonly workspaceId: string;
-  readonly env: string;
-  readonly domain: string;
-}): string[] {
-  return [
-    '--projectId',
-    args.workspaceId,
-    '--env',
-    args.env,
-    '--domain',
-    args.domain,
-  ];
 }
 
 /**
@@ -42,7 +31,7 @@ function infisicalProjectArgs(args: {
 export function canFetchInfisicalSecrets(args: InfisicalExportCoords): boolean {
   const result = spawnSync(
     INFISICAL_CLI_BIN,
-    ['export', ...infisicalProjectArgs(args), '--format=json'],
+    ['export', ...infisicalProjectArgs(args, process.env), '--format=json'],
     {
       cwd: args.repoRoot,
       env: infisicalCliEnv(),
@@ -66,7 +55,7 @@ export function exportInfisicalSecretsMap(
 ): ReadonlyMap<string, string> {
   const result = spawnSync(
     INFISICAL_CLI_BIN,
-    ['export', ...infisicalProjectArgs(args), '--format=json'],
+    ['export', ...infisicalProjectArgs(args, process.env), '--format=json'],
     {
       cwd: args.repoRoot,
       env: infisicalCliEnv(),
