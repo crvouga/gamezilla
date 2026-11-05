@@ -12,6 +12,26 @@ import { waitForEditorAt, workingDraftOn } from './draft-editor-screen';
 import { mountContentExample } from './mount-content-example';
 
 type View = Awaited<ReturnType<typeof mountContentExample>>;
+
+/**
+ * The builder's details (title, description, difficulty), opened as a
+ * person does when the builder shows them closed to one row over its stage.
+ */
+export async function openBuilderDetails(
+  s: ContentHarness,
+  view: Pick<View, 'queryByTestId' | 'queryByLabelText'>
+): Promise<void> {
+  const toggle = 'content-author-details-toggle';
+  await waitForContent(s, () =>
+    Promise.resolve(view.queryByTestId(toggle) !== null)
+  );
+  const button = view.queryByTestId(toggle);
+  if (button !== null && button.getAttribute('aria-expanded') !== 'true')
+    fireEvent.click(button);
+  await waitForContent(s, () =>
+    Promise.resolve(view.queryByLabelText('Title') !== null)
+  );
+}
 /** One open builder per device: its undo and redo choices last while it is open. */
 export type BuilderSession = {
   readonly documentId: string;
@@ -50,9 +70,7 @@ export async function openBuilder(
     Promise.resolve(view.queryByTestId(entry) !== null)
   );
   fireEvent.click(view.getByTestId(entry));
-  await waitForContent(s, () =>
-    Promise.resolve(view.queryByLabelText('Title') !== null)
-  );
+  await openBuilderDetails(s, view);
   s.builders.set(clientId, { documentId, view });
   return view;
 }
