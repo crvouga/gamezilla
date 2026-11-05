@@ -44,9 +44,11 @@
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
+/* The next step's marker takes the filled button's own fill and ink, so
+   its number reads in both themes. */
 .step[data-state="current"] .marker {
-  border-color: var(--ui-color-tint);
-  background: var(--ui-color-tint);
+  border-color: var(--ui-color-tint-active);
+  background: var(--ui-color-tint-active);
   color: var(--ui-color-on-primary);
 }
 .step[data-state="done"] .marker {
