@@ -4,6 +4,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { PathGridBoard } from '@pkgs/ui-root-client-ts/path-grid-board';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { contrastRatio, parseColor } from '@pkgs/ui-root-shared-ts/contrast';
 import { renderUi } from './render';
@@ -171,6 +172,56 @@ describe('path board', () => {
     expect(lines).toBeGreaterThan(0);
     expect(endpoint).toBeGreaterThan(lines);
     expect(declared(rule(css, '.endpoint'), 'position')).toBe('relative');
+  });
+
+  /** A 5 × 5 board with a "4" path begun over two squares. */
+  function begun(): HTMLElement {
+    const view = renderUi(() => (
+      <PathGridBoard
+        columns={5}
+        rows={5}
+        label="Numberlink board"
+        testId="path"
+        endpoints={[
+          { cell: 10, label: '4', tone: 'green', connected: false },
+          { cell: 16, label: '4', tone: 'green', connected: false },
+        ]}
+        lines={[
+          { id: 'four', tone: 'green', cells: [10, 11], connected: false },
+        ]}
+        cellLabel={(index) => `Square ${index}`}
+      />
+    ));
+    return view.getByRole('group', { name: 'Numberlink board' });
+  }
+
+  // regression: numberlink-open-path-capsules — a path still being drawn
+  // was dashed, so the "4" path begun over two squares broke into two
+  // separate capsules that read as a rendering fault. Every path, open or
+  // joined, is one continuous stroke between its squares' centres.
+  test('a path still open is one continuous stroke between its squares', () => {
+    const css = readFileSync(
+      join(UI_SRC, 'path-grid-board/path-grid-board.module.css'),
+      'utf8'
+    );
+    expect(css).not.toContain('stroke-dasharray');
+    const board = begun();
+    const lines = board.querySelectorAll('[data-path="four"]');
+    expect(lines.length).toBe(1);
+    expect(lines[0]?.getAttribute('points')).toBe('50,250 150,250');
+    expect(
+      declared(
+        rule('path-grid-board/path-grid-board.module.css', '.line'),
+        'stroke-linecap'
+      )
+    ).toBe('round');
+  });
+
+  // regression: numberlink-light-board-cream — in the light theme the
+  // board turned a cream sheet with a mustard "3", unlike every other
+  // game's board. Like Sokoban's, it keeps one palette in both themes.
+  test('the board keeps its night palette in the light theme', () => {
+    expect(begun().getAttribute('data-theme')).toBe('dark');
   });
 });
 

@@ -119,15 +119,15 @@
   height: 100%;
   pointer-events: none;
 }
+/* One continuous stroke from cell to cell, joined or still open: a dashed
+   open path broke into separate capsules that read as a drawing fault. A
+   path still open ends in the board, its endpoints rings, not discs. */
 .line {
   fill: none;
   stroke: var(--path-color);
   stroke-width: 20;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-.line[data-connected="false"] {
-  stroke-dasharray: 24 12;
 }
 [data-tone="red"] {
   --path-color: var(--ui-color-path-red);

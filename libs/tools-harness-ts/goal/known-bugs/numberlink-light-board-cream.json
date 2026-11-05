@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme the Numberlink board turned a cream sheet with a mustard \"3\", unlike every other game's board. Like Sokoban's, it now keeps one palette in both themes: its night canvas and bright paths.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A Numberlink path still being drawn was dashed with round caps, so the \"4\" path begun over two squares broke into two separate capsules that read as a rendering fault. Every path, open or joined, is now one continuous stroke between its squares' centres; a joined pair still reads as done by its filled endpoints.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}
