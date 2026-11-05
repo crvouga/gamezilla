@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban board drew the worker, crates and goals as about 12px glyphs in 50-76px tiles, and its walls as pale tiles with cream grout over a dark floor, so the walls outweighed the pieces and figure and ground were inverted. Walls are now dark solid blocks on a light floor, and each piece is an outlined token about 70% of its tile wide, in the player and the builder alike.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}

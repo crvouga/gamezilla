@@ -6,9 +6,15 @@ import {
   discoverContent,
   workingContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-library';
+import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
+import type {
+  ContentKind,
+  ContentRevision,
+} from '@libs/game-puzzle-shared-ts/content-types';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { ContentCreateControls } from './content-create-controls';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
@@ -19,6 +25,36 @@ import {
 } from './content-library-screen-view';
 import { byContentId } from './use-content-pages';
 import { useDeniedView } from './use-denied-view';
+
+/**
+ * The puzzle definition a row's thumbnail draws: a puzzle's own, or a
+ * pack's first puzzle that has reached this device.
+ */
+function previewOf(
+  content: ContentLibrary,
+  kind: ContentKind,
+  definition: string
+): string | undefined {
+  if (kind === 'puzzle') return definition || undefined;
+  const items = decodePackDefinition(definition)?.items ?? [];
+  for (const item of items) {
+    const revision = content.revisions.find(
+      (entry) => entry.id === item.revisionId
+    );
+    if (revision !== undefined) return revision.definition || undefined;
+    const draft = workingContentDraft(content, item.puzzleId);
+    if (draft !== null) return draft.definition || undefined;
+  }
+  return undefined;
+}
+
+/** A listed edition with the board its thumbnail draws. */
+function withPreview(content: ContentLibrary, edition: ContentRevision) {
+  return {
+    ...edition,
+    preview: previewOf(content, edition.kind, edition.definition),
+  };
+}
 
 /** The saved attempts of `mode` on the loaded page, titled by their source. */
 function savedAttempts(args: {
@@ -40,6 +76,7 @@ function savedAttempts(args: {
       return {
         id: attempt.id,
         title: source?.title ?? '',
+        preview: source?.definition,
         completed:
           args.mode === 'ordinary' &&
           args.play.completions.some(
@@ -60,11 +97,16 @@ function ownedDrafts(
     .toSorted(byContentId)
     .slice(0, limit)
     .filter((doc) => doc.deleted_at === null)
-    .map((doc) => ({
-      id: doc.id,
-      title: workingContentDraft(content, doc.id)?.title ?? '',
-      status: doc.status,
-    }));
+    .map((doc) => {
+      const draft = workingContentDraft(content, doc.id);
+      return {
+        id: doc.id,
+        kind: doc.kind,
+        title: draft?.title ?? '',
+        status: doc.status,
+        preview: previewOf(content, doc.kind, draft?.definition ?? ''),
+      };
+    });
 }
 
 /** Published (not shipped) editions on the loaded page, by id. */
@@ -73,7 +115,7 @@ function publishedEditions(
   gameId: string,
   limit: number
 ) {
-  return discoverContent(
+  const editions = discoverContent(
     {
       ...content,
       documents: content.documents
@@ -86,6 +128,7 @@ function publishedEditions(
     },
     gameId
   );
+  return editions.map((edition) => withPreview(content, edition));
 }
 
 /** The library wired to the synced content, attempts and their pages. */
@@ -108,10 +151,13 @@ export function ContentLibraryScreen(): JSX.Element {
       mode,
     });
   const bundled = createMemo(() =>
-    discoverContent(data.content(), game.id).filter(
-      (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
-    )
+    discoverContent(data.content(), game.id)
+      .filter(
+        (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
+      )
+      .map((edition) => withPreview(data.content(), edition))
   );
+  const preview = game.client.Preview;
   const openEdition = (revisionId: string): void =>
     game.open({ kind: 'edition', revisionId, packRevisionId: null });
   return (
@@ -134,6 +180,13 @@ export function ContentLibraryScreen(): JSX.Element {
         attempts: pages.attempts.hasMore(),
         published: pages.published.hasMore(),
       }}
+      renderPreview={
+        preview === undefined
+          ? undefined
+          : (definition) => (
+              <Dynamic component={preview} definition={definition} />
+            )
+      }
       onOpenEdition={openEdition}
       onOpenDraft={(documentId) => game.open({ kind: 'edit', documentId })}
       onOpenAttempt={(attemptId) => game.open({ kind: 'attempt', attemptId })}

@@ -10,10 +10,12 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { EyeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StickyActionBar } from '@pkgs/ui-root-client-ts/sticky-action-bar';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
@@ -105,8 +107,9 @@ function SaveStatus(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * The editing tools, heading the stage they act on: undo and redo of this
- * session's edits, and a look at the draft as a player sees it.
+ * The editing tools, heading the stage they act on: the step's name at the
+ * start, then undo and redo of this session's edits and a look at the
+ * draft as a player sees it at the end of the same line.
  */
 function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -115,54 +118,73 @@ function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
       gap="sm"
       wrap
       align="center"
+      justify="between"
       dataSet={{ testid: 'content-author-tools' }}
     >
-      {props.history}
-      <Button
-        title={props.preview ? t`Return to editing` : t`Preview`}
-        intent="neutral"
-        variant="ghost"
-        startIcon={<EyeIcon size={20} />}
-        onClick={() => props.onTogglePreview()}
-        disabled={props.disabled}
-        dataSet={{ testid: 'content-preview' }}
-      />
+      <H2 size="navigationTitle" testId="content-author-stage-step">
+        {props.kind === 'pack' ? t`2 · Puzzles` : t`2 · Board`}
+      </H2>
+      <StackHorizontal gap="sm" wrap align="center">
+        {props.history}
+        <Button
+          title={props.preview ? t`Return to editing` : t`Preview`}
+          intent="neutral"
+          variant="ghost"
+          startIcon={<EyeIcon size={20} />}
+          onClick={() => props.onTogglePreview()}
+          disabled={props.disabled}
+          dataSet={{ testid: 'content-preview' }}
+        />
+      </StackHorizontal>
     </StackHorizontal>
   );
 }
 
-/**
- * Beside the stage on a wide screen, after it on a phone: the draft's
- * details, then publishing it (a puzzle's playtest proves it first). The
- * draft's other saved copies follow the stage.
- */
-function AuthorRail(props: ContentAuthorScreenViewProps): JSX.Element {
+/** Step one: the draft's title, description and difficulty. */
+function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <StackVertical gap="lg">
-      <GameSection title={t`Details`}>
-        <ContentDraftMetadata
-          body={props.body}
-          disabled={props.metadataDisabled}
-          onChange={props.onChangeBody}
-        />
-      </GameSection>
-      <GameSection
-        title={t`Publish`}
-        description={
-          props.kind === 'pack'
-            ? t`Check it, then share it with everyone who plays.`
-            : t`Playtest it, check it, then share it with everyone who plays.`
-        }
-        dataSet={{ testid: 'content-author-publish' }}
-      >
-        <Show when={props.kind === 'puzzle'}>{props.playtest}</Show>
-        {props.publication}
-      </GameSection>
-    </StackVertical>
+    <GameSection
+      title={t`1 · Details`}
+      dataSet={{ testid: 'content-author-details' }}
+    >
+      <ContentDraftMetadata
+        body={props.body}
+        disabled={props.metadataDisabled}
+        onChange={props.onChangeBody}
+      />
+    </GameSection>
   );
 }
 
+/**
+ * The last step, kept in view at the foot of the screen: a puzzle's
+ * playtest, then the check and publication, the one filled next step last.
+ */
+function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StickyActionBar
+      title={t`3 · Check and publish`}
+      description={
+        props.kind === 'pack'
+          ? t`Check it, then share it with everyone who plays.`
+          : t`Playtest it, check it, then share it with everyone who plays.`
+      }
+      dataSet={{ testid: 'content-author-publish' }}
+    >
+      <Show when={props.kind === 'puzzle'}>{props.playtest}</Show>
+      {props.publication}
+    </StickyActionBar>
+  );
+}
+
+/**
+ * One builder in three numbered steps. On a phone they read in order —
+ * the details, the stage with its tools, the draft's other saved copies —
+ * with the last step, checking and publishing, held at the screen's foot.
+ * Wide, the stage leads and the details and copies sit beside it.
+ */
 function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
@@ -174,14 +196,13 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
     >
       <GameSessionLayout
         notices={<SaveStatus {...props} />}
-        aside={<AuthorRail {...props} />}
+        setup={<AuthorDetails {...props} />}
+        aside={props.keptCopies}
+        footer={<AuthorPublish {...props} />}
       >
-        <StackVertical gap="lg">
-          <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
-            <AuthorTools {...props} />
-            {props.stage}
-          </StackVertical>
-          {props.keptCopies}
+        <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
+          <AuthorTools {...props} />
+          {props.stage}
         </StackVertical>
       </GameSessionLayout>
     </GameScreen>
@@ -189,10 +210,12 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * The puzzle or pack builder, presentational, one layout for both: the
- * editing tools heading the stage (the game's editor, the pack's puzzles,
- * or a preview), and beside it the draft's details, publishing it and its
- * draft copies — or loading, denied and not-on-this-device states. The
+ * The puzzle or pack builder, presentational, one layout for both, in
+ * three numbered steps: the draft's details; the stage (the game's editor,
+ * the pack's puzzles, or a preview) headed by its editing tools; and
+ * checking and publishing it in a bar held at the screen's foot. The
+ * draft's other saved copies come last — or loading, denied and
+ * not-on-this-device states. The
  * host's bar holds the way back to the puzzles. Smart widgets arrive as
  * slots.
  */

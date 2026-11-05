@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban builder's board size inputs came after the board, its caption and its corrections, below a desktop's 900px fold, and its pieces were bare glyphs unlike the player's. The size and the tools now head the board, and each piece is drawn as the player draws it.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

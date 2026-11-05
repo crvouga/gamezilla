@@ -65,6 +65,24 @@ function Steering(props: {
         onDirection={steering.steer}
         onTile={steering.tap}
       />
+      {/* How to move, under the board it describes. The movement buttons
+          come last, so the attempt's undo follows right after them. */}
+      <P id={help} variant="caption" tone="secondary">
+        <Show
+          when={wide()}
+          fallback={
+            <Trans>
+              Swipe the board, tap a square beside the worker, or use the
+              buttons.
+            </Trans>
+          }
+        >
+          <Trans>
+            Move with the arrow keys or W A S D, or click a square beside the
+            worker.
+          </Trans>
+        </Show>
+      </P>
       <P
         role="status"
         variant="label"
@@ -92,22 +110,6 @@ function Steering(props: {
           </For>
         </StackHorizontal>
       </Show>
-      <P id={help} variant="caption" tone="secondary">
-        <Show
-          when={wide()}
-          fallback={
-            <Trans>
-              Swipe the board, tap a square beside the worker, or use the
-              buttons.
-            </Trans>
-          }
-        >
-          <Trans>
-            Move with the arrow keys or W A S D, or click a square beside the
-            worker.
-          </Trans>
-        </Show>
-      </P>
       <Show when={steering.refusal()}>
         {(refused) => (
           <Notice

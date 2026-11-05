@@ -291,24 +291,26 @@
   outline: 3px solid var(--ui-color-board-card-face);
   outline-offset: -3px;
 }
-/* A Sokoban board being built, in the colours the puzzle is played in: a
-   wall is a filled block with a heavy edge (as the player draws it, never a
-   glyph alone), outside squares are empty, and the squares are larger, so
-   the board is the biggest thing in its builder. */
+/* A Sokoban board being built, drawn as the puzzle is played: a wall is a
+   dark solid block with a lit top edge, floor is light, outside squares are
+   empty, and the pieces are outlined tokens most of a square wide (`one` a
+   crate, `two` a crate on its goal, `three` the worker, `four` a goal), so
+   what can move reads before the walls around it. Squares meet edge to
+   edge and are larger, so the board leads its builder. */
 .board[data-board-theme="sokoban"] {
-  --ui-color-background: var(--ui-color-game-sokoban-canvas);
+  --ui-color-background: var(--ui-color-game-sokoban-ink);
   --color-background: var(--ui-color-background);
   --ui-color-surface: var(--ui-color-game-sokoban-surface);
   --color-surface: var(--ui-color-surface);
   --ui-color-surface-muted: var(--ui-color-game-sokoban-surface);
   --color-surface-muted: var(--ui-color-surface-muted);
-  --ui-color-surface-sunken: var(--ui-color-game-sokoban-surface);
+  --ui-color-surface-sunken: var(--ui-color-game-sokoban-canvas);
   --color-surface-sunken: var(--ui-color-surface-sunken);
-  --ui-color-text: var(--ui-color-game-sokoban-ink);
+  --ui-color-text: var(--ui-color-game-sokoban-canvas);
   --color-text: var(--ui-color-text);
   --ui-color-text-secondary: var(--ui-color-game-sokoban-muted);
   --color-text-secondary: var(--ui-color-text-secondary);
-  --ui-color-border: var(--ui-color-game-sokoban-surface);
+  --ui-color-border: var(--ui-color-game-sokoban-muted);
   --color-border: var(--ui-color-border);
   --ui-color-tint: var(--ui-color-game-sokoban-accent);
   --color-tint: var(--ui-color-tint);
@@ -320,16 +322,66 @@
   --color-warning: var(--ui-color-warning);
   --ui-color-success: var(--ui-color-game-sokoban-accent);
   --color-success: var(--ui-color-success);
+  container-type: inline-size;
   max-width: calc(var(--cell-grid-columns) * 3.5rem + 2rem);
+  gap: 0;
+}
+.board[data-board-theme="sokoban"] .header {
+  padding: 0.25rem;
+}
+.board[data-board-theme="sokoban"] .cell {
+  border-radius: 0;
+  background: var(--ui-color-game-sokoban-ink);
+  border-color: var(--ui-color-game-sokoban-muted);
 }
 .board[data-board-theme="sokoban"] .cell[data-tone="occupied"] {
-  background: var(--color-text-secondary);
-  border: 2px solid var(--color-text);
+  background: var(--ui-color-game-sokoban-canvas);
+  border: 1px solid var(--ui-color-game-sokoban-surface);
+  box-shadow: inset 0 max(1px, calc(8cqw / var(--cell-grid-columns)))
+    var(--ui-color-game-sokoban-surface);
 }
 .board[data-board-theme="sokoban"] .cell[data-tone="quiet"] {
   background: transparent;
   border-color: transparent;
+  color: var(--ui-color-game-sokoban-muted);
 }
 .board[data-board-theme="sokoban"] .glyph {
   font-size: clamp(0.875rem, 4vw, 1.5rem);
+}
+.board[data-board-theme="sokoban"] .cell[data-identity] {
+  background: var(--ui-color-game-sokoban-ink);
+}
+.board[data-board-theme="sokoban"] .cell[data-identity] .glyph {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 72%;
+  height: 72%;
+  border: max(1px, calc(6cqw / var(--cell-grid-columns))) solid
+    var(--ui-color-game-sokoban-canvas);
+  color: var(--ui-color-game-sokoban-canvas);
+  font-size: calc(42cqw / var(--cell-grid-columns));
+}
+.board[data-board-theme="sokoban"] .cell[data-identity="one"] .glyph {
+  border-radius: 18%;
+  background: var(--ui-color-game-sokoban-one);
+}
+.board[data-board-theme="sokoban"] .cell[data-identity="two"] .glyph {
+  border-radius: 18%;
+  background: var(--ui-color-game-sokoban-two);
+}
+.board[data-board-theme="sokoban"] .cell[data-identity="three"] .glyph {
+  border-radius: 50%;
+  background: var(--ui-color-game-sokoban-accent);
+}
+.board[data-board-theme="sokoban"] .cell[data-identity="four"] .glyph {
+  width: 52%;
+  height: 52%;
+  border-color: var(--ui-color-game-sokoban-surface);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--ui-color-game-sokoban-surface) 0 24%,
+    transparent 26%
+  );
 }

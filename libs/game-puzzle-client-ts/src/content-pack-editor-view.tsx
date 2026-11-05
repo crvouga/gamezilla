@@ -13,6 +13,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
+import { ContentRowCaption, ContentStatusChip } from './content-chips';
+import { ContentThumbnail } from './content-thumbnail';
 
 /** A published puzzle the pack does not hold yet. */
 export type ContentPackCandidate = {
@@ -20,14 +22,19 @@ export type ContentPackCandidate = {
   readonly id: string;
   readonly title: string;
   readonly caption: string;
+  /** The puzzle's definition, drawn as the row's thumbnail. */
+  readonly preview?: string | undefined;
 };
 
 export type ContentPackItemRowProps = {
   /** The puzzle's document id. */
   readonly id: string;
   readonly title: string;
-  /** Whether it is published, still a draft, or needs corrections. */
+  /** What the author still has to do with it; empty when nothing. */
   readonly caption: string;
+  /** Published, or still a draft: a status chip under the title. */
+  readonly status?: 'published' | 'draft' | undefined;
+
   readonly first: boolean;
   readonly last: boolean;
   readonly disabled: boolean;
@@ -52,7 +59,15 @@ export function ContentPackItemRow(
   return (
     <MenuRow
       title={props.title}
-      caption={props.caption}
+      caption={
+        <Show when={props.status} fallback={props.caption || undefined}>
+          {(status) => (
+            <ContentRowCaption description={props.caption}>
+              <ContentStatusChip status={status()} />
+            </ContentRowCaption>
+          )}
+        </Show>
+      }
       trailing={
         <StackHorizontal gap="xs" align="center">
           <Show when={props.open}>
@@ -122,6 +137,8 @@ export type ContentPackEditorViewProps = {
   readonly candidates: readonly ContentPackCandidate[];
   readonly addDisabled: boolean;
   readonly onAdd: (revisionId: string) => void;
+  /** The game's board preview for a candidate's thumbnail. */
+  readonly renderPreview?: ((definition: string) => JSX.Element) | undefined;
   /** A pack change saved, or why it was not, with its retry. */
   readonly notices?: JSX.Element;
   /** Making a new puzzle draft inside the pack, and opening it. */
@@ -141,6 +158,14 @@ function Candidates(props: ContentPackEditorViewProps): JSX.Element {
             return (
               <MenuRow
                 dataSet={{ testid: `content-add-puzzle-${id}` }}
+                leading={
+                  <ContentThumbnail
+                    kind="puzzle"
+                    size="md"
+                    preview={candidate()?.preview}
+                    renderPreview={props.renderPreview}
+                  />
+                }
                 title={candidate()?.title}
                 caption={candidate()?.caption || undefined}
                 aria-label={t`Add ${candidate()?.title ?? ''} to the pack`}

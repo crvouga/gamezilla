@@ -670,6 +670,10 @@ msgstr "✕"
 msgid "chess.puzzleStatus.failedMark"
 msgstr "✕"
 
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "1 · Details"
+msgstr "1 · Details"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 #: libs/game-matchmaking-client-ts/src/time-control-name.tsx
 msgid "1 day"
@@ -695,6 +699,14 @@ msgstr "1 minute"
 msgid "1 second"
 msgstr "1 second"
 
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "2 · Board"
+msgstr "2 · Board"
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "2 · Puzzles"
+msgstr "2 · Puzzles"
+
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "2L"
 msgstr "2L"
@@ -702,6 +714,10 @@ msgstr "2L"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "2W"
 msgstr "2W"
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "3 · Check and publish"
+msgstr "3 · Check and publish"
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "3L"
@@ -1819,7 +1835,7 @@ msgstr "Complete the required details and validate again."
 msgid "Complete the required puzzle details before previewing or playtesting."
 msgstr "Complete the required puzzle details before previewing or playtesting."
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Completed"
 msgstr "Completed"
@@ -2288,10 +2304,6 @@ msgstr "Desired synthetic population"
 msgid "Destroyer"
 msgstr "Destroyer"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Details"
-msgstr "Details"
-
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Details to check when something isn't working."
 msgstr "Details to check when something isn't working."
@@ -2422,7 +2434,7 @@ msgstr "Download readable summary"
 msgid "Download reusable detail"
 msgstr "Download reusable detail"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Draft"
 msgstr "Draft"
@@ -2434,10 +2446,6 @@ msgstr "Draft copies"
 #: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Draft created"
 msgstr "Draft created"
-
-#: libs/game-puzzle-client-ts/src/content-pack-item.tsx
-msgid "Draft: publish it before the pack"
-msgstr "Draft: publish it before the pack"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "Drag from a number to its match to draw a path."
@@ -3305,7 +3313,7 @@ msgstr "in a row"
 msgid "In a space"
 msgstr "In a space"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "In progress"
 msgstr "In progress"
@@ -4373,6 +4381,10 @@ msgid "Not now"
 msgstr "Not now"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Not proven yet"
+msgstr "Not proven yet"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Not proven yet: finish a playtest of this version to show it can be solved."
 msgstr "Not proven yet: finish a playtest of this version to show it can be solved."
 
@@ -4639,7 +4651,7 @@ msgstr "Outside"
 msgid "Ownership generation"
 msgstr "Ownership generation"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 msgid "Pack"
 msgstr "Pack"
 
@@ -4703,6 +4715,10 @@ msgstr "Pass {0} of 3 cards"
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
 msgstr "Passed"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Passed its check"
+msgstr "Passed its check"
 
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Passing your cards…"
@@ -4905,7 +4921,7 @@ msgstr "Playing now"
 msgid "Playing with others and syncing"
 msgstr "Playing with others and syncing"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 msgid "Playtest"
 msgstr "Playtest"
 
@@ -5054,6 +5070,10 @@ msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Proven by a playtest"
+msgstr "Proven by a playtest"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Proven: a finished playtest shows it can be solved."
 msgstr "Proven: a finished playtest shows it can be solved."
 
@@ -5077,13 +5097,15 @@ msgstr "Publication saved"
 msgid "Publication waits for your connection. Your draft is kept on this device."
 msgstr "Publication waits for your connection. Your draft is kept on this device."
 
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publish"
 msgstr "Publish"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
+msgid "Publish it before the pack"
+msgstr "Publish it before the pack"
+
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Published"
 msgstr "Published"
@@ -5109,7 +5131,7 @@ msgid "Pushes"
 msgstr "Pushes"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
@@ -8034,7 +8056,7 @@ msgstr "Withdraw this publication?"
 msgid "Withdrawal saved"
 msgstr "Withdrawal saved"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-chips.tsx
 msgid "Withdrawn"
 msgstr "Withdrawn"
 

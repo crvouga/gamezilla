@@ -1,8 +1,8 @@
 /**
  * Story-only: a game's puzzle editor where an author meets it, the stage
- * of the shared puzzle builder (`ContentAuthorScreenView`), beside the
- * puzzle's details, publishing it and its draft copies. Production never
- * imports this module.
+ * of the shared puzzle builder (`ContentAuthorScreenView`), after the
+ * puzzle's details, before its draft copies, over its publish bar.
+ * Production never imports this module.
  */
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
@@ -46,6 +46,7 @@ export function StoryPuzzleBuilder(props: {
       playtest={<StoryPlaytest disabled={props.disabled} />}
       publication={
         <ContentPublicationControlsView
+          layout="bar"
           kind="puzzle"
           validation="unchecked"
           validationMessage=""

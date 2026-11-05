@@ -28,6 +28,7 @@ function publication(
 ) {
   return (
     <ContentPublicationControlsView
+      layout="bar"
       kind="puzzle"
       validation="unchecked"
       validationMessage=""

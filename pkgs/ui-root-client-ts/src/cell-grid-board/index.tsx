@@ -45,9 +45,12 @@ export type CellGridBoardProps = {
    * coordinates do: row labels at the top left of the first column, column
    * labels at the bottom right of the last row, so the board is square and
    * its insets equal on both sides.
-   * `sokoban` is a Sokoban board being built, in the puzzle's own colours:
-   * `occupied` cells are its walls, drawn as filled blocks; `quiet` cells
-   * are outside it; its squares are larger, so the board leads its screen.
+   * `sokoban` is a Sokoban board being built, drawn as the puzzle is
+   * played: `occupied` cells are its walls, dark solid blocks; `open` cells
+   * light floor; `quiet` cells are outside it. A cell's `identity` draws
+   * its piece as a token most of the square wide (`one` a crate, `two` a
+   * crate on its goal, `three` the worker, `four` a goal), and its squares
+   * are larger, so the board leads its screen.
    */
   readonly boardTheme?:
     | 'battleship'

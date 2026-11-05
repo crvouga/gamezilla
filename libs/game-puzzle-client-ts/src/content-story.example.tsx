@@ -11,6 +11,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
+import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { For, type JSX, Show } from 'solid-js';
 import {
   ContentPackEditorView,
@@ -36,6 +37,36 @@ export function StoryCountingPlayer(props: {
       <Button title="Take one step" disabled={props.disabled} />
       <Button title="Take two steps" disabled={props.disabled} />
     </StackVertical>
+  );
+}
+
+/** Squares to a row in a counting puzzle's preview track. */
+const TRACK_COLUMNS = 4;
+
+/**
+ * The counting game's board preview: a track of squares from zero to the
+ * target, the counter at the start and the target ringed at the end.
+ */
+export function StoryCountingPreview(props: {
+  definition: string;
+}): JSX.Element {
+  const target = () =>
+    Math.max(1, Number(/^target:(\d+)$/.exec(props.definition)?.[1] ?? 1));
+  const rows = () => Math.ceil((target() + 1) / TRACK_COLUMNS);
+  return (
+    <TileBoard
+      label={`Count from 0 to ${target()}`}
+      testId="story-counting-preview"
+      columns={TRACK_COLUMNS}
+      rows={rows()}
+      tiles={Array.from({ length: rows() * TRACK_COLUMNS }, (_, index) => ({
+        terrain: index <= target() ? ('open' as const) : ('none' as const),
+        marked: index === target(),
+        label: String(index),
+      }))}
+      pieces={[{ id: 'counter', column: 0, row: 0, glyph: '0', tone: 'actor' }]}
+      disabled
+    />
   );
 }
 
@@ -144,19 +175,27 @@ const PACK_PUZZLES = [
   {
     id: 'puzzle-count-to-five',
     title: 'Count to five',
-    caption: 'Published',
+    caption: '',
+    status: 'published',
   },
   {
     id: 'puzzle-count-to-seven',
     title: 'Count to seven',
-    caption: 'Published',
+    caption: '',
+    status: 'published',
   },
   {
     id: 'puzzle-count-to-nine',
     title: 'Count to nine',
-    caption: 'Draft: publish it before the pack',
+    caption: 'Publish it before the pack',
+    status: 'draft',
   },
 ] as const;
+
+/** A counting puzzle's board, as a builder row's thumbnail. */
+function countingPreview(definition: string): JSX.Element {
+  return <StoryCountingPreview definition={definition} />;
+}
 
 /**
  * The pack builder's stage on the real view: the pack's puzzles with their
@@ -171,7 +210,10 @@ export function StoryPackEditor(props: { disabled?: boolean }): JSX.Element {
         <For each={PACK_PUZZLES}>
           {(puzzle, index) => (
             <ContentPackItemRow
-              {...puzzle}
+              id={puzzle.id}
+              title={puzzle.title}
+              caption={puzzle.caption}
+              status={puzzle.status}
               first={index() === 0}
               last={index() === PACK_PUZZLES.length - 1}
               disabled={props.disabled === true}
@@ -189,8 +231,10 @@ export function StoryPackEditor(props: { disabled?: boolean }): JSX.Element {
           id: 'revision-thirteen',
           title: 'Thirteen without overshooting',
           caption: 'Medium',
+          preview: 'target:13',
         },
       ]}
+      renderPreview={countingPreview}
       addDisabled={props.disabled === true}
       onAdd={() => undefined}
       create={
@@ -213,7 +257,7 @@ export function StoryAttemptControls(props: {
   disabled?: boolean;
 }): JSX.Element {
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm" wrap shrink>
       <Button
         title="Undo"
         intent="neutral"

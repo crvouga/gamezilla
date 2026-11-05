@@ -52,7 +52,10 @@ function useWithdraw(documentId: () => string): () => Promise<void> {
   };
 }
 
-/** Validation and publication wired to the draft, permissions and sync. */
+/**
+ * Validation and publication wired to the draft, permissions and sync, laid
+ * out for the builder's sticky action bar.
+ */
 export function ContentPublicationControls(props: {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
@@ -72,6 +75,7 @@ export function ContentPublicationControls(props: {
   });
   return (
     <ContentPublicationControlsView
+      layout="bar"
       kind={props.document.kind}
       validation={tools.draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools.draft())}

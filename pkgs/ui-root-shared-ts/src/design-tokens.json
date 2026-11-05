@@ -335,9 +335,9 @@
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.5412, 0.3804, 0.0],
+          "components": [0.6902, 0.4902, 0.0],
           "alpha": 1.0,
-          "hex": "#8a6100"
+          "hex": "#b07d00"
         }
       },
       "pathGreen": {

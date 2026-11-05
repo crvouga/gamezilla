@@ -2,12 +2,13 @@ import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentWithdraw } from './content-withdraw';
 
 /**
@@ -36,6 +37,12 @@ export type ContentPublicationControlsViewProps = {
   readonly onPublish: () => Promise<void>;
   readonly onViewPublication: () => void;
   readonly onWithdraw: () => Promise<void>;
+  /**
+   * `stacked` (default): each finding a notice above the actions. `bar`:
+   * for a sticky action bar, the check and the proof are tags on one line
+   * over the actions, and only what blocks publishing is a notice.
+   */
+  readonly layout?: 'stacked' | 'bar' | undefined;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -112,6 +119,46 @@ function ValidationNotices(
   );
 }
 
+/** The last check and the playtest proof as tags, for the action bar. */
+function CompactValidation(
+  props: ContentPublicationControlsViewProps
+): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <>
+      <Show when={props.validation === 'invalid'}>
+        <Notice tone="error">
+          {props.validationMessage ||
+            t`Complete the required details and validate again.`}
+        </Notice>
+      </Show>
+      <Show when={props.kind === 'puzzle' || props.validation === 'valid'}>
+        <StackHorizontal gap="xs" wrap align="center">
+          <Show when={props.kind === 'puzzle'}>
+            <Badge
+              intent={props.proven ? 'success' : 'neutral'}
+              dot={props.proven ? 'online' : 'pending'}
+              label={props.proven ? t`Proven by a playtest` : t`Not proven yet`}
+              dataSet={{
+                testid: 'content-proof',
+                proven: String(props.proven),
+              }}
+            />
+          </Show>
+          <Show when={props.validation === 'valid'}>
+            <Badge
+              intent="success"
+              dot="online"
+              label={t`Passed its check`}
+              dataSet={{ testid: 'content-validation-passed' }}
+            />
+          </Show>
+        </StackHorizontal>
+      </Show>
+    </>
+  );
+}
+
 /**
  * The one next step, filled: Validate until the draft passes its check,
  * then Publish. The other stays an outline, so the builder never offers two
@@ -158,9 +205,16 @@ export function ContentPublicationControlsView(
   });
   const next = () => publicationNextStep(props.validation);
   return (
-    <StackVertical gap="md">
+    <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
       <PublicationStatus pending={props.pending} refusal={props.refusal} />
-      <ValidationNotices {...props} />
+      <Switch>
+        <Match when={props.layout === 'bar'}>
+          <CompactValidation {...props} />
+        </Match>
+        <Match when={props.layout !== 'bar'}>
+          <ValidationNotices {...props} />
+        </Match>
+      </Switch>
       <StackHorizontal gap="sm" wrap>
         <Button
           {...validate.buttonProps}

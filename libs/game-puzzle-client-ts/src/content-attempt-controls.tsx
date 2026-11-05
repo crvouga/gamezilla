@@ -16,7 +16,7 @@ export function ContentAttemptControls(props: {
   const { t } = useLingui();
   const game = useContentGame();
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm" wrap shrink>
       <Show when={game.content.history === 'snapshots'}>
         <Button
           title={t`Undo`}

@@ -1,8 +1,10 @@
-import type { ContentRevision } from '@libs/game-puzzle-shared-ts/content-types';
+import type {
+  ContentKind,
+  ContentRevision,
+} from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
@@ -11,25 +13,42 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
+import {
+  ContentDifficultyChip,
+  ContentKindChip,
+  ContentRowCaption,
+  ContentStatusChip,
+} from './content-chips';
 import { ContentLoadMore } from './content-load-more';
+import { ContentThumbnail } from './content-thumbnail';
+
+/**
+ * A puzzle definition a row's thumbnail draws (a pack's: its first
+ * puzzle's); absent when there is nothing to draw yet.
+ */
+type ContentPreviewSource = {
+  readonly preview?: string | undefined;
+};
 
 /** A shipped starter pack or a published puzzle or pack, as listed. */
 export type ContentLibraryEdition = Pick<
   ContentRevision,
   'id' | 'document_id' | 'kind' | 'title' | 'description' | 'difficulty'
->;
+> &
+  ContentPreviewSource;
 
 /** One of the person's own drafts or publications. */
-export type ContentLibraryDraft = {
+export type ContentLibraryDraft = ContentPreviewSource & {
   /** The document id. */
   readonly id: string;
+  readonly kind: ContentKind;
   /** The working copy's title; empty shows "Untitled draft". */
   readonly title: string;
   readonly status: 'draft' | 'published' | 'withdrawn';
 };
 
 /** A saved attempt or private playtest, with the title of what it plays. */
-export type ContentLibraryAttempt = {
+export type ContentLibraryAttempt = ContentPreviewSource & {
   readonly id: string;
   /** Empty when the source has not reached this device. */
   readonly title: string;
@@ -58,6 +77,11 @@ export type ContentLibraryScreenViewProps = {
   readonly playtests: readonly ContentLibraryAttempt[];
   readonly published: readonly ContentLibraryEdition[];
   readonly more: ContentLibraryMore;
+  /**
+   * The game's board preview for a puzzle definition, drawn small at the
+   * start of each row; without it a row shows what kind of thing it is.
+   */
+  readonly renderPreview?: ((definition: string) => JSX.Element) | undefined;
   readonly onOpenEdition: (revisionId: string) => void;
   readonly onOpenDraft: (documentId: string) => void;
   readonly onOpenAttempt: (attemptId: string) => void;
@@ -90,12 +114,23 @@ function PublishedContent(props: { view: View }): JSX.Element {
                 props.view.published.find((revision) => revision.id === id);
               return (
                 <MenuRow
+                  leading={
+                    <ContentThumbnail
+                      renderPreview={props.view.renderPreview}
+                      kind={entry()?.kind ?? 'puzzle'}
+                      preview={entry()?.preview}
+                    />
+                  }
                   title={entry()?.title}
-                  caption={entry()?.description}
-                  value={
-                    entry()?.kind === 'pack'
-                      ? t`Pack`
-                      : (entry()?.difficulty ?? '') || t`Puzzle`
+                  caption={
+                    <ContentRowCaption description={entry()?.description}>
+                      <ContentKindChip kind={entry()?.kind ?? 'puzzle'} />
+                      <Show when={entry()?.difficulty}>
+                        {(difficulty) => (
+                          <ContentDifficultyChip difficulty={difficulty()} />
+                        )}
+                      </Show>
+                    </ContentRowCaption>
                   }
                   onClick={() => props.view.onOpenEdition(id)}
                   dataSet={{ testid: `content-published-${id}` }}
@@ -125,8 +160,19 @@ function BundledPacks(props: { view: View }): JSX.Element {
         <For each={props.view.bundledPacks}>
           {(pack) => (
             <MenuRow
+              leading={
+                <ContentThumbnail
+                  renderPreview={props.view.renderPreview}
+                  kind={pack.kind}
+                  preview={pack.preview}
+                />
+              }
               title={pack.title}
-              caption={pack.description}
+              caption={
+                <ContentRowCaption description={pack.description}>
+                  <ContentKindChip kind={pack.kind} />
+                </ContentRowCaption>
+              }
               onClick={() => props.view.onOpenEdition(pack.id)}
               dataSet={{ testid: `content-bundled-${pack.document_id}` }}
             />
@@ -140,12 +186,6 @@ function BundledPacks(props: { view: View }): JSX.Element {
 function OwnedContent(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   const ids = () => props.view.drafts.map((draft) => draft.id);
-  const statusLabel = (status: ContentLibraryDraft['status'] | undefined) =>
-    status === 'published'
-      ? t`Published`
-      : status === 'withdrawn'
-        ? t`Withdrawn`
-        : t`Draft`;
   return (
     <>
       <Show when={ids().length > 0}>
@@ -156,8 +196,20 @@ function OwnedContent(props: { view: View }): JSX.Element {
                 props.view.drafts.find((entry) => entry.id === id);
               return (
                 <MenuRow
+                  leading={
+                    <ContentThumbnail
+                      renderPreview={props.view.renderPreview}
+                      kind={draft()?.kind ?? 'puzzle'}
+                      preview={draft()?.preview}
+                    />
+                  }
                   title={(draft()?.title ?? '') || t`Untitled draft`}
-                  value={statusLabel(draft()?.status)}
+                  caption={
+                    <ContentRowCaption>
+                      <ContentStatusChip status={draft()?.status ?? 'draft'} />
+                      <ContentKindChip kind={draft()?.kind ?? 'puzzle'} />
+                    </ContentRowCaption>
+                  }
                   onClick={() => props.view.onOpenDraft(id)}
                   dataSet={{ testid: `content-draft-${id}` }}
                 />
@@ -178,6 +230,7 @@ function OwnedContent(props: { view: View }): JSX.Element {
 }
 
 function SavedAttempts(props: {
+  view: View;
   mode: 'ordinary' | 'playtest';
   attempts: readonly ContentLibraryAttempt[];
   onOpenAttempt: (attemptId: string) => void;
@@ -210,18 +263,26 @@ function SavedAttempts(props: {
               props.attempts.find((entry) => entry.id === id);
             return (
               <MenuRow
-                title={(attempt()?.title ?? '') || t`Saved puzzle`}
-                trailing={
-                  <Badge
-                    label={
-                      attempt()?.completed === true
-                        ? t`Completed`
-                        : ordinary()
-                          ? t`In progress`
-                          : t`Playtest`
-                    }
-                    intent="neutral"
+                leading={
+                  <ContentThumbnail
+                    renderPreview={props.view.renderPreview}
+                    kind="puzzle"
+                    preview={attempt()?.preview}
                   />
+                }
+                title={(attempt()?.title ?? '') || t`Saved puzzle`}
+                caption={
+                  <ContentRowCaption>
+                    <ContentStatusChip
+                      status={
+                        attempt()?.completed === true
+                          ? 'completed'
+                          : ordinary()
+                            ? 'in-progress'
+                            : 'playtest'
+                      }
+                    />
+                  </ContentRowCaption>
                 }
                 onClick={() => props.onOpenAttempt(id)}
                 dataSet={{ testid: `content-attempt-${id}` }}
@@ -241,6 +302,7 @@ function Attempts(props: {
 }): JSX.Element {
   return (
     <SavedAttempts
+      view={props.view}
       mode={props.mode}
       attempts={
         props.mode === 'ordinary' ? props.view.attempts : props.view.playtests

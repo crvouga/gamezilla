@@ -220,3 +220,24 @@ describe('application palette', () => {
     });
   }
 });
+
+/** How far apart in L* the yellow and orange paths sit, in each scheme. */
+const YELLOW_ORANGE_STEP = 8;
+
+describe('path colors', () => {
+  // regression: numberlink-light-yellow-olive — the light scheme's yellow
+  // path was #8a6100, darker than its orange neighbour (L* 44 against 46),
+  // so a "3" pair read as a muddy olive beside the orange "2". Yellow now
+  // stays the lighter of the two by a clear step while it keeps 3:1 on the
+  // canvas, as every path colour must.
+  for (const scheme of ['light', 'dark'] as const) {
+    test(`${scheme}: yellow reads lighter than orange, not as olive`, () => {
+      const colors = COLOR_PALETTE[scheme];
+      const step = lightness(colors.pathYellow) - lightness(colors.pathOrange);
+      expect(step).toBeGreaterThanOrEqual(YELLOW_ORANGE_STEP);
+      expect(ratio(scheme, 'pathYellow', 'background')).toBeGreaterThanOrEqual(
+        GLYPH
+      );
+    });
+  }
+});
