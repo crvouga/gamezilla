@@ -538,6 +538,8 @@ Preview infrastructure changes rehearsal only: plan fleet and dev foundation
 
 Development and production reuse one deployment step list in `deploy.yml`. The release branch guard runs before setup in Verify PR's planning job; `verify:start`, `verify:shards` and `verify:end` keep their required status names. Rehearsal runs the same Verify PR gate, then read-only infrastructure plans, with the release path closed.
 
+If a completed runner leaves an OpenTofu bootstrap lock, first confirm that no bootstrap operation is active. Dispatch a Release rehearsal on the recovery branch with `abandoned-bootstrap-lock` set to the exact UUID in the lock error. The recovery calls `tofu force-unlock` for that UUID before planning; it never disables locking or changes infrastructure. Timed-out read commands receive `SIGINT` so OpenTofu can release its lock.
+
 `bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
 
 ## Laptop

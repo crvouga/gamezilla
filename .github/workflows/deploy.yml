@@ -25,6 +25,10 @@ on:
         type: boolean
         required: false
         default: false
+      abandoned-bootstrap-lock:
+        description: Exact lock UUID from a completed runner; confirm no bootstrap operation is active before recovery
+        type: string
+        required: false
 
 env:
   TURBO_UI: stream
@@ -59,6 +63,9 @@ jobs:
 
   deploy-rehearsal:
     name: Preview infrastructure changes
+    concurrency:
+      group: repository-policy
+      cancel-in-progress: false
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
     runs-on: ubuntu-24.04
@@ -88,6 +95,11 @@ jobs:
             echo "::error::Add GITHUB_ADMIN_TOKEN to the shared secret-store environment. CI needs repository administration access; the built-in workflow token cannot configure repository protections."
             exit 1
           fi
+      - name: Release explicitly identified abandoned bootstrap lock
+        if: ${{ inputs.abandoned-bootstrap-lock != '' }}
+        env:
+          TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-bootstrap-lock }}
+        run: bunx turbo run @libs/infra-server-ts#unlock:repository-policy
       - name: Plan repository policy without changing configuration
         run: bunx turbo run @libs/infra-server-ts#plan:repository-policy
       - name: Plan fleet without changing infrastructure
