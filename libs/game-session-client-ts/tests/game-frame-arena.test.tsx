@@ -391,8 +391,7 @@ test('wide: the card beside the players says how the game is played', () => {
       // Both lines are centred like the board.
       const lines = [...(about?.children ?? [])];
       expect(lines).toHaveLength(2);
-      for (const line of lines)
-        expect(line.className).toContain('text-center');
+      for (const line of lines) expect(line.className).toContain('text-center');
       // It keeps its own height, so the card centres it with the board
       // instead of ending in a band of empty room.
       expect(about?.className.split(' ')).not.toContain('flex-1');

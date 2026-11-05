@@ -204,12 +204,14 @@ test('a hand of thirteen cards lies in two rows of whole cards that never overla
   const card = rule(sheet, '.hand > .card {');
   // Each card is as wide as the row leaves it, at most 72px…
   expect(card).toMatch(
-    /--card-w:\s*min\(\s*72px,\s*\(100cqw - var\(--hand-span\) \* var\(--hand-gap\)\) \/ \(var\(--hand-span\) \+ 1\)\s*\);/
+    /--card-w:\s*min\(\s*72px,\s*\(100cqw - var\(--hand-span\) \* var\(--hand-gap\)\) \/\s*\(var\(--hand-span\) \+ 1\)\s*\);/
   );
   // …and steps along by its own width and the gap, never less.
-  expect(card).toMatch(/--step:\s*calc\(var\(--card-w\) \+ var\(--hand-gap\)\);/);
   expect(card).toMatch(
-    /margin-top:\s*calc\(\s*var\(--hand-row\) \* \(var\(--card-w\) \* 1\.4 \+ var\(--hand-row-gap\)\)\s*\);/
+    /--step:\s*calc\(var\(--card-w\) \+ var\(--hand-gap\)\);/
+  );
+  expect(card).toMatch(
+    /margin-top:\s*calc\(\s*var\(--hand-row\) \*\s*\(var\(--card-w\) \* 1\.4 \+ var\(--hand-row-gap\)\)\s*\);/
   );
   expect(card).toMatch(
     /margin-inline-start:\s*calc\(var\(--hand-step\) \* var\(--step\)\);/

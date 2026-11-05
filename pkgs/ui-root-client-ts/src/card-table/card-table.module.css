@@ -357,14 +357,16 @@
 .hand > .card {
   --card-w: min(
     72px,
-    (100cqw - var(--hand-span) * var(--hand-gap)) / (var(--hand-span) + 1)
+    (100cqw - var(--hand-span) * var(--hand-gap)) /
+    (var(--hand-span) + 1)
   );
   --step: calc(var(--card-w) + var(--hand-gap));
   grid-area: 1 / 1;
   align-self: start;
   justify-self: start;
   margin-top: calc(
-    var(--hand-row) * (var(--card-w) * 1.4 + var(--hand-row-gap))
+    var(--hand-row) *
+    (var(--card-w) * 1.4 + var(--hand-row-gap))
   );
   margin-inline-start: calc(var(--hand-step) * var(--step));
 }

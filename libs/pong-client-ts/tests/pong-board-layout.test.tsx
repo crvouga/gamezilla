@@ -177,9 +177,9 @@ test('the score is drawn in the court’s bright ink, each side named small unde
   mount(390);
   const score = rule('paddle-court/paddle-court.module.css', '.score');
   expect(score).toMatch(/fill:\s*var\(--ui-color-text\);/);
-  expect(
-    Number(/opacity: ([\d.]+)/.exec(score)?.[1])
-  ).toBeGreaterThanOrEqual(0.9);
+  expect(Number(/opacity: ([\d.]+)/.exec(score)?.[1])).toBeGreaterThanOrEqual(
+    0.9
+  );
   const first = screen.getByTestId('pong-court-score-first');
   const mark = screen
     .getByTestId('pong-drawing')
