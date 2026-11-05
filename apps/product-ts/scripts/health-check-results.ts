@@ -3,19 +3,19 @@
  * sample of `synthetic.check.result` per live feature the run selected (1
  * when every scenario it decided passed), sent to the environment's metrics
  * backend over OTLP. The service level objectives count these samples
- * (`libs/observability-shared-ts/src/synthetic-checks.ts`).
+ * (`libs/observability-server-ts/src/synthetic-checks.ts`).
  *
  * Recording never changes the run's verdict: a run that cannot record says
  * why, and the objectives' "no events" alert tells the team the checks have
  * gone quiet. Transport, clock and credentials are injected by `health.ts`.
  */
 
-import type { FeatureVerdict } from '@libs/observability-shared-ts/synthetic-checks';
+import type { FeatureVerdict } from '@libs/observability-server-ts/synthetic-checks';
 import {
   checkResults,
   checkResultsRequest,
   metricsEndpoint,
-} from '@libs/observability-shared-ts/synthetic-checks';
+} from '@libs/observability-server-ts/synthetic-checks';
 import type { EvidenceRecord } from '@pkgs/conformance-shared-ts/evidence';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { otlpAuthorization } from '@pkgs/observability-root-shared-ts/otlp-auth';

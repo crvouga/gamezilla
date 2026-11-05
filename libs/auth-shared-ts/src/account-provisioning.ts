@@ -95,10 +95,6 @@ export class AccountProvisioningService {
         {
           tx: this.tx,
           env: {
-            actorId: ownerId,
-            accountId: ownerId,
-            deviceId: '',
-            isAnon: false,
             now: () => new Date(nowIso),
             serverNow: () => new Date(now()),
             createId,

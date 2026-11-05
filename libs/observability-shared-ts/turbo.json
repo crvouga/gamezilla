@@ -6,13 +6,8 @@
       "dependsOn": [
         "@libs/product-identity-shared-ts#src",
         "@pkgs/observability-root-shared-ts#src",
-        "@pkgs/openslo-shared-ts#src",
-        "@pkgs/sync-engine-shared-ts#src"
+        "@pkgs/outbox-shared-ts#src"
       ]
-    },
-    "configure:slo": {
-      "cache": false,
-      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
     }
   }
 }

@@ -83,7 +83,8 @@ describe('AccountProvisioningService', () => {
     expect(resolved).toBe(userId);
   });
 
-  test('creates user and external_account row', async () => {
+  // regression: provisioning-telemetry-stale-context
+  test('creates user, external account and durable telemetry with the outbox context', async () => {
     const externalAccounts = new ExternalAccountRepository(sqlClient);
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
@@ -105,6 +106,15 @@ describe('AccountProvisioningService', () => {
         PRIMARY_AUTH_PROVIDER
       )
     ).toBe(EXTERNAL_USER_ID);
+    const events = await sqlClient.query(
+      sql<{ payload: string }>`SELECT payload FROM outbox_events`
+    );
+    expect(events).toHaveLength(1);
+    const payload = JSON.parse(events[0]!.payload);
+    expect(payload).toMatchObject({
+      attributes: { 'subject.id': expect.stringMatching(/^[a-f0-9]{64}$/) },
+    });
+    expect(events[0]!.payload).not.toContain(resolved);
   });
 
   test('repeated ensures resolve to the same account id and single link', async () => {

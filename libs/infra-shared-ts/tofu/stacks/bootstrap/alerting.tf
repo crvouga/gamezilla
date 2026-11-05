@@ -1,16 +1,19 @@
 # Stack-wide alerting: Grafana Synthetic Monitoring and its checks of every
-# environment, and the one notification policy and IRM integration every
+# environment, and the notification policy and IRM integrations every
 # environment's rules route through. The stack is shared by every
-# environment, so these live here, applied once by a person, rather than in
-# each environment's foundation (which owns that environment's rules, SLOs and
-# dashboards, modules/observability-views).
+# environment. Release reconciles these through the guarded --alerting scope.
+# Each environment's foundation owns its rules, SLOs and dashboards
+# (modules/observability-views).
 
 locals {
+  # Match the pinned Grafana provider's Cloud OnCall endpoint explicitly so
+  # the post-apply verifier and provider address the same backend.
+  irm_api_url    = "https://oncall-prod-us-central-0.grafana.net/oncall"
   envs           = var.envs
   production_env = one([for name, env in local.envs : name if env.protection == "production"])
   routing_ready = alltrue([
-    for value in [var.alerting.irm_responder, var.alerting.digest_email] :
-    value != null
+    for value in [var.alerting.irm_responder] :
+    value != null && try(trimspace(value) != "", false)
   ])
 }
 
@@ -47,6 +50,8 @@ provider "grafana" {
 }
 
 module "synthetic_monitoring" {
+  # Data queries must wait for the provider credential on a first apply.
+  depends_on   = [grafana_synthetic_monitoring_installation.this]
   source       = "../../modules/synthetic-monitoring"
   environments = local.envs
   probe        = var.alerting.probe
@@ -58,7 +63,7 @@ module "synthetic_monitoring" {
 
 # ---- Routing: IRM and the notification policy -----------------------------
 # Off until `alerting` in global.tfvars.json names the responder's IRM
-# username and the digest address. Until then alerts keep the stack's
+# username. Until then alerts keep the stack's
 # existing notification policy. In Grafana Cloud the provider reaches IRM
 # through the instance `url` and `auth`; no IRM address is needed.
 
@@ -79,16 +84,18 @@ resource "grafana_cloud_stack_service_account_token" "alerting" {
 }
 
 provider "grafana" {
-  alias = "alerting"
-  url   = module.trace_stack.url
-  auth  = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting[0].key : "routing-not-configured"
+  alias      = "alerting"
+  url        = module.trace_stack.url
+  auth       = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting[0].key : "routing-not-configured"
+  oncall_url = local.irm_api_url
 }
 
 module "alert_routing" {
+  # Provider references alone do not defer the module's user data lookup.
+  depends_on         = [grafana_cloud_stack_service_account_token.alerting]
   count              = local.routing_ready ? 1 : 0
   source             = "../../modules/alert-routing"
   responder          = var.alerting.irm_responder
-  digest_email       = var.alerting.digest_email
   paging_environment = local.production_env
   brand_name         = var.brand_name
   providers = {

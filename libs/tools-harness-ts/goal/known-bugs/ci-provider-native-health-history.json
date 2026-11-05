@@ -1,4 +1,4 @@
 {
   "summary": "A CI migration left the availability reader using the previous provider. Read all GitHub Health run pages and every job attempt, including failed originals and successful reruns. The availability objective now counts the checks' own samples in the metrics backend (each Health run records one per feature), so a run that never reports is no evidence, never a pass.",
-  "regressionTest": "libs/observability-shared-ts/tests/slo-live.test.ts"
+  "regressionTest": "libs/observability-server-ts/tests/slo-live.test.ts"
 }

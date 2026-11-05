@@ -1,10 +1,5 @@
 # live
-# People can host and join spaces, and the app can pass on what happens in a
-# space to everyone in it as it happens. The team checks both from outside on
-# every one of its regular checks (Spaces, Seeing each other play), and every
-# ten minutes that people's apps can reach the place live updates pass
-# through. Two people really seeing each other's moves is checked by the game
-# journeys.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -97,11 +92,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    In at least 97 of every 100 hours in which the team checked, hosting and
-    joining a space worked, judged over the last week. The team checks about
-    once an hour, so a week holds at most about 170 checks: 97 in 100 is the
-    strictest rate those checks can tell apart from chance. Joining a space
-    is how every game with other people starts.
+    People can host and join spaces. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: spaces
   indicatorRef: space-checks-passing
   timeWindow:
@@ -109,8 +102,8 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 97 of every 100 checked hours people can host and join spaces
-      target: 0.97
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h
 ---
@@ -123,12 +116,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    In at least 97 of every 100 hours in which the team checked, the app
-    could pass on what happens in a space to everyone in it, judged over the
-    last week. The team checks about once an hour, so a week holds at most
-    about 170 checks: 97 in 100 is the strictest rate those checks can tell
-    apart from chance. A game in which the other player never sees your move
-    cannot be played.
+    Live updates can reach everyone. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: spaces
   indicatorRef: live-update-checks-passing
   timeWindow:
@@ -136,8 +126,8 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 97 of every 100 checked hours live updates can reach everyone
-      target: 0.97
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h
 ---
@@ -150,10 +140,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    In at least 995 of every 1000 ten-minute checks, people's apps could
-    reach the place live updates pass through, judged over the last week. A
-    week holds about a thousand of these checks: this allows five failed
-    ones. While it cannot be reached nobody sees anyone else's moves.
+    Live updates can connect. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: spaces
   indicatorRef: broker-pings-answered
   timeWindow:
@@ -161,7 +150,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 995 of every 1000 checks people's apps can reach live updates
-      target: 0.995
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 10m

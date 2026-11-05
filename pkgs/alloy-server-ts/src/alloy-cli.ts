@@ -4,8 +4,8 @@
  * runs every `check` and `run` in the file (or those `command` matches, a
  * glob) and writes `receipt.json` (which commands ran, which found an
  * instance, the model's sigs) beside each instance as Alloy prints it. The jar is `ALLOY_JAR`, else the one mise
- * pins (`mise where http:alloy`); java is `JAVA_HOME/bin/java`, else `java`
- * on `PATH`, else mise's. The solver (SAT4J) is deterministic, so a verdict
+ * pins (`mise where http:alloy`); java is `JAVA_HOME/bin/java`, else mise's
+ * pinned JVM, else `java` on `PATH`. The solver (SAT4J) is deterministic, so a verdict
  * is a function of the model text.
  *
  * A JVM starts in about a second: batch every command of a model, and every
@@ -28,6 +28,7 @@ import { parseReceipt, solutionSummary } from '@pkgs/alloy-shared-ts/receipt';
 import type { SigInfo } from '@pkgs/alloy-shared-ts/sigs';
 import { modelSigs } from '@pkgs/alloy-shared-ts/sigs';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { javaCommand } from './java-command';
 
 /** Longer than any model or snapshot batch should take, even on a loaded CI box. */
 export const ALLOY_TIMEOUT_MS = 120_000;
@@ -60,20 +61,17 @@ function resolveJar(): string {
 
 function resolveJava(): string {
   const home = process.env['JAVA_HOME'];
-  if (home !== undefined && home.length > 0) {
-    const java = join(home, 'bin', 'java');
-    if (existsSync(java)) return java;
-    throw new Error(
-      `alloy: JAVA_HOME has no bin/java (${java}) — ${INSTALL_HINT}`
-    );
-  }
-  const onPath = Bun.which('java');
-  if (onPath !== null) return onPath;
-  const dir = miseWhere('java');
-  if (dir !== null && existsSync(join(dir, 'bin', 'java'))) {
-    return join(dir, 'bin', 'java');
-  }
-  throw new Error(`alloy: no java on PATH — ${INSTALL_HINT}`);
+  const explicit =
+    home === undefined || home.length === 0 ? null : join(home, 'bin', 'java');
+  const dir = explicit === null ? miseWhere('java') : null;
+  return javaCommand(
+    {
+      explicit,
+      managed: dir === null ? null : join(dir, 'bin', 'java'),
+      onPath: Bun.which('java'),
+    },
+    existsSync
+  );
 }
 
 /** The java binary and Alloy jar the engine runs, resolved once. */

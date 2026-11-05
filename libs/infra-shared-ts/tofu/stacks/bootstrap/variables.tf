@@ -123,10 +123,9 @@ variable "ci_artifacts" {
 }
 
 variable "alerting" {
-  description = "Stack-wide alerting (stacks/bootstrap/alerting.tf). Routing stays off while the responder or the digest address is null."
+  description = "Stack-wide alerting (stacks/bootstrap/alerting.tf). Routing stays off until the responder is configured."
   type = object({
     probe         = string
     irm_responder = optional(string)
-    digest_email  = optional(string)
   })
 }

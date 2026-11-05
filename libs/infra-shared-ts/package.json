@@ -24,6 +24,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@huggingface/jinja": "catalog:",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/resource-naming-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

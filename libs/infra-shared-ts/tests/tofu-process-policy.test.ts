@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
+  mayPrintToolStdout,
   repositoryUnlockArgs,
   toolDeadline,
 } from '@libs/infra-shared-ts/tofu-process-policy';
@@ -7,6 +8,21 @@ import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
 const paths = { tofuDir: '/tofu', cacheDir: '/cache' };
+
+// regression: tofu-output-timeout-secret-leak
+test('state-bearing stdout remains private even if OpenTofu times out', () => {
+  for (const operation of ['output', 'show', 'state']) {
+    expect(mayPrintToolStdout(operation, true)).toBe(false);
+    expect(mayPrintToolStdout(operation, false)).toBe(false);
+  }
+  expect(mayPrintToolStdout('plan', false)).toBe(true);
+  assertProperty(
+    'captured output never becomes diagnostic stdout',
+    fc.property(fc.string(), (operation) => {
+      expect(mayPrintToolStdout(operation, true)).toBe(false);
+    })
+  );
+});
 
 // regression: tofu-plan-abandoned-lock
 test('the timed-out repository plan interrupts rather than killing state-lock cleanup', () => {

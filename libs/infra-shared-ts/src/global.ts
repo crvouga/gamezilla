@@ -67,13 +67,12 @@ export const globalFileSchema = z
     /**
      * Stack-wide alerting (stacks/bootstrap/alerting.tf): the public probe
      * Synthetic Monitoring checks from, and the IRM routing, which stays off
-     * while the responder or the digest address is null.
+     * while the responder is null.
      */
     alerting: z
       .object({
         probe: id,
         irm_responder: id.nullable(),
-        digest_email: z.email().nullable(),
       })
       .strict(),
     github: z

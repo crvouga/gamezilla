@@ -514,7 +514,7 @@
     "libs/db-shared-ts/src/**/*.ts",
     "libs/observability-shared-ts/src/**/*.ts",
     "libs/observability-server-ts/src/**/*.ts",
-    "libs/observability-shared-ts/scripts/**/*.ts",
+    "libs/observability-server-ts/scripts/**/*.ts",
     "libs/observability-shared-ts/tests/**/*.ts",
     "libs/observability-server-ts/tests/**/*.ts",
     "libs/pubsub-shared-ts/src/**/*.ts",

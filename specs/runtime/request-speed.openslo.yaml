@@ -1,9 +1,5 @@
 # live
-# The app answers people quickly. Measured from the requests people's devices
-# really make to the live app, so it is the wait people live with, not the
-# wait on a quiet day in the team's own checks. Reading and saving (a move in
-# a game among them) and signing in are held apart, so a slow one cannot hide
-# inside a quick total.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -149,11 +145,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 85 in every 100 reads and saves are answered within half a
-    second, judged over the last week. Within about half a second a tap
-    feels immediate. Today about 87 in 100 are; the team holds that line
-    while it works towards 95 in 100, which a move in a game should feel
-    like.
+    Saves and loads are quick. At least 99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: saves-and-loads-answered-within-half-a-second
   timeWindow:
@@ -161,8 +155,8 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 85 in every 100 reads and saves are answered within half a second
-      target: 0.85
+    - displayName: At least 99% meet this promise
+      target: 0.99
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -173,11 +167,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 97 in every 100 reads and saves are answered within a second,
-    judged over the last week. A second is where a move or a change stops
-    feeling live, so the slow ones are held to a promise of their own rather
-    than hidden inside an average. Today about 98 in 100 are, a thin margin;
-    the team works towards 99 in 100.
+    Saves and loads never stall. At least 99.9% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: saves-and-loads-answered-within-a-second
   timeWindow:
@@ -185,8 +177,8 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 97 in every 100 reads and saves are answered within a second
-      target: 0.97
+    - displayName: At least 99.9% meet this promise
+      target: 0.999
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -197,10 +189,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 95 in every 100 requests that sign people in or keep them
-    signed in are answered within a quarter of a second, judged over the
-    last week. They come before everything else a person does, so a slow one
-    delays the whole visit.
+    Signing in is quick. At least 99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: sign-in-requests-answered-within-a-quarter-second
   timeWindow:
@@ -208,8 +199,8 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 95 in every 100 signing-in requests are answered within a quarter of a second
-      target: 0.95
+    - displayName: At least 99% meet this promise
+      target: 0.99
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -220,8 +211,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 99 in every 100 requests that sign people in or keep them
-    signed in are answered within a second, judged over the last week.
+    Signing in never stalls. At least 99.9% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: sign-in-requests-answered-within-a-second
   timeWindow:
@@ -229,8 +221,8 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 99 in every 100 signing-in requests are answered within a second
-      target: 0.99
+    - displayName: At least 99.9% meet this promise
+      target: 0.999
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -241,11 +233,9 @@ metadata:
     tier: "1"
 spec:
   description: >-
-    At least 99 in every 100 requests people wait on are answered within two
-    and a half seconds, judged over the last week. Past that a person
-    assumes something is broken, taps again, or leaves. It covers every
-    request people wait on, joining a room and paying among them, which the
-    promises above do not.
+    The app never leaves people waiting. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: people-requests-answered-within-two-and-a-half-seconds
   timeWindow:
@@ -253,5 +243,5 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 99 in every 100 requests people wait on are answered within two and a half seconds
-      target: 0.99
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999

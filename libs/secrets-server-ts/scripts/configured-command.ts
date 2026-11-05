@@ -46,7 +46,7 @@ const tasks =
   mode === 'fixture'
     ? [
         '@libs/tools-harness-ts#generate:brand-artifacts',
-        '@libs/observability-shared-ts#generate:slo',
+        '@libs/observability-server-ts#generate:slo',
         '@libs/tools-harness-ts#generate:identity-agents',
       ]
     : ['@libs/tools-harness-ts#configure:brand'];
