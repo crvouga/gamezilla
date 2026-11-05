@@ -84,6 +84,16 @@ describe('game surfaces', () => {
       'game-section/game-section-media.module.css',
       '.sectionMedia'
     );
+    // regression: wide-setup-unbalanced — wide, the card beside the players
+    // holds the preview and how the game is played, spaced apart.
+    const pairCss = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    const wide = pairCss.slice(
+      pairCss.indexOf('@container game-section (min-width: 40rem)')
+    );
+    expect(wide).toMatch(/\.sectionMedia \{[^}]*gap: var\(--ui-space-4\);/);
     expect(media).toContain('--game-board-preview-measure: 48px');
     const pair = readFileSync(
       join(UI_SRC, 'game-section/game-section-media.module.css'),
