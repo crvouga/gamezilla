@@ -50,13 +50,13 @@ function Drawing(props: {
         when={mode() === 'wide'}
         fallback={
           <P variant="caption" tone="secondary">
-            <Trans>Drag from a number to its match to draw a path.</Trans>
+            <Trans>Drag from a number to its match.</Trans>
           </P>
         }
       >
         <KeyHints
           testId="numberlink-key-hints"
-          lead={t`Drag a number to its match.`}
+          lead={t`Drag from a number to its match.`}
           hints={[
             { keys: [t`Enter`], label: t`start or end` },
             { keys: [t`Arrows`], label: t`draw` },

@@ -1,0 +1,4 @@
+{
+  "summary": "A 5 × 5 Numberlink grid filled its whole 540px column, each square over 100px, a poster beside a nearly empty panel. A path-grid square is now at most 80px, so a small grid is a comfortable board (400px for 5 × 5) and a large one still fills its column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/path-grid-input.contract.test.tsx"
+}

@@ -2,18 +2,22 @@
 /** A puzzle attempt: the board and its commands first, the puzzle panel after. */
 
 import { afterEach, expect, test } from 'bun:test';
-import { ContentAttemptScreenView } from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
+import {
+  type AttemptFigure,
+  ContentAttemptScreenView,
+} from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-function mount(width: number): void {
+function mount(width: number, figures: readonly AttemptFigure[] = []): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
       <ContentAttemptScreenView
         status="ready"
+        figures={figures}
         attempt={{
           id: 'attempt-1',
           sourceId: 'revision-1',
@@ -131,3 +135,30 @@ for (const width of [390, 1440]) {
     expect(save.textContent).toBe('Progress saved on this device.');
   });
 }
+
+// regression: numberlink-progress-card-empty — beside a Numberlink board the
+// puzzle panel held only its pack's place, a bar and "Progress saved on
+// this device.", though the game counts its connected pairs and covered
+// cells. The panel now shows the game's own figures for the attempt, under
+// the pack's bar, and shows nothing more when the game gives none.
+test("the puzzle panel shows the game's own figures for the attempt", () => {
+  mount(1440, [
+    { key: 'connectedPairs', label: 'Connected pairs', value: '2' },
+    { key: 'coveredCells', label: 'Covered cells', value: '13' },
+  ]);
+  const panel = screen.getByTestId('puzzle-attempt-panel');
+  const figures = screen.getByTestId('puzzle-attempt-figures');
+  expect(panel.contains(figures)).toBe(true);
+  expect(figures.getAttribute('data-component')).toBe('MetricStrip');
+  expect(
+    [...figures.querySelectorAll('dt')].map((term) => term.textContent)
+  ).toEqual(['Connected pairs', 'Covered cells']);
+  expect(figures.textContent).toContain('2');
+  expect(figures.textContent).toContain('13');
+  expect(
+    follows(screen.getByTestId('puzzle-attempt-pack-track'), figures)
+  ).toBe(true);
+  cleanup();
+  mount(1440);
+  expect(screen.queryByTestId('puzzle-attempt-figures')).toBeNull();
+});

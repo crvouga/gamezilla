@@ -8,6 +8,7 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
 import {
+  type AttemptFigure,
   type ContentAttemptPack,
   ContentAttemptScreenView,
   type ContentAttemptStatus,
@@ -79,9 +80,23 @@ function AttemptBody(props: {
           game: game.content,
         });
   });
+  // The game's own figures for where the attempt stands, by its labels.
+  const figures = createMemo((): AttemptFigure[] => {
+    const state = progress()?.state;
+    if (state === undefined) return [];
+    const values =
+      game.content.statistics?.(props.source.definition, state) ?? {};
+    return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
+      const value = values[key];
+      return value === undefined
+        ? []
+        : [{ key, label: label(), value: String(value) }];
+    });
+  });
   return (
     <ContentAttemptScreenView
       status="ready"
+      figures={figures()}
       attempt={summaryOf(props.attempt, props.source)}
       pack={packPlace(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}

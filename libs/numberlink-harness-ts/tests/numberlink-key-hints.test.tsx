@@ -33,20 +33,22 @@ test('wide, the keyboard hint is key caps beside short labels, not a paragraph',
       (key) => key.textContent
     );
     expect(keys).toEqual(['Enter', 'Arrows', 'Esc', 'Del']);
-    expect(hint.textContent).toContain('Drag a number to its match.');
+    expect(hint.textContent).toContain('Drag from a number to its match.');
     expect(hint.textContent).not.toContain('press Enter again');
   } finally {
     view.unmount();
   }
 });
 
-test('on a phone the hint is the drag alone', () => {
+// regression: numberlink-hint-wording-differs — wide, the hint read "Drag a
+// number to its match." while a phone said "Drag from a number to its match
+// to draw a path.": two wordings for one gesture. Both now say "Drag from a
+// number to its match."; wide adds only the keys.
+test('on a phone the hint is the drag alone, in the words a wide screen uses', () => {
   const view = mount(390);
   try {
     expect(view.queryByTestId('numberlink-key-hints')).toBeNull();
-    expect(
-      view.getByText('Drag from a number to its match to draw a path.')
-    ).toBeDefined();
+    expect(view.getByText('Drag from a number to its match.')).toBeDefined();
   } finally {
     view.unmount();
   }

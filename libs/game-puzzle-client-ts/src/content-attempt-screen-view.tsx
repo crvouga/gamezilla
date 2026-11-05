@@ -6,6 +6,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
@@ -60,9 +61,38 @@ export type ContentAttemptScreenViewProps = {
   readonly controls?: JSX.Element;
   /** Earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
+  /**
+   * The game's own figures for where the attempt stands, by its labels
+   * (`Connected pairs 2`, `Moves 12`); empty when it gives none.
+   */
+  readonly figures?: readonly AttemptFigure[] | undefined;
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
 };
+
+/** One of the game's figures for the attempt: its label and value. */
+export type AttemptFigure = {
+  readonly key: string;
+  readonly label: string;
+  readonly value: string;
+};
+
+/** Where the attempt stands in the game's own figures, under the pack's bar. */
+function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Show when={(props.figures?.length ?? 0) > 0}>
+      <MetricStrip
+        aria-label={t`This attempt`}
+        dataSet={{ testid: 'puzzle-attempt-figures' }}
+        metrics={(props.figures ?? []).map((figure) => ({
+          label: figure.label,
+          value: figure.value,
+        }))}
+      />
+    </Show>
+  );
+}
 
 /** Where the last change stands: saved, or still being saved. */
 function SaveStatus(props: ContentAttemptScreenViewProps): JSX.Element {
@@ -157,7 +187,7 @@ function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
  * game's record is. Compact, what is useful first: its heading says where
  * the puzzle sits in its pack ("Puzzle 3 of 4 in Warehouse basics", or
  * "This puzzle" on its own) over a bar of how far through the pack it is,
- * then a playtest's note and the completion, and last the save status in
+ * then the game's own figures for the attempt, a playtest's note and the completion, and last the save status in
  * one short quiet line. It is secondary: the attempt's commands sit with
  * the board, not at the panel's foot.
  */
@@ -173,6 +203,7 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
       <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
+      <AttemptFigures {...props} />
       <SaveStatus {...props} />
       <Show when={props.playtest}>
         <Notice>

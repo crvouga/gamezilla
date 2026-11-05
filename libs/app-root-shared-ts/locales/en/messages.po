@@ -2479,12 +2479,8 @@ msgid "Draft created"
 msgstr "Draft created"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag a number to its match."
-msgstr "Drag a number to its match."
-
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match to draw a path."
-msgstr "Drag from a number to its match to draw a path."
+msgid "Drag from a number to its match."
+msgstr "Drag from a number to its match."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Drag up and down along your edge of the court."
@@ -7457,6 +7453,10 @@ msgstr "This account already has a sign-in method from that provider. Remove it 
 #: libs/account-privacy-client-ts/src/use-account-deletion.tsx
 msgid "This account was already deleted. Sign in again to start a new account."
 msgstr "This account was already deleted. Sign in again to start a new account."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "This attempt"
+msgstr "This attempt"
 
 #: libs/game-puzzle-client-ts/src/puzzle-result-announcement.tsx
 msgid "This attempt was unrated."
