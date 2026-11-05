@@ -7,7 +7,7 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import type { JSX } from 'solid-js';
+import type { Accessor, JSX } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { ContentPublicationControlsView } from './content-publication-controls-view';
 import { useContentPublicationStatus } from './content-publication-status';
@@ -61,7 +61,7 @@ export function ContentPublicationControls(props: {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
-  before?: ((next: boolean) => JSX.Element) | undefined;
+  before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
 }): JSX.Element {
   const tools = useContentPublication(props);
   const game = useContentGame();

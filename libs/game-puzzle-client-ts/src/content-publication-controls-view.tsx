@@ -8,7 +8,15 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+  untrack,
+} from 'solid-js';
 import { ContentWithdraw } from './content-withdraw';
 
 /**
@@ -45,9 +53,11 @@ export type ContentPublicationControlsViewProps = {
   readonly layout?: 'stacked' | 'bar' | undefined;
   /**
    * A step before the check (a puzzle's playtest), first among the
-   * actions; told whether it is the one next step, to be filled.
+   * actions; told whether it is the one next step, to be filled. Called
+   * once: the step stays mounted, with its own state, as the draft's
+   * check changes.
    */
-  readonly before?: ((next: boolean) => JSX.Element) | undefined;
+  readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -245,9 +255,12 @@ export function ContentPublicationControlsView(
       props.validation,
       props.kind === 'puzzle' && !props.proven
     );
+  const playtestNext = createMemo(() => next() === 'playtest');
+  // Mounted once, so a started playtest keeps its "Open playtest".
+  const before = untrack(() => props.before?.(playtestNext));
   const actions = (): JSX.Element => (
     <StackHorizontal gap="sm" wrap>
-      {props.before?.(next() === 'playtest')}
+      {before}
       <Button
         {...validate.buttonProps}
         intent={next() === 'validate' ? 'primary' : 'neutral'}

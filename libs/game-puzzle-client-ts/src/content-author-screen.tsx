@@ -111,7 +111,7 @@ function AuthorWorkspaceScreen(props: {
               <ContentDraftPlaytest
                 documentId={props.document.id}
                 writer={writer}
-                next={next}
+                next={next()}
                 disabled={workspace.disabled()}
               />
             </Show>

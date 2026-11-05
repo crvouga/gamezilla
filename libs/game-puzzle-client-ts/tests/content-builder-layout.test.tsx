@@ -16,7 +16,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import { createEffect, createSignal, type JSX } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -92,7 +92,7 @@ test('until a playtest proves a puzzle, the playtest is the one filled step', ()
     publication({
       kind: 'puzzle',
       before: (isNext) => {
-        next.push(isNext);
+        next.push(isNext());
         return <span data-testid="playtest" />;
       },
     })
@@ -108,7 +108,7 @@ test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', 
       kind: 'puzzle',
       proven: true,
       before: (isNext) => {
-        next.push(isNext);
+        next.push(isNext());
         return <span data-testid="playtest" />;
       },
     })
@@ -406,4 +406,43 @@ test('on a phone the save line joins the subtitle and the stage tools share the 
   expect(preview.getAttribute('data-variant')).toBe('ghost');
   expect(preview.getAttribute('data-size')).toBe('sm');
   expect(preview.textContent).toBe('Preview');
+});
+
+// regression: builder-playtest-remounts — the playtest step was rebuilt
+// each time the draft's check changed, so a started playtest lost its
+// "Open playtest" and the Sokoban journey could not open it. The step is
+// mounted once and only told whether it is the next one.
+test('the playtest step stays mounted as the check changes, told when it is next', () => {
+  const [validation, setValidation] = createSignal<
+    'unchecked' | 'valid' | 'invalid' | null
+  >('unchecked');
+  const [proven, setProven] = createSignal(false);
+  let mounts = 0;
+  const seen: boolean[] = [];
+  mount(() => (
+    <ContentPublicationControlsView
+      kind="puzzle"
+      validation={validation()}
+      validationMessage=""
+      proven={proven()}
+      pending={null}
+      published={false}
+      disabled={false}
+      onValidate={resolved}
+      onPublish={resolved}
+      onViewPublication={() => undefined}
+      onWithdraw={resolved}
+      before={(isNext) => {
+        mounts += 1;
+        createEffect(() => seen.push(isNext()));
+        return <span data-testid="playtest" />;
+      }}
+    />
+  ));
+  setValidation(null);
+  setValidation('unchecked');
+  setProven(true);
+  setValidation('valid');
+  expect(mounts).toBe(1);
+  expect(seen).toEqual([true, false]);
 });

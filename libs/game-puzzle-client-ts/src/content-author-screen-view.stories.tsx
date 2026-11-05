@@ -38,7 +38,7 @@ function publication(
           : (next) => (
               <StoryPlaytest
                 disabled={overrides.disabled === true}
-                next={next}
+                next={next()}
               />
             )
       }

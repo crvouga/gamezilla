@@ -47,7 +47,7 @@ export function StoryPuzzleBuilder(props: {
         <ContentPublicationControlsView
           layout="bar"
           before={(next) => (
-            <StoryPlaytest disabled={props.disabled} next={next} />
+            <StoryPlaytest disabled={props.disabled} next={next()} />
           )}
           kind="puzzle"
           validation="unchecked"
