@@ -225,6 +225,6 @@ test('a square is at most 80px, so a small grid never fills a wide column', () =
   );
   const board = css.slice(css.indexOf('.board {'));
   expect(board.slice(0, board.indexOf('aspect-ratio'))).toMatch(
-    /max-width: min\([\s\S]*var\(--board-fit-block-size, 100000px\)[\s\S]*calc\(var\(--path-columns\) \* 80px\)\s*\);/
+    /width: min\(100%, calc\(var\(--path-columns\) \* 80px\)\);/
   );
 });

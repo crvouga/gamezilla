@@ -45,17 +45,15 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
-  width: 100%;
+  /* A square is at most 80px, so a small grid (5 × 5) is a comfortable
+     board, not a poster across the column. */
+  width: min(100%, calc(var(--path-columns) * 80px));
   /* A host that bounds its height (a card's picture) says how tall the
-     board may be; everywhere a square is at most 80px, so a small grid
-     (5 × 5) is a comfortable board, not a poster across the column. */
-  max-width: min(
-    calc(
-      var(--board-fit-block-size, 100000px) *
-      var(--path-columns) /
-      var(--path-rows)
-    ),
-    calc(var(--path-columns) * 80px)
+     board may be; elsewhere this is unset and so is the cap. */
+  max-width: calc(
+    var(--board-fit-block-size) *
+    var(--path-columns) /
+    var(--path-rows)
   );
   aspect-ratio: var(--path-columns) / var(--path-rows);
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
