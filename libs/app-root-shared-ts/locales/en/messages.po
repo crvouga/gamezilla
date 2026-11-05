@@ -4926,8 +4926,8 @@ msgid "Play published puzzles, continue your attempts, or build something of you
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Play with friends or bots"
-msgstr "Play with friends or bots"
+msgid "Play with friends"
+msgstr "Play with friends"
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
