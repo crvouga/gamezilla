@@ -422,6 +422,18 @@
       560px
     );
   }
+  /* A board that brings its own switch between two panels (and the key to
+     its marks under it) leaves room for both, so the seat under the board
+     still shows without scrolling. */
+  .layout[data-has-stage="true"][data-has-aside="true"]:has(
+    .stage [data-paired-panels]
+  ) {
+    --game-board-chrome-block: calc(
+      284px +
+      var(--ui-space-16) +
+      var(--ui-space-8)
+    );
+  }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
     grid-template-columns:

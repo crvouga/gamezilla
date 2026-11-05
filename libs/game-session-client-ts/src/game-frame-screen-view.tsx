@@ -357,13 +357,37 @@ function railCaption(
   props: Props,
   mode: ReturnType<typeof useLayoutMode>
 ): string | undefined {
-  return (arenaBeside(props, mode) || unplayedBeside(props, mode)) &&
-    props.status !== null &&
-    props.status.tone === 'neutral' &&
-    !props.status.sending &&
-    props.status.description !== ''
-    ? props.status.description
+  const status = props.status;
+  if (
+    status === null ||
+    status.tone !== 'neutral' ||
+    status.sending ||
+    status.description === ''
+  )
+    return undefined;
+  return arenaBeside(props, mode) ||
+    unplayedBeside(props, mode) ||
+    recordCaptioned(props, mode)
+    ? status.description
     : undefined;
+}
+
+/**
+ * Beside a wide board during play, the game's own line about the turn
+ * (`Red fleet fired at C4 and missed. Your turn to fire.`) heads the record
+ * card, so the board and the seats around it fit the window's height. The
+ * plain `<Side> to move.` stays with the seat that says it.
+ */
+function recordCaptioned(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  return (
+    props.phase === 'active' &&
+    props.status?.plainTurn !== true &&
+    asideRecord(props, mode) !== null &&
+    commandsInRecord(props, mode)
+  );
 }
 
 /**
@@ -453,6 +477,7 @@ function FrameRecordPanelAside(props: Props): JSX.Element {
           {...props}
           record={shown()}
           layout="panel"
+          caption={railCaption(props, mode)}
           commands={
             <Show when={commandsInRecord(props, mode)}>
               <FrameActions {...props} width="content" />

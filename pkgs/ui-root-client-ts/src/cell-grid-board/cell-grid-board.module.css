@@ -1,5 +1,7 @@
-/* The battleship palette by default; a checkered board keeps the app's own. */
-.board:not([data-board-theme="checkered"]) {
+/* The battleship palette by default; a checkered board keeps the app's own.
+   A legend's marks are drawn in the board's palette too. */
+.board:not([data-board-theme="checkered"]),
+.legendMark {
   --ui-color-background: var(--ui-color-game-battleship-canvas);
   --color-background: var(--ui-color-background);
   --ui-color-surface: var(--ui-color-game-battleship-surface);
@@ -388,4 +390,30 @@
     var(--ui-color-game-sokoban-surface) 0 24%,
     transparent 26%
   );
+}
+
+/* The key to the board's marks: small cells as the board draws them, each
+   beside its meaning, in the app's own quiet ink. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ui-space-2) var(--ui-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-sm);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+}
+.legendMark {
+  width: var(--ui-space-6);
+  cursor: default;
+}
+.legendMark .glyph {
+  font-size: var(--ui-font-size-sm);
 }

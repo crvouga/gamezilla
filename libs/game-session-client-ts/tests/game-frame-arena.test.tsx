@@ -295,3 +295,45 @@ test('phone and wide: the board preview of a game being set up is in the Players
     cleanup();
   }
 });
+
+// regression: battleship-own-seat-below-fold — on a 900px-tall window
+// Battleship's turn line sat under the board, pushing the person's own seat
+// ("Your move") below the fold. Beside a wide board during play the game's
+// own line heads the record card instead; the plain `<Side> to move.` stays
+// with the seat that says it.
+test("wide: during play the game's own turn line heads the record card, not the board", () => {
+  const time = createHarnessClock();
+  const line = 'Red fleet fired at C4 and missed. Your turn to fire.';
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          status={{ ...props().status!, description: line }}
+          record={{
+            ...RECORD,
+            turns: true,
+            moves: ['a1', 'b2'],
+            displayedPly: 2,
+          }}
+          table={{
+            shape: 'strip',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const card = document.querySelector('[data-component="CustomGameReview"]');
+  expect(card?.textContent).toContain(line);
+  expect(
+    screen
+      .getByTestId('custom-game-status')
+      .closest('[data-component="GameTurnPill"]')
+      ?.getAttribute('data-spoken-only')
+  ).toBe('true');
+});

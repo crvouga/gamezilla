@@ -71,3 +71,34 @@ test('the board fills its column, edge to edge with the seats', () => {
     document.querySelectorAll('[data-fill="true"]').length
   ).toBeGreaterThan(0);
 });
+
+// regression: battleship-marks-unexplained — nothing said which mark was a
+// miss, a hit or a sunk ship (outlined ✕ against filled ✖). A key under the
+// boards draws each mark as the grid does, beside its name; a watcher, who
+// sees no fleet, is not shown a ship.
+test('a key under the boards names every mark the grids draw', () => {
+  const board = (setup: string | null) =>
+    renderBoard(() => (
+      <BattleshipBoard
+        position={encodeBattleshipPosition(['a1:hit'])}
+        orientation="white"
+        interactive={setup !== null}
+        sound={false}
+        syncKey={0}
+        setup={setup}
+        hand={null}
+        committed={[]}
+        commitment={null}
+        testId="board"
+        onAction={() => undefined}
+      />
+    ));
+  board(FLEET);
+  const key = byTestId('board-key');
+  const named = [...key.querySelectorAll('li')].map((item) => item.textContent);
+  expect(named).toEqual(['■Ship', '•Miss', '✕Hit', '✖Sunk']);
+  expect(key.getAttribute('aria-label')).toBe('Key');
+  cleanup();
+  board(null);
+  expect(byTestId('board-key').textContent).not.toContain('Ship');
+});

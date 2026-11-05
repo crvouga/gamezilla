@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
 
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
   CardTable,
   type CardTableCard,
   type CardTableHandCard,
 } from '@pkgs/ui-root-client-ts/card-table';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
