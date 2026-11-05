@@ -8,10 +8,12 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { EyeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
@@ -56,7 +58,7 @@ export type ContentAuthorScreenViewProps = {
   readonly publication?: JSX.Element;
   /** The game's editor, the pack editor, or the preview. */
   readonly stage?: JSX.Element;
-  /** Earlier kept copies to choose from. */
+  /** The draft's other saved copies, to keep working from one. */
   readonly keptCopies?: JSX.Element;
   readonly onChangeBody: (body: ContentBody) => void;
   readonly onSaveAgain: () => void;
@@ -93,8 +95,8 @@ function SaveStatus(props: ContentAuthorScreenViewProps): JSX.Element {
       <Show when={props.conflicted}>
         <Notice tone="warning">
           <Trans>
-            A different working copy was kept. Choose the copy you want below
-            before publishing.
+            Another device saved a different copy of this draft. Choose the copy
+            to keep working from under Draft copies before publishing.
           </Trans>
         </Notice>
       </Show>
@@ -102,22 +104,62 @@ function SaveStatus(props: ContentAuthorScreenViewProps): JSX.Element {
   );
 }
 
-/** Undo, redo, preview and playtest beside the builder. */
-function AuthorActions(props: ContentAuthorScreenViewProps): JSX.Element {
+/**
+ * The editing tools, heading the stage they act on: undo and redo of this
+ * session's edits, and a look at the draft as a player sees it.
+ */
+function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <>
+    <StackHorizontal
+      gap="sm"
+      wrap
+      align="center"
+      dataSet={{ testid: 'content-author-tools' }}
+    >
       {props.history}
       <Button
         title={props.preview ? t`Return to editing` : t`Preview`}
         intent="neutral"
-        variant="outline"
+        variant="ghost"
+        startIcon={<EyeIcon size={20} />}
         onClick={() => props.onTogglePreview()}
         disabled={props.disabled}
         dataSet={{ testid: 'content-preview' }}
       />
-      <Show when={props.kind === 'puzzle'}>{props.playtest}</Show>
-    </>
+    </StackHorizontal>
+  );
+}
+
+/**
+ * Beside the stage on a wide screen, after it on a phone: the draft's
+ * details, then publishing it (a puzzle's playtest proves it first). The
+ * draft's other saved copies follow the stage.
+ */
+function AuthorRail(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackVertical gap="lg">
+      <GameSection title={t`Details`}>
+        <ContentDraftMetadata
+          body={props.body}
+          disabled={props.metadataDisabled}
+          onChange={props.onChangeBody}
+        />
+      </GameSection>
+      <GameSection
+        title={t`Publish`}
+        description={
+          props.kind === 'pack'
+            ? t`Check it, then share it with everyone who plays.`
+            : t`Playtest it, check it, then share it with everyone who plays.`
+        }
+        dataSet={{ testid: 'content-author-publish' }}
+      >
+        <Show when={props.kind === 'puzzle'}>{props.playtest}</Show>
+        {props.publication}
+      </GameSection>
+    </StackVertical>
   );
 }
 
@@ -132,30 +174,27 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
     >
       <GameSessionLayout
         notices={<SaveStatus {...props} />}
-        aside={
-          <StackVertical gap="lg">
-            <ContentDraftMetadata
-              body={props.body}
-              disabled={props.metadataDisabled}
-              onChange={props.onChangeBody}
-            />
-            {props.publication}
-          </StackVertical>
-        }
-        actions={<AuthorActions {...props} />}
+        aside={<AuthorRail {...props} />}
       >
-        {props.stage}
+        <StackVertical gap="lg">
+          <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
+            <AuthorTools {...props} />
+            {props.stage}
+          </StackVertical>
+          {props.keptCopies}
+        </StackVertical>
       </GameSessionLayout>
-      {props.keptCopies}
     </GameScreen>
   );
 }
 
 /**
- * The puzzle or pack builder, presentational: the draft's details, its
- * save status, the game's editor or a preview, undo / redo, playtest,
- * validation and publication, and the kept copies — or loading, denied
- * and not-on-this-device states. Smart widgets arrive as slots.
+ * The puzzle or pack builder, presentational, one layout for both: the
+ * editing tools heading the stage (the game's editor, the pack's puzzles,
+ * or a preview), and beside it the draft's details, publishing it and its
+ * draft copies — or loading, denied and not-on-this-device states. The
+ * host's bar holds the way back to the puzzles. Smart widgets arrive as
+ * slots.
  */
 export function ContentAuthorScreenView(
   props: ContentAuthorScreenViewProps

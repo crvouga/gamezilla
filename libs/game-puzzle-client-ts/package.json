@@ -66,6 +66,7 @@
   "category": "client",
   "gameApi": [
     "content-attempt-story.example",
+    "content-builder-story.example",
     "puzzle-content-client",
     "puzzle-client",
     "puzzle-screen-story.example"

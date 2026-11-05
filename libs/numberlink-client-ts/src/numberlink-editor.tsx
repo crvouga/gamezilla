@@ -164,37 +164,8 @@ export function NumberlinkEditorView(
       }
     >
       {(board) => (
+        // The board leads; its size and coverage, changed rarely, follow.
         <StackVertical gap="lg">
-          <NumberStepper
-            label={t`Columns`}
-            dataSet={{ testid: 'numberlink-columns' }}
-            value={board().width}
-            min={2}
-            max={20}
-            disabled={props.disabled}
-            onChange={(n) => editor.resize('width', n)}
-          />
-          <NumberStepper
-            label={t`Rows`}
-            dataSet={{ testid: 'numberlink-rows' }}
-            value={board().height}
-            min={2}
-            max={20}
-            disabled={props.disabled}
-            onChange={(n) => editor.resize('height', n)}
-          />
-          <Select
-            label={t`Coverage`}
-            value={board().coverage}
-            disabled={props.disabled}
-            options={[
-              { value: 'all' as const, label: t`Cover every cell` },
-              { value: 'pairs' as const, label: t`Connect pairs only` },
-            ]}
-            onValueChange={(coverage) =>
-              editor.change({ ...board(), coverage }, '')
-            }
-          />
           <NumberlinkBoard
             definition={board()}
             state={{ paths: [] }}
@@ -237,6 +208,36 @@ export function NumberlinkEditorView(
             onClick={editor.add}
           />
           <RemoveEndpoints editor={editor} disabled={props.disabled} />
+          <NumberStepper
+            label={t`Columns`}
+            dataSet={{ testid: 'numberlink-columns' }}
+            value={board().width}
+            min={2}
+            max={20}
+            disabled={props.disabled}
+            onChange={(n) => editor.resize('width', n)}
+          />
+          <NumberStepper
+            label={t`Rows`}
+            dataSet={{ testid: 'numberlink-rows' }}
+            value={board().height}
+            min={2}
+            max={20}
+            disabled={props.disabled}
+            onChange={(n) => editor.resize('height', n)}
+          />
+          <Select
+            label={t`Coverage`}
+            value={board().coverage}
+            disabled={props.disabled}
+            options={[
+              { value: 'all' as const, label: t`Cover every cell` },
+              { value: 'pairs' as const, label: t`Connect pairs only` },
+            ]}
+            onValueChange={(coverage) =>
+              editor.change({ ...board(), coverage }, '')
+            }
+          />
         </StackVertical>
       )}
     </Show>

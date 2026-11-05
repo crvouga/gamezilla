@@ -291,3 +291,45 @@
   outline: 3px solid var(--ui-color-board-card-face);
   outline-offset: -3px;
 }
+/* A Sokoban board being built, in the colours the puzzle is played in: a
+   wall is a filled block with a heavy edge (as the player draws it, never a
+   glyph alone), outside squares are empty, and the squares are larger, so
+   the board is the biggest thing in its builder. */
+.board[data-board-theme="sokoban"] {
+  --ui-color-background: var(--ui-color-game-sokoban-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-sokoban-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-sokoban-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-sokoban-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-text: var(--ui-color-game-sokoban-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-sokoban-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-sokoban-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-tint: var(--ui-color-game-sokoban-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-sokoban-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-sokoban-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-sokoban-accent);
+  --color-success: var(--ui-color-success);
+  max-width: calc(var(--cell-grid-columns) * 3.5rem + 2rem);
+}
+.board[data-board-theme="sokoban"] .cell[data-tone="occupied"] {
+  background: var(--color-text-secondary);
+  border: 2px solid var(--color-text);
+}
+.board[data-board-theme="sokoban"] .cell[data-tone="quiet"] {
+  background: transparent;
+  border-color: transparent;
+}
+.board[data-board-theme="sokoban"] .glyph {
+  font-size: clamp(0.875rem, 4vw, 1.5rem);
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle and pack builders filled both Validate and Publish (and the playtest button), so an author saw three equally loud next steps. Validate is now the one filled step until the draft passes its check, then Publish; the playtest is an outline step inside Publish.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

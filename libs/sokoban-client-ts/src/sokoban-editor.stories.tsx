@@ -1,14 +1,32 @@
+import { StoryPuzzleBuilder } from '@libs/game-puzzle-client-ts/content-builder-story.example';
+import type { PuzzleEditorProps } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanEditor } from './sokoban-editor';
 import { TWO_CRATES } from './sokoban-player.example';
 
+/** The Sokoban editor as the stage of the shared puzzle builder. */
+function renderInBuilder(args: PuzzleEditorProps) {
+  return (
+    <StoryPuzzleBuilder
+      title="Two crates"
+      description="Push both crates onto the goals on the right."
+      difficulty="Easy"
+      definition={args.definition}
+      earlier="Crates"
+      disabled={args.disabled}
+      stage={<SokobanEditor {...args} />}
+    />
+  );
+}
+
 const meta = {
   id: 'screens-games-sokoban-editor',
   title: 'Screens/Games/Sokoban/Editor',
   component: SokobanEditor,
   tags: ['autodocs'],
+  render: (args) => renderInBuilder(args),
   parameters: { appRouter: true, controls: { exclude: ['onChange'] } },
   args: {
     definition: initialSokobanDefinition(),

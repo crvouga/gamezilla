@@ -99,19 +99,28 @@ function ValidationNotices(
             when={props.proven}
             fallback={
               <Trans>
-                No completed playtest of this version yet. Complete a playtest
-                to prove it can be finished.
+                Not proven yet: finish a playtest of this version to show it can
+                be solved.
               </Trans>
             }
           >
-            <Trans>
-              A completed playtest proves this version can be finished.
-            </Trans>
+            <Trans>Proven: a finished playtest shows it can be solved.</Trans>
           </Show>
         </Notice>
       </Show>
     </>
   );
+}
+
+/**
+ * The one next step, filled: Validate until the draft passes its check,
+ * then Publish. The other stays an outline, so the builder never offers two
+ * equally loud choices.
+ */
+export function publicationNextStep(
+  validation: ContentPublicationControlsViewProps['validation']
+): 'validate' | 'publish' {
+  return validation === 'valid' ? 'publish' : 'validate';
 }
 
 /**
@@ -147,6 +156,7 @@ export function ContentPublicationControlsView(
       return props.disabled;
     },
   });
+  const next = () => publicationNextStep(props.validation);
   return (
     <StackVertical gap="md">
       <PublicationStatus pending={props.pending} refusal={props.refusal} />
@@ -154,6 +164,8 @@ export function ContentPublicationControlsView(
       <StackHorizontal gap="sm" wrap>
         <Button
           {...validate.buttonProps}
+          intent={next() === 'validate' ? 'primary' : 'neutral'}
+          variant={next() === 'validate' ? 'solid' : 'outline'}
           dataSet={{ testid: 'content-validate' }}
         />
         <Show
@@ -161,6 +173,8 @@ export function ContentPublicationControlsView(
           fallback={
             <Button
               {...publish.buttonProps}
+              intent={next() === 'publish' ? 'primary' : 'neutral'}
+              variant={next() === 'publish' ? 'solid' : 'outline'}
               dataSet={{ testid: 'content-publish' }}
             />
           }

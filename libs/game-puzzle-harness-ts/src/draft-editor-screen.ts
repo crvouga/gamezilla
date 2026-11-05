@@ -35,7 +35,7 @@ export async function workingDraftOn(
 function editorShows(view: DraftEditorView, draft: ContentDraft): boolean {
   const current = view.queryByTestId(`content-use-copy-${draft.id}`);
   return (
-    current?.textContent.includes('Current') === true &&
+    current?.textContent.includes('Editing now') === true &&
     view.queryByTestId('content-draft-save-status')?.textContent ===
       SAVED_STATUS
   );

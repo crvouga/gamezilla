@@ -122,3 +122,25 @@ test('the editor paints with its tools, refuses misplaced pieces and lists corre
     'goal E1'
   );
 });
+
+// regression: sokoban-editor-tools-as-buttons — the eight tools were eight
+// separate pill buttons, the chosen one filled like a command. They are now
+// one named group of chips with the chosen tool marked.
+test('the editor offers its tools as one group, with the chosen tool marked', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={CORRIDOR}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const group = view.getByRole('radiogroup', { name: 'Tool' });
+  const chips = group.querySelectorAll('[role="radio"]');
+  expect(chips).toHaveLength(8);
+  const wall = view.getByTestId('sokoban-tool-wall');
+  const crate = view.getByTestId('sokoban-tool-crate');
+  expect(group.contains(crate)).toBe(true);
+  fireEvent.click(crate);
+  expect(crate.getAttribute('aria-checked')).toBe('true');
+  expect(wall.getAttribute('aria-checked')).toBe('false');
+});
