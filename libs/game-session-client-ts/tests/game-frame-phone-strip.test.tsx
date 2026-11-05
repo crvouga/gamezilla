@@ -257,3 +257,30 @@ test('phone: a turn too long for the strip wraps between its moves, never cut', 
     /white-space:\s*nowrap;/
   );
 });
+
+// regression: phone-strip-two-moves-two-lines — under a phone's top bar the
+// record strip spent two lines on "Move 5 ● col 7 ◆ col 4": the well's
+// 12px side padding and 12px step between moves left the turn 7px short of
+// one line, so the strip stood 86px tall above the board. Slim padding and
+// an 8px step keep a two-move turn on one line.
+test('phone: a two-move turn keeps one line in the strip’s well', () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+    ),
+    'utf8'
+  );
+  // The last rule opened by `head`: the one that sets this alone.
+  const body = (head: string): string => {
+    const start = css.lastIndexOf(`${head} {`);
+    expect(start).toBeGreaterThan(-1);
+    return css.slice(start, css.indexOf('}', start));
+  };
+  expect(body('.list[data-layout="turn"][data-wrap="true"]')).toMatch(
+    /padding: var\(--ui-space-1\);/
+  );
+  expect(body('.list[data-layout="turn"][data-wrap="true"] .turn')).toMatch(
+    /column-gap: var\(--ui-space-2\);/
+  );
+});
