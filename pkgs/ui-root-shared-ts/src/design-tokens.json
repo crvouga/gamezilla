@@ -1718,21 +1718,21 @@
         }
       },
       "gameConnectFourCanvas": {
-        "$description": "ConnectFour board only: canvas.",
+        "$description": "ConnectFour board only: canvas (its empty places). Dark: a step deeper than light, so the board sits back on a dark page.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0902, 0.2353, 0.4706],
+          "components": [0.0706, 0.1843, 0.3686],
           "alpha": 1.0,
-          "hex": "#173c78"
+          "hex": "#122f5e"
         }
       },
       "gameConnectFourSurface": {
-        "$description": "ConnectFour board only: surface.",
+        "$description": "ConnectFour board only: surface. Dark: a deeper, less saturated blue than light, so the board never glares on a dark page.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1412, 0.3294, 0.6078],
+          "components": [0.1098, 0.2627, 0.5020],
           "alpha": 1.0,
-          "hex": "#24549b"
+          "hex": "#1c4380"
         }
       },
       "gameConnectFourInk": {
