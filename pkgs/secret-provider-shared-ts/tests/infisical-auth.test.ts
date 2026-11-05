@@ -12,7 +12,7 @@ const project = {
 };
 
 // regression: infisical-project-session-isolation
-test('Gamezilla never selects the Geviti session inherited by its terminal', () => {
+test('a project never selects another project session inherited by its terminal', () => {
   const env = { INFISICAL_PROFILE: 'chris@gogeviti.com--geviti' };
   expect(infisicalProjectArgs(project, env)).toEqual([
     '--projectId',
