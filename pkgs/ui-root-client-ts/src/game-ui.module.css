@@ -193,17 +193,6 @@
 .player[data-density="compact"] {
   gap: var(--ui-space-2);
 }
-/* A compact seat card measures itself: on a phone's narrow card its row of
-   controls starts at the card's edge, so a seat's controls keep one row and
-   every seat card has the same shape. */
-.player[data-density="compact"] {
-  container: seat-card / inline-size;
-}
-@container seat-card (max-width: 20rem) {
-  .player .playerBelow {
-    padding-inline-start: 0;
-  }
-}
 /* A compact seat row measures itself for its toggle (seat-options.module.css). */
 .player[data-density="compact"] .playerRow {
   container: seat-row / inline-size;
@@ -250,12 +239,15 @@
 }
 /* A compact seat's controls on a line under its name, starting where the
    name does (past the 32px avatar and the row's gap). */
+/* A seat's controls on a line of their own under its row, from the row's
+   start edge (the avatar's), on every size: a phone's narrow card keeps
+   them on one row, and a desktop's seat looks the same as a phone's. */
 .playerBelow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-2);
-  padding-inline-start: calc(32px + var(--ui-space-3));
+  padding-inline-start: 0;
   min-width: 0;
 }
 .playerTrailing {

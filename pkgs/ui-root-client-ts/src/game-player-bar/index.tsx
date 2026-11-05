@@ -85,7 +85,7 @@ export type GamePlayerBarProps = {
    * Where the options toggle sits: `end` (default) at the row's far edge;
    * `below` on a line of its own under the name, before the seat's own
    * controls, so a phone's row keeps the holder's name whole and the
-   * toggle can say what it changes in full ("Change player").
+   * toggle can say what it offers in full ("Invite or bot").
    */
   optionsPlacement?: 'end' | 'below' | undefined;
   /** `data-*` for the toggle (its test id). */

@@ -279,6 +279,19 @@ test('setup: the players are one plain list, each row holding its identity, read
   }
 });
 
+// regression: setup-change-player-vague — the seat's toggle said "Change
+// player", which never said whether it invites someone or picks a bot. It
+// names both, on every size, and still says which side for a listener.
+test("setup: a seat's toggle says it invites someone or picks a bot", () => {
+  for (const width of [390, 1440]) {
+    seats(width);
+    const toggle = screen.getByTestId('custom-game-red-choices');
+    expect(toggle.textContent).toContain('Invite or bot');
+    expect(toggle.textContent).not.toContain('Change player');
+    cleanup();
+  }
+});
+
 // regression: replay-controls-heavy-live — during live play the record's
 // four steps were filled discs that outweighed the board and the game's
 // commands. They are quiet glyphs while the board is live, and take their

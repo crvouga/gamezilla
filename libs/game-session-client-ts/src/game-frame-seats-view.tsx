@@ -143,16 +143,18 @@ function SetupSeatOptions(props: SeatProps): JSX.Element {
 }
 
 /**
- * What the seat's toggle changes, in full on every size: the player (and,
- * for assistive technology, which side's). The toggle sits on its own line
- * under the name, so both read whole.
+ * What the seat's toggle offers, in its two main choices on every size:
+ * inviting someone from the space, or a bot (and, for assistive
+ * technology, which side's seat). Never a bare "Change player" that leaves
+ * a person guessing what happens. The toggle sits on its own line under
+ * the name, so both read whole.
  */
 function SeatOptionsLabel(props: {
   readonly seat: FrameSetupSeat;
 }): JSX.Element {
   return (
     <Trans>
-      Change player
+      Invite or bot
       <VisuallyHidden>: {props.seat.sideLabel}</VisuallyHidden>
     </Trans>
   );
@@ -161,7 +163,7 @@ function SeatOptionsLabel(props: {
 /**
  * One seat while the game is set up, as a compact player row on every
  * size: who holds it, its look and readiness, then on the line under the
- * name every control the seat has (Change player, I'm not ready), so a
+ * name every control the seat has (Invite or bot, I'm not ready), so a
  * player's actions sit with the player, never across the card. Its other
  * choices open under it. Once the game is played the board's seats show it.
  */
