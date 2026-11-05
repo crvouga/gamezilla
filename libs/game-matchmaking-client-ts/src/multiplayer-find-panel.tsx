@@ -4,42 +4,36 @@ import {
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
+import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlText } from './time-control-name';
 
 /**
  * What the search will find, right above its command, as the game's
- * settings chips (`Rated` `No clock`, or `Rated` `5+0` at the chosen time
- * control), the same chips a game's title carries (`Unrated` `Untimed`).
- * The time control is changed by its choices above; a search is always
- * rated.
+ * settings line (`Rated · Untimed`, or `Rated · 5+0` at the chosen time
+ * control), in the same words and quiet style a game's title carries
+ * (`Unrated · Untimed`). The time control is changed by its choices above;
+ * a search is always rated.
  */
 function MatchConditions(props: {
   readonly timed: boolean;
   readonly timeControl: string;
 }): JSX.Element {
   return (
-    <StackHorizontal
-      align="center"
-      gap="sm"
-      testId="multiplayer-find-conditions"
-    >
-      <Badge intent="neutral" label={<Trans>Rated</Trans>} />
-      <Badge
-        intent="neutral"
+    <GameFacts testId="multiplayer-find-conditions">
+      <GameFact label={<Trans>Rated</Trans>} />
+      <GameFact
         label={
-          <Show when={props.timed} fallback={<Trans>No clock</Trans>}>
+          <Show when={props.timed} fallback={<Trans>Untimed</Trans>}>
             {timeControlText(props.timeControl)}
           </Show>
         }
       />
-    </StackHorizontal>
+    </GameFacts>
   );
 }
 

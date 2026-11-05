@@ -9,9 +9,11 @@ import { mustQuery, renderUi } from './render';
 
 // regression: phone-game-title-repeated — on a phone the space's top bar
 // said "Chess" and the body said "Chess" again in the display face over
-// its Unrated / Untimed chips, pushing the board down. A game in play keeps
-// its title for a listener and, on a phone's column, shows only its facts.
-test('a phone game in play shows its facts and keeps its title for a listener', () => {
+// its Unrated / Untimed chips, pushing the board down.
+// regression: phone-game-title-missing — the title was then hidden on a
+// phone, leaving the chips floating alone under the bar. A phone shows the
+// title with its facts on one compact line, never in the display face.
+test('a phone game in play shows its title with its facts, at a compact size', () => {
   renderUi(() => (
     <GameScreen screenId="chess" title="Chess" facts={<span>Unrated</span>}>
       <p class="text">{'board'}</p>
@@ -30,7 +32,9 @@ test('a phone game in play shows its facts and keeps its title for a listener', 
   const narrow = css.slice(
     css.indexOf('@container game-column (max-width: 879px)')
   );
+  // Shown (never clipped away), in a compact size rather than the display face.
   expect(narrow).toMatch(
-    /^@container game-column \(max-width: 879px\)\s*\{\s*\.headingTitle\s*\{[^}]*clip:/
+    /^@container game-column \(max-width: 879px\)\s*\{\s*\.headingTitle h1\s*\{[^}]*font-size: var\(--ui-font-size-xl\)/
   );
+  expect(narrow).not.toContain('clip:');
 });

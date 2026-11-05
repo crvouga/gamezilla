@@ -15,16 +15,13 @@
   gap: var(--ui-space-2);
   min-width: 0;
 }
-/* On a phone the host's top bar already names the game over a game in
-   play: the body keeps its title for a listener and shows only the game's
-   facts, so the board is not pushed down by the name said twice. */
+/* On a phone the host's top bar names the space and the game; the body
+   keeps the game's name with its facts on one compact line, so the facts
+   never float alone under the bar, and the name in the display face never
+   pushes the board down. */
 @container game-column (max-width: 879px) {
-  .headingTitle {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+  .headingTitle h1 {
+    font-size: var(--ui-font-size-xl);
+    line-height: 1.25;
   }
 }

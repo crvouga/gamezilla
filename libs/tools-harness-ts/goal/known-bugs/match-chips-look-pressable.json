@@ -1,0 +1,4 @@
+{
+  "summary": "Matchmaking's conditions were pills that looked pressable and said \"No clock\" where a game's title said \"Untimed\". Both now use one quiet settings line in the same words (\"Rated · Untimed\", \"Unrated · Untimed\").",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

@@ -4196,10 +4196,6 @@ msgstr "No active session"
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-msgid "No clock"
-msgstr "No clock"
-
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No completed games yet."
 msgstr "No completed games yet."
@@ -7841,6 +7837,7 @@ msgstr "Unread"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Untimed"

@@ -60,14 +60,19 @@ test('wide: the search, the ratings and a short guide are one card, with no rail
 // regression: match-conditions-unlike-game-chips — the conditions were
 // plain "Rated · No clock" text while a game's title showed "Unrated"
 // "Untimed" as chips, and wide they floated about 60px above the command.
-test("the conditions are the game's settings chips, right above the command", () => {
+// regression: match-chips-look-pressable — the conditions were then pills
+// that looked pressable and said "No clock" where a game says "Untimed".
+// They are the game's own quiet settings line, in the game's words.
+test("the conditions are the game's settings line, right above the command", () => {
   for (const width of [390, 1440]) {
     mount(width);
     const conditions = screen.getByTestId('multiplayer-find-conditions');
-    const chips = [
-      ...conditions.querySelectorAll('[data-component="Badge"]'),
-    ].map((chip) => chip.textContent);
-    expect(chips).toEqual(['Rated', 'No clock']);
+    expect(conditions.getAttribute('data-component')).toBe('GameFacts');
+    expect(conditions.querySelector('[data-component="Badge"]')).toBeNull();
+    const facts = [
+      ...conditions.querySelectorAll('[data-component="GameFact"]'),
+    ].map((fact) => fact.textContent);
+    expect(facts).toEqual(['Rated', 'Untimed']);
     // The chips and the command are one group: the command comes next.
     const actions = conditions.nextElementSibling;
     expect(
