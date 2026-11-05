@@ -1,5 +1,6 @@
-/* A chess board's outside coordinates: a slim frame, only on a
-   phone-sized board, where a square's corner holds no readable label. */
+/* A chess board's outside coordinates: a slim frame on every playing
+   board (280px and wider), phone or desktop, so the coordinates read the
+   same way everywhere; only a thumbnail keeps its corner labels. */
 .host {
   container: chess-frame / inline-size;
   width: 100%;
@@ -32,7 +33,7 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-@container chess-frame (min-width: 280px) and (max-width: 479px) {
+@container chess-frame (min-width: 280px) {
   .frame {
     grid-template-columns: 16px minmax(0, 1fr);
     grid-template-rows: auto 20px;

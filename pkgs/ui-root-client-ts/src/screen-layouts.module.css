@@ -307,7 +307,8 @@
 }
 /* Wide: the game screens' template. The title over both columns; the
    board on the left, as tall as the window leaves it (never under a usable
-   320px, never past 720px, never so wide the panel loses its room); beside
+   320px, never past 720px, a square board sized as a game's board is, and
+   never so wide the panel loses its room); beside
    it a panel column wide enough for the prompt to read in a line or two:
    the header (the feed, the prompt), the actions right under the prompt,
    then the move list and the legend. */
@@ -346,6 +347,20 @@
     align-content: start;
     flex: none;
     max-width: none;
+  }
+  /* A square board takes one size on every game screen: the measure a
+     game's board takes beside its rail (`game-ui.module.css`), so a chess
+     puzzle's board and a chess game's are the same size in one window. */
+  .puzzle[data-square="true"] {
+    --puzzle-board-block: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--game-board-chrome-block, 284px) -
+        var(--ui-host-chrome-block-size, 0px)
+      ),
+      560px
+    );
   }
   .title {
     grid-area: title;

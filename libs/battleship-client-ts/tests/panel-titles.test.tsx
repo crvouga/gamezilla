@@ -42,3 +42,32 @@ test('a board shown behind the switch is not titled again under it', () => {
     );
   }
 });
+
+// regression: battleship-board-narrower-than-seats — the 10×10 grid stopped
+// at 44px cells (466px) under the 540px seat strips above and below it:
+// the board fills its column, edge to edge with the seats.
+test('the board fills its column, edge to edge with the seats', () => {
+  renderBoard(() => (
+    <BattleshipBoard
+      position={encodeBattleshipPosition(['a1:hit'])}
+      orientation="white"
+      interactive
+      sound={false}
+      syncKey={0}
+      setup={FLEET}
+      hand={null}
+      committed={[]}
+      commitment={null}
+      testId="board"
+      onAction={() => undefined}
+    />
+  ));
+  for (const view of ['fleet', 'target'] as const) {
+    const grid = document.querySelector(`[data-testid="board-${view}-grid"]`);
+    if (grid === null) continue;
+    expect(grid.getAttribute('data-fill')).toBe('true');
+  }
+  expect(
+    document.querySelectorAll('[data-fill="true"]').length
+  ).toBeGreaterThan(0);
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts table drew cards as 72px text tiles spelling out \"clubs\" and \"hearts\", wrapped the hand in two rows, marked a chosen card with a faint outline and showed each played card beside its seat's name instead of on the table. Cards now have a corner index (rank and small pip), a large centre pip and the suit's name at the foot; the hand is one fanned, overlapping row; a chosen card lifts 14px with a 3px ring; and the trick sits in the middle of the felt with each seat's card on its own side.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

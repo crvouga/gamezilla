@@ -1,0 +1,4 @@
+{
+  "summary": "In Hearts, once three cards were sent to pass, the button said \"Passing your cards…\" while the line beside the table still said \"Choose three cards to pass to the left\" and the hand stayed open. The line now names the pass itself (\"Pass three cards to the left.\") and a pass on its way locks the hand with the chosen cards still lifted.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

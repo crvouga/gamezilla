@@ -138,13 +138,31 @@ test('wide: a real-time game has no record card; its players, history and comman
   expect(screen.getAllByTestId('custom-game-white')).toHaveLength(1);
 });
 
-test('phone: a real-time game keeps its seats around the arena and its history beside the actions', () => {
+// regression: phone-player-rail-clipped — on a phone the other riders
+// were one sideways-scrolling strip cut off mid-name at the screen's edge,
+// and the person's own seat sat below the arena and its steering pad, out
+// of view. Every player is now a chip in a wrapping rail above the arena,
+// the person's own first and marked "You".
+test('phone: every player shows above the arena, the person first and marked as them', () => {
   mount(390);
   expect(
     document.querySelector('[data-component="CustomGameReview"]')
   ).toBeNull();
   expect(screen.queryByTestId('custom-game-scoreboard')).toBeNull();
-  expect(screen.getByTestId('custom-game-seat-near')).toBeTruthy();
+  const rail = document.querySelector(
+    '[data-component="GamePlayerRail"]'
+  ) as HTMLElement;
+  expect(rail.getAttribute('role')).toBe('list');
+  const near = screen.getByTestId('custom-game-seat-near');
+  expect(rail.firstElementChild).toBe(near);
+  expect(
+    near.querySelector('[data-testid="custom-game-white"]')
+  ).not.toBeNull();
+  expect(near.textContent).toContain('You');
+  for (const name of ['custom-game-black', 'custom-game-red'])
+    expect(rail.querySelector(`[data-testid="${name}"]`)).not.toBeNull();
+  // The person shows once, in the rail.
+  expect(screen.getAllByTestId('custom-game-white')).toHaveLength(1);
   expect(screen.getByTestId('custom-game-history-stats')).toBeTruthy();
 });
 

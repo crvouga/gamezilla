@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, the other players at a table of three or more (Light Cycles, Hearts) were one sideways-scrolling strip cut off mid-name at the screen's edge, and the person's own seat sat below the board (under Light Cycles' steering pad), out of view. Every player is now a compact chip in a rail that wraps above the board, the person's own first and marked \"You\".",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

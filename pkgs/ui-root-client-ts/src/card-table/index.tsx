@@ -71,9 +71,9 @@ export type CardTableProps = {
    */
   readonly centerSpokenOnly?: boolean | undefined;
   /**
-   * Tricks are being played: each seat keeps room for the card it puts on
-   * the table, so the table never changes height as a trick fills. While
-   * cards are chosen or passed nothing is played, and the seats are compact.
+   * Tricks are being played: the trick in the middle of the table shows
+   * an empty place for each seat yet to play. While cards are chosen or
+   * passed nothing is played, and the middle of the table stays quiet.
    */
   readonly trick?: boolean | undefined;
   readonly hand: readonly CardTableHandCard[];
@@ -99,11 +99,16 @@ function spokenName(card: CardTableCard): string {
   return `${card.rank} ${card.suitName}, ${card.label}`;
 }
 
-/** A card's face: rank above its suit symbol, the suit's name for the eye too. */
+/**
+ * A card's face as a real card prints it: the rank in the top corner with a
+ * small suit pip under it (drawn by the stylesheet, so a listener and a
+ * reader of the words meet the suit once), a large pip in the middle, and
+ * the suit's name across the foot, so a suit is never told by colour alone.
+ */
 function CardFace(props: { card: CardTableCard }): JSX.Element {
   return (
     <>
-      <span>{props.card.rank}</span>{' '}
+      <span class={styles['index']}>{props.card.rank}</span>{' '}
       <span aria-hidden="true" class={styles['suit']}>
         {SYMBOLS[props.card.suit]}
       </span>{' '}
@@ -112,6 +117,7 @@ function CardFace(props: { card: CardTableCard }): JSX.Element {
   );
 }
 
+/** A seat's plate at the table's edge: who sits there and its facts. */
 function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   const seat = () => props.seat();
   return (
@@ -130,23 +136,46 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
         </Index>
       </span>
-      <span class={styles['played']}>
-        <Show when={seat().played}>
-          {(card) => (
-            <span
-              class={styles['card']}
-              data-suit={props.seat().played?.suit}
-              role="img"
-              aria-label={spokenName(card())}
-              data-testid={`${seat().testId}-played`}
-              data-card={card().id}
-            >
-              <CardFace card={card()} />
-            </span>
-          )}
-        </Show>
-      </span>
     </section>
+  );
+}
+
+/**
+ * The trick in the middle of the table: each seat's card on the side of
+ * the table it sits on, an empty place for a seat yet to play, so the
+ * table reads as four players around one trick.
+ */
+function Trick(props: {
+  seats: readonly CardTableSeat[];
+  trick: boolean;
+}): JSX.Element {
+  return (
+    <div class={styles['trick']} data-trick={String(props.trick)}>
+      <Index each={props.seats}>
+        {(seat) => (
+          <span
+            class={styles['slot']}
+            data-position={seat().position}
+            data-filled={String(seat().played !== null)}
+          >
+            <Show when={seat().played}>
+              {(card) => (
+                <span
+                  class={styles['card']}
+                  data-suit={card().suit}
+                  role="img"
+                  aria-label={spokenName(card())}
+                  data-testid={`${seat().testId}-played`}
+                  data-card={card().id}
+                >
+                  <CardFace card={card()} />
+                </span>
+              )}
+            </Show>
+          </span>
+        )}
+      </Index>
+    </div>
   );
 }
 
@@ -158,6 +187,11 @@ const MOVES: Readonly<Record<string, (at: number, last: number) => number>> = {
   Home: () => 0,
   End: (_at, last) => last,
 };
+
+/** How far a card sits from the middle of the fanned hand, in cards. */
+function fanOffset(index: number, count: number): number {
+  return index - (count - 1) / 2;
+}
 
 function Hand(
   props: CardTableProps & { readonly onRefused: (reason: string) => void }
@@ -207,6 +241,7 @@ function Hand(
     <div
       ref={row}
       class={styles['hand']}
+      style={{ '--hand-count': String(Math.max(1, props.hand.length)) }}
       role="toolbar"
       aria-label={props.handLabel}
       data-testid={`${props.testId}-hand`}
@@ -218,6 +253,7 @@ function Hand(
               <button
                 type="button"
                 class={styles['card']}
+                style={{ '--fan': String(fanOffset(index(), ids().length)) }}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
                 data-card={id}
@@ -251,16 +287,21 @@ function Hand(
  * `CardTable` -- four seats around a card game's shared play, and the
  * viewer's own hand.
  *
- * Each seat shows who sits there, its facts on one quiet line (cards held,
- * score), whether it is deciding now (an accent ring, and `aria-current`)
- * and, while tricks are played (`trick`), the card it put on the table. The
- * centre says what the table is doing; a host that already shows that line
- * beside the table keeps it for listeners only (`centerSpokenOnly`). The hand is a row of card buttons:
- * arrow keys, Home and End move between them, Enter or Space plays or
- * selects a card, and a card the rules do not allow says why instead of
- * acting. Focus stays in the hand when a played card leaves it. Suits are
- * written as symbols and names, never told by colour alone. An optional
- * action confirms a selection (passing cards) and shows when it is sent.
+ * Each seat is a plate at its edge of the felt: who sits there, its facts
+ * on one quiet line (cards held, score), and whether it is deciding now (a
+ * strong accent ring, and `aria-current`). The middle of the table holds the
+ * trick: every seat's card on its own side, an empty place for a seat yet to
+ * play. The centre says what the table is doing; a host that already shows
+ * that line beside the table keeps it for listeners only
+ * (`centerSpokenOnly`). Cards are drawn as cards: the rank and a small pip
+ * in the corner, a large pip in the middle, the suit's name at the foot.
+ * The hand is a fanned, overlapping row of card buttons whose corners stay
+ * readable; a chosen card lifts out of the fan with a strong ring. Arrow
+ * keys, Home and End move between them, Enter or Space plays or selects a
+ * card, and a card the rules do not allow says why instead of acting. Focus
+ * stays in the hand when a played card leaves it. Suits are written as
+ * symbols and names, never told by colour alone. An optional action
+ * confirms a selection (passing cards) and shows when it is sent.
  *
  * @example
  * ```tsx
@@ -289,6 +330,9 @@ export function CardTable(props: CardTableProps): JSX.Element {
         <Index each={props.seats}>
           {(seat) => <Seat seat={seat} trick={props.trick === true} />}
         </Index>
+        <Show when={props.seats.length > 0}>
+          <Trick seats={props.seats} trick={props.trick === true} />
+        </Show>
         <p
           class={styles['center']}
           data-spoken-only={String(props.centerSpokenOnly === true)}

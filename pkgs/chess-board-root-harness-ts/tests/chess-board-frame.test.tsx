@@ -7,9 +7,8 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ChessBoardFrame } from '@pkgs/chess-board-root-client-ts/chess-board-frame';
 
 const SRC = join(import.meta.dirname, '../../chess-board-root-client-ts/src');
-/** The phone-sized boards the outside labels are for. */
-const PHONE_QUERY =
-  '@container chess-frame (min-width: 280px) and (max-width: 479px)';
+/** Every playing board (not a thumbnail) labels its edges outside. */
+const PLAYING_QUERY = '@container chess-frame (min-width: 280px) {';
 
 function labels(container: HTMLElement): readonly string[][] {
   return [...container.querySelectorAll('[aria-hidden="true"]')].map((edge) =>
@@ -44,7 +43,11 @@ test('the frame labels ranks down its edge and files along its foot, from the vi
   black.unmount();
 });
 
-test('only a phone-sized board shows the outside labels, and its corner labels step aside', () => {
+// regression: chess-coordinates-inconsistent — a desktop board wrote its
+// coordinates in the squares' corners while a phone's wrote them outside,
+// and a puzzle's phone board inside again: every playing board now labels
+// its edges outside, and only a thumbnail keeps corner labels.
+test('every playing board shows the outside labels, and its corner labels step aside', () => {
   const frame = readFileSync(
     join(SRC, 'chess-board-frame/chess-board-frame.module.css'),
     'utf8'
@@ -53,8 +56,10 @@ test('only a phone-sized board shows the outside labels, and its corner labels s
     join(SRC, 'chess-board/chess-board.module.css'),
     'utf8'
   );
-  expect(frame).toContain(PHONE_QUERY);
+  expect(frame).toContain(PLAYING_QUERY);
+  expect(frame).not.toContain('max-width: 479px');
   expect(frame).toMatch(/font-size:\s*12px;/);
-  const corner = board.slice(board.indexOf(PHONE_QUERY));
+  const corner = board.slice(board.indexOf(PLAYING_QUERY));
+  expect(board.indexOf(PLAYING_QUERY)).toBeGreaterThan(-1);
   expect(corner).toMatch(/\.coords\s*\{\s*display:\s*none;/);
 });

@@ -55,6 +55,10 @@
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
+/* A game's board fills its column, edge to edge with its seats. */
+.board[data-fill="true"] {
+  max-width: none;
+}
 .header {
   display: grid;
   place-items: center;

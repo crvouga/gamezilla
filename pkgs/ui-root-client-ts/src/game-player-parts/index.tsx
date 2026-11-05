@@ -69,6 +69,27 @@ export function GameSeatStatValue(props: {
   );
 }
 
+/**
+ * A seat's figure on one line, its label before its value (`Wins 3`), for
+ * a compact chip whose width belongs to the player's name.
+ */
+export function GameSeatStatInline(props: {
+  stat: GameSeatStat;
+  /** Ink of the soft tint when the seat is the active one. */
+  active: boolean;
+}): JSX.Element {
+  return (
+    <span
+      class="text textCaption whitespace-nowrap"
+      classList={{ 'text-on-primary-soft': props.active }}
+      {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
+    >
+      {props.stat.label}{' '}
+      <span class="textNumeral font-semibold">{props.stat.value}</span>
+    </span>
+  );
+}
+
 const READINESS_DOT_SIZE = 8;
 
 /**

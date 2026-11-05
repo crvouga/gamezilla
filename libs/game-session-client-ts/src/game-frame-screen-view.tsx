@@ -459,12 +459,15 @@ function FrameRecordPanelAside(props: Props): JSX.Element {
 }
 
 /** The seat to move says the plain `<Side> to move.` line itself. */
-function turnInSeats(props: Props): boolean {
+function turnInSeats(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
   return (
     props.phase === 'active' &&
     props.status?.plainTurn === true &&
     props.status.tone === 'neutral' &&
-    tableShowsTurn(props.table)
+    tableShowsTurn(props.table, mode() !== 'wide')
   );
 }
 
@@ -491,6 +494,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            compact={mode() !== 'wide'}
           />
         </Show>
       }
@@ -503,7 +507,8 @@ function FrameBoardStage(props: Props): JSX.Element {
           <FrameStatusView
             status={props.status}
             spokenOnly={
-              turnInSeats(props) || arenaCaption(props, mode) !== undefined
+              turnInSeats(props, mode) ||
+              arenaCaption(props, mode) !== undefined
             }
           />
         </Show>
@@ -515,6 +520,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            compact={mode() !== 'wide'}
           />
         </Show>
       }

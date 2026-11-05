@@ -1,0 +1,4 @@
+{
+  "summary": "At one window size a chess game's board was 540px across and a chess puzzle's 560px: the game sized its board to the window's height less its chrome, the puzzle by its own rule. A square puzzle board now takes exactly the game board's measure.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/board-measure-consistency.test.ts"
+}

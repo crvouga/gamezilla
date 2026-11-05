@@ -64,7 +64,10 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}
       trick={decodeHearts(props.position)?.phase === 'play'}
-      hand={handCards(props, chosen())}
+      hand={handCards(props, chosen()).map((card) =>
+        // A pass on its way locks the hand: the chosen cards stay lifted.
+        sending() ? { ...card, enabled: false } : card
+      )}
       handLabel={t`Your hand`}
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}

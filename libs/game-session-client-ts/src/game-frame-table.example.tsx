@@ -253,7 +253,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       }}
       play={{
         ...FRAME_NO_PLAY,
-        canOfferDraw: seated(),
+        canOfferDraw: seated() && props.presentation.frame.drawOffers,
         canResign: seated(),
         boardActions: frameActionItems(session.actions(), props.board.testId),
       }}

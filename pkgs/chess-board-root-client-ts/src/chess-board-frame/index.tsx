@@ -7,13 +7,13 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
 
 /**
- * A fill-width chess board with its coordinates outside the squares when
- * the board is phone-sized (280–479px across): a slim labelled frame, the
- * ranks down its start edge and the files along its foot, at a size a
- * square's corner cannot hold. A larger board (and a thumbnail) keeps the
- * labels in the squares' corners, and the frame takes no room. The board
- * inside draws its own coordinates as usual; the frame hides them while it
- * shows its own.
+ * A fill-width chess board with its coordinates outside the squares: a
+ * slim labelled frame, the ranks down its start edge and the files along
+ * its foot, at a size a square's corner cannot hold. Every playing board
+ * (280px and wider, a phone's or a desktop's, in a game or a puzzle) reads
+ * its coordinates the same way; a thumbnail keeps the labels in the
+ * squares' corners, and the frame takes no room. The board inside draws its
+ * own coordinates as usual; the frame hides them while it shows its own.
  *
  * @example
  * ```tsx
