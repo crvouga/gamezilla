@@ -144,3 +144,34 @@ test('the editor offers its tools as one group, with the chosen tool marked', ()
   expect(crate.getAttribute('aria-checked')).toBe('true');
   expect(wall.getAttribute('aria-checked')).toBe('false');
 });
+
+function precedes(a: Element, b: Element): boolean {
+  return (
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
+}
+
+// regression: sokoban-editor-size-below-fold — the board's size inputs came
+// after the board, its caption and its corrections, below a desktop's
+// 900px fold, and the builder's pieces were drawn as bare glyphs. The size
+// and the tools now head the board, and each piece is drawn as a token
+// (crate, crate on goal, worker, goal) as the player draws it.
+test('the editor puts the size and tools above the board, pieces as tokens', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={JSON.stringify({ format: 1, rows: ['#@$.*'] })}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const size = view.getByTestId('sokoban-size');
+  const tools = view.getByTestId('sokoban-tools');
+  const board = view.getByTestId('sokoban-editor-board');
+  expect(precedes(size, board)).toBe(true);
+  expect(precedes(tools, board)).toBe(true);
+  const identity = (square: string): string | null =>
+    view.getByTestId(`sokoban-square-${square}`).getAttribute('data-identity');
+  expect(
+    ['A1', 'B1', 'C1', 'D1', 'E1'].map((square) => identity(square))
+  ).toEqual([null, 'three', 'one', 'four', 'two']);
+});

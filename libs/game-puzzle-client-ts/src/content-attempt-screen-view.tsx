@@ -128,15 +128,14 @@ function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
 /**
  * The puzzle panel: beside the board when wide, under it on a phone, as a
  * game's record is. Where the puzzle sits in its pack, what it asks, a
- * playtest's note, the completion and the save status, with the attempt's
- * commands (undo, redo, restart, the pack) at its foot.
+ * playtest's note, the completion and the save status. It is secondary:
+ * the attempt's commands sit with the board, not at the panel's foot.
  */
 function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <GameSection
       title={<Trans>This puzzle</Trans>}
-      footer={props.controls}
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
       <StackVertical gap="sm">
@@ -187,8 +186,13 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         </Show>
       }
     >
+      {/* The commands (undo, redo, restart, the pack) sit with the board:
+          right under it on a phone, heading the rail beside it when wide,
+          so the puzzle panel never stands between the board and them. */}
       <GameSessionLayout
         notices={<AttemptAlerts {...props} />}
+        actions={props.controls}
+        actionsBeside
         aside={<AttemptPanel {...props} />}
       >
         <Show
@@ -214,9 +218,9 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
 /**
  * A saved attempt at a published puzzle or a private playtest,
  * presentational: the puzzle's title and difficulty, the game's player on
- * the saved position as the hero, and beside it (under it on a phone) the
- * puzzle panel: its place in the pack, what it asks, the save status,
- * completion and the attempt's commands — or denied and
+ * the saved position as the hero with the attempt's commands right by it,
+ * and beside it (under it on a phone) the puzzle panel: its place in the
+ * pack, what it asks, the save status and completion — or denied and
  * not-on-this-device states. Player and controls arrive as slots.
  */
 export function ContentAttemptScreenView(

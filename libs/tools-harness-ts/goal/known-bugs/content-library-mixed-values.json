@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle library was all text, and one right-hand column mixed a difficulty (Easy), a kind (Puzzle, Pack) and a status (Draft, Published, Withdrawn) as if they were one kind of value. Rows now lead with a thumbnail of the puzzle's board (stacked for a pack), and kind, difficulty and status are chips of three distinct looks.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

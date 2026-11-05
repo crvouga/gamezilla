@@ -45,12 +45,13 @@ export function ContentPackItem(props: {
     <ContentPackItemRow
       id={props.id}
       title={title()}
+      status={document()?.status === 'published' ? 'published' : 'draft'}
       caption={
         draft()?.validation_status === 'invalid'
           ? t`Needs corrections`
           : document()?.status === 'published'
-            ? t`Published`
-            : t`Draft: publish it before the pack`
+            ? ''
+            : t`Publish it before the pack`
       }
       first={props.first}
       last={props.last}

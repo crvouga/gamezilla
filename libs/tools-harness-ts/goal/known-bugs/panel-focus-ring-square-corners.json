@@ -1,0 +1,4 @@
+{
+  "summary": "A keyboard-focused first or last row in a list panel drew a square focus ring across the panel's rounded card corners. The end rows now take the card's inner corner radius, so the ring follows the card.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}

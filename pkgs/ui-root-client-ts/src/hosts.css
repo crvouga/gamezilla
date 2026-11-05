@@ -78,9 +78,21 @@
     display: none;
   }
 
-  /* The panel clips its rows, so a row's focus ring is drawn inside it. */
+  /* The panel clips its rows, so a row's focus ring is drawn inside it.
+     The first and last rows take the panel's inner corners, so the ring
+     follows the card's rounding instead of cutting square across it. */
   .panelItem > .clickable:focus-visible {
     outline-offset: -2px;
+  }
+
+  .panelItem:first-child > .clickable {
+    border-start-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-start-end-radius: calc(var(--ui-radius-card) - 1px);
+  }
+
+  .panelItem:last-child > .clickable {
+    border-end-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-end-end-radius: calc(var(--ui-radius-card) - 1px);
   }
 
   .divider {

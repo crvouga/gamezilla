@@ -12,7 +12,11 @@ export type TileBoardTile = {
   /** The tile's whole accessible name: where it is and what is on it. */
   readonly label: string;
 };
-/** What stands on a tile; each tone also differs by its glyph. */
+/**
+ * What stands on a tile, drawn as a token most of a tile wide: `actor` a
+ * round figure, `object` a square block, `settled` a block in the place it
+ * belongs. Each tone also differs by its shape and its glyph.
+ */
 export type TileBoardPiece = {
   /** Keep each piece at the same array position as it moves, so it glides. */
   readonly id: string;
@@ -162,7 +166,8 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
                 transform: `translate(${piece().column * 100}%, ${piece().row * 100}%)`,
               }}
             >
-              {piece().glyph}
+              {/* The token fills most of its tile, its glyph inside it. */}
+              <span class={styles['token']}>{piece().glyph}</span>
             </span>
           )}
         </Index>

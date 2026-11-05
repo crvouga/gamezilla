@@ -40,6 +40,12 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
     () => pack()?.items.map((item) => item.puzzleId) ?? []
   );
   const [remove, setRemove] = createSignal<string | null>(null);
+  const preview = () => {
+    const Preview = game.client.Preview;
+    return Preview === undefined
+      ? undefined
+      : (definition: string) => <Preview definition={definition} />;
+  };
   const busy = (): boolean => props.disabled || tools.change.loading();
   return (
     <>
@@ -58,7 +64,9 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
           id: entry.id,
           title: entry.title,
           caption: entry.difficulty,
+          preview: entry.definition,
         }))}
+        renderPreview={preview()}
         addDisabled={busy()}
         onAdd={(id) => {
           const puzzleId = available().find(

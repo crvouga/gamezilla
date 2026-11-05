@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle and pack builders were one wall of rows: on a phone the draft copies came before the details and the publishing controls, and Validate and Publish sat in a card apart from the stage. The builder now reads as numbered steps (details, then the stage headed by its editing tools, then the draft copies), and checking and publishing is a sticky action bar at the screen's foot.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

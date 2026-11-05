@@ -26,20 +26,22 @@ import { useSokobanWords } from './use-sokoban-words';
 
 type Editor = ReturnType<typeof useSokobanEditor>;
 
-function glyphOf(board: SokobanBoard, index: number): string {
+/** What a square shows: its piece's glyph and the token it is drawn as. */
+function pieceOf(
+  board: SokobanBoard,
+  index: number
+): Pick<CellGridCell, 'glyph' | 'identity'> {
   const cell = cellOf(board, index);
   const square = board.squares[index];
-  if (board.worker !== null && sameCell(board.worker, cell)) return '☻';
+  if (board.worker !== null && sameCell(board.worker, cell))
+    return { glyph: '☻', identity: 'three' };
   if (board.crates.some((crate) => sameCell(crate, cell)))
-    return square === 'goal' ? '▣' : '▢';
+    return square === 'goal'
+      ? { glyph: '▣', identity: 'two' }
+      : { glyph: '▢', identity: 'one' };
   // A wall is drawn by its fill (the board's `occupied` tone), not a glyph.
-  return square === 'wall'
-    ? ''
-    : square === 'goal'
-      ? '○'
-      : square === 'outside'
-        ? '·'
-        : '';
+  if (square === 'goal') return { glyph: '', identity: 'four' };
+  return { glyph: square === 'outside' ? '·' : '', identity: undefined };
 }
 
 /**
@@ -143,7 +145,7 @@ function Board(props: {
   const cells = createMemo((): readonly CellGridCell[] =>
     props.board.squares.map((square, index) => ({
       id: squareName(cellOf(props.board, index)),
-      glyph: glyphOf(props.board, index),
+      ...pieceOf(props.board, index),
       label: squareLabel(props.board, props.board, index, words),
       tone:
         square === 'wall'
@@ -184,7 +186,14 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
+        // The board's size and the tools head it, so every control that
+        // shapes the board is in view with it; what to correct follows.
         <StackVertical gap="md">
+          <SokobanSizeControls
+            board={board()}
+            disabled={props.disabled}
+            onResize={editor.resize}
+          />
           <ToolPalette editor={editor} disabled={props.disabled} />
           <Board editor={editor} board={board()} disabled={props.disabled} />
           <P variant="caption" tone="secondary">
@@ -194,11 +203,6 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
             </Trans>
           </P>
           <Feedback editor={editor} board={board()} />
-          <SokobanSizeControls
-            board={board()}
-            disabled={props.disabled}
-            onResize={editor.resize}
-          />
         </StackVertical>
       )}
     </Show>

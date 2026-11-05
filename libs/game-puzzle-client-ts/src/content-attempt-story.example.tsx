@@ -27,7 +27,7 @@ function StoryPackAttemptControls(props: {
   readonly disabled: boolean;
 }): JSX.Element {
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm" wrap shrink>
       <Button
         title="Undo"
         intent="neutral"

@@ -1,0 +1,48 @@
+/* A square picture of what a row opens. Its content is laid out at four
+   times the thumbnail's size, then zoomed down, so a board preview keeps
+   its proportions, its pieces and its type in step with each other. */
+.thumbnail {
+  --preview-thumbnail-size: 4rem;
+  position: relative;
+  display: inline-grid;
+  flex-shrink: 0;
+  width: var(--preview-thumbnail-size);
+  height: var(--preview-thumbnail-size);
+}
+.thumbnail[data-size="md"] {
+  --preview-thumbnail-size: 3rem;
+}
+/* A collection: a second sheet behind the first, offset up and right. */
+.thumbnail[data-stacked="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translate(0.25rem, -0.25rem);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+}
+.thumbnail[data-stacked="true"] {
+  margin-top: 0.25rem;
+  margin-right: 0.25rem;
+}
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-icon);
+  pointer-events: none;
+}
+.content {
+  display: grid;
+  place-items: center;
+  width: calc(var(--preview-thumbnail-size) * 4);
+  height: calc(var(--preview-thumbnail-size) * 4);
+  padding: calc(var(--preview-thumbnail-size) * 0.4);
+  box-sizing: border-box;
+  zoom: 0.25;
+}

@@ -173,3 +173,64 @@ test('the editing tools head the stage, and publishing has a section of its own'
   expect(publish.contains(screen.getByTestId('playtest'))).toBe(true);
   expect(publish.contains(screen.getByTestId('content-validate'))).toBe(true);
 });
+
+function before(a: Element, b: Element): boolean {
+  return (
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
+}
+
+// regression: pack-builder-steps-out-of-order — the builder was one wall of
+// rows: on a phone the draft copies came before the pack's details and its
+// publishing controls, and Validate / Publish sat in a card far from the
+// stage. The builder now reads as numbered steps (details, then the stage
+// headed by its tools, then the copies), and checking and publishing is a
+// bar held at the foot of the screen.
+test('the builder reads as steps, with publishing in a sticky bar at its foot', () => {
+  mount(() => (
+    <ContentAuthorScreenView
+      status="ready"
+      documentId="doc-1"
+      kind="pack"
+      body={{
+        title: 'Weekend counts',
+        description: '',
+        difficulty: '',
+        definition: '',
+      }}
+      save={{ saving: false, dirty: false, error: null }}
+      conflicted={false}
+      metadataDisabled={false}
+      disabled={false}
+      preview={false}
+      history={<span data-testid="history" />}
+      publication={publication({ layout: 'bar' })}
+      stage={<span data-testid="editor" />}
+      keptCopies={<span data-testid="copies" />}
+      onChangeBody={() => undefined}
+      onSaveAgain={() => undefined}
+      onTogglePreview={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  const details = screen.getByTestId('content-author-details');
+  const stage = screen.getByTestId('content-author-stage');
+  const copies = screen.getByTestId('copies');
+  const publish = screen.getByTestId('content-author-publish');
+  expect(before(details, stage)).toBe(true);
+  expect(before(stage, copies)).toBe(true);
+  expect(before(copies, publish)).toBe(true);
+  expect(details.textContent?.startsWith('1 · Details')).toBe(true);
+  expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
+    '2 · Puzzles'
+  );
+  expect(publish.getAttribute('data-component')).toBe('StickyActionBar');
+  expect(publish.textContent?.startsWith('3 · Check and publish')).toBe(true);
+  expect(publish.contains(screen.getByTestId('content-validate'))).toBe(true);
+  expect(publish.contains(screen.getByTestId('content-publish'))).toBe(true);
+  expect(
+    screen
+      .getByTestId('content-author-tools')
+      .contains(screen.getByTestId('history'))
+  ).toBe(true);
+});
