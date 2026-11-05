@@ -414,7 +414,9 @@ export function FrameBoardSeatView(
                 people={props.people}
               />
             }
-            swatch={shown().swatch}
+            // At its place at the table the seat is told apart by that
+            // place and its tag (South, West), so no colour dot competes
+            // with them.
             tags={
               <>
                 <Show when={own()}>

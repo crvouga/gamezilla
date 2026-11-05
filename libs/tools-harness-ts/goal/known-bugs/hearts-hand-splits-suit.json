@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts' thirteen-card hand broke into rows of seven and six by count alone, so a suit (the hearts) ran from the upper row into the lower and was scanned in two places. The rows now break at the suit boundary nearest the middle where both rows still fit, the shorter row centred, and at the middle only when no boundary fits.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

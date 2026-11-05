@@ -233,36 +233,56 @@ const MOVES: Readonly<Record<string, (at: number, last: number) => number>> = {
 };
 
 /**
- * More cards than one row shows at a readable size lie in two rows: the
- * upper a card longer, the lower half a step along, centred under it. Cards
- * never overlap, so every card shows its whole face; thirteen cards on a
- * 390px phone are about 46px wide each.
+ * More cards than one row shows at a readable size lie in two rows, the
+ * shorter centred under the longer (half a step along when they are
+ * equal). Cards never overlap, so every card shows its whole face;
+ * thirteen cards on a 390px phone are about 46px wide each.
  */
 const ONE_ROW_MAX = 7;
+
+/**
+ * How many of a hand's cards lie in its upper row, given each card's suit
+ * in order: all of them when one row holds them; else the suit boundary
+ * nearest the middle whose two rows both fit, so a suit is read in one
+ * row; else the middle (the upper row the longer).
+ */
+export function handSplit(suits: readonly string[]): number {
+  const count = suits.length;
+  if (count <= ONE_ROW_MAX) return count;
+  const middle = Math.ceil(count / 2);
+  const fits = (top: number): boolean =>
+    top <= ONE_ROW_MAX && count - top <= ONE_ROW_MAX;
+  const boundaries = suits
+    .map((_, at) => at)
+    .filter((at) => at > 0 && suits[at] !== suits[at - 1] && fits(at))
+    .sort((a, b) => Math.abs(a - middle) - Math.abs(b - middle) || b - a);
+  return boundaries[0] ?? middle;
+}
 
 /** Where a card sits in the hand: its row, and how far along, in steps. */
 export function handPlace(
   index: number,
-  count: number
+  suits: readonly string[]
 ): { readonly row: 0 | 1; readonly step: number } {
-  if (count <= ONE_ROW_MAX) return { row: 0, step: index };
-  const top = Math.ceil(count / 2);
-  return index < top
-    ? { row: 0, step: index }
-    : { row: 1, step: index - top + 0.5 };
+  const top = handSplit(suits);
+  const bottom = suits.length - top;
+  const wide = Math.max(top, bottom);
+  if (index < top) return { row: 0, step: (wide - top) / 2 + index };
+  const along = top === bottom ? 0.5 : (wide - bottom) / 2;
+  return { row: 1, step: along + index - top };
 }
 
 /** How many steps the furthest card of the hand sits from the first. */
-export function handSpan(count: number): number {
-  return Math.max(
-    1,
-    ...Array.from({ length: count }, (_, at) => handPlace(at, count).step)
-  );
+export function handSpan(suits: readonly string[]): number {
+  return Math.max(1, ...suits.map((_, at) => handPlace(at, suits).step));
 }
 
 /** Where a hand's card sits: its row, and its step along it. */
-function handCardStyle(index: number, count: number): JSX.CSSProperties {
-  const place = handPlace(index, count);
+function handCardStyle(
+  index: number,
+  suits: readonly string[]
+): JSX.CSSProperties {
+  const place = handPlace(index, suits);
   return {
     '--hand-row': String(place.row),
     '--hand-step': String(place.step),
@@ -275,6 +295,7 @@ function Hand(
   let row: HTMLDivElement | undefined;
   // Cards keyed by id: a change re-renders only the cards that changed.
   const ids = createMemo(() => props.hand.map((card) => card.id));
+  const suits = createMemo(() => props.hand.map((card) => card.suit));
   const byId = createMemo(
     () => new Map(props.hand.map((card) => [card.id, card] as const))
   );
@@ -318,7 +339,7 @@ function Hand(
       ref={row}
       class={styles['hand']}
       style={{
-        '--hand-span': String(handSpan(props.hand.length)),
+        '--hand-span': String(handSpan(suits())),
       }}
       role="toolbar"
       aria-label={props.handLabel}
@@ -332,7 +353,7 @@ function Hand(
               <button
                 type="button"
                 class={styles['card']}
-                style={handCardStyle(index(), ids().length)}
+                style={handCardStyle(index(), suits())}
                 data-refused={String(card().refusal !== undefined)}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}

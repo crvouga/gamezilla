@@ -292,6 +292,11 @@ test('a board that seats its players is lent each player and no seat is drawn ar
     'jordan'
   );
   expect(screen.getAllByTestId('custom-game-black')).toHaveLength(1);
+  // regression: hearts-seat-dots-unexplained — each seat at the table
+  // carried a colour dot (teal, orange, purple, blue) that nothing
+  // explained, beside and competing with its You and South tags. A seat at
+  // its place at the table is told apart by that place and its tag alone.
+  expect(lent.querySelector('[data-component="GameSeatSwatch"]')).toBeNull();
 });
 
 // regression: setup-preview-below-start — on a phone the board preview of a

@@ -5,7 +5,11 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { handPlace, handSpan } from '@pkgs/ui-root-client-ts/card-table';
+import {
+  handPlace,
+  handSpan,
+  handSplit,
+} from '@pkgs/ui-root-client-ts/card-table';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import CardTableExample from '../../ui-root-client-ts/src/card-table/card-table.example';
@@ -222,29 +226,62 @@ test('a hand of thirteen cards lies in two rows of whole cards that never overla
   expect(chosen).toMatch(/translateY\(calc\(-1 \* var\(--ui-space-2\)\)\)/);
   expect(chosen).toMatch(/0 0 0 3px var\(--ui-color-tint\)/);
   expect(8 + 3).toBeLessThan(12);
-  const places = Array.from({ length: 13 }, (_, at) => handPlace(at, 13));
+  // A hand of one suit has no boundary to break at: it splits at the middle.
+  const one = (count: number): string[] => Array<string>(count).fill('hearts');
+  const places = Array.from({ length: 13 }, (_, at) => handPlace(at, one(13)));
   expect(places.filter((place) => place.row === 0)).toHaveLength(7);
   expect(places.filter((place) => place.row === 1)).toHaveLength(6);
   // The lower row sits half a step along, between the upper row's cards.
   expect(places[7]).toEqual({ row: 1, step: 0.5 });
   // Thirteen cards on a 390px phone's 350px row are 46px or wider; on a
   // 320px phone's 280px row still 36px.
-  const span = handSpan(13);
+  const span = handSpan(one(13));
   const width = (row: number) => Math.min(72, (row - span * 4) / (span + 1));
   expect(width(350)).toBeGreaterThanOrEqual(46);
   expect(width(280)).toBeGreaterThanOrEqual(36);
   expect(width(532)).toBe(72);
   // An even hand's lower row ends half a step past the upper's last card.
-  expect(handSpan(8)).toBe(3.5);
+  expect(handSpan(one(8))).toBe(3.5);
   // Seven cards or fewer lie in one row.
-  expect(handPlace(6, 7)).toEqual({ row: 0, step: 6 });
+  expect(handPlace(6, one(7))).toEqual({ row: 0, step: 6 });
   example();
   const hand = document.querySelector<HTMLElement>('[role="toolbar"]');
   if (hand === null) throw new Error('No hand');
   const count = hand.querySelectorAll('button').length;
-  expect(hand.style.getPropertyValue('--hand-span')).toBe(
-    String(handSpan(count))
+  const suits = [...hand.querySelectorAll('button')].map(
+    (button) => button.getAttribute('data-suit') ?? ''
   );
+  expect(suits).toHaveLength(count);
+  expect(hand.style.getPropertyValue('--hand-span')).toBe(
+    String(handSpan(suits))
+  );
+});
+
+// regression: hearts-hand-splits-suit — thirteen cards broke into rows of
+// seven and six by count alone, so the hearts ran on from the upper row
+// into the lower and a suit was read in two places. The rows now break at
+// the suit boundary nearest the middle where both rows still fit (clubs,
+// diamonds and spades over the hearts), the shorter row centred, and at
+// the middle only when no boundary fits.
+test('a two-row hand breaks at a suit boundary where one fits', () => {
+  const hand = [
+    ...Array<string>(2).fill('clubs'),
+    'diamonds',
+    ...Array<string>(3).fill('spades'),
+    ...Array<string>(7).fill('hearts'),
+  ];
+  expect(handSplit(hand)).toBe(6);
+  const places = hand.map((_, at) => handPlace(at, hand));
+  expect(places.slice(0, 6).every((place) => place.row === 0)).toBe(true);
+  expect(places.slice(6).every((place) => place.row === 1)).toBe(true);
+  // The upper row of six sits centred over the lower row of seven.
+  expect(places[0]).toEqual({ row: 0, step: 0.5 });
+  expect(places[6]).toEqual({ row: 1, step: 0 });
+  expect(handSpan(hand)).toBe(6);
+  // No row ever holds more than seven: a boundary that would leave eight
+  // is passed over for the middle.
+  const lopsided = ['clubs', 'clubs', ...Array<string>(11).fill('hearts')];
+  expect(handSplit(lopsided)).toBe(7);
 });
 
 // regression: hearts-seat-name-truncated — a phone's side seat at the Hearts
