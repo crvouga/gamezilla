@@ -137,12 +137,11 @@
 .profile[data-rail="true"] > .profileAside > .identity > .identityActions {
   grid-column: 2;
 }
-/* With a rail, the identity is a band across the top once there is room
-   for it in one line: a panel with the picture at its start, the name
-   and its facts beside it (read from the start edge, not centered) and
-   the actions at its end, as wide as what it holds rather than the whole
-   column. */
-@container (min-width: 40rem) {
+/* With a rail, the identity is a band across the top on a tablet's
+   column: a panel with the picture at its start, the name and its facts
+   beside it (read from the start edge, not centered) and the actions at
+   its end. */
+@container (min-width: 40rem) and (max-width: 55.99rem) {
   /* A band across the whole column: its edges are the columns' edges
      below, so the page reads as one grid instead of a short card beside
      empty space. */
@@ -170,20 +169,44 @@
     align-self: center;
   }
 }
-/* A desktop column has room for the rail beside the main sections: the
-   main column takes what the rail leaves, the rail is as wide as its rows'
-   captions need on one line, and both start under the band at the same
-   line. */
+/* A desktop column composes three columns of like height, tops on one
+   line: the identity as a card of its own content (the picture over the
+   name, its facts and the actions), the main sections taking what is
+   left, then the rail (friends, settings) wide enough for its rows'
+   captions on one line. Never a band as wide as the page with its words
+   at one end and its action at the other. */
 @container (min-width: 56rem) {
   .profile[data-rail="true"] {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 24rem;
-    column-gap: var(--ui-space-2xl);
+    grid-template-columns: 13rem minmax(0, 1fr) 23rem;
+    column-gap: var(--ui-space-xl);
     row-gap: var(--ui-space-section);
     align-items: start;
   }
-  .profile[data-rail="true"] > .profileAside {
-    grid-column: 1 / -1;
+  .profile[data-rail="true"] > .profileAside > .identity {
+    display: flex;
+    align-self: stretch;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-space-3);
+    box-sizing: border-box;
+    padding: var(--ui-space-xl) var(--ui-space-lg);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+    text-align: center;
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+    align-self: center;
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityText {
+    align-items: center;
+    gap: var(--ui-space-1);
+  }
+  /* Each fact's own block centres too, so a stat sits under the name
+     rather than at the card's start edge. */
+  .profile[data-rail="true"] > .profileAside > .identity > .identityText > * {
+    align-items: center;
   }
 }
 /* A desktop column (the whole frame column) has room for the sections
