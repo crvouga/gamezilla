@@ -317,17 +317,19 @@ test('the steps are quiet during live play and plated while reviewing', () => {
 
 // regression: setup-start-far-from-players — wide, the Players card held a
 // 300px list of seats in a 670px card, so a wide empty band lay between
-// the seats' controls and Start at the card's far edge. Wide, the seats sit
-// two to a row across the card, and Start closes it right under them; a
-// phone keeps one seat to a row.
-test('setup: wide, the seats sit two to a row; a phone keeps one', () => {
-  seats(1440);
-  const wide = screen.getByTestId('custom-game-setup-seats');
-  expect(wide.className).toContain('grid-cols-2');
-  expect(screen.getByTestId('custom-game-red').parentElement).toBe(wide);
-  cleanup();
-  seats(390);
-  expect(screen.getByTestId('custom-game-setup-seats').className).toContain(
-    'grid-cols-1'
-  );
+// the seats' controls and Start at the card's far edge.
+// regression: setup-desktop-top-strip — the seats then sat two to a row in
+// a 290px strip across the top of the page beside a small preview. The
+// Players card is now an equal column beside the board preview (see
+// game-surfaces-balance), so on every size its seats are one plain list,
+// one seat to a row, with Start closing the card under them.
+test('setup: the seats are one list, one seat to a row, on every size', () => {
+  for (const width of [1440, 390]) {
+    seats(width);
+    const list = screen.getByTestId('custom-game-setup-seats');
+    expect(list.className).not.toContain('grid-cols-2');
+    expect(list.getAttribute('data-component')).toBe('StackVertical');
+    expect(screen.getByTestId('custom-game-red').parentElement).toBe(list);
+    cleanup();
+  }
 });
