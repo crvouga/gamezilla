@@ -336,4 +336,26 @@ describe('game surfaces', () => {
       rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')
     ).toMatch(/min-height:\s*var\(--ui-space-6\);/);
   });
+
+  // regression: matchmaking-columns-misaligned — wide, the search card's
+  // "New game" title ran above both halves, so "Your ratings" started a
+  // line lower, level with the "Rated · Untimed" line instead of the title.
+  // The card is one grid: its title heads the search's half and the
+  // ratings' half starts level with it.
+  test("a split setup card's two halves start on one line", () => {
+    const css = readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8');
+    const wide = css.slice(css.indexOf('@container game-column (min-width: 880px)'));
+    const body = (head: string): string => {
+      const start = wide.indexOf(`${head} {`);
+      expect(start).toBeGreaterThan(-1);
+      return wide.slice(start, wide.indexOf('}', start));
+    };
+    expect(body('.section:has(> [data-setup-split="true"]) > :first-child')).toMatch(
+      /grid-row:\s*1;/
+    );
+    expect(body('.section > [data-setup-split="true"]')).toMatch(/display:\s*contents;/);
+    expect(body('.section > [data-setup-split="true"] > :last-child')).toMatch(
+      /grid-row:\s*1 \/ span 2;/
+    );
+  });
 });
