@@ -8,41 +8,37 @@
   min-width: 0;
 }
 /* Three players on a phone: one row of three short chips, so no chip is
-   left alone on a second row and the board keeps its height. Each chip is
-   its name over one line of its avatar (a size smaller), swatch and
-   figure; an extra fact (`You`) wraps under them. */
+   left alone on a second row and the board keeps its height. Every chip
+   has the same two lines and so the same height: its name, then its
+   swatch, figure and any short fact (`You`) on one line that never wraps.
+   The swatch names the player's piece on the board, the name the person,
+   so the avatar steps aside and the chips stay short. */
 @container game-column (max-width: 879px) {
   .playerRail:has(> :nth-child(3):last-child) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  /* Lines from the top, so names and figures sit at one height across the
-     row and an extra fact (`You`) only adds a line at the foot. */
   .playerRail:has(> :nth-child(3):last-child) .chipFrame {
     display: grid;
-    grid-template-columns: auto minmax(0, auto);
-    grid-template-areas:
-      "name name"
-      "avatar facts";
-    justify-content: center;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
     align-content: start;
-    align-items: center;
     gap: var(--ui-space-1);
+    padding: var(--ui-space-2) var(--ui-space-1);
     text-align: center;
-    padding-block: var(--ui-space-2);
   }
   .playerRail:has(> :nth-child(3):last-child) .chipText {
     display: contents;
   }
-  .playerRail:has(> :nth-child(3):last-child) .chipName {
-    grid-area: name;
-    justify-self: center;
-  }
   .playerRail:has(> :nth-child(3):last-child) .chipAvatar {
-    grid-area: avatar;
-    zoom: 0.75;
+    display: none;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipName {
+    justify-self: stretch;
   }
   .playerRail:has(> :nth-child(3):last-child) .chipFacts {
-    grid-area: facts;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    justify-content: center;
+    white-space: nowrap;
   }
 }

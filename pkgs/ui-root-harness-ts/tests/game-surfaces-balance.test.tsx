@@ -111,7 +111,12 @@ describe('game surfaces', () => {
   // avatar over name over figures over "You", about 130px tall, shrinking
   // the arena. Each is its name over one line of its avatar, a size
   // smaller, swatch and figure.
-  test('three players on a phone share one row of short chips', () => {
+  // regression: light-cycles-rider-cards-uneven — the person's own chip
+  // then wrapped its "You" under its figure, so its avatar dropped below
+  // its name while the other two chips kept one line. Every chip is the
+  // same two lines: its name, then its swatch, figure and short facts on
+  // one line that never wraps, with no avatar to push them apart.
+  test('three players on a phone share one row of identical short chips', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -124,11 +129,13 @@ describe('game surfaces', () => {
     );
     const frame = phone.slice(phone.indexOf('.chipFrame {'));
     expect(frame.slice(0, frame.indexOf('}'))).toMatch(
-      /display: grid;[\s\S]*grid-template-areas:\s*"name name"\s*"avatar facts";/
+      /display: grid;\s*grid-template-columns: minmax\(0, 1fr\);\s*grid-template-rows: auto auto;/
     );
     expect(phone).toMatch(/\.chipText \{\s*display: contents;/);
-    expect(phone).toMatch(
-      /\.chipAvatar \{\s*grid-area: avatar;\s*zoom: 0\.75;/
+    expect(phone).toMatch(/\.chipAvatar \{\s*display: none;/);
+    const facts = phone.slice(phone.indexOf('.chipFacts {'));
+    expect(facts.slice(0, facts.indexOf('}'))).toMatch(
+      /flex-wrap: nowrap;[\s\S]*white-space: nowrap;/
     );
   });
 

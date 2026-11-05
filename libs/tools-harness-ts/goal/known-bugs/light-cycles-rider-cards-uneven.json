@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the three Light Cycles rider chips were uneven: the person's own chip wrapped its 'You' tag under its figure, so its avatar dropped below its name while the other two chips kept one line. Every three-up chip is now the same two lines (name, then swatch, figure and short facts on one unwrapped line) with no avatar.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}
