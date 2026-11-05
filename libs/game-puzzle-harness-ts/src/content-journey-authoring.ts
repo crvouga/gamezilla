@@ -7,6 +7,7 @@ import {
   contentAttribute,
   contentInput,
   contentTap,
+  openContentDetails,
 } from './content-journey-device';
 
 export async function createJourneyDraft(
@@ -30,6 +31,7 @@ export async function editJourneyMetadata(
   kind: 'puzzle' | 'pack',
   title: string
 ): Promise<void> {
+  await openContentDetails(device);
   await contentInput(device, 'content-title', title);
   await contentInput(device, 'content-description', 'A gentle beginning');
   if (kind === 'puzzle')

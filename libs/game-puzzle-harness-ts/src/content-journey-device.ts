@@ -40,3 +40,17 @@ export async function contentInput(
   await device.ui.get(id).clear();
   await device.ui.get(id).input(value, device);
 }
+
+/**
+ * The builder's details (title, description, difficulty), opened when the
+ * builder shows them closed to one row over its stage.
+ */
+export async function openContentDetails(
+  device: ContentJourneyDevice
+): Promise<void> {
+  const toggle = device.ui.get('content-author-details-toggle');
+  await toggle.expect.visible(device);
+  if ((await toggle.attribute('aria-expanded')) !== 'true')
+    await contentTap(device, 'content-author-details-toggle');
+  await device.ui.get('content-title').expect.visible(device);
+}

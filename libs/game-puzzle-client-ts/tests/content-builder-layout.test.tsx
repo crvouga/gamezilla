@@ -20,14 +20,17 @@ import type { JSX } from 'solid-js';
 
 afterEach(cleanup);
 
-function mount(ui: () => JSX.Element): void {
+const DESKTOP = { width: 1440, height: 900 } as const;
+const PHONE = { width: 390, height: 844 } as const;
+
+function mount(
+  ui: () => JSX.Element,
+  size: { width: number; height: number } = DESKTOP
+): void {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
+      <ThemeProvider colorScheme="dark" fixedLayout={size}>
         {ui()}
       </ThemeProvider>
     </ClockProvider>
@@ -155,8 +158,11 @@ test('the editing tools head the stage, and publishing has a section of its own'
       disabled={false}
       preview={false}
       history={<span data-testid="history" />}
-      playtest={<span data-testid="playtest" />}
-      publication={publication({ kind: 'puzzle' })}
+      publication={publication({
+        kind: 'puzzle',
+        layout: 'bar',
+        before: <span data-testid="playtest" />,
+      })}
       stage={<span data-testid="editor" />}
       onChangeBody={() => undefined}
       onSaveAgain={() => undefined}
@@ -180,21 +186,17 @@ function before(a: Element, b: Element): boolean {
   );
 }
 
-// regression: pack-builder-steps-out-of-order — the builder was one wall of
-// rows: on a phone the draft copies came before the pack's details and its
-// publishing controls, and Validate / Publish sat in a card far from the
-// stage. The builder now reads as numbered steps (details, then the stage
-// headed by its tools, then the copies), and checking and publishing is a
-// bar held at the foot of the screen.
-test('the builder reads as steps, with publishing in a sticky bar at its foot', () => {
-  mount(() => (
+function builder(
+  overrides: Partial<Parameters<typeof ContentAuthorScreenView>[0]> = {}
+): JSX.Element {
+  return (
     <ContentAuthorScreenView
       status="ready"
       documentId="doc-1"
       kind="pack"
       body={{
         title: 'Weekend counts',
-        description: '',
+        description: 'Three counts that get harder.',
         difficulty: '',
         definition: '',
       }}
@@ -211,8 +213,19 @@ test('the builder reads as steps, with publishing in a sticky bar at its foot', 
       onSaveAgain={() => undefined}
       onTogglePreview={() => undefined}
       onReturnToLibrary={() => undefined}
+      {...overrides}
     />
-  ));
+  );
+}
+
+// regression: pack-builder-steps-out-of-order — the builder was one wall of
+// rows: on a phone the draft copies came before the pack's details and its
+// publishing controls, and Validate / Publish sat in a card far from the
+// stage. The builder now reads as numbered steps (details, then the stage
+// headed by its tools, then the copies), and checking and publishing is
+// the screen's footer.
+test('the builder reads as steps, with publishing in the screen footer', () => {
+  mount(() => builder());
   const details = screen.getByTestId('content-author-details');
   const stage = screen.getByTestId('content-author-stage');
   const copies = screen.getByTestId('copies');
@@ -224,7 +237,7 @@ test('the builder reads as steps, with publishing in a sticky bar at its foot', 
   expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
     '2 · Puzzles'
   );
-  expect(publish.getAttribute('data-component')).toBe('StickyActionBar');
+  expect(publish.getAttribute('data-component')).toBe('StepFooter');
   expect(publish.textContent?.startsWith('3 · Check and publish')).toBe(true);
   expect(publish.contains(screen.getByTestId('content-validate'))).toBe(true);
   expect(publish.contains(screen.getByTestId('content-publish'))).toBe(true);
@@ -233,4 +246,96 @@ test('the builder reads as steps, with publishing in a sticky bar at its foot', 
       .getByTestId('content-author-tools')
       .contains(screen.getByTestId('history'))
   ).toBe(true);
+});
+
+// regression: builder-publish-bar-covers-content — the publish bar was a
+// sticky card inside the scroll area, so on both sizes it covered the
+// board's last row, the pack's puzzle list and the helper text under it.
+// It is now the screen's footer: a strip after the scroll area, outside
+// it, so nothing can scroll beneath it.
+for (const [size, name] of [
+  [PHONE, 'a phone'],
+  [DESKTOP, 'a desktop'],
+] as const)
+  test(`on ${name} the publish step sits under the scroll area, never in it`, () => {
+    mount(() => builder(), size);
+    const publish = screen.getByTestId('content-author-publish');
+    // The screen's own scroll area carries its screen id.
+    const scroller = document.querySelector(
+      '[data-screen="puzzle-content-author"]'
+    );
+    const footer = publish.closest('[data-component="EmbeddedScreenFooter"]');
+    expect(scroller).not.toBeNull();
+    expect(footer).not.toBeNull();
+    expect(scroller?.contains(publish)).toBe(false);
+    expect(scroller?.parentElement).toBe(footer?.parentElement ?? null);
+    expect(before(scroller as Element, footer as Element)).toBe(true);
+  });
+
+// regression: builder-step-two-left-of-step-one — wide, the details sat in
+// the rail beside the stage, so "2 · Board" read left of "1 · Details".
+// The details now head the builder, above the stage and its rail.
+test('wide, the details head the builder instead of sitting beside the stage', () => {
+  mount(() => builder());
+  const details = screen.getByTestId('content-author-details');
+  expect(details.closest('[data-component="GameLayout"]')).toBeNull();
+  const layout = screen
+    .getByTestId('content-author-stage')
+    .closest('[data-component="GameLayout"]');
+  expect(layout).not.toBeNull();
+  expect(before(details, layout as Element)).toBe(true);
+});
+
+// regression: builder-details-before-canvas — on a phone the title,
+// description and difficulty fields filled the screen before any of the
+// board or the pack's puzzles. A titled draft's details are one closed
+// row, summarised, over the stage; a new draft opens on them.
+test("a titled draft's details are one closed row that opens on its fields", () => {
+  mount(() => builder(), PHONE);
+  const toggle = screen.getByTestId('content-author-details-toggle');
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(toggle.textContent).toContain('Three counts that get harder.');
+  expect(screen.queryByTestId('content-title')).toBeNull();
+  toggle.click();
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByTestId('content-title')).toBeDefined();
+});
+
+test('an untitled draft opens on its details', () => {
+  mount(
+    () =>
+      builder({
+        body: { title: '', description: '', difficulty: '', definition: '' },
+      }),
+    PHONE
+  );
+  expect(
+    screen
+      .getByTestId('content-author-details-toggle')
+      .getAttribute('aria-expanded')
+  ).toBe('true');
+  expect(screen.getByTestId('content-title')).toBeDefined();
+});
+
+// regression: builder-proof-pill-floats — "Not proven yet" was a pill
+// floating over the publish buttons. Where the draft stands is now the
+// publish footer's line of text, beside its actions.
+test('the publish footer says where the draft stands in its own text', () => {
+  mount(() =>
+    builder({
+      kind: 'puzzle',
+      publication: publication({ kind: 'puzzle', layout: 'bar' }),
+    })
+  );
+  const status = screen.getByTestId('content-publication-status');
+  expect(screen.getByTestId('content-author-publish').contains(status)).toBe(
+    true
+  );
+  expect(status.tagName).toBe('P');
+  expect(status.textContent).toBe(
+    'Not proven yet · Not checked yet. Finish a playtest, then validate.'
+  );
+  expect(
+    screen.getByTestId('content-proof').closest('[data-component="Badge"]')
+  ).toBeNull();
 });

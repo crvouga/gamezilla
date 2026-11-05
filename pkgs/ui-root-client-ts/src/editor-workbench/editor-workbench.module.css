@@ -1,0 +1,33 @@
+/* An editor's canvas and its tools: stacked when narrow, side by side when
+   the workbench itself is wide enough for both. */
+.workbench {
+  container: editor-workbench / inline-size;
+  min-width: 0;
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.canvas,
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.grid[data-order="tools-first"] > .tools {
+  order: -1;
+}
+@container editor-workbench (min-width: 720px) {
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 520px) minmax(240px, 1fr);
+    column-gap: var(--ui-space-6);
+    align-items: start;
+  }
+  .grid[data-order="tools-first"] > .tools {
+    order: 0;
+  }
+}

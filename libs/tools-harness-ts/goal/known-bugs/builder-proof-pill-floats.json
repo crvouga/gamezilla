@@ -1,0 +1,4 @@
+{
+  "summary": "The builder's 'Not proven yet' status was a pill floating over the publish buttons. Where the draft stands (its proof, its check and the next step) is now the publish footer's line of text beside its actions.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

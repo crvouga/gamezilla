@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the builder's title, description and difficulty fields filled the screen before any of the board or the pack's puzzle list. A titled draft's details are one closed, summarised row over the stage; a new draft opens on them.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

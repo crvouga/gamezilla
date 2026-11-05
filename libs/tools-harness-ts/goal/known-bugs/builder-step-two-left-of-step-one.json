@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the builder's details sat in the rail beside the stage, so '2 · Board' / '2 · Puzzles' read to the left of '1 · Details'. The details now head the builder, above the stage and its rail.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

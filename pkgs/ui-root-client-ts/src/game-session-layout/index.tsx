@@ -34,6 +34,12 @@ export type GameSessionLayoutProps = {
    * the players. Phones are unchanged. See `GameLayout`'s `arena`.
    */
   arena?: boolean | undefined;
+  /**
+   * An editor's workspace: the stage takes the whole game column (as wide
+   * as a board and its rail) with nothing beside it, so an editor can set
+   * its tools beside its canvas (`EditorWorkbench`). See `GameLayout`.
+   */
+  workspace?: boolean | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
   footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -91,6 +97,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
         aside={props.aside}
         stagePreview={props.boardPreview}
         arena={props.arena}
+        workspace={props.workspace}
       >
         <SessionStage {...props} />
       </GameLayout>
