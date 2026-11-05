@@ -196,8 +196,7 @@ async function chooseHistory(
   );
   await settleBuilder(s, clientId);
   // The shared control shows its success face before offering the next edit.
-  const label =
-    testId === 'content-undo-draft-edit' ? 'Undo edit' : 'Redo edit';
+  const label = testId === 'content-undo-draft-edit' ? 'Undo' : 'Redo';
   await waitForContent(s, () => Promise.resolve(button.textContent === label));
 }
 

@@ -91,17 +91,19 @@ export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
   return (
     <>
       <Button
-        title="Undo edit"
+        title="Undo"
         intent="neutral"
         variant="ghost"
-        startIcon={<UndoIcon size={20} />}
+        size="sm"
+        startIcon={<UndoIcon size={16} />}
         disabled={props.disabled}
       />
       <Button
-        title="Redo edit"
+        title="Redo"
         intent="neutral"
         variant="ghost"
-        startIcon={<RedoIcon size={20} />}
+        size="sm"
+        startIcon={<RedoIcon size={16} />}
         disabled
       />
     </>

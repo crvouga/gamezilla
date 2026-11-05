@@ -16,7 +16,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StepFooter } from '@pkgs/ui-root-client-ts/step-footer';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
@@ -69,22 +69,28 @@ export type ContentAuthorScreenViewProps = {
   readonly onReturnToLibrary: () => void;
 };
 
-function SaveStatus(props: ContentAuthorScreenViewProps): JSX.Element {
+/**
+ * Where the working copy's last save stands, one quiet line after the
+ * builder's kind under its title.
+ */
+function SaveLine(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Text variant="inherit" role="status" testId="content-draft-save-status">
+      {props.save.saving
+        ? t`Saving your draft…`
+        : props.save.dirty
+          ? t`Your changes still need to be saved.`
+          : t`Saved on this device. Changes share when connected.`}
+    </Text>
+  );
+}
+
+/** A failed save or a conflicting copy: what needs the author first. */
+function SaveNotices(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <>
-      <P
-        role="status"
-        variant="caption"
-        tone="secondary"
-        dataSet={{ testid: 'content-draft-save-status' }}
-      >
-        {props.save.saving
-          ? t`Saving your draft…`
-          : props.save.dirty
-            ? t`Your changes still need to be saved.`
-            : t`Saved on this device. Changes share when connected.`}
-      </P>
       <Show when={props.save.error}>
         {(error) => (
           <ErrorState
@@ -125,13 +131,14 @@ function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
       <H2 size="navigationTitle" testId="content-author-stage-step">
         {props.kind === 'pack' ? t`2 · Puzzles` : t`2 · Board`}
       </H2>
-      <StackHorizontal gap="sm" wrap align="center">
+      <StackHorizontal gap="xs" wrap align="center">
         {props.history}
         <Button
           title={props.preview ? t`Return to editing` : t`Preview`}
           intent="neutral"
           variant="ghost"
-          startIcon={<EyeIcon size={20} />}
+          size="sm"
+          startIcon={<EyeIcon size={16} />}
           onClick={() => props.onTogglePreview()}
           disabled={props.disabled}
           dataSet={{ testid: 'content-preview' }}
@@ -210,12 +217,18 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
           {props.body.title || t`Untitled draft`}
         </Text>
       }
-      subtitle={props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
+      subtitle={
+        <>
+          {props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
+          {' · '}
+          <SaveLine {...props} />
+        </>
+      }
     >
       <GameSessionLayout
         notices={
           <>
-            <SaveStatus {...props} />
+            <SaveNotices {...props} />
             <AuthorDetails {...props} />
           </>
         }

@@ -214,7 +214,7 @@ test('on a phone the board follows its tools, the size a closed row, the notes a
   ));
   const toggle = view.getByTestId('sokoban-size-toggle');
   expect(toggle.getAttribute('aria-expanded')).toBe('false');
-  expect(toggle.textContent).toContain('Board size5 × 1');
+  expect(toggle.textContent).toBe('Board size · 5 × 1');
   const board = view.getByTestId('sokoban-editor-board');
   expect(precedes(view.getByTestId('sokoban-tools'), board)).toBe(true);
   const said =

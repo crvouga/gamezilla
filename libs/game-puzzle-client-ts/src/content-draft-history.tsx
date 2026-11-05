@@ -28,13 +28,13 @@ function useDraftEditStep(props: HistoryProps, direction: DraftEditDirection) {
     labels:
       direction === 'undo'
         ? {
-            idle: t`Undo edit`,
+            idle: t`Undo`,
             loading: t`Undoing…`,
             success: t`Edit undone`,
             error: t`Try undoing again`,
           }
         : {
-            idle: t`Redo edit`,
+            idle: t`Redo`,
             loading: t`Redoing…`,
             success: t`Edit restored`,
             error: t`Try redoing again`,
@@ -50,8 +50,9 @@ function useDraftEditStep(props: HistoryProps, direction: DraftEditDirection) {
 
 /**
  * Undo and redo of this session's draft edits; each keeps a new draft copy.
- * Ghost buttons with their icons, as the builder's other stage tool
- * (Preview) is, so the three read as one row of tools.
+ * Small ghost buttons with their icons, as the builder's other stage tool
+ * (Preview) is, so the three read as one row of tools beside the step's
+ * name, on a phone too.
  */
 export function ContentDraftHistory(props: HistoryProps): JSX.Element {
   const { t } = useLingui();
@@ -64,14 +65,16 @@ export function ContentDraftHistory(props: HistoryProps): JSX.Element {
         {...undo.buttonProps}
         intent="neutral"
         variant="ghost"
-        startIcon={<UndoIcon size={20} />}
+        size="sm"
+        startIcon={<UndoIcon size={16} />}
         dataSet={{ testid: 'content-undo-draft-edit' }}
       />
       <Button
         {...redo.buttonProps}
         intent="neutral"
         variant="ghost"
-        startIcon={<RedoIcon size={20} />}
+        size="sm"
+        startIcon={<RedoIcon size={16} />}
         dataSet={{ testid: 'content-redo-draft-edit' }}
       />
       <Show when={failure()}>

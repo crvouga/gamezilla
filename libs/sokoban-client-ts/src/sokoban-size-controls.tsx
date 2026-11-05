@@ -8,7 +8,7 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createEffect, createSignal, type JSX } from 'solid-js';
 
 /**
- * The board's size, set once and then out of the way: one closed row
+ * The board's size, set once and then out of the way: one closed line
  * ("Board size · 7 × 6") on a phone, so the board is in view under the
  * tools; open beside the board where there is room. Resizing can remove
  * pieces, so a new size applies only when chosen.
@@ -30,8 +30,7 @@ export function SokobanSizeControls(props: {
     /^\d{1,3}$/.test(text.trim()) ? Number(text.trim()) : Number.NaN;
   return (
     <DisclosureCard
-      title={t`Board size`}
-      summary={t`${props.board.width} × ${props.board.height}`}
+      title={t`Board size · ${props.board.width} × ${props.board.height}`}
       defaultOpen={mode() === 'wide'}
       toggleTestId="sokoban-size-toggle"
       dataSet={{ testid: 'sokoban-size' }}

@@ -383,3 +383,27 @@ test('the publish footer says where the draft stands in its own text', () => {
     screen.getByTestId('content-proof').closest('[data-component="Badge"]')
   ).toBeNull();
 });
+
+// regression: pack-builder-phone-list-buried — on a phone the pack
+// builder's title, a save line, the details and a row of three outlined
+// pills came before the pack's puzzles, which then sat behind the publish
+// strip. The save line is now part of the title's subtitle, and undo,
+// redo and preview are small ghost tools on the step's own row, so the
+// pack's puzzles and their actions follow the details directly.
+test('on a phone the save line joins the subtitle and the stage tools share the step row', () => {
+  mount(() => builder(), PHONE);
+  const save = screen.getByTestId('content-draft-save-status');
+  expect(save.getAttribute('role')).toBe('status');
+  expect(save.closest('[data-component="ScreenIntro"]')).not.toBeNull();
+  expect(save.closest('[data-component="ScreenIntro"]')?.textContent).toContain(
+    'Pack builder · Saved on this device.'
+  );
+  const tools = screen.getByTestId('content-author-tools');
+  const preview = screen.getByTestId('content-preview');
+  expect(tools.contains(screen.getByTestId('content-author-stage-step'))).toBe(
+    true
+  );
+  expect(preview.getAttribute('data-variant')).toBe('ghost');
+  expect(preview.getAttribute('data-size')).toBe('sm');
+  expect(preview.textContent).toBe('Preview');
+});

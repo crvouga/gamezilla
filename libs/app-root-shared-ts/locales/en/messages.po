@@ -112,12 +112,6 @@ msgstr "{0} · {1}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#. placeholder {0}: props.board.width
-#. placeholder {1}: props.board.height
-#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
-msgid "{0} × {1}"
-msgstr "{0} × {1}"
-
 #. placeholder {0}: active()
 #: libs/auth-client-ts/src/account-device-session-caption-text.tsx
 msgid "{0} active, expires {latestExpires}"
@@ -1312,9 +1306,11 @@ msgstr "Blue fleet"
 msgid "Board preview"
 msgstr "Board preview"
 
+#. placeholder {0}: props.board.width
+#. placeholder {1}: props.board.height
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
-msgid "Board size"
-msgstr "Board size"
+msgid "Board size · {0} × {1}"
+msgstr "Board size · {0} × {1}"
 
 #. placeholder {0}: cellName(112)
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
@@ -5556,13 +5552,10 @@ msgid "Red fleet"
 msgstr "Red fleet"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Redo"
 msgstr "Redo"
-
-#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
-msgid "Redo edit"
-msgstr "Redo edit"
 
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Redoing…"
@@ -6529,8 +6522,8 @@ msgstr "Solved"
 #. placeholder {0}: props.progress.completed
 #. placeholder {1}: props.progress.total
 #: libs/game-puzzle-client-ts/src/content-library-card.tsx
-msgid "Solved {0} of {1}"
-msgstr "Solved {0} of {1}"
+msgid "Solved {0}/{1}"
+msgstr "Solved {0}/{1}"
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -7855,13 +7848,10 @@ msgid "Unblocking…"
 msgstr "Unblocking…"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Undo"
 msgstr "Undo"
-
-#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
-msgid "Undo edit"
-msgstr "Undo edit"
 
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Undoing…"
