@@ -386,6 +386,13 @@ test('wide: the card beside the players says how the game is played', () => {
       // little. How to play names the 160px board instead.
       expect(about?.textContent).toBe(`How to play${RULES}`);
       expect(preview.textContent).not.toContain('Board preview');
+      // regression: setup-how-to-play-misaligned — wide, the card centred
+      // its board but set "How to play" and its words flush left under it.
+      // Both lines are centred like the board.
+      const lines = [...(about?.children ?? [])];
+      expect(lines).toHaveLength(2);
+      for (const line of lines)
+        expect(line.className).toContain('text-center');
     }
     cleanup();
   }

@@ -134,8 +134,9 @@ function FrameStartSlot(
 /**
  * Beside the board preview: how the game is played, in its own words, so
  * the card paired with the players says what the game is about. Wide, under
- * the preview with its heading; on a phone the line itself beside the slim
- * preview's thumbnail, in place of the bare `Board preview` label.
+ * the preview with its heading, centred like the preview above it; on a
+ * phone the line itself beside the slim preview's thumbnail, in place of
+ * the bare `Board preview` label.
  */
 function FrameAboutView(props: {
   readonly about: (() => JSX.Element) | undefined;
@@ -146,11 +147,15 @@ function FrameAboutView(props: {
       {(about) => (
         <StackVertical gap="xs" grow testId="custom-game-about">
           <Show when={mode() === 'wide'}>
-            <P variant="label">
+            <P variant="label" align="center">
               <Trans>How to play</Trans>
             </P>
           </Show>
-          <P variant="caption" tone="secondary">
+          <P
+            variant="caption"
+            tone="secondary"
+            align={mode() === 'wide' ? 'center' : undefined}
+          >
             <Dynamic component={about()} />
           </P>
         </StackVertical>
