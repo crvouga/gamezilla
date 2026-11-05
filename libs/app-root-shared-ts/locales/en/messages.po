@@ -2441,6 +2441,14 @@ msgstr "Draft created"
 msgid "Draft: publish this puzzle before publishing the pack"
 msgstr "Draft: publish this puzzle before publishing the pack"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Drag from a number to its match to draw a path."
+msgstr "Drag from a number to its match to draw a path."
+
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
+msgstr "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
 msgstr "Draining"
@@ -2456,10 +2464,6 @@ msgstr "Draw"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."
-
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Draw from an endpoint to its match. With a keyboard, press Enter to start, use arrow keys to draw, then Enter to finish. Escape cancels; Delete removes a path."
-msgstr "Draw from an endpoint to its match. With a keyboard, press Enter to start, use arrow keys to draw, then Enter to finish. Escape cancels; Delete removes a path."
 
 #: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
 msgid "Draw the path again."
@@ -3962,6 +3966,10 @@ msgstr "Move second endpoint"
 msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 msgstr "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Move with the arrow keys or W A S D, or click a square beside the worker."
+msgstr "Move with the arrow keys or W A S D, or click a square beside the worker."
+
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
@@ -3973,6 +3981,12 @@ msgstr "Move your paddle to return the ball. A ball past the other paddle scores
 msgid "Moves"
 msgstr "Moves"
 
+#. placeholder {0}: props.position.moves
+#. placeholder {1}: props.position.pushes
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Moves {0} · Pushes {1}"
+msgstr "Moves {0} · Pushes {1}"
+
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Moves appear as they are played."
 msgstr "Moves appear as they are played."
@@ -3981,12 +3995,6 @@ msgstr "Moves appear as they are played."
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Moves played"
 msgstr "Moves played"
-
-#. placeholder {0}: props.position.moves
-#. placeholder {1}: props.position.pushes
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Moves: {0} · Pushes: {1}"
-msgstr "Moves: {0} · Pushes: {1}"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves. The left and right arrow keys step through them."
@@ -5071,10 +5079,6 @@ msgstr "Purple"
 msgid "Push every crate onto a goal, one at a time."
 msgstr "Push every crate onto a goal, one at a time."
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
-msgstr "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
-
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Pushes"
 msgstr "Pushes"
@@ -5084,6 +5088,13 @@ msgstr "Pushes"
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
+
+#. placeholder {0}: props.pack.position
+#. placeholder {1}: props.pack.total
+#. placeholder {2}: props.pack.title
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Puzzle {0} of {1} in {2}"
+msgstr "Puzzle {0} of {1} in {2}"
 
 #. placeholder {0}: idLabel()
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
@@ -6618,6 +6629,10 @@ msgstr "Suggested"
 msgid "Swap sides"
 msgstr "Swap sides"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Swipe the board, tap a square beside the worker, or use the buttons."
+msgstr "Swipe the board, tap a square beside the worker, or use the buttons."
+
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Sync"
@@ -7364,6 +7379,7 @@ msgstr "This profile is no longer available because the account was deleted."
 msgid "This publication is withdrawn. You can continue saved attempts from your library."
 msgstr "This publication is withdrawn. You can continue saved attempts from your library."
 
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "This puzzle"
 msgstr "This puzzle"

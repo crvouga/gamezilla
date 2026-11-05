@@ -41,6 +41,7 @@
   --color-on-info: var(--ui-color-on-info);
 }
 .board {
+  container-type: inline-size;
   position: relative;
   display: grid;
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
@@ -86,13 +87,17 @@
   border-radius: var(--ui-radius-full);
   background: var(--ui-color-background);
   color: var(--ui-color-text);
-  font-size: var(--ui-font-size-sm);
+  /* The number grows with its cell, so a big board's endpoints read. */
+  font-size: max(var(--ui-font-size-sm), calc(30cqw / var(--path-columns)));
   line-height: var(--ui-line-height-tight);
   font-weight: var(--ui-font-weight-semibold);
   pointer-events: none;
 }
+/* A joined pair fills its endpoints with the path's colour: done reads as
+   more solid than open, by fill and not by colour alone. */
 .cell[data-connected="true"] .endpoint {
-  border-style: double;
+  background: var(--path-color);
+  color: var(--ui-color-background);
 }
 .lines {
   position: absolute;

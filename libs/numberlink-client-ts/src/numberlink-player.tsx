@@ -12,6 +12,7 @@ import { Trans } from '@lingui/solid/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
@@ -22,6 +23,7 @@ function Drawing(props: {
   disabled: boolean;
   onAction: (action: string) => void;
 }): JSX.Element {
+  const mode = useLayoutMode();
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -43,11 +45,18 @@ function Drawing(props: {
         onCellKey={drawing.key}
       />
       <P variant="caption" tone="secondary">
-        <Trans>
-          Draw from an endpoint to its match. With a keyboard, press Enter to
-          start, use arrow keys to draw, then Enter to finish. Escape cancels;
-          Delete removes a path.
-        </Trans>
+        <Show
+          when={mode() === 'wide'}
+          fallback={
+            <Trans>Drag from a number to its match to draw a path.</Trans>
+          }
+        >
+          <Trans>
+            Drag from a number to its match, or press Enter on a number, draw
+            with the arrow keys and press Enter again. Escape cancels; Delete
+            removes a path.
+          </Trans>
+        </Show>
       </P>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}
