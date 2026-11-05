@@ -75,6 +75,25 @@ describe('game surfaces', () => {
     expect(grid.slice(0, grid.indexOf('}'))).not.toContain('container');
   });
 
+  // regression: setup-phone-preview-leads-players — on a phone the board
+  // preview was a 96px thumbnail in a card about 140px tall ahead of the
+  // Players card, so the preview, not the players, led the setup. It is a
+  // slim row now: a 48px thumbnail beside its label.
+  test("a phone's setup picture is a slim row, the thumbnail beside its label", () => {
+    const media = rule(
+      'game-section/game-section-media.module.css',
+      '.sectionMedia'
+    );
+    expect(media).toContain('--game-board-preview-measure: 48px');
+    const pair = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    expect(pair).toMatch(
+      /@container game-section \(max-width: 39\.99rem\)\s*\{\s*\.sectionPair \.sectionMedia \[data-preview="true"\]\s*\{[^}]*flex-direction: row/
+    );
+  });
+
   test('a section with no picture keeps its plain body', () => {
     renderUi(() => (
       <GameSection title="Players">
