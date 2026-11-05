@@ -1,0 +1,4 @@
+{
+  "summary": "Beside the sidebar, the not-found screen put its title at the top of the page and the compass, one sentence and the ways out in the content's top-left corner, leaving the rest of the 1440x900 screen empty. The title, compass, sentence and ways out are now one unit centred in the content area, the title still the screen's one heading.",
+  "regressionTest": "libs/app-root-client-ts/tests/not-found-screen.test.tsx"
+}

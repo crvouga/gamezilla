@@ -4,8 +4,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CompassIcon, Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
+import { H1 } from '@pkgs/ui-root-client-ts/heading';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
   StateBlock,
   StateBlockActions,
@@ -27,10 +27,11 @@ export type NotFoundScreenViewProps = {
 };
 
 /**
- * The `*` route: the page title says what happened ("Page not found") and,
- * centred in the content area, the message says why, without repeating it.
- * Two ways out at most, side by side on one line: Go to Spaces (home), and
- * Go back when there is somewhere to go back to.
+ * The `*` route: one message, centred in the content area as a single
+ * unit. The page title ("Page not found", the screen's one heading) heads
+ * it, then the compass, why it happened without repeating the title, and
+ * at most two ways out side by side: Go to Spaces (home), and Go back when
+ * there is somewhere to go back to. The header draws no title of its own.
  */
 export function NotFoundScreenView(
   props: NotFoundScreenViewProps
@@ -39,41 +40,35 @@ export function NotFoundScreenView(
     <ScreenBase
       screenId={props.screenId}
       breadcrumbs={[{ name: props.title }]}
+      titlePlacement="content"
       content={() => (
-        // Directly under the title, on the title's left edge: one alignment
-        // axis for the heading, its explanation and the ways out.
-        <StackVertical paddingTop="md">
-          <StateBlock
-            variant="compact"
-            align="start"
-            dataSet={{ testid: Handles.routeNotFound }}
-          >
-            <StateBlockIcon icon={CompassIcon} />
-            <P variant="body" tone="secondary">
-              <Trans>
-                The link may be old or mistyped. Your spaces are still here.
-              </Trans>
-            </P>
-            <StateBlockActions align="start">
-              <Button
-                title={<Trans>Go to Spaces</Trans>}
-                icon={Gamepad2Icon}
-                onClick={() => props.onGoToSpaces()}
-                dataSet={{ testid: Handles.routeNotFoundAction }}
-              />
-              <Show when={props.onGoBack}>
-                {(goBack) => (
-                  <Button
-                    title={<Trans>Go back</Trans>}
-                    intent="neutral"
-                    variant="outline"
-                    onClick={() => goBack()()}
-                  />
-                )}
-              </Show>
-            </StateBlockActions>
-          </StateBlock>
-        </StackVertical>
+        <StateBlock dataSet={{ testid: Handles.routeNotFound }}>
+          <StateBlockIcon icon={CompassIcon} />
+          <H1 align="center">{props.title}</H1>
+          <P variant="body" tone="secondary" align="center">
+            <Trans>
+              The link may be old or mistyped. Your spaces are still here.
+            </Trans>
+          </P>
+          <StateBlockActions>
+            <Button
+              title={<Trans>Go to Spaces</Trans>}
+              icon={Gamepad2Icon}
+              onClick={() => props.onGoToSpaces()}
+              dataSet={{ testid: Handles.routeNotFoundAction }}
+            />
+            <Show when={props.onGoBack}>
+              {(goBack) => (
+                <Button
+                  title={<Trans>Go back</Trans>}
+                  intent="neutral"
+                  variant="outline"
+                  onClick={() => goBack()()}
+                />
+              )}
+            </Show>
+          </StateBlockActions>
+        </StateBlock>
       )}
     />
   );

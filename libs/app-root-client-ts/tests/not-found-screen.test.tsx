@@ -9,7 +9,13 @@ import { renderChrome } from './render-chrome';
 
 afterEach(cleanup);
 
-function mountNotFound(went: string[], back: boolean): void {
+const WIDE = { width: 1200, height: 884 };
+
+function mountNotFound(
+  went: string[],
+  back: boolean,
+  layout?: typeof WIDE
+): void {
   renderChrome(() => (
     <RouteStubScreenView
       screenId="not-found"
@@ -18,20 +24,18 @@ function mountNotFound(went: string[], back: boolean): void {
       onGoToSpaces={() => went.push('spaces')}
       onGoBack={back ? () => went.push('back') : undefined}
     />
-  ));
+  ), layout);
 }
 
 // regression: not-found-stranded-top-left
-test('not found says so once, under its title, with a way to Spaces', () => {
+test('not found says so once, as the head of its message, with a way to Spaces', () => {
   const went: string[] = [];
   mountNotFound(went, true);
   // One heading: the page title. No second "nothing here" heading under it.
   expect(screen.queryByText("There's nothing at this address")).toBeNull();
-  // Not stranded: a compact block directly under the title, on the
-  // title's left edge (one alignment axis), never a full-height centred box.
-  const state = screen.getByTestId(Handles.routeNotFound);
-  expect(state.getAttribute('data-variant')).toBe('compact');
-  expect(state.getAttribute('data-align')).toBe('start');
+  const headings = screen.getAllByRole('heading');
+  expect(headings.map((h) => h.textContent)).toEqual(['Page not found']);
+  expect(headings[0]?.tagName).toBe('H1');
   fireEvent.click(screen.getByTestId(Handles.routeNotFoundAction));
   fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
   expect(went).toEqual(['spaces', 'back']);
@@ -63,8 +67,31 @@ test('without a screen to return to, there is no Go back', () => {
 });
 
 // regression: not-found-message-floats-from-title
-test('the message sits under the title instead of floating mid-page', () => {
-  mountNotFound([], false);
-  const holder = screen.getByTestId(Handles.routeNotFound).parentElement;
-  expect(holder?.className ?? '').not.toMatch(/\b(grow|flex-1)\b/);
+// regression: not-found-unit-not-centred — beside the sidebar the compass
+// and one sentence sat in the content's top-left corner under a title at
+// the top, the rest of the screen empty. The title, compass, sentence and
+// ways out are now one unit centred in the content area, so the message
+// can never drift away from the title it explains, on a phone or wide.
+test.each([
+  ['phone', undefined],
+  ['wide', WIDE],
+] as const)('%s: title, message and ways out are one centred unit', (_, layout) => {
+  mountNotFound([], true, layout);
+  const unit = screen.getByTestId(Handles.routeNotFound);
+  expect(unit.getAttribute('data-align')).toBe('center');
+  expect(unit.getAttribute('data-variant')).toBe('fill');
+  const title = screen.getByRole('heading', { name: 'Page not found' });
+  expect(unit.contains(title)).toBe(true);
+  expect(unit.contains(screen.getByRole('button', { name: 'Go back' }))).toBe(
+    true
+  );
+  expect(
+    unit.contains(
+      screen.getByText(
+        'The link may be old or mistyped. Your spaces are still here.'
+      )
+    )
+  ).toBe(true);
+  // The header draws no second copy of the title.
+  expect(screen.getAllByText('Page not found')).toHaveLength(1);
 });

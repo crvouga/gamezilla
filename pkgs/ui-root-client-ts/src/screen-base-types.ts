@@ -129,6 +129,14 @@ export type ScreenBaseProps = {
   renderActionsMenu?:
     | ((menu: OverflowMenuRenderProps) => JSX.Element)
     | undefined;
+  /**
+   * Where the page title is drawn. `header` (the default): the top bar on
+   * compact, the page header on wide. `content`: the screen's content
+   * renders the last breadcrumb's name as its one `H1` (a centred state
+   * screen whose title travels with its message), so the header draws no
+   * title of its own.
+   */
+  titlePlacement?: 'header' | 'content' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -146,6 +154,8 @@ export type ScreenBaseHeaderProps = {
   largeTitle?: boolean | undefined;
   /** The body has scrolled under the bar: draw its bottom hairline. */
   scrolled?: boolean | undefined;
+  /** The content draws the title (see {@link ScreenBaseProps.titlePlacement}). */
+  hideTitle?: boolean | undefined;
   /**
    * Compact-only trailing chrome after header actions (e.g. avatar menu).
    * Wide page headers must not duplicate this — the AppFrame island owns it.
