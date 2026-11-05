@@ -39,6 +39,8 @@ export const ROOT_TERMINAL_COMMANDS: Readonly<Record<string, string>> = {
   obs: 'its stdout is the data agents parse (`--json`)',
   own: 'supervises an arbitrary command it is handed',
   psql: 'an interactive SQL prompt',
+  'secrets:login':
+    'interactive Infisical login reads the terminal and receives a browser callback',
   'secrets:seed': 'reads each secret from the terminal, or from a pipe',
   'secrets:turbo-token': 'ends in `turbo login`, which needs the terminal',
   'sims:open': 'an interactive simulator picker',

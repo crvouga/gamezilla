@@ -75,7 +75,7 @@ function printLoadError(message: string): void {
   console.error(`  ${INSPECT_SHORTHAND}`);
   console.error(`  ${INSPECT_FULL}`);
   console.error(
-    'Also check `infisical login` / INFISICAL_TOKEN if every secret is missing.'
+    'Also check `bun run secrets:login` / INFISICAL_TOKEN if every secret is missing.'
   );
 }
 

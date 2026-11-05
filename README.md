@@ -440,6 +440,7 @@ existing OpenTofu backend encrypts both state and saved plans.
 To provision the fleet from a laptop after bootstrap:
 
 ```sh
+bun run secrets:login # once per project on this machine
 bun run infra:fleet
 bun run secrets:pull
 ```
@@ -550,6 +551,17 @@ Workspace setup, ADE settings, isolation, platform limits and validation:
 Agent and workspace environment setup is documented in [`docs/AGENT_ENVIRONMENTS.md`](docs/AGENT_ENVIRONMENTS.md).
 
 `./libs/tools-harness-ts/workspace/run.sh` is the one-stop workspace launcher used by the Run pane. It installs mise when missing, installs the system tools pinned in `mise.toml` on every launch, and loads their environment before installing app dependencies. The first launch also prepares local files; later launches reuse them. Failed preparation prints its cause and still attempts to start the stack; system tools and incomplete dependency installs are retried on the next launch.
+
+`bun run secrets:login` signs into a named Infisical profile derived from the
+configured endpoint and project UUID, then binds the current checkout to it.
+Every secrets command explicitly selects that profile, so all worktrees of this
+project reuse its session and other projects can stay signed in concurrently.
+Credentials remain in Infisical's local credential store; each checkout pulls
+its own secrets cache. No command switches the machine's default profile.
+For a worktree or agent process needing a different account, set
+`SECRETS_PROFILE=<profile-name>` for both login and subsequent commands.
+An inherited `INFISICAL_PROFILE` never overrides the project's choice.
+CI continues to use its injected token without a user profile.
 
 `bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. A boot is live while its supervisor and the processes that launched it are alive; once its launcher is gone the supervisor stops it, and a start that still finds it collects it and boots in its place. The boot is one Turborepo run, `@apps/product-ts#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers), `dev:web` (the product web app: `/`, `/harness`, `/simulator`) and `@pkgs/ui-root-harness-ts#dev:storybook` (Storybook on `http://localhost:6006`, sharing the boot supervisor). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools-harness-ts/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 

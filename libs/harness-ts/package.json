@@ -87,6 +87,7 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/secret-provider-shared-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
     "@pkgs/secure-storage-web-client-ts": "workspace:*",
