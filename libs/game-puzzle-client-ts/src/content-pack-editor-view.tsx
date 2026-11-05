@@ -12,7 +12,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
 import { ContentStatusChip } from './content-chips';
 import { ContentThumbnail } from './content-thumbnail';
@@ -109,7 +109,12 @@ export function ContentPackItemRow(
       caption={props.caption || undefined}
       trailing={
         <Show when={props.status}>
-          {(status) => <ContentStatusChip status={status()} />}
+          {(status) => (
+            // Centred on the row like its menu, on two lines as on one.
+            <StackHorizontal align="center">
+              <ContentStatusChip status={status()} />
+            </StackHorizontal>
+          )}
         </Show>
       }
       accessory={<PackRowMenu {...props} />}
