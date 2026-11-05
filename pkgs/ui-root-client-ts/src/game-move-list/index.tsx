@@ -16,11 +16,10 @@ export type GameMoveListEntry = {
   readonly swatch?: GameSeatLook | undefined;
   /**
    * A short word before the move, outside its button (`col` before `3`),
-   * when the game's notation alone is a bare number: read in the `turn`
-   * strip, where the move stands alone beside its turn's name. The `table`
-   * leaves it out: its seat columns already say what the numbers are, so a
-   * row reads `● 4`, never a swatch crowding a word. The button keeps the
-   * move exactly as the game writes it.
+   * when the game's notation alone is a bare number: read the same way in
+   * the `turn` strip and the `table`, so a move is `● col 4` wherever the
+   * record shows it, the word quiet and a step clear of the swatch. The
+   * button keeps the move exactly as the game writes it.
    */
   readonly prefix?: string | undefined;
   /** Accessible name of the move's button ("Move 3, Red circle: 5"). */
@@ -107,7 +106,7 @@ function MoveButton(props: {
       <Show when={props.move.swatch}>
         {(look) => <GameSeatSwatch look={look()} />}
       </Show>
-      <Show when={props.layout === 'turn' ? props.move.prefix : undefined}>
+      <Show when={props.move.prefix}>
         {(prefix) => (
           <span
             class={`${styles['prefix']} text textCaption`}

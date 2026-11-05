@@ -151,9 +151,13 @@ describe('GameMoveList', () => {
   });
 
   // regression: connect-four-record-col-noise — beside a wide board every
-  // row of the Connect Four record read "● col 4", the disc crowding a word
-  // the seat columns already make plain. The table reads "● 4".
-  test('the table leaves out the word a bare-number move is read with', () => {
+  // row of the Connect Four record read "● col 4", the disc crowding the
+  // word. The word stays quiet and a step clear of the disc.
+  // regression: connect-four-record-bare-digits — the table then read
+  // "● 4", bare digits with nothing saying they were columns, while the
+  // phone's strip read "● col 4": two notations for one record. The table
+  // reads every move as the strip does.
+  test('the table reads a bare-number move with its word, as the strip does', () => {
     const columns: readonly GameMoveListEntry[] = ['4', '5'].map(
       (label, index) => ({
         ply: index + 1,
@@ -174,7 +178,18 @@ describe('GameMoveList', () => {
       />
     ));
     const list = screen.getByRole('list', { name: 'Moves played' });
-    expect(list.textContent).toBe('1●4◆5');
+    expect(list.textContent).toBe('1●col4◆col5');
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+      ),
+      'utf8'
+    );
+    const prefix = css.slice(css.indexOf('.prefix {'));
+    expect(prefix.slice(0, prefix.indexOf('}'))).toMatch(
+      /color: var\(--ui-color-text-secondary\);[\s\S]*margin-inline-start: var\(--ui-space-1\);/
+    );
   });
 
   // regression: battleship-record-truncated — the record beside a wide
