@@ -270,4 +270,117 @@ describe('game surfaces', () => {
     expect(bar).not.toMatch(/max-width/);
     expect(bar).toMatch(/width:\s*100%;/);
   });
+
+  // regression: game-rail-short-of-edge — beside a wide board the rail kept
+  // a fixed 376px, so it ended wherever the window's height left the board:
+  // Battleship's at x=1203, Chess's at 1300, Light Cycles' at 1320, under a
+  // header running to 1320, with about 380px of empty page under it. The
+  // rail takes what the board leaves of the column, so every rail ends at
+  // the column's edge, and a long game's moves grow to about the board's
+  // height before they scroll.
+  test("the rail beside a wide board runs to the column's edge and its moves grow beside the board", () => {
+    const css = readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8');
+    const wide = css.slice(
+      css.indexOf('@container game-column (min-width: 880px)')
+    );
+    const head =
+      '.layout[data-has-stage="true"][data-has-aside="true"],\n  .layout[data-has-stage="true"][data-has-setup="true"] {\n';
+    const grids = wide
+      .split(head)
+      .slice(1)
+      .map((body) => body.slice(0, body.indexOf('}')));
+    const columns = grids.find((body) =>
+      body.includes('grid-template-columns')
+    );
+    expect(columns).toMatch(
+      /grid-template-columns:\s*minmax\(0, var\(--game-board-measure\)\)\s*minmax\(280px, 1fr\);/
+    );
+    const table = wide.slice(
+      wide.indexOf('> .rail\n    [data-layout="table"] {')
+    );
+    expect(table.slice(0, table.indexOf('}'))).toMatch(
+      /max-height:\s*max\(320px, calc\(var\(--game-board-measure\) - 120px\)\);/
+    );
+  });
+
+  // regression: light-cycles-you-badge-wraps — on a phone the three riders'
+  // chips were as tall as their own lines, so the person's, with "You" on
+  // a line of its own, stood taller than the rest and its name sat higher.
+  // Every chip of a row takes the row's height and a stacked chip's lines
+  // start at its top, so avatars, names and figures line up.
+  test("a rail's chips share their row's height, a stacked chip's lines from its top", () => {
+    const source = readFileSync(
+      join(UI_SRC, 'game-player-rail/index.tsx'),
+      'utf8'
+    );
+    const frame = source.slice(source.indexOf('const CHIP_FRAME ='));
+    expect(frame.slice(0, frame.indexOf(';'))).toMatch(/\bflex-1'/);
+    expect(source).toMatch(/class="box min-w-0 flex-1"\s*role=/);
+    expect(
+      rule(
+        'game-player-rail/game-player-rail.module.css',
+        '  .playerRail:has(> :nth-child(3):last-child) .chipFrame'
+      )
+    ).toMatch(/justify-content:\s*flex-start;/);
+  });
+
+  // regression: setup-players-card-stretched — wide, the board preview's
+  // card (a 176px board, its label and how the game is played) stood taller
+  // than the Players card, so the pair stretched the Players card about
+  // 54px past "Ready to start". The wide thumbnail is 120px, so the picture's
+  // card is no taller than the section.
+  // regression: setup-seat-cards-uneven — the bot's seat card stood 4px
+  // shorter than the host's beside it: its facts line held no "Host" tag.
+  // A compact seat's facts line is a tag's height either way.
+  test("a wide setup's preview card is no taller than its players, and seat rows stay level", () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    const wide = css.slice(
+      css.indexOf('@container game-section (min-width: 40rem)')
+    );
+    const media = wide.slice(wide.indexOf('.sectionMedia {'));
+    expect(media.slice(0, media.indexOf('}'))).toMatch(
+      /--game-board-preview-measure:\s*120px;/
+    );
+    expect(
+      rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')
+    ).toMatch(/min-height:\s*var\(--ui-space-6\);/);
+    // A phone's preview row: the stage is as wide as its thumbnail, so the
+    // line beside it (how the game is played) has the rest of the row.
+    const phone = rule(
+      'game-section/game-section-media.module.css',
+      '  .sectionPair .sectionMedia [data-preview="true"]'
+    );
+    expect(phone).toMatch(/flex:\s*0 0 auto;/);
+    expect(phone).toMatch(/width:\s*auto;/);
+  });
+
+  // regression: matchmaking-columns-misaligned — wide, the search card's
+  // "New game" title ran above both halves, so "Your ratings" started a
+  // line lower, level with the "Rated · Untimed" line instead of the title.
+  // The card is one grid: its title heads the search's half and the
+  // ratings' half starts level with it.
+  test("a split setup card's two halves start on one line", () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-setup-panel/game-setup-panel.module.css'),
+      'utf8'
+    );
+    const wide = css.slice(
+      css.lastIndexOf('@container game-column (min-width: 880px)')
+    );
+    const body = (head: string): string => {
+      const start = wide.indexOf(`${head} {`);
+      expect(start).toBeGreaterThan(-1);
+      return wide.slice(start, wide.indexOf('}', start));
+    };
+    expect(body('section:has(> .setupSplit) > :first-child')).toMatch(
+      /grid-row:\s*1;/
+    );
+    expect(body('section > .setupSplit')).toMatch(/display:\s*contents;/);
+    expect(body('section > .setupSplit > .setupAside')).toMatch(
+      /grid-row:\s*1 \/ span 2;/
+    );
+  });
 });

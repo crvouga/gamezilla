@@ -1,0 +1,4 @@
+{
+  "summary": "On a 390px phone the Hearts hand of thirteen cards ran past the screen's right edge: each card kept 30px in view, so the row was wider than the hand and the J and Q were cut off with no sign it scrolled. A narrow crowded hand now overlaps its cards to fit the row (about 24px of each on a phone, never under 18px) and never scrolls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

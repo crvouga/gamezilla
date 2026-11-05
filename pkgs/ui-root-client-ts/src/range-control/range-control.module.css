@@ -6,3 +6,63 @@
   width: 2rem;
   min-height: 8rem;
 }
+/* A paddle's lane: a groove in the court's colours, the thumb a paddle in
+   its player's colour, so the slider beside a court reads as that paddle's
+   control. The lane keeps a 36px target. */
+.vertical[data-paddle] {
+  --paddle-lane: 2.25rem;
+  appearance: none;
+  width: var(--paddle-lane);
+  padding: 0 var(--ui-space-2);
+  border: var(--ui-space-hairline) solid var(--ui-color-game-pong-muted);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-game-pong-canvas);
+}
+.vertical[data-paddle]::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.vertical[data-paddle]::-moz-range-track {
+  background: transparent;
+}
+.vertical[data-paddle]::-webkit-slider-thumb {
+  appearance: none;
+  /* The lane's width less its padding and border: a percentage of the
+     track resolves to nothing on an upright range. */
+  width: calc(
+    var(--paddle-lane) -
+    2 *
+    var(--ui-space-2) -
+    2 *
+    var(--ui-space-hairline)
+  );
+  height: var(--ui-space-12);
+  margin-block: auto;
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: var(--paddle-color);
+}
+.vertical[data-paddle]::-moz-range-thumb {
+  /* The lane's width less its padding and border: a percentage of the
+     track resolves to nothing on an upright range. */
+  width: calc(
+    var(--paddle-lane) -
+    2 *
+    var(--ui-space-2) -
+    2 *
+    var(--ui-space-hairline)
+  );
+  height: var(--ui-space-12);
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: var(--paddle-color);
+}
+.vertical[data-paddle="player1"] {
+  --paddle-color: var(--ui-color-player1);
+}
+.vertical[data-paddle="player2"] {
+  --paddle-color: var(--ui-color-player2);
+}
+.vertical[data-paddle]:disabled {
+  cursor: default;
+  opacity: var(--ui-opacity-disabled);
+}

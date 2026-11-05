@@ -238,12 +238,13 @@ function fanOffset(index: number, count: number): number {
 }
 
 /**
- * More cards than one narrow row shows whole: a narrow hand scrolls
- * sideways instead, one row of overlapping cards, each showing at least
- * this much of its left edge, where its rank and suit are printed.
+ * More cards than one narrow row shows whole: a narrow hand overlaps them
+ * to fit the row, never scrolling, each card showing at least this much of
+ * its left edge, where its rank and suit are printed. Thirteen cards on a
+ * 320px phone still step by more than this.
  */
 const ONE_ROW_MAX = 7;
-const CORNER_PEEK = '30px';
+const CORNER_PEEK = '18px';
 
 function Hand(
   props: CardTableProps & { readonly onRefused: (reason: string) => void }
@@ -420,7 +421,7 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * in the corner and a large pip in the middle, at full contrast; only a card
  * the rules refuse is dimmed. The hand is a fanned, overlapping row of card
  * buttons whose corners stay readable (on a narrow table more than seven
- * cards make one row that scrolls sideways, at least 30px of each card in
+ * cards overlap to fit one row that never scrolls, each card's corner in
  * view); a chosen card lifts 12px out of the row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are

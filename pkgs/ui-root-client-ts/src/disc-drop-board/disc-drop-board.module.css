@@ -95,15 +95,16 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
 }
-/* What to do now, in one quiet line under the columns: it keeps its height
-   while someone else is to move, so the board never moves with the turn. */
+/* What to do now, in one line under the columns: it keeps its height
+   while someone else is to move, so the board never moves with the turn.
+   In the board's own ink, not its muted blue, so it reads on the blue. */
 .prompt {
   grid-column: 1 / -1;
   grid-row: 2;
   min-height: 1lh;
   margin: 0;
   padding-block: var(--ui-space-1) 0;
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-text);
   text-align: center;
 }
 /* A column's number, quiet; the column pointed at rings it in the dropping

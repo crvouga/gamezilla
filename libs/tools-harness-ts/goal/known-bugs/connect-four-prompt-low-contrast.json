@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four's \"Pick a column to drop your disc\" was set in the board's muted light blue on its mid blue and was hard to read at a glance, and the board was the same saturated blue on a dark page as on a light one. The prompt is now in the board's own ink, and the dark theme's board is a deeper, less saturated blue.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

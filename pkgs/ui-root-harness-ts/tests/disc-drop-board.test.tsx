@@ -334,3 +334,52 @@ test('the landing preview reads against the board yet stays an outline', () => {
     )
   ).toContain('opacity: 0.7;');
 });
+
+// regression: connect-four-prompt-low-contrast — "Pick a column to drop
+// your disc" was set in the board's muted light blue on its mid blue, hard
+// to read at a glance. The prompt is in the board's own ink; and the dark
+// theme's board is a deeper, less saturated blue than the light theme's,
+// so it never glares on a dark page.
+test("the prompt under the columns is in the board's ink, and the dark board is softer", () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../ui-root-client-ts/src/disc-drop-board/disc-drop-board.module.css'
+    ),
+    'utf8'
+  );
+  const start = css.indexOf('.prompt {');
+  const prompt = css.slice(start, css.indexOf('}', start));
+  expect(prompt).toMatch(/color:\s*var\(--ui-color-text\);/);
+  const tokens = JSON.parse(
+    readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-shared-ts/src/design-tokens.json'
+      ),
+      'utf8'
+    )
+  ) as {
+    color: Record<
+      'light' | 'dark',
+      Record<string, { $value: { hex: string } }>
+    >;
+  };
+  const hex = (theme: 'light' | 'dark', name: string): string =>
+    tokens.color[theme][name]?.$value.hex ?? '';
+  const luminance = (value: string): number => {
+    const [r, g, b] = [1, 3, 5].map((at) => {
+      const c = Number.parseInt(value.slice(at, at + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0);
+  };
+  for (const name of ['gameConnectFourSurface', 'gameConnectFourCanvas'])
+    expect(luminance(hex('dark', name))).toBeLessThan(
+      luminance(hex('light', name))
+    );
+  // The prompt's ink on the dark board still reads at 7:1 or more.
+  const ink = luminance(hex('dark', 'gameConnectFourInk'));
+  const board = luminance(hex('dark', 'gameConnectFourSurface'));
+  expect((ink + 0.05) / (board + 0.05)).toBeGreaterThanOrEqual(7);
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking card's \"New game\" title ran above both of its halves, so \"Your ratings\" started a line lower, level with the \"Rated · Untimed\" line instead of the title. The card is now one grid: its title heads the search's half and the ratings' half starts level with it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

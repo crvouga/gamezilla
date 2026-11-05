@@ -331,12 +331,18 @@ test('wide: the card beside the players says how the game is played', () => {
       </ClockProvider>
     ));
     const about = screen.queryByTestId('custom-game-about');
-    if (width === 390) expect(about).toBeNull();
-    else {
+    // In the preview's own card, paired with the Players card.
+    const preview = screen.getByTestId('custom-game-public');
+    expect(preview.parentElement?.contains(about)).toBe(true);
+    if (width === 390) {
+      // regression: phone-setup-preview-uninformative — a phone's slim
+      // preview row said only "Board preview" beside a tiny thumbnail; it
+      // says how the game is played there instead.
+      expect(about?.textContent).toBe(RULES);
+      expect(preview.textContent).not.toContain('Board preview');
+    } else {
       expect(about?.textContent).toBe(`How to play${RULES}`);
-      // In the preview's own card, beside the Players card.
-      const preview = screen.getByTestId('custom-game-public');
-      expect(preview.parentElement?.contains(about)).toBe(true);
+      expect(preview.textContent).toContain('Board preview');
     }
     cleanup();
   }
@@ -399,10 +405,19 @@ test('phone: a real-time game keeps Resign and its history in one actions row', 
 // regression: arena-own-seat-unmarked — beside a wide arena the players'
 // card listed every player alike, so the person could not tell which was
 // theirs. Their own strip says "You".
+// regression: light-cycles-you-badge-wraps — the "You" tag then sat on a
+// line of its own under the name, so the person's strip stood taller than
+// every other in the card. It sits on the name's own line, after it.
 test("wide: the players' card tags the person's own strip You", () => {
   mount(1440);
   const own = screen.getByTestId('custom-game-white');
   expect(own.textContent).toContain('You');
+  const name = screen.getByTestId('custom-game-white-person');
+  const you = [...own.querySelectorAll('[data-component="Badge"]')].find(
+    (badge) => badge.textContent === 'You'
+  );
+  expect(you).toBeDefined();
+  expect(name.parentElement?.parentElement?.contains(you ?? null)).toBe(true);
   expect(screen.getByTestId('custom-game-black').textContent).not.toContain(
     'You'
   );
@@ -418,4 +433,16 @@ test("wide: the players' card shows each figure on one quiet line", () => {
     .querySelector('[data-component="GameSeatStat"]');
   expect(figure?.textContent).toBe('Wins 0');
   expect(figure?.querySelector('.textStat')).toBeNull();
+});
+
+// regression: pong-status-reads-as-button — on a phone the line under a
+// real-time game's arena ("Keep the ball in play.") sat in a round well
+// like a button. A neutral line there is plain hint text.
+test('phone: a real-time game says how play goes on as plain hint text', () => {
+  mount(390);
+  const pill = screen
+    .getByTestId('custom-game-status')
+    .closest('[data-component="GameTurnPill"]');
+  expect(pill?.getAttribute('data-look')).toBe('plain');
+  expect(pill?.querySelector('.bg-surface-muted')).toBeNull();
 });

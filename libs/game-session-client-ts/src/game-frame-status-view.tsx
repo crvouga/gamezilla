@@ -66,6 +66,12 @@ export function FrameFactsView(props: {
 export function FrameStatusView(props: {
   readonly status: FrameStatus | null;
   readonly spokenOnly?: boolean | undefined;
+  /**
+   * A game played in real time: a neutral line that only says how play
+   * goes on (`Keep the ball in play.`) is plain hint text, not a pill that
+   * reads as a button under the arena.
+   */
+  readonly arena?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -94,6 +100,14 @@ export function FrameStatusView(props: {
           }
           detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
           spokenOnly={props.spokenOnly === true && !status().sending}
+          look={
+            props.arena === true &&
+            status().tone === 'neutral' &&
+            status().emphasis !== 'yours' &&
+            !status().sending
+              ? 'plain'
+              : 'pill'
+          }
         />
       )}
     </Show>

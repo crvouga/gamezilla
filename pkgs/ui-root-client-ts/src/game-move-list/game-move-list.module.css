@@ -33,13 +33,35 @@
 .list[data-layout="turn"] .turn {
   gap: var(--ui-space-3);
 }
+/* A wrapping turn breaks between its moves, never inside one, and keeps
+   its lines centred in the strip's well. */
+.list[data-layout="turn"][data-wrap="true"] {
+  max-width: 100%;
+  padding: var(--ui-space-1) var(--ui-space-3);
+}
+.list[data-layout="turn"][data-wrap="true"] .turns,
+.list[data-layout="turn"][data-wrap="true"] .turn {
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.list[data-layout="turn"][data-wrap="true"] .turn {
+  row-gap: var(--ui-space-1);
+}
 /* The shown turn's number in words reads as a label, not a stray digit. */
 .list[data-layout="turn"] .number {
   white-space: nowrap;
 }
+/* One grid for every turn (each line a subgrid of it), its seat columns
+   sized by their longest move: a move written in words
+   (`G10 sinks the destroyer`) takes the room the short ones leave, so every
+   line keeps one row and the columns still line up. */
 .list[data-layout="table"] .turns {
-  flex-direction: column;
-  gap: var(--ui-space-hairline);
+  display: grid;
+  grid-template-columns: 32px repeat(var(--move-columns), auto);
+  column-gap: var(--ui-space-2);
+  row-gap: var(--ui-space-hairline);
 }
 .turn {
   display: flex;
@@ -49,8 +71,8 @@
 }
 .list[data-layout="table"] .turn {
   display: grid;
-  grid-template-columns: 32px repeat(var(--move-columns), minmax(0, 1fr));
-  column-gap: var(--ui-space-2);
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
 }
 .number {
   min-width: 16px;
@@ -88,8 +110,9 @@
   cursor: pointer;
   transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
 }
-/* A move written in words (`G10 sinks the destroyer`) wraps inside its
-   column, never cut off: every word of the record stays readable. */
+/* A move written in words wraps inside its column only when even the
+   widest column cannot hold it (a narrow rail), never cut off: every word
+   of the record stays readable. */
 .list[data-layout="table"] .moveButton {
   min-width: 0;
   padding-block: var(--ui-space-1);

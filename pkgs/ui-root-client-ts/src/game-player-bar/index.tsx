@@ -38,6 +38,13 @@ export type GamePlayerBarProps = {
   swatchLabel?: string | undefined;
   /** Facts about the seat, each its own `Badge`: side, rating, readiness. */
   tags?: JSX.Element;
+  /**
+   * `below` (default): the tags on a line under the name. `inline`: on the
+   * name's own line, after it, for a list of strips (the players beside an
+   * arena) where a short tag (`You`) must not make one strip taller than
+   * the rest.
+   */
+  tagsPlacement?: 'below' | 'inline' | undefined;
   /** The seat's figure at the far edge (score, walls). */
   stat?: GameSeatStat | null | undefined;
   /**
@@ -86,12 +93,23 @@ export type GamePlayerBarProps = {
   dataSet?: ComponentDataSet;
 };
 
-/** Avatar, swatch and name, and the tags under them. */
+/** Avatar, swatch and name, and the tags under them (or after the name). */
 function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   // Tags that resolve to nothing (every fact hidden) take no row.
   const tags = createScreenSlot(() => props.tags);
   const turnLabel = createScreenSlot(() => props.turnLabel);
   const turn = (): boolean => props.active === true && turnLabel.present();
+  const inline = (): boolean => props.tagsPlacement === 'inline';
+  const facts = (): boolean =>
+    tags.present() || (props.state !== undefined && props.state !== null);
+  const tagRow = (): JSX.Element => (
+    <span class={styles['playerTags']}>
+      <Show when={props.state}>
+        {(state) => <GamePlayerStateBadge state={state()} />}
+      </Show>
+      {tags.content()}
+    </span>
+  );
   return (
     <>
       <span
@@ -128,20 +146,9 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
               {props.turnLabel}
             </span>
           </Show>
+          <Show when={inline() && facts()}>{tagRow()}</Show>
         </span>
-        <Show
-          when={
-            tags.present() ||
-            (props.state !== undefined && props.state !== null)
-          }
-        >
-          <span class={styles['playerTags']}>
-            <Show when={props.state}>
-              {(state) => <GamePlayerStateBadge state={state()} />}
-            </Show>
-            {tags.content()}
-          </span>
-        </Show>
+        <Show when={!inline() && facts()}>{tagRow()}</Show>
       </span>
     </>
   );

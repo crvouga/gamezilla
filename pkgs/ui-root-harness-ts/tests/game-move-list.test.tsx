@@ -193,4 +193,31 @@ describe('GameMoveList', () => {
     expect(rule).toMatch(/white-space:\s*normal;/);
     expect(rule).not.toMatch(/overflow:\s*hidden|text-overflow/);
   });
+
+  // regression: battleship-record-line-wraps — beside a wide Battleship
+  // board "G10 sinks the destroyer" wrapped onto a second line in an
+  // equal-width seat column while "F10 hit" left its own half empty, so one
+  // turn stood twice as tall as the rest. The turns share one grid whose
+  // seat columns size to their longest move (each turn a subgrid), so a
+  // worded move takes the room the short ones leave and the columns align.
+  test('the table sizes its seat columns by their longest move, aligned across turns', () => {
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+      ),
+      'utf8'
+    );
+    const body = (head: string): string => {
+      const start = css.indexOf(head);
+      expect(start).toBeGreaterThan(-1);
+      return css.slice(start, css.indexOf('}', start));
+    };
+    expect(body('.list[data-layout="table"] .turns {')).toMatch(
+      /grid-template-columns:\s*32px repeat\(var\(--move-columns\), auto\);/
+    );
+    const turn = body('.list[data-layout="table"] .turn {');
+    expect(turn).toMatch(/grid-template-columns:\s*subgrid;/);
+    expect(turn).toMatch(/grid-column:\s*1 \/ -1;/);
+  });
 });

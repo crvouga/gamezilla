@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone the host's setup card wrapped \"I'm not ready\" onto a second row under \"Change player\" while the bot's card had one row, so the two player cards had different shapes. A narrow compact seat card now starts its control row at the card's edge, so a seat's controls keep one row.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-seat-card-layout.test.ts"
+  "summary": "In a game's setup the bot's seat card stood 4px shorter than the host's beside it, because its facts line held no \"Host\" tag. A compact seat's facts line is now a tag's height either way, so the two cards' rows stay level.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
 }

@@ -13,9 +13,11 @@
   .playerRail:has(> :nth-child(3):last-child) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+  /* Lines from the top, so the avatar, name and figures sit at one height
+     across the row and an extra fact (`You`) only adds a line at the foot. */
   .playerRail:has(> :nth-child(3):last-child) .chipFrame {
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
     padding-block: var(--ui-space-2);
   }

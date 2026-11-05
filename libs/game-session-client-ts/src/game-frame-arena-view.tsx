@@ -72,7 +72,7 @@ export function FrameArenaRailView(
       footer={
         <GameActions>
           {props.commands}
-          <FrameHistoryLink {...props} quiet />
+          <FrameHistoryLink {...props} quiet inRail />
         </GameActions>
       }
     >
