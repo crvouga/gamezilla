@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the puzzle library's Continue tab with two unfinished puzzles showed two cards and then an empty page. With fewer than four unfinished, Browse's next puzzles and packs now follow under \"More to play\", never repeating a puzzle Continue already lists.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}
