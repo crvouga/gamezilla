@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a custom game's setup was a 290px strip across the top of the 900px page: the seats two to a row in a wide Players card beside a 17rem card with a 160px board preview, the rest of the page empty. The Players card and the preview's card are now two equal columns: the seats one to a row with Start closing the card at its foot, and beside them a 240px board with how the game is played, the two cards ending level.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+}

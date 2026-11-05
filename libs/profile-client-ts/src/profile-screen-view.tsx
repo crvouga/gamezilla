@@ -221,10 +221,10 @@ function ProfileFacts(props: {
  * this device knows (friends, when they joined), username and avatar
  * notices, Edit profile, the rooms friends are playing in now (each with
  * Join), the friends panel (their faces, then Find friends) and the way to
- * Settings. The identity is a compact panel read from the start edge, the
- * picture beside the name, as wide as what it holds on a desktop; on a
- * phone the rest stacks under it, on a desktop the rooms take the main
- * column and Friends and Settings sit in the rail beside them.
+ * Settings. On a phone the identity is a compact panel read from the start
+ * edge, the picture beside the name, with the rest stacked under it; on a
+ * desktop it is a card of its own content in a narrow first column, the
+ * rooms take the main column beside it and Friends and Settings the rail.
  * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
 export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
@@ -267,9 +267,9 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
         </>
       }
       identityActions={
-        // A compact pill (under the name on a phone, at the band's end on a
-        // desktop): editing is part of who you are, not the page's main
-        // call to action.
+        // A compact pill (under the name on a phone, closing the identity
+        // card on a desktop): editing is part of who you are, not the
+        // page's main call to action.
         <Button
           title={t`Edit profile`}
           intent="neutral"

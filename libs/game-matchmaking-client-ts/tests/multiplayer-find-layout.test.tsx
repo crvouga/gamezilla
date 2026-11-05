@@ -137,9 +137,9 @@ test("wide: the search leads the card's two columns and the guide is quiet text 
   expect(screen.queryByTestId('multiplayer-guide-toggle')).toBeNull();
   expect(guide.textContent).toContain('How matchmaking works');
   expect(screen.getByText('Every match is rated')).toBeTruthy();
-  // Its three points side by side.
+  // Its three points one under another, each one line (see below).
   expect(guide.querySelector('[role="list"]')?.className).toContain(
-    'grid-cols-3'
+    'grid-cols-1'
   );
   const css = readFileSync(
     join(
@@ -230,4 +230,39 @@ test('wide: a two-column search card keeps form-width columns and says what happ
     screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
       Node.DOCUMENT_POSITION_FOLLOWING
   ).toBeTruthy();
+});
+
+// regression: matchmaking-search-stretched-legal-columns — wide, the card
+// filled the 960px game column: Find an opponent stretched to 530px, the
+// guide read like fine print in three columns, and 60% of the page stood
+// empty. The column (title and card) is held to the search's measure and
+// centred, the command is sized to its words, and the guide is three short
+// lines, each one sentence; a phone's command still spans its card.
+test('wide: a centred search column, a command sized to its words, a guide of short lines', () => {
+  mount(1440);
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/game-ui.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toMatch(
+    /\.column:has\(\.layout \[data-setup-split="true"\]\[data-details-across="true"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+  );
+  const find = screen.getByTestId('multiplayer-find');
+  expect(find.className).not.toContain('w-full');
+  const points = [
+    ...screen
+      .getByTestId('multiplayer-guide')
+      .querySelectorAll('[role="listitem"]'),
+  ].map((point) => point.textContent);
+  expect(points).toEqual([
+    'Every match is rated. Win, lose or draw, your rating moves once.',
+    'Stop whenever you like. A search waits until you stop it or are matched.',
+    "Only people you can play. Never someone you've blocked, or who blocked you.",
+  ]);
+  cleanup();
+  mount(390);
+  expect(screen.getByTestId('multiplayer-find').className).toContain('w-full');
 });

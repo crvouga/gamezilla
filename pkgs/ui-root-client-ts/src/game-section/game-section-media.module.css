@@ -43,25 +43,32 @@
     width: var(--game-board-preview-measure);
   }
 }
-/* Wide: the section takes the room, the picture's card sits at its end,
-   as tall as the section, the picture and its words centred in it on both
-   axes, so the card never ends in a band of empty room. */
+/* Wide: the section and the picture's card share the room as two equal
+   columns, as tall as each other: the section (the players) one seat to a
+   row with its foot (Start) closing it, and beside it a board large enough
+   to read as the game, the picture and its words centred in their card on
+   both axes, so neither card ends in a band of empty room and the pair
+   fills the column instead of a strip across its top. */
 @container game-section (min-width: 40rem) {
   .sectionPair {
-    grid-template-columns: minmax(0, 1fr) 17rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: stretch;
   }
-  /* A thumbnail that reads as the board, yet small enough that the
-     picture's card, with how the game is played under it, is no taller
-     than the section it pairs with, so neither card is stretched around
-     empty room. */
+  /* A board about as tall as two seats, their title and their foot, so
+     with how the game is played under it the picture's card ends level
+     with the players of a two-player game. */
   .sectionMedia {
-    --game-board-preview-measure: 160px;
+    --game-board-preview-measure: 240px;
     grid-column: 2;
     grid-row: 1;
     flex-direction: column;
     justify-content: center;
     gap: var(--ui-space-4);
     padding: var(--ui-space-5);
+  }
+  /* Beside a taller picture, the section's foot (Start) stays at the
+     card's end, never floating under the seats with room below it. */
+  .sectionPair .sectionFoot {
+    margin-top: auto;
   }
 }

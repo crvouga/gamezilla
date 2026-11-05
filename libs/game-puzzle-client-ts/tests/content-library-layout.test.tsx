@@ -432,3 +432,36 @@ test('difficulty tags take distinct tints that climb with how hard', () => {
   );
   expect(intents).toEqual(['success', 'warning', 'destructive', 'info']);
 });
+
+// regression: library-continue-sparse-desktop — wide, a Continue tab with
+// two unfinished puzzles was two cards and then an empty page. With little
+// to continue, Browse's next puzzles and packs follow under "More to
+// play": never a puzzle Continue already lists, and nothing more once
+// there is plenty to continue.
+test('a sparse Continue is followed by More to play, never repeating what it lists', () => {
+  const pack = {
+    id: 'pack-1',
+    document_id: 'pack-document-1',
+    kind: 'pack',
+    title: 'Weekend counts',
+    description: 'Three puzzles that get harder.',
+    difficulty: '',
+    progress: { completed: 1, total: 3 },
+  } as const;
+  renderLibrary({ ...VIEW, published: [PUBLISHED_PUZZLE, pack] });
+  const resume = screen.getByTestId('content-library-continue');
+  const more = screen.getByTestId('content-library-more-to-play');
+  expect(resume.contains(more)).toBe(true);
+  expect(more.textContent).toContain('More to play');
+  expect(more.contains(screen.getByTestId('content-pick-pack-1'))).toBe(true);
+  // "Count to seven" is already under Continue.
+  expect(screen.queryByTestId('content-pick-revision-1')).toBeNull();
+  cleanup();
+  const busy = ['a', 'b', 'c', 'd'].map((id) => ({
+    id: `attempt-${id}`,
+    title: `Count to ${id}`,
+    completed: false,
+  }));
+  renderLibrary({ ...VIEW, attempts: busy, published: [pack] });
+  expect(screen.queryByTestId('content-library-more-to-play')).toBeNull();
+});

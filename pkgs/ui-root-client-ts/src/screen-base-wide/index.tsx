@@ -51,7 +51,7 @@ function WidePageHeader(
       data-component="ScreenBaseHeader"
     >
       {props.leading}
-      <Show when={!props.shellNavigation}>
+      <Show when={!props.shellNavigation && props.titlePlacement !== 'content'}>
         <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
       </Show>
       <div class="box flex-1" aria-hidden="true" />
@@ -157,6 +157,7 @@ function WideShell(
     () => props.breadcrumbs,
     titleId
   );
+  const titleInContent = () => props.titlePlacement === 'content';
   const hasLocalActions = () =>
     (props.actions?.length ?? 0) > 0 ||
     props.leading !== undefined ||
@@ -170,7 +171,9 @@ function WideShell(
     <div
       ref={root}
       class="box flex-1 min-h-0 gap-2"
-      aria-labelledby={shellNavigation() ? titleId : undefined}
+      aria-labelledby={
+        shellNavigation() && !titleInContent() ? titleId : undefined
+      }
       {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',
@@ -178,12 +181,20 @@ function WideShell(
         screen: props.screenId,
       })}
     >
-      <Show when={shellNavigation() && props.breadcrumbs.length <= 1}>
+      <Show
+        when={
+          shellNavigation() &&
+          !titleInContent() &&
+          props.breadcrumbs.length <= 1
+        }
+      >
         <h1 id={titleId} class="text sr-only">
           {lastBreadcrumbTitle(props.breadcrumbs)}
         </h1>
       </Show>
-      <Show when={!shellNavigation() || hasLocalActions()}>
+      <Show
+        when={(!shellNavigation() && !titleInContent()) || hasLocalActions()}
+      >
         <WidePageHeader {...props} shellNavigation={shellNavigation()} />
       </Show>
       {body()}

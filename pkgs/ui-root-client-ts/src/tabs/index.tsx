@@ -6,13 +6,14 @@ import {
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import { createSignal, createUniqueId, For, type JSX, Show } from 'solid-js';
+import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
 import { useLayoutMode } from '../use-layout-mode';
 
 export type TabItem<V extends string = string> = {
   readonly value: V;
   readonly label: string;
-  /** A count or short note after the label (`12`, `New`). */
+  /** A count or short note after the label (`12`, `New`), as a pill. */
   readonly badge?: string | number | undefined;
   readonly disabled?: boolean | undefined;
 };
@@ -202,9 +203,15 @@ export function Tabs<V extends string = string>(
                 <span class="text textLabel whitespace-nowrap">
                   {item.label}
                 </span>
+                {/* A count pill apart from the label, never a number that
+                    reads as one more word of it ("Continue 2"). */}
                 <Show when={item.badge !== undefined}>
-                  <span class="text textFootnote textNumeral text-text-secondary">
-                    {String(item.badge)}
+                  <span class="box self-center">
+                    <Badge
+                      label={String(item.badge)}
+                      intent="neutral"
+                      size="sm"
+                    />
                   </span>
                 </Show>
                 <Show when={variant() === 'underline'}>

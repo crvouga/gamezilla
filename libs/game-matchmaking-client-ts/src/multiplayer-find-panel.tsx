@@ -91,7 +91,10 @@ export function MultiplayerFindPanel(props: {
   readonly aside?: JSX.Element | undefined;
   /** Under the search and ratings, past a hairline: how a search works. */
   readonly details?: JSX.Element | undefined;
-  /** Wide: how a search works as a quiet row across the card's foot (`GameSetupPanel`). */
+  /**
+   * Wide: how a search works as a quiet row across the card's foot
+   * (`GameSetupPanel`), and the command sized to its words.
+   */
   readonly detailsAcross?: boolean | undefined;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
@@ -109,7 +112,11 @@ export function MultiplayerFindPanel(props: {
       }
       actions={
         // Grows to its half of the card, so the note wraps under the command.
-        <StackVertical gap="sm" grow>
+        <StackVertical
+          gap="sm"
+          grow
+          align={props.detailsAcross === true ? 'start' : 'stretch'}
+        >
           <GameActionButton
             title={
               <Show
@@ -131,8 +138,9 @@ export function MultiplayerFindPanel(props: {
               props.onFind(props.timed ? timeControl() : undefined)
             }
             variant="solid"
-            // The search's one command spans its card on every size.
-            fullWidth
+            // A phone's command spans its card; wide it is sized to its
+            // words, never a bar stretched across half the card.
+            fullWidth={props.detailsAcross !== true}
             dataSet={{ testid: 'multiplayer-find' }}
           />
           <P variant="caption" tone="secondary" testId="multiplayer-find-space">

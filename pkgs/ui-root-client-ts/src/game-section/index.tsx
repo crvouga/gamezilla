@@ -66,7 +66,9 @@ export function GameSection(props: {
       </div>
       {props.children}
       <Show when={footer.present()}>
-        <div class={styles['sectionFooter']}>{footer.content()}</div>
+        <div class={`${styles['sectionFooter']} ${split['sectionFoot']}`}>
+          {footer.content()}
+        </div>
       </Show>
     </section>
   );

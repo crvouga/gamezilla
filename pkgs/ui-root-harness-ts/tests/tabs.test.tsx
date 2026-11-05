@@ -47,6 +47,12 @@ describe('Tabs', () => {
     }
     expect(panelText()).toBe('games panel');
     expect(screen.getByTestId('profile-friends').textContent).toBe('Friends');
+    // regression: tab-count-reads-as-label — the count was bare quiet text
+    // after the label ("Continue 2"), read as part of it. It is a pill.
+    const count = screen
+      .getByTestId('profile-games')
+      .querySelector('[data-component="Badge"]');
+    expect(count?.textContent).toBe('12');
     expect(auditTree(list).map(formatFailure)).toEqual([]);
   });
 

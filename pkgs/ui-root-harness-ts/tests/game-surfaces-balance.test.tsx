@@ -359,11 +359,19 @@ describe('game surfaces', () => {
     );
     const media = wide.slice(wide.indexOf('.sectionMedia {'));
     // regression: setup-preview-tiny — the 120px board then read as a
-    // speck beside "How to play"; at 160px in a 17rem card, with its label
-    // left to how to play, the card still ends level with the players.
+    // speck beside "How to play".
+    // regression: setup-desktop-top-strip — at 160px in a 17rem card the
+    // pair was a 290px strip across the top of the page. The picture's
+    // card is now an equal column, its board 240px, about the height of
+    // two seats, their title and Start, so the two cards end level.
     expect(media.slice(0, media.indexOf('}'))).toMatch(
-      /--game-board-preview-measure:\s*160px;/
+      /--game-board-preview-measure:\s*240px;/
     );
+    expect(wide).toMatch(
+      /\.sectionPair \{\s*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/
+    );
+    // Beside a taller picture, Start stays at the Players card's end.
+    expect(wide).toMatch(/\.sectionPair \.sectionFoot \{\s*margin-top: auto;/);
     expect(
       rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')
     ).toMatch(/min-height:\s*var\(--ui-space-6\);/);

@@ -1,8 +1,9 @@
 /**
- * A profile with a rail composes as a page, not three ragged columns: the
- * identity is one band across the top, the main sections take the wide
- * column, and the rail (friends, settings) is a column wide enough for its
- * rows' captions on one line.
+ * A profile with a rail composes as a page, not three ragged columns: on a
+ * desktop the identity is a card of its own content in a narrow first
+ * column, the main sections take what is left, and the rail (friends,
+ * settings) is a column wide enough for its rows' captions on one line; a
+ * tablet's column draws the identity as one band across the top.
  */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -49,20 +50,47 @@ function renderProfile(withRail: boolean): HTMLElement {
   return container;
 }
 
+/** The body of the rule for `selector` inside the container query `query`. */
+function ruleIn(css: string, query: string, selector: string): string {
+  const block = css.indexOf(`@container ${query} {`);
+  if (block < 0) throw new Error(`no query ${query}`);
+  return rule(css.slice(block), selector);
+}
+
+const DESKTOP = '(min-width: 56rem)';
+const TABLET = '(min-width: 40rem) and (max-width: 55.99rem)';
+
 // regression: profile-desktop-ragged-columns
-test('a wide profile with a rail is a band over a flexible main column and a rail wide enough for one-line captions', () => {
+// regression: profile-header-band-mostly-empty — on a desktop the identity
+// was a 960px band with the face and facts squeezed at its start, Edit
+// profile at its far end and about 600px of nothing between. It is now a
+// card of its own content in a narrow first column, level with the main
+// sections and the rail.
+test('a desktop profile with a rail is an identity card, a flexible main column and a rail wide enough for one-line captions', () => {
   const css = readFileSync(LAYOUTS_CSS, 'utf8');
-  const grid = rule(css, '  .profile[data-rail="true"]');
+  const grid = ruleIn(css, DESKTOP, '  .profile[data-rail="true"]');
   // The main column flexes (its rows never truncate to fit a third
   // column); the rail is fixed at a width that holds "Account, appearance,
-  // sound and more" on one line.
-  expect(grid).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\) 24rem;/);
-  expect(grid).toMatch(/align-items:\s*start;/);
-  expect(rule(css, '  .profile[data-rail="true"] > .profileAside')).toMatch(
-    /grid-column:\s*1 \/ -1;/
+  // sound and more" on one line; the identity column is as narrow as a
+  // picture over a name.
+  expect(grid).toMatch(
+    /grid-template-columns:\s*13rem minmax\(0, 1fr\) 23rem;/
   );
+  expect(grid).toMatch(/align-items:\s*start;/);
+  const card = ruleIn(
+    css,
+    DESKTOP,
+    '  .profile[data-rail="true"] > .profileAside > .identity'
+  );
+  expect(card).toMatch(/flex-direction:\s*column;/);
+  expect(card).toMatch(/align-items:\s*center;/);
+  // A tablet's column still draws the band across the top.
   expect(
-    rule(css, '  .profile[data-rail="true"] > .profileAside > .identity')
+    ruleIn(
+      css,
+      TABLET,
+      '  .profile[data-rail="true"] > .profileAside > .identity'
+    )
   ).toMatch(/flex-direction:\s*row;/);
 });
 
@@ -84,13 +112,14 @@ test('a profile without a rail keeps the identity card beside its sections', () 
 });
 
 // regression: profile-identity-card-narrower-than-columns
-test('on desktop the identity is a band across the column, edge to edge with the columns below', () => {
+test('on desktop the identity card fills its own column, edge to edge with it', () => {
   const css = readFileSync(LAYOUTS_CSS, 'utf8');
-  const selector = '.profile[data-rail="true"] > .profileAside > .identity';
-  // The wide rule is the last one for this selector (inside the container
-  // query); it stretches instead of shrinking to its content.
-  const start = css.lastIndexOf(`${selector} {`);
-  const body = css.slice(css.indexOf('{', start) + 1, css.indexOf('}', start));
+  const body = ruleIn(
+    css,
+    DESKTOP,
+    '  .profile[data-rail="true"] > .profileAside > .identity'
+  );
+  // It stretches to its column's edges instead of shrinking to its words.
   expect(body).toContain('align-self: stretch');
   expect(body).not.toContain('fit-content');
 });

@@ -44,6 +44,12 @@
     var(--game-rail-measure)
   );
 }
+/* A wide search before any game: the column (title and card) is held to
+   the search's measure and centred, never stretched across a board's
+   width. As specific as the board-and-rail rules above, and after them. */
+.column:has(.layout [data-setup-split="true"][data-details-across="true"]) {
+  max-width: var(--game-search-split-measure);
+}
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -75,12 +81,10 @@
   max-width: var(--game-board-measure);
   justify-self: start;
 }
-/* An editor's workspace fills the column; the editor sets its own tools
-   beside its canvas. */
-.layout[data-workspace="true"] > .stage {
-  max-width: none;
-}
-/* With nothing beside it, the one column fills the game menu's measure. */
+/* An editor's workspace fills the column (the editor sets its own tools
+   beside its canvas); with nothing beside it, the one column fills the
+   game menu's measure. */
+.layout[data-workspace="true"] > .stage,
 .column .layout:not([data-has-stage="true"]) > .setup,
 .column .layout[data-has-aside="false"][data-has-setup="false"] > .stage {
   max-width: none;

@@ -8,9 +8,8 @@ import {
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { Index, type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
@@ -213,9 +212,9 @@ function SetupSeatView(props: SeatProps): JSX.Element {
 /**
  * Every seat while the game is set up, one plain list of player rows in
  * the Players card (never cards inside the card), each holding its own
- * choices, with the board preview beside them. Wide, the seats sit two to
- * a row, so the card's width holds them and Start follows right under
- * them, never a narrow list in a wide card with Start far off. A person who may take a seat sits in the
+ * choices, one seat to a row, with the board preview beside them: wide,
+ * the Players card and the preview's card are two equal columns, Start
+ * closing the Players card at its foot. A person who may take a seat sits in the
  * first open one; someone who may not, or finds every seat taken, is told
  * they watch.
  */
@@ -230,7 +229,6 @@ export function FrameSetupSeatsView(props: {
   /** The board the game is played on, in its own card paired with the seats. */
   readonly media?: JSX.Element | undefined;
 }): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <GameSection
       title={<Trans>Players</Trans>}
@@ -257,12 +255,7 @@ export function FrameSetupSeatsView(props: {
           </GameActions>
         )}
       </Show>
-      <Grid
-        columns={mode() === 'wide' && props.setup.seats.length > 1 ? 2 : 1}
-        gap="sm"
-        align="start"
-        testId="custom-game-setup-seats"
-      >
+      <StackVertical gap="sm" testId="custom-game-setup-seats">
         <Index each={props.setup.seats}>
           {(seat) => (
             <SetupSeatView
@@ -273,7 +266,7 @@ export function FrameSetupSeatsView(props: {
             />
           )}
         </Index>
-      </Grid>
+      </StackVertical>
     </GameSection>
   );
 }

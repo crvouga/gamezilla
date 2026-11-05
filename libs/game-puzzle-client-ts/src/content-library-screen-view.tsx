@@ -27,6 +27,7 @@ import {
   type ContentLibraryProgress,
   ContentProgressLine,
 } from './content-library-card';
+import { ContentMoreToPlay, continuePicks } from './content-library-picks';
 import { ContentLoadMore } from './content-load-more';
 
 /**
@@ -303,7 +304,11 @@ function BrowsePanel(props: { view: View }): JSX.Element {
   );
 }
 
-/** Only what the person left unfinished, to pick up where they left it. */
+/**
+ * Only what the person left unfinished, to pick up where they left it;
+ * with little of it, Browse's next puzzles and packs follow under "More to
+ * play".
+ */
 function ContinuePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   const unfinished = () => attemptsDone(props.view, false);
@@ -330,6 +335,14 @@ function ContinuePanel(props: { view: View }): JSX.Element {
         />
         <MoreAttempts view={props.view} />
       </Show>
+      <ContentMoreToPlay
+        picks={continuePicks(
+          [...props.view.bundledPacks, ...props.view.published],
+          unfinished().map((attempt) => attempt.title)
+        )}
+        renderPreview={props.view.renderPreview}
+        onOpenEdition={props.view.onOpenEdition}
+      />
     </StackVertical>
   );
 }

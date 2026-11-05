@@ -45,6 +45,7 @@ function CompactShell(props: ShellProps): JSX.Element {
         leading={props.leading}
         largeTitle={props.largeTitle}
         scrolled={scrolled()}
+        hideTitle={props.titlePlacement === 'content'}
         globalTrailing={globalTrailing()}
         renderActionsMenu={props.renderActionsMenu}
       />

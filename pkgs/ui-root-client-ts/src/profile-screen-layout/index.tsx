@@ -12,8 +12,8 @@ export type ProfileScreenLayoutProps = Pick<
 > & {
   /**
    * The person's picture, apart from the rest of the identity. Given, a
-   * wide profile with a `rail` draws the identity as one header band: the
-   * picture, the name beside it, the actions at the band's end.
+   * profile with a `rail` draws it beside the name on a phone and a
+   * tablet, and over the name in the desktop's identity card.
    */
   avatar?: JSX.Element | undefined;
   identity: JSX.Element;
@@ -22,8 +22,8 @@ export type ProfileScreenLayoutProps = Pick<
   children?: JSX.Element | undefined;
   /**
    * Secondary sections, the ways elsewhere (friends, settings). After the
-   * main sections on a phone; on a desktop a narrower column beside them,
-   * under the identity band.
+   * main sections on a phone; on a desktop the last of three columns,
+   * beside the main sections.
    */
   rail?: JSX.Element | undefined;
 };
@@ -75,10 +75,13 @@ type ProfileArrangement = 'stack' | 'split' | 'rail';
  * beside it, so a profile reads as one composed page rather than a narrow
  * strip. A profile without sections keeps one column.
  *
- * With a `rail` the page composes differently: the identity is a compact
- * band across the top (picture, name, actions in one line), and below it
- * the main sections take the wide column while the rail's sections stack
- * in a narrower one beside them; on a phone everything stacks in order.
+ * With a `rail` the page composes differently. On a desktop it is three
+ * columns, tops on one line: the identity as a card of its own content
+ * (the picture over the name, its facts and actions) in a narrow first
+ * column, the main sections taking what is left, and the rail's sections
+ * in a column wide enough for their captions. A tablet's column draws the
+ * identity as a band across the top (picture, name, actions in one line)
+ * over the sections; on a phone everything stacks in order.
  */
 export function ProfileScreenLayout(
   props: ProfileScreenLayoutProps

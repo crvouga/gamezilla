@@ -4,40 +4,67 @@ import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 
-/** One thing a search does: a short title over one plain line, both quiet. */
+/**
+ * One thing a search does: its short title, then one plain line. On a
+ * phone the line sits under the title; wide, both read as one friendly
+ * sentence on one line, the title a step brighter than the line.
+ */
 function GuidePoint(props: {
   readonly title: JSX.Element;
   readonly children: JSX.Element;
+  readonly inline: boolean;
 }): JSX.Element {
   return (
-    <StackVertical gap="xs" role="listitem">
-      <P variant="caption">{props.title}</P>
-      <P variant="caption" tone="secondary">
+    <Show
+      when={props.inline}
+      fallback={
+        <StackVertical gap="xs" role="listitem">
+          <P variant="caption">{props.title}</P>
+          <P variant="caption" tone="secondary">
+            {props.children}
+          </P>
+        </StackVertical>
+      }
+    >
+      <P variant="caption" tone="secondary" role="listitem">
+        <Text variant="inherit" tone="default">
+          {props.title}
+        </Text>
+        {'. '}
         {props.children}
       </P>
-    </StackVertical>
+    </Show>
   );
 }
 
-/** The three things a search does, one under another or side by side. */
-function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
+/** The three things a search does, one under another. */
+function GuidePoints(props: { readonly inline: boolean }): JSX.Element {
   return (
     <Grid
-      columns={props.columns}
-      gap="md"
+      columns={1}
+      gap={props.inline ? 'xs' : 'md'}
       role="list"
       aria-label={t`How matchmaking works`}
     >
-      <GuidePoint title={<Trans>Every match is rated</Trans>}>
+      <GuidePoint
+        inline={props.inline}
+        title={<Trans>Every match is rated</Trans>}
+      >
         <Trans>Win, lose or draw, your rating moves once.</Trans>
       </GuidePoint>
-      <GuidePoint title={<Trans>Stop whenever you like</Trans>}>
+      <GuidePoint
+        inline={props.inline}
+        title={<Trans>Stop whenever you like</Trans>}
+      >
         <Trans>A search waits until you stop it or are matched.</Trans>
       </GuidePoint>
-      <GuidePoint title={<Trans>Only people you can play</Trans>}>
+      <GuidePoint
+        inline={props.inline}
+        title={<Trans>Only people you can play</Trans>}
+      >
         <Trans>Never someone you've blocked, or who blocked you.</Trans>
       </GuidePoint>
     </Grid>
@@ -49,8 +76,9 @@ function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
  * hairline, behind one closed disclosure, so the explanation never
  * outweighs the decision above it. Wide, plain quiet text across the
  * card's foot under the search and the ratings: its heading, then three
- * short points side by side in caption type, never a box of its own, so
- * the search stays the first thing read.
+ * short lines, one under another, each one sentence in caption type,
+ * never a box of its own or columns of fine print, so the search stays
+ * the first thing read.
  */
 export function MultiplayerGuide(props: {
   readonly wide?: boolean | undefined;
@@ -65,14 +93,14 @@ export function MultiplayerGuide(props: {
             rule={false}
             dataSet={{ testid: 'multiplayer-guide-toggle' }}
           >
-            <GuidePoints columns={1} />
+            <GuidePoints inline={false} />
           </GameDisclosure>
         }
       >
         <H3 size="label" tone="secondary">
           <Trans>How matchmaking works</Trans>
         </H3>
-        <GuidePoints columns={3} />
+        <GuidePoints inline />
       </Show>
     </StackVertical>
   );

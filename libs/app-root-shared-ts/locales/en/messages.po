@@ -943,6 +943,10 @@ msgstr "Ace"
 msgid "across"
 msgstr "across"
 
+#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
+msgid "Action needed"
+msgstr "Action needed"
+
 #. placeholder {0}: date()
 #: libs/billing-client-ts/src/billing-status-line.tsx
 msgid "Active · renews {0}"
@@ -3997,6 +4001,10 @@ msgstr "More"
 msgid "More for {0}"
 msgstr "More for {0}"
 
+#: libs/game-puzzle-client-ts/src/content-library-picks.tsx
+msgid "More to play"
+msgstr "More to play"
+
 #. placeholder {0}: props.ply
 #. placeholder {1}: props.moves
 #. placeholder {2}: props.label
@@ -4165,7 +4173,6 @@ msgstr "Navigation"
 msgid "Needs corrections"
 msgstr "Needs corrections"
 
-#: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 #: libs/notifications-client-ts/src/use-notifications.tsx
 msgid "Needs you"
 msgstr "Needs you"
@@ -8208,6 +8215,10 @@ msgstr "Where you are signed in"
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "White"
 msgstr "White"
+
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
+msgid "Who's here"
+msgstr "Who's here"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
 msgid "Win, lose or draw, your rating moves once."

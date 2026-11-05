@@ -15,13 +15,16 @@ import type { JSX } from 'solid-js';
 
 const COMPACT = { width: 390, height: 844 };
 
-export function renderChrome(ui: () => JSX.Element): void {
+export function renderChrome(
+  ui: () => JSX.Element,
+  layout: { readonly width: number; readonly height: number } = COMPACT
+): void {
   const harness = createHarnessClock();
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   render(() => (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
-        <ThemeProvider colorScheme="light" fixedLayout={COMPACT}>
+        <ThemeProvider colorScheme="light" fixedLayout={layout}>
           <SurfaceStackProvider>{ui()}</SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>
