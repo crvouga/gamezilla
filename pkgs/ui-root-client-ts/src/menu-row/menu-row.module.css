@@ -1,0 +1,14 @@
+/* A row with an accessory: the row's press target fills it, the accessory
+   sits beside it on the same hairline. Inside a panel the press target
+   keeps the panel's inner corner on its leading side (the accessory owns
+   the trailing one), and its focus ring is drawn inside the panel. */
+.split > .action > button:focus-visible,
+.split > .action > a:focus-visible {
+  outline-offset: -2px;
+}
+:global(.panelItem):first-child > .split > .action > * {
+  border-start-start-radius: calc(var(--ui-radius-card) - 1px);
+}
+:global(.panelItem):last-child > .split > .action > * {
+  border-end-start-radius: calc(var(--ui-radius-card) - 1px);
+}

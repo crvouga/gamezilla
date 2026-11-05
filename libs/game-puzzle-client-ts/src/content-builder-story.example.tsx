@@ -42,7 +42,6 @@ export function StoryPuzzleBuilder(props: {
       metadataDisabled={props.disabled}
       disabled={props.disabled}
       preview={false}
-      nextStep="playtest"
       history={<StoryDraftHistory disabled={props.disabled} />}
       publication={
         <ContentPublicationControlsView

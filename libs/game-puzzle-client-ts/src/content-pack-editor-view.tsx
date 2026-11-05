@@ -1,5 +1,4 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
@@ -15,7 +14,7 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
-import { ContentRowCaption, ContentStatusChip } from './content-chips';
+import { ContentStatusChip } from './content-chips';
 import { ContentThumbnail } from './content-thumbnail';
 
 /** A published puzzle the pack does not hold yet. */
@@ -48,88 +47,78 @@ export type ContentPackItemRowProps = {
   readonly onRemove: () => void;
 };
 
-/** The quiet disc beside Edit: small, its hit area still 44px. */
+/** The quiet disc at the row's end: small, its hit area still 44px. */
 const MENU_DISC_SIZE = 32;
 /** Wide enough for its three rows, not a panel. */
 const MENU_WIDTH = 220;
 
+/** The row's "…" menu: move it earlier or later, take it out. */
+function PackRowMenu(props: ContentPackItemRowProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <OverflowMenuButton
+      aria-label={t`More for ${props.title}`}
+      icon={EllipsisIcon}
+      size={MENU_DISC_SIZE}
+      width={MENU_WIDTH}
+      actions={[
+        {
+          id: 'up',
+          label: t`Move up`,
+          icon: ChevronUpIcon,
+          disabled: props.disabled || props.first,
+          onClick: () => props.onUp(),
+          dataSet: { testid: 'content-pack-up' },
+        },
+        {
+          id: 'down',
+          label: t`Move down`,
+          icon: ChevronDownIcon,
+          disabled: props.disabled || props.last,
+          onClick: () => props.onDown(),
+          endsGroup: true,
+          dataSet: { testid: 'content-pack-down' },
+        },
+        {
+          id: 'remove',
+          label: t`Remove from pack`,
+          icon: Trash2Icon,
+          tone: 'destructive',
+          disabled: props.disabled,
+          onClick: () => props.onRemove(),
+          dataSet: { testid: 'content-pack-remove' },
+        },
+      ]}
+      dataSet={{ testid: 'content-pack-menu' }}
+    />
+  );
+}
+
 /**
- * One puzzle in the pack: its title and state, then at the row's end the
- * one tool used most, open it, and a "…" menu holding the rest: move it
- * earlier or later, take it out. The title keeps the row's width.
+ * One puzzle in the pack: the whole row opens it (to edit, or its
+ * published edition), its title over what the author still has to do
+ * with it, its status chip at the row's end, and beside the row a "…"
+ * menu holding the rest: move it earlier or later, take it out.
  */
 export function ContentPackItemRow(
   props: ContentPackItemRowProps
 ): JSX.Element {
-  const { t } = useLingui();
   return (
     <MenuRow
       title={props.title}
-      caption={
-        <Show when={props.status} fallback={props.caption || undefined}>
+      caption={props.caption || undefined}
+      trailing={
+        <Show when={props.status}>
           {(status) => (
-            <ContentRowCaption description={props.caption}>
+            // Centred on the row like its menu, on two lines as on one.
+            <StackHorizontal align="center">
               <ContentStatusChip status={status()} />
-            </ContentRowCaption>
+            </StackHorizontal>
           )}
         </Show>
       }
-      trailing={
-        <StackHorizontal gap="xs" align="center">
-          <Show when={props.open}>
-            {(open) => (
-              <Button
-                title={open() === 'edit' ? t`Edit` : t`View`}
-                aria-label={
-                  open() === 'edit'
-                    ? t`Edit ${props.title}`
-                    : t`View ${props.title}`
-                }
-                size="sm"
-                intent="neutral"
-                variant="ghost"
-                onClick={() => props.onOpen()}
-                dataSet={{ testid: 'content-pack-open' }}
-              />
-            )}
-          </Show>
-          <OverflowMenuButton
-            aria-label={t`More for ${props.title}`}
-            icon={EllipsisIcon}
-            size={MENU_DISC_SIZE}
-            width={MENU_WIDTH}
-            actions={[
-              {
-                id: 'up',
-                label: t`Move up`,
-                icon: ChevronUpIcon,
-                disabled: props.disabled || props.first,
-                onClick: () => props.onUp(),
-                dataSet: { testid: 'content-pack-up' },
-              },
-              {
-                id: 'down',
-                label: t`Move down`,
-                icon: ChevronDownIcon,
-                disabled: props.disabled || props.last,
-                onClick: () => props.onDown(),
-                endsGroup: true,
-                dataSet: { testid: 'content-pack-down' },
-              },
-              {
-                id: 'remove',
-                label: t`Remove from pack`,
-                icon: Trash2Icon,
-                tone: 'destructive',
-                disabled: props.disabled,
-                onClick: () => props.onRemove(),
-                dataSet: { testid: 'content-pack-remove' },
-              },
-            ]}
-            dataSet={{ testid: 'content-pack-menu' }}
-          />
-        </StackHorizontal>
-      }
+      accessory={<PackRowMenu {...props} />}
+      onClick={props.open === null ? undefined : () => props.onOpen()}
       dataSet={{ testid: `content-pack-item-${props.id}` }}
     />
   );

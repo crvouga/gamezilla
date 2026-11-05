@@ -7,6 +7,7 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -272,8 +273,32 @@ function BrowsePanel(props: { view: View }): JSX.Element {
 }
 
 /**
- * The person's play: attempts to pick up where they left off, the ones
- * they finished apart from them, then their private playtests.
+ * The Continue tab's sections on one grid. Wide, when there is something
+ * on both sides, what to pick up takes one column and what is finished
+ * and the private playtests the other, each a list of its own, so no
+ * section hangs alone under a two-column one; otherwise one column.
+ */
+function AttemptColumns(props: {
+  main: JSX.Element;
+  side: JSX.Element;
+  split: boolean;
+}): JSX.Element {
+  return (
+    <Grid
+      columns={props.split ? { base: 1, lg: 2 } : 1}
+      gap="lg"
+      align="start"
+      testId="content-library-attempt-columns"
+    >
+      {props.main}
+      <StackVertical gap="lg">{props.side}</StackVertical>
+    </Grid>
+  );
+}
+
+/**
+ * The person's play: attempts to pick up where they left off beside the
+ * ones they finished and their private playtests.
  */
 function ContinuePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
@@ -310,10 +335,20 @@ function ContinuePanel(props: { view: View }): JSX.Element {
           />
         }
       >
-        {section('unfinished', list(false))}
-        {section('finished', list(true))}
+        <AttemptColumns
+          main={section('unfinished', list(false))}
+          side={
+            <>
+              {section('finished', list(true))}
+              {section('playtest', props.view.playtests)}
+            </>
+          }
+          split={
+            list(false).length > 0 &&
+            (list(true).length > 0 || props.view.playtests.length > 0)
+          }
+        />
         <MoreAttempts view={props.view} />
-        {section('playtest', props.view.playtests)}
       </Show>
     </StackVertical>
   );

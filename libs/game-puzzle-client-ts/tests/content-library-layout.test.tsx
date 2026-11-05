@@ -129,6 +129,37 @@ test('finished attempts sit apart from the ones to continue, without status pill
   ).toBeNull();
 });
 
+// regression: library-sections-hang-left — wide, "Continue playing" was
+// two columns of cards while "Finished" and the playtests below it were
+// one card each in the left column, the right half empty. The Continue
+// tab's sections now share one grid: what to pick up in one column, what
+// is finished and the playtests in the other, each a list of its own.
+test('wide, what to continue sits beside what is finished and the playtests', () => {
+  renderLibrary(VIEW);
+  const columns = screen.getByTestId('content-library-attempt-columns');
+  expect(columns.className).toContain('lg:grid-cols-2');
+  const [main, side] = [...columns.children];
+  expect(main?.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
+    true
+  );
+  expect(side?.contains(screen.getByTestId('content-attempt-attempt-2'))).toBe(
+    true
+  );
+  expect(side?.contains(screen.getByTestId('content-attempt-playtest-1'))).toBe(
+    true
+  );
+});
+
+test('with only attempts to continue, they keep the whole width', () => {
+  renderLibrary({
+    ...VIEW,
+    attempts: [{ id: 'attempt-1', title: 'Count to seven', completed: false }],
+    playtests: [],
+  });
+  const columns = screen.getByTestId('content-library-attempt-columns');
+  expect(columns.className).not.toContain('grid-cols-2');
+});
+
 test('with nothing unfinished the library opens on Browse', () => {
   renderLibrary({
     ...VIEW,
@@ -255,6 +286,10 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
   expect(looks.size).toBe(3);
 });
 
+// regression: library-pack-progress-unlabelled — a finished puzzle's card
+// said "Weekend counts · Solved 1/3", which read as the puzzle's own
+// progress though it counts the pack's puzzles. The line now says "Pack:
+// Weekend counts · 1 of 3 solved", and a pack's own card "2 of 5 solved".
 // regression: content-library-sparse-rows — each 960px row held a small
 // thumbnail and a title and nothing else, and on a phone "Thirteen
 // without …" was cut short beside an empty thumbnail box. Each card now
@@ -287,7 +322,7 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
   expect(attempt.getAttribute('data-component')).toBe('PreviewCard');
   expect(chip(attempt, 'content-chip-difficulty').textContent).toBe('Medium');
   expect(chip(attempt, 'content-progress').textContent).toBe(
-    'Weekend counts · Solved 1/3'
+    'Pack: Weekend counts · 1\u00a0of\u00a03\u00a0solved'
   );
   // Without a difficulty or a pack, a card shows neither.
   const plain = screen.getByTestId('content-attempt-attempt-3');
@@ -296,7 +331,9 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
   );
   expect(plain.querySelector('[data-testid="content-progress"]')).toBe(null);
   const pack = screen.getByTestId('content-published-revision-2');
-  expect(chip(pack, 'content-progress').textContent).toBe('Solved 2/5');
+  expect(chip(pack, 'content-progress').textContent).toBe(
+    '2\u00a0of\u00a05\u00a0solved'
+  );
   for (const card of [attempt, plain, pack]) {
     const title = card.querySelector('.textRowTitle');
     expect(title?.className).not.toMatch(/line-clamp|truncate/);

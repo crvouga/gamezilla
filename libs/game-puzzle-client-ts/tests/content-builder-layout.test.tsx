@@ -123,17 +123,23 @@ test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', 
   expect(variants()).toEqual({ validate: 'solid', publish: 'outline' });
 });
 
-function row(id: string, first: boolean, last: boolean): JSX.Element {
+function row(
+  id: string,
+  first: boolean,
+  last: boolean,
+  onOpen: () => void = () => undefined
+): JSX.Element {
   return (
     <ContentPackItemRow
       id={id}
       title={`Puzzle ${id}`}
-      caption="Published"
+      caption=""
+      status="published"
       first={first}
       last={last}
       disabled={false}
       open="edit"
-      onOpen={() => undefined}
+      onOpen={onOpen}
       onUp={() => undefined}
       onDown={() => undefined}
       onRemove={() => undefined}
@@ -169,8 +175,8 @@ test("a pack's puzzles are listed in order, each with its tools and no play cont
   );
   const first = screen.getByTestId('content-pack-item-a');
   expect(
-    first.querySelector('[data-testid="content-pack-open"]')?.textContent
-  ).toBe('Edit');
+    first.querySelector('[data-component="MenuRowAction"]')?.textContent
+  ).toContain('Puzzle a');
   const menu = first.querySelector('[data-testid="content-pack-menu"]');
   if (!(menu instanceof HTMLElement)) throw new Error('no row menu');
   fireEvent.click(menu);
@@ -185,9 +191,14 @@ test("a pack's puzzles are listed in order, each with its tools and no play cont
 // Edit, move up, move down and remove side by side at its end: on a phone
 // they squeezed the title into a narrow column ("Publish it before / the
 // pack" on three lines), and wide they sat 700px from the titles across a
-// stretched row. A row now holds Edit and one "…" menu with the rest, and
-// wide the list takes a board's measure with the ways to add beside it.
-test("a pack row keeps its title's room: Edit and one menu, the list a board's measure", () => {
+// stretched row. Wide the list takes a board's measure with the ways to
+// add beside it.
+// regression: pack-row-three-controls — then a row still carried three
+// controls (a status pill, an "Edit" link and a "…" menu). The whole row
+// now opens its puzzle, its status a chip at its end, and the "…" menu,
+// the one other control, sits beside the row, never inside its button.
+test('a pack row opens on a tap anywhere, its status a chip, the rest in one menu', () => {
+  let opened = 0;
   mount(
     () => (
       <SurfaceStackProvider>
@@ -197,7 +208,9 @@ test("a pack row keeps its title's room: Edit and one menu, the list a board's m
           order={
             <>
               {row('a', true, false)}
-              {row('b', false, true)}
+              {row('b', false, true, () => {
+                opened += 1;
+              })}
             </>
           }
           candidates={[]}
@@ -209,16 +222,22 @@ test("a pack row keeps its title's room: Edit and one menu, the list a board's m
     PHONE
   );
   const second = screen.getByTestId('content-pack-item-b');
-  const controls = Array.from(
-    second.querySelectorAll('button'),
-    (button) => button.getAttribute('data-testid') ?? button.textContent
-  ).filter((id) => id !== 'content-pack-item-b');
-  expect(controls).toEqual(['content-pack-open', 'content-pack-menu']);
+  const buttons = [...second.querySelectorAll('button')];
+  expect(buttons.length).toBe(2);
+  const [open, menu] = buttons;
+  if (open === undefined || menu === undefined) throw new Error('no row');
+  expect(open.getAttribute('data-component')).toBe('MenuRowAction');
+  expect(open.textContent).toBe('Puzzle bPublished');
   expect(
-    second.querySelector('[data-testid="content-pack-menu"]') ===
-      screen.getByRole('button', { name: 'More for Puzzle b' })
-  ).toBe(true);
-  fireEvent.click(screen.getByRole('button', { name: 'More for Puzzle b' }));
+    open.querySelector('[data-testid="content-chip-status"]')
+  ).not.toBeNull();
+  expect(open.contains(menu)).toBe(false);
+  expect(menu.getAttribute('data-testid')).toBe('content-pack-menu');
+  expect(menu).toBe(screen.getByRole('button', { name: 'More for Puzzle b' }));
+  fireEvent.click(open);
+  expect(opened).toBe(1);
+  fireEvent.click(menu);
+  expect(opened).toBe(1);
   expect(
     screen.getAllByRole('menuitem').map((item) => item.textContent)
   ).toEqual(['Move up', 'Move down', 'Remove from pack']);
@@ -364,10 +383,17 @@ for (const [size, name] of [
     );
     expect(scroller).not.toBeNull();
     expect(scroller?.contains(publish)).toBe(true);
-    // It is one section in the stage's column, right after the stage.
+    // Wide it is one section in the stage's column, right after the
+    // stage; on a phone a card in the flow after the details, before it.
     const stage = screen.getByTestId('content-author-stage');
-    expect(publish.parentElement).toBe(stage.parentElement);
-    expect(stage.nextElementSibling).toBe(publish);
+    if (size === DESKTOP) {
+      expect(publish.parentElement).toBe(stage.parentElement);
+      expect(stage.nextElementSibling).toBe(publish);
+    } else {
+      const details = screen.getByTestId('content-author-details');
+      expect(before(details, publish)).toBe(true);
+      expect(before(publish, stage)).toBe(true);
+    }
     // No strip outside the scroll area holds a screen footer.
     expect(scroller?.parentElement?.children.length).toBe(1);
     expect(
@@ -504,4 +530,44 @@ test('the playtest step stays mounted as the check changes, told when it is next
   setValidation('valid');
   expect(mounts).toBe(1);
   expect(seen).toEqual([true, false]);
+});
+
+// The same guard for the builder's steps: there the playtest is drawn
+// where it stands (filled over the steps while it is next, then in its
+// done step), so it is drawn again only when that place changes, never
+// as the check changes.
+test('in the steps, the playtest is drawn again only when its place changes', () => {
+  const [validation, setValidation] = createSignal<
+    'unchecked' | 'valid' | 'invalid' | null
+  >('unchecked');
+  const [proven, setProven] = createSignal(false);
+  const seen: boolean[] = [];
+  mount(() => (
+    <ContentPublicationControlsView
+      layout="bar"
+      kind="puzzle"
+      validation={validation()}
+      validationMessage=""
+      proven={proven()}
+      pending={null}
+      published={false}
+      disabled={false}
+      onValidate={resolved}
+      onPublish={resolved}
+      onViewPublication={() => undefined}
+      onWithdraw={resolved}
+      before={(isNext) => {
+        seen.push(isNext());
+        return <span data-testid="playtest" />;
+      }}
+    />
+  ));
+  setValidation(null);
+  setValidation('invalid');
+  setValidation('unchecked');
+  expect(seen).toEqual([true]);
+  setProven(true);
+  setValidation('valid');
+  expect(seen).toEqual([true, false]);
+  expect(screen.getAllByTestId('playtest').length).toBe(1);
 });

@@ -62,6 +62,7 @@ export function ContentDraftPlaytest(props: {
         {...start.buttonProps}
         intent={props.next === true ? 'primary' : 'neutral'}
         variant={props.next === true ? 'solid' : 'outline'}
+        size={props.next === true ? 'md' : 'sm'}
         dataSet={{ testid: 'content-start-playtest' }}
       />
       <Show when={start.error()}>

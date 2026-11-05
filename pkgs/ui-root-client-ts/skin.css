@@ -201,6 +201,15 @@
     --ui-on-fg-muted: var(--ui-color-text-secondary);
   }
 
+  /* Locked: waits on an earlier step. No edge or fill, the label in the
+     secondary ink behind its lock; it still presses (and says why). */
+  .btn[data-face="locked"] {
+    color: var(--ui-color-text-secondary);
+    --ui-on-fg: var(--ui-color-text-secondary);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+    --ui-on-icon: var(--ui-color-text-secondary);
+  }
+
   .btn[data-face="disabled"],
   .fab[data-face="disabled"] {
     background: var(--ui-color-disabled);

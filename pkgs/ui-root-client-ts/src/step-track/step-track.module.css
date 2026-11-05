@@ -65,6 +65,12 @@
   color: var(--ui-color-text);
   font-weight: var(--ui-font-weight-medium);
 }
+/* What a waiting step waits on, quieter than its name. */
+.note {
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-xs);
+  line-height: var(--ui-leading-xs);
+}
 /* Too narrow for one row: one step a line, markers in a column. */
 @container step-track (max-width: 33rem) {
   .track {

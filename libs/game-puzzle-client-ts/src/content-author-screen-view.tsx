@@ -9,23 +9,18 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DisclosureCard } from '@pkgs/ui-root-client-ts/disclosure-card';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { ChevronDownIcon, EyeIcon } from '@pkgs/ui-root-client-ts/icons';
+import { EyeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import {
-  createScrollTarget,
-  type ScrollHandle,
-  type ScrollTarget,
-} from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StepFooter } from '@pkgs/ui-root-client-ts/step-footer';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
-import type { PublicationStep } from './content-publication-steps';
 
 /**
  * `loading`: the library is still being read; `gone`: the document is not
@@ -62,16 +57,12 @@ export type ContentAuthorScreenViewProps = {
   /** Undo / redo of this session's edits. */
   readonly history?: JSX.Element;
   /**
-   * Validation and publication, laid out for the publish footer (a
-   * puzzle's playtest first among its actions).
+   * Validation and publication: the one next action over the steps (a
+   * puzzle's playtest first among them). Wide, it is the last step, after
+   * the stage; on a phone, a card right after the details, so the next
+   * action is in the first screen.
    */
   readonly publication?: JSX.Element;
-  /**
-   * The one next step on the way to publishing; on a phone, where the
-   * publish step starts below the board, a quiet button near the top names
-   * it and takes the person there.
-   */
-  readonly nextStep?: PublicationStep | undefined;
   /** The game's editor, the pack editor, or the preview. */
   readonly stage?: JSX.Element;
   /** The draft's other saved copies, to keep working from one. */
@@ -195,74 +186,57 @@ function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * On a phone the publish step starts below the board: near the top, one
- * quiet button names the next step and scrolls to it. It sits in the flow,
- * so it never covers the board, and wide screens, where the publish step
- * is in view beside the stage's end, go without it.
+ * Wide, the last step, in the flow right after the stage: the one next
+ * action over the steps to publish. It scrolls with the stage instead of
+ * being pinned over it, so it never covers the board or the pack's
+ * puzzles.
  */
-function NextStepJump(props: {
-  next: PublicationStep | undefined;
-  publish: ScrollHandle;
-}): JSX.Element {
+function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const mode = useLayoutMode();
-  const title = (step: PublicationStep): string => {
-    if (step === 'puzzles') return t`Next: publish its puzzles`;
-    if (step === 'playtest') return t`Next: start a playtest`;
-    return step === 'publish' ? t`Next: publish` : t`Next: validate`;
-  };
   return (
-    <Show when={mode() === 'compact' ? props.next : undefined}>
-      {(step) => (
-        <StackHorizontal>
-          <Button
-            title={title(step())}
-            intent="neutral"
-            variant="ghost"
-            size="sm"
-            startIcon={<ChevronDownIcon size={16} />}
-            onClick={() => {
-              props.publish.scrollIntoView({ block: 'start' });
-            }}
-            dataSet={{ testid: 'content-author-next-step', step: step() }}
-          />
-        </StackHorizontal>
-      )}
+    <Show when={mode() !== 'compact'}>
+      <StepFooter
+        title={t`3 · Check and publish`}
+        dataSet={{ testid: 'content-author-publish' }}
+      >
+        {props.publication}
+      </StepFooter>
     </Show>
   );
 }
 
 /**
- * The last step, in the flow right after the stage: where the draft
- * stands, a puzzle's playtest, then the check and publication. It scrolls
- * with the stage instead of being pinned over it, so it never covers the
- * board or the pack's puzzles.
+ * On a phone, where the stage fills more than the first screen, the same
+ * step as a card right after the details: the next action (a playtest,
+ * Validate, Publish) is in view without scrolling past the board, and it
+ * sits in the flow, so it covers nothing.
  */
-function AuthorPublish(
-  props: ContentAuthorScreenViewProps & { target: ScrollTarget }
-): JSX.Element {
+function AuthorPublishFirst(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
+  const mode = useLayoutMode();
   return (
-    <StepFooter
-      title={t`3 · Check and publish`}
-      scrollTarget={props.target}
-      dataSet={{ testid: 'content-author-publish' }}
-    >
-      {props.publication}
-    </StepFooter>
+    <Show when={mode() === 'compact'}>
+      <GameSection
+        title={t`Check and publish`}
+        dataSet={{ testid: 'content-author-publish' }}
+      >
+        {props.publication}
+      </GameSection>
+    </Show>
   );
 }
 
 /**
- * One builder in three numbered steps, read top to bottom at every size:
- * the details (one row once titled), the stage with its tools across the
- * whole column (a game's editor sets its own tools beside its board), and
- * checking and publishing right after the stage; the draft's other saved
- * copies, no step of their own, come last.
+ * One builder in three numbered steps: the details (one row once titled),
+ * the stage with its tools across the whole column (a game's editor sets
+ * its own tools beside its board), and checking and publishing right
+ * after the stage (on a phone, a card right after the details, so the
+ * next action is in the first screen); the draft's other saved copies,
+ * no step of their own, come last.
  */
 function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const publish = createScrollTarget();
   return (
     <GameScreen
       screenId="puzzle-content-author"
@@ -285,7 +259,7 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
           <>
             <SaveNotices {...props} />
             <AuthorDetails {...props} />
-            <NextStepJump next={props.nextStep} publish={publish} />
+            <AuthorPublishFirst {...props} />
           </>
         }
         workspace
@@ -295,7 +269,7 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
             <AuthorTools {...props} />
             {props.stage}
           </StackVertical>
-          <AuthorPublish {...props} target={publish.target} />
+          <AuthorPublish {...props} />
           {props.keptCopies}
         </StackVertical>
       </GameSessionLayout>
