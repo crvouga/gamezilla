@@ -94,6 +94,42 @@ describe('game surfaces', () => {
     );
   });
 
+  // regression: phone-three-players-two-rows — on a phone three players'
+  // chips wrapped as two and one, the third alone on a second row, pushing
+  // a Light Cycles arena down. Three players make one row of three stacked
+  // chips.
+  test('three players on a phone share one row of stacked chips', () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
+      'utf8'
+    );
+    const phone = css.slice(
+      css.indexOf('@container game-column (max-width: 879px)')
+    );
+    expect(phone).toMatch(
+      /\.playerRail:has\(> :nth-child\(3\):last-child\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+    );
+    expect(phone).toMatch(/\.chipFrame \{\s*flex-direction: column;/);
+  });
+
+  // regression: battleship-phone-targets-small — on a phone each of the
+  // ten targets in a row was about 30px, the grid's gaps, padding and label
+  // column taking the rest. They are slim now, each target about 32px.
+  test("a phone's Battleship grid gives its room to the targets", () => {
+    const css = readFileSync(
+      join(UI_SRC, 'cell-grid-board/cell-grid-board.module.css'),
+      'utf8'
+    );
+    const phone = css.slice(
+      css.indexOf('@container game-column (max-width: 879px)')
+    );
+    const grid = phone.slice(0, phone.indexOf('}'));
+    expect(grid).toContain('[data-board-theme="battleship"]');
+    expect(grid).toContain('minmax(1rem, 0.5fr)');
+    expect(grid).toContain('gap: 1px');
+    expect(grid).toContain('padding: var(--ui-space-1)');
+  });
+
   test('a section with no picture keeps its plain body', () => {
     renderUi(() => (
       <GameSection title="Players">

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone each Battleship target was about 30px square, the grid's 2px gaps, padding and wide label column taking the rest of its frame. The label column is narrow, the gaps a hairline and the padding slim, so each target is about 32px.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}
