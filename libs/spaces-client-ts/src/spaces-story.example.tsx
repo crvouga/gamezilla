@@ -39,6 +39,10 @@ export const LONG_NAME = person(
   'a_really_long_username_that_keeps_going_and_going'
 );
 
+export const CASEY = person('09', 'casey');
+export const RILEY = person('10', 'riley.k');
+export const TAYLOR = person('11', 'taylor_moves');
+
 export const GUESTS: readonly SpacePerson[] = [JORDAN, MORGAN, ROBIN, SAM];
 
 function space(
@@ -92,6 +96,37 @@ export const SPACES: readonly SpaceCardData[] = [
   HOSTED_SPACE,
   FRIEND_SPACE,
   JOINED_SPACE,
+];
+
+/** A friend's chess night the viewer was invited to. */
+export const CHESS_NIGHT_SPACE = space('06', JORDAN, {
+  title: 'Friday chess',
+  guests: [ROBIN, CASEY],
+});
+
+/** A friend's quick game, filling up. */
+export const QUICK_GAME_SPACE = space('07', SAM, {
+  title: 'Quick connect four',
+  guests: [MORGAN, RILEY, TAYLOR, PLAYBOT],
+});
+
+/** A friend's word game with one guest so far. */
+export const WORD_GAME_SPACE = space('08', MORGAN, {
+  title: 'Word tiles after work',
+  guests: [CASEY],
+});
+
+/**
+ * An active person's lobby: the two spaces they host (one open here), then
+ * four shared with them, from empty to filling up.
+ */
+export const LOBBY_SPACES: readonly SpaceCardData[] = [
+  { ...HOSTED_SPACE, guests: [JORDAN, MORGAN, ROBIN] },
+  { ...SECOND_HOSTED_SPACE, guests: [ROBIN, CASEY] },
+  CHESS_NIGHT_SPACE,
+  QUICK_GAME_SPACE,
+  WORD_GAME_SPACE,
+  FRIEND_SPACE,
 ];
 
 /** One connected face per person, in roster order. */

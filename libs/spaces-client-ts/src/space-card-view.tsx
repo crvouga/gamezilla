@@ -8,6 +8,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import { Index, Match, Show, Switch } from 'solid-js';
+import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar, SpacePersonName } from './space-person-view';
 
@@ -31,7 +32,6 @@ export type SpaceCardData = {
   readonly guests: readonly SpacePerson[];
 };
 
-const HOST_AVATAR_SIZE = 44;
 const GUEST_AVATAR_SIZE = 24;
 const GUEST_AVATAR_MAX_VISIBLE = 6;
 /** Names spelled out under the faces; the rest are counted. */
@@ -57,17 +57,17 @@ export function SpaceBadgeView(props: {
   );
 }
 
-/** Host face, title and host name, with the space's status tag. */
+/** The space's mark, title and host name, with the space's status tag. */
 export function SpaceSummaryView(props: {
   readonly space: SpaceCardData;
 }): JSX.Element {
   return (
     <StackHorizontal justify="between" gap="sm">
       <StackHorizontal grow align="center" gap="sm">
-        <SpacePersonAvatar
-          person={props.space.host}
-          size={HOST_AVATAR_SIZE}
-          vividBackdrop
+        <SpaceMarkView
+          spaceId={props.space.spaceId}
+          title={props.space.title}
+          size="lg"
         />
         <StackVertical grow>
           <Text variant="bodyBold" lines={1}>
@@ -285,8 +285,8 @@ export function spaceCardTestId(space: SpaceCardData): string | undefined {
 }
 
 /**
- * One row in the lobby panel, in one anatomy for every space: the host's
- * face; the name, with what pressing it does at the end of the name's line,
+ * One row in the lobby panel, in one anatomy for every space: the space's
+ * own mark; the name, with what pressing it does at the end of the name's line,
  * over one full-width line of who hosts it and who else is in it. The
  * action is Resume where the
  * viewer already is, Open for their own, Join for someone else's. Every
@@ -313,10 +313,9 @@ export function SpaceCardView(props: {
         align="center"
         testId={Handles.spaceLobbyCard(props.space.spaceId)}
       >
-        <SpacePersonAvatar
-          person={props.space.host}
-          size={HOST_AVATAR_SIZE}
-          vividBackdrop
+        <SpaceMarkView
+          spaceId={props.space.spaceId}
+          title={props.space.title}
         />
         <StackVertical grow shrink gap="xs">
           {/* The action shares the title's line, so the line under it can

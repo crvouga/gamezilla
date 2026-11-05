@@ -1,0 +1,4 @@
+{
+  "summary": "Beside the sidebar, a lobby group with an odd number of spaces (the usual single hosted space) laid its last card in half the row with an empty slot beside it. An odd group now leads with one full-width card and pairs the rest.",
+  "regressionTest": "libs/spaces-client-ts/tests/spaces-lobby-grid.test.tsx"
+}
