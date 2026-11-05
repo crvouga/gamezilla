@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone the puzzle builder's playtest and publishing started below the tools, the board and the board's size, outside the first screen, with nothing near the top saying they were there. The publish step is now a card right after the details, before the stage, so its next action is in the first screen; it sits in the flow, so it covers nothing.",
+  "summary": "On a phone the puzzle builder's playtest and publishing started below the tools, the board and the board's size, outside the first screen, with nothing near the top saying they were there. The next action is now a filled button in the screen's title row, in the first screen; it sits in the flow, so it covers nothing.",
   "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
 }

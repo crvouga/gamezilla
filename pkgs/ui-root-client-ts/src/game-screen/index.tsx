@@ -36,6 +36,13 @@ export function GameScreen(props: {
    * facts instead of leaving it for a listener only.
    */
   keepTitle?: boolean | undefined;
+  /**
+   * The screen's own next command (a builder's next step), at the title's
+   * end where it fits and under it where it does not: in the flow, so it
+   * never covers the stage, and in the first screen without a card of its
+   * own over the board.
+   */
+  actions?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
   children: JSX.Element;
 }): JSX.Element {
@@ -50,7 +57,11 @@ export function GameScreen(props: {
         <Show
           when={facts.present()}
           fallback={
-            <ScreenIntro title={props.title} subtitle={props.subtitle} />
+            <ScreenIntro
+              title={props.title}
+              subtitle={props.subtitle}
+              actions={props.actions}
+            />
           }
         >
           <div
@@ -62,7 +73,11 @@ export function GameScreen(props: {
               class={heading['headingTitle']}
               {...dataAttrs({ component: 'GameHeadingTitle' })}
             >
-              <ScreenIntro title={props.title} subtitle={props.subtitle} />
+              <ScreenIntro
+                title={props.title}
+                subtitle={props.subtitle}
+                actions={props.actions}
+              />
             </div>
             <div class={heading['facts']}>{facts.content()}</div>
           </div>

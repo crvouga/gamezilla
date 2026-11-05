@@ -65,20 +65,26 @@ type Slots = Pick<
 
 /**
  * Renders the view with fresh smart-widget stand-ins per mount; `slots`
- * replaces some of them for one state.
+ * replaces some of them for one state. They are made when the view first
+ * reads them, as production's JSX props are, so they are made inside the
+ * view (where a phone moves the publication's next action to the title).
  */
 function renderWith(
   args: ContentAuthorScreenViewProps,
   slots: () => Partial<Slots> = () => ({})
 ) {
-  const chosen = slots();
+  let chosen: Partial<Slots> | undefined;
+  const slot = <K extends keyof Slots>(key: K): Partial<Slots>[K] => {
+    chosen ??= slots();
+    return chosen[key];
+  };
   return (
     <ContentAuthorScreenView
       {...args}
-      history={chosen.history ?? <StoryDraftHistory />}
-      publication={chosen.publication ?? publication()}
-      stage={chosen.stage ?? <StoryCountingEditor target="7" />}
-      keptCopies={chosen.keptCopies ?? <StoryKeptCopies />}
+      history={slot('history') ?? <StoryDraftHistory />}
+      publication={slot('publication') ?? publication()}
+      stage={slot('stage') ?? <StoryCountingEditor target="7" />}
+      keptCopies={slot('keptCopies') ?? <StoryKeptCopies />}
     />
   );
 }

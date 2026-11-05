@@ -383,17 +383,11 @@ for (const [size, name] of [
     );
     expect(scroller).not.toBeNull();
     expect(scroller?.contains(publish)).toBe(true);
-    // Wide it is one section in the stage's column, right after the
-    // stage; on a phone a card in the flow after the details, before it.
+    // On both sizes it is one section in the stage's column, right after
+    // the stage.
     const stage = screen.getByTestId('content-author-stage');
-    if (size === DESKTOP) {
-      expect(publish.parentElement).toBe(stage.parentElement);
-      expect(stage.nextElementSibling).toBe(publish);
-    } else {
-      const details = screen.getByTestId('content-author-details');
-      expect(before(details, publish)).toBe(true);
-      expect(before(publish, stage)).toBe(true);
-    }
+    expect(publish.parentElement).toBe(stage.parentElement);
+    expect(stage.nextElementSibling).toBe(publish);
     // No strip outside the scroll area holds a screen footer.
     expect(scroller?.parentElement?.children.length).toBe(1);
     expect(

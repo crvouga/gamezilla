@@ -198,3 +198,59 @@ for (const story of [
       await page.evaluate(() => document.fonts.ready);
       expect(await builderControlsUncovered(page)).toEqual([]);
     });
+
+/**
+ * On a phone's first screen: the stage's first row (the board's first
+ * squares, the pack's first puzzle) is wholly in view, the publish step
+ * comes after it, and the one next action is in view in the title row.
+ */
+async function builderPhoneFirstScreen(page: Page) {
+  return await page.evaluate(() => {
+    const first = document.querySelector(
+      '[data-testid="content-author-stage"] :is([data-testid^="sokoban-square-"], [data-testid^="content-pack-item-"])'
+    );
+    const publish = document.querySelector(
+      '[data-testid="content-author-publish"]'
+    );
+    const lead = document.querySelector(
+      '[data-component="ScreenIntroActions"] :is(button, a)'
+    );
+    if (first === null || publish === null || lead === null)
+      return ['the first row, the publish step or the lead is missing'];
+    const found: string[] = [];
+    const row = first.getBoundingClientRect();
+    if (row.top < 0 || row.bottom > window.innerHeight)
+      found.push('the first row is not wholly in the first screen');
+    if (publish.getBoundingClientRect().top < row.bottom)
+      found.push('the publish step comes before the first row');
+    const action = lead.getBoundingClientRect();
+    if (action.top < 0 || action.bottom > window.innerHeight)
+      found.push('the next action is not in the first screen');
+    return found;
+  });
+}
+
+// regression: builder-phone-publish-card-buries-stage — on a phone the
+// unnumbered "Check and publish" card sat between "1 · Details" and
+// "2 · Board", so the board (or the pack's puzzle list) started under the
+// fold and the steps read out of order. The steps now read in order and
+// the next action sits in the title row.
+for (const story of [
+  'screens-puzzles-content-author--pack-builder',
+  'screens-games-sokoban-editor--two-crates',
+])
+  test(`storybook integration: ${story} on a phone shows its first row before the publish step`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 791 });
+    await page.goto(
+      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+    );
+    await expect
+      .poll(() =>
+        page.locator('#storybook-root').getAttribute('data-story-ready')
+      )
+      .toBe('true');
+    await page.evaluate(() => document.fonts.ready);
+    expect(await builderPhoneFirstScreen(page)).toEqual([]);
+  });

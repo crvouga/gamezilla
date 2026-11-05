@@ -1,0 +1,4 @@
+{
+  "summary": "The pack builder's next action read \"Open Count to nine to publish it\" over a line repeating \"publish Count to nine first\". It now reads \"Publish Count to nine first\", and the line says why: a pack holds only published puzzles.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

@@ -789,6 +789,10 @@ msgstr "A new attempt could not be saved. Your earlier attempt is still here. Tr
 msgid "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
 msgstr "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "A pack holds only published puzzles, so {titles} comes first."
+msgstr "A pack holds only published puzzles, so {titles} comes first."
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "A pass is exactly three different cards."
 msgstr "A pass is exactly three different cards."
@@ -1533,10 +1537,6 @@ msgstr "Changes waiting to send"
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Check again"
 msgstr "Check again"
-
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Check and publish"
-msgstr "Check and publish"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Check finished"
@@ -4257,10 +4257,6 @@ msgid "Next: make the changes it needs, then validate again."
 msgstr "Next: make the changes it needs, then validate again."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Next: publish {titles} first. A pack holds only published puzzles."
-msgstr "Next: publish {titles} first. A pack holds only published puzzles."
-
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: validate the draft, then publish it."
 msgstr "Next: validate the draft, then publish it."
 
@@ -4642,11 +4638,6 @@ msgstr "Only you see it. Get ready once it is complete."
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open"
 msgstr "Open"
-
-#. placeholder {0}: props.waitingOn[0] ?? ''
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Open {0} to publish it"
-msgstr "Open {0} to publish it"
 
 #: pkgs/ui-root-client-ts/src/command-palette-trigger/index.tsx
 msgid "Open command palette"
@@ -5250,6 +5241,11 @@ msgstr "Publication waits for your connection. Your draft is kept on this device
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Publish"
 msgstr "Publish"
+
+#. placeholder {0}: props.waitingOn[0] ?? ''
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Publish {0} first"
+msgstr "Publish {0} first"
 
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 msgid "Publish it before the pack"

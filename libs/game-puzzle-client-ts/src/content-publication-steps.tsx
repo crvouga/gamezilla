@@ -7,7 +7,15 @@ import {
   type StepTrackStep,
 } from '@pkgs/ui-root-client-ts/step-track';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  type JSX,
+  onCleanup,
+  Show,
+  untrack,
+} from 'solid-js';
+import { usePublicationLeadSlot } from './content-publication-lead';
 
 /** The one step that comes next on the way to publishing a draft. */
 export type PublicationStep = 'puzzles' | 'playtest' | 'validate' | 'publish';
@@ -72,7 +80,7 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
   const line = (): string => {
     const titles = props.waitingOn.join(', ');
     if (props.next === 'puzzles')
-      return t`Next: publish ${titles} first. A pack holds only published puzzles.`;
+      return t`A pack holds only published puzzles, so ${titles} comes first.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
     if (props.next === 'publish')
@@ -92,12 +100,15 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
   );
 }
 
-/** A pack's lead while its puzzles wait: open the first draft one. */
+/**
+ * A pack's lead while its puzzles wait: it opens the first draft one,
+ * where it is published.
+ */
 function OpenWaiting(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Button
-      title={t`Open ${props.waitingOn[0] ?? ''} to publish it`}
+      title={t`Publish ${props.waitingOn[0] ?? ''} first`}
       intent="primary"
       variant="solid"
       onClick={() => props.onOpenWaiting?.()}
@@ -159,6 +170,18 @@ function useTrackActions(
 }
 
 /**
+ * The lead drawn in the screen's slot while one asks for it (a phone's
+ * title row), else over the steps; `true` while it is away.
+ */
+function useLeadPlace(lead: () => JSX.Element): () => boolean {
+  const slot = usePublicationLeadSlot();
+  const away = (): boolean => slot?.active() === true;
+  createEffect(() => slot?.show(away() ? lead() : undefined));
+  onCleanup(() => slot?.show(undefined));
+  return away;
+}
+
+/**
  * What a waiting step waits on: the nearest step before it not yet done.
  */
 function waitNotes(
@@ -177,7 +200,8 @@ function waitNotes(
 /**
  * Where the draft stands on its way to publishing: the one next step's
  * action, filled, the one thing to press, with a line beside it saying
- * why (under it where the row is narrow); then every step in order as
+ * why (under it where the row is narrow; the action in the screen's title
+ * row where the screen asks for it); then every step in order as
  * status, each with its marker (done,
  * next or waiting). A step behind the person keeps its action as an
  * outline; a step that waits keeps its action locked (muted, still
@@ -187,6 +211,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   const next = createMemo(() => props.next);
   const lead = useLead(props, next);
+  const away = useLeadPlace(lead);
   const actions = useTrackActions(props, next);
   const names = (): Record<string, string> => ({
     puzzles: t`After its puzzles`,
@@ -243,7 +268,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   return (
     <StackVertical gap="md">
       <StackHorizontal gap="md" wrap align="center">
-        {lead()}
+        <Show when={!away()}>{lead()}</Show>
         <NextLine {...props} />
       </StackHorizontal>
       <StepTrack

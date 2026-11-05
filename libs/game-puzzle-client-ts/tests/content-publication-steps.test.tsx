@@ -193,10 +193,12 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
     'Publish its puzzles'
   );
   expect(screen.getByTestId('content-publication-status').textContent).toBe(
-    'Next: publish Count to nine first. A pack holds only published puzzles.'
+    'A pack holds only published puzzles, so Count to nine comes first.'
   );
   expect(lead()).toBe(screen.getByTestId('content-open-waiting'));
-  expect(lead().textContent).toBe('Open Count to nine to publish it');
+  // regression: pack-lead-awkward-wording — the lead read "Open Count to
+  // nine to publish it". It now says what comes first, in plain words.
+  expect(lead().textContent).toBe('Publish Count to nine first');
   fireEvent.click(lead());
   expect(opened).toBe(1);
   for (const id of ['content-validate', 'content-publish'])
@@ -251,29 +253,46 @@ const follows = (a: Element, b: Element): boolean =>
 // the board's size, outside the first screen, with nothing near the top
 // saying they were there.
 // regression: builder-phone-next-action-quiet — then a quiet link near
-// the top only named the next step and scrolled to it. On a phone the
-// publish step is now a card right after the details, before the stage,
-// its next action filled; it sits in the flow, so it covers nothing.
-test('on a phone the next action is a filled button in a card right after the details', () => {
+// the top only named the next step and scrolled to it.
+// regression: builder-phone-publish-card-buries-stage — then the publish
+// step was an unnumbered card between "1 · Details" and "2 · Board", so
+// the steps read out of order and the board started under the fold. The
+// steps now read 1, 2, 3 on a phone too, and the one next action, filled,
+// sits in the title row, in the flow, covering nothing.
+test('on a phone the steps read in order and the next action is filled in the title row', () => {
   mount(() => builder(), PHONE);
+  const details = screen.getByTestId('content-author-details');
+  const stage = screen.getByTestId('content-author-stage');
   const publish = screen.getByTestId('content-author-publish');
-  expect(publish.getAttribute('data-component')).toBe('GameSection');
-  expect(follows(screen.getByTestId('content-author-details'), publish)).toBe(
-    true
-  );
-  expect(follows(publish, screen.getByTestId('content-author-stage'))).toBe(
-    true
+  expect(follows(details, stage)).toBe(true);
+  expect(follows(stage, publish)).toBe(true);
+  expect(publish.getAttribute('data-component')).toBe('StepFooter');
+  expect(publish.textContent?.startsWith('3 · Check and publish')).toBe(true);
+  const actions = document.querySelector(
+    '[data-component="ScreenIntroActions"]'
   );
   const playtest = screen.getByTestId('playtest');
-  expect(publish.contains(playtest)).toBe(true);
-  expect(playtest.getAttribute('data-variant')).toBe('solid');
+  expect(lead()).toBe(playtest);
+  expect(actions?.contains(playtest)).toBe(true);
+  expect(follows(playtest, details)).toBe(true);
+  // Why it is next stays in the step, with the steps in order.
+  expect(
+    publish.contains(screen.getByTestId('content-publication-status'))
+  ).toBe(true);
+  expect(
+    publish.contains(screen.getByTestId('content-publication-steps'))
+  ).toBe(true);
 });
 
-test('wide, publishing is the last step, after the stage', () => {
+test('wide, publishing is the last step, after the stage, its lead inside it', () => {
   mount(() => builder(), DESKTOP);
   const publish = screen.getByTestId('content-author-publish');
   expect(publish.getAttribute('data-component')).toBe('StepFooter');
   expect(follows(screen.getByTestId('content-author-stage'), publish)).toBe(
     true
   );
+  expect(publish.contains(lead())).toBe(true);
+  expect(
+    document.querySelector('[data-component="ScreenIntroActions"]')
+  ).toBeNull();
 });
