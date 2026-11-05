@@ -10,8 +10,9 @@
    its player's colour, so the slider beside a court reads as that paddle's
    control. The lane keeps a 36px target. */
 .vertical[data-paddle] {
+  --paddle-lane: 2.25rem;
   appearance: none;
-  width: 2.25rem;
+  width: var(--paddle-lane);
   padding: 0 var(--ui-space-2);
   border: var(--ui-space-hairline) solid var(--ui-color-game-pong-muted);
   border-radius: var(--ui-radius-control);
@@ -25,7 +26,11 @@
 }
 .vertical[data-paddle]::-webkit-slider-thumb {
   appearance: none;
-  width: 100%;
+  /* The lane's width less its padding and border: a percentage of the
+     track resolves to nothing on an upright range. */
+  width: calc(
+    var(--paddle-lane) - 2 * var(--ui-space-2) - 2 * var(--ui-space-hairline)
+  );
   height: var(--ui-space-12);
   margin-block: auto;
   border: 0;
@@ -33,7 +38,11 @@
   background: var(--paddle-color);
 }
 .vertical[data-paddle]::-moz-range-thumb {
-  width: 100%;
+  /* The lane's width less its padding and border: a percentage of the
+     track resolves to nothing on an upright range. */
+  width: calc(
+    var(--paddle-lane) - 2 * var(--ui-space-2) - 2 * var(--ui-space-hairline)
+  );
   height: var(--ui-space-12);
   border: 0;
   border-radius: var(--ui-radius-sm);

@@ -149,6 +149,20 @@ test("phone: the slider beside the court is drawn as its paddle's lane", () => {
   const control = screen.getByTestId('pong-white-control');
   expect(control.getAttribute('data-paddle')).toBe('player1');
   expect(control.getAttribute('aria-label')).toBe('Left paddle');
+  // The thumb (the paddle) has a width of its own: a percentage of an
+  // upright range's track resolves to nothing, and the paddle vanished.
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/range-control/range-control.module.css'
+    ),
+    'utf8'
+  );
+  const start = css.indexOf('.vertical[data-paddle]::-webkit-slider-thumb {');
+  expect(start).toBeGreaterThan(-1);
+  const thumb = css.slice(start, css.indexOf('}', start));
+  expect(thumb).toMatch(/width:\s*calc\(/);
+  expect(thumb).not.toMatch(/width:\s*100%/);
 });
 
 // regression: pong-ball-tiny — the ball was a 20-unit square on a
