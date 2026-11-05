@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle panel beside a wide board (Numberlink, Sokoban) was a card headed \"This puzzle\", then the pack's place, then a two-line note about saving and sharing, so it read as a large sync card in an otherwise empty rail and added a heading's height on a phone. The pack's place (\"Puzzle 2 of 5 in Linking practice\") is now the panel's heading and the save status one quiet caption after it.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

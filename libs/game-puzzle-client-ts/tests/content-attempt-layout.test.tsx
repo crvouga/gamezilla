@@ -88,3 +88,25 @@ test("a phone keeps the puzzle's own title beside its difficulty", () => {
   expect(heading?.getAttribute('data-keep-title')).toBe('true');
   expect(heading?.textContent).toContain('Two crates');
 });
+
+// regression: puzzle-panel-leads-with-sync — the puzzle panel was a card
+// headed "This puzzle", then the pack's place, then a two-line note about
+// saving and sharing, so beside a wide board it read as a large sync card
+// and on a phone it added a heading's height under the commands. The
+// pack's place is now the panel's heading, and the save status one quiet
+// caption after it.
+for (const width of [390, 1440]) {
+  test(`at ${width}px the puzzle panel is headed by the pack's place, the save status after`, () => {
+    mount(width);
+    const panel = screen.getByTestId('puzzle-attempt-panel');
+    const heading = panel.querySelector('h2');
+    expect(heading?.textContent).toBe('Puzzle 3 of 4 in Warehouse basics');
+    expect(
+      heading?.contains(screen.getByTestId('puzzle-attempt-pack-place'))
+    ).toBe(true);
+    expect(panel.textContent).not.toContain('This puzzle');
+    const save = screen.getByTestId('content-position-save-status');
+    expect(follows(heading as Element, save)).toBe(true);
+    expect(save.className).toContain('textCaption');
+  });
+}

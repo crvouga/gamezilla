@@ -7,9 +7,8 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 /**
@@ -131,31 +130,34 @@ function AttemptRule(props: ContentAttemptScreenViewProps): JSX.Element {
 /** `Puzzle 3 of 4 in Warehouse basics`, for a puzzle played from a pack. */
 function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
   return (
-    <P variant="label" testId="puzzle-attempt-pack-place">
+    <Text variant="inherit" testId="puzzle-attempt-pack-place">
       <Trans>
         Puzzle {props.pack.position} of {props.pack.total} in {props.pack.title}
       </Trans>
-    </P>
+    </Text>
   );
 }
 
 /**
  * The puzzle panel: beside the board when wide, under it on a phone, as a
- * game's record is. Where the puzzle sits in its pack, a
- * playtest's note, the completion and the save status. It is secondary:
- * the attempt's commands sit with the board, not at the panel's foot.
+ * game's record is. Compact, what is useful first: its heading says where
+ * the puzzle sits in its pack ("Puzzle 3 of 4 in Warehouse basics", or
+ * "This puzzle" on its own), then a playtest's note and the completion,
+ * and last the save status as one quiet caption. It is secondary: the
+ * attempt's commands sit with the board, not at the panel's foot.
  */
 function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <GameSection
-      title={<Trans>This puzzle</Trans>}
+      title={
+        <Show when={props.pack} fallback={<Trans>This puzzle</Trans>}>
+          {(pack) => <PackPlace pack={pack()} />}
+        </Show>
+      }
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
-      <StackVertical gap="sm">
-        <Show when={props.pack}>{(pack) => <PackPlace pack={pack()} />}</Show>
-        <SaveStatus {...props} />
-      </StackVertical>
+      <SaveStatus {...props} />
       <Show when={props.playtest}>
         <Notice>
           <Trans>
