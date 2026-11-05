@@ -117,6 +117,8 @@ export function delayedPartyHost(
           if (id.startsWith('custom-game-board-action-'))
             play(actor, id.slice('custom-game-board-action-'.length));
         },
+        // The record beside a wide board always shows its steps.
+        shown: () => id === 'custom-game-review-live',
         visible: () => {
           if (!id.startsWith('custom-game-review-move-')) return;
           const ply = Number(id.slice('custom-game-review-move-'.length));
@@ -156,6 +158,7 @@ function partyNode(
     tap(): void;
     wait(): void;
     key(): void;
+    shown(): boolean;
     visible(): void;
   }
 ): DriverNode {
@@ -180,7 +183,7 @@ function partyNode(
       hidden: unused,
       text: unused,
     },
-    isVisible: unused,
+    isVisible: async () => actions.shown(),
     text: unused,
   };
 }

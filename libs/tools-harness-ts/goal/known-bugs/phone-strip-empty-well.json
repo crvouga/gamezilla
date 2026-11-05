@@ -1,0 +1,4 @@
+{
+  "summary": "Before the first move of a game played by turns (Hearts while hands are passed) the phone's pinned record strip showed an empty well under the turn line. The well now says there are no moves yet.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

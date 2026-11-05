@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a game played by turns said its line about the turn in a bubble under the board and again by the record, which began about 810px down, below the fold, so whose turn it was and the last move were buried and repeated. One compact strip pinned under the space's top bar, above the board, now says both; the bubble by the board is for a listener only.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

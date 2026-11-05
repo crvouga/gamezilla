@@ -4,11 +4,18 @@ import { type JSX, Show } from 'solid-js';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';
+import styles from './game-session-layout.module.css';
 
 export type GameSessionLayoutProps = {
   /** The title row: a `GameSessionHeader` (watchers, change game). */
   header?: JSX.Element | undefined;
   notices?: JSX.Element | undefined;
+  /**
+   * Held at the top of the body as it scrolls, right under the host's top
+   * bar, before the board: a phone's one status strip (whose turn, the
+   * last move), so the board sits near the top and the strip stays in view.
+   */
+  pinned?: JSX.Element | undefined;
   /** Setup, invitation, waiting, or rematch controls, owned by the feature. */
   setup?: JSX.Element | undefined;
   children: JSX.Element;
@@ -72,7 +79,8 @@ function SessionStage(props: GameSessionLayoutProps): JSX.Element {
  * directly under it; setup and the aside share the rail beside it on wide
  * screens (`GameLayout`). With `actionsBeside` the status and actions head
  * that rail instead, while phones keep them under the board.
- * `header` and `footer` resolve their content first: an empty slot (a false
+ * `pinned` stays at the top of the body as it scrolls (sticky).
+ * `header`, `pinned` and `footer` resolve their content first: an empty slot (a false
  * `<Show>`, `null`, an empty fragment) draws nothing and takes no room. The
  * last row keeps a deliberate gap under it, so the play actions never end
  * flush against the screen's bottom edge.
@@ -80,12 +88,21 @@ function SessionStage(props: GameSessionLayoutProps): JSX.Element {
 export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   const header = createScreenSlot(() => props.header);
   const footer = createScreenSlot(() => props.footer);
+  const pinned = createScreenSlot(() => props.pinned);
   return (
     <div
       class="box gap-4 min-w-0 pb-6"
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>
+      <Show when={pinned.present()}>
+        <div
+          class={styles['pinned']}
+          {...dataAttrs({ component: 'GameSessionPinned' })}
+        >
+          {pinned.content()}
+        </div>
+      </Show>
       {props.notices}
       <GameLayout
         setup={props.setup}

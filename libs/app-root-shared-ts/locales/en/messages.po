@@ -4278,6 +4278,7 @@ msgid "No membership yet."
 msgstr "No membership yet."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "No moves yet."
 msgstr "No moves yet."
 

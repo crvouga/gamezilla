@@ -216,9 +216,8 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board on a phone, heading the rail beside a wide one: the
- * record strip on a phone, what a player is told during play, and the
- * result once the game is over (once it is played the turn line sits
+ * Under the board on a phone, heading the rail beside a wide one: what a
+ * player is told during play, and the result once the game is over (once it is played the turn line sits
  * between the board and the person's own seat). Play actions follow it, so
  * they stay in view with the board on every screen.
  */
@@ -229,7 +228,6 @@ function FrameStatusRow(props: Props): JSX.Element {
       <Show when={props.phase === 'configuring' && props.setup === null}>
         <FrameStatusView status={props.status} />
       </Show>
-      <FrameMoveStripSlot {...props} />
       <Show when={props.phase === 'active'}>
         <FramePlayNoticesView play={props.play} people={props.people} />
       </Show>
@@ -250,26 +248,62 @@ function shownRecord(props: Props): FrameRecord | null {
   return props.phase === 'configuring' ? null : props.record;
 }
 
+/** On a narrow screen, the record of a game played by turns once it is under way. */
+function strippedRecord(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): FrameRecord | null {
+  const shown = shownRecord(props);
+  return mode() !== 'wide' &&
+    (props.phase === 'active' || props.phase === 'completed') &&
+    shown !== null &&
+    shown.turns
+    ? shown
+    : null;
+}
+
 /**
- * On a narrow screen a game played by turns keeps its record right under
- * the board, as one strip that opens to the rest of the record; a wide
+ * Beside the phone's strip, the game's own line about the turn
+ * (`Red fleet fired at C4 and missed. Your turn to fire.`) heads the strip
+ * instead of a pill by the board, so it is said once, under the top bar.
+ * The plain `<Side> to move.` stays with the seat that says it, and a
+ * warning (reconnecting, a stand-in) still shows by the board.
+ */
+function stripCaption(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): string | undefined {
+  const status = props.status;
+  if (
+    props.phase !== 'active' ||
+    strippedRecord(props, mode) === null ||
+    status === null ||
+    status.plainTurn ||
+    status.tone !== 'neutral' ||
+    status.sending ||
+    status.description === ''
+  )
+    return undefined;
+  return status.description;
+}
+
+/**
+ * On a narrow screen a game played by turns keeps its record as one
+ * compact strip pinned under the host's top bar, above the board (whose
+ * turn, the last move), that opens to the rest of the record; a wide
  * screen keeps it in the rail beside the board.
  */
 function FrameMoveStripSlot(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  const record = (): FrameRecord | null => {
-    const shown = shownRecord(props);
-    return mode() !== 'wide' &&
-      (props.phase === 'active' || props.phase === 'completed') &&
-      shown !== null &&
-      shown.turns
-      ? shown
-      : null;
-  };
   return (
-    <Show when={record()}>
+    <Show when={strippedRecord(props, mode)}>
       {(shown) => (
-        <FrameRecordView {...props} record={shown()} layout="strip" />
+        <FrameRecordView
+          {...props}
+          record={shown()}
+          layout="strip"
+          caption={stripCaption(props, mode)}
+        />
       )}
     </Show>
   );
@@ -392,18 +426,18 @@ function recordCaptioned(
 }
 
 /**
- * A phone's real-time game keeps its way to the space's history in one row
- * with the play actions (Resign, then History and stats), as its record
- * has no card of its own; every other game's actions stand alone.
+ * A phone keeps its way to the space's history in one row with the play
+ * actions (Resign, then History and stats), where every game keeps it: a
+ * real-time game, whose record has no card of its own, and a game played
+ * by turns, whose record is the strip pinned above the board.
  */
 function FramePlayActions(props: Props): JSX.Element {
   const mode = useLayoutMode();
   const history = (): FrameRecord | null => {
     const shown = shownRecord(props);
-    return shown !== null &&
-      !arenaBeside(props, mode) &&
-      frameArena(props.phase, shown) &&
-      !arenaRecordShown(shown)
+    if (shown === null || arenaBeside(props, mode)) return null;
+    if (strippedRecord(props, mode) !== null) return shown;
+    return frameArena(props.phase, shown) && !arenaRecordShown(shown)
       ? shown
       : null;
   };
@@ -545,7 +579,9 @@ function FrameBoardStage(props: Props): JSX.Element {
           <FrameStatusView
             status={props.status}
             spokenOnly={
-              turnInSeats(props, mode) || railCaption(props, mode) !== undefined
+              turnInSeats(props, mode) ||
+              railCaption(props, mode) !== undefined ||
+              stripCaption(props, mode) !== undefined
             }
           />
         </Show>
@@ -617,6 +653,7 @@ function FrameContent(props: Props): JSX.Element {
           <FrameErrorView text={props.error} />
         </>
       }
+      pinned={<FrameMoveStripSlot {...props} />}
       setup={<FrameSetupSlot {...props} />}
       aside={<FrameRecordAside {...props} />}
       actionsBeside
