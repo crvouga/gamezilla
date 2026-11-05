@@ -65,24 +65,12 @@
     grid-column: 1 / -1;
     grid-row: 3;
   }
-  /* Details beside: three columns across the game column, so a short
-     search fills the column instead of a corner of it, weighted by what
-     they are for. The choice and its command lead, the widest; what the
-     person brings follows past a hairline; the details close the row as a
-     quiet sunken note sized to its words, an aside rather than a third
-     peer. The title's row keeps its own height: the taller columns grow
-     the row under it. */
-  section:has(> .setupSplit[data-details-beside="true"]) {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr);
-    grid-template-rows: auto 1fr;
-  }
-  section > .setupSplit[data-details-beside="true"] ~ * {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    align-self: start;
-    border-top: 0;
-    padding: var(--ui-space-4);
-    border-radius: var(--ui-radius-control);
-    background: var(--ui-color-surface-muted);
+  /* Details across: the card fills the game column in two columns
+     weighted by what they are for. The choice and its command lead, the
+     wider; what the person brings follows past a hairline; the details
+     span the card's foot past its hairline as plain quiet text, never a
+     sunken card of their own, so no column stands empty under its command. */
+  section:has(> .setupSplit[data-details-across="true"]) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
 }

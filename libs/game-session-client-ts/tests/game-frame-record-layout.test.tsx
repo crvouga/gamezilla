@@ -314,3 +314,20 @@ test('the steps are quiet during live play and plated while reviewing', () => {
   );
   expect(plated()).toEqual([true, true, true, true]);
 });
+
+// regression: setup-start-far-from-players — wide, the Players card held a
+// 300px list of seats in a 670px card, so a wide empty band lay between
+// the seats' controls and Start at the card's far edge. Wide, the seats sit
+// two to a row across the card, and Start closes it right under them; a
+// phone keeps one seat to a row.
+test('setup: wide, the seats sit two to a row; a phone keeps one', () => {
+  seats(1440);
+  const wide = screen.getByTestId('custom-game-setup-seats');
+  expect(wide.className).toContain('grid-cols-2');
+  expect(screen.getByTestId('custom-game-red').parentElement).toBe(wide);
+  cleanup();
+  seats(390);
+  expect(screen.getByTestId('custom-game-setup-seats').className).toContain(
+    'grid-cols-1'
+  );
+});

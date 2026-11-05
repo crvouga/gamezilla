@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Your fleet / Targeting switch under the Battleship grid was a bar as wide as the grid, as heavy as the targets. A switch that follows its panel is now a compact control centred under it (at most 18rem).",
+  "regressionTest": "libs/battleship-client-ts/tests/panel-titles.test.tsx"
+}

@@ -5,6 +5,8 @@
  * the frame's, and a pass being sent keeps its words.
  */
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
 import {
   heartsFrame,
@@ -190,4 +192,28 @@ test('the passing order of the four deals, the one under way marked', () => {
     { label: 'Deal 3', detail: 'Pass across', current: false },
     { label: 'Deal 4', detail: 'No passing', current: false },
   ]);
+});
+
+// regression: hearts-story-pass-already-sent — the "Pass three cards" story
+// pressed Pass itself, so the screen it showed had three cards chosen,
+// "Passing your cards…" and no button to pass them. It stops at the moment
+// before passing (the filled Pass button ready); a separate story sends.
+test('the pass-three-cards story stops before passing; another story sends the pass', () => {
+  const stories = readFileSync(
+    join(import.meta.dirname, '../src/hearts-board.stories.tsx'),
+    'utf8'
+  );
+  const story = (name: string): string => {
+    const start = stories.indexOf(`export const ${name}: Story = {`);
+    if (start < 0) throw new Error(`no story ${name}`);
+    return stories.slice(start, stories.indexOf('\n};\n', start));
+  };
+  const ready = story('PassThreeCards');
+  expect(ready).toContain('chooseThree(canvasElement)');
+  expect(ready).not.toContain('userEvent.click');
+  expect(ready).toContain("toHaveAttribute('data-variant', 'solid')");
+  expect(ready).toContain('not.toHaveBeenCalled()');
+  const sending = story('PassSending');
+  expect(sending).toContain("findByTestId('custom-game-board-pass')");
+  expect(sending).toContain('toHaveBeenCalledWith(writeCards(PASSED))');
 });

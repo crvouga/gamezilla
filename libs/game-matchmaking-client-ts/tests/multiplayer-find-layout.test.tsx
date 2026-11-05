@@ -110,23 +110,37 @@ test('phone: the ratings are in the card and the guide behind one closed disclos
 
 // regression: matchmaking-card-lonely — wide, a 720px card sat at the
 // game column's start with about 70% of the canvas empty beside and under
-// it. The card fills the game column in three columns: the search, the
-// ratings, then the guide's three short points, never under the command.
-// regression: matchmaking-columns-equal-weight — the three columns were
-// then equal, so the search and its command carried no more weight than
-// reference text. The search leads, the widest column; the guide closes
-// the row as a quiet sunken note in caption type.
-test("wide: the search leads the card's three columns and the guide is a quiet note", () => {
+// it. The card fills the game column: the search and the ratings side by
+// side, the guide's three short points across the card's foot.
+// regression: matchmaking-columns-equal-weight — the columns were then
+// equal, so the search and its command carried no more weight than
+// reference text. The search leads, the wider column, and the guide is
+// quiet caption text.
+// regression: matchmaking-guide-nested-card — the guide then stood as a
+// sunken grey card inside the card, a third column as tall as the row, so
+// the search's column stood mostly empty under its command. The guide is
+// plain quiet text across the card's foot, past its hairline, never a box.
+test("wide: the search leads the card's two columns and the guide is quiet text across its foot", () => {
   const container = mount(1440);
   const card = container.querySelector('[data-component="GameSetupPanel"]');
   const split = card?.querySelector('[data-setup-split="true"]');
-  expect(split?.getAttribute('data-details-beside')).toBe('true');
+  expect(split?.getAttribute('data-details-across')).toBe('true');
   const guide = screen.getByTestId('multiplayer-guide');
   expect(card?.contains(guide)).toBe(true);
+  // The guide follows the search and the ratings, at the card's foot.
+  expect(
+    screen
+      .getByTestId('multiplayer-rating-game')
+      .compareDocumentPosition(guide) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
   // Open, headed like the ratings, with no disclosure to press.
   expect(screen.queryByTestId('multiplayer-guide-toggle')).toBeNull();
   expect(guide.textContent).toContain('How matchmaking works');
   expect(screen.getByText('Every match is rated')).toBeTruthy();
+  // Its three points side by side.
+  expect(guide.querySelector('[role="list"]')?.className).toContain(
+    'grid-cols-3'
+  );
   const css = readFileSync(
     join(
       import.meta.dirname,
@@ -135,13 +149,13 @@ test("wide: the search leads the card's three columns and the guide is a quiet n
     'utf8'
   );
   expect(css).toMatch(
-    /section:has\(> \.setupSplit\[data-details-beside="true"\]\) \{\s*grid-template-columns: minmax\(0, 3fr\) minmax\(0, 2fr\) minmax\(0, 2fr\);/
+    /section:has\(> \.setupSplit\[data-details-across="true"\]\) \{\s*grid-template-columns: minmax\(0, 3fr\) minmax\(0, 2fr\);\s*\}/
   );
-  const note = css.slice(
-    css.indexOf('section > .setupSplit[data-details-beside="true"] ~ * {')
-  );
-  expect(note.slice(0, note.indexOf('}'))).toMatch(
-    /background: var\(--ui-color-surface-muted\);/
+  // No rule gives the guide a box of its own: it spans the card's foot.
+  expect(css).not.toMatch(/data-details-across="true"\] ~ \*/);
+  expect(css).not.toContain('surface-muted');
+  expect(css).toMatch(
+    /section > \.setupSplit ~ \* \{\s*grid-column: 1 \/ -1;\s*grid-row: 3;/
   );
   // The guide's heading and points are quieter than the search's title.
   const heading = [...guide.querySelectorAll('h3')].find((h) =>
@@ -206,7 +220,7 @@ test('wide: a two-column search card keeps form-width columns and says what happ
     css.indexOf('@container game-column (min-width: 880px)')
   );
   expect(wide).toMatch(
-    /\[data-setup-split="true"\]\[data-details-beside="false"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
+    /\[data-setup-split="true"\]\[data-details-across="false"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
   );
   const note = screen.getByTestId('multiplayer-find-space');
   expect(note.textContent).toContain('opens in this space');

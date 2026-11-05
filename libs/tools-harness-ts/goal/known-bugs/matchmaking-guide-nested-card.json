@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking card held a sunken grey card (How matchmaking works) as a third column as tall as the row, so the New game column stood mostly empty under its Find button. The card now has two columns, the search the wider and the ratings beside it, with the guide as plain quiet text across the card's foot.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

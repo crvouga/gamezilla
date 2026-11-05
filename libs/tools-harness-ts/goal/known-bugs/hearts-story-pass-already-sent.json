@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts \"Pass three cards\" story pressed Pass in its play function, so it showed three cards chosen with \"Passing your cards…\" and no Pass button. It now stops at the moment before passing, the filled Pass button ready, and a separate story shows the pass being sent.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

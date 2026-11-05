@@ -138,6 +138,7 @@ export function useFrameTable(
         table.shape !== 'none'
           ? 'board'
           : table.shape,
+      named: presentation(game.fen).frame.boardNames === true,
       near: table.near === null ? null : playSeat(game, table.near),
       others: table.others.map((side) => playSeat(game, side)),
     };

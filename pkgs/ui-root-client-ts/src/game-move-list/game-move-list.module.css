@@ -95,10 +95,12 @@
 .list[data-layout="table"] .move {
   grid-column: var(--move-column);
 }
-/* The word a bare-number move is read with (`col 3`), quiet beside it. */
+/* The word a bare-number move is read with (`col 3`), quiet beside it and
+   a step clear of the seat's swatch, so the swatch never crowds it. */
 .prefix {
   color: var(--ui-color-text-secondary);
   white-space: nowrap;
+  margin-inline-start: var(--ui-space-1);
 }
 .moveButton {
   display: inline-flex;

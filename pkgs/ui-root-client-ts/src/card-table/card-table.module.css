@@ -45,7 +45,7 @@
 /* The table and the hand under it, one column the board's width. */
 /* The table's width decides how its seats lay out (container queries). */
 .root {
-  container-type: inline-size;
+  container: card-table / inline-size;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -250,6 +250,42 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+/*
+ * A phone's table: the seats above and below the middle are one strip
+ * each, the person beside their facts, and every plate is a step
+ * shallower, so the felt is about 280px tall, not 360px, and the hand
+ * under it has room for larger cards.
+ */
+@container card-table not (min-width: 30rem) {
+  .seat[data-player="true"] {
+    padding: var(--ui-space-1);
+  }
+  .seat[data-player="true"][data-position="top"],
+  .seat[data-player="true"][data-position="bottom"] {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--ui-space-3);
+    max-width: none;
+    padding-inline: var(--ui-space-3);
+  }
+  /* The person takes the strip's room left of the facts (a seat sizes
+     itself by the room it is given, so it is never sized by its content). */
+  .seat[data-player="true"][data-position="top"] > :first-child,
+  .seat[data-player="true"][data-position="bottom"] > :first-child {
+    flex: 1 1 0;
+  }
+  .seat[data-player="true"][data-position="top"] .facts,
+  .seat[data-player="true"][data-position="bottom"] .facts {
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: end;
+  }
+  .seat[data-player="true"][data-position="top"] .fact + .fact::before,
+  .seat[data-player="true"][data-position="bottom"] .fact + .fact::before {
+    content: none;
+  }
+}
 /* A wider table: larger cards in the trick, the side seats beside it. */
 @container (min-width: 30rem) {
   .table {
@@ -371,8 +407,12 @@
   margin-inline-start: calc(var(--hand-step) * var(--step));
 }
 /* A small card (a phone's hand): the large pip moves to the bottom corner,
-   clear of the rank and small pip in the top one. */
+   clear of the rank and small pip in the top one, and the rank is a step
+   larger, so a 46px card reads from arm's length. */
 @container (max-width: 32rem) {
+  .hand > .card .index {
+    font-size: var(--ui-font-size-lg);
+  }
   .hand > .card .suit {
     place-items: end;
     padding: 0 var(--ui-space-1) var(--ui-space-1) 0;

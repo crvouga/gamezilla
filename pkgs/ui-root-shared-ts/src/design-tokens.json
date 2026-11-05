@@ -643,18 +643,18 @@
         "$description": "Battleship board only: canvas.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9529, 0.9725, 0.9843],
+          "components": [1.0, 1.0, 1.0],
           "alpha": 1.0,
-          "hex": "#f3f8fb"
+          "hex": "#ffffff"
         }
       },
       "gameBattleshipSurface": {
         "$description": "Battleship board only: surface.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8039, 0.8863, 0.9294],
+          "components": [0.702, 0.8196, 0.8824],
           "alpha": 1.0,
-          "hex": "#cde2ed"
+          "hex": "#b3d1e1"
         }
       },
       "gameBattleshipInk": {
@@ -670,9 +670,9 @@
         "$description": "Battleship board only: muted.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2314, 0.3765, 0.4588],
+          "components": [0.2039, 0.3373, 0.4078],
           "alpha": 1.0,
-          "hex": "#3b6075"
+          "hex": "#345668"
         }
       },
       "gameBattleshipAccent": {
