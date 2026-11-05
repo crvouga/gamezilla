@@ -120,18 +120,21 @@ test('a pass on its way keeps the hand at full contrast; only a refused card dim
 });
 
 // regression: hearts-phone-hand-slivers — on a phone thirteen cards were
-// one fan of slivers with the suit's name printed sideways. A narrow hand of
-// more than seven cards is two staggered rows, the first one card longer,
-// and the suit's name is in each card's words, not printed on its edge.
-test('thirteen cards sit in two rows, seven then six, each still named by its suit', () => {
+// one fan of slivers with the suit's name printed sideways. The suit's name
+// is in each card's words, not printed on its edge.
+// regression: hearts-phone-hand-overlapping-rows — two staggered rows then
+// hid the corners of the first row's cards behind the second's. A narrow
+// hand of more than seven cards is one row that scrolls sideways, at least
+// 30px of every card (its rank and suit corner) in view.
+test('thirteen cards sit in one row, every corner in view, each named by its suit', () => {
   board();
   const hand = byTestId('hearts-hand');
-  expect(hand.getAttribute('data-rows')).toBe('2');
-  const rows = [...hand.querySelectorAll('button')].map((card) =>
-    card.getAttribute('data-row')
-  );
-  expect(rows.filter((row) => row === '0')).toHaveLength(7);
-  expect(rows.filter((row) => row === '1')).toHaveLength(6);
+  expect(hand.getAttribute('data-crowded')).toBe('true');
+  expect(hand.style.getPropertyValue('--hand-peek')).toBe('30px');
+  const cards = [...hand.querySelectorAll('button')];
+  expect(cards).toHaveLength(13);
+  expect(cards.every((card) => card.parentElement === hand)).toBe(true);
+  expect(cards.some((card) => card.hasAttribute('data-row'))).toBe(false);
   expect(byTestId('hearts-card-2H').textContent).toContain('hearts');
   expect(byTestId('hearts-card-2H').textContent).toContain('♥');
 });
