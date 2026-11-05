@@ -10,9 +10,11 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import type { VirtualListPanelPlace } from '@pkgs/ui-root-client-ts/virtual-list';
 import type { JSX } from 'solid-js';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { FriendRowDisclosure, FriendUserRow } from './friend-user-row';
@@ -35,6 +37,12 @@ export type FriendsListScreenViewProps = {
    * one ends in a chevron instead.
    */
   readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
+  /**
+   * Whether the friend is in a live space now. Given, and someone is, the
+   * list is two titled groups: "Playing now" (in the order given, which
+   * keeps friends in one room together) and "Everyone else".
+   */
+  readonly playing?: ((friend: Friend) => boolean) | undefined;
   /**
    * Desktop context beside the list, such as the friend requests waiting
    * on an answer: never a second copy of a row's own control (Join is on
@@ -107,6 +115,96 @@ function FriendsListRow(props: {
   );
 }
 
+/** A row of the list: a group's heading, or one friend in its group's panel. */
+type FriendsListItem =
+  | {
+      readonly kind: 'heading';
+      readonly key: string;
+      readonly group: 'playing' | 'others';
+      /** The first group: no gap above it. */
+      readonly leading: boolean;
+    }
+  | {
+      readonly kind: 'friend';
+      readonly key: string;
+      readonly friend: Friend;
+      readonly place: VirtualListPanelPlace;
+    };
+
+function placeIn(index: number, count: number): VirtualListPanelPlace {
+  if (count === 1) return 'only';
+  if (index === 0) return 'first';
+  return index === count - 1 ? 'last' : 'middle';
+}
+
+function pushGroup(
+  out: FriendsListItem[],
+  group: 'playing' | 'others' | null,
+  friends: readonly Friend[]
+): void {
+  if (friends.length === 0) return;
+  if (group !== null) {
+    out.push({
+      kind: 'heading',
+      key: `group:${group}`,
+      group,
+      leading: out.length === 0,
+    });
+  }
+  friends.forEach((friend, index) => {
+    out.push({
+      kind: 'friend',
+      key: friend.userId,
+      friend,
+      place: placeIn(index, friends.length),
+    });
+  });
+}
+
+/**
+ * The list's rows. While anyone is playing, two titled panels: who is in a
+ * live space now (Join on each row, friends in one room side by side) and
+ * everyone else (each row opens the friend). Otherwise one untitled panel.
+ */
+export function friendsListItems(
+  friends: readonly Friend[],
+  playing: ((friend: Friend) => boolean) | undefined
+): FriendsListItem[] {
+  const now = playing === undefined ? [] : friends.filter(playing);
+  const out: FriendsListItem[] = [];
+  if (now.length === 0 || playing === undefined) {
+    pushGroup(out, null, friends);
+    return out;
+  }
+  pushGroup(out, 'playing', now);
+  pushGroup(
+    out,
+    'others',
+    friends.filter((friend) => !playing(friend))
+  );
+  return out;
+}
+
+/** A group's title, on the list's own edge like the column's labels. */
+function GroupHeading(props: {
+  readonly group: 'playing' | 'others';
+  readonly leading: boolean;
+}): JSX.Element {
+  return (
+    <StackVertical
+      paddingTop={props.leading ? 'none' : 'lg'}
+      paddingBottom="sm"
+      testId={`friends-group-${props.group}`}
+    >
+      <H2 size="label" tone="secondary">
+        <Show when={props.group === 'playing'} fallback={<Trans>Everyone else</Trans>}>
+          <Trans>Playing now</Trans>
+        </Show>
+      </H2>
+    </StackVertical>
+  );
+}
+
 /** What the list shows when it has no rows: still reading, cannot load, or none. */
 function FriendsListPlaceholder(
   props: Pick<
@@ -157,8 +255,9 @@ function useFindFriendsAction(
 
 /**
  * `/profile/friends`, presentational: the accepted friends list with Find
- * friends in the header (friends in a live space first, as the container
- * orders them), a desktop column of friend requests (on a phone, an entry
+ * friends in the header (while anyone plays, "Playing now" with friends in
+ * one room side by side, as the container orders them, over "Everyone
+ * else"), a desktop column of friend requests (on a phone, an entry
  * to them at the top of the list instead), and its loading,
  * failed, empty and permission-denied states. Data and navigation arrive as props;
  * `FriendsListScreen` wires them to the sync engine.
@@ -168,6 +267,7 @@ export function FriendsListScreenView(
 ): JSX.Element {
   const headerActions = useFindFriendsAction(props);
   const mode = useLayoutMode();
+  const items = createMemo(() => friendsListItems(props.friends, props.playing));
   return (
     <Show
       when={props.denial}
@@ -185,8 +285,8 @@ export function FriendsListScreenView(
           aside={props.aside}
         >
           <ScreenBodyVirtualList
-            items={props.friends}
-            keyExtractor={(item) => item.userId}
+            items={items()}
+            keyExtractor={(item) => item.key}
             estimateSize={ROW_ESTIMATE}
             empty={
               <FriendsListPlaceholder
@@ -195,14 +295,33 @@ export function FriendsListScreenView(
                 onRetry={props.onRetry}
               />
             }
-            panel
+            panelGroups={(item) =>
+              item.kind === 'friend' ? item.place : 'heading'
+            }
             renderItem={(item) => (
-              <FriendsListRow
-                friend={item}
-                status={props.friendStatus?.(item)}
-                trailing={props.friendTrailing?.(item)}
-                onOpen={() => props.onOpenFriend(item)}
-              />
+              <Show
+                when={item.kind === 'friend' ? item.friend : undefined}
+                keyed
+                fallback={
+                  <Show when={item.kind === 'heading' ? item : undefined}>
+                    {(heading) => (
+                      <GroupHeading
+                        group={heading().group}
+                        leading={heading().leading}
+                      />
+                    )}
+                  </Show>
+                }
+              >
+                {(friend) => (
+                  <FriendsListRow
+                    friend={friend}
+                    status={props.friendStatus?.(friend)}
+                    trailing={props.friendTrailing?.(friend)}
+                    onOpen={() => props.onOpenFriend(friend)}
+                  />
+                )}
+              </Show>
             )}
           />
         </CollectionScreen>

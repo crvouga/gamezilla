@@ -180,38 +180,67 @@ export function FriendRoomStatusView(props: {
   );
 }
 
+/** A friend in a room: the room, its id, and whether they host it. */
+export type FriendInRoom = {
+  readonly room: PlayingRoom;
+  readonly spaceId: string;
+  readonly hosting: boolean;
+};
+
 /** Each friend in a live space, by their id: the room they are in, and whether they host it. */
 export function roomsByFriend(
   rooms: readonly PlayingRoom[]
-): ReadonlyMap<
-  string,
-  { readonly room: PlayingRoom; readonly hosting: boolean }
-> {
-  const byFriend = new Map<
-    string,
-    { readonly room: PlayingRoom; readonly hosting: boolean }
-  >();
+): ReadonlyMap<string, FriendInRoom> {
+  const byFriend = new Map<string, FriendInRoom>();
   for (const room of rooms) {
     for (const entry of room.friends) {
-      byFriend.set(entry.friend.userId, { room, hosting: entry.hosting });
+      byFriend.set(entry.friend.userId, {
+        room,
+        spaceId: room.spaceId,
+        hosting: entry.hosting,
+      });
     }
   }
   return byFriend;
 }
 
-/** Live friends first (hosts before guests), each group in its given order. */
+/**
+ * Live friends first, the rest after in their given order. Live friends
+ * are by room, so friends in one room sit side by side: the rooms in the
+ * order their first host (else first guest) comes in the list, and in each
+ * room its host first, then its guests in the list's order.
+ */
 export function liveFriendsFirst<T extends { readonly userId: string }>(
   friends: readonly T[],
-  live: ReadonlyMap<string, { readonly hosting: boolean }>
+  live: ReadonlyMap<
+    string,
+    { readonly hosting: boolean; readonly spaceId: string }
+  >
 ): T[] {
   const rank = (friend: T): number => {
     const space = live.get(friend.userId);
     if (space === undefined) return 2;
     return space.hosting ? 0 : 1;
   };
-  return friends
+  const byRank = friends
     .map((friend, index) => ({ friend, index }))
-    .sort((a, b) => rank(a.friend) - rank(b.friend) || a.index - b.index)
+    .sort((a, b) => rank(a.friend) - rank(b.friend) || a.index - b.index);
+  const roomOrder = new Map<string, number>();
+  for (const { friend } of byRank) {
+    const space = live.get(friend.userId);
+    if (space !== undefined && !roomOrder.has(space.spaceId)) {
+      roomOrder.set(space.spaceId, roomOrder.size);
+    }
+  }
+  const room = (friend: T): number => {
+    const space = live.get(friend.userId);
+    return space === undefined
+      ? roomOrder.size
+      : (roomOrder.get(space.spaceId) ?? roomOrder.size);
+  };
+  return byRank
+    .map((entry, order) => ({ ...entry, order }))
+    .sort((a, b) => room(a.friend) - room(b.friend) || a.order - b.order)
     .map((entry) => entry.friend);
 }
 

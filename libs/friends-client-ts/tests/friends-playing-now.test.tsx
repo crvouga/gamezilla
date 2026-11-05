@@ -14,6 +14,7 @@ import { FriendsListScreenView } from '@libs/friends-client-ts/friends-list-scre
 import {
   FriendRoomStatusView,
   FriendsPlayingNowView,
+  liveFriendsFirst,
   type PlayingRoom,
   roomsByFriend,
 } from '@libs/friends-client-ts/friends-playing-now';
@@ -191,4 +192,71 @@ test('on a desktop the friends list column carries no Join: each live friend has
   expect(aside?.textContent).toContain('@quinn');
   expect(buttonsNamed(aside ?? container, 'Join')).toBe(0);
   expect(buttonsNamed(container, 'Join')).toBe(live.size);
+});
+
+// regression: friends-list-playing-and-rest-one-list — six Join rows and
+// five chevron rows shared one list with nothing between them, and friends
+// in one room were spread apart (hosts first, then guests), so repeated
+// Joins hid that they led to the same room. While anyone plays the list is
+// two titled panels, "Playing now" then "Everyone else", and friends in one
+// room sit side by side, its host first.
+test('the friends list puts who is playing, by room, above everyone else', () => {
+  const live = roomsByFriend(ROOMS);
+  // Given in an order that splits Friday chess (Robin, then its host
+  // Jordan) around Sam's room: rooms follow their hosts' order, and Robin
+  // joins Jordan, after him.
+  const ordered = liveFriendsFirst([QUINN, ROBIN, SAM, JORDAN, MORGAN], live);
+  expect(ordered.map((entry) => entry.username)).toEqual([
+    'sam',
+    'jordan_plays',
+    'robin_42',
+    'quinn',
+    'morgan',
+  ]);
+  const container = renderWide(() => (
+    <FriendsListScreenView
+      status="ready"
+      friends={ordered}
+      playing={(item) => live.has(item.userId)}
+      friendTrailing={(item) =>
+        live.has(item.userId) ? (
+          <FriendLiveSpaceJoinView
+            action="join"
+            onPress={() => undefined}
+            hostAccountId={item.userId}
+          />
+        ) : undefined
+      }
+      onOpenFriend={() => undefined}
+      onFindFriends={() => undefined}
+      onRetry={() => undefined}
+    />
+  ));
+  const text = container.textContent ?? '';
+  const playing = container.querySelector('[data-testid="friends-group-playing"]');
+  const others = container.querySelector('[data-testid="friends-group-others"]');
+  expect(playing?.textContent).toBe('Playing now');
+  expect(others?.textContent).toBe('Everyone else');
+  expect(text.indexOf('Playing now')).toBeLessThan(text.indexOf('@sam'));
+  expect(text.indexOf('@robin_42')).toBeLessThan(text.indexOf('Everyone else'));
+  expect(text.indexOf('Everyone else')).toBeLessThan(text.indexOf('@quinn'));
+  // Each heading stands outside the panels; the friends are in them.
+  expect(playing?.closest('[data-panel-place]')?.getAttribute('data-panel-place')).toBe('heading');
+  // Every live friend still has Join on their own row.
+  expect(buttonsNamed(container, 'Join')).toBe(live.size);
+});
+
+test('with nobody playing the friends list is one untitled panel', () => {
+  const container = renderWide(() => (
+    <FriendsListScreenView
+      status="ready"
+      friends={[QUINN, MORGAN]}
+      playing={() => false}
+      onOpenFriend={() => undefined}
+      onFindFriends={() => undefined}
+      onRetry={() => undefined}
+    />
+  ));
+  expect(container.querySelector('[data-testid^="friends-group-"]')).toBeNull();
+  expect(container.textContent).toContain('@quinn');
 });

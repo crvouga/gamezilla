@@ -46,8 +46,8 @@ function FriendsListContainer(): JSX.Element {
   const friendsState = useFriends();
   const navigation = useFriendsListNavigation();
   const live = useLiveSpacesByPerson();
-  // Who you can play with now leads the list: hosts, then guests, then the
-  // rest, each in the list's own order.
+  // Who you can play with now leads the list, friends in one room side by
+  // side (its host first), then the rest in the list's own order.
   const ordered = createMemo(() =>
     liveFriendsFirst(friendsState.friends(), live())
   );
@@ -82,6 +82,7 @@ function FriendsListContainer(): JSX.Element {
           )}
         </Show>
       )}
+      playing={(friend) => live().has(friend.userId)}
       friendTrailing={(friend) => (
         <FriendLiveSpaceJoin
           hostAccountId={friend.userId}

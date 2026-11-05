@@ -117,7 +117,7 @@ function storyRooms(): readonly PlayingRoom[] {
 /** Who is in a live space right now: the room each is in, and whether they host it. */
 const LIVE = roomsByFriend(storyRooms());
 
-/** The list as the container orders it: hosts, then guests, then the rest. */
+/** The list as the container orders it: by room (hosts first), then the rest. */
 const LIVE_FIRST: readonly Friend[] = liveFriendsFirst(FRIENDS, LIVE);
 
 /**
@@ -150,6 +150,7 @@ const meta = {
         'notice',
         'friendStatus',
         'friendTrailing',
+        'playing',
         'aside',
         'requests',
       ],
@@ -167,8 +168,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Friends are known: one row each, whoever you can play with now first
- * (hosts, then guests, then the rest). Each row is the friend's face and
+ * Friends are known: one row each, in two titled panels while anyone
+ * plays: "Playing now" (friends in one room side by side, its host first)
+ * over "Everyone else". Each row is the friend's face and
  * name, and opens their profile; a friend in a live space says which room
  * under their name — the room's own tile, then "Hosting Friday chess" with
  * the online dot — and ends in Join, which goes in; every other row ends
@@ -181,6 +183,7 @@ type Story = StoryObj<typeof meta>;
 export const Populated: Story = {
   args: {
     friends: LIVE_FIRST,
+    playing: (item) => LIVE.has(item.userId),
     friendStatus: (item) => (
       <Show when={LIVE.get(item.userId)}>
         {(live) => (
