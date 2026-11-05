@@ -1,0 +1,4 @@
+{
+  "summary": "Without JAVA_HOME in Turbo's environment, Alloy selected /usr/bin/java on macOS even though the pinned mise JDK was installed; the system launcher had no runtime.",
+  "regressionTest": "pkgs/alloy-server-ts/tests/java-command.test.ts"
+}

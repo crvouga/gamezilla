@@ -8,6 +8,20 @@ const source = readFileSync(
   'utf8'
 );
 
+// regression: alerting-first-apply-provider-credentials
+test('initial alerting reads wait for the provider credentials to exist', () => {
+  const bootstrap = readFileSync(
+    join(import.meta.dir, '../tofu/stacks/bootstrap/alerting.tf'),
+    'utf8'
+  );
+  expect(bootstrap).toMatch(
+    /module "alert_routing"\s*\{\s*#[^\n]*\n\s*depends_on\s*=\s*\[grafana_cloud_stack_service_account_token.alerting\]/
+  );
+  expect(bootstrap).toMatch(
+    /module "synthetic_monitoring"\s*\{\s*#[^\n]*\n\s*depends_on\s*=\s*\[grafana_synthetic_monitoring_installation.this\]/
+  );
+});
+
 test('both IRM urgency levels have a personal mobile delivery step', () => {
   expect(source).toMatch(
     /resource "grafana_oncall_user_notification_rule" "mobile"\s*\{[^}]*type\s*=\s*"notify_by_mobile_app"/

@@ -47,6 +47,8 @@ provider "grafana" {
 }
 
 module "synthetic_monitoring" {
+  # Data queries must wait for the provider credential on a first apply.
+  depends_on   = [grafana_synthetic_monitoring_installation.this]
   source       = "../../modules/synthetic-monitoring"
   environments = local.envs
   probe        = var.alerting.probe
@@ -85,6 +87,8 @@ provider "grafana" {
 }
 
 module "alert_routing" {
+  # Provider references alone do not defer the module's user data lookup.
+  depends_on         = [grafana_cloud_stack_service_account_token.alerting]
   count              = local.routing_ready ? 1 : 0
   source             = "../../modules/alert-routing"
   responder          = var.alerting.irm_responder
