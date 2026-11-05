@@ -79,7 +79,7 @@ test("phone: the paddle's upright slider lies over its own half of the court", (
   );
   // Only the person's own paddle has a slider.
   expect(screen.queryByTestId('pong-black-control')).toBeNull();
-  expect(screen.getByText(/Drag up and down on your half/)).toBeTruthy();
+  expect(screen.getByText(/Drag up and down along your edge/)).toBeTruthy();
 });
 
 // regression: pong-markers-unmatched — the players' swatches were blue and
@@ -166,6 +166,47 @@ test('phone: the court takes the whole width, its paddles and score readable', (
     rule('paddle-court/paddle-court.module.css', '.score')
   )?.[1];
   expect(Number(opacity)).toBeGreaterThanOrEqual(0.7);
+});
+
+// regression: pong-score-muted-on-court — the points were the court's muted
+// violet at 72% on its dark violet, the main fact on the court read as
+// decoration, and the side names were set larger than the points. The
+// points take the court's bright ink, and each side's name sits small
+// under its points.
+test('the score is drawn in the court’s bright ink, each side named small under it', () => {
+  mount(390);
+  const score = rule('paddle-court/paddle-court.module.css', '.score');
+  expect(score).toMatch(/fill:\s*var\(--ui-color-text\);/);
+  expect(
+    Number(/opacity: ([\d.]+)/.exec(score)?.[1])
+  ).toBeGreaterThanOrEqual(0.9);
+  const first = screen.getByTestId('pong-court-score-first');
+  const mark = screen
+    .getByTestId('pong-drawing')
+    .querySelector('text[data-side="first"][data-own]');
+  if (mark === null) throw new Error('no side name');
+  const size = (text: Element) => Number(text.getAttribute('font-size'));
+  expect(size(mark)).toBeLessThan(size(first) / 2);
+  // Under its points: below them, and in the same half.
+  expect(Number(mark.getAttribute('y'))).toBeGreaterThanOrEqual(
+    Number(first.getAttribute('y')) + size(first)
+  );
+  expect(mark.getAttribute('x')).toBe(first.getAttribute('x'));
+});
+
+// regression: pong-thumb-over-play — a phone's drag happened anywhere on
+// the person's half, so the thumb sat over the ball's path. A slim lane
+// along their half's outer edge, as far in as the paddle, shows where to
+// drag; the other half has none.
+test('phone: a slim drag lane runs along the outer edge of the person’s own half', () => {
+  mount(390);
+  const config = pongConfig();
+  const lane = screen.getByTestId('pong-first-lane');
+  expect(Number(lane.getAttribute('x'))).toBe(0);
+  const width = Number(lane.getAttribute('width'));
+  expect(width).toBeGreaterThan(config.paddleInset);
+  expect(width).toBeLessThan(config.width / 10);
+  expect(screen.queryByTestId('pong-second-lane')).toBeNull();
 });
 
 // regression: pong-slider-stray — on a phone the slider beside the court

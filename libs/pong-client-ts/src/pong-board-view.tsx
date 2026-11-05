@@ -140,7 +140,8 @@ function CourtStatus(props: {
 
 /**
  * Under the court: the points that win, then how to move a paddle — by
- * keys on a wide screen, by a drag on the person's own half on a phone. It
+ * keys on a wide screen, by a drag along the person's own edge of the court
+ * on a phone (anywhere in their half still works). It
  * also describes the court to a listener.
  */
 function CourtHint(props: {
@@ -158,7 +159,7 @@ function CourtHint(props: {
       {' · '}
       <Show
         when={mode() === 'wide'}
-        fallback={<Trans>Drag up and down on your half of the court.</Trans>}
+        fallback={<Trans>Drag up and down along your edge of the court.</Trans>}
       >
         <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
           <Match when={shared()}>

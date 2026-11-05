@@ -2474,8 +2474,8 @@ msgid "Drag from a number to its match to draw a path."
 msgstr "Drag from a number to its match to draw a path."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag up and down on your half of the court."
-msgstr "Drag up and down on your half of the court."
+msgid "Drag up and down along your edge of the court."
+msgstr "Drag up and down along your edge of the court."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"

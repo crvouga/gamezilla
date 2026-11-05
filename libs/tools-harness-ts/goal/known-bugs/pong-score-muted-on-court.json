@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's points were the court's muted violet at 72% opacity on its dark violet court, so the score read as decoration in both themes, and the side names ('You', the opponent) were drawn larger than the points. The points now take the court's bright ink and each side's name sits small under its points.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

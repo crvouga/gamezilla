@@ -110,23 +110,32 @@
   stroke: var(--ui-color-text);
   stroke-width: 3;
 }
-/* Who plays each half, low in it: `You` in the person's own. */
+/* Who plays each half, small under its points: `You` in the person's own. */
 .own {
   fill: var(--ui-color-text);
+  opacity: 0.86;
   font-family: inherit;
   font-weight: var(--ui-font-weight-semibold);
   text-anchor: middle;
+  dominant-baseline: hanging;
+}
+/* Where the person's thumb drags their paddle: a slim lane of the court's
+   lighter violet along their half's outer edge. */
+.lane {
+  fill: var(--ui-color-surface);
+  opacity: 0.55;
 }
 .ring {
   fill: none;
   stroke: var(--ui-color-border);
   stroke-width: 4;
 }
-/* The points in each half: large, behind the play, yet read at a glance
-   (about 5:1 against the court, which keeps its colours in both themes). */
+/* The points in each half: large and in the court's bright ink, the first
+   thing read (over 12:1 against the court, which keeps its colours in both
+   themes). */
 .score {
-  fill: var(--ui-color-text-secondary);
-  opacity: 0.72;
+  fill: var(--ui-color-text);
+  opacity: 0.94;
   font-family: inherit;
   font-weight: var(--ui-font-weight-bold);
   font-variant-numeric: tabular-nums;

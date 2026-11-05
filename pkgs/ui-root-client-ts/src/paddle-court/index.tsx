@@ -31,15 +31,15 @@ export type PaddleCourtProps = CourtControls & {
   readonly instructionsId: string;
   readonly testId: string;
   /**
-   * Each side's points, drawn large and faint in its own half of the court
-   * as a court's scoreboard is, so the score reads where the play is. Drawn
-   * for the eye only: the host says the score to a listener.
+   * Each side's points, drawn large and bright at the top of its own half
+   * of the court as a court's scoreboard is, so the score reads where the
+   * play is. Drawn for the eye only: the host says the score to a listener.
    */
   readonly score?: { readonly first: string; readonly second: string };
   /**
-   * Who plays each half, written low in it (`You` in a half this device
-   * controls, the other player's name in theirs), so both paddles are
-   * named in words, not by colour alone.
+   * Who plays each half, written small under its points (`You` in a half
+   * this device controls, the other player's name in theirs), so both
+   * paddles are named in words, not by colour alone.
    */
   readonly sideLabels?:
     | Partial<Record<CourtSide, string | undefined>>
@@ -55,7 +55,15 @@ export type PaddleCourtProps = CourtControls & {
 
 const SIDES: readonly CourtSide[] = ['first', 'second'];
 
-/** Who plays each half, low in it: `You` in the person's own. */
+/** Where a side's points stand, and how tall they are drawn. */
+const SCORE_TOP = 0.06;
+const SCORE_SIZE = 0.18;
+
+/**
+ * Who plays each half, under its points as a scoreboard names its sides:
+ * `You` in the person's own, the other player's name in theirs. Set well
+ * under the points' size, so the score stays the first thing read.
+ */
 function SideMarks(props: PaddleCourtProps): JSX.Element {
   return (
     <For each={SIDES}>
@@ -67,8 +75,8 @@ function SideMarks(props: PaddleCourtProps): JSX.Element {
               data-side={side}
               data-own={String(props.controlled.includes(side))}
               x={side === 'first' ? props.width / 4 : (props.width * 3) / 4}
-              y={props.height * 0.94}
-              font-size={String(props.height * 0.07)}
+              y={props.height * (SCORE_TOP + SCORE_SIZE)}
+              font-size={String(props.height * 0.06)}
             >
               {label()}
             </text>
@@ -76,6 +84,38 @@ function SideMarks(props: PaddleCourtProps): JSX.Element {
         </Show>
       )}
     </For>
+  );
+}
+
+/**
+ * Where a person's thumb drags their paddle: a slim lane along the outer
+ * edge of each half this device controls, as far in as the paddle, so a
+ * thumb there moves the paddle without covering the ball's path. A drag
+ * anywhere in the half still moves it; the lane shows where it is best.
+ */
+function DragLanes(props: PaddleCourtProps): JSX.Element {
+  const lane = (side: CourtSide): number => {
+    const paddle = props.paddles.find((one) => one.side === side);
+    if (paddle === undefined) return 0;
+    const reach = (paddle.width * PADDLE_DRAWN_SCALE) / 2 + paddle.width;
+    return side === 'first' ? paddle.x + reach : props.width - paddle.x + reach;
+  };
+  return (
+    <Show when={props.enabled}>
+      <For each={SIDES.filter((side) => props.controlled.includes(side))}>
+        {(side) => (
+          <rect
+            class={styles['lane']}
+            data-side={side}
+            data-testid={`${props.testId}-${side}-lane`}
+            x={side === 'first' ? 0 : props.width - lane(side)}
+            y={0}
+            width={lane(side)}
+            height={props.height}
+          />
+        )}
+      </For>
+    </Show>
   );
 }
 
@@ -114,9 +154,10 @@ function HalfControls(props: PaddleCourtProps): JSX.Element {
 
 /**
  * Geometric play surface: the centre line and circle, each side's points
- * large and faint in its half (`score`), who plays each half
- * (`sideLabels`), the paddles and the ball, and over each half this device
- * controls its own slider (`halfControl`).
+ * large in its half (`score`) with who plays it under them
+ * (`sideLabels`), a slim drag lane along the outer edge of each half this
+ * device controls while it can move, the paddles and the ball, and over
+ * each such half its own slider (`halfControl`).
  * Resizing changes its viewBox projection, never the court coordinates.
  */
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
@@ -147,6 +188,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           viewBox={`0 0 ${props.width} ${props.height}`}
           aria-hidden="true"
         >
+          <DragLanes {...props} />
           <path
             class={styles['line']}
             d={`M ${props.width / 2} 0 V ${props.height}`}
@@ -164,8 +206,8 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
                   class={styles['score']}
                   data-testid={`${props.testId}-court-score-first`}
                   x={props.width / 4}
-                  y={props.height * 0.08}
-                  font-size={String(props.height * 0.18)}
+                  y={props.height * SCORE_TOP}
+                  font-size={String(props.height * SCORE_SIZE)}
                 >
                   {score().first}
                 </text>
@@ -173,8 +215,8 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
                   class={styles['score']}
                   data-testid={`${props.testId}-court-score-second`}
                   x={(props.width * 3) / 4}
-                  y={props.height * 0.08}
-                  font-size={String(props.height * 0.18)}
+                  y={props.height * SCORE_TOP}
+                  font-size={String(props.height * SCORE_SIZE)}
                 >
                   {score().second}
                 </text>

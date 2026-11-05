@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, Pong showed no place to drag the paddle, so the thumb sat over the person's half of the court and covered the ball's path. A slim lane along the outer edge of their own half, as far in as the paddle, now shows where to drag.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}
