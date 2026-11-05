@@ -189,13 +189,10 @@ function Arena(props: {
         instructionsId={instructionsId}
         testId={`${props.board.testId}-arena`}
       />
-      {/* A phone's thumb pad sits beside how to steer, under the arena. */}
-      <StackHorizontal gap="md" align="center">
-        <StackVertical grow>
-          <SteeringHint id={instructionsId} />
-        </StackVertical>
-        <Pads state={props.state} board={props.board} steerable={steerable} />
-      </StackHorizontal>
+      {/* A phone's thumb pad sits right under the arena, where the thumb
+          is, then how to steer. */}
+      <Pads state={props.state} board={props.board} steerable={steerable} />
+      <SteeringHint id={instructionsId} />
     </StackVertical>
   );
 }

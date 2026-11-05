@@ -18,15 +18,26 @@ export type FramePlayerColor = FrameSeatCount;
 
 /**
  * The paint of a board whose pieces are not drawn in player colors, named
- * for what is drawn: the first and second disc of a disc-drop board. A seat
- * painted with it matches its pieces on the board in every theme.
+ * for what is drawn: the first and second disc of a disc-drop board, the
+ * first to fourth rider's trail of a trail arena. A seat painted with it
+ * matches its pieces on the board in every theme.
  */
-export type FrameBoardPaint = 'disc-one' | 'disc-two';
+export type FrameBoardPaint =
+  | 'disc-one'
+  | 'disc-two'
+  | 'trail-one'
+  | 'trail-two'
+  | 'trail-three'
+  | 'trail-four';
 
 /** Every board paint, in a stable order. */
 export const FRAME_BOARD_PAINTS: readonly FrameBoardPaint[] = [
   'disc-one',
   'disc-two',
+  'trail-one',
+  'trail-two',
+  'trail-three',
+  'trail-four',
 ];
 
 /** A seat's paint: a player color, or its board's own piece paint. */

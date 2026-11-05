@@ -1,0 +1,4 @@
+{
+  "summary": "The Light Cycles arena's walls sat inside a dark rounded card a cell and a half wider on every side, so the arena read as letterboxed in a second frame. The ground is now drawn inside the walls, the walls are the one frame, flush with the column, and the room for a head at the edge hangs outside the arena's box.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

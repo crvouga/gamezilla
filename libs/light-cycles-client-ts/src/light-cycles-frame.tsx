@@ -14,7 +14,7 @@ import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles
 import { t } from '@lingui/core/macro';
 import {
   boardOnly,
-  type FramePlayerColor,
+  type FrameBoardPaint,
   type GameFrame,
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -24,12 +24,15 @@ import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
 import { arenaOverlay } from './light-cycles-view';
 
-/** Each rider's color in the arena: blue, orange, purple and green. */
-const RIDER_COLORS: Readonly<Record<LightCyclesSeat, FramePlayerColor>> = {
-  white: 1,
-  black: 2,
-  red: 4,
-  blue: 8,
+/**
+ * Each rider's paint: its trail's own, so the marker beside a player's name
+ * is the colour of the trail they ride (cyan, orange, violet, white).
+ */
+const RIDER_COLORS: Readonly<Record<LightCyclesSeat, FrameBoardPaint>> = {
+  white: 'trail-one',
+  black: 'trail-two',
+  red: 'trail-three',
+  blue: 'trail-four',
 };
 
 /** The round wins of the rider on `side`. */

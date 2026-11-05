@@ -9,9 +9,17 @@ import type { AvatarSeatColor } from '../avatar/index';
  * A seat's paint: a player color (`player1`..`player8`), or the paint of a
  * board whose pieces are not drawn in player colors, so the swatch matches
  * the pieces on it in both themes: `disc-one` and `disc-two` are the first
- * and second disc of the disc-drop board.
+ * and second disc of the disc-drop board, `trail-one` to `trail-four` the
+ * first to fourth rider's trail in a trail arena.
  */
-export type GameSeatColor = AvatarSeatColor | 'disc-one' | 'disc-two';
+export type GameSeatColor =
+  | AvatarSeatColor
+  | 'disc-one'
+  | 'disc-two'
+  | 'trail-one'
+  | 'trail-two'
+  | 'trail-three'
+  | 'trail-four';
 
 /** A seat's look: its paint, its mark, or both. */
 export type GameSeatLook =
@@ -21,6 +29,10 @@ export type GameSeatLook =
 const DOT: Readonly<Record<GameSeatColor, string>> = {
   'disc-one': 'bg-game-connect-four-one',
   'disc-two': 'bg-game-connect-four-two',
+  'trail-one': 'bg-game-light-cycles-accent',
+  'trail-two': 'bg-game-light-cycles-one',
+  'trail-three': 'bg-game-light-cycles-two',
+  'trail-four': 'bg-game-light-cycles-ink',
   player1: 'bg-player1',
   player2: 'bg-player2',
   player3: 'bg-player3',
@@ -61,8 +73,9 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   const color = (): GameSeatColor | undefined => props.look.color;
   // A board's own paint carries its mark in the board's canvas ink, as
   // the pieces on it do; a player color in the screen's canvas ink.
-  const boardPaint = (): boolean =>
+  const discPaint = (): boolean =>
     color() === 'disc-one' || color() === 'disc-two';
+  const trailPaint = (): boolean => color()?.startsWith('trail-') === true;
   return (
     <span
       class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
@@ -82,8 +95,10 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
           <span
             class="text textLabel whitespace-nowrap"
             classList={{
-              'text-background': color() !== undefined && !boardPaint(),
-              'text-game-connect-four-canvas': boardPaint(),
+              'text-background':
+                color() !== undefined && !discPaint() && !trailPaint(),
+              'text-game-connect-four-canvas': discPaint(),
+              'text-game-light-cycles-canvas': trailPaint(),
               'text-text': color() === undefined,
             }}
           >

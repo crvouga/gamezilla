@@ -44,12 +44,14 @@
  * Lengths inside the drawing are in cells (the viewBox unit), so they keep
  * their proportion to the grid at every size.
  */
+/* No card of its own: the drawing's walls frame the ground inside them, so
+   the arena is never letterboxed in a second dark frame. */
 .arena {
   position: relative;
   width: 100%;
   border-radius: var(--ui-radius-card);
-  background: var(--ui-color-background);
-  overflow: hidden;
+  background: none;
+  overflow: visible;
   color: var(--ui-color-text);
   touch-action: pan-y;
   user-select: none;
@@ -64,7 +66,7 @@
 }
 .drawing {
   display: block;
-  width: 100%;
+  max-width: none;
   height: auto;
   overflow: visible;
 }
@@ -83,8 +85,11 @@
   --rider-color: var(--ui-color-game-light-cycles-ink);
 }
 
+.ground {
+  fill: var(--ui-color-background);
+  stroke: none;
+}
 .floor {
-  background: var(--ui-color-background);
   stroke: none;
 }
 .gridDot {

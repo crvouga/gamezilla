@@ -8,6 +8,7 @@ import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-con
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import { initialLightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
 
@@ -74,19 +75,25 @@ test('the scores and the round are said to a listener, not drawn over the arena 
 
 // regression: light-cycles-pad-off-screen — on a phone the 64px direction
 // pad (about 230px with its rider's name over it) ran past the bottom of
-// the screen under the arena. One rider's pad is a compact thumb pad beside
-// how to steer, its rider already named above the arena.
-test('phone: one rider steers from a compact pad beside the steering line', () => {
+// the screen under the arena. One rider's pad is a compact thumb pad, its
+// rider already named above the arena.
+// regression: light-cycles-pad-beside-hint — that pad then sat beside the
+// steering line, off to one side of the arena. It now sits right under the
+// arena, centred where the thumb is, and how to steer follows it.
+test('phone: one rider steers from a compact pad right under the arena', () => {
   mount(390);
   const pad = screen.getByTestId('arena-white-pad');
   expect(pad.getAttribute('data-size')).toBe('sm');
   const hint = screen.getByText(/Swipe the arena or use the pad to steer/);
-  // The pad and the line share one row under the arena: the nearest box
-  // holding both is a row, not the arena's column.
-  let shared = pad.parentElement;
-  while (shared !== null && !shared.contains(hint))
-    shared = shared.parentElement;
-  expect(shared?.getAttribute('data-component')).toBe('StackHorizontal');
+  const arena = screen.getByTestId('arena-arena');
+  const follows = (a: Element, b: Element): boolean =>
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  expect(follows(arena, pad)).toBe(true);
+  expect(follows(pad, hint)).toBe(true);
+  // Its own centred row, never sharing one with the line.
+  const row = pad.closest('[data-component="StackHorizontal"]');
+  expect(row?.contains(hint)).toBe(false);
+  expect(row?.className).toContain('justify-center');
   expect(pad.parentElement?.textContent).not.toContain('Comet');
 });
 
@@ -125,4 +132,63 @@ test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger
   expect(arrows.slice(0, arrows.indexOf('}'))).toMatch(
     /grid-template-areas:\s*". up ."\s*"left down right";/
   );
+});
+
+// regression: light-cycles-arena-double-frame — the arena's walls sat
+// inside a dark rounded card a cell and a half wider on every side, so the
+// arena read as letterboxed in a second frame. The card is gone: the ground
+// is drawn inside the walls, the walls are the one frame, and the room
+// around them for a head at the edge hangs outside the arena's box.
+test('the arena has one frame: its walls, flush with the column', () => {
+  mount(1440);
+  const arena = screen.getByTestId('arena-arena');
+  const drawing = screen.getByTestId('arena-arena-drawing');
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/trail-arena/trail-arena.module.css'
+    ),
+    'utf8'
+  );
+  const rule = (selector: string): string => {
+    const open = css.indexOf('{', css.indexOf(`${selector} {`));
+    return css.slice(open + 1, css.indexOf('}', open));
+  };
+  expect(css).toMatch(/\.arena \{[^}]*background:\s*none;/);
+  expect(rule('.ground')).toMatch(/fill:\s*var\(--ui-color-background\);/);
+  expect(drawing.style.width).not.toBe('100%');
+  expect(drawing.style.margin.startsWith('-')).toBe(true);
+  expect(arena.contains(drawing)).toBe(true);
+});
+
+// regression: light-cycles-marker-unmatched — a trail paint's swatch is
+// drawn in the very token its rider's trail is drawn in.
+test("a trail paint's swatch matches its rider's trail token", () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/trail-arena/trail-arena.module.css'
+    ),
+    'utf8'
+  );
+  const paints = ['trail-one', 'trail-two', 'trail-three', 'trail-four'];
+  renderWithI18n(() => (
+    <>
+      {paints.map((paint) => (
+        <GameSeatSwatch
+          look={{ color: paint as 'trail-one', mark: 'C' }}
+          dataSet={{ testid: paint }}
+        />
+      ))}
+    </>
+  ));
+  paints.forEach((paint, rider) => {
+    const token = new RegExp(
+      `\\.arena \\[data-rider="${rider}"\\] \\{\\s*--rider-color: var\\(--ui-color-game-light-cycles-([a-z]+)\\);`
+    ).exec(css)?.[1];
+    expect(token).toBeDefined();
+    expect(screen.getByTestId(paint).className).toContain(
+      `bg-game-light-cycles-${token ?? ''}`
+    );
+  });
 });

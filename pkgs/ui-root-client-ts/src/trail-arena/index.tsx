@@ -71,12 +71,27 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
     >
       <svg
         class={styles['drawing']}
+        // The room around the walls hangs outside the arena's box, so the
+        // walls sit flush with the column and only a head at the edge
+        // reaches past them.
+        style={{
+          width: `${((props.width + 2 * MARGIN) / props.width) * 100}%`,
+          margin: `-${(MARGIN / props.width) * 100}%`,
+        }}
         data-testid={`${props.testId}-drawing`}
         viewBox={`${-MARGIN} ${-MARGIN} ${props.width + 2 * MARGIN} ${props.height + 2 * MARGIN}`}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
         <ArenaPatterns arenaId={arenaId} indices={TRAIL_RIDER_INDICES} />
+        {/* The arena's own ground, inside its walls: the walls are its one
+            frame, with no second card around them. */}
+        <rect
+          class={styles['ground']}
+          width={props.width}
+          height={props.height}
+          rx="0.5"
+        />
         <rect
           class={styles['floor']}
           width={props.width}
