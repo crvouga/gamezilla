@@ -97,6 +97,10 @@ export function ContentPublicationControls(props: {
           game.open({ kind: 'edition', revisionId, packRevisionId: null });
       }}
       onWithdraw={withdraw}
+      onOpenWaiting={() => {
+        const documentId = tools.firstWaiting();
+        if (documentId !== undefined) game.open({ kind: 'edit', documentId });
+      }}
     />
   );
 }

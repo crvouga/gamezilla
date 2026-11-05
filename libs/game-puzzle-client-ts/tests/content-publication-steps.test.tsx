@@ -7,7 +7,6 @@ import {
   ContentPublicationControlsView,
   type ContentPublicationControlsViewProps,
 } from '@libs/game-puzzle-client-ts/content-publication-controls-view';
-import type { PublicationStep } from '@libs/game-puzzle-client-ts/content-publication-steps';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -48,7 +47,13 @@ function publication(
       pending={null}
       published={false}
       disabled={false}
-      before={() => <span data-testid="playtest" />}
+      before={(next) => (
+        <button
+          type="button"
+          data-testid="playtest"
+          data-variant={next() ? 'solid' : 'outline'}
+        />
+      )}
       onValidate={resolved}
       onPublish={resolved}
       onViewPublication={() => undefined}
@@ -65,6 +70,18 @@ function states(): (string | null)[] {
   ].map((step) => step.getAttribute('data-state'));
 }
 
+/** The filled action over the track, outside it. */
+function lead(): HTMLElement {
+  const track = screen.getByTestId('content-publication-steps');
+  const solid = [
+    ...document.querySelectorAll<HTMLElement>('[data-variant="solid"]'),
+  ].filter((button) => !track.contains(button));
+  expect(solid.length).toBe(1);
+  const only = solid[0];
+  if (only === undefined) throw new Error('no lead action');
+  return only;
+}
+
 // regression: builder-publish-states-scattered — where a draft stood was
 // spread over a proof phrase, a check phrase and a hint, with three
 // buttons beside them, so publishing read as a scatter of states. It is
@@ -77,7 +94,7 @@ test("a puzzle's steps read in order, each marked done, next or later", () => {
   expect(states()).toEqual(['done', 'current', 'upcoming']);
   const steps = [...track.querySelectorAll('li')];
   expect(steps[0]?.contains(screen.getByTestId('playtest'))).toBe(true);
-  expect(steps[1]?.contains(screen.getByTestId('content-validate'))).toBe(true);
+  expect(steps[1]?.textContent).toContain('Validate');
   expect(steps[2]?.contains(screen.getByTestId('content-publish'))).toBe(true);
   expect(steps[1]?.getAttribute('aria-current')).toBe('step');
   expect(screen.getByTestId('content-publication-status').textContent).toBe(
@@ -85,26 +102,77 @@ test("a puzzle's steps read in order, each marked done, next or later", () => {
   );
 });
 
+// regression: builder-no-dominant-next-action — the next step's action
+// sat inside the track among the others, so publishing read as three
+// equal steps to work out (and a pack's next step had no action at all).
+// The next step's action now leads, filled, over the track, outside it.
+test('the next step leads, filled, over the steps', () => {
+  mount(() => publication({ proven: true }));
+  expect(lead()).toBe(screen.getByTestId('content-validate'));
+  const status = screen.getByTestId('content-publication-status');
+  expect(
+    (status.compareDocumentPosition(lead()) &
+      Node.DOCUMENT_POSITION_FOLLOWING) !==
+      0
+  ).toBe(true);
+});
+
 test('a checked, proven puzzle has Publish as its one next step', () => {
   mount(() => publication({ proven: true, validation: 'valid' }));
   expect(states()).toEqual(['done', 'done', 'current']);
   expect(screen.getByTestId('content-validation-passed')).toBeDefined();
-  expect(
-    screen.getByTestId('content-publish').getAttribute('data-variant')
-  ).toBe('solid');
+  expect(lead()).toBe(screen.getByTestId('content-publish'));
+});
+
+// regression: builder-locked-steps-look-enabled — before the playtest,
+// Validate and Publish were full-contrast outlined buttons beside the
+// filled step, so a step that could not happen yet looked ready. A step
+// that waits is now locked: muted, behind a lock, saying what it waits
+// on, and still pressable, so pressing Publish says what is missing.
+test('steps that wait are locked, say what they wait on, and still press', async () => {
+  let published = 0;
+  mount(() =>
+    publication({
+      onPublish: async () => {
+        published += 1;
+      },
+    })
+  );
+  expect(states()).toEqual(['current', 'upcoming', 'upcoming']);
+  expect(lead()).toBe(screen.getByTestId('playtest'));
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  for (const [index, id, note] of [
+    [1, 'content-validate', 'After the playtest'],
+    [2, 'content-publish', 'After validation'],
+  ] as const) {
+    const button = screen.getByTestId(id);
+    expect(button.getAttribute('data-face')).toBe('locked');
+    expect(button.hasAttribute('disabled')).toBe(false);
+    expect(button.querySelector('svg')).not.toBeNull();
+    expect(steps[index]?.textContent).toContain(note);
+  }
+  fireEvent.click(screen.getByTestId('content-publish'));
+  await Promise.resolve();
+  expect(published).toBe(1);
 });
 
 // regression: pack-builder-blocker-unnamed — a pack with a puzzle still a
 // draft said "Not checked yet. Validate, then publish." with Validate
 // filled, though the pack could not publish until that puzzle was. Its
 // first step is now publishing its puzzles, named in the next-step line,
-// and no pack action is filled until they are published.
-test('a pack waits on its draft puzzles first, and names them', () => {
+// and its lead opens that puzzle; the pack's own steps are locked.
+test('a pack waits on its draft puzzles first, names them, and opens the first', () => {
+  let opened = 0;
   mount(() =>
     publication({
       kind: 'pack',
       before: undefined,
       waitingOn: ['Count to nine'],
+      onOpenWaiting: () => {
+        opened += 1;
+      },
     })
   );
   expect(states()).toEqual(['current', 'upcoming', 'upcoming']);
@@ -114,11 +182,20 @@ test('a pack waits on its draft puzzles first, and names them', () => {
   expect(screen.getByTestId('content-publication-status').textContent).toBe(
     'Next: publish Count to nine first. A pack holds only published puzzles.'
   );
+  expect(lead()).toBe(screen.getByTestId('content-open-waiting'));
+  expect(lead().textContent).toBe('Open Count to nine to publish it');
+  fireEvent.click(lead());
+  expect(opened).toBe(1);
   for (const id of ['content-validate', 'content-publish'])
-    expect(screen.getByTestId(id).getAttribute('data-variant')).toBe('outline');
+    expect(screen.getByTestId(id).getAttribute('data-face')).toBe('locked');
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  expect(steps[1]?.textContent).toContain('After its puzzles');
+  expect(steps[2]?.textContent).toContain('After validation');
 });
 
-function builder(nextStep: PublicationStep): JSX.Element {
+function builder(): JSX.Element {
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -135,8 +212,15 @@ function builder(nextStep: PublicationStep): JSX.Element {
       metadataDisabled={false}
       disabled={false}
       preview={false}
-      nextStep={nextStep}
-      publication={publication()}
+      publication={publication({
+        before: (next) => (
+          <button
+            type="button"
+            data-testid="playtest"
+            data-variant={next() ? 'solid' : 'outline'}
+          />
+        ),
+      })}
       stage={<span data-testid="editor" />}
       onChangeBody={() => undefined}
       onSaveAgain={() => undefined}
@@ -146,37 +230,37 @@ function builder(nextStep: PublicationStep): JSX.Element {
   );
 }
 
+const follows = (a: Element, b: Element): boolean =>
+  (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+
 // regression: builder-phone-next-step-below-fold — on a phone the
 // builder's playtest and publishing started below the board, the tools and
 // the board's size, outside the first screen, with nothing near the top
-// saying they were there. A quiet button after the details now names the
-// next step and takes the person to the publish step; it sits in the flow,
-// so it covers nothing, and wide screens go without it.
-test('on a phone a quiet button near the top names the next step and goes there', () => {
-  const revealed: Element[] = [];
-  const original = HTMLElement.prototype.scrollIntoView;
-  HTMLElement.prototype.scrollIntoView = function reveal(this: HTMLElement) {
-    revealed.push(this);
-  };
-  try {
-    mount(() => builder('playtest'), PHONE);
-    const jump = screen.getByTestId('content-author-next-step');
-    expect(jump.textContent).toBe('Next: start a playtest');
-    expect(jump.getAttribute('data-variant')).toBe('ghost');
-    const details = screen.getByTestId('content-author-details');
-    const stage = screen.getByTestId('content-author-stage');
-    const follows = (a: Element, b: Element): boolean =>
-      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    expect(follows(details, jump)).toBe(true);
-    expect(follows(jump, stage)).toBe(true);
-    fireEvent.click(jump);
-    expect(revealed).toEqual([screen.getByTestId('content-author-publish')]);
-  } finally {
-    HTMLElement.prototype.scrollIntoView = original;
-  }
+// saying they were there.
+// regression: builder-phone-next-action-quiet — then a quiet link near
+// the top only named the next step and scrolled to it. On a phone the
+// publish step is now a card right after the details, before the stage,
+// its next action filled; it sits in the flow, so it covers nothing.
+test('on a phone the next action is a filled button in a card right after the details', () => {
+  mount(() => builder(), PHONE);
+  const publish = screen.getByTestId('content-author-publish');
+  expect(publish.getAttribute('data-component')).toBe('GameSection');
+  expect(follows(screen.getByTestId('content-author-details'), publish)).toBe(
+    true
+  );
+  expect(follows(publish, screen.getByTestId('content-author-stage'))).toBe(
+    true
+  );
+  const playtest = screen.getByTestId('playtest');
+  expect(publish.contains(playtest)).toBe(true);
+  expect(playtest.getAttribute('data-variant')).toBe('solid');
 });
 
-test('wide, where the publish step is in view, there is no jump to it', () => {
-  mount(() => builder('playtest'), DESKTOP);
-  expect(screen.queryByTestId('content-author-next-step')).toBeNull();
+test('wide, publishing is the last step, after the stage', () => {
+  mount(() => builder(), DESKTOP);
+  const publish = screen.getByTestId('content-author-publish');
+  expect(publish.getAttribute('data-component')).toBe('StepFooter');
+  expect(follows(screen.getByTestId('content-author-stage'), publish)).toBe(
+    true
+  );
 });

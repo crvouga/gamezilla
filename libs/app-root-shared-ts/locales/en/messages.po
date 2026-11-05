@@ -1039,6 +1039,18 @@ msgstr "Admission limit per worker"
 msgid "After 1 s"
 msgstr "After 1 s"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "After its puzzles"
+msgstr "After its puzzles"
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "After the playtest"
+msgstr "After the playtest"
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "After validation"
+msgstr "After validation"
+
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Agree draw"
 msgstr "Agree draw"
@@ -1521,6 +1533,10 @@ msgstr "Changes waiting to send"
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Check again"
 msgstr "Check again"
+
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+msgid "Check and publish"
+msgstr "Check and publish"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Check finished"
@@ -4240,25 +4256,9 @@ msgstr "Next: finish a playtest to show the puzzle can be solved."
 msgid "Next: make the changes it needs, then validate again."
 msgstr "Next: make the changes it needs, then validate again."
 
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Next: publish"
-msgstr "Next: publish"
-
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: publish {titles} first. A pack holds only published puzzles."
 msgstr "Next: publish {titles} first. A pack holds only published puzzles."
-
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Next: publish its puzzles"
-msgstr "Next: publish its puzzles"
-
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Next: start a playtest"
-msgstr "Next: start a playtest"
-
-#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
-msgid "Next: validate"
-msgstr "Next: validate"
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: validate the draft, then publish it."
@@ -4642,6 +4642,11 @@ msgstr "Only you see it. Get ready once it is complete."
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open"
 msgstr "Open"
+
+#. placeholder {0}: props.waitingOn[0] ?? ''
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Open {0} to publish it"
+msgstr "Open {0} to publish it"
 
 #: pkgs/ui-root-client-ts/src/command-palette-trigger/index.tsx
 msgid "Open command palette"

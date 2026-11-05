@@ -12,6 +12,7 @@ import { buttonInteraction } from '../button-face';
 import type { ButtonSize, ButtonSizeSpec } from '../button-parts/index';
 import { BUTTON_SIZES, ButtonContent } from '../button-parts/index';
 import type { IconComponent } from '../create-icon/index';
+import { LockIcon } from '../icons';
 
 export type ButtonProps = {
   /** Visible action label; prefer a verb that describes the outcome. */
@@ -24,6 +25,12 @@ export type ButtonProps = {
   variant?: ButtonVariant | undefined;
   /** Visual size; small buttons retain a 44px hit target. */
   size?: ButtonSize | undefined;
+  /**
+   * The action waits on an earlier step: a muted face behind a lock glyph.
+   * Unlike `disabled` it stays pressable, so pressing it can say what is
+   * still missing (a Publish before the draft passes its check).
+   */
+  locked?: boolean | undefined;
   /** Prevent activation when the action is unavailable. */
   disabled?: boolean | undefined;
   /** Show progress and prevent duplicate activation while work is pending. */
@@ -119,6 +126,7 @@ export function Button(props: ButtonProps): JSX.Element {
     buttonInteraction({
       intent: props.intent,
       variant: props.variant,
+      locked: props.locked,
       disabled: props.disabled,
       loading: props.loading,
       feedback: props.feedback,
@@ -175,7 +183,12 @@ export function Button(props: ButtonProps): JSX.Element {
           }}
           phase={state().phase}
           size={spec()}
-          icon={props.icon}
+          icon={
+            props.icon ??
+            (props.locked === true && props.startIcon === undefined
+              ? LockIcon
+              : undefined)
+          }
           startIcon={props.startIcon}
           endIcon={props.endIcon}
         />

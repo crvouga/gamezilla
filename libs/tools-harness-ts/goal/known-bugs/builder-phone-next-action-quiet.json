@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the builder's next step was a quiet ghost link near the top that only scrolled to the publish step below the board. The publish step is now a card right after the details, before the stage, with its next action (Start playtest, Validate, Publish) filled in the first screen; it sits in the flow, so it covers nothing.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

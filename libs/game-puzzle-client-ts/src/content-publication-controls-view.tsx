@@ -17,6 +17,7 @@ import {
   untrack,
 } from 'solid-js';
 import {
+  type PublicationActionPlace,
   PublicationSteps,
   publicationNextStep,
 } from './content-publication-steps';
@@ -58,11 +59,13 @@ export type ContentPublicationControlsViewProps = {
   readonly layout?: 'stacked' | 'bar' | undefined;
   /**
    * A step before the check (a puzzle's playtest), first among the
-   * actions; told whether it is the one next step, to be filled. Called
-   * once: the step stays mounted, with its own state, as the draft's
-   * check changes.
+   * actions; told whether it is the one next step, to be filled. In the
+   * `bar` layout it is drawn where it stands (the lead while it is next,
+   * then in its step), each time its place changes; otherwise once.
    */
   readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
+  /** Opens a pack's first draft puzzle, the pack's lead while it waits. */
+  readonly onOpenWaiting?: (() => void) | undefined;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -190,7 +193,11 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
       waiting: props.kind === 'pack' && (props.waitingOn?.length ?? 0) > 0,
     });
   const playtestNext = createMemo(() => next() === 'playtest');
-  const before = untrack(() => props.before?.(playtestNext));
+  // The stacked layout draws the playtest once; the bar draws it per place.
+  const before =
+    props.layout === 'bar'
+      ? undefined
+      : untrack(() => props.before?.(playtestNext));
   // One weight for every step but the next one, which is filled.
   const weight = (step: 'validate' | 'publish') =>
     next() === step
@@ -201,17 +208,35 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
 
 type PublicationActions = ReturnType<typeof usePublicationActions>;
 
+/** A step's action as drawn where it stands in the `bar` layout. */
+function placed(place: PublicationActionPlace) {
+  if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
+  if (place === 'done')
+    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
+  return {
+    intent: 'neutral',
+    variant: 'ghost',
+    size: 'sm',
+    locked: true,
+  } as const;
+}
+
 function PublishButton(props: {
   controls: ContentPublicationControlsViewProps;
   actions: PublicationActions;
+  place?: PublicationActionPlace | undefined;
 }): JSX.Element {
+  const weight = () =>
+    props.place === undefined
+      ? props.actions.weight('publish')
+      : placed(props.place);
   return (
     <Show
       when={props.controls.publishDenial}
       fallback={
         <Button
           {...props.actions.publish.buttonProps}
-          {...props.actions.weight('publish')}
+          {...weight()}
           dataSet={{ testid: 'content-publish' }}
         />
       }
@@ -274,14 +299,6 @@ export function ContentPublicationControlsView(
   props: ContentPublicationControlsViewProps
 ): JSX.Element {
   const actions = usePublicationActions(props);
-  const validateButton = (
-    <Button
-      {...actions.validate.buttonProps}
-      {...actions.weight('validate')}
-      dataSet={{ testid: 'content-validate' }}
-    />
-  );
-  const publishButton = <PublishButton controls={props} actions={actions} />;
   return (
     <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
       <PublicationStatus pending={props.pending} refusal={props.refusal} />
@@ -294,17 +311,30 @@ export function ContentPublicationControlsView(
             proven={props.proven}
             waitingOn={props.waitingOn ?? []}
             next={actions.next()}
-            playtest={actions.before}
-            validate={validateButton}
-            publish={publishButton}
+            playtest={(lead) => props.before?.(() => lead)}
+            validate={(place) => (
+              <Button
+                {...actions.validate.buttonProps}
+                {...placed(place)}
+                dataSet={{ testid: 'content-validate' }}
+              />
+            )}
+            publish={(place) => (
+              <PublishButton controls={props} actions={actions} place={place} />
+            )}
+            onOpenWaiting={props.onOpenWaiting}
           />
         </Match>
         <Match when={props.layout !== 'bar'}>
           <ValidationNotices {...props} />
           <StackHorizontal gap="sm" wrap>
             {actions.before}
-            {validateButton}
-            {publishButton}
+            <Button
+              {...actions.validate.buttonProps}
+              {...actions.weight('validate')}
+              dataSet={{ testid: 'content-validate' }}
+            />
+            <PublishButton controls={props} actions={actions} />
           </StackHorizontal>
         </Match>
       </Switch>

@@ -383,10 +383,17 @@ for (const [size, name] of [
     );
     expect(scroller).not.toBeNull();
     expect(scroller?.contains(publish)).toBe(true);
-    // It is one section in the stage's column, right after the stage.
+    // Wide it is one section in the stage's column, right after the
+    // stage; on a phone a card in the flow after the details, before it.
     const stage = screen.getByTestId('content-author-stage');
-    expect(publish.parentElement).toBe(stage.parentElement);
-    expect(stage.nextElementSibling).toBe(publish);
+    if (size === DESKTOP) {
+      expect(publish.parentElement).toBe(stage.parentElement);
+      expect(stage.nextElementSibling).toBe(publish);
+    } else {
+      const details = screen.getByTestId('content-author-details');
+      expect(before(details, publish)).toBe(true);
+      expect(before(publish, stage)).toBe(true);
+    }
     // No strip outside the scroll area holds a screen footer.
     expect(scroller?.parentElement?.children.length).toBe(1);
     expect(
@@ -523,4 +530,44 @@ test('the playtest step stays mounted as the check changes, told when it is next
   setValidation('valid');
   expect(mounts).toBe(1);
   expect(seen).toEqual([true, false]);
+});
+
+// The same guard for the builder's steps: there the playtest is drawn
+// where it stands (filled over the steps while it is next, then in its
+// done step), so it is drawn again only when that place changes, never
+// as the check changes.
+test('in the steps, the playtest is drawn again only when its place changes', () => {
+  const [validation, setValidation] = createSignal<
+    'unchecked' | 'valid' | 'invalid' | null
+  >('unchecked');
+  const [proven, setProven] = createSignal(false);
+  const seen: boolean[] = [];
+  mount(() => (
+    <ContentPublicationControlsView
+      layout="bar"
+      kind="puzzle"
+      validation={validation()}
+      validationMessage=""
+      proven={proven()}
+      pending={null}
+      published={false}
+      disabled={false}
+      onValidate={resolved}
+      onPublish={resolved}
+      onViewPublication={() => undefined}
+      onWithdraw={resolved}
+      before={(isNext) => {
+        seen.push(isNext());
+        return <span data-testid="playtest" />;
+      }}
+    />
+  ));
+  setValidation(null);
+  setValidation('invalid');
+  setValidation('unchecked');
+  expect(seen).toEqual([true]);
+  setProven(true);
+  setValidation('valid');
+  expect(seen).toEqual([true, false]);
+  expect(screen.getAllByTestId('playtest').length).toBe(1);
 });

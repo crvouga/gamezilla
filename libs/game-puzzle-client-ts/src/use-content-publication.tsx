@@ -65,7 +65,8 @@ export function useContentPublication(props: ContentPublicationProps) {
       );
   };
   // A pack's puzzles that are still drafts: they are published first.
-  const waitingOn = (): readonly string[] => {
+  /** A pack's puzzles that are still drafts, in the pack's order. */
+  const waiting = (): readonly { id: string; title: string }[] => {
     if (props.document.kind !== 'pack') return [];
     const pack = decodePackDefinition(props.writer.body().definition);
     const library = data.content();
@@ -75,14 +76,18 @@ export function useContentPublication(props: ContentPublicationProps) {
       );
       if (doc === undefined || doc.status === 'published') return [];
       const title = workingContentDraft(library, doc.id)?.title.trim() ?? '';
-      return [title === '' ? t`Untitled draft` : title];
+      return [{ id: doc.id, title: title === '' ? t`Untitled draft` : title }];
     });
   };
+  const waitingOn = (): readonly string[] =>
+    waiting().map((puzzle) => puzzle.title);
   return {
     draft,
     validate: () => run(false),
     publish: () => run(true),
     proven: () => currentProof() !== null,
     waitingOn,
+    /** The first of a pack's draft puzzles, to open and publish. */
+    firstWaiting: (): string | undefined => waiting()[0]?.id,
   };
 }

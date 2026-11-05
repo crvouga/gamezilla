@@ -5,7 +5,11 @@ import { StepTrack } from './index';
 
 const STATE_NAMES = { done: 'Done', current: 'Next', upcoming: 'Later' };
 
-/** A builder's last steps: one done, the filled next one, one waiting. */
+/**
+ * A builder's last steps: one done, the next one (its action filled above
+ * the track, so here just its name), one locked behind it; then a pack
+ * whose first step is next and whose later steps wait, locked.
+ */
 export default function StepTrackExample(): JSX.Element {
   return (
     <ExampleRoot>
@@ -25,21 +29,15 @@ export default function StepTrackExample(): JSX.Element {
               />
             ),
           },
-          {
-            key: 'validate',
-            label: 'Validate',
-            state: 'current',
-            action: (
-              <Button title="Validate" intent="primary" variant="solid" />
-            ),
-          },
+          { key: 'validate', label: 'Validate', state: 'current' },
           {
             key: 'publish',
             label: 'Publish',
             state: 'upcoming',
             action: (
-              <Button title="Publish" intent="neutral" variant="outline" />
+              <Button title="Publish" intent="neutral" variant="ghost" locked />
             ),
+            note: 'After validation',
           },
         ]}
       />
@@ -48,8 +46,29 @@ export default function StepTrackExample(): JSX.Element {
         stateNames={STATE_NAMES}
         steps={[
           { key: 'puzzles', label: 'Publish its puzzles', state: 'current' },
-          { key: 'validate', label: 'Validate', state: 'upcoming' },
-          { key: 'publish', label: 'Publish', state: 'upcoming' },
+          {
+            key: 'validate',
+            label: 'Validate',
+            state: 'upcoming',
+            action: (
+              <Button
+                title="Validate"
+                intent="neutral"
+                variant="ghost"
+                locked
+              />
+            ),
+            note: 'After its puzzles',
+          },
+          {
+            key: 'publish',
+            label: 'Publish',
+            state: 'upcoming',
+            action: (
+              <Button title="Publish" intent="neutral" variant="ghost" locked />
+            ),
+            note: 'After validation',
+          },
         ]}
       />
     </ExampleRoot>

@@ -16,10 +16,15 @@ export type StepTrackStep = {
   readonly label: string;
   readonly state: StepTrackState;
   /**
-   * What the person presses to take the step (a `Button`); every step's
-   * action is the same weight but the `current` one, which is filled.
+   * What the person presses to take the step (a `Button`): a step that
+   * waits is `locked`, a step behind the person an outline.
    */
   readonly action?: JSX.Element | undefined;
+  /**
+   * A few words after the step, in the caption ink: what an `upcoming`
+   * step waits on (`After the playtest`).
+   */
+  readonly note?: string | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
@@ -35,7 +40,8 @@ export type StepTrackProps = {
 /**
  * `StepTrack` -- a short sequence of steps read in order, each with a
  * marker: a check once done, its number while it waits, filled when it is
- * the one next step. A step holds its own action or just its name. One
+ * the one next step. A step holds its own action or just its name, then
+ * an optional note (what a waiting step waits on). One
  * row joined by hairlines where it fits; one step a line where its
  * container is narrow. Steps keep their place (by position) as their
  * states change, so an action keeps its own state.
@@ -65,6 +71,9 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
                 fallback={<span class={styles['name']}>{step().label}</span>}
               >
                 {step().action}
+              </Show>
+              <Show when={step().note}>
+                {(note) => <span class={styles['note']}>{note()}</span>}
               </Show>
             </li>
           )}
