@@ -7,10 +7,10 @@ import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
@@ -197,7 +197,10 @@ function GroupHeading(props: {
       testId={`friends-group-${props.group}`}
     >
       <H2 size="label" tone="secondary">
-        <Show when={props.group === 'playing'} fallback={<Trans>Everyone else</Trans>}>
+        <Show
+          when={props.group === 'playing'}
+          fallback={<Trans>Everyone else</Trans>}
+        >
           <Trans>Playing now</Trans>
         </Show>
       </H2>
@@ -267,7 +270,9 @@ export function FriendsListScreenView(
 ): JSX.Element {
   const headerActions = useFindFriendsAction(props);
   const mode = useLayoutMode();
-  const items = createMemo(() => friendsListItems(props.friends, props.playing));
+  const items = createMemo(() =>
+    friendsListItems(props.friends, props.playing)
+  );
   return (
     <Show
       when={props.denial}

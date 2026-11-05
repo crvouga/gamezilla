@@ -20,38 +20,36 @@ test('the only-method note is the methods card last row, on phone and desktop', 
     const time = createHarnessClock();
     renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
-        <SignInMethodsSection
-          methods={{
-            status: 'ready',
-            syncFailed: false,
-            identities: [
-              {
-                provider: 'google',
-                email: 'avery@example.com',
-                emailVerified: true,
-                isPrivateEmail: false,
-                emailForwarding: true,
-              },
-            ],
-            providers: ['google', 'apple'],
-          }}
-          removing={null}
-          onConnect={() => Promise.resolve()}
-          onRemove={() => undefined}
-          onCancelRemove={() => undefined}
-          onConfirmRemove={() => Promise.resolve()}
-        />
-      </ThemeProvider>
+        <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+          <SignInMethodsSection
+            methods={{
+              status: 'ready',
+              syncFailed: false,
+              identities: [
+                {
+                  provider: 'google',
+                  email: 'avery@example.com',
+                  emailVerified: true,
+                  isPrivateEmail: false,
+                  emailForwarding: true,
+                },
+              ],
+              providers: ['google', 'apple'],
+            }}
+            removing={null}
+            onConnect={() => Promise.resolve()}
+            onRemove={() => undefined}
+            onCancelRemove={() => undefined}
+            onConfirmRemove={() => Promise.resolve()}
+          />
+        </ThemeProvider>
       </ClockProvider>
     ));
     const note = screen.getByText(/needs at least one way to sign in/);
     const card = note.closest('[data-component="MenuList"]');
     expect(card).not.toBeNull();
     expect(
-      card?.contains(
-        screen.getByTestId(Handles.accountSignInMethod('google'))
-      )
+      card?.contains(screen.getByTestId(Handles.accountSignInMethod('google')))
     ).toBe(true);
     const rows = card?.querySelectorAll(':scope > .panelItem') ?? [];
     expect(rows[rows.length - 1]?.contains(note)).toBe(true);

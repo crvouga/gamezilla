@@ -233,15 +233,21 @@ test('the friends list puts who is playing, by room, above everyone else', () =>
     />
   ));
   const text = container.textContent ?? '';
-  const playing = container.querySelector('[data-testid="friends-group-playing"]');
-  const others = container.querySelector('[data-testid="friends-group-others"]');
+  const playing = container.querySelector(
+    '[data-testid="friends-group-playing"]'
+  );
+  const others = container.querySelector(
+    '[data-testid="friends-group-others"]'
+  );
   expect(playing?.textContent).toBe('Playing now');
   expect(others?.textContent).toBe('Everyone else');
   expect(text.indexOf('Playing now')).toBeLessThan(text.indexOf('@sam'));
   expect(text.indexOf('@robin_42')).toBeLessThan(text.indexOf('Everyone else'));
   expect(text.indexOf('Everyone else')).toBeLessThan(text.indexOf('@quinn'));
   // Each heading stands outside the panels; the friends are in them.
-  expect(playing?.closest('[data-panel-place]')?.getAttribute('data-panel-place')).toBe('heading');
+  expect(
+    playing?.closest('[data-panel-place]')?.getAttribute('data-panel-place')
+  ).toBe('heading');
   // Every live friend still has Join on their own row.
   expect(buttonsNamed(container, 'Join')).toBe(live.size);
 });

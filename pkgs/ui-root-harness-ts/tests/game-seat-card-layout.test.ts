@@ -14,9 +14,7 @@ test("a compact seat's controls start at its row's edge on every size", () => {
     join(import.meta.dirname, '../../ui-root-client-ts/src/game-ui.module.css'),
     'utf8'
   );
-  expect(css).toMatch(
-    /\.playerBelow \{[^}]*padding-inline-start:\s*0;[^}]*\}/
-  );
+  expect(css).toMatch(/\.playerBelow \{[^}]*padding-inline-start:\s*0;[^}]*\}/);
   // No other rule indents them at some size.
   const rules = css.match(/[^{}]*\.playerBelow[^{]*\{[^}]*\}/g) ?? [];
   for (const rule of rules) {

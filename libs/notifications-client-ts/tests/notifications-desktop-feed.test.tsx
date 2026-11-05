@@ -202,6 +202,8 @@ test('a desktop card and a phone card with no answers keep the time under the ti
     />
   ));
   expect(
-    screen.getByTestId(CARD).contains(screen.getByTestId('notification-card-meta'))
+    screen
+      .getByTestId(CARD)
+      .contains(screen.getByTestId('notification-card-meta'))
   ).toBe(true);
 });

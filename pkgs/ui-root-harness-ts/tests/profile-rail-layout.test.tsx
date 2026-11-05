@@ -132,7 +132,11 @@ test('a profile without a rail keeps the identity card beside its sections', () 
 // content's width.
 test('on desktop the identity spans the columns under it', () => {
   const css = readFileSync(LAYOUTS_CSS, 'utf8');
-  const aside = ruleIn(css, DESKTOP, '  .profile[data-rail="true"] > .profileAside');
+  const aside = ruleIn(
+    css,
+    DESKTOP,
+    '  .profile[data-rail="true"] > .profileAside'
+  );
   expect(aside).toMatch(/grid-column:\s*1 \/ -1;/);
   const body = ruleIn(
     css,

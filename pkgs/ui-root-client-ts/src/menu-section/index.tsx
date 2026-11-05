@@ -70,7 +70,10 @@ export function MenuSection(props: MenuSectionProps): JSX.Element {
         <Show when={props.footerInside === true && hasFooter()}>
           <p
             class="text textCaption px-4 py-3"
-            {...dataAttrs({ component: 'MenuSectionFooter', placement: 'inside' })}
+            {...dataAttrs({
+              component: 'MenuSectionFooter',
+              placement: 'inside',
+            })}
           >
             {props.footer}
           </p>

@@ -376,6 +376,63 @@ function CardActionsRow(props: {
   );
 }
 
+/**
+ * The unread dot, in a fixed gutter before the face: a read card keeps the
+ * gutter empty, so faces and titles line up on every row of the feed.
+ */
+function UnreadGutter(props: { readonly unread: boolean }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackVertical paddingTop="md">
+      <Show
+        when={props.unread}
+        fallback={<StatusDot color="transparent" size={UNREAD_DOT_SIZE} />}
+      >
+        <StatusDot
+          status="unread"
+          size={UNREAD_DOT_SIZE}
+          label={t`Unread`}
+          dataSet={{ 'inbox-unread': 'true' }}
+        />
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
+ * The card's words, answers and "…". A desktop's feed is short and wide
+ * enough for the answers beside the words, the "…" after them; a phone
+ * stacks the answers under the words and the "…" beside the title, so the
+ * answers' row (with when the card came) runs under both.
+ */
+function CardBody(props: {
+  readonly wide: boolean;
+  readonly headline: () => JSX.Element;
+  readonly answers: (beside: boolean) => JSX.Element;
+  readonly menu: () => JSX.Element;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.wide}
+      fallback={
+        <StackVertical grow shrink gap="sm">
+          <StackHorizontal align="start" gap="md">
+            {props.headline()}
+            {props.menu()}
+          </StackHorizontal>
+          {props.answers(false)}
+        </StackVertical>
+      }
+    >
+      <StackVertical grow shrink>
+        {props.headline()}
+      </StackVertical>
+      {props.answers(true)}
+      {props.menu()}
+    </Show>
+  );
+}
+
 export type NotificationCardDefaultProps = {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
@@ -500,45 +557,14 @@ export function NotificationCardDefault(
       testId={idOnWords() ? undefined : props.testID}
       dataSet={idOnWords() ? undefined : state()}
     >
-      {/* The unread dot lives in a fixed gutter before the face: a read
-          card keeps the gutter empty, so faces and titles line up on every
-          row of the feed. */}
-      <StackVertical paddingTop="md">
-        <Show
-          when={shown().isUnread && !inactive()}
-          fallback={<StatusDot color="transparent" size={UNREAD_DOT_SIZE} />}
-        >
-          <StatusDot
-            status="unread"
-            size={UNREAD_DOT_SIZE}
-            label={t`Unread`}
-            dataSet={{ 'inbox-unread': 'true' }}
-          />
-        </Show>
-      </StackVertical>
+      <UnreadGutter unread={shown().isUnread && !inactive()} />
       {props.leading ?? <DefaultLeading interaction={shown()} />}
-      {/* A desktop's feed is short and wide enough for the answers beside
-          the words, the "…" after them; a phone stacks the answers under
-          the words and the "…" beside the title, so the answers' row (with
-          when the card came) runs under both. */}
-      <Show
-        when={mode() === 'wide'}
-        fallback={
-          <StackVertical grow shrink gap="sm">
-            <StackHorizontal align="start" gap="md">
-              {headline()}
-              {menu()}
-            </StackHorizontal>
-            {answers(false)}
-          </StackVertical>
-        }
-      >
-        <StackVertical grow shrink>
-          {headline()}
-        </StackVertical>
-        {answers(true)}
-        {menu()}
-      </Show>
+      <CardBody
+        wide={mode() === 'wide'}
+        headline={headline}
+        answers={answers}
+        menu={menu}
+      />
     </StackHorizontal>
   );
 }

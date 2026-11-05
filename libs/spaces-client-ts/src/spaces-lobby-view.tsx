@@ -2,11 +2,11 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
@@ -52,7 +52,11 @@ function SpacesEmptyState(props: {
 /** "Hosting 2 spaces": the title of the viewer's own group. */
 function SpacesHostingCount(props: { readonly count: number }): JSX.Element {
   return (
-    <Plural value={props.count} one="Hosting # space" other="Hosting # spaces" />
+    <Plural
+      value={props.count}
+      one="Hosting # space"
+      other="Hosting # spaces"
+    />
   );
 }
 
