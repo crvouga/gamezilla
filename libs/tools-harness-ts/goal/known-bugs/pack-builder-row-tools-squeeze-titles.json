@@ -1,0 +1,4 @@
+{
+  "summary": "Each pack-builder row held Edit, move up, move down and remove side by side at its end: on a phone they squeezed the puzzle title into a narrow column (its caption on three lines), and on a desktop they sat about 700px from the titles across a stretched 960px row. A row now holds Edit and one \"…\" menu (Move up, Move down, Remove from pack), and wide the pack's list takes a board's measure with the ways to add puzzles beside it.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

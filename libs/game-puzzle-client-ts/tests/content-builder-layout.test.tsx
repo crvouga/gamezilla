@@ -14,8 +14,9 @@ import {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import { createEffect, createSignal, type JSX } from 'solid-js';
 
 afterEach(cleanup);
@@ -141,19 +142,21 @@ function row(id: string, first: boolean, last: boolean): JSX.Element {
 // builder's stage is the pack's puzzles, each with its editing tools.
 test("a pack's puzzles are listed in order, each with its tools and no play controls", () => {
   mount(() => (
-    <ContentPackEditorView
-      readable
-      count={2}
-      order={
-        <>
-          {row('a', true, false)}
-          {row('b', false, true)}
-        </>
-      }
-      candidates={[]}
-      addDisabled={false}
-      onAdd={() => undefined}
-    />
+    <SurfaceStackProvider>
+      <ContentPackEditorView
+        readable
+        count={2}
+        order={
+          <>
+            {row('a', true, false)}
+            {row('b', false, true)}
+          </>
+        }
+        candidates={[]}
+        addDisabled={false}
+        onAdd={() => undefined}
+      />
+    </SurfaceStackProvider>
   ));
   const order = screen.getByTestId('content-pack-order');
   expect(order.textContent?.startsWith('Puzzles in this packPuzzle a')).toBe(
@@ -163,13 +166,63 @@ test("a pack's puzzles are listed in order, each with its tools and no play cont
   expect(
     first.querySelector('[data-testid="content-pack-open"]')?.textContent
   ).toBe('Edit');
-  expect(
-    first
-      .querySelector('[data-testid="content-pack-up"]')
-      ?.hasAttribute('disabled')
-  ).toBe(true);
+  const menu = first.querySelector('[data-testid="content-pack-menu"]');
+  if (!(menu instanceof HTMLElement)) throw new Error('no row menu');
+  fireEvent.click(menu);
+  expect(screen.getByTestId('content-pack-up').hasAttribute('disabled')).toBe(
+    true
+  );
   expect(screen.queryByText(/puzzles completed/)).toBeNull();
   expect(screen.queryByText(/^Continue /)).toBeNull();
+});
+
+// regression: pack-builder-row-tools-squeeze-titles — each pack row held
+// Edit, move up, move down and remove side by side at its end: on a phone
+// they squeezed the title into a narrow column ("Publish it before / the
+// pack" on three lines), and wide they sat 700px from the titles across a
+// stretched row. A row now holds Edit and one "…" menu with the rest, and
+// wide the list takes a board's measure with the ways to add beside it.
+test("a pack row keeps its title's room: Edit and one menu, the list a board's measure", () => {
+  mount(
+    () => (
+      <SurfaceStackProvider>
+        <ContentPackEditorView
+          readable
+          count={2}
+          order={
+            <>
+              {row('a', true, false)}
+              {row('b', false, true)}
+            </>
+          }
+          candidates={[]}
+          addDisabled={false}
+          onAdd={() => undefined}
+        />
+      </SurfaceStackProvider>
+    ),
+    PHONE
+  );
+  const second = screen.getByTestId('content-pack-item-b');
+  const controls = Array.from(
+    second.querySelectorAll('button'),
+    (button) => button.getAttribute('data-testid') ?? button.textContent
+  ).filter((id) => id !== 'content-pack-item-b');
+  expect(controls).toEqual(['content-pack-open', 'content-pack-menu']);
+  expect(screen.getByRole('button', { name: 'More for Puzzle b' })).toBe(
+    second.querySelector('[data-testid="content-pack-menu"]')
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'More for Puzzle b' }));
+  expect(
+    screen.getAllByRole('menuitem').map((item) => item.textContent)
+  ).toEqual(['Move up', 'Move down', 'Remove from pack']);
+  expect(screen.getByTestId('content-pack-down').hasAttribute('disabled')).toBe(
+    true
+  );
+  // The list is the workbench's canvas: a board's measure beside its tools.
+  const order = screen.getByTestId('content-pack-order');
+  expect(order.closest('[data-component="ContentPackEditor"]')).not.toBeNull();
+  expect(order.parentElement?.className).toContain('canvas');
 });
 
 // regression: builder-editing-tools-apart-from-stage — undo, redo and

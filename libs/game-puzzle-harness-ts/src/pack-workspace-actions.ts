@@ -3,6 +3,7 @@ import { fireEvent } from '@solidjs/testing-library';
 import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
+import { movePackRowUp } from './pack-row-menu';
 
 /** Literal race: immediately request preview while the second item moves up. */
 export const previewDuringPackReorder = defineAction({
@@ -24,11 +25,7 @@ export const previewDuringPackReorder = defineAction({
         )
       );
       const row = view.getByTestId(`content-pack-item-${puzzleId}`);
-      const up = row.querySelector<HTMLButtonElement>(
-        '[data-testid="content-pack-up"]'
-      );
-      if (up === null) throw new Error('The second item must offer moving up');
-      fireEvent.click(up);
+      movePackRowUp(view, row);
       const preview = view.getByTestId('content-preview') as HTMLButtonElement;
       s.notices.set('pack-preview-pending', String(preview.disabled));
       preview.click();

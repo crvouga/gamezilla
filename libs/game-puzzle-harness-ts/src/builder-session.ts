@@ -10,6 +10,7 @@ import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { waitForEditorAt, workingDraftOn } from './draft-editor-screen';
 import { mountContentExample } from './mount-content-example';
+import { movePackRowUp } from './pack-row-menu';
 
 type View = Awaited<ReturnType<typeof mountContentExample>>;
 
@@ -162,9 +163,7 @@ export const movePackPuzzleUpInBuilder = defineAction({
       Promise.resolve(view.queryByTestId(item) !== null)
     );
     const row = view.getByTestId(item);
-    const up = row.querySelector('[data-testid="content-pack-up"]');
-    if (up === null) throw new Error(`${title} cannot move earlier`);
-    fireEvent.click(up);
+    movePackRowUp(view, row);
     await settleBuilder(s, clientId);
   },
 });

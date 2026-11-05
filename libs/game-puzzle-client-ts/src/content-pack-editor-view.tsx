@@ -1,16 +1,18 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
+  EllipsisIcon,
   PlusIcon,
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
 import { ContentRowCaption, ContentStatusChip } from './content-chips';
@@ -46,11 +48,15 @@ export type ContentPackItemRowProps = {
   readonly onRemove: () => void;
 };
 
-const ROW_CONTROL = 32;
+/** The quiet disc beside Edit: small, its hit area still 44px. */
+const MENU_DISC_SIZE = 32;
+/** Wide enough for its three rows, not a panel. */
+const MENU_WIDTH = 220;
 
 /**
- * One puzzle in the pack: its title and state, then its tools at the
- * row's end — open it, move it earlier or later, take it out.
+ * One puzzle in the pack: its title and state, then at the row's end the
+ * one tool used most, open it, and a "…" menu holding the rest: move it
+ * earlier or later, take it out. The title keeps the row's width.
  */
 export function ContentPackItemRow(
   props: ContentPackItemRowProps
@@ -87,39 +93,41 @@ export function ContentPackItemRow(
               />
             )}
           </Show>
-          <IconButton
-            size={ROW_CONTROL}
-            tooltip="none"
-            label={t`Move ${props.title} up`}
-            aria-label={t`Move ${props.title} up`}
-            disabled={props.disabled || props.first}
-            onClick={() => props.onUp()}
-            dataSet={{ testid: 'content-pack-up' }}
-          >
-            <ChevronUpIcon size={20} color="icon" />
-          </IconButton>
-          <IconButton
-            size={ROW_CONTROL}
-            tooltip="none"
-            label={t`Move ${props.title} down`}
-            aria-label={t`Move ${props.title} down`}
-            disabled={props.disabled || props.last}
-            onClick={() => props.onDown()}
-            dataSet={{ testid: 'content-pack-down' }}
-          >
-            <ChevronDownIcon size={20} color="icon" />
-          </IconButton>
-          <IconButton
-            size={ROW_CONTROL}
-            tooltip="none"
-            label={t`Remove ${props.title} from pack`}
-            aria-label={t`Remove ${props.title} from pack`}
-            disabled={props.disabled}
-            onClick={() => props.onRemove()}
-            dataSet={{ testid: 'content-pack-remove' }}
-          >
-            <Trash2Icon size={20} color="icon" />
-          </IconButton>
+          <OverflowMenuButton
+            aria-label={t`More for ${props.title}`}
+            icon={EllipsisIcon}
+            size={MENU_DISC_SIZE}
+            width={MENU_WIDTH}
+            actions={[
+              {
+                id: 'up',
+                label: t`Move up`,
+                icon: ChevronUpIcon,
+                disabled: props.disabled || props.first,
+                onClick: () => props.onUp(),
+                dataSet: { testid: 'content-pack-up' },
+              },
+              {
+                id: 'down',
+                label: t`Move down`,
+                icon: ChevronDownIcon,
+                disabled: props.disabled || props.last,
+                onClick: () => props.onDown(),
+                endsGroup: true,
+                dataSet: { testid: 'content-pack-down' },
+              },
+              {
+                id: 'remove',
+                label: t`Remove from pack`,
+                icon: Trash2Icon,
+                tone: 'destructive',
+                disabled: props.disabled,
+                onClick: () => props.onRemove(),
+                dataSet: { testid: 'content-pack-remove' },
+              },
+            ]}
+            dataSet={{ testid: 'content-pack-menu' }}
+          />
         </StackHorizontal>
       }
       dataSet={{ testid: `content-pack-item-${props.id}` }}
@@ -185,56 +193,71 @@ function Candidates(props: ContentPackEditorViewProps): JSX.Element {
 /**
  * The pack builder's stage, presentational: the puzzles the pack holds,
  * in order, each with its tools; then published puzzles to add and a new
- * puzzle to create inside it. `ContentPackEditor` wires it to the working
- * pack.
+ * puzzle to create inside it. Where there is room the pack's list takes a
+ * board's measure and the ways to add sit beside it, so each row's tools
+ * stay near its title; narrower, they follow the list. `ContentPackEditor`
+ * wires it to the working pack.
  */
 export function ContentPackEditorView(
   props: ContentPackEditorViewProps
 ): JSX.Element {
   return (
-    <StackVertical gap="lg" dataSet={{ component: 'ContentPackEditor' }}>
-      <Show
-        when={props.readable}
-        fallback={
-          <Notice tone="error">
-            <Trans>
-              This pack cannot be read. Choose one of its draft copies to
-              continue.
-            </Trans>
-          </Notice>
+    <EditorWorkbench
+      narrowOrder="canvas-first"
+      dataSet={{ component: 'ContentPackEditor' }}
+      canvas={<PackOrder {...props} />}
+      tools={
+        <StackVertical gap="lg">
+          <Candidates {...props} />
+          {props.create}
+        </StackVertical>
+      }
+      notes={props.notices}
+    />
+  );
+}
+
+/** The puzzles the pack holds, in order, or why they cannot be read. */
+function PackOrder(props: ContentPackEditorViewProps): JSX.Element {
+  return (
+    <Show
+      when={props.readable}
+      fallback={
+        <Notice tone="error">
+          <Trans>
+            This pack cannot be read. Choose one of its draft copies to
+            continue.
+          </Trans>
+        </Notice>
+      }
+    >
+      <MenuSection
+        title={<Trans>Puzzles in this pack</Trans>}
+        dataSet={{ testid: 'content-pack-order' }}
+        footer={
+          <Trans>
+            People may play them in any order. Publishing the pack keeps the
+            edition of each puzzle it holds now.
+          </Trans>
         }
       >
-        <MenuSection
-          title={<Trans>Puzzles in this pack</Trans>}
-          dataSet={{ testid: 'content-pack-order' }}
-          footer={
-            <Trans>
-              People may play them in any order. Publishing the pack keeps the
-              edition of each puzzle it holds now.
-            </Trans>
+        <Show
+          when={props.count > 0}
+          fallback={
+            <EmptyState
+              variant="compact"
+              title={<Trans>No puzzles yet</Trans>}
+              body={
+                <Trans>
+                  Add a published puzzle below, or create a new one.
+                </Trans>
+              }
+            />
           }
         >
-          <Show
-            when={props.count > 0}
-            fallback={
-              <EmptyState
-                variant="compact"
-                title={<Trans>No puzzles yet</Trans>}
-                body={
-                  <Trans>
-                    Add a published puzzle below, or create a new one.
-                  </Trans>
-                }
-              />
-            }
-          >
-            {props.order}
-          </Show>
-        </MenuSection>
-      </Show>
-      {props.notices}
-      <Candidates {...props} />
-      {props.create}
-    </StackVertical>
+          {props.order}
+        </Show>
+      </MenuSection>
+    </Show>
   );
 }

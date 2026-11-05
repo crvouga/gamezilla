@@ -20,6 +20,7 @@ import {
   workingDraftOn,
 } from './draft-editor-screen';
 import { arrangePackFor } from './pack-fixtures';
+import { movePackRowUp } from './pack-row-menu';
 
 type Editing = {
   readonly s: ContentHarness;
@@ -93,11 +94,7 @@ async function moveUp(editing: Editing, title: string): Promise<void> {
   if (item === undefined || index === 0)
     throw new Error(`The pack offers no way to move ${title} up`);
   const row = editing.view.getByTestId(`content-pack-item-${item.id}`);
-  const up = row.querySelector<HTMLButtonElement>(
-    '[data-testid="content-pack-up"]'
-  );
-  if (up === null) throw new Error(`The row ${title} offers no move up`);
-  fireEvent.click(up);
+  movePackRowUp(editing.view, row);
   const expected = order.map((entry) => entry.id);
   expected.splice(index - 1, 2, item.id, order[index - 1]?.id ?? '');
   await settle(
