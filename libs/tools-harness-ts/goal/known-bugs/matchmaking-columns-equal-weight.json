@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking card's three columns (New game with Find an opponent, Your ratings, How matchmaking works) were equal, so the primary action carried no more weight than reference text. The search now leads as the widest column and the guide closes the row as a quiet sunken note.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

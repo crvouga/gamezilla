@@ -7,14 +7,14 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 
-/** One thing a search does: a short title over one plain line. */
+/** One thing a search does: a short title over one plain line, both quiet. */
 function GuidePoint(props: {
   readonly title: JSX.Element;
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
     <StackVertical gap="xs" role="listitem">
-      <P variant="label">{props.title}</P>
+      <P variant="caption">{props.title}</P>
       <P variant="caption" tone="secondary">
         {props.children}
       </P>
@@ -47,9 +47,10 @@ function GuidePoints(props: { readonly columns: 1 }): JSX.Element {
 /**
  * What a search does. On a phone, under the search past its card's
  * hairline, behind one closed disclosure, so the explanation never
- * outweighs the decision above it. Wide, the card's own third column
- * beside the search and the ratings, headed like them, its three short
- * points one under another, so a short search fills the game column.
+ * outweighs the decision above it. Wide, a quiet note closing the card's
+ * row beside the search and the ratings, its heading and three short
+ * points in caption type, so a short search fills the game column while
+ * the search stays the first thing read.
  */
 export function MultiplayerGuide(props: {
   readonly wide?: boolean | undefined;
@@ -68,7 +69,7 @@ export function MultiplayerGuide(props: {
           </GameDisclosure>
         }
       >
-        <H3 size="label">
+        <H3 size="label" tone="secondary">
           <Trans>How matchmaking works</Trans>
         </H3>
         <GuidePoints columns={1} />

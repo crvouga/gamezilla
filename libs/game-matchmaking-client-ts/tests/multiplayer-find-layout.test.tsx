@@ -112,7 +112,11 @@ test('phone: the ratings are in the card and the guide behind one closed disclos
 // game column's start with about 70% of the canvas empty beside and under
 // it. The card fills the game column in three columns: the search, the
 // ratings, then the guide's three short points, never under the command.
-test("wide: the search, the ratings and the guide are the card's three columns", () => {
+// regression: matchmaking-columns-equal-weight — the three columns were
+// then equal, so the search and its command carried no more weight than
+// reference text. The search leads, the widest column; the guide closes
+// the row as a quiet sunken note in caption type.
+test("wide: the search leads the card's three columns and the guide is a quiet note", () => {
   const container = mount(1440);
   const card = container.querySelector('[data-component="GameSetupPanel"]');
   const split = card?.querySelector('[data-setup-split="true"]');
@@ -131,8 +135,19 @@ test("wide: the search, the ratings and the guide are the card's three columns",
     'utf8'
   );
   expect(css).toMatch(
-    /section:has\(> \.setupSplit\[data-details-beside="true"\]\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+    /section:has\(> \.setupSplit\[data-details-beside="true"\]\) \{\s*grid-template-columns: minmax\(0, 3fr\) minmax\(0, 2fr\) minmax\(0, 2fr\);/
   );
+  const note = css.slice(
+    css.indexOf('section > .setupSplit[data-details-beside="true"] ~ * {')
+  );
+  expect(note.slice(0, note.indexOf('}'))).toMatch(
+    /background: var\(--ui-color-surface-muted\);/
+  );
+  // The guide's heading and points are quieter than the search's title.
+  const heading = [...guide.querySelectorAll('h3')].find((h) =>
+    h.textContent?.includes('How matchmaking works')
+  );
+  expect(heading?.className).toContain('text-text-secondary');
 });
 
 // regression: provisional-rating-reads-as-error — "1512?" read like an
