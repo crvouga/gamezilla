@@ -3675,6 +3675,10 @@ msgstr "Lichess file uploaded"
 msgid "Lichess puzzle database"
 msgstr "Lichess puzzle database"
 
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Lift crate"
+msgstr "Lift crate"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "light"
 msgstr "light"
@@ -3968,8 +3972,8 @@ msgstr "More"
 
 #. placeholder {0}: props.title
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "Move {0} down"
-msgstr "Move {0} down"
+msgid "More for {0}"
+msgstr "More for {0}"
 
 #. placeholder {0}: props.ply
 #. placeholder {1}: props.moves
@@ -3977,11 +3981,6 @@ msgstr "Move {0} down"
 #: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Move {0} of {1}. {2}"
 msgstr "Move {0} of {1}. {2}"
-
-#. placeholder {0}: props.title
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "Move {0} up"
-msgstr "Move {0} up"
 
 #. placeholder {0}: mover.sideLabel
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
@@ -3996,6 +3995,7 @@ msgstr "Move {ply}: {label}"
 msgid "Move {turn}"
 msgstr "Move {turn}"
 
+#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move down"
 msgstr "Move down"
@@ -4036,6 +4036,7 @@ msgstr "Move second endpoint"
 msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 msgstr "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 
+#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move up"
 msgstr "Move up"
@@ -5611,11 +5612,6 @@ msgstr "Rematch"
 msgid "Remove"
 msgstr "Remove"
 
-#. placeholder {0}: props.title
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "Remove {0} from pack"
-msgstr "Remove {0} from pack"
-
 #. placeholder {0}: providerName(i18n(), props.method)
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Remove {0} sign-in"
@@ -5631,10 +5627,6 @@ msgstr "Remove {0} sign-in?"
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
 
-#: libs/sokoban-client-ts/src/sokoban-editor.tsx
-msgid "Remove crate"
-msgstr "Remove crate"
-
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Remove endpoints"
 msgstr "Remove endpoints"
@@ -5647,6 +5639,7 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
+#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-items.tsx
 msgid "Remove from pack"
 msgstr "Remove from pack"
