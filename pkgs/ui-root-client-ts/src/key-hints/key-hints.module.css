@@ -25,7 +25,8 @@
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);
-  font-family: var(--ui-font-sans);
-  font-size: var(--ui-font-size-xs);
+  /* The mono face draws arrows and Enter at the size of the letters. */
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-font-size-sm);
   line-height: var(--ui-leading-sm);
 }

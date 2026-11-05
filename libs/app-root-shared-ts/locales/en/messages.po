@@ -2458,12 +2458,12 @@ msgid "Draft created"
 msgstr "Draft created"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match to draw a path."
-msgstr "Drag from a number to its match to draw a path."
+msgid "Drag a number to its match."
+msgstr "Drag a number to its match."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match."
-msgstr "Drag from a number to its match."
+msgid "Drag from a number to its match to draw a path."
+msgstr "Drag from a number to its match to draw a path."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Drag on your side of the court or use the slider beside it."
@@ -5642,6 +5642,10 @@ msgstr "Reload app"
 msgid "Rematch"
 msgstr "Rematch"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "remove"
+msgstr "remove"
+
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
@@ -5664,10 +5668,6 @@ msgstr "Remove {0} sign-in?"
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
-
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "remove a path"
-msgstr "remove a path"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Remove endpoints"
@@ -6701,8 +6701,8 @@ msgid "Start loading"
 msgstr "Start loading"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "start or end a path"
-msgstr "start or end a path"
+msgid "start or end"
+msgstr "start or end"
 
 #: libs/game-puzzle-client-ts/src/content-draft-playtest.tsx
 msgid "Start playtest"

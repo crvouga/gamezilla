@@ -32,8 +32,8 @@ test('wide, the keyboard hint is key caps beside short labels, not a paragraph',
     const keys = [...hint.querySelectorAll('kbd')].map(
       (key) => key.textContent
     );
-    expect(keys).toEqual(['↵', '←', '↑', '→', '↓', 'Esc', 'Del']);
-    expect(hint.textContent).toContain('Drag from a number to its match.');
+    expect(keys).toEqual(['↵', '←↑→↓', 'Esc', 'Del']);
+    expect(hint.textContent).toContain('Drag a number to its match.');
     expect(hint.textContent).not.toContain('press Enter again');
   } finally {
     view.unmount();
