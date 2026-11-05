@@ -24,8 +24,13 @@
   width: 100%;
   height: 100%;
 }
+/* A board caps its own cells, so at four times a large area it would stay
+   small: a filled area lays its picture out at twice its size instead. */
 .thumbnail[data-size="fill"] .content {
-  padding: calc(var(--preview-thumbnail-size) * 0.08);
+  width: calc(var(--preview-thumbnail-size) * 2);
+  height: calc(var(--preview-thumbnail-size) * 2);
+  padding: calc(var(--preview-thumbnail-size) * 0.12);
+  zoom: 0.5;
 }
 /* A collection: a second sheet behind the first, offset up and right,
    inside the same square, so a pack's row starts its title where a

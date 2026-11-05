@@ -19,7 +19,7 @@ export function ContentProgressLine(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const solved = () =>
-    t`Solved ${props.progress.completed} of ${props.progress.total}`;
+    t`Solved ${props.progress.completed}/${props.progress.total}`;
   return (
     <Text variant="inherit" testId="content-progress">
       <Show when={props.pack} fallback={solved()}>

@@ -287,7 +287,7 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
   expect(attempt.getAttribute('data-component')).toBe('PreviewCard');
   expect(chip(attempt, 'content-chip-difficulty').textContent).toBe('Medium');
   expect(chip(attempt, 'content-progress').textContent).toBe(
-    'Weekend counts · Solved 1 of 3'
+    'Weekend counts · Solved 1/3'
   );
   // Without a difficulty or a pack, a card shows neither.
   const plain = screen.getByTestId('content-attempt-attempt-3');
@@ -296,7 +296,7 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
   );
   expect(plain.querySelector('[data-testid="content-progress"]')).toBe(null);
   const pack = screen.getByTestId('content-published-revision-2');
-  expect(chip(pack, 'content-progress').textContent).toBe('Solved 2 of 5');
+  expect(chip(pack, 'content-progress').textContent).toBe('Solved 2/5');
   for (const card of [attempt, plain, pack]) {
     const title = card.querySelector('.textRowTitle');
     expect(title?.className).not.toMatch(/line-clamp|truncate/);
