@@ -46,6 +46,13 @@
   display: grid;
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
   width: 100%;
+  /* A host that bounds its height (a card's picture) says how tall the
+     board may be; elsewhere this is unset and so is the cap. */
+  max-width: calc(
+    var(--board-fit-block-size) *
+    var(--path-columns) /
+    var(--path-rows)
+  );
   aspect-ratio: var(--path-columns) / var(--path-rows);
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-control);

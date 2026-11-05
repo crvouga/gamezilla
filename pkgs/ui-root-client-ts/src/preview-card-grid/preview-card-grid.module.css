@@ -94,10 +94,12 @@
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
+  /* Wide and short, as most boards are: the board fills it, and a row of
+     cards leaves room for the next section in view. */
   .picture {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 2 / 1;
   }
   .body {
     padding-inline: var(--ui-space-1);

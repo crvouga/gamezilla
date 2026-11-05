@@ -32,12 +32,17 @@
   padding: calc(var(--preview-thumbnail-size) * 0.12);
   zoom: 0.5;
 }
-/* A tall area (a card's picture) has room for the board at its own size. */
-@container (min-height: 9rem) {
+/* A tall area (a card's picture) lays the board out across the whole
+   area at its own size: the board fits the area's height as well as its
+   width, with no cap on its tiles, so it fills its picture instead of
+   sitting small in the middle of it. */
+@container (min-height: 6rem) {
   .thumbnail[data-size="fill"] .content {
-    width: var(--preview-thumbnail-size);
-    height: var(--preview-thumbnail-size);
-    padding: calc(var(--preview-thumbnail-size) * 0.08);
+    --board-fit-block-size: calc(100cqb - var(--ui-space-3) * 2);
+    --board-fit-tile-max: 100cqi;
+    width: 100cqi;
+    height: 100cqb;
+    padding: var(--ui-space-3);
     zoom: 1;
   }
 }
