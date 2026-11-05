@@ -283,8 +283,8 @@ function asideRecord(
 }
 
 /**
- * Beside a wide board the game's commands sit in a card of their own at
- * the rail's foot, level with the board's, apart from the record above.
+ * Beside a wide board the game's commands close the record's own card,
+ * right under its steps, so the rail is one card as tall as what it holds.
  */
 function commandsInRecord(
   props: Props,

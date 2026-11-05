@@ -19,6 +19,12 @@ export type MainMenuItem = {
    * give it all or none, so it reads alike down the list.
    */
   meta?: JSX.Element | string | undefined;
+  /**
+   * Where `meta` sits: `title` (default) beside the title; `caption` at the
+   * start of the caption's line, for a title too long to share its line
+   * with the tag on a phone, so the tag never takes a line of its own.
+   */
+  metaPlacement?: 'title' | 'caption' | undefined;
   /** Before the title: a `GameTile` or an icon that says what the row is. */
   leading?: JSX.Element | undefined;
   /** Overrides the default trailing affordance (chevron / selection check). */
@@ -74,11 +80,24 @@ function ItemTrailing(props: {
   );
 }
 
+/** The row's tag: in the accent for the `primary` row. */
+function ItemMeta(props: { item: MainMenuItem }): JSX.Element {
+  return (
+    <Badge
+      intent={props.item.emphasis === 'primary' ? 'brand' : 'neutral'}
+      size="md"
+      label={props.item.meta}
+    />
+  );
+}
+
 function ItemBody(props: {
   item: MainMenuItem;
   interactive: boolean;
 }): JSX.Element {
   const disabled = (): boolean => props.item.disabled === true;
+  const metaInCaption = (): boolean =>
+    props.item.metaPlacement === 'caption' && props.item.meta !== undefined;
   const captionInTrailing = (): boolean =>
     disabled() && props.item.caption !== undefined;
   return (
@@ -102,12 +121,8 @@ function ItemBody(props: {
             <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
               {props.item.title}
             </p>
-            <Show when={props.item.meta}>
-              <Badge
-                intent={props.item.emphasis === 'primary' ? 'brand' : 'neutral'}
-                size="md"
-                label={props.item.meta}
-              />
+            <Show when={props.item.meta !== undefined && !metaInCaption()}>
+              <ItemMeta item={props.item} />
             </Show>
           </div>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
@@ -118,6 +133,11 @@ function ItemBody(props: {
                 'line-clamp-2': props.item.emphasis !== 'quiet',
               }}
             >
+              <Show when={metaInCaption()}>
+                <span class="inline-block align-middle me-2">
+                  <ItemMeta item={props.item} />
+                </span>
+              </Show>
               {props.item.caption}
             </p>
           </Show>
@@ -138,6 +158,63 @@ function ItemBody(props: {
 }
 
 /**
+ * One destination as a tile of a wide grid (`layout="tile"`), read top to
+ * bottom: its picture with the chevron at the far end, then its name and
+ * tag, then what it is in up to two lines, so a short description never
+ * leaves a wide card mostly empty.
+ */
+function TileBody(props: {
+  item: MainMenuItem;
+  interactive: boolean;
+}): JSX.Element {
+  return (
+    <div
+      class="box gap-3 p-4 h-full"
+      classList={{ 'opacity-disabled': props.item.disabled === true }}
+      data-emphasis={props.item.emphasis}
+    >
+      <div class="box flex-row items-start justify-between gap-3">
+        <Show when={props.item.leading}>
+          <div class="box shrink-0">{props.item.leading}</div>
+        </Show>
+        <ItemTrailing item={props.item} interactive={props.interactive} />
+      </div>
+      <div class="box gap-1 min-w-0 items-start">
+        <div class="box flex-row flex-wrap items-center gap-2 min-w-0 max-w-full">
+          <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
+            {props.item.title}
+          </p>
+          <Show when={props.item.meta !== undefined}>
+            <ItemMeta item={props.item} />
+          </Show>
+        </div>
+        <Show when={props.item.caption !== undefined}>
+          <p class="text textCaption line-clamp-2 max-w-full">
+            {props.item.caption}
+          </p>
+        </Show>
+      </div>
+    </div>
+  );
+}
+
+/** The row's body in the layout its menu asks for. */
+function Body(props: {
+  item: MainMenuItem;
+  interactive: boolean;
+  layout: 'row' | 'tile';
+}): JSX.Element {
+  return (
+    <Show
+      when={props.layout === 'tile'}
+      fallback={<ItemBody item={props.item} interactive={props.interactive} />}
+    >
+      <TileBody item={props.item} interactive={props.interactive} />
+    </Show>
+  );
+}
+
+/**
  * One row of `MainMenuScreen`: an optional leading picture (`leading`),
  * title with an optional short fact beside it (`meta`), optional caption,
  * and a trailing
@@ -148,7 +225,11 @@ function ItemBody(props: {
  * and the caption two, each ending in an ellipsis. A disabled row fades to
  * the disabled opacity and moves its caption to the trailing edge.
  */
-export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
+export function MainMenuItemRow(props: {
+  item: MainMenuItem;
+  /** `tile`: one card of a wide tile grid, read top to bottom. */
+  layout?: 'row' | 'tile' | undefined;
+}): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   const interactive = (): boolean =>
     props.item.onClick !== undefined && props.item.disabled !== true;
@@ -160,7 +241,11 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
           class="box"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
         >
-          <ItemBody item={props.item} interactive={false} />
+          <Body
+            item={props.item}
+            interactive={false}
+            layout={props.layout ?? 'row'}
+          />
         </div>
       }
     >
@@ -173,7 +258,11 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
           disabled={props.item.disabled === true}
           aria-pressed={props.item.selected === true ? true : undefined}
         >
-          <ItemBody item={props.item} interactive={interactive()} />
+          <Body
+            item={props.item}
+            interactive={interactive()}
+            layout={props.layout ?? 'row'}
+          />
         </button>
       )}
     </Show>

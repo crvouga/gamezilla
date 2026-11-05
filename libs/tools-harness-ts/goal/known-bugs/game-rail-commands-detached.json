@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board, Offer draw / Resign sat in a card of their own pinned to the board's foot, about 200px under the game record, so the rail read as two detached pieces with dead space between them. The commands now close the record's own card right under its steps, and the rail is as tall as what it holds.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+}

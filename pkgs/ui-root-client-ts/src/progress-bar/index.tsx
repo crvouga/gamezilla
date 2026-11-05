@@ -48,6 +48,10 @@ function clamp01(v: number): number {
   return Number.isNaN(v) ? 0 : Math.min(Math.max(v, 0), 1);
 }
 
+/**
+ * The track is the line tone (`border`), a step off a raised card in both
+ * themes: the sunken well vanished on a dark card.
+ */
 function ProgressTrack(props: {
   known: boolean;
   value: number;
@@ -57,7 +61,7 @@ function ProgressTrack(props: {
 }): JSX.Element {
   return (
     <div
-      class={`box w-full overflow-hidden rounded-full bg-surface-muted ${SIZE[props.size]}`}
+      class={`box w-full overflow-hidden rounded-full bg-border ${SIZE[props.size]}`}
       role="progressbar"
       aria-label={props.label}
       aria-valuemin={0}

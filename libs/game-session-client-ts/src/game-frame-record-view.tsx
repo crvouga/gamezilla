@@ -1,27 +1,25 @@
 import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import {
   GameMoveList,
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
-import {
-  GameActions,
-  GameRailFoot,
-  GameSection,
-} from '@pkgs/ui-root-client-ts/game-section';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
+  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  ChevronUpIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
@@ -40,8 +38,9 @@ export type FrameReviewHandlers = {
 type RecordProps = FrameReviewHandlers & {
   readonly record: FrameRecord;
   /**
-   * The game's commands, beside a wide board: a card of their own at the
-   * foot of the rail, apart from the record.
+   * The game's commands, beside a wide board: the foot of the record's own
+   * card, right under its steps, so the rail is one card as tall as what
+   * it holds.
    */
   readonly commands?: JSX.Element | undefined;
 };
@@ -296,15 +295,69 @@ function RecordSteps(props: RecordProps): JSX.Element {
 }
 
 /**
- * The record beside a wide board, as tall as what it holds: the moves as a
- * table of turns with the steps right under them as one group, a quiet
- * disclosure to jump by number, then earlier games; the space's history is
- * a quiet link at its title. A long game's table scrolls inside. The
- * game's commands are not part of it: they sit apart, at the rail's foot
- * (`FrameRecordAsideView`). A game played by turns lists its moves only
- * once there are any.
+ * Opens and closes the rest of the record in place: a quiet button that
+ * says what it shows and whether it is open (`aria-expanded`), never a
+ * row of its own.
+ */
+function RecordToggle(props: {
+  readonly open: boolean;
+  readonly onToggle: () => void;
+  readonly title: JSX.Element;
+}): JSX.Element {
+  return (
+    <Button
+      title={props.title}
+      variant="ghost"
+      intent="neutral"
+      size="sm"
+      aria-expanded={props.open}
+      endIcon={
+        <Show when={props.open} fallback={<ChevronDownIcon size={16} />}>
+          <ChevronUpIcon size={16} />
+        </Show>
+      }
+      onClick={() => props.onToggle()}
+      dataSet={{ testid: 'custom-game-review-jump' }}
+    />
+  );
+}
+
+/**
+ * The phone's toggle for the rest of the record: a chevron on a plate,
+ * named for assistive technology, so the shown turn keeps its line's
+ * width.
+ */
+function RecordIconToggle(props: {
+  readonly open: boolean;
+  readonly onToggle: () => void;
+}): JSX.Element {
+  return (
+    <IconButton
+      label={props.open ? t`Hide all moves` : t`All moves`}
+      size={STEP_SIZE}
+      background={STEP_PLATE}
+      aria-expanded={props.open}
+      onClick={() => props.onToggle()}
+      dataSet={{ testid: 'custom-game-review-jump' }}
+    >
+      <Show when={props.open} fallback={<ChevronDownIcon />}>
+        <ChevronUpIcon />
+      </Show>
+    </IconButton>
+  );
+}
+
+/**
+ * The record beside a wide board, one card as tall as what it holds: the
+ * moves as a table of turns, the steps right under them with a quiet way
+ * to jump to a move by number, then the game's commands as the card's
+ * foot (`commands`: Offer draw, Resign), so the whole rail reads as one
+ * unit with no gap. The space's history is a quiet link at its title; a
+ * long game's table scrolls inside. A game played by turns lists its
+ * moves only once there are any.
  */
 function RecordPanel(props: RecordProps): JSX.Element {
+  const [jumping, setJumping] = createSignal(false);
   const played = (): boolean =>
     props.record.turns && props.record.moves.length > 0;
   return (
@@ -312,19 +365,24 @@ function RecordPanel(props: RecordProps): JSX.Element {
       title={<Trans>Game record</Trans>}
       dataSet={{ component: 'CustomGameReview' }}
       trailing={<HistoryButton {...props} quiet />}
+      footer={<GameActions>{props.commands}</GameActions>}
     >
       <RecordSelect {...props} />
       <Show when={played()}>
         <StackVertical gap="sm">
           <RecordMoves {...props} layout="table" />
-          <RecordSteps {...props} />
+          <StackHorizontal justify="between" align="center" gap="sm" wrap>
+            <RecordSteps {...props} />
+            <RecordToggle
+              open={jumping()}
+              onToggle={() => setJumping(!jumping())}
+              title={<Trans>Go to move</Trans>}
+            />
+          </StackHorizontal>
+          <Show when={jumping()}>
+            <ReviewJumpField {...props} />
+          </Show>
         </StackVertical>
-        <GameDisclosure
-          title={<Trans>Go to a move by number</Trans>}
-          dataSet={{ testid: 'custom-game-review-jump' }}
-        >
-          <ReviewJumpField {...props} />
-        </GameDisclosure>
       </Show>
       <FrameErrorView text={props.record.error} />
     </GameSection>
@@ -332,87 +390,95 @@ function RecordPanel(props: RecordProps): JSX.Element {
 }
 
 /**
- * Beside the strip's name: `Live` while it shows the game as it stands,
- * `Viewing move 3 of 6` while it shows an earlier one (the board's own
- * banner offers the way back).
+ * At the record's head under a phone's board, in words, whether the board
+ * shows the game as it stands: a live dot and `Live`, or a warning dot and
+ * `Reviewing move 3 of 6` (the board's own banner and the last step offer
+ * the way back).
  */
 function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
   return (
     <Show when={props.record.moves.length > 0}>
-      <P
-        variant="caption"
-        tone="secondary"
-        testId="custom-game-move-strip-place"
-      >
-        <Show
-          when={recordReviewing(props.record)}
-          fallback={<Trans>Live</Trans>}
-        >
-          <Trans>
-            Viewing move {props.record.displayedPly} of{' '}
-            {props.record.moves.length}
-          </Trans>
-        </Show>
-      </P>
+      <StackHorizontal align="center" gap="xs" shrink>
+        <StatusDot
+          status={recordReviewing(props.record) ? 'warning' : 'online'}
+          size={8}
+        />
+        <P variant="label" testId="custom-game-move-strip-place">
+          <Show
+            when={recordReviewing(props.record)}
+            fallback={<Trans>Live</Trans>}
+          >
+            <Trans>
+              Reviewing move {props.record.displayedPly} of{' '}
+              {props.record.moves.length}
+            </Trans>
+          </Show>
+        </P>
+      </StackHorizontal>
     </Show>
   );
 }
 
 /**
- * The record under a phone's board, its one history control: a head row
- * naming it ("Moves", and whether it shows the game as it stands) with the
- * four steps as one group at its end, then the shown turn in words on a
- * well of its own the width of the board (`Move 4 · ● col 3 · ◆ col 2`),
- * so a move is never squeezed between arrows; the rest of the record
- * (every move as a table, a move by number, earlier games, the space's
- * history) waits behind one disclosure. The well keeps its height before
- * the first move, so the board above never moves when it lands.
+ * The record under a phone's board as one compact card, its one history
+ * control: a head line saying whether the board is live, with the four
+ * steps as one group at its end; then the shown turn in words on a well
+ * of its own (`Move 4 · ● col 3 · ◆ col 2`), so a move is never squeezed
+ * between arrows, beside the chevron that opens the rest of the record in
+ * the same card (every move as a table, a move by number, earlier games,
+ * the space's history). The well keeps its height before the first move,
+ * so the board above never moves when it lands.
  */
 function RecordStrip(props: RecordProps): JSX.Element {
+  const [open, setOpen] = createSignal(false);
   return (
-    <StackVertical gap="xs" dataSet={{ component: 'CustomGameReview' }}>
-      {/* Named, with whether it shows the game as it stands, so moving
-          through the moves never reads as playing one. */}
-      <StackHorizontal justify="between" align="center" gap="sm">
-        <StackHorizontal align="center" gap="sm">
-          <P
-            variant="caption"
-            tone="secondary"
-            testId="custom-game-move-strip-label"
-          >
-            <Trans>Moves</Trans>
-          </P>
-          <StripPlace record={props.record} />
-        </StackHorizontal>
+    <Surface
+      tone="surface"
+      border
+      radius="card"
+      paddingX="sm"
+      paddingY="sm"
+      gap="xs"
+      testId="custom-game-record"
+    >
+      <StackHorizontal
+        justify="between"
+        align="center"
+        gap="sm"
+        testId="custom-game-move-strip-head"
+      >
+        <StripPlace record={props.record} />
         <RecordSteps {...props} />
       </StackHorizontal>
-      <Surface tone="muted" radius="control">
-        <MoveStrip testId="custom-game-move-strip">
-          <RecordMoves {...props} layout="turn" />
-        </MoveStrip>
-      </Surface>
+      <StackHorizontal align="center" gap="sm">
+        <Surface tone="muted" radius="control" grow>
+          <MoveStrip testId="custom-game-move-strip">
+            <RecordMoves {...props} layout="turn" />
+          </MoveStrip>
+        </Surface>
+        <RecordIconToggle open={open()} onToggle={() => setOpen(!open())} />
+      </StackHorizontal>
       <FrameErrorView text={props.record.error} />
-      <GameDisclosure
-        title={<Trans>Game record</Trans>}
-        dataSet={{ testid: 'custom-game-review-jump' }}
-      >
-        <Show when={props.record.moves.length > 0}>
-          <RecordMoves {...props} layout="table" besideStrip />
-        </Show>
-        <ReviewJumpField {...props} />
-        <RecordSelect {...props} />
-        <RecordHistory {...props} />
-      </GameDisclosure>
-    </StackVertical>
+      <Show when={open()}>
+        <StackVertical gap="md" paddingY="sm">
+          <Show when={props.record.moves.length > 0}>
+            <RecordMoves {...props} layout="table" besideStrip />
+          </Show>
+          <ReviewJumpField {...props} />
+          <RecordSelect {...props} />
+          <RecordHistory {...props} />
+        </StackVertical>
+      </Show>
+    </Surface>
   );
 }
 
 /**
  * The game's record: its moves, and the earlier games of this space. A
- * game played by turns shows it as a strip under a phone's board
+ * game played by turns shows it as a compact card under a phone's board
  * (`strip`) and as a panel beside a wide one (`panel`); a game without
  * turns always shows the panel. Beside a wide board the game's commands
- * follow the panel in a card of their own at the rail's foot.
+ * close the panel's own card, right under its steps.
  */
 export function FrameRecordView(
   props: RecordProps & { readonly layout: 'panel' | 'strip' }
@@ -420,14 +486,7 @@ export function FrameRecordView(
   return (
     <Show
       when={props.layout === 'strip' && props.record.turns}
-      fallback={
-        <>
-          <RecordPanel {...props} />
-          <GameRailFoot dataSet={{ testid: 'custom-game-rail-commands' }}>
-            <GameActions>{props.commands}</GameActions>
-          </GameRailFoot>
-        </>
-      }
+      fallback={<RecordPanel {...props} />}
     >
       <RecordStrip {...props} />
     </Show>

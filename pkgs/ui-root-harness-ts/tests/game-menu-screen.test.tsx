@@ -3,9 +3,55 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { GameMenuScreen } from '@pkgs/ui-root-client-ts/game-menu-screen';
-import { HistoryIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  HistoryIcon,
+  SearchIcon,
+  UsersIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
+
+/** Connect Four's menu: two ways to play and one look back. */
+function threeChoices(width: number) {
+  return render(() => (
+    <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+      <GameMenuScreen
+        screenId="game-choices"
+        title="Connect Four"
+        motif="discs"
+        choices={[
+          {
+            key: 'custom-game',
+            title: 'Play with friends or bots',
+            caption: 'With the people in this space, or bots',
+            icon: UsersIcon,
+            emphasis: 'primary',
+            badge: 'Recommended',
+            dataSet: { testid: 'choice-play' },
+            onClick: () => undefined,
+          },
+          {
+            key: 'matchmaking',
+            title: 'Find an opponent',
+            caption: 'Meet another Connect Four player',
+            icon: SearchIcon,
+            dataSet: { testid: 'choice-find' },
+            onClick: () => undefined,
+          },
+          {
+            key: 'history',
+            title: 'History and stats',
+            caption: 'Review your games, wins and draws',
+            icon: HistoryIcon,
+            emphasis: 'quiet',
+            dataSet: { testid: 'choice-history' },
+            onClick: () => undefined,
+          },
+        ]}
+      />
+    </ThemeProvider>
+  ));
+}
 
 function menu(width: number, onPlay: () => void) {
   return render(() => (
@@ -121,5 +167,40 @@ describe('GameMenuScreen', () => {
       ).not.toBeNull();
       view.unmount();
     }
+  });
+
+  // regression: game-menu-uneven-hierarchy — wide, two large tiles sat over
+  // one slim full-width "History and stats" row, an uneven block.
+  test('wide: two ways to play and a look back are one balanced block, the lead spanning both rows beside it', () => {
+    const view = threeChoices(1440);
+    const block = view
+      .getByTestId('choice-play')
+      .closest('[data-layout="featured"]');
+    if (block === null) throw new Error('No featured block');
+    expect(block.contains(view.getByTestId('choice-find'))).toBe(true);
+    expect(block.contains(view.getByTestId('choice-history'))).toBe(true);
+    expect(view.getByTestId('choice-play').getAttribute('data-lead')).toBe(
+      'true'
+    );
+    expect(view.getByTestId('choice-find').getAttribute('data-lead')).toBe(
+      'false'
+    );
+    expect(
+      (block as HTMLElement).style.getPropertyValue('--game-menu-side-rows')
+    ).toBe('2');
+    expect(view.container.querySelector('[data-layout="links"]')).toBeNull();
+    view.unmount();
+  });
+
+  // regression: game-menu-recommended-own-line — on a phone the
+  // "Recommended" tag took a line of its own between the title and caption.
+  test("phone: the lead's tag opens its caption's line, never a line of its own", () => {
+    const view = threeChoices(390);
+    const caption = view.getByText('With the people in this space, or bots');
+    expect(caption.textContent).toContain('Recommended');
+    expect(caption.querySelector('[data-component="Badge"]')?.textContent).toBe(
+      'Recommended'
+    );
+    view.unmount();
   });
 });

@@ -1,7 +1,6 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
-import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   GAME_PLAYER_COMPACT_AVATAR_SIZE,
@@ -9,8 +8,9 @@ import {
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { Index, type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
@@ -141,8 +141,8 @@ function SetupSeatOptions(props: SeatProps): JSX.Element {
 
 /**
  * What the seat's toggle changes, in full on every size: the player (and,
- * for assistive technology, which side's). A phone's row puts the toggle
- * on its own line under the name, so both read whole.
+ * for assistive technology, which side's). The toggle sits on its own line
+ * under the name, so both read whole.
  */
 function SeatOptionsLabel(props: {
   readonly seat: FrameSetupSeat;
@@ -156,16 +156,17 @@ function SeatOptionsLabel(props: {
 }
 
 /**
- * One seat while the game is set up, as one compact row: who holds it, its
- * look and facts, and one trailing control; its other choices wait behind
- * that control. Once the game is played the board's seats show it.
+ * One seat while the game is set up, as a compact player card on every
+ * size: who holds it, its look and readiness, then on the line under the
+ * name every control the seat has (Change player, I'm not ready), so a
+ * player's actions sit with the player, never across the card. Its other
+ * choices open under it. Once the game is played the board's seats show it.
  */
 function SetupSeatView(props: SeatProps): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <GamePlayerBar
       density="compact"
-      optionsPlacement={mode() === 'wide' ? 'end' : 'below'}
+      optionsPlacement="below"
       dataSet={{ testid: `custom-game-${props.seat.side}` }}
       swatch={props.seat.swatch}
       name={
@@ -206,9 +207,11 @@ function SetupSeatView(props: SeatProps): JSX.Element {
 }
 
 /**
- * Every seat while the game is set up, each with its own choices. A person
- * who may take a seat sits in the first open one; someone who may not, or
- * finds every seat taken, is told they watch.
+ * Every seat while the game is set up, each a player card holding its own
+ * choices: one column on a phone, two side by side when wide, with the
+ * board preview beside them. A person who may take a seat sits in the
+ * first open one; someone who may not, or finds every seat taken, is told
+ * they watch.
  */
 export function FrameSetupSeatsView(props: {
   readonly setup: FrameSetup;
@@ -247,21 +250,20 @@ export function FrameSetupSeatsView(props: {
           </GameActions>
         )}
       </Show>
-      <Index each={props.setup.seats}>
-        {(seat, index) => (
-          <>
-            <Show when={index > 0}>
-              <Divider />
-            </Show>
-            <SetupSeatView
-              seat={seat()}
-              people={props.people}
-              onChoose={props.onChoose}
-              ownReadiness={props.ownReadiness}
-            />
-          </>
-        )}
-      </Index>
+      <Grid columns={{ base: 1, lg: 2 }} gap="md">
+        <Index each={props.setup.seats}>
+          {(seat) => (
+            <Surface tone="surface" radius="card" border padding="sm">
+              <SetupSeatView
+                seat={seat()}
+                people={props.people}
+                onChoose={props.onChoose}
+                ownReadiness={props.ownReadiness}
+              />
+            </Surface>
+          )}
+        </Index>
+      </Grid>
     </GameSection>
   );
 }

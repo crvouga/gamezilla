@@ -19,15 +19,13 @@
 }
 /* Wide (a game column of a board and its rail): the choice and its command
    beside what the person brings, split by a hairline, so one card holds
-   both at one height instead of two columns that end apart. The command
-   sits at the foot of its half, level with the last line beside it. */
+   both instead of two columns that end apart. The choice's facts and its
+   command stay one group at the top of their half, never stretched apart
+   to the card's height. */
 @container game-column (min-width: 880px) {
   .setupSplit {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--ui-space-8);
-  }
-  .setupMain {
-    justify-content: space-between;
   }
   .setupAside {
     border-top: 0;

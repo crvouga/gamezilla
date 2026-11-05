@@ -23,12 +23,26 @@ export type MainMenuScreenProps = {
    * column. `grid`: each destination is its own card in a three-column grid
    * across the frame — for menus of places to go (games, ways to play), not
    * settings. Two or four destinations take two columns so none is left
-   * alone on a row.
+   * alone on a row. `tiles`: each destination a tile read top to bottom
+   * (picture, name and tag, two lines of what it is), up to four across,
+   * for destinations whose one-line descriptions would leave a wide card
+   * mostly empty.
    */
-  wideLayout?: 'list' | 'grid' | undefined;
+  wideLayout?: 'list' | 'grid' | 'tiles' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
+
+/**
+ * Columns for a wide grid of `count` destinations, so none is left alone
+ * on a row: two or four cards take two columns (`tiles`: four across, one
+ * row), anything else three.
+ */
+function gridColumns(count: number, tiles: boolean): 2 | 3 | 4 {
+  if (tiles && count % 4 === 0) return 4;
+  if (count === 2 || count === 4) return 2;
+  return 3;
+}
 
 /**
  * `MainMenuScreen` -- a menu of destinations inside a host's chrome: optional
@@ -52,10 +66,12 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
   const helper = createScreenSlot(() => props.helper);
   const footer = createScreenSlot(() => props.footer);
   const mode = useLayoutMode();
-  const grid = (): boolean => props.wideLayout === 'grid' && mode() === 'wide';
-  // Two or four destinations fill two columns evenly; never strand one card.
-  const twoColumns = (): boolean =>
-    props.items.length === 2 || props.items.length === 4;
+  const grid = (): boolean =>
+    props.wideLayout !== undefined &&
+    props.wideLayout !== 'list' &&
+    mode() === 'wide';
+  const tiles = (): boolean => props.wideLayout === 'tiles';
+  const columns = (): 2 | 3 | 4 => gridColumns(props.items.length, tiles());
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -84,16 +100,20 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
         <div
           class="grid gap-3 self-stretch"
           classList={{
-            'grid-cols-2': twoColumns(),
-            'grid-cols-3': !twoColumns(),
+            'grid-cols-2': columns() === 2,
+            'grid-cols-3': columns() === 3,
+            'grid-cols-4': columns() === 4,
           }}
           role="list"
-          data-layout="grid"
+          data-layout={tiles() ? 'tiles' : 'grid'}
         >
           <For each={props.items}>
             {(item) => (
               <div class="panel" role="listitem">
-                <MainMenuItemRow item={item} />
+                <MainMenuItemRow
+                  item={item}
+                  layout={tiles() ? 'tile' : 'row'}
+                />
               </div>
             )}
           </For>

@@ -149,18 +149,13 @@
   gap: var(--ui-space-4);
   min-width: 0;
 }
+/* A thumbnail about as tall as two player cards beside it, so the card's
+   body and its picture end close together. */
 .sectionMedia {
-  --game-board-preview-measure: 200px;
+  --game-board-preview-measure: 160px;
   display: flex;
   flex-direction: column;
   width: var(--game-board-preview-measure);
-  min-width: 0;
-}
-.railFoot {
-  display: flex;
-  flex-direction: column;
-  padding: var(--ui-space-4) var(--ui-space-5);
-  margin-top: auto;
   min-width: 0;
 }
 .sectionFooter {
@@ -325,7 +320,7 @@
   opacity: 0;
   cursor: inherit;
 }
-.disclosure {
+.disclosure[data-rule="true"] {
   border-top: 1px solid var(--ui-color-border);
 }
 .disclosureTrigger {
@@ -509,13 +504,19 @@
     grid-column: 2;
     grid-row: 2;
   }
-  /* The rail ends where the board does: the last of its slots (the record,
-     the ratings) runs from its own row to the foot of the grid, so the two
-     columns read as one unit. A filling section in either column stretches
-     to that foot too; a move table in it takes the room and scrolls inside,
-     contributing only its floor to the grid's height. */
+  /* The rail is as tall as what it holds: the last of its slots (the
+     record with its steps and the game's commands) runs from its own row
+     to the foot of the grid but keeps its own height at the top, so no
+     card is pinned to the board's foot with empty rail above it. A
+     filling section stretches to that foot instead; a move table in it
+     takes the room and scrolls inside, contributing only its floor to the
+     grid's height. */
   .layout[data-has-stage="true"][data-has-aside="true"] > .rail {
     grid-row: var(--game-rail-rows, 1) / -1;
+    align-self: start;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail:has(> .section[data-fill="true"]) {
     align-self: stretch;
   }
   .layout[data-has-stage="true"][data-has-aside="true"] > .stage {

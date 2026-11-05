@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide game menu with two ways to play and one look back, two large tiles sat over one slim full-width \"History and stats\" row, an uneven hierarchy. The lead tile now spans the height of the other way to play and the quiet row stacked beside it, as one balanced block.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

@@ -27,6 +27,35 @@
   display: flex;
   min-width: 0;
 }
+/* Two ways to play and the quiet choices as one balanced block: the lead
+   tile in the first column spans every row of the second, which holds the
+   other way to play over the quiet rows. */
+.featured {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-4);
+}
+.featured > .item:first-child {
+  grid-column: 1;
+  grid-row: 1 / span var(--game-menu-side-rows, 2);
+}
+.featured > .item:not(:first-child) {
+  grid-column: 2;
+}
+/* The lead reads top to bottom: its picture over its name and what it
+   opens, the chevron at its top end. */
+.tile[data-lead="true"] {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding-inline-end: var(--ui-space-12);
+}
+.tile[data-lead="true"] .chevron {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--ui-space-5);
+  transform: translateY(-50%);
+}
 /* One choice, read across: its picture, its words (the name with the lead's
    tag beside it, what it opens under them), a chevron centred at the far
    edge. As tall as its words, so no card is mostly empty room. */
