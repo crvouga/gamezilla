@@ -8,7 +8,7 @@ import {
   checkResultsRequest,
   metricsEndpoint,
   SYNTHETIC_CHECKS,
-} from '@libs/observability-shared-ts/synthetic-checks';
+} from '@libs/observability-slo-shared-ts/synthetic-checks';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { REPO_ROOT } from './specs';
 

@@ -3,7 +3,7 @@
 This branch is implementing the approved comprehensive SLO design. **It is not
 ready to merge or evidence that all 48 proposed objectives are live.** Product
 promises remain in [`specs/`](../specs/); operational measurement and generation
-are owned by [`observability`](../libs/observability-shared-ts/README.md).
+are owned by [`observability`](../libs/observability-slo-shared-ts/README.md).
 
 ## Implemented foundation
 

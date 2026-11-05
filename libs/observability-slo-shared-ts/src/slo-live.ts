@@ -10,11 +10,11 @@
  * reason. Neither is ever a pass.
  */
 
+import { ObservabilitySecretName } from '@libs/observability-shared-ts/secret-names';
 import type { PrometheusClient } from '@pkgs/observability-root-shared-ts/prometheus';
 import { PrometheusQueryError } from '@pkgs/observability-root-shared-ts/prometheus';
 import type { Measure } from '@pkgs/openslo-shared-ts/registry';
 import { labelOf } from './emitted-metrics';
-import { ObservabilitySecretName } from './secret-names';
 import type { MetricIndicator } from './slo-indicators';
 import { isSampled, metricIndicators } from './slo-indicators';
 import { sampleSelector, windowQueries } from './slo-promql';

@@ -92,7 +92,7 @@ export function checkResults(
     const check = checkOfFeature(verdict.featureUri);
     if (check === null) {
       throw new Error(
-        `observability: ${verdict.featureUri} is a live feature with no synthetic check name; add it to SYNTHETIC_CHECKS in libs/observability-shared-ts/src/synthetic-checks.ts`
+        `observability: ${verdict.featureUri} is a live feature with no synthetic check name; add it to SYNTHETIC_CHECKS in libs/observability-slo-shared-ts/src/synthetic-checks.ts`
       );
     }
     return {

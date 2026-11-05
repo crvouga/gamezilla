@@ -22,12 +22,15 @@
  */
 
 import {
+  INTERACTIVE_ROUTE_GROUPS,
+  PEOPLE_ROUTE_GROUPS,
+} from '@libs/observability-shared-ts/route-groups';
+import {
   HTTP_DURATION_METRIC,
   HTTP_REQUESTS_METRIC,
 } from '@pkgs/observability-root-shared-ts/http-metrics';
 import { MUTATION_REPLAYS_METRIC } from '@pkgs/observability-root-shared-ts/mutation-metrics';
 import { OUTBOX_DRAIN_RUNS_METRIC } from '@pkgs/observability-root-shared-ts/outbox-metrics';
-import { INTERACTIVE_ROUTE_GROUPS, PEOPLE_ROUTE_GROUPS } from './route-groups';
 import type { SyntheticCheck } from './synthetic-checks';
 import {
   SYNTHETIC_CHECK_DIMENSION,

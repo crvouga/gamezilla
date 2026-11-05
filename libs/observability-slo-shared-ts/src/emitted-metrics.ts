@@ -3,6 +3,7 @@ import {
   SYNC_STARTED_METRIC,
   SYNC_TARGET_METRIC,
 } from '@pkgs/observability-root-shared-ts/metric-contract';
+
 /**
  * Every metric the server emits, as its contract, and the series names a
  * Prometheus-compatible backend stores for it. Dashboards, alert rules and
@@ -11,6 +12,7 @@ import {
  * silently emptying a graph.
  */
 
+import { ROUTE_GROUPS } from '@libs/observability-shared-ts/route-groups';
 import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared-ts/billing-metrics';
 import { httpMetricContracts } from '@pkgs/observability-root-shared-ts/http-metrics';
 import type { MetricContract } from '@pkgs/observability-root-shared-ts/metric-contract';
@@ -30,7 +32,6 @@ import {
   escapePrometheusName,
   prometheusSeries,
 } from '@pkgs/observability-root-shared-ts/prometheus-names';
-import { ROUTE_GROUPS } from './route-groups';
 import { SYNTHETIC_CHECK_METRIC } from './synthetic-checks';
 import {
   PROBE_CERT_EXPIRY_METRIC,

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { syncPerformanceAlerts } from '@libs/observability-shared-ts/slo-alert-rules';
+import { syncPerformanceAlerts } from '@libs/observability-slo-shared-ts/slo-alert-rules';
 import { SYNC_PERFORMANCE_TARGETS } from '@pkgs/observability-root-shared-ts/metric-contract';
 
 test('every proposed target has paired-window burn, low-traffic and missing-evidence alerts', () => {

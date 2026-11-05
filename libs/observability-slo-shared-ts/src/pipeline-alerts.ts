@@ -33,7 +33,7 @@ function counter(name: string): string {
   return series.total;
 }
 
-const README = `${REPOSITORY_URL}/libs/observability-shared-ts/README.md`;
+const README = `${REPOSITORY_URL}/libs/observability-slo-shared-ts/README.md`;
 
 /** Events of one environment in a window. */
 function windowedCount(name: string, matchers: string, window: string): string {

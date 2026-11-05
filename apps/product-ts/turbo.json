@@ -1,6 +1,8 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "test:release-journeys": {
       "outputs": [
@@ -27,10 +29,16 @@
       ]
     },
     "build": {
-      "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
+      "dependsOn": [
+        "$TURBO_EXTENDS$",
+        "//#task:i18n:compile"
+      ]
     },
     "tc": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/tsconfig.paths.json"]
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/tsconfig.paths.json"
+      ]
     },
     "test": {
       "inputs": [
@@ -399,7 +407,9 @@
       "outputLogs": "errors-only"
     },
     "test:contract:render": {
-      "dependsOn": ["^src"],
+      "dependsOn": [
+        "^src"
+      ],
       "inputs": [
         "tests/ui-quality-render.contract.test.ts",
         "scripts/render.ts",
@@ -414,15 +424,24 @@
       "outputLogs": "errors-only"
     },
     "verify:models": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/*.qnt"]
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/developer-tools/*.qnt"
+      ]
     },
     "test:spec:0": {
-      "inputs": ["$TURBO_EXTENDS$"]
+      "inputs": [
+        "$TURBO_EXTENDS$"
+      ]
     },
     "prepare:ui-quality-model": {
-      "dependsOn": ["@pkgs/ui-quality-check-server-ts#build"],
+      "dependsOn": [
+        "@pkgs/ui-quality-check-server-ts#build"
+      ],
       "cache": false,
-      "inputs": ["scripts/prepare-model.ts"],
+      "inputs": [
+        "scripts/prepare-model.ts"
+      ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -787,7 +806,9 @@
         "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/**",
         "scripts/ui-quality/sources.json"
       ],
-      "outputs": [".cache/ui-quality-inputs/**"],
+      "outputs": [
+        ".cache/ui-quality-inputs/**"
+      ],
       "outputLogs": "errors-only"
     },
     "verify:ui-quality": {
@@ -808,7 +829,10 @@
         "prepare:ui-quality",
         "@pkgs/ui-quality-check-server-ts#build"
       ],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/turbo-platform-key.json"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
       "outputs": [
         ".cache/ui-quality/**",
         ".cache/harness-report/ui-quality/**"
@@ -864,7 +888,7 @@
         "@libs/db-shared-ts#src",
         "@libs/harness-ts#src",
         "@libs/infra-shared-ts#src",
-        "@libs/observability-shared-ts#src",
+        "@libs/observability-slo-shared-ts#src",
         "@libs/product-identity-shared-ts#src",
         "@libs/quoridor-harness-ts#src",
         "@libs/runtime-client-ts#src",

@@ -43,7 +43,7 @@ import { indicatorFor } from './slo-indicators';
 export const REPOSITORY_URL = `https://github.com/${PRODUCT.external.sourceRepository}/blob/main`;
 
 /** Where the team reads how objectives and their alerts work. */
-export const README_URL = `${REPOSITORY_URL}/libs/observability-shared-ts/README.md#service-level-objectives`;
+export const README_URL = `${REPOSITORY_URL}/libs/observability-slo-shared-ts/README.md#service-level-objectives`;
 
 /** One section per objective, keyed by its `metadata.name`. */
 export const RUNBOOK_URL = `${REPOSITORY_URL}/docs/SLO_RUNBOOK.md`;

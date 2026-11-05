@@ -5,8 +5,8 @@
  * replaced by the environment being applied, as in the rule's expression.
  */
 
+import { SERVER_SERVICE_NAME } from '@libs/observability-shared-ts/service-names';
 import { parseDuration } from '@pkgs/openslo-shared-ts/window';
-import { SERVER_SERVICE_NAME } from './service-names';
 
 export const ENVIRONMENT_PLACEHOLDER = '__ENVIRONMENT__';
 

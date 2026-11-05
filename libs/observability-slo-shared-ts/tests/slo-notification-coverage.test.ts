@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
-import { silenceRules } from '@libs/observability-shared-ts/companion-alerts';
-import { routeOf } from '@libs/observability-shared-ts/slo-alerts';
-import { SYNTHETIC_CHECKS } from '@libs/observability-shared-ts/synthetic-checks';
+import { silenceRules } from '@libs/observability-slo-shared-ts/companion-alerts';
+import { routeOf } from '@libs/observability-slo-shared-ts/slo-alerts';
+import { SYNTHETIC_CHECKS } from '@libs/observability-slo-shared-ts/synthetic-checks';
 import { objectiveFiles } from './specs';
 
 // regression: slo-silence-healthy-sibling-masks-missing-check

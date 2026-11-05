@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
-import { generateAlertRules } from '@libs/observability-shared-ts/slo-alert-rules';
-import { sloAlerts, tiersFor } from '@libs/observability-shared-ts/slo-alerts';
-import { generateGrafanaSlos } from '@libs/observability-shared-ts/slo-grafana';
+import { generateAlertRules } from '@libs/observability-slo-shared-ts/slo-alert-rules';
+import {
+  sloAlerts,
+  tiersFor,
+} from '@libs/observability-slo-shared-ts/slo-alerts';
+import { generateGrafanaSlos } from '@libs/observability-slo-shared-ts/slo-grafana';
 import type { OpenSloDoc } from '@pkgs/openslo-shared-ts/model';
 import { objectiveFiles } from './specs';
 

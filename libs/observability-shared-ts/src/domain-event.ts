@@ -5,7 +5,14 @@ import type {
   EventPayload,
 } from '@pkgs/observability-root-shared-ts/event-contract';
 import { createEventOutbox } from '@pkgs/observability-root-shared-ts/event-outbox';
-import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import type { OutboxSendCtx } from '@pkgs/outbox-shared-ts/types';
+
+type DomainEventContext = OutboxSendCtx & {
+  readonly env: {
+    readonly serverNow?: () => Date;
+    readonly synthetic?: boolean;
+  };
+};
 
 /** `<namespace>:telemetry:v1:`; derived from the immutable namespace, so a
  * subject's pseudonym survives a rebrand. */
@@ -25,7 +32,7 @@ export function createDomainEvent<const C extends EventContract>(contract: C) {
     contract,
     outbox,
     async record(
-      ctx: MutationCtx,
+      ctx: DomainEventContext,
       input: {
         readonly id: string;
         readonly attributes: EventPayload<C>;

@@ -8,11 +8,11 @@
  */
 
 import { envFile } from '@libs/infra-shared-ts/envs';
-import { alertingBinding } from '@libs/observability-shared-ts/slo-alerts';
+import { alertingBinding } from '@libs/observability-slo-shared-ts/slo-alerts';
 import {
   metricMeasures,
   metricSettings,
-} from '@libs/observability-shared-ts/slo-live';
+} from '@libs/observability-slo-shared-ts/slo-live';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';

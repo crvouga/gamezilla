@@ -50,6 +50,7 @@ const SUITES: readonly (readonly [string, readonly string[]])[] = [
   ['libs/infra-shared-ts', ['bun', 'test', 'tests']],
   ['libs/infra-server-ts', ['bun', 'test', 'tests']],
   ['libs/observability-shared-ts', ['bun', 'test', 'tests']],
+  ['libs/observability-slo-shared-ts', ['bun', 'test', 'tests']],
   ['libs/moderation-shared-ts', ['bun', 'test', 'tests']],
   ['libs/app-root-shared-ts', ['bun', 'test', 'tests']],
   ['libs/billing-shared-ts', ['bun', 'test', 'tests']],
@@ -192,7 +193,7 @@ try {
   );
   run(
     copy,
-    ['bun', 'run', 'libs/observability-shared-ts/scripts/slo-generate.ts'],
+    ['bun', 'run', 'libs/observability-slo-shared-ts/scripts/slo-generate.ts'],
     'regenerate SLO artifacts'
   );
 

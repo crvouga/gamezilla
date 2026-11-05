@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { indicatorFor } from '@libs/observability-shared-ts/slo-indicators';
-import { metricMeasures } from '@libs/observability-shared-ts/slo-live';
+import { indicatorFor } from '@libs/observability-slo-shared-ts/slo-indicators';
+import { metricMeasures } from '@libs/observability-slo-shared-ts/slo-live';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import { fakeMetrics } from './fake-metrics';
