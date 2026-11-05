@@ -13,8 +13,11 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX } from 'solid-js';
 
 /**
- * Each jump and step is a bounded disc on the sunken well beside the
- * moves, as the game record's steps are: its edge is its target.
+ * The jumps and steps look as a game record's do: quiet glyphs with no
+ * plate while the board shows the latest move, so they never outweigh the
+ * board; each a bounded disc on the sunken well while an earlier move is
+ * shown (a step forward is open), when moving through the line is the
+ * control in hand.
  */
 const NAV_SIZE = 36;
 
@@ -62,6 +65,7 @@ function navSlots(props: PuzzleMoveNavProps): readonly NavSlot[] {
 
 function NavButton(props: {
   slot: NavSlot;
+  reviewing: boolean;
   onNavigate: (intent: PuzzleNavIntent) => void;
 }): JSX.Element {
   const Icon = props.slot.icon;
@@ -69,7 +73,7 @@ function NavButton(props: {
     <IconButton
       label={props.slot.label}
       size={NAV_SIZE}
-      background="surfaceMuted"
+      background={props.reviewing ? 'surfaceMuted' : undefined}
       disabled={props.slot.disabled}
       dataSet={{ testid: `chess-puzzle-move-nav-${props.slot.intent}` }}
       onClick={() => props.onNavigate(props.slot.intent)}
@@ -100,7 +104,13 @@ export function PuzzleMoveNav(props: {
   return (
     <StackHorizontal align="center" gap="xs">
       <For each={slots()}>
-        {(slot) => <NavButton slot={slot} onNavigate={props.nav.onNavigate} />}
+        {(slot) => (
+          <NavButton
+            slot={slot}
+            reviewing={props.nav.canGoForward}
+            onNavigate={props.nav.onNavigate}
+          />
+        )}
       </For>
     </StackHorizontal>
   );

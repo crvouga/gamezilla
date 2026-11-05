@@ -70,3 +70,40 @@ test('the move list is named on its own row, over moves that wrap rather than cl
     )
   ).toBe(true);
 });
+
+// regression: move-nav-styles-differ — a puzzle's steps were filled discs
+// while a game's record showed bare glyphs during play. Both use one rule:
+// quiet while the board shows the latest move, plated while reviewing.
+test("the puzzle's steps are quiet at the latest move and plated while reviewing", () => {
+  const plated = (canGoForward: boolean): boolean => {
+    const time = createHarnessClock();
+    renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider
+          colorScheme="dark"
+          fixedLayout={{ width: 390, height: 844 }}
+        >
+          <PuzzleMoveHistory
+            plies={PLIES}
+            selectedSolveIdx={canGoForward ? 2 : 3}
+            interactive
+            onSeek={() => undefined}
+            nav={{ canGoBack: true, canGoForward, onNavigate: () => undefined }}
+            writing={{
+              notation: () => 'san',
+              format: (label) => label,
+              moveNumber: () => null,
+            }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const shown = !screen
+      .getByTestId('chess-puzzle-move-nav-back')
+      .innerHTML.includes('background-color: transparent');
+    cleanup();
+    return shown;
+  };
+  expect(plated(false)).toBe(false);
+  expect(plated(true)).toBe(true);
+});
