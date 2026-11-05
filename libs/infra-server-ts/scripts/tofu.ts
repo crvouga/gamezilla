@@ -30,6 +30,12 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tofuLayout } from '@libs/infra-server-ts/tofu-layout';
 import {
+  alertingDeploymentDenials,
+  alertingDeploymentEnvironment,
+  alertingDeploymentPlanArgs,
+  validateAlertingDeployment,
+} from '@libs/infra-shared-ts/alerting-deployment';
+import {
   ciIdentityRecoveryDenials,
   ciIdentityRecoveryEnvironment,
   ciIdentityRecoveryPlanArgs,
@@ -95,6 +101,7 @@ type Cli = {
   readonly env: string | null;
   readonly recoverCiIdentity: boolean;
   readonly repositoryPolicy: boolean;
+  readonly alerting: boolean;
 };
 
 function flag(argv: readonly string[], name: string): string | null {
@@ -116,13 +123,19 @@ function parseCli(argv: readonly string[]): Cli {
   if (recoverCiIdentity) validateCiIdentityRecovery(command, stack);
   const repositoryPolicy = argv.includes('--repository-policy');
   if (repositoryPolicy) validateRepositoryPolicy(command, stack);
-  if (repositoryPolicy && recoverCiIdentity) fail('Choose one bootstrap scope');
+  const alerting = argv.includes('--alerting');
+  if (alerting) validateAlertingDeployment(command, stack);
+  if (
+    [repositoryPolicy, recoverCiIdentity, alerting].filter(Boolean).length > 1
+  )
+    fail('Choose one bootstrap scope');
   return {
     command,
     stack,
     env: flag(argv, '--env'),
     recoverCiIdentity,
     repositoryPolicy,
+    alerting,
   };
 }
 
@@ -139,8 +152,10 @@ async function toolEnvironment(
   target: Target,
   cli: Cli
 ): Promise<Record<string, string>> {
-  if (cli.repositoryPolicy) {
-    const result = repositoryPolicyEnvironment(process.env, PATHS);
+  if (cli.repositoryPolicy || cli.alerting) {
+    const result = cli.alerting
+      ? alertingDeploymentEnvironment(process.env, PATHS)
+      : repositoryPolicyEnvironment(process.env, PATHS);
     if (result.missing.length > 0)
       fail(missingSecretsMessage(target.stack, result.missing));
     return result.env;
@@ -191,7 +206,9 @@ async function planTarget(
         ? ciIdentityRecoveryPlanArgs(PATHS)
         : cli.repositoryPolicy
           ? repositoryPolicyPlanArgs(PATHS)
-          : planArgs(PATHS, target);
+          : cli.alerting
+            ? alertingDeploymentPlanArgs(PATHS)
+            : planArgs(PATHS, target);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
     const result = spawnTool('tofu', args, { env, capture: true });
     const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
@@ -234,6 +251,7 @@ function checkPolicy(
     ...verdict.denials,
     ...(cli.recoverCiIdentity ? ciIdentityRecoveryDenials(plan) : []),
     ...(cli.repositoryPolicy ? repositoryPolicyDenials(plan) : []),
+    ...(cli.alerting ? alertingDeploymentDenials(plan) : []),
   ];
   if (denials.length > 0) {
     for (const denial of denials) console.error(`  ✗ ${denial}`);
@@ -343,7 +361,10 @@ async function main(): Promise<void> {
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
-  if ((cli.recoverCiIdentity || cli.repositoryPolicy) && firstRun)
+  if (
+    (cli.recoverCiIdentity || cli.repositoryPolicy || cli.alerting) &&
+    firstRun
+  )
     fail(
       'Scoped bootstrap operations require the existing encrypted remote state'
     );

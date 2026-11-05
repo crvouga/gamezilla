@@ -2,7 +2,7 @@
 # They feed specs/runtime/always-reachable.openslo.yaml (reachable, opens
 # quickly, never hangs) and specs/spaces/spaces-and-live-updates.openslo.yaml
 # (live updates can connect). The checks are the ones the indicator catalog
-# names (libs/observability-shared-ts/src/synthetic-monitoring.ts
+# names (libs/observability-server-ts/src/synthetic-monitoring.ts
 # `PROBE_CHECKS`), and each runs under the job `<check>-<environment>`: a
 # check's own labels reach every metric only on migrated tenants, the job
 # always does.

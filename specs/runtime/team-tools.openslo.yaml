@@ -1,8 +1,5 @@
 # live
-# The team can see what happened: it can follow a request's trail, find a
-# person's trouble, and see that the environment matches its plan (Request
-# records, Finding a person, Declared environment). People never use these;
-# they are how the team helps them.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -39,10 +36,9 @@ metadata:
     tier: "2"
 spec:
   description: >-
-    In at least 90 of every 100 hours in which the team checked, every one
-    of the team's own tools worked, judged over the last week. Nobody
-    playing notices when they fail, but the team is slower to find and fix
-    what people do notice.
+    The team can see what happened. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: team-tool-checks-passing
   timeWindow:
@@ -50,7 +46,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 90 of every 100 checked hours the team's tools work
-      target: 0.9
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h

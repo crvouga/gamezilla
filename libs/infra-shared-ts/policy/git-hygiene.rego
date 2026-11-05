@@ -29,7 +29,7 @@ deny contains "main must require pull requests, current verification, resolved c
 	not strict_main(resource.change.after)
 }
 
-deny contains "repository must delete merged branches and prohibit automatic, squash and rebase merges" if {
+deny contains "repository must delete merged branches and prohibit squash and rebase merges" if {
 	some resource in input.resource_changes
 	resource.address == "module.repository.github_repository.this"
 	after := resource.change.after
@@ -37,9 +37,10 @@ deny contains "repository must delete merged branches and prohibit automatic, sq
 	not strict_repository(after)
 }
 
+# Auto-merge is allowed: it only merges once the main ruleset's required
+# checks and resolved conversations pass, so it cannot weaken the gate.
 strict_repository(after) if {
 	after.delete_branch_on_merge == true
-	after.allow_auto_merge == false
 	after.allow_merge_commit == true
 	after.allow_squash_merge == false
 	after.allow_rebase_merge == false

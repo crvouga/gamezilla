@@ -1,0 +1,4 @@
+{
+  "summary": "Account provisioning supplied obsolete mutation-only identity fields to the narrowed telemetry outbox context, breaking auth and downstream typechecks. The user_external_2 provisioning case must still durably emit a pseudonymous event.",
+  "regressionTest": "libs/auth-server-ts/tests/account-provisioning.test.ts"
+}

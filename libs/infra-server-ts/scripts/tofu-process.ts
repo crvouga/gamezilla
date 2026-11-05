@@ -2,6 +2,10 @@
 
 import type { ConftestRunner } from '@libs/infra-shared-ts/plan-policy';
 import { redactInfraOutput } from '@libs/infra-shared-ts/redact-output';
+import {
+  mayPrintToolStdout,
+  toolDeadline,
+} from '@libs/infra-shared-ts/tofu-process-policy';
 
 export type ToolResult = {
   readonly status: number;
@@ -51,7 +55,7 @@ export function spawnTool(
   const env = { ...process.env, ...options.env };
   const result = Bun.spawnSync([...pinnedTool(bin), ...args], {
     env,
-    ...(timeout === undefined ? {} : { timeout, killSignal: 'SIGKILL' }),
+    ...toolDeadline(operation),
     stdin: options.stdin === undefined ? 'ignore' : Buffer.from(options.stdin),
     stdout: 'pipe',
     stderr: 'pipe',
@@ -60,11 +64,13 @@ export function spawnTool(
   const stderr = result.stderr?.toString() ?? '';
   const safe = (text: string) => redactInfraOutput(text, env);
   if (options.capture !== true) {
-    process.stdout.write(safe(stdout));
+    if (mayPrintToolStdout(operation, false))
+      process.stdout.write(safe(stdout));
     process.stderr.write(safe(stderr));
   }
   if (result.exitedDueToTimeout) {
-    if (operation !== 'show') process.stderr.write(safe(stdout));
+    if (mayPrintToolStdout(operation, options.capture === true))
+      process.stderr.write(safe(stdout));
     process.stderr.write(safe(stderr));
     throw new Error(`${label} exceeded ${timeout}ms`);
   }

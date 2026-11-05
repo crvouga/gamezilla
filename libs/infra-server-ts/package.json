@@ -10,6 +10,9 @@
     ]
   },
   "scripts": {
+    "apply:alerting": "bun run scripts/tofu.ts apply --stack bootstrap --alerting",
+    "drift:alerting": "bun run scripts/tofu.ts drift --stack bootstrap --alerting",
+    "plan:alerting": "bun run scripts/tofu.ts plan --stack bootstrap --alerting",
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
     "apply:fleet": "bun run scripts/tofu.ts apply --stack fleet",
@@ -24,7 +27,9 @@
     "plan:repository-policy": "bun run scripts/tofu.ts plan --stack bootstrap --repository-policy",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
-    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts"
+    "unlock:repository-policy": "bun run scripts/unlock-repository-policy.ts",
+    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts",
+    "check:alert-delivery": "bun run scripts/check-alert-delivery.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -43,7 +48,8 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "@pkgs/http-client-shared-ts": "workspace:*"
   },
   "category": "server",
   "language": "typescript"

@@ -1,8 +1,5 @@
 # live
-# What people ask of the app, the app answers; what people change, the app
-# saves. Both are counted from the requests people's devices really make to
-# the live app, not from the team's own checks, so a bad hour for real people
-# shows even when every check passes.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -72,12 +69,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 9995 in every 10000 requests from people are answered without
-    the app failing, judged over the last week. A visit to the app is around
-    a hundred requests, so this keeps about 95 visits in 100 free of any
-    failure; a looser rate would let one visit in ten meet one. Nothing about
-    this rate or this stretch of time is written in Reaching the app or
-    Serving people, which say only that the app answers right now.
+    The app serves people. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: people-requests-served
   timeWindow:
@@ -85,8 +79,8 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 9995 in every 10000 requests from people are answered without a failure
-      target: 0.9995
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -97,12 +91,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    At least 9995 in every 10000 attempts to save a person's change, a move
-    in a game among them, end with the app deciding it, rather than failing
-    and trying again later, judged over the last week. A failed attempt is
-    retried, so a change is not lost, but the person waits longer to see it
-    on their other devices, and a change that keeps failing is a change that
-    never arrives.
+    Changes are saved. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: changes-saved-first-time
   timeWindow:
@@ -110,5 +101,5 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 9995 in every 10000 attempts to save a change are decided without a failure
-      target: 0.9995
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999

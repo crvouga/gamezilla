@@ -3263,6 +3263,22 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@libs/infra-server-ts#plan:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#apply:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#drift:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#unlock:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@libs/infra-server-ts#plan:repository-policy": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -6772,7 +6788,7 @@
         "$TURBO_ROOT$/apps/product-ts/public/favicon.ico"
       ]
     },
-    "@libs/observability-shared-ts#generate:slo": {
+    "@libs/observability-server-ts#generate:slo": {
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
       "inputs": [
         "src/**",
@@ -6792,7 +6808,7 @@
       "cache": false,
       "dependsOn": [
         "@libs/tools-harness-ts#configure:identity",
-        "@libs/observability-shared-ts#configure:slo",
+        "@libs/observability-server-ts#configure:slo",
         "@libs/tools-harness-ts#configure:identity-agents",
         "@libs/tools-harness-ts#configure:brand-policy"
       ]
@@ -6800,6 +6816,10 @@
     "@libs/tools-harness-ts#generate:identity-agents": {
       "cache": false,
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
+    },
+    "@libs/infra-server-ts#check:alert-delivery": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

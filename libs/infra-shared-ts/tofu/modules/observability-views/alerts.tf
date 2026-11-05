@@ -2,7 +2,7 @@
 # objective files (specs/**/*.openslo.yaml), the indicator catalog and the
 # pipeline-health alerts in libs/observability-shared-ts. A test fails while it
 # differs from its generator; rewrite it with
-#   bun run libs/observability-shared-ts/scripts/slo-generate.ts
+#   bun run libs/observability-server-ts/scripts/slo-generate.ts
 # An expression carries __ENVIRONMENT__, replaced below by the environment
 # being applied, so every environment on the shared metrics stack gets its own
 # rules. The Grafana instance may be archived, in which case none of this is

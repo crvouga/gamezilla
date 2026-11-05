@@ -1,6 +1,5 @@
 # live
-# People can pay for Plus and see it on their account (Payments). The team
-# checks it from outside on every one of its regular checks.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -37,10 +36,9 @@ metadata:
     tier: "1"
 spec:
   description: >-
-    In at least 95 of every 100 hours in which the team checked, paying
-    worked and the account showed it, judged over the last week. It matters
-    to people, but they can still play while it is down, so it is held a
-    little looser than the core of the game.
+    People can pay. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: billing
   indicatorRef: payment-checks-passing
   timeWindow:
@@ -48,7 +46,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 95 of every 100 checked hours people can pay
-      target: 0.95
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h

@@ -1,8 +1,5 @@
 # live
-# What the app does for people without them waiting on it gets done: notices,
-# the next step of a match, erasing an account, sending the app's own
-# records. The app does that work every minute; this counts whether it
-# finished.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -39,10 +36,9 @@ metadata:
     tier: "1"
 spec:
   description: >-
-    At least 999 in every 1000 rounds of background work finish, judged over
-    the last week. A round that fails is tried again a minute later, so
-    nothing is lost by one, but notices arrive late and a match waits on its
-    next step while they keep failing.
+    Background work gets done. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: background-runs-completing
   timeWindow:
@@ -50,5 +46,5 @@ spec:
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 999 in every 1000 rounds of background work finish
-      target: 0.999
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999

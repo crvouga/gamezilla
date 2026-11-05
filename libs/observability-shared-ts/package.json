@@ -10,8 +10,6 @@
     ]
   },
   "scripts": {
-    "configure:slo": "bun run scripts/slo-generate.ts",
-    "generate:slo": "bun run scripts/slo-generate.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests"
@@ -20,13 +18,9 @@
     "@libs/product-identity-shared-ts": "workspace:*",
     "@noble/hashes": "catalog:",
     "@pkgs/observability-root-shared-ts": "workspace:*",
-    "@pkgs/openslo-shared-ts": "workspace:*",
-    "@pkgs/os-shared-ts": "workspace:*",
-    "@pkgs/sync-engine-shared-ts": "workspace:*"
+    "@pkgs/outbox-shared-ts": "workspace:*"
   },
   "devDependencies": {
-    "@pkgs/gherkin-shared-ts": "workspace:*",
-    "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",

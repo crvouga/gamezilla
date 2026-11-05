@@ -1,0 +1,4 @@
+{
+  "summary": "Release reconciled environment rules but never applied shared mobile routing or independent synthetic checks, leaving alerting changes undeployed.",
+  "regressionTest": "libs/infra-server-ts/tests/alerting-workflow.test.ts"
+}

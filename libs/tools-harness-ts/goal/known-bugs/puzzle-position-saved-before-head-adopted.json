@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle position query could arrive before the current-attempt query, clearing the save indicator and enabling another move from the old parent. Numberlink playtesting then kept sibling positions instead of completing the puzzle.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/attempt-adoption.test.ts"
+}

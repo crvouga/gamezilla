@@ -27,6 +27,8 @@ deletable := {
 	"cloudflare_r2_custom_domain",
 	"cloudflare_workers_custom_domain",
 	"github_actions_variable",
+	# Delivery configuration only; workflow runs and IRM incidents remain.
+	"github_repository_webhook",
 	"grafana_cloud_access_policy",
 	"grafana_cloud_access_policy_token",
 	# Only managed definitions/credentials; telemetry storage is not deleted.
@@ -41,6 +43,8 @@ deletable := {
 	"grafana_oncall_escalation",
 	"grafana_oncall_escalation_chain",
 	"grafana_oncall_route",
+	# Personal delivery definitions contain no alert history or product data.
+	"grafana_oncall_user_notification_rule",
 	"grafana_slo",
 	"grafana_synthetic_monitoring_check",
 	"infisical_secret",

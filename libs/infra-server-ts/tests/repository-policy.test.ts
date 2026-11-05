@@ -69,6 +69,53 @@ test('merge-commit-only history and disposable heads remain compatible with main
   expect(repository).toMatch(/branch\s*=\s*"main"/);
 });
 
+// regression: repository-policy-refuses-auto-merge
+test('the declared merge settings pass the bootstrap repository policy', () => {
+  // Literal failing input: main.tf set allow_auto_merge = true while
+  // git-hygiene.rego still required false, so Release's apply was refused.
+  const setting = (name: string): boolean => {
+    const value = repository.match(
+      new RegExp(`\\b${name}\\s*=\\s*(true|false)`)
+    )?.[1];
+    expect(value, name).toBeDefined();
+    return value === 'true';
+  };
+  const after = Object.fromEntries(
+    [
+      'allow_auto_merge',
+      'delete_branch_on_merge',
+      'allow_merge_commit',
+      'allow_squash_merge',
+      'allow_rebase_merge',
+    ].map((name) => [name, setting(name)])
+  );
+  expect(after['allow_auto_merge']).toBe(true);
+  const conftest = Bun.spawnSync(['mise', 'which', 'conftest'])
+    .stdout.toString()
+    .trim();
+  const verdict = (settings: Record<string, boolean>) =>
+    spawnSync(
+      conftest,
+      ['test', '--policy', join(TOFU, '../policy'), '--namespace', 'main', '-'],
+      {
+        input: JSON.stringify({
+          resource_changes: [
+            {
+              address: 'module.repository.github_repository.this',
+              mode: 'managed',
+              type: 'github_repository',
+              change: { actions: ['update'], after: settings },
+            },
+          ],
+        }),
+        encoding: 'utf8',
+      }
+    );
+  const declared = verdict(after);
+  expect(declared.status, declared.stdout).toBe(0);
+  expect(verdict({ ...after, allow_squash_merge: true }).status).not.toBe(0);
+});
+
 test('only descriptive metadata may drift without a plan', () => {
   expect(repository).toMatch(/ignore_changes\s*=\s*\[description, topics\]/);
   for (const name of Object.keys(GLOBAL.github.settings)) {
@@ -259,4 +306,24 @@ test('the real required-check registry expression evaluates under OpenTofu', () 
   } finally {
     removeTree(fixture, { whenLocked: 'leave' });
   }
+});
+
+// regression: tofu-plan-abandoned-lock
+test('abandoned-lock recovery shares the policy lock and requires an explicit rehearsal input', () => {
+  const preview = workflow('deploy.yml')['deploy-rehearsal'];
+  expect(preview?.if).toContain('inputs.rehearsal');
+  expect(preview?.concurrency?.group).toBe('repository-policy');
+  const text = readFileSync(
+    join(TOFU, '../../../.github/workflows/deploy.yml'),
+    'utf8'
+  );
+  expect(text).toContain("if: ${{ inputs.abandoned-bootstrap-lock != '' }}");
+  expect(text).toContain(
+    'TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-bootstrap-lock }}'
+  );
+  expect(
+    preview?.steps?.some((step) =>
+      step.run?.includes('#unlock:repository-policy')
+    )
+  ).toBe(true);
 });

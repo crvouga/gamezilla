@@ -12,17 +12,25 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "configure:slo": "bun run scripts/slo-generate.ts",
+    "generate:slo": "bun run scripts/slo-generate.ts"
   },
   "dependencies": {
     "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
-    "@pkgs/observability-root-shared-ts": "workspace:*"
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@libs/observability-shared-ts": "workspace:*",
+    "@pkgs/openslo-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "fast-check": "catalog:"
   },
   "category": "server",
   "language": "typescript"
