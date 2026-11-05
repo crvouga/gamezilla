@@ -2,17 +2,17 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-slo-shared-ts/alert-links';
-import type { AlertRule } from '@libs/observability-slo-shared-ts/alert-rule';
-import { ruleKey } from '@libs/observability-slo-shared-ts/alert-rule';
+import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-server-ts/alert-links';
+import type { AlertRule } from '@libs/observability-server-ts/alert-rule';
+import { ruleKey } from '@libs/observability-server-ts/alert-rule';
 import {
   failureCountRules,
   silenceRules,
-} from '@libs/observability-slo-shared-ts/companion-alerts';
+} from '@libs/observability-server-ts/companion-alerts';
 import {
   generateAlertRules,
   renderAlertRules,
-} from '@libs/observability-slo-shared-ts/slo-alert-rules';
+} from '@libs/observability-server-ts/slo-alert-rules';
 import {
   metricBackedSlos,
   metricIndicatorOf,
@@ -20,12 +20,12 @@ import {
   runbookFor,
   sloAlertBundle,
   tiersFor,
-} from '@libs/observability-slo-shared-ts/slo-alerts';
-import { ruleIssues } from '@libs/observability-slo-shared-ts/slo-checks';
+} from '@libs/observability-server-ts/slo-alerts';
+import { ruleIssues } from '@libs/observability-server-ts/slo-checks';
 import {
   generateGrafanaSlos,
   renderGrafanaSlos,
-} from '@libs/observability-slo-shared-ts/slo-grafana';
+} from '@libs/observability-server-ts/slo-grafana';
 import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
@@ -35,8 +35,8 @@ const MODULE = 'libs/infra-shared-ts/tofu/modules/observability-views';
 const RULES_FILE = `${MODULE}/alert-rules.generated.json`;
 const SLOS_FILE = `${MODULE}/grafana-slos.generated.json`;
 const POLICIES_FILE =
-  'libs/observability-slo-shared-ts/slo-alert-policies.openslo.yaml';
-const FIX = 'bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts';
+  'libs/observability-server-ts/slo-alert-policies.openslo.yaml';
+const FIX = 'bun run libs/observability-server-ts/scripts/slo-generate.ts';
 
 const docs = () => objectiveFiles().map((file) => file.doc);
 const slos = () => metricBackedSlos(docs());

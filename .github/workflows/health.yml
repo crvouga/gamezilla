@@ -36,7 +36,7 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # 7 days and by its burn-rate alert policies; a policy that fires fails this
 # job with the owner, runbook and `bun obs` command in the log, which is how an
 # alert reaches people while no Grafana instance is active
-# (libs/observability-slo-shared-ts/README.md, "Service level objectives"). Objectives
+# (libs/observability-server-ts/README.md, "Service level objectives"). Objectives
 # never run inside `health`, which gates every deploy: a bad month must not
 # block a fix. Branch Health runs verify current probes without attaching that
 # historical deficit to the fix's PR. Scheduled and manual main runs retain the

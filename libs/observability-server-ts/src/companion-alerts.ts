@@ -2,7 +2,7 @@
  * Rules that accompany the objectives' burn rates, generated from the same
  * objective files and indicator catalog. OpenSLO's alert conditions are
  * burn rates only, so these are documented companions
- * (`libs/observability-slo-shared-ts/README.md`, "Service level objectives"):
+ * (`libs/observability-server-ts/README.md`, "Service level objectives"):
  *
  * - **silence**: one per source of events behind the tier 0 and 1
  *   objectives, so no traffic or no checks can never look perfect;

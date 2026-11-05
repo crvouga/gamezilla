@@ -1,4 +1,4 @@
 {
   "summary": "A 100% integrity target generated burn expressions dividing by zero and an unsupported hosted error-budget objective.",
-  "regressionTest": "libs/observability-slo-shared-ts/tests/slo-integrity.test.ts"
+  "regressionTest": "libs/observability-server-ts/tests/slo-integrity.test.ts"
 }

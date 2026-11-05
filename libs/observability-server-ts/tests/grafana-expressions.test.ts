@@ -2,8 +2,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { expressionIssues } from '@libs/observability-server-ts/slo-checks';
 import { SERVER_SERVICE_NAME } from '@libs/observability-shared-ts/service-names';
-import { expressionIssues } from '@libs/observability-slo-shared-ts/slo-checks';
 import { REPO_ROOT } from './specs';
 
 const DASHBOARDS = join(

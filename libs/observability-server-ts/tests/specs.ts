@@ -3,7 +3,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { parseObjectiveFiles } from '@libs/observability-slo-shared-ts/objective-files';
+import { parseObjectiveFiles } from '@libs/observability-server-ts/objective-files';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');

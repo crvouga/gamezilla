@@ -5,7 +5,7 @@ import {
   emittedSeriesNames,
   labelOf,
   labelsOf,
-} from '@libs/observability-slo-shared-ts/emitted-metrics';
+} from '@libs/observability-server-ts/emitted-metrics';
 
 describe('the emitted metrics', () => {
   test('are stored under the names the dashboards and alerts have always read', () => {

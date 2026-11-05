@@ -145,7 +145,6 @@
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/observability-server-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
-    "@libs/observability-slo-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/pubsub-shared-ts": "workspace:*",
     "@libs/quoridor-harness-ts": "workspace:*",

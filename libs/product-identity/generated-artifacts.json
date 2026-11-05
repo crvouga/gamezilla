@@ -3,13 +3,13 @@
   "artifacts": [
     {
       "path": "libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json",
-      "generator": "bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts",
-      "freshnessTest": "libs/observability-slo-shared-ts/tests/slo-artifacts.test.ts"
+      "generator": "bun run libs/observability-server-ts/scripts/slo-generate.ts",
+      "freshnessTest": "libs/observability-server-ts/tests/slo-artifacts.test.ts"
     },
     {
       "path": "libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json",
-      "generator": "bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts",
-      "freshnessTest": "libs/observability-slo-shared-ts/tests/slo-artifacts.test.ts"
+      "generator": "bun run libs/observability-server-ts/scripts/slo-generate.ts",
+      "freshnessTest": "libs/observability-server-ts/tests/slo-artifacts.test.ts"
     },
     {
       "path": ".cursor/mcp.json",

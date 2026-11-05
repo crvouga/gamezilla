@@ -1,4 +1,8 @@
-# Unified product observability
+# Operational observability
+
+This server package owns live telemetry probes, SLO evaluation and generated
+alert configuration. Product telemetry contracts remain in
+[`observability-shared-ts`](../observability-shared-ts/README.md).
 
 The existing Grafana Cloud stack is the collection and reporting platform:
 Tempo for traces, Loki for named events and diagnostics, Mimir for metrics.
@@ -216,7 +220,7 @@ commit) with a `tier` label, add one entry to `INDICATORS` in
 `slo-indicators.ts`, add `apps/product-ts/tests/openslo/<stem>.binding.ts`
 (`liveMetricBinding`), add its section to `docs/SLO_RUNBOOK.md` and its row to
 `docs/SLO_COVERAGE.md`, then run
-`bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts` and commit the
+`bun run libs/observability-server-ts/scripts/slo-generate.ts` and commit the
 three generated files. A new live feature also needs its name in
 `SYNTHETIC_CHECKS` and an indicator that counts it. The checks follow: every live
 indicator is bound and every binding used; every check is counted by exactly one

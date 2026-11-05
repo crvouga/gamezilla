@@ -73,7 +73,7 @@ function bindingIssues(file: ObjectiveFile): readonly string[] {
     const bound = INDICATORS.some((i) => i.sli === slo.indicator);
     if (file.live && !bound) {
       issues.push(
-        `${file.path}: SLO ${slo.name} uses indicator ${slo.indicator}, which the catalog (libs/observability-slo-shared-ts/src/slo-indicators.ts) does not bind to an instrument`
+        `${file.path}: SLO ${slo.name} uses indicator ${slo.indicator}, which the catalog (libs/observability-server-ts/src/slo-indicators.ts) does not bind to an instrument`
       );
     }
     if (!file.live && bound) {

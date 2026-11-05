@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { alertingBinding } from '@libs/observability-slo-shared-ts/slo-alerts';
+import { alertingBinding } from '@libs/observability-server-ts/slo-alerts';
 import {
   metricMeasures,
   metricSettings,
-} from '@libs/observability-slo-shared-ts/slo-live';
+} from '@libs/observability-server-ts/slo-live';
 import { checkObjectiveSpec } from '@pkgs/openslo-shared-ts/check';
 import { measureAlerts } from '@pkgs/openslo-shared-ts/check-alerts';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';

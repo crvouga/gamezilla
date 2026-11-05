@@ -526,10 +526,7 @@
       "@libs/chess-rules-shared-ts/*": ["./libs/chess-rules-shared-ts/src/*"],
       "@pkgs/turn-game-client-ts/*": ["./pkgs/turn-game-client-ts/src/*"],
       "@pkgs/turn-game-shared-ts/*": ["./pkgs/turn-game-shared-ts/src/*"],
-      "@libs/game-session-server-ts/*": ["./libs/game-session-server-ts/src/*"],
-      "@libs/observability-slo-shared-ts/*": [
-        "./libs/observability-slo-shared-ts/src/*"
-      ]
+      "@libs/game-session-server-ts/*": ["./libs/game-session-server-ts/src/*"]
     }
   }
 }

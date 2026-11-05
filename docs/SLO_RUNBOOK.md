@@ -6,7 +6,7 @@ section says what the objective measures, where its target is defined, what
 a breach means for people, and where to start. What the objectives promise is
 in `specs/<context>/*.openslo.yaml`; how they are measured, generated and
 routed is in
-[`libs/observability-slo-shared-ts/README.md`](../libs/observability-slo-shared-ts/README.md#service-level-objectives);
+[`libs/observability-server-ts/README.md`](../libs/observability-server-ts/README.md#service-level-objectives);
 the coverage matrix, baselines, fault-injection plan and known gaps are in
 [`SLO_COVERAGE.md`](SLO_COVERAGE.md).
 
@@ -72,7 +72,7 @@ active notification; it does not erase the historical readiness breach.
 
 The certificate Synthetic Monitoring was shown for the app, the API or the
 broker expires within 14 days (push) or 3 days (page). See the README's
-[certificate runbook](../libs/observability-slo-shared-ts/README.md#a-certificate-people-are-shown-expires).
+[certificate runbook](../libs/observability-server-ts/README.md#a-certificate-people-are-shown-expires).
 
 ### "No events for …" (silence)
 

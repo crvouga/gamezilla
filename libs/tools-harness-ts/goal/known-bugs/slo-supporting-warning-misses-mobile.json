@@ -1,4 +1,4 @@
 {
   "summary": "Supporting objective warnings routed only to daily email instead of Grafana mobile push.",
-  "regressionTest": "libs/observability-slo-shared-ts/tests/slo-notification-coverage.test.ts"
+  "regressionTest": "libs/observability-server-ts/tests/slo-notification-coverage.test.ts"
 }

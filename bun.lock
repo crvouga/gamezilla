@@ -166,7 +166,6 @@
         "@libs/infra-shared-ts": "workspace:*",
         "@libs/observability-server-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
-        "@libs/observability-slo-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/pubsub-shared-ts": "workspace:*",
         "@libs/quoridor-harness-ts": "workspace:*",
@@ -2703,13 +2702,19 @@
       "name": "@libs/observability-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/observability-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
+        "@pkgs/openslo-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2726,25 +2731,6 @@
         "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/observability-slo-shared-ts": {
-      "name": "@libs/observability-slo-shared-ts",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/observability-shared-ts": "workspace:*",
-        "@libs/product-identity-shared-ts": "workspace:*",
-        "@pkgs/observability-root-shared-ts": "workspace:*",
-        "@pkgs/openslo-shared-ts": "workspace:*",
-        "@pkgs/os-shared-ts": "workspace:*",
-      },
-      "devDependencies": {
-        "@pkgs/gherkin-shared-ts": "workspace:*",
-        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -8538,8 +8524,6 @@
     "@libs/observability-server-ts": ["@libs/observability-server-ts@workspace:libs/observability-server-ts"],
 
     "@libs/observability-shared-ts": ["@libs/observability-shared-ts@workspace:libs/observability-shared-ts"],
-
-    "@libs/observability-slo-shared-ts": ["@libs/observability-slo-shared-ts@workspace:libs/observability-slo-shared-ts"],
 
     "@libs/permissions-client-ts": ["@libs/permissions-client-ts@workspace:libs/permissions-client-ts"],
 

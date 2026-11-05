@@ -6783,7 +6783,7 @@
         "$TURBO_ROOT$/apps/product-ts/public/favicon.ico"
       ]
     },
-    "@libs/observability-slo-shared-ts#generate:slo": {
+    "@libs/observability-server-ts#generate:slo": {
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
       "inputs": [
         "src/**",
@@ -6803,7 +6803,7 @@
       "cache": false,
       "dependsOn": [
         "@libs/tools-harness-ts#configure:identity",
-        "@libs/observability-slo-shared-ts#configure:slo",
+        "@libs/observability-server-ts#configure:slo",
         "@libs/tools-harness-ts#configure:identity-agents",
         "@libs/tools-harness-ts#configure:brand-policy"
       ]

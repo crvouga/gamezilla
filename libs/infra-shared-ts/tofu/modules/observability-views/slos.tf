@@ -3,7 +3,7 @@
 # libs/observability-shared-ts. A test fails while it differs from its
 # generator, and while any `grafana_slo` is declared anywhere but here, so no
 # SLO exists without an objective file. Rewrite it with
-#   bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts
+#   bun run libs/observability-server-ts/scripts/slo-generate.ts
 #
 # Grafana SLO keeps each objective's budget and dashboards. It raises no
 # alerts of its own (no `alerting` block): its rules cannot require a least

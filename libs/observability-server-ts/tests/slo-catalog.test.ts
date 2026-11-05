@@ -1,23 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { parseObjectiveFiles } from '@libs/observability-slo-shared-ts/objective-files';
-import { tiersFor } from '@libs/observability-slo-shared-ts/slo-alerts';
+import { parseObjectiveFiles } from '@libs/observability-server-ts/objective-files';
+import { tiersFor } from '@libs/observability-server-ts/slo-alerts';
 import {
   catalogIssues,
   indicatorIssues,
-} from '@libs/observability-slo-shared-ts/slo-checks';
+} from '@libs/observability-server-ts/slo-checks';
 import type {
   CounterRatioIndicator,
   Indicator,
   MetricIndicator,
-} from '@libs/observability-slo-shared-ts/slo-indicators';
+} from '@libs/observability-server-ts/slo-indicators';
 import {
   INDICATORS,
   indicatorFor,
-} from '@libs/observability-slo-shared-ts/slo-indicators';
+} from '@libs/observability-server-ts/slo-indicators';
 import {
   SYNTHETIC_CHECK_DIMENSION,
   SYNTHETIC_CHECKS,
-} from '@libs/observability-slo-shared-ts/synthetic-checks';
+} from '@libs/observability-server-ts/synthetic-checks';
 import { objectiveFiles } from './specs';
 
 function counterRatio(sli: string): CounterRatioIndicator {

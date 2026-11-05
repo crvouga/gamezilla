@@ -15,7 +15,7 @@ type Rule = {
 const MODULE = join(import.meta.dirname, '../tofu/modules/observability-views');
 const README = join(
   import.meta.dirname,
-  '../../observability-slo-shared-ts/README.md'
+  '../../observability-server-ts/README.md'
 );
 const RUNBOOK = join(import.meta.dirname, '../../../docs/SLO_RUNBOOK.md');
 
@@ -58,7 +58,7 @@ test('every alert names its owner, severity and a runbook section that exists', 
     expect(page).toStartWith(
       `https://github.com/${PRODUCT.external.sourceRepository}/blob/main/`
     );
-    if (page?.endsWith('libs/observability-slo-shared-ts/README.md'))
+    if (page?.endsWith('libs/observability-server-ts/README.md'))
       expect(sections).toContain(anchor ?? '');
     else expect(page).toEndWith('docs/SLO_RUNBOOK.md');
     if (page?.endsWith('docs/SLO_RUNBOOK.md'))

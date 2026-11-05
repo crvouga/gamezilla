@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   indicatorFor,
   metricIndicators,
-} from '@libs/observability-slo-shared-ts/slo-indicators';
+} from '@libs/observability-server-ts/slo-indicators';
 import {
   badCount,
   bucketLabel,
@@ -11,7 +11,7 @@ import {
   sampleSelector,
   sloRatioQuery,
   windowQueries,
-} from '@libs/observability-slo-shared-ts/slo-promql';
+} from '@libs/observability-server-ts/slo-promql';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 

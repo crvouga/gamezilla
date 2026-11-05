@@ -52,7 +52,7 @@ finite labels and overwrites the claimed environment. Shutdown or loss of a page
 can still lose unexported metrics; absence cannot establish success.
 
 The target registry and alert implementation are described in
-[observability](../../libs/observability-slo-shared-ts/README.md#sync-performance-targets).
+[observability](../../libs/observability-server-ts/README.md#sync-performance-targets).
 Target values are not benchmark results. Low-end device CPU/heap acceptance,
 and cross-device arrival timing with bounded clock uncertainty still require
 representative verification. Reconnect now waits for the original active scopes

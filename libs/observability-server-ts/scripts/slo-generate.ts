@@ -6,11 +6,11 @@
  *
  *   libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json
  *   libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json
- *   libs/observability-slo-shared-ts/slo-alert-policies.openslo.yaml
+ *   libs/observability-server-ts/slo-alert-policies.openslo.yaml
  *
  * Run it after changing an objective file, the catalog or a pipeline alert:
  *
- *   bun run libs/observability-slo-shared-ts/scripts/slo-generate.ts
+ *   bun run libs/observability-server-ts/scripts/slo-generate.ts
  *
  * A test fails while any of them differs from what this would write. The
  * output depends only on the files read: same input, same bytes.
@@ -31,7 +31,7 @@ export const RULES_FILE =
 export const GRAFANA_SLOS_FILE =
   'libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json';
 export const POLICIES_FILE =
-  'libs/observability-slo-shared-ts/slo-alert-policies.openslo.yaml';
+  'libs/observability-server-ts/slo-alert-policies.openslo.yaml';
 
 function objectiveTexts(): { path: string; text: string }[] {
   const specs = join(REPO_ROOT, 'specs');

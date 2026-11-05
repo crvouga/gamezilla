@@ -3,10 +3,12 @@
 This branch is implementing the approved comprehensive SLO design. **It is not
 ready to merge or evidence that all 48 proposed objectives are live.** Product
 promises remain in [`specs/`](../specs/); operational measurement and generation
-are owned by [`observability`](../libs/observability-slo-shared-ts/README.md).
+are owned by [`observability`](../libs/observability-server-ts/README.md).
 
 ## Implemented foundation
 
+- Operational SLO code lives with server observability probes, separate from
+  shared product telemetry; the cache-hygiene gate passes without exemptions.
 - Strengthened existing live OpenSLO objectives in their owning contexts.
 - Weekly burn thresholds spend 2%, 5% and 10% in their respective long windows.
 - Independent missing-evidence rules for each known check and selected route;
