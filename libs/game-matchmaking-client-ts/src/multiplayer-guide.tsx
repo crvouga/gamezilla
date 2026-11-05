@@ -22,8 +22,8 @@ function GuidePoint(props: {
   );
 }
 
-/** The three things a search does, one under another. */
-function GuidePoints(props: { readonly columns: 1 }): JSX.Element {
+/** The three things a search does, one under another or side by side. */
+function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
   return (
     <Grid
       columns={props.columns}
@@ -47,9 +47,9 @@ function GuidePoints(props: { readonly columns: 1 }): JSX.Element {
 /**
  * What a search does. On a phone, under the search past its card's
  * hairline, behind one closed disclosure, so the explanation never
- * outweighs the decision above it. Wide, a quiet note closing the card's
- * row beside the search and the ratings, its heading and three short
- * points in caption type, so a short search fills the game column while
+ * outweighs the decision above it. Wide, plain quiet text across the
+ * card's foot under the search and the ratings: its heading, then three
+ * short points side by side in caption type, never a box of its own, so
  * the search stays the first thing read.
  */
 export function MultiplayerGuide(props: {
@@ -72,7 +72,7 @@ export function MultiplayerGuide(props: {
         <H3 size="label" tone="secondary">
           <Trans>How matchmaking works</Trans>
         </H3>
-        <GuidePoints columns={1} />
+        <GuidePoints columns={3} />
       </Show>
     </StackVertical>
   );

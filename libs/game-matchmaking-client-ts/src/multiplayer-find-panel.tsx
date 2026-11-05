@@ -91,8 +91,8 @@ export function MultiplayerFindPanel(props: {
   readonly aside?: JSX.Element | undefined;
   /** Under the search and ratings, past a hairline: how a search works. */
   readonly details?: JSX.Element | undefined;
-  /** Wide: how a search works as the card's third column (`GameSetupPanel`). */
-  readonly detailsBeside?: boolean | undefined;
+  /** Wide: how a search works as a quiet row across the card's foot (`GameSetupPanel`). */
+  readonly detailsAcross?: boolean | undefined;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const count = () => props.players;
@@ -101,7 +101,7 @@ export function MultiplayerFindPanel(props: {
       title={<Trans>New game</Trans>}
       aside={props.aside}
       details={props.details}
-      detailsBeside={props.detailsBeside}
+      detailsAcross={props.detailsAcross}
       description={
         <Show when={count() > 2 || props.timed}>
           <FindDescription count={count()} timed={props.timed} />

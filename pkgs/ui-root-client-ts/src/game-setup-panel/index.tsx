@@ -17,11 +17,12 @@ export type GameSetupPanelProps = {
    */
   aside?: JSX.Element | undefined;
   /**
-   * With `aside`, wide: the details stand as the card's third column,
-   * beside the choice and the aside, instead of its foot, so a short choice
-   * (a search) fills the game column rather than a corner of it.
+   * With `aside`, wide: the card fills the game column, the choice and its
+   * command the wider of its two columns, and the details a quiet row of
+   * plain text across its foot, so a short choice (a search) fills the
+   * column rather than a corner of it, with no card nested in the card.
    */
-  detailsBeside?: boolean | undefined;
+  detailsAcross?: boolean | undefined;
   /** Stretch to the foot of its column beside a wide board (`GameSection`). */
   fill?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -50,7 +51,7 @@ export function GameSetupPanel(props: GameSetupPanelProps): JSX.Element {
         <div
           class={styles['setupSplit']}
           data-setup-split="true"
-          data-details-beside={props.detailsBeside === true}
+          data-details-across={props.detailsAcross === true}
         >
           <div class={styles['setupMain']}>
             {props.children}
