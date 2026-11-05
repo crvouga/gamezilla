@@ -16,7 +16,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StepFooter } from '@pkgs/ui-root-client-ts/step-footer';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
@@ -204,7 +204,11 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
     <GameScreen
       screenId="puzzle-content-author"
       dataSet={{ testid: 'content-author', documentid: props.documentId }}
-      title={props.body.title || t`Untitled draft`}
+      title={
+        <Text variant="inherit" testId="content-author-title">
+          {props.body.title || t`Untitled draft`}
+        </Text>
+      }
       subtitle={props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
       footer={<AuthorPublish {...props} />}
     >

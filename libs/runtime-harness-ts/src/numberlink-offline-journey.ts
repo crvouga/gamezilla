@@ -149,7 +149,7 @@ export async function observeKeptOfflineNumberlink(
     )
       throw new Error('The offline puzzle draft lost its identity');
     await ui
-      .get('content-author')
+      .get('content-author-title')
       .expect.text(kept.draft.puzzleTitle, { ...device, exact: false });
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
     await ui
