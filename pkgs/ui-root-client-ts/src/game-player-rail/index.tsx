@@ -30,7 +30,8 @@ export type GamePlayerRailProps = {
  * `GamePlayerRail` + `GamePlayerChip` -- the players at a table of three or
  * more, as compact chips above the board that wrap onto as many rows as
  * they need (two across a phone; three players on a phone make one row of
- * three stacked chips, so none is left alone), so every player is in view
+ * three short chips, each its name over its avatar, swatch and figure, so
+ * none is left alone and the board keeps the height), so every player is in view
  * at once and none is cut off at the screen's edge. Each chip shows the player's
  * avatar and name on its first line, then their swatch, figure, out /
  * reconnecting word and any short facts (`tags`) on the second, so the
@@ -93,7 +94,7 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
   return (
     <>
       <span
-        class="box shrink-0"
+        class={`box shrink-0 ${styles['chipAvatar']}`}
         classList={{ 'opacity-disabled': out() }}
         aria-hidden="true"
       >
@@ -108,7 +109,7 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
         class={`box flex-1 min-w-0 items-start gap-1 ${styles['chipText']}`}
       >
         <span
-          class="text textLabel truncate min-w-0 max-w-full"
+          class={`text textLabel truncate min-w-0 max-w-full ${styles['chipName']}`}
           classList={{ 'text-on-primary-soft': props.active === true }}
         >
           {props.name}
