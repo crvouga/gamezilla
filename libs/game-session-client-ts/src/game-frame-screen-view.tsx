@@ -130,9 +130,9 @@ function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
 }
 
 /**
- * While a game is set up, its board preview sits inside the Players card,
- * so the card and its picture read as one unit: beside the seats when
- * wide, heading the card on a phone, never under Start.
+ * While a game is set up, its board preview is a card of its own paired
+ * with the Players card, so the two read as one unit: beside it and as tall
+ * as it when wide, above it on a phone, never under Start.
  */
 function previewInSeats(props: Props): boolean {
   return props.phase === 'configuring' && props.setup !== null;

@@ -26,9 +26,10 @@ export function GameSection(props: {
    */
   fill?: boolean | undefined;
   /**
-   * Beside the body, inside the card: a picture of what the section sets
-   * up (a game's board preview), at a thumbnail's size, so the card and
-   * its picture read as one unit instead of a stray tile beside it.
+   * A picture of what the section sets up (a game's board preview), as a
+   * card of its own paired with the section: beside it and as tall as it
+   * when wide, a compact card above it on a phone. Never inside the section
+   * among its body, where it reads as one more item of the body.
    */
   media?: JSX.Element | undefined;
   dataSet?: ComponentDataSet;
@@ -38,7 +39,7 @@ export function GameSection(props: {
   const footer = createScreenSlot(() => props.footer);
   const trailing = createScreenSlot(() => props.trailing);
   const media = createScreenSlot(() => props.media);
-  return (
+  const card = (): JSX.Element => (
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
@@ -63,16 +64,27 @@ export function GameSection(props: {
           </p>
         </Show>
       </div>
-      <Show when={media.present()} fallback={props.children}>
-        <div class={split['sectionSplit']}>
-          <div class={split['sectionBody']}>{props.children}</div>
-          <div class={split['sectionMedia']}>{media.content()}</div>
-        </div>
-      </Show>
+      {props.children}
       <Show when={footer.present()}>
         <div class={styles['sectionFooter']}>{footer.content()}</div>
       </Show>
     </section>
+  );
+  return (
+    <Show when={media.present()} fallback={card()}>
+      <div
+        class={split['sectionPair']}
+        data-section-media="true"
+        {...dataAttrs({ component: 'GameSectionPair' })}
+      >
+        <div
+          class={`${split['sectionMedia']} rounded-card border border-border bg-surface`}
+        >
+          {media.content()}
+        </div>
+        {card()}
+      </div>
+    </Show>
   );
 }
 

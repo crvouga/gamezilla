@@ -255,9 +255,9 @@ test('a board that seats its players is lent each player and no seat is drawn ar
 });
 
 // regression: setup-preview-below-start — on a phone the board preview of a
-// game being set up fell under the Players card, after Start. It now heads
-// the Players card on a phone, as it sits beside the seats when wide.
-test('phone and wide: the board preview of a game being set up is in the Players card, before Start', () => {
+// game being set up fell under the Players card, after Start. It now leads
+// the Players card's pair on a phone, as it sits beside the card when wide.
+test('phone and wide: the board preview of a game being set up is paired with the Players card, before Start', () => {
   for (const width of [390, 1440]) {
     const time = createHarnessClock();
     renderWithI18n(() => (
@@ -286,9 +286,10 @@ test('phone and wide: the board preview of a game being set up is in the Players
     ));
     const preview = screen.getByTestId('custom-game-public');
     const start = screen.getByTestId('custom-game-start');
-    const card = preview.closest('[data-component="GameSection"]');
-    expect(card).not.toBeNull();
-    expect(card?.contains(start)).toBe(true);
+    // Paired with the Players card, which Start closes.
+    const pair = preview.closest('[data-component="GameSectionPair"]');
+    expect(pair).not.toBeNull();
+    expect(pair?.contains(start)).toBe(true);
     expect(
       preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();

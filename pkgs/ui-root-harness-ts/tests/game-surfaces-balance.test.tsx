@@ -25,7 +25,11 @@ describe('game surfaces', () => {
   // regression: setup-board-preview-floats-beside-card — wide, the 200px
   // board preview floated top-right of the page, unrelated to the Players
   // card beside it.
-  test('a section draws its picture inside its own card, beside the body', () => {
+  // regression: setup-preview-jammed-in-card — the preview then sat inside
+  // the Players card as a third "player" column (and under its heading on a
+  // phone). It is a card of its own, paired with the section: first in the
+  // pair (above it on a phone), beside it and as tall as it when wide.
+  test('a section pairs its picture in a card of its own, before the section', () => {
     renderUi(() => (
       <GameSection
         title="Players"
@@ -37,18 +41,25 @@ describe('game surfaces', () => {
     ));
     const section = screen.getByRole('region', { name: 'Players' });
     expect(section.getAttribute('data-section-media')).toBe('true');
-    expect(section.contains(screen.getByTestId('preview'))).toBe(true);
-    // The body and the picture share one row; the footer closes the card
-    // under both.
     const preview = screen.getByTestId('preview');
-    expect(preview.parentElement?.parentElement?.textContent).toContain(
-      'avery'
-    );
+    // Not inside the section: never read as one more item of its body.
+    expect(section.contains(preview)).toBe(false);
+    const pair = section.parentElement;
+    expect(pair?.getAttribute('data-component')).toBe('GameSectionPair');
+    // The picture's card leads the pair; the section and its footer follow.
+    expect(pair?.firstElementChild?.contains(preview)).toBe(true);
+    expect(pair?.lastElementChild).toBe(section);
     expect(
-      preview.parentElement?.parentElement?.contains(
-        screen.getByRole('button', { name: 'Start game' })
-      )
-    ).toBe(false);
+      section.contains(screen.getByRole('button', { name: 'Start game' }))
+    ).toBe(true);
+    // Wide, the two cards share one row at one height.
+    const css = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    expect(css).toMatch(
+      /@container game-section \(min-width: 40rem\)\s*\{\s*\.sectionPair\s*\{[^}]*align-items: stretch/
+    );
   });
 
   test('a section with no picture keeps its plain body', () => {

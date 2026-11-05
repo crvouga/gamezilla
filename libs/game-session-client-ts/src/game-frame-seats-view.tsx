@@ -221,7 +221,7 @@ export function FrameSetupSeatsView(props: {
   readonly ownReadiness?: JSX.Element | undefined;
   /** Starting the game, when this is the last setup card. */
   readonly footer?: JSX.Element | undefined;
-  /** Beside the seats on a wide screen: the board the game is played on. */
+  /** The board the game is played on, in its own card paired with the seats. */
   readonly media?: JSX.Element | undefined;
 }): JSX.Element {
   return (
