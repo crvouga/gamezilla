@@ -91,11 +91,32 @@ test('the section copy says what each section holds, concretely', () => {
   expect(screen.queryByText('Each asks first')).toBeNull();
   expect(screen.queryByText('A copy of what you have here')).toBeNull();
   expect(
-    screen.getByText('You confirm before either one happens')
+    screen.getByText('Removes your account for good; you confirm first')
   ).toBeTruthy();
   expect(
     screen.getByText(
       'A copy of your profile, friends, progress and preferences'
     )
   ).toBeTruthy();
+});
+
+// regression: sign-out-everywhere-styled-as-deletion
+test('signing out everywhere sits with Security in neutral ink; only deletion is a danger', () => {
+  mountAccount();
+  const everywhere = screen.getByTestId(Handles.accountSignOutEverywhere);
+  const devices = screen.getByTestId(Handles.accountDevices);
+  // Same section as Devices: the nearest MenuSection holds both rows.
+  expect(everywhere.closest('[data-component="MenuSection"]')).toBe(
+    devices.closest('[data-component="MenuSection"]')
+  );
+  // Neutral ink: nothing in the row is drawn in the destructive colour.
+  expect(everywhere.querySelector('.text-destructive')).toBeNull();
+  expect(
+    screen.getByTestId('account-delete').querySelector('.text-destructive')
+  ).not.toBeNull();
+  expect(
+    screen
+      .getByTestId('account-delete')
+      .closest('[data-component="MenuSection"]')
+  ).not.toBe(devices.closest('[data-component="MenuSection"]'));
 });

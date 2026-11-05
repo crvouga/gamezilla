@@ -5657,6 +5657,10 @@ msgstr "Remove this puzzle from the pack?"
 msgid "Removed"
 msgstr "Removed"
 
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "Removes your account for good; you confirm first"
+msgstr "Removes your account for good; you confirm first"
+
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
 msgid "Removing a method stops it signing in to this account. You can connect it again later."
 msgstr "Removing a method stops it signing in to this account. You can connect it again later."
@@ -8353,10 +8357,6 @@ msgstr "You can't join this space"
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
 msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
-
-#: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "You confirm before either one happens"
-msgstr "You confirm before either one happens"
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "You didn't leave the space"

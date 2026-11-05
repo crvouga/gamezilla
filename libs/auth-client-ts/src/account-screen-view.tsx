@@ -53,25 +53,22 @@ export type AccountScreenViewProps = {
 };
 
 /**
- * The account's irreversible choices, set apart at the foot under their own
- * "Danger zone" label, each in the destructive ink: Sign out of all devices
- * (asks first, in place) and Delete account (opens what deletion removes,
- * where it is confirmed). Compact: one line each, so the rare choices take
- * less room than the everyday ones above; each one's consequences are
- * spelled out where it is confirmed. Both ask before they act, so both end
- * the same way: no chevron on either.
+ * The account's one irreversible choice, set apart at the foot under its own
+ * "Danger zone" label in the destructive ink: Delete account (opens what
+ * deletion removes, where it is confirmed). Signing out everywhere is a
+ * security step, not a loss, so it sits with Devices and Sign out instead.
  */
 function AccountDangerZone(props: {
-  readonly onSignOutEverywhere: () => void;
   readonly onOpenDeletion: () => void;
 }): JSX.Element {
   const { t } = useLingui();
   return (
     <MenuSection
       title={<Trans>Danger zone</Trans>}
-      description={<Trans>You confirm before either one happens</Trans>}
+      description={
+        <Trans>Removes your account for good; you confirm first</Trans>
+      }
     >
-      <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
       <MenuRow
         title={t`Delete account`}
         leading={<Trash2Icon size={ROW_ICON_SIZE} color="destructive" />}
@@ -87,7 +84,7 @@ function AccountDangerZone(props: {
 /**
  * `/more/account`, presentational: sign-in methods, security (devices and
  * Sign out for this device), the data export entry, and a danger zone at
- * the foot (Sign out of all devices, Delete account); each sign-out spells
+ * the foot (Delete account); each sign-out spells
  * out its scope and asks first. A guest sees devices (which asks them to
  * sign in) and Sign in only. `AccountScreen` wires it to the session and
  * auth port.
@@ -127,6 +124,7 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         />
         <Show when={props.signedIn}>
           <SignOutRow onOpen={props.onSignOut} />
+          <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
         </Show>
       </MenuSection>
       <Show when={props.signedIn}>
@@ -146,10 +144,7 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
             dataSet={{ testid: 'account-privacy' }}
           />
         </MenuSection>
-        <AccountDangerZone
-          onSignOutEverywhere={props.onSignOutEverywhere}
-          onOpenDeletion={props.onOpenDeletion}
-        />
+        <AccountDangerZone onOpenDeletion={props.onOpenDeletion} />
       </Show>
       <Show when={!props.signedIn}>
         <AccountSignInAction onSignIn={props.onSignIn} />

@@ -1,0 +1,4 @@
+{
+  "summary": "Signing out of all devices sat in the danger zone in the destructive ink, with the same emphasis as deleting the account; it now sits with Devices and Sign out under Security in neutral ink, and only Delete account is a danger.",
+  "regressionTest": "libs/auth-client-ts/tests/account-danger-zone.test.tsx"
+}

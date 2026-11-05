@@ -22,8 +22,7 @@ export function SignOutEverywhereRow(props: {
   return (
     <MenuRow
       title={t`Sign out of all devices`}
-      leading={<LogOutIcon size={ROW_ICON_SIZE} color="destructive" />}
-      tone="destructive"
+      leading={<LogOutIcon size={ROW_ICON_SIZE} color="icon" />}
       onClick={() => props.onOpen()}
       // It asks first, in place: no chevron, since it opens no screen.
       hideChevron
