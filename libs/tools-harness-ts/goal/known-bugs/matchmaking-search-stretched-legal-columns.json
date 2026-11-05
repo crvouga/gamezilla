@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking search card filled the 960px game column: Find an opponent stretched to 530px, How matchmaking works read like fine print in three columns, and about 60% of the page stood empty. The column (the game's title and the card) is now held to the search's measure and centred, the command is sized to its words, and the guide is three short lines, one sentence each.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}
