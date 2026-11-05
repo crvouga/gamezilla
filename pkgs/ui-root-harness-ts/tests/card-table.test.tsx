@@ -1,4 +1,6 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -161,4 +163,50 @@ test('a seat holds the person lent to it and keeps its name and phase for a list
   expect(north.textContent).toContain('13 cards');
   // A seat with no person lent shows its own name.
   expect(at('example-seat-left').textContent).toContain('West');
+});
+
+const css = (slice: string): string =>
+  readFileSync(
+    join(import.meta.dirname, `../../ui-root-client-ts/src/${slice}`),
+    'utf8'
+  );
+
+/** The body of the first rule opened by `head` in `sheet`. */
+function rule(sheet: string, head: string): string {
+  const start = sheet.indexOf(head);
+  if (start < 0) throw new Error(`no rule ${head}`);
+  return sheet.slice(start, sheet.indexOf('}', start));
+}
+
+// regression: hearts-phone-hand-overflows — on a 390px phone the thirteen
+// card hand ran past the screen's right edge: every card kept 30px in view,
+// so the row was 412px wide in a 342px hand, the J and Q cut off with no
+// sign the row scrolled. A narrow crowded hand overlaps its cards to fit
+// the row (about 24px each on a phone) and never scrolls.
+test('a narrow hand of thirteen cards fits its row, never scrolling', () => {
+  const sheet = css('card-table/card-table.module.css');
+  const narrow = sheet.slice(sheet.indexOf('@container (max-width: 32rem)'));
+  const row = rule(narrow, '.hand[data-crowded="true"] {');
+  expect(row).not.toMatch(/overflow-x:\s*(auto|scroll)/);
+  // Each card steps by the row's width shared out, floored by the peek.
+  expect(rule(narrow, '.hand[data-crowded="true"] > .card + .card {')).toMatch(
+    /max\(\s*var\(--hand-peek\),\s*\(100cqw - var\(--card-w\)\)\s*\/\s*max\(1, var\(--hand-count\) - 1\)\s*\)/
+  );
+  example();
+  const hand = document.querySelector<HTMLElement>('[role="toolbar"]');
+  if (hand === null) throw new Error('No hand');
+  // Thirteen 52px cards at the floor fit a 320px phone's 272px row.
+  const peek = Number.parseFloat(hand.style.getPropertyValue('--hand-peek'));
+  expect(52 + 12 * peek).toBeLessThanOrEqual(272);
+});
+
+// regression: hearts-seat-name-truncated — a phone's side seat at the Hearts
+// table cut "jordan_plays" to "jordan_pla…". A narrow seat sets a name a
+// size smaller and lets it take a second line; it is never cut.
+test("a narrow seat's name is set smaller and wraps, never cut", () => {
+  const sheet = css('game-table-seat/game-table-seat.module.css');
+  const name = rule(sheet, '.name {');
+  expect(name).toMatch(/font-size:\s*var\(--ui-font-size-sm\);/);
+  expect(name).toMatch(/-webkit-line-clamp:\s*2;/);
+  expect(name).not.toMatch(/white-space:\s*nowrap|text-overflow/);
 });

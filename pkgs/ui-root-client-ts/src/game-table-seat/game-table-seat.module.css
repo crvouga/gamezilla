@@ -32,11 +32,16 @@
   min-width: 0;
   max-width: 100%;
 }
+/* Narrow, a name is never cut: a size smaller, then onto a second line
+   (a phone's side seat holds `jordan_plays` whole on one). */
 .name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: var(--ui-font-size-sm);
+  overflow-wrap: anywhere;
 }
 .tags {
   display: flex;
@@ -56,6 +61,13 @@
   }
   .text {
     align-items: flex-start;
+  }
+  /* Wide, a name has its full size on one line. */
+  .name {
+    display: block;
+    font-size: var(--ui-text-body-strong-size);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .tags {
     justify-content: flex-start;

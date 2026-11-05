@@ -12,7 +12,7 @@ import styles from './game-table-seat.module.css';
 export const GAME_TABLE_SEAT_AVATAR_SIZE = 32;
 
 export type GameTableSeatProps = {
-  /** Who sits there; long names are truncated. */
+  /** Who sits there; a narrow seat sets a long name smaller, on up to two lines. */
   name: JSX.Element;
   /** Their `Avatar` (32px). Defaults to the person placeholder. */
   avatar?: JSX.Element;

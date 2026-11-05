@@ -408,21 +408,18 @@ button.card:focus-visible {
   outline-offset: 2px;
 }
 /*
- * A narrow table with more than seven cards: one flat row that scrolls
- * sideways, each card showing at least `--hand-peek` of its left edge, so
- * every corner (rank over suit) reads whole and no card hides another's.
- * A chosen card lifts 12px out of the row, inside the row's top padding.
+ * A narrow table with more than seven cards: one flat row of overlapping
+ * cards that always fits the row, never scrolling, so no card is ever out
+ * of view. Each card steps along by what the row leaves it (about 24px of
+ * thirteen on a phone), never less than `--hand-peek`, so every corner
+ * (rank over suit) reads whole. A chosen card lifts 12px out of the row,
+ * inside the row's top padding.
  */
 @container (max-width: 32rem) {
   .hand[data-crowded="true"] {
     justify-content: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
     /* Room for a chosen card's ring at either end of the row. */
     padding-inline: var(--ui-space-2);
-    scroll-padding-inline: var(--ui-space-2);
   }
   .hand[data-crowded="true"] > .card {
     --card-w: 52px;

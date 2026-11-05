@@ -124,13 +124,15 @@ test('a pass on its way keeps the hand at full contrast; only a refused card dim
 // is in each card's words, not printed on its edge.
 // regression: hearts-phone-hand-overlapping-rows — two staggered rows then
 // hid the corners of the first row's cards behind the second's. A narrow
-// hand of more than seven cards is one row that scrolls sideways, at least
-// 30px of every card (its rank and suit corner) in view.
+// hand of more than seven cards is one row of overlapping cards.
+// regression: hearts-phone-hand-overflows — that row then scrolled, the J
+// and Q past the screen's edge: it fits the row, each card's rank and suit
+// corner in view (at least 18px, about 24px on a phone).
 test('thirteen cards sit in one row, every corner in view, each named by its suit', () => {
   board();
   const hand = byTestId('hearts-hand');
   expect(hand.getAttribute('data-crowded')).toBe('true');
-  expect(hand.style.getPropertyValue('--hand-peek')).toBe('30px');
+  expect(hand.style.getPropertyValue('--hand-peek')).toBe('18px');
   const cards = [...hand.querySelectorAll('button')];
   expect(cards).toHaveLength(13);
   expect(cards.every((card) => card.parentElement === hand)).toBe(true);
