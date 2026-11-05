@@ -1,0 +1,4 @@
+{
+  "summary": "Release 41795577333 forcibly killed its timed-out repository plan, leaving bootstrap lock 44856d40-b6ba-3da7-e380-219c16886486 behind and blocking subsequent policy checks. Interrupt timed-out reads so OpenTofu can clean up and provide explicit UUID-scoped recovery for completed runners.",
+  "regressionTest": "libs/infra-shared-ts/tests/tofu-process-policy.test.ts"
+}

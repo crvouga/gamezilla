@@ -2,6 +2,7 @@
 
 import type { ConftestRunner } from '@libs/infra-shared-ts/plan-policy';
 import { redactInfraOutput } from '@libs/infra-shared-ts/redact-output';
+import { toolDeadline } from '@libs/infra-shared-ts/tofu-process-policy';
 
 export type ToolResult = {
   readonly status: number;
@@ -51,7 +52,7 @@ export function spawnTool(
   const env = { ...process.env, ...options.env };
   const result = Bun.spawnSync([...pinnedTool(bin), ...args], {
     env,
-    ...(timeout === undefined ? {} : { timeout, killSignal: 'SIGKILL' }),
+    ...toolDeadline(operation),
     stdin: options.stdin === undefined ? 'ignore' : Buffer.from(options.stdin),
     stdout: 'pipe',
     stderr: 'pipe',

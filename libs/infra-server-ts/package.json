@@ -27,6 +27,7 @@
     "plan:repository-policy": "bun run scripts/tofu.ts plan --stack bootstrap --repository-policy",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
+    "unlock:repository-policy": "bun run scripts/unlock-repository-policy.ts",
     "verify:repository-policy": "bun run scripts/verify-repository-policy.ts"
   },
   "dependencies": {
