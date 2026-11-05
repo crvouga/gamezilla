@@ -177,10 +177,12 @@ function precedes(a: Element, b: Element): boolean {
 
 // regression: sokoban-editor-size-below-fold — the board's size inputs came
 // after the board, its caption and its corrections, below a desktop's
-// 900px fold, and the builder's pieces were drawn as bare glyphs. The size
-// and the tools now head the board, and each piece is drawn as a token
-// (crate, crate on goal, worker, goal) as the player draws it.
-test('the editor puts the size and tools above the board, pieces as tokens', () => {
+// 900px fold, and the builder's pieces were drawn as bare glyphs. The tools
+// now head the board; the size heads the notes, which sit beside the board
+// under the tools where there is room, never after the caption and the
+// corrections; and each piece is drawn as a token (crate, crate on goal,
+// worker, goal) as the player draws it.
+test('the editor puts the tools above the board, the size beside it, pieces as tokens', () => {
   const view = render(() => (
     <SokobanEditor
       definition={JSON.stringify({ format: 1, rows: ['#@$.*'] })}
@@ -191,8 +193,17 @@ test('the editor puts the size and tools above the board, pieces as tokens', () 
   const size = view.getByTestId('sokoban-size');
   const tools = view.getByTestId('sokoban-tools');
   const board = view.getByTestId('sokoban-editor-board');
-  expect(precedes(size, board)).toBe(true);
   expect(precedes(tools, board)).toBe(true);
+  const said =
+    view.queryByTestId('sokoban-ready') ??
+    view.getByTestId('sokoban-corrections');
+  expect(precedes(size, said)).toBe(true);
+  // The workbench's notes column, which wide sits beside the board under
+  // the tools (above a desktop's fold), and holds the size first.
+  const notes = size.closest('[data-component="EditorWorkbench"] > div > div');
+  expect(notes?.firstElementChild?.contains(size)).toBe(true);
+  expect(notes?.contains(board)).toBe(false);
+  expect(notes?.contains(tools)).toBe(false);
   const identity = (square: string): string | null =>
     view.getByTestId(`sokoban-square-${square}`).getAttribute('data-identity');
   expect(
@@ -204,7 +215,11 @@ test('the editor puts the size and tools above the board, pieces as tokens', () 
 // inputs, the undo row and two rows of tool pills filled the screen and
 // the board started below them. The size is now one closed row there,
 // the tools one picker, and what to correct follows the board.
-test('on a phone the board follows its tools, the size a closed row, the notes after it', () => {
+// regression: sokoban-editor-phone-size-over-board — once every tool showed
+// its name, the closed size row over the board pushed the board's last row
+// below a phone's fold. The size is set once, so on a phone it follows the
+// board, with the notes, and the board sits right under the tools.
+test('on a phone the board follows its tools, then the size a closed row, the notes after it', () => {
   const view = render(() => (
     <SokobanEditor
       definition={CORRIDOR}
@@ -217,6 +232,7 @@ test('on a phone the board follows its tools, the size a closed row, the notes a
   expect(toggle.textContent).toBe('Board size · 5 × 1');
   const board = view.getByTestId('sokoban-editor-board');
   expect(precedes(view.getByTestId('sokoban-tools'), board)).toBe(true);
+  expect(precedes(board, view.getByTestId('sokoban-size'))).toBe(true);
   const said =
     view.queryByTestId('sokoban-ready') ??
     view.getByTestId('sokoban-corrections');

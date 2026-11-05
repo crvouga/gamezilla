@@ -9,9 +9,9 @@ import { createEffect, createSignal, type JSX } from 'solid-js';
 
 /**
  * The board's size, set once and then out of the way: one closed line
- * ("Board size · 7 × 6") on a phone, so the board is in view under the
- * tools; open beside the board where there is room. Resizing can remove
- * pieces, so a new size applies only when chosen.
+ * ("Board size · 7 × 6") after the board on a phone; open under the tools
+ * beside the board where there is room. Resizing can remove pieces, so a
+ * new size applies only when chosen.
  */
 export function SokobanSizeControls(props: {
   board: SokobanBoard;

@@ -179,6 +179,7 @@ function Board(props: {
   return (
     <CellGridBoard
       boardTheme="sokoban"
+      fill
       label={t`Sokoban board being built`}
       testId="sokoban-editor-board"
       cellTestId={(id) => `sokoban-square-${id}`}
@@ -206,26 +207,22 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
-        // The tools sit beside the board when there is room and head it on
-        // a phone, with the size a closed row there, so the board is in
-        // view with every control that shapes it; how to use the tools and
-        // what to correct follow the tools beside it, or the board.
+        // The tools, used on every press, sit beside the board when there
+        // is room and head it on a phone, so the whole board is in view
+        // under them. The size, set once, follows with how to use the
+        // tools and what to correct: beside the board, or after it.
         <EditorWorkbench
-          tools={
+          tools={<ToolPalette editor={editor} disabled={props.disabled} />}
+          canvas={
+            <Board editor={editor} board={board()} disabled={props.disabled} />
+          }
+          notes={
             <>
               <SokobanSizeControls
                 board={board()}
                 disabled={props.disabled}
                 onResize={editor.resize}
               />
-              <ToolPalette editor={editor} disabled={props.disabled} />
-            </>
-          }
-          canvas={
-            <Board editor={editor} board={board()} disabled={props.disabled} />
-          }
-          notes={
-            <>
               <P variant="caption" tone="secondary">
                 <Trans>
                   Choose a tool, then a square. Walls and outside squares remove

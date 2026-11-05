@@ -1,0 +1,4 @@
+{
+  "summary": "In the Sokoban builder the closed \"Board size\" row sat between the tools and the board; once every tool showed its name it pushed the board's last row below a phone's fold, and wide the board stopped at 424px with a 120px gap before its tools. The size, set once, now heads the notes (after the board on a phone, under the tools beside the board when wide), and the builder's board fills its column.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}
