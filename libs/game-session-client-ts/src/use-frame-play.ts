@@ -184,6 +184,7 @@ export function useFrameRecord(
       displayedPly: review.displayedPly(),
       error: refusal(review.error()),
       history: model.openHistory !== undefined,
+      outline: presentation(review.fen()).frame.outline?.(review.fen()) ?? [],
     };
   });
 }

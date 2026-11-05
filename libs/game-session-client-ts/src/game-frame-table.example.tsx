@@ -210,6 +210,7 @@ function tableRecord(props: TableProps): FrameRecord {
     ...record(moves),
     turns: props.turns ?? true,
     movePrefix: props.presentation.movePrefix?.() ?? '',
+    outline: props.presentation.frame.outline?.(props.board.position) ?? [],
     perTurn: movers.length,
     movers: moves.flatMap((_, index) => {
       const mover = movers[index % movers.length];

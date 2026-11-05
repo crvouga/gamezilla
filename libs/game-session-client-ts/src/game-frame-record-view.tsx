@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   GameMoveList,
@@ -23,7 +24,7 @@ import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { FrameErrorView } from './game-frame-status-view';
 import type { FrameRecord } from './game-frame-view-types';
 
@@ -377,6 +378,34 @@ function RecordIconToggle(props: {
 }
 
 /**
+ * Before the first move, what the game has ahead, one row per step (`Deal 1
+ * · Pass left`), the step open now marked `Now` in words, not by colour
+ * alone: so a card beside a board with nothing played yet still holds the
+ * game's own plan rather than only a sentence.
+ */
+function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
+  return (
+    <StackVertical gap="xs" testId="custom-game-record-outline">
+      <For each={props.record.outline ?? []}>
+        {(step) => (
+          <StackHorizontal align="center" justify="between" gap="sm">
+            <StackHorizontal align="center" gap="sm">
+              <P variant="caption" tone="secondary">
+                {step.label}
+              </P>
+              <P variant={step.current ? 'label' : 'body'}>{step.detail}</P>
+            </StackHorizontal>
+            <Show when={step.current}>
+              <Badge label={<Trans>Now</Trans>} intent="brand" size="sm" />
+            </Show>
+          </StackHorizontal>
+        )}
+      </For>
+    </StackVertical>
+  );
+}
+
+/**
  * The record beside a wide board, one card as tall as what it holds: the
  * moves as a table of turns, the steps right under them with a quiet way
  * to jump to a move by number, then the game's commands as the card's
@@ -404,6 +433,9 @@ function RecordPanel(props: RecordProps): JSX.Element {
       }
     >
       <RecordSelect {...props} />
+      <Show when={!played() && (props.record.outline?.length ?? 0) > 0}>
+        <RecordOutline record={props.record} />
+      </Show>
       <Show when={played()}>
         <StackVertical gap="sm">
           <RecordMoves {...props} layout="table" />

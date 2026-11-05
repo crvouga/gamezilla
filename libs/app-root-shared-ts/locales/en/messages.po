@@ -2242,6 +2242,10 @@ msgstr "Dark"
 msgid "day"
 msgstr "day"
 
+#: libs/hearts-client-ts/src/hearts-frame.tsx
+msgid "Deal {deal}"
+msgstr "Deal {deal}"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "debug"
 msgstr "debug"
@@ -4324,6 +4328,10 @@ msgid "No participant"
 msgstr "No participant"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "No passing"
+msgstr "No passing"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "No passing this deal"
 msgstr "No passing this deal"
 
@@ -4500,6 +4508,10 @@ msgstr "Notifications"
 #: libs/notifications-client-ts/src/notifications-empty-state.tsx
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
+
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Now"
+msgstr "Now"
 
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "Numberlink board"

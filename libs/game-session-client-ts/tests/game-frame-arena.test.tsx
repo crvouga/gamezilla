@@ -213,6 +213,46 @@ test('wide: a game played by turns with no move yet captions its record card wit
   ).toBe('true');
 });
 
+// regression: hearts-record-card-only-a-sentence — beside a wide Hearts
+// table while hands were passed, the "Game record" card held one sentence
+// and the commands, no record at all. A game that says what it has ahead
+// (Hearts' passing order by deal) lists it there until the first move, the
+// step open now marked in words.
+test('wide: a record card with no move yet lists what the game has ahead, the step now marked', () => {
+  const time = createHarnessClock();
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          record={{
+            ...RECORD,
+            turns: true,
+            outline: [
+              { label: 'Deal 1', detail: 'Pass left', current: true },
+              { label: 'Deal 2', detail: 'Pass right', current: false },
+            ],
+          }}
+          table={{
+            shape: 'rail',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const outline = screen.getByTestId('custom-game-record-outline');
+  expect(
+    outline.closest('[data-testid="custom-game-unplayed-rail"]')
+  ).not.toBeNull();
+  const rows = [...outline.children].map((row) => row.textContent);
+  expect(rows).toEqual(['Deal 1Pass leftNow', 'Deal 2Pass right']);
+});
+
 // regression: hearts-seats-shown-twice — at a Hearts table every player
 // showed twice: as a chip above the table and as a seat plate on it. A
 // board that seats its players is lent each one, at their place at the

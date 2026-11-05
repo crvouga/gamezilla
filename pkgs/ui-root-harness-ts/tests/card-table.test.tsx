@@ -5,6 +5,7 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { handPlace, handSpan } from '@pkgs/ui-root-client-ts/card-table';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import CardTableExample from '../../ui-root-client-ts/src/card-table/card-table.example';
@@ -181,23 +182,57 @@ function rule(sheet: string, head: string): string {
 // regression: hearts-phone-hand-overflows — on a 390px phone the thirteen
 // card hand ran past the screen's right edge: every card kept 30px in view,
 // so the row was 412px wide in a 342px hand, the J and Q cut off with no
-// sign the row scrolled. A narrow crowded hand overlaps its cards to fit
-// the row (about 24px each on a phone) and never scrolls.
-test('a narrow hand of thirteen cards fits its row, never scrolling', () => {
+// sign the row scrolled. A narrow crowded hand fits its row and never
+// scrolls.
+// regression: hearts-phone-hand-thin-strips — the one row that fitted left
+// each of thirteen cards a 24px strip on a phone, too thin to read or tap.
+// A narrow crowded hand is two staggered rows: every card steps by what the
+// longer row leaves it (about 48px on a phone, never under 28px on a 320px
+// phone), and the lower row starts below the upper cards' corners, even
+// with a chosen card lifted and ringed.
+test('a narrow hand of thirteen cards fits two rows, each card a strip to read and tap', () => {
   const sheet = css('card-table/card-table.module.css');
   const narrow = sheet.slice(sheet.indexOf('@container (max-width: 32rem)'));
   const row = rule(narrow, '.hand[data-crowded="true"] {');
   expect(row).not.toMatch(/overflow-x:\s*(auto|scroll)/);
-  // Each card steps by the row's width shared out, floored by the peek.
-  expect(rule(narrow, '.hand[data-crowded="true"] > .card + .card {')).toMatch(
-    /max\(\s*var\(--hand-peek\),\s*\(100cqw - var\(--card-w\)\)\s*\/\s*max\(1, var\(--hand-count\) - 1\)\s*\)/
+  expect(row).toMatch(/--hand-row-step:\s*var\(--ui-space-12\);/);
+  const card = rule(narrow, '.hand[data-crowded="true"] > .card {');
+  expect(card).toMatch(/--card-w:\s*56px;/);
+  // Each card steps by the row's width shared out over the hand's span.
+  expect(card).toMatch(
+    /\(100cqw - var\(--card-w\)\)\s*\/\s*var\(--hand-span\)/
   );
+  expect(card).toMatch(
+    /margin-top:\s*calc\(var\(--hand-row\) \* var\(--hand-row-step\)\);/
+  );
+  // A chosen card lifts 8px: with its 5px ring it stays 35px below the
+  // upper row's top, past a corner index 4px down, 15px rank over 12px pip.
+  expect(
+    rule(
+      narrow,
+      '.hand[data-crowded="true"] > button.card[aria-pressed="true"] {'
+    )
+  ).toMatch(/translateY\(calc\(-1 \* var\(--ui-space-2\)\)\)/);
+  expect(48 - 8 - 5).toBeGreaterThan(4 + 15 + 1 + 12);
+  const places = Array.from({ length: 13 }, (_, at) => handPlace(at, 13));
+  expect(places.filter((place) => place.row === 0)).toHaveLength(7);
+  expect(places.filter((place) => place.row === 1)).toHaveLength(6);
+  // The lower row sits half a step along, between the upper row's cards.
+  expect(places[7]).toEqual({ row: 1, step: 0.5 });
+  // The span the steps share: thirteen 56px cards on a 320px phone's 272px
+  // row, and on a 390px phone's 342px row.
+  const span = handSpan(13);
+  expect((272 - 56) / span).toBeGreaterThanOrEqual(28);
+  expect((342 - 56) / span).toBeGreaterThanOrEqual(44);
+  // An even hand's lower row ends half a step past the upper's last card.
+  expect(handSpan(8)).toBe(3.5);
   example();
   const hand = document.querySelector<HTMLElement>('[role="toolbar"]');
   if (hand === null) throw new Error('No hand');
-  // Thirteen 52px cards at the floor fit a 320px phone's 272px row.
-  const peek = Number.parseFloat(hand.style.getPropertyValue('--hand-peek'));
-  expect(52 + 12 * peek).toBeLessThanOrEqual(272);
+  const count = hand.querySelectorAll('button').length;
+  expect(hand.style.getPropertyValue('--hand-span')).toBe(
+    String(handSpan(count))
+  );
 });
 
 // regression: hearts-seat-name-truncated — a phone's side seat at the Hearts

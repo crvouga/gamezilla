@@ -6,7 +6,10 @@
  */
 import { afterEach, expect, test } from 'bun:test';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
-import { heartsFrame } from '@libs/hearts-client-ts/hearts-frame';
+import {
+  heartsFrame,
+  heartsOutline,
+} from '@libs/hearts-client-ts/hearts-frame';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
@@ -123,20 +126,24 @@ test('a pass on its way keeps the hand at full contrast; only a refused card dim
 // one fan of slivers with the suit's name printed sideways. The suit's name
 // is in each card's words, not printed on its edge.
 // regression: hearts-phone-hand-overlapping-rows — two staggered rows then
-// hid the corners of the first row's cards behind the second's. A narrow
-// hand of more than seven cards is one row of overlapping cards.
-// regression: hearts-phone-hand-overflows — that row then scrolled, the J
-// and Q past the screen's edge: it fits the row, each card's rank and suit
-// corner in view (at least 18px, about 24px on a phone).
-test('thirteen cards sit in one row, every corner in view, each named by its suit', () => {
+// hid the corners of the first row's cards behind the second's.
+// regression: hearts-phone-hand-thin-strips — one row of thirteen then left
+// each card a 24px strip. The hand is two rows, the upper a card longer,
+// the lower half a step along and starting below the upper's corners; every
+// card stays a button of the one hand, in order.
+test('thirteen cards sit in two rows, every corner in view, each named by its suit', () => {
   board();
   const hand = byTestId('hearts-hand');
   expect(hand.getAttribute('data-crowded')).toBe('true');
-  expect(hand.style.getPropertyValue('--hand-peek')).toBe('18px');
+  expect(hand.style.getPropertyValue('--hand-span')).toBe('6');
   const cards = [...hand.querySelectorAll('button')];
   expect(cards).toHaveLength(13);
   expect(cards.every((card) => card.parentElement === hand)).toBe(true);
-  expect(cards.some((card) => card.hasAttribute('data-row'))).toBe(false);
+  expect(
+    cards.map((card) =>
+      (card as HTMLElement).style.getPropertyValue('--hand-row')
+    )
+  ).toEqual(['0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1']);
   expect(byTestId('hearts-card-2H').textContent).toContain('hearts');
   expect(byTestId('hearts-card-2H').textContent).toContain('♥');
 });
@@ -169,4 +176,18 @@ test('the middle of the table shows where the pass goes and the cards chosen', (
   const placed = table.querySelectorAll('[data-filled="true"]');
   expect(placed).toHaveLength(1);
   expect(placed[0]?.textContent).toContain('♣');
+});
+
+// regression: hearts-record-card-only-a-sentence — beside a wide table the
+// record card said only "Pass three cards to the left." Hearts gives the
+// frame its passing order, the deal under way marked, and nothing once the
+// game is over.
+test('the passing order of the four deals, the one under way marked', () => {
+  expect(heartsFrame.outline).toBe(heartsOutline);
+  expect(heartsOutline(heartsRules.initial())).toEqual([
+    { label: 'Deal 1', detail: 'Pass left', current: true },
+    { label: 'Deal 2', detail: 'Pass right', current: false },
+    { label: 'Deal 3', detail: 'Pass across', current: false },
+    { label: 'Deal 4', detail: 'No passing', current: false },
+  ]);
 });

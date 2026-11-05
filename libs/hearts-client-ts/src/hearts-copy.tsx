@@ -125,3 +125,14 @@ export function passHeading(direction: PassDirection, passed: boolean): string {
   };
   return (passed ? sent : choosing)[direction];
 }
+
+/** A deal in the passing order: where its cards go (`Pass left`, `No passing`). */
+export function passPlan(direction: PassDirection): string {
+  const plans: Readonly<Record<PassDirection, string>> = {
+    left: t`Pass left`,
+    right: t`Pass right`,
+    across: t`Pass across`,
+    hold: t`No passing`,
+  };
+  return plans[direction];
+}
