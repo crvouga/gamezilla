@@ -85,7 +85,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
                 data-testid={`${props.testId}-court-score-first`}
                 x={props.width / 4}
                 y={props.height * 0.08}
-                font-size={props.height * 0.22}
+                font-size={String(props.height * 0.22)}
               >
                 {score().first}
               </text>
@@ -94,7 +94,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
                 data-testid={`${props.testId}-court-score-second`}
                 x={(props.width * 3) / 4}
                 y={props.height * 0.08}
-                font-size={props.height * 0.22}
+                font-size={String(props.height * 0.22)}
               >
                 {score().second}
               </text>
