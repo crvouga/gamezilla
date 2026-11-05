@@ -814,7 +814,9 @@ approval after the latest push, and resolved review conversations. A push dismis
 stale approvals. The final PR gate checks both the head and merge commit: every
 check must pass, belong to its declared GitHub App, and be registered as required.
 New integrations cannot silently add advisory checks. Dynamic shards are enforced
-by the aggregate verdict, including missing or failed shard evidence. There are no bypass actors. Only a person merges. Merge commits
+by the aggregate verdict, including missing or failed shard evidence. There are no bypass actors. Only a person authorizes a merge,
+either directly or by enabling auto-merge on a PR. Repository auto-merge is enabled;
+it waits for the same required checks, approvals and resolved conversations. Merge commits
 remain the only merge method. GitHub deletes merged head branches automatically.
 Repository settings and secret scanning remain owned by the bootstrap stack;
 Release applies the reviewed repository configuration after the full gate and

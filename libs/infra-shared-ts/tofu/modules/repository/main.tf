@@ -57,7 +57,7 @@ resource "github_repository" "this" {
   archive_on_destroy          = true
   archived                    = false
   is_template                 = false
-  allow_auto_merge            = false
+  allow_auto_merge            = true
   allow_update_branch         = true
   delete_branch_on_merge      = true
   allow_merge_commit          = true
