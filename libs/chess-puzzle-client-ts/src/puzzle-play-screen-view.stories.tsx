@@ -1,4 +1,3 @@
-import { PuzzlePlayScreenView } from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
@@ -14,6 +13,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   StoryChessPuzzleBoard,
+  StoryChessPuzzlePlayScreen,
   withChessPuzzleBoardContext,
 } from './chess-puzzle-story.example';
 
@@ -32,7 +32,7 @@ const SOLVED = STORY_SOLVED;
 const meta = {
   id: 'screens-puzzles-play',
   title: 'Screens/Puzzles/Play',
-  component: PuzzlePlayScreenView,
+  component: StoryChessPuzzlePlayScreen,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],
   render: (args, context) =>
@@ -42,7 +42,7 @@ const meta = {
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
   args: PUZZLE_PLAY_STORY_ARGS,
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<typeof StoryChessPuzzlePlayScreen>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

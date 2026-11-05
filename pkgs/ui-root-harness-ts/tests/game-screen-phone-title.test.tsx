@@ -30,7 +30,12 @@ test('a phone game in play shows its facts and keeps its title for a listener', 
   const narrow = css.slice(
     css.indexOf('@container game-column (max-width: 879px)')
   );
+  // A game in play leaves the title to the host's bar; only a heading that
+  // keeps its title (a puzzle's own name) is exempt.
+  expect(
+    mustQuery('[data-component="GameHeading"]').getAttribute('data-keep-title')
+  ).toBe('false');
   expect(narrow).toMatch(
-    /^@container game-column \(max-width: 879px\)\s*\{\s*\.headingTitle\s*\{[^}]*clip:/
+    /^@container game-column \(max-width: 879px\)\s*\{\s*\.heading:not\(\[data-keep-title="true"\]\) \.headingTitle\s*\{[^}]*clip:/
   );
 });
