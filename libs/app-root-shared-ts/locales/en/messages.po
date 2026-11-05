@@ -1419,6 +1419,10 @@ msgstr "By the fifty-move rule."
 msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "cancel"
+msgstr "cancel"
+
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
@@ -2458,8 +2462,8 @@ msgid "Drag from a number to its match to draw a path."
 msgstr "Drag from a number to its match to draw a path."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
-msgstr "Drag from a number to its match, or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path."
+msgid "Drag from a number to its match."
+msgstr "Drag from a number to its match."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Drag on your side of the court or use the slider beside it."
@@ -2470,6 +2474,7 @@ msgid "Draining"
 msgstr "Draining"
 
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "draw"
 msgstr "draw"
 
@@ -5187,8 +5192,11 @@ msgstr "Profile unavailable"
 msgid "Progress"
 msgstr "Progress"
 
-#: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Progress saved on this device."
+msgstr "Progress saved on this device."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 msgid "Progress saved on this device. Changes share when connected."
 msgstr "Progress saved on this device. Changes share when connected."
 
@@ -5263,6 +5271,12 @@ msgstr "Pushes"
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
+
+#. placeholder {0}: props.pack.position
+#. placeholder {1}: props.pack.total
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Puzzle {0} of {1}"
+msgstr "Puzzle {0} of {1}"
 
 #. placeholder {0}: props.pack.position
 #. placeholder {1}: props.pack.total
@@ -5650,6 +5664,10 @@ msgstr "Remove {0} sign-in?"
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
+
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "remove a path"
+msgstr "remove a path"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Remove endpoints"
@@ -6682,6 +6700,10 @@ msgstr "Start game"
 msgid "Start loading"
 msgstr "Start loading"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "start or end a path"
+msgstr "start or end a path"
+
 #: libs/game-puzzle-client-ts/src/content-draft-playtest.tsx
 msgid "Start playtest"
 msgstr "Start playtest"
@@ -6827,8 +6849,8 @@ msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Swipe the board, tap a square beside the worker, or use the pad."
-msgstr "Swipe the board, tap a square beside the worker, or use the pad."
+msgid "Swipe, tap beside the worker, or use the pad."
+msgstr "Swipe, tap beside the worker, or use the pad."
 
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx

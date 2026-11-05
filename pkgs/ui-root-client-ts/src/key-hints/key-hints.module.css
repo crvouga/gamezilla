@@ -1,0 +1,31 @@
+/* One quiet caption line that wraps: the pointer's way in words, then
+   each key cap beside what it does. */
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-1) var(--ui-space-3);
+  margin: 0;
+  color: var(--ui-color-text-secondary);
+}
+.lead {
+  margin-inline-end: var(--ui-space-1);
+}
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+}
+.key {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--ui-space-5);
+  padding: 0 var(--ui-space-1);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text);
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-font-size-xs);
+  line-height: var(--ui-leading-sm);
+}

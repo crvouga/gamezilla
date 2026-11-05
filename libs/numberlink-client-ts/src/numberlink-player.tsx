@@ -8,7 +8,8 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -23,6 +24,7 @@ function Drawing(props: {
   disabled: boolean;
   onAction: (action: string) => void;
 }): JSX.Element {
+  const { t } = useLingui();
   const mode = useLayoutMode();
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
@@ -44,20 +46,25 @@ function Drawing(props: {
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
       />
-      <P variant="caption" tone="secondary">
-        <Show
-          when={mode() === 'wide'}
-          fallback={
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <P variant="caption" tone="secondary">
             <Trans>Drag from a number to its match to draw a path.</Trans>
-          }
-        >
-          <Trans>
-            Drag from a number to its match, or press Enter on a number, draw
-            with the arrow keys and press Enter again. Escape cancels; Delete
-            removes a path.
-          </Trans>
-        </Show>
-      </P>
+          </P>
+        }
+      >
+        <KeyHints
+          testId="numberlink-key-hints"
+          lead={t`Drag from a number to its match.`}
+          hints={[
+            { keys: ['↵'], label: t`start or end a path` },
+            { keys: ['←', '↑', '→', '↓'], label: t`draw` },
+            { keys: ['Esc'], label: t`cancel` },
+            { keys: ['Del'], label: t`remove a path` },
+          ]}
+        />
+      </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}
       </Show>
