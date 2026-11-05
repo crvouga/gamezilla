@@ -88,6 +88,6 @@ export async function settlePlay(
     s,
     () =>
       view.queryByTestId('content-position-save-status')?.textContent ===
-      'Progress saved on this device. Changes share when connected.'
+      'Progress saved on this device.'
   );
 }

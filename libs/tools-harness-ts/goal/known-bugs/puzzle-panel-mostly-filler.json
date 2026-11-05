@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a Sokoban or Numberlink board the \"Puzzle 3 of 4 in Warehouse basics\" panel held only a two-line note, \"Progress saved on this device. Changes share when connected.\", so it was mostly filler and outweighed the puzzle's progress. Under its place the panel now shows a bar of how far through the pack the puzzle is, and the save status is one short line.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

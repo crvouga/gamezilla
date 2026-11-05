@@ -110,3 +110,24 @@ for (const width of [390, 1440]) {
     expect(save.className).toContain('textCaption');
   });
 }
+
+// regression: puzzle-panel-mostly-filler — beside a Sokoban or Numberlink
+// board the "Puzzle 3 of 4" panel held only a two-line note, "Progress
+// saved on this device. Changes share when connected.", so it was mostly
+// filler and outweighed the puzzle's progress. Under its place the panel
+// now shows how far through the pack the puzzle is, as a bar, and the
+// save status is one short line.
+for (const width of [390, 1440]) {
+  test(`at ${width}px the panel shows the pack's progress over one short save line`, () => {
+    mount(width);
+    const panel = screen.getByTestId('puzzle-attempt-panel');
+    const track = screen.getByTestId('puzzle-attempt-pack-track');
+    expect(panel.contains(track)).toBe(true);
+    const bar = track.querySelector('[role="progressbar"]');
+    expect(bar?.getAttribute('aria-label')).toBe('Puzzle 3 of 4');
+    expect(bar?.getAttribute('aria-valuenow')).toBe('0.75');
+    const save = screen.getByTestId('content-position-save-status');
+    expect(follows(track, save)).toBe(true);
+    expect(save.textContent).toBe('Progress saved on this device.');
+  });
+}

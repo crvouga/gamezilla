@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Sokoban hint beside the direction pad read \"Swipe the board, tap a square beside the worker, or use the pad.\", three lines in the narrow column beside the pad, which made the puzzle screen taller. It now says the same in one short sentence.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-phone-hint.test.tsx"
+}

@@ -7,6 +7,7 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -75,7 +76,7 @@ function SaveStatus(props: ContentAttemptScreenViewProps): JSX.Element {
     >
       {props.saving
         ? t`Saving your position…`
-        : t`Progress saved on this device. Changes share when connected.`}
+        : t`Progress saved on this device.`}
     </P>
   );
 }
@@ -138,13 +139,27 @@ function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
   );
 }
 
+/** How far through its pack this puzzle is, as a bar under its place. */
+function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <ProgressBar
+      size="sm"
+      progress={props.pack.position / Math.max(1, props.pack.total)}
+      accessibleLabel={t`Puzzle ${props.pack.position} of ${props.pack.total}`}
+      dataSet={{ testid: 'puzzle-attempt-pack-track' }}
+    />
+  );
+}
+
 /**
  * The puzzle panel: beside the board when wide, under it on a phone, as a
  * game's record is. Compact, what is useful first: its heading says where
  * the puzzle sits in its pack ("Puzzle 3 of 4 in Warehouse basics", or
- * "This puzzle" on its own), then a playtest's note and the completion,
- * and last the save status as one quiet caption. It is secondary: the
- * attempt's commands sit with the board, not at the panel's foot.
+ * "This puzzle" on its own) over a bar of how far through the pack it is,
+ * then a playtest's note and the completion, and last the save status in
+ * one short quiet line. It is secondary: the attempt's commands sit with
+ * the board, not at the panel's foot.
  */
 function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -157,6 +172,7 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       }
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
+      <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
       <SaveStatus {...props} />
       <Show when={props.playtest}>
         <Notice>

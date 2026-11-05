@@ -74,10 +74,7 @@ function Steering(props: {
             <Show
               when={wide()}
               fallback={
-                <Trans>
-                  Swipe the board, tap a square beside the worker, or use the
-                  pad.
-                </Trans>
+                <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
               }
             >
               <Trans>
