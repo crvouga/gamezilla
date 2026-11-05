@@ -161,8 +161,8 @@ test('steps that wait are locked, say so in a word, and still press', async () =
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
   for (const [index, id, line] of [
-    [1, 'content-validate', '2Validate· Locked'],
-    [2, 'content-publish', '3Publish· Locked'],
+    [1, 'content-validate', '2Validate·Locked'],
+    [2, 'content-publish', '3Publish·Locked'],
   ] as const) {
     const button = screen.getByTestId(id);
     expect(button.getAttribute('data-face')).toBe('locked');
@@ -196,7 +196,7 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   );
   expect(states()).toEqual(['current', 'upcoming', 'upcoming']);
   expect(screen.getByTestId('content-pack-puzzles-step').textContent).toBe(
-    '1Publish puzzles· Next'
+    '1Publish puzzles·Next'
   );
   // regression: pack-publish-dependency-exposed — the line explained the
   // rule ("A pack holds only published puzzles, so Count to nine comes
@@ -216,8 +216,8 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   const steps = [
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
-  expect(steps[1]?.textContent).toBe('2Validate· Locked');
-  expect(steps[2]?.textContent).toBe('3Publish· Locked');
+  expect(steps[1]?.textContent).toBe('2Validate·Locked');
+  expect(steps[2]?.textContent).toBe('3Publish·Locked');
 });
 
 function builder(): JSX.Element {

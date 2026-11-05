@@ -44,9 +44,9 @@ describe('StepTrack', () => {
     // state for assistive technology only, so the track ran together. Each
     // step now reads as one short line: number, name, state.
     expect(steps.map((step) => step.textContent)).toEqual([
-      'Playtest· Done',
-      '2Validate· Next',
-      '3Publish· Locked',
+      'Playtest·Done',
+      '2Validate·Next',
+      '3Publish·Locked',
     ]);
   });
 

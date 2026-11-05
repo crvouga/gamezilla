@@ -69,7 +69,7 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
                 {step().action}
               </Show>
               <span class={styles['state']}>
-                <span aria-hidden="true">· </span>
+                <span aria-hidden="true">·</span>
                 {props.stateNames[step().state]}
               </span>
             </li>
