@@ -75,6 +75,7 @@ export function SignInMethodsSection(
           title={<Trans>Sign-in methods</Trans>}
           description={<Trans>How you sign in</Trans>}
           footer={<RemoveMethodFooter removable={removable()} />}
+          footerInside
         >
           {/* Only a Synthetic User's account ever holds an email method. */}
           <Show when={identities().find((row) => row.provider === 'email')}>
@@ -111,8 +112,9 @@ export function SignInMethodsSection(
 }
 
 /**
- * What Remove does, under the methods: it stops that method signing in, and
- * the account keeps at least one, which is why the only one cannot go.
+ * What Remove does, as the methods card's last row: it stops that method
+ * signing in, and the account keeps at least one, which is why the only one
+ * cannot go.
  */
 function RemoveMethodFooter(props: {
   readonly removable: boolean;

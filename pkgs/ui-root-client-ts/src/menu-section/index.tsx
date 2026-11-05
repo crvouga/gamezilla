@@ -18,6 +18,12 @@ export type MenuSectionProps = {
   /** Explanatory note under the rows. */
   footer?: JSX.Element | undefined;
   /**
+   * Draw the footer as the panel's last row, in the caption role, instead
+   * of loose text under it: for a note about the rows themselves (why the
+   * only sign-in method cannot be removed), so it reads as part of them.
+   */
+  footerInside?: boolean | undefined;
+  /**
    * What the group is for, in one short line under its label. Shown only
    * where the label has a column of its own (a desktop menu screen); a
    * phone keeps to the label, so nothing here may be needed to use a row.
@@ -56,10 +62,21 @@ export type MenuSectionProps = {
 export function MenuSection(props: MenuSectionProps): JSX.Element {
   const layout = useMenuSectionLayout();
   const hasTitle = () => props.title !== undefined && props.title !== null;
+  const hasFooter = () => props.footer !== undefined && props.footer !== null;
   const rows = (): JSX.Element => (
     <>
-      <MenuList separator={props.separator}>{props.children}</MenuList>
-      <Show when={props.footer !== undefined && props.footer !== null}>
+      <MenuList separator={props.separator}>
+        {props.children}
+        <Show when={props.footerInside === true && hasFooter()}>
+          <p
+            class="text textCaption px-4 py-3"
+            {...dataAttrs({ component: 'MenuSectionFooter', placement: 'inside' })}
+          >
+            {props.footer}
+          </p>
+        </Show>
+      </MenuList>
+      <Show when={props.footerInside !== true && hasFooter()}>
         <p class="text textCaption px-4">{props.footer}</p>
       </Show>
     </>

@@ -3,7 +3,10 @@
 
 import { afterEach, expect, test } from 'bun:test';
 import { SpaceGamesScreenView } from '@libs/spaces-client-ts/space-games-screen-view';
-import { SpaceWhoIsHereView } from '@libs/spaces-client-ts/space-who-is-here-view';
+import {
+  peopleColumns,
+  SpaceWhoIsHereView,
+} from '@libs/spaces-client-ts/space-who-is-here-view';
 import {
   AVERY,
   faces,
@@ -109,4 +112,31 @@ test('every face shows whole: inside its ring, overlapped by nothing but a ring'
     // Big enough to tell people apart.
     expect(face).toBeGreaterThanOrEqual(28);
   }
+});
+
+// regression: who-is-here-lone-person-row — on a desktop five people sat in
+// a four-column grid, "sam" alone on a second row of a mostly empty card.
+// The columns follow how many are here, so no last row holds one person.
+test('no desktop row of who is here holds one person alone', () => {
+  expect(peopleColumns(5)).toBe(6);
+  // Up to twelve, a room's size; thirteen leaves one over at every count.
+  for (let count = 2; count <= 12; count += 1) {
+    const columns = peopleColumns(count);
+    const last = count % columns;
+    if (count > columns) expect(last).not.toBe(1);
+  }
+  const container = renderWithI18n(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 1440, height: 900 }}
+    >
+      <SpaceWhoIsHereView
+        faces={faces([AVERY, ...GUESTS])}
+        host={AVERY}
+        hostIsYou
+      />
+    </ThemeProvider>
+  )).container;
+  const grid = container.querySelector('[role="list"][data-component="Grid"]');
+  expect(grid?.className).toContain('grid-cols-6');
 });

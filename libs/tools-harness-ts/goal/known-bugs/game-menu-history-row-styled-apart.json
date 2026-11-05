@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide game menu \"History and stats\" was a transparent outlined row with a narrower inner edge under two raised option cards, so it looked like a different kind of control. It is now a card of the tiles' own kind (their surface, edge, radius and inner start edge), only shorter, with its smaller picture and title.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

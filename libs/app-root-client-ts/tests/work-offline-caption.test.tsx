@@ -60,3 +60,32 @@ test('the one caption explains the switch, with no paragraph under it', () => {
   expect(screen.queryByText(/nobody can play with you/)).toBeNull();
   expect(screen.queryByText(/until you go back online/)).toBeNull();
 });
+
+// regression: settings-label-column-wraps — on a desktop the Connection
+// group's description, "Playing with others and syncing", wrapped onto two
+// lines in the label column beside its row. Every group's description is
+// a short pair like its neighbours ("Look and sound"), one line there.
+test('on a desktop every settings group says what it holds in a short line', () => {
+  renderChrome(
+    () => (
+      <SettingsScreenView
+        theme="system"
+        muted={false}
+        offline={false}
+        canViewBilling={false}
+        version="1.0.0"
+        onOfflineChange={() => undefined}
+        onNavigate={() => undefined}
+      />
+    ),
+    { width: 1440, height: 900 }
+  );
+  expect(screen.getByText('Online play and sync')).toBeTruthy();
+  const descriptions = [
+    ...document.querySelectorAll(
+      '[data-component="MenuSection"][data-layout="aside"] p'
+    ),
+  ].map((node) => node.textContent ?? '');
+  expect(descriptions.length).toBeGreaterThan(2);
+  for (const text of descriptions) expect(text.length).toBeLessThanOrEqual(24);
+});

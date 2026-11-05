@@ -1511,11 +1511,6 @@ msgstr "Central hill"
 msgid "Change game"
 msgstr "Change game"
 
-#. placeholder {0}: props.seat.sideLabel
-#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
-msgid "Change player<0>: {0}</0>"
-msgstr "Change player<0>: {0}</0>"
-
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
 msgstr "Change size"
@@ -2748,6 +2743,10 @@ msgstr "Every username is unique. Ask a friend for theirs and type the start of 
 msgid "Everyone can see that the space has ended."
 msgstr "Everyone can see that the space has ended."
 
+#: libs/friends-client-ts/src/friends-list-screen-view.tsx
+msgid "Everyone else"
+msgstr "Everyone else"
+
 #: libs/spaces-client-ts/src/end-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
@@ -3406,6 +3405,11 @@ msgstr "Invite a space member"
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Invite friends"
 msgstr "Invite friends"
+
+#. placeholder {0}: props.seat.sideLabel
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+msgid "Invite or bot<0>: {0}</0>"
+msgstr "Invite or bot<0>: {0}</0>"
 
 #. placeholder {0}: name ?? t`Person`
 #: libs/game-session-client-ts/src/custom-game-status.tsx
@@ -4597,6 +4601,10 @@ msgstr "online"
 msgid "Online"
 msgstr "Online"
 
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+msgid "Online play and sync"
+msgstr "Online play and sync"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Online Synthetic Users"
 msgstr "Online Synthetic Users"
@@ -5065,13 +5073,10 @@ msgstr "Players"
 msgid "Playing"
 msgstr "Playing"
 
+#: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "Playing now"
 msgstr "Playing now"
-
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Playing with others and syncing"
-msgstr "Playing with others and syncing"
 
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx

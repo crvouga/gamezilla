@@ -169,7 +169,7 @@ function useConnectionGroup(
   return () => ({
     key: 'connection',
     title: t`Connection`,
-    description: t`Playing with others and syncing`,
+    description: t`Online play and sync`,
     rows: [
       {
         title: t`Work offline`,

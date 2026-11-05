@@ -122,6 +122,34 @@ describe('GameMenuScreen', () => {
     view.unmount();
   });
 
+  // regression: game-menu-history-row-styled-apart — wide, "History and
+  // stats" was a transparent outlined row under two raised cards, with a
+  // narrower inner edge, so it looked like a different kind of control.
+  // It is a card of the tiles' kind, their surface, edge and inner start
+  // edge, only shorter.
+  test("wide: the look back is a shorter card of the tiles' own kind", () => {
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-menu-screen/game-menu-screen.module.css'
+      ),
+      'utf8'
+    );
+    const body = (selector: string): string => {
+      const start = css.indexOf(`${selector} {`);
+      return css.slice(start, css.indexOf('}', start));
+    };
+    const tile = body('.tile');
+    const link = body('.link');
+    for (const property of ['background', 'border', 'border-radius']) {
+      const value = new RegExp(`\\n\\s*${property}:\\s*([^;]+);`);
+      expect(link.match(value)?.[1]).toBe(tile.match(value)?.[1]);
+    }
+    expect(link).toContain('padding: var(--ui-space-3) var(--ui-space-6);');
+    expect(tile).toContain('padding: var(--ui-space-6);');
+    expect(link).toContain('min-height: 64px;');
+  });
+
   // regression: game-menu-recommended-badge-detached — wide, the
   // "Recommended" tag was a 10px chip at the tile's far corner, far from its
   // title, and the tile's chevron sat at the foot of a mostly empty card.

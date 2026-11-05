@@ -129,8 +129,20 @@ function HereFaces(props: {
 /** A desktop person's face: a row's size, larger than the header's. */
 const PERSON_SIZE = 40;
 
-/** People to a row in the desktop section: the games' four tiles above. */
-const PEOPLE_COLUMNS = 4;
+/**
+ * People to a row in the desktop section, so the last row never holds one
+ * person alone: up to four, the games' four tiles above; five or six, one
+ * row of six; more, rows of four (else three, else six) whose last row
+ * holds more than one.
+ */
+export function peopleColumns(count: number): 3 | 4 | 6 {
+  if (count <= 4) return 4;
+  if (count <= 6) return 6;
+  for (const columns of [4, 3, 6] as const) {
+    if (count % columns !== 1) return columns;
+  }
+  return 4;
+}
 
 /** One person here, by face and name, the host marked. */
 function HerePerson(props: {
@@ -177,7 +189,7 @@ function WhoIsHereSection(props: SpaceWhoIsHereViewProps): JSX.Element {
       </StackHorizontal>
       <Show when={people().length > 0}>
         <Surface tone="surface" radius="card" border padding="lg">
-          <Grid columns={PEOPLE_COLUMNS} gap="md" role="list">
+          <Grid columns={peopleColumns(people().length)} gap="md" role="list">
             <For each={people()}>
               {(person) => (
                 <HerePerson person={person} hosts={person.id === hostId()} />

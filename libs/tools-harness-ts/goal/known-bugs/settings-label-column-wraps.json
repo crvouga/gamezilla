@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop the Settings label column wrapped the Connection group's description, \"Playing with others and syncing\", onto two lines beside its single row. It now reads \"Online play and sync\", a short pair like its neighbours, on one line.",
+  "regressionTest": "libs/app-root-client-ts/tests/work-offline-caption.test.tsx"
+}
