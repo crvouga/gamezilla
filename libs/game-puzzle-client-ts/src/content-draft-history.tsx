@@ -1,6 +1,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 import type { DraftEditDirection } from './draft-edit-history';
@@ -47,7 +48,11 @@ function useDraftEditStep(props: HistoryProps, direction: DraftEditDirection) {
   });
 }
 
-/** Undo and redo of this session's draft edits; each keeps a new draft copy. */
+/**
+ * Undo and redo of this session's draft edits; each keeps a new draft copy.
+ * Ghost buttons with their icons, as the builder's other stage tool
+ * (Preview) is, so the three read as one row of tools.
+ */
 export function ContentDraftHistory(props: HistoryProps): JSX.Element {
   const { t } = useLingui();
   const undo = useDraftEditStep(props, 'undo');
@@ -58,13 +63,15 @@ export function ContentDraftHistory(props: HistoryProps): JSX.Element {
       <Button
         {...undo.buttonProps}
         intent="neutral"
-        variant="outline"
+        variant="ghost"
+        startIcon={<UndoIcon size={20} />}
         dataSet={{ testid: 'content-undo-draft-edit' }}
       />
       <Button
         {...redo.buttonProps}
         intent="neutral"
-        variant="outline"
+        variant="ghost"
+        startIcon={<RedoIcon size={20} />}
         dataSet={{ testid: 'content-redo-draft-edit' }}
       />
       <Show when={failure()}>

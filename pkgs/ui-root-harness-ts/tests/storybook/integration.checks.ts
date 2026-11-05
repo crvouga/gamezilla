@@ -173,8 +173,8 @@ async function builderControlsUncovered(page: Page) {
 // regression: builder-publish-strip-clips-stage — the publish step was a
 // strip pinned under the scroll area, so in the first view of the pack
 // builder "Create puzzle in this pack" was cut in half by it, and on a
-// phone the strip hid the Sokoban board. The step is now the builder's
-// last section, in the flow: nothing on the stage is ever under it.
+// phone the strip hid the Sokoban board. The step is now a section in the
+// flow after the stage: nothing on the stage is ever under it.
 for (const story of [
   'screens-puzzles-content-author--pack-builder',
   'screens-games-sokoban-editor--two-crates',

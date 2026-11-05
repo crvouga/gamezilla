@@ -10,7 +10,10 @@ import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
+import {
+  CellGridPalette,
+  type CellGridPaletteItem,
+} from '@pkgs/ui-root-client-ts/cell-grid-palette';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -45,9 +48,23 @@ function pieceOf(
   return { glyph: square === 'outside' ? '·' : '', identity: undefined };
 }
 
+/** What each tool lays down, drawn as the board draws that square. */
+const SWATCHES: Readonly<
+  Record<SokobanTool, Omit<CellGridPaletteItem<SokobanTool>, 'key' | 'label'>>
+> = {
+  wall: { tone: 'occupied' },
+  floor: { tone: 'open' },
+  goal: { tone: 'open', identity: 'four' },
+  outside: { tone: 'quiet', glyph: '·' },
+  worker: { tone: 'open', glyph: '☻', identity: 'three' },
+  crate: { tone: 'open', glyph: '▢', identity: 'one' },
+  'remove-crate': { tone: 'open', glyph: '−', identity: 'one' },
+  erase: { tone: 'open', glyph: '✕' },
+};
+
 /**
- * One tool at a time, as one compact group: squares to lay down, then the
- * pieces to place or take away. The chosen tool is the marked chip.
+ * One tool at a time, as one segmented picker: squares to lay down, then
+ * the pieces to place or take away, each a swatch of what it lays down.
  */
 function ToolPalette(props: { editor: Editor; disabled: boolean }) {
   const { t } = useLingui();
@@ -62,12 +79,14 @@ function ToolPalette(props: { editor: Editor; disabled: boolean }) {
     erase: t`Erase`,
   });
   return (
-    <ChipGroup
+    <CellGridPalette
       label={t`Tool`}
-      options={SOKOBAN_TOOLS.map((tool) => ({
+      boardTheme="sokoban"
+      items={SOKOBAN_TOOLS.map((tool) => ({
         key: tool,
         label: names()[tool],
         testid: `sokoban-tool-${tool}`,
+        ...SWATCHES[tool],
       }))}
       selected={props.editor.tool()}
       onSelect={(tool) => props.editor.setTool(tool)}
@@ -187,9 +206,10 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
-        // The board's size and the tools sit beside it when there is room
-        // and head it on a phone, so every control that shapes the board
-        // is in view with it; what to correct follows the board.
+        // The tools sit beside the board when there is room and head it on
+        // a phone, with the size a closed row there, so the board is in
+        // view with every control that shapes it; how to use the tools and
+        // what to correct follow the tools beside it, or the board.
         <EditorWorkbench
           tools={
             <>
@@ -202,12 +222,10 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
             </>
           }
           canvas={
+            <Board editor={editor} board={board()} disabled={props.disabled} />
+          }
+          notes={
             <>
-              <Board
-                editor={editor}
-                board={board()}
-                disabled={props.disabled}
-              />
               <P variant="caption" tone="secondary">
                 <Trans>
                   Choose a tool, then a square. Walls and outside squares remove

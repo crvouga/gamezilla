@@ -17,13 +17,13 @@ export type StepFooterProps = {
 };
 
 /**
- * `StepFooter` -- the step that finishes a long screen, as its last section.
+ * `StepFooter` -- the step that finishes a long screen's work.
  *
- * Place it last in the screen's body. It scrolls with everything above it
- * behind a full-width hairline, so it never covers what comes before it
- * and is never cut off by the window: at the end of the scroll it is
- * wholly in view. Its title names it as a region; under the title, the
- * step's status and actions.
+ * Place it in the screen's body right after the work it finishes. It
+ * scrolls with everything around it behind a full-width hairline, so it
+ * never covers what comes before it: nothing is pinned over the work.
+ * Its title names it as a region; under the title, the step's status and
+ * actions.
  */
 export function StepFooter(props: StepFooterProps): JSX.Element {
   const id = createUniqueId();

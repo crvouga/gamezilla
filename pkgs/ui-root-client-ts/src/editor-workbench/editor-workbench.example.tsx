@@ -6,7 +6,7 @@ import { Surface } from '../surface/index';
 import { P } from '../text/index';
 import { EditorWorkbench } from './index';
 
-/** A canvas stand-in and a row of tools beside it. */
+/** A canvas stand-in, a row of tools beside it and a note under them. */
 export default function EditorWorkbenchExample(): JSX.Element {
   return (
     <ExampleRoot>
@@ -22,6 +22,11 @@ export default function EditorWorkbenchExample(): JSX.Element {
             <Button title="Floor" intent="neutral" variant="outline" />
             <Button title="Goal" intent="neutral" variant="outline" />
           </StackHorizontal>
+        }
+        notes={
+          <P variant="caption" tone="secondary">
+            Choose a tool, then a square.
+          </P>
         }
       />
     </ExampleRoot>

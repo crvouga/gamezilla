@@ -92,6 +92,9 @@ export const resizeSokobanBoard = defineAction({
   name: 'resizeSokobanBoard',
   act: (s: SokobanHarness, columns: number, rows: number) =>
     editInBuilder(s, (view) => {
+      // On a phone the size is a closed row: open it, as the author does.
+      if (view.queryByTestId('sokoban-resize') === null)
+        fireEvent.click(view.getByTestId('sokoban-size-toggle'));
       fireEvent.input(view.getByLabelText('Columns'), {
         target: { value: String(columns) },
       });

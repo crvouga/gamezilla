@@ -175,10 +175,10 @@ function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * The last step, the builder's last section: where the draft stands, a
- * puzzle's playtest, then the check and publication. It scrolls with the
- * stage instead of being pinned over it, so it never covers the board or
- * the pack's puzzles.
+ * The last step, in the flow right after the stage: where the draft
+ * stands, a puzzle's playtest, then the check and publication. It scrolls
+ * with the stage instead of being pinned over it, so it never covers the
+ * board or the pack's puzzles.
  */
 function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -195,8 +195,9 @@ function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
 /**
  * One builder in three numbered steps, read top to bottom at every size:
  * the details (one row once titled), the stage with its tools across the
- * whole column (a game's editor sets its own tools beside its board), the
- * draft's other saved copies after it, and checking and publishing last.
+ * whole column (a game's editor sets its own tools beside its board), and
+ * checking and publishing right after the stage; the draft's other saved
+ * copies, no step of their own, come last.
  */
 function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -225,8 +226,8 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
             <AuthorTools {...props} />
             {props.stage}
           </StackVertical>
-          {props.keptCopies}
           <AuthorPublish {...props} />
+          {props.keptCopies}
         </StackVertical>
       </GameSessionLayout>
     </GameScreen>
@@ -236,8 +237,8 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
 /**
  * The puzzle or pack builder, presentational, one layout for both, in
  * three numbered steps: the draft's details; the stage (the game's editor,
- * the pack's puzzles, or a preview) headed by its editing tools, with the
- * draft's other saved copies; and checking and publishing it last — or
+ * the pack's puzzles, or a preview) headed by its editing tools; and
+ * checking and publishing it, then the draft's other saved copies — or
  * loading, denied and not-on-this-device states. The
  * host's bar holds the way back to the puzzles. Smart widgets arrive as
  * slots.

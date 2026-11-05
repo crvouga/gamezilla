@@ -106,6 +106,12 @@ msgstr "{0, plural, one {You sent # request that is still waiting.} other {You s
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
+#. placeholder {0}: props.board.width
+#. placeholder {1}: props.board.height
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
+msgid "{0} × {1}"
+msgstr "{0} × {1}"
+
 #. placeholder {0}: active()
 #: libs/auth-client-ts/src/account-device-session-caption-text.tsx
 msgid "{0} active, expires {latestExpires}"
@@ -1299,6 +1305,10 @@ msgstr "Blue fleet"
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "Board preview"
 msgstr "Board preview"
+
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
+msgid "Board size"
+msgstr "Board size"
 
 #. placeholder {0}: cellName(112)
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx

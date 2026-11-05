@@ -1,4 +1,4 @@
 {
-  "summary": "The puzzle and pack builders pinned Check and publish in a strip under the scroll area, so the first view of the pack builder cut Create puzzle in this pack in half under it, the Sokoban editor's notice peeked out above it, and on a phone it hid the board. It is now the builder's last section, in the scroll content's flow, so nothing on the stage is ever under it.",
+  "summary": "The puzzle and pack builders pinned Check and publish in a strip under the scroll area, so the first view of the pack builder cut Create puzzle in this pack in half under it, the Sokoban editor's notice peeked out above it, and on a phone it hid the board. It is now a section in the scroll content's flow, right after the stage, so nothing on the stage is ever under it.",
   "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
 }

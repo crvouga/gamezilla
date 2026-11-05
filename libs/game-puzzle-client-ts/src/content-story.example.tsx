@@ -5,7 +5,7 @@
  */
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { PlusIcon, RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -93,21 +93,31 @@ export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
       <Button
         title="Undo edit"
         intent="neutral"
-        variant="outline"
+        variant="ghost"
+        startIcon={<UndoIcon size={20} />}
         disabled={props.disabled}
       />
-      <Button title="Redo edit" intent="neutral" variant="outline" disabled />
+      <Button
+        title="Redo edit"
+        intent="neutral"
+        variant="ghost"
+        startIcon={<RedoIcon size={20} />}
+        disabled
+      />
     </>
   );
 }
 
-/** Starting a private playtest, at rest. */
-export function StoryPlaytest(props: { disabled?: boolean }): JSX.Element {
+/** Starting a private playtest, at rest; filled when it is the next step. */
+export function StoryPlaytest(props: {
+  disabled?: boolean;
+  next?: boolean;
+}): JSX.Element {
   return (
     <Button
       title="Start playtest"
-      intent="neutral"
-      variant="outline"
+      intent={props.next === true ? 'primary' : 'neutral'}
+      variant={props.next === true ? 'solid' : 'outline'}
       disabled={props.disabled}
     />
   );

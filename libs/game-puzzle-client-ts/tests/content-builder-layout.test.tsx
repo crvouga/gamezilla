@@ -73,12 +73,48 @@ function variants(): { validate: string | null; publish: string | null } {
 // were both filled, so the builder offered two equally loud next steps.
 test('until the draft passes its check, Validate is the one filled step', () => {
   mount(() => publication());
-  expect(variants()).toEqual({ validate: 'solid', publish: 'outline' });
+  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
 });
 
 test('once the draft passes its check, Publish is the one filled step', () => {
   mount(() => publication({ validation: 'valid' }));
   expect(variants()).toEqual({ validate: 'outline', publish: 'solid' });
+});
+
+// regression: builder-publish-looks-ready-early — a Sokoban draft said
+// "Finish a playtest, then validate" while Validate was the filled button
+// and Publish an outline beside it, as available as any other step. The
+// playtest is now the one filled step until it proves the puzzle, and
+// Publish stays a quiet ghost until the draft passes its check.
+test('until a playtest proves a puzzle, the playtest is the one filled step', () => {
+  const next: boolean[] = [];
+  mount(() =>
+    publication({
+      kind: 'puzzle',
+      before: (isNext) => {
+        next.push(isNext);
+        return <span data-testid="playtest" />;
+      },
+    })
+  );
+  expect(next).toEqual([true]);
+  expect(variants()).toEqual({ validate: 'outline', publish: 'ghost' });
+});
+
+test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', () => {
+  const next: boolean[] = [];
+  mount(() =>
+    publication({
+      kind: 'puzzle',
+      proven: true,
+      before: (isNext) => {
+        next.push(isNext);
+        return <span data-testid="playtest" />;
+      },
+    })
+  );
+  expect(next).toEqual([false]);
+  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
 });
 
 function row(id: string, first: boolean, last: boolean): JSX.Element {
@@ -161,7 +197,7 @@ test('the editing tools head the stage, and publishing has a section of its own'
       publication={publication({
         kind: 'puzzle',
         layout: 'bar',
-        before: <span data-testid="playtest" />,
+        before: () => <span data-testid="playtest" />,
       })}
       stage={<span data-testid="editor" />}
       onChangeBody={() => undefined}
@@ -222,17 +258,17 @@ function builder(
 // rows: on a phone the draft copies came before the pack's details and its
 // publishing controls, and Validate / Publish sat in a card far from the
 // stage. The builder now reads as numbered steps (details, then the stage
-// headed by its tools, then the copies), and checking and publishing is
-// the last step.
-test('the builder reads as steps, with publishing the last step', () => {
+// headed by its tools, then checking and publishing), and the copies,
+// which are no step, come after them.
+test('the builder reads as steps, with the draft copies after them', () => {
   mount(() => builder());
   const details = screen.getByTestId('content-author-details');
   const stage = screen.getByTestId('content-author-stage');
   const copies = screen.getByTestId('copies');
   const publish = screen.getByTestId('content-author-publish');
   expect(before(details, stage)).toBe(true);
-  expect(before(stage, copies)).toBe(true);
-  expect(before(copies, publish)).toBe(true);
+  expect(before(stage, publish)).toBe(true);
+  expect(before(publish, copies)).toBe(true);
   expect(details.textContent?.startsWith('1 · Details')).toBe(true);
   expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
     '2 · Puzzles'
@@ -253,14 +289,14 @@ test('the builder reads as steps, with publishing the last step', () => {
 // board's last row, the pack's puzzle list and the helper text under it.
 // regression: builder-publish-strip-clips-stage — then it was a strip
 // pinned under the scroll area, which cut the pack builder's "Create puzzle
-// in this pack" in half and hid the phone's Sokoban board. It is now the
-// builder's last section, in the scroll content's flow, and nothing is
-// pinned at the screen's foot.
+// in this pack" in half and hid the phone's Sokoban board. It is now a
+// section in the scroll content's flow, right after the stage, and nothing
+// is pinned at the screen's foot.
 for (const [size, name] of [
   [PHONE, 'a phone'],
   [DESKTOP, 'a desktop'],
 ] as const)
-  test(`on ${name} the publish step is the scroll content's last section, never pinned over it`, () => {
+  test(`on ${name} the publish step is a section in the scroll content, never pinned over it`, () => {
     mount(() => builder(), size);
     const publish = screen.getByTestId('content-author-publish');
     // The screen's own scroll area carries its screen id.
@@ -269,11 +305,10 @@ for (const [size, name] of [
     );
     expect(scroller).not.toBeNull();
     expect(scroller?.contains(publish)).toBe(true);
-    // Nothing follows it in the scroll content: it ends the scroll.
-    const after = Array.from(scroller?.querySelectorAll('*') ?? []).filter(
-      (element) => before(publish, element) && !publish.contains(element)
-    );
-    expect(after).toEqual([]);
+    // It is one section in the stage's column, right after the stage.
+    const stage = screen.getByTestId('content-author-stage');
+    expect(publish.parentElement).toBe(stage.parentElement);
+    expect(stage.nextElementSibling).toBe(publish);
     // No strip outside the scroll area holds a screen footer.
     expect(scroller?.parentElement?.children.length).toBe(1);
     expect(

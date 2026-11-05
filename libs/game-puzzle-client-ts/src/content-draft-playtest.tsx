@@ -13,6 +13,8 @@ import type { useContentDraftSave } from './use-content-draft-save';
 export function ContentDraftPlaytest(props: {
   documentId: string;
   writer: ReturnType<typeof useContentDraftSave>;
+  /** The playtest is the draft's one next step: filled. */
+  next?: boolean | undefined;
   disabled: boolean;
 }): JSX.Element {
   const { t } = useLingui();
@@ -58,8 +60,8 @@ export function ContentDraftPlaytest(props: {
     <StackVertical gap="sm">
       <Button
         {...start.buttonProps}
-        intent="neutral"
-        variant="outline"
+        intent={props.next === true ? 'primary' : 'neutral'}
+        variant={props.next === true ? 'solid' : 'outline'}
         dataSet={{ testid: 'content-start-playtest' }}
       />
       <Show when={start.error()}>

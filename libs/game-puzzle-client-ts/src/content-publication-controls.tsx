@@ -61,7 +61,7 @@ export function ContentPublicationControls(props: {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
-  before?: JSX.Element;
+  before?: ((next: boolean) => JSX.Element) | undefined;
 }): JSX.Element {
   const tools = useContentPublication(props);
   const game = useContentGame();
