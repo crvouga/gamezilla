@@ -87,6 +87,8 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
+    // Played in real time: no turns, so the record lists no moves.
+    table: { turns: false } satisfies GameTableStory,
   },
   args: boardArgs(RUNNING, { simulation: riding(['white']) }),
 } satisfies Meta<typeof LightCyclesBoardView>;

@@ -13,31 +13,24 @@ import {
 import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { HeartsBoard } from './hearts-board';
-import { seatProgress, tableCenter } from './hearts-table-view';
+import { heartsSeatName } from './hearts-copy';
+import { tableCenter } from './hearts-table-view';
 
 /** One player color per seat, in seat order. */
 const SEAT_COLORS: readonly FramePlayerColor[] = [1, 2, 3, 4];
 
-/** South, West, North and East: each seat's score, its cards and its deal. */
+/**
+ * South, West, North and East. Each player's strip names the seat they sit
+ * in; the table itself says each seat's score, its cards and its deal, so
+ * no fact is shown twice.
+ */
 export const heartsFrame: GameFrame<JSX.Element> = {
   players: fixedPlayers(4),
   options: [],
   seats: {
     look: (side) => ({ color: SEAT_COLORS[GAME_SIDES.indexOf(side)] ?? 1 }),
-    stat: (position, side) => {
-      const hearts = decodeHearts(position);
-      if (hearts === null) return null;
-      return {
-        label: t`Score`,
-        value: String(hearts.scores[seatOfSide(side)] ?? 0),
-      };
-    },
-    facts: (position, side, committed) => {
-      const hearts = decodeHearts(position);
-      return hearts === null
-        ? []
-        : seatProgress(hearts, seatOfSide(side), committed);
-    },
+    stat: () => null,
+    facts: (_position, side) => [heartsSeatName(side)],
     out: () => false,
   },
   createBoard: boardOnly(HeartsBoard),

@@ -5,9 +5,11 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
 import { ContentLoadMore } from './content-load-more';
 
@@ -187,9 +189,18 @@ function SavedAttempts(props: {
       <MenuSection
         title={
           ordinary() ? (
-            <Trans>Your saved attempts</Trans>
+            <Trans>Continue playing</Trans>
           ) : (
             <Trans>Your private playtests</Trans>
+          )
+        }
+        footer={
+          ordinary() ? (
+            <Trans>
+              Each attempt keeps your progress at the edition you started.
+            </Trans>
+          ) : (
+            <Trans>Playtests change no personal or pack progress.</Trans>
           )
         }
       >
@@ -200,11 +211,6 @@ function SavedAttempts(props: {
             return (
               <MenuRow
                 title={(attempt()?.title ?? '') || t`Saved puzzle`}
-                caption={
-                  ordinary()
-                    ? t`Your progress is kept at this edition.`
-                    : t`Private playtest. Personal and pack progress stay unchanged.`
-                }
                 trailing={
                   <Badge
                     label={
@@ -228,42 +234,74 @@ function SavedAttempts(props: {
   );
 }
 
-function PersonalContent(props: { view: View }): JSX.Element {
+/** The person's attempts: where they left off first, then their playtests. */
+function Attempts(props: {
+  view: View;
+  mode: 'ordinary' | 'playtest';
+}): JSX.Element {
+  return (
+    <SavedAttempts
+      mode={props.mode}
+      attempts={
+        props.mode === 'ordinary' ? props.view.attempts : props.view.playtests
+      }
+      onOpenAttempt={props.view.onOpenAttempt}
+    />
+  );
+}
+
+/** Earlier attempts and playtests share one page of the person's play. */
+function MoreAttempts(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   return (
-    <>
+    <ContentLoadMore
+      page={{
+        hasMore: () => props.view.more.attempts,
+        more: () => props.view.onMoreAttempts(),
+      }}
+      label={t`Load earlier attempts`}
+    />
+  );
+}
+
+/**
+ * Playing: the person's attempts to continue, the shipped starter packs,
+ * then everything published.
+ */
+function PlayColumn(props: { view: View }): JSX.Element {
+  return (
+    <StackVertical gap="lg" dataSet={{ testid: 'content-library-play' }}>
+      <Attempts view={props.view} mode="ordinary" />
+      <MoreAttempts view={props.view} />
+      <BundledPacks view={props.view} />
+      <PublishedContent view={props.view} />
+    </StackVertical>
+  );
+}
+
+/** Building: creating a draft, the person's own drafts, their playtests. */
+function CreateColumn(props: { view: View }): JSX.Element {
+  return (
+    <StackVertical gap="lg" dataSet={{ testid: 'content-library-create' }}>
+      {props.view.createControls}
       <Show
         when={props.view.personalDenial}
         fallback={<OwnedContent view={props.view} />}
       >
         {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
       </Show>
-      <SavedAttempts
-        mode="ordinary"
-        attempts={props.view.attempts}
-        onOpenAttempt={props.view.onOpenAttempt}
-      />
-      <SavedAttempts
-        mode="playtest"
-        attempts={props.view.playtests}
-        onOpenAttempt={props.view.onOpenAttempt}
-      />
-      <ContentLoadMore
-        page={{
-          hasMore: () => props.view.more.attempts,
-          more: () => props.view.onMoreAttempts(),
-        }}
-        label={t`Load earlier attempts`}
-      />
-    </>
+      <Attempts view={props.view} mode="playtest" />
+    </StackVertical>
   );
 }
 
 /**
- * A game's puzzle library, presentational: create a draft, the shipped
- * starter packs, the person's own drafts, saved attempts and playtests,
- * and the published puzzles and packs, each list paged. Data arrives as
- * props; `ContentLibraryScreen` reads it from the synced library.
+ * A game's puzzle library, presentational, in two columns on a wide screen
+ * (one after the other on a phone, playing first): playing — saved attempts
+ * to continue, the shipped starter packs, the published puzzles and packs
+ * — and building — create a draft, the person's own drafts and their
+ * playtests; each list paged. Data arrives as props;
+ * `ContentLibraryScreen` reads it from the synced library.
  */
 export function ContentLibraryScreenView(
   props: ContentLibraryScreenViewProps
@@ -272,6 +310,7 @@ export function ContentLibraryScreenView(
     <Show when={props.status === 'ready'} fallback={<LoadingState />}>
       <EmbeddedScreen
         screenId="puzzle-content-library"
+        width="full"
         title={props.title}
         subtitle={
           <Trans>
@@ -280,10 +319,10 @@ export function ContentLibraryScreenView(
           </Trans>
         }
       >
-        {props.createControls}
-        <BundledPacks view={props} />
-        <PersonalContent view={props} />
-        <PublishedContent view={props} />
+        <Grid columns={{ base: 1, lg: 2 }} gap="xl" align="start">
+          <PlayColumn view={props} />
+          <CreateColumn view={props} />
+        </Grid>
       </EmbeddedScreen>
     </Show>
   );

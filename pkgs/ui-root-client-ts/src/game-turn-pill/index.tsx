@@ -147,7 +147,12 @@ function ShownPill(props: GameTurnPillProps): JSX.Element {
         <Show when={tone() !== 'neutral'}>
           <span class={styles['turnMark']} aria-hidden="true" />
         </Show>
-        <div class="box min-w-0 gap-1">
+        {/* A box keeps its width unless it says it may shrink: the words
+            wrap inside the pill instead of running out of it. */}
+        <div
+          class="box shrink min-w-0 gap-1"
+          {...dataAttrs({ component: 'GameTurnPillBody' })}
+        >
           <PillWords {...props} yours={yours()} />
           <Show when={props.note}>{props.note}</Show>
         </div>

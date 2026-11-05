@@ -15,6 +15,7 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import {
@@ -32,6 +33,7 @@ function Steering(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const words = useSokobanWords();
+  const mode = useLayoutMode();
   const help = createUniqueId();
   const steering = createSokobanSteering({
     board: () => props.board,
@@ -48,21 +50,13 @@ function Steering(props: {
     { direction: 'down', title: t`↓ Down` },
     { direction: 'right', title: t`→ Right` },
   ];
+  const wide = () => mode() === 'wide';
   return (
     <StackVertical gap="md">
-      <P
-        role="status"
-        dataSet={{
-          testid: 'sokoban-counts',
-          moves: String(props.position.moves),
-          pushes: String(props.position.pushes),
-        }}
-      >
-        {t`Moves: ${props.position.moves} · Pushes: ${props.position.pushes}`}
-      </P>
       <TileBoard
         label={t`Sokoban board`}
         testId="sokoban-board"
+        size="fill"
         columns={props.board.width}
         rows={props.board.height}
         tiles={sokobanTiles(props.board, positionPieces(props.position), words)}
@@ -71,24 +65,48 @@ function Steering(props: {
         onDirection={steering.steer}
         onTile={steering.tap}
       />
-      <StackHorizontal gap="sm" wrap>
-        <For each={buttons()}>
-          {(button) => (
-            <Button
-              title={button.title}
-              intent="neutral"
-              variant="outline"
-              onClick={() => steering.steer(button.direction)}
-              dataSet={{ testid: `sokoban-move-${button.direction}` }}
-            />
-          )}
-        </For>
-      </StackHorizontal>
+      <P
+        role="status"
+        variant="label"
+        dataSet={{
+          testid: 'sokoban-counts',
+          moves: String(props.position.moves),
+          pushes: String(props.position.pushes),
+        }}
+      >
+        {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
+      </P>
+      {/* A keyboard is at hand on a wide screen; a phone gets buttons. */}
+      <Show when={!wide()}>
+        <StackHorizontal gap="sm" wrap>
+          <For each={buttons()}>
+            {(button) => (
+              <Button
+                title={button.title}
+                intent="neutral"
+                variant="outline"
+                onClick={() => steering.steer(button.direction)}
+                dataSet={{ testid: `sokoban-move-${button.direction}` }}
+              />
+            )}
+          </For>
+        </StackHorizontal>
+      </Show>
       <P id={help} variant="caption" tone="secondary">
-        <Trans>
-          Push every crate onto a goal. Use the arrow keys or W A S D on the
-          board, swipe, tap a square beside the worker, or use the buttons.
-        </Trans>
+        <Show
+          when={wide()}
+          fallback={
+            <Trans>
+              Swipe the board, tap a square beside the worker, or use the
+              buttons.
+            </Trans>
+          }
+        >
+          <Trans>
+            Move with the arrow keys or W A S D, or click a square beside the
+            worker.
+          </Trans>
+        </Show>
       </P>
       <Show when={steering.refusal()}>
         {(refused) => (

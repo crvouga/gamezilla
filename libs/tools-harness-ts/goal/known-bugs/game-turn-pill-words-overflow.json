@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, a long game status line (Hearts' \"Choose three cards to pass to the left. Nobody has passed yet.\", Battleship's \"Red fleet fired at C4 and missed. Your turn to fire.\") ran past the right edge of its pill and was cut off, because the words' box kept its full width instead of shrinking to the pill. The words now wrap inside the pill.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-chrome.test.tsx"
+}

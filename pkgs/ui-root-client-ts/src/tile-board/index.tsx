@@ -36,6 +36,12 @@ export type TileBoardProps = {
   readonly onDirection?: ((direction: TileBoardDirection) => void) | undefined;
   /** A tap on the tile at this row-major index. */
   readonly onTile?: ((index: number) => void) | undefined;
+  /**
+   * `compact` (default): tiles of at most 44px. `fill`: the board is the
+   * screen's hero, as wide as what holds it (tiles up to 80px) while it
+   * still fits the viewport's height, its pieces scaled with the tiles.
+   */
+  readonly size?: 'compact' | 'fill' | undefined;
 };
 
 const KEYS: Readonly<Record<string, TileBoardDirection>> = {
@@ -107,6 +113,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       aria-disabled={props.disabled === true}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
+      data-size={props.size ?? 'compact'}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,

@@ -74,6 +74,8 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
+    // Played in real time: no turns, so the record lists no moves.
+    table: { turns: false } satisfies GameTableStory,
   },
   args: boardArgs(court(220), { simulation: playing(['white']) }),
 } satisfies Meta<typeof PongBoardView>;

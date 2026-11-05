@@ -209,6 +209,56 @@ describe('scroll targets', () => {
     }
   });
 
+  // regression: puzzle-move-strip-shifts-page
+  test('a scroller-scoped reveal moves only the nearest scroller, on the axes it names', () => {
+    const current = createScrollTarget();
+    const original = HTMLElement.prototype.scrollIntoView;
+    let pageReveals = 0;
+    HTMLElement.prototype.scrollIntoView = () => {
+      pageReveals += 1;
+    };
+    try {
+      render(() => (
+        <StackVertical testId="page">
+          <StackVertical testId="strip">
+            <StackVertical testId="item" scrollTarget={current.target} />
+          </StackVertical>
+        </StackVertical>
+      ));
+      const strip = byTestId('strip');
+      const page = byTestId('page');
+      strip.style.overflowX = 'auto';
+      page.style.overflowY = 'auto';
+      for (const [element, width] of [
+        [strip, 200],
+        [page, 390],
+      ] as const) {
+        Object.defineProperty(element, 'clientWidth', { value: width });
+        Object.defineProperty(element, 'scrollWidth', { value: 1000 });
+        Object.defineProperty(element, 'clientHeight', { value: 100 });
+        Object.defineProperty(element, 'scrollHeight', { value: 2000 });
+        element.getBoundingClientRect = () =>
+          ({ left: 0, top: 0, width, height: 100 }) as DOMRect;
+      }
+      byTestId('item').getBoundingClientRect = () =>
+        ({ left: 500, top: 900, width: 40, height: 40 }) as DOMRect;
+      expect(
+        current.scrollIntoView({
+          inline: 'center',
+          behavior: 'instant',
+          scope: 'scroller',
+        })
+      ).toBe(true);
+      // Centred in the strip: 500 - (200 - 40) / 2.
+      expect(strip.scrollLeft).toBe(420);
+      expect(page.scrollLeft).toBe(0);
+      expect(page.scrollTop).toBe(0);
+      expect(pageReveals).toBe(0);
+    } finally {
+      HTMLElement.prototype.scrollIntoView = original;
+    }
+  });
+
   test('scrolling an unheld target does nothing', () => {
     expect(createScrollTarget().scrollIntoView()).toBe(false);
   });

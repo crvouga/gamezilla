@@ -1,0 +1,4 @@
+{
+  "summary": "In the puzzle and pack builders, Undo, Redo and Preview sat under the stage beside the playtest, and the draft's other copies were a full-width list titled \"Kept copies\". The editing tools now head the stage they act on, the rail holds Details and Publish, and the copies are \"Draft copies\" with a plain note.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

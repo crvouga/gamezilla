@@ -70,7 +70,7 @@ function shownTrick(position: HeartsPosition) {
  * What a seat holds and has done this deal, without its score: its cards
  * left, then the points it has taken (playing) or whether it has passed.
  */
-export function seatProgress(
+function seatProgress(
   position: HeartsPosition,
   seat: Seat,
   committed: readonly string[]

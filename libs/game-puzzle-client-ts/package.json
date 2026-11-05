@@ -52,6 +52,7 @@
     "@libs/billing-shared-ts": "workspace:*",
     "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
@@ -64,6 +65,8 @@
   },
   "category": "client",
   "gameApi": [
+    "content-attempt-story.example",
+    "content-builder-story.example",
     "puzzle-content-client",
     "puzzle-client",
     "puzzle-screen-story.example"

@@ -58,6 +58,8 @@ export function ContentDraftPlaytest(props: {
     <StackVertical gap="sm">
       <Button
         {...start.buttonProps}
+        intent="neutral"
+        variant="outline"
         dataSet={{ testid: 'content-start-playtest' }}
       />
       <Show when={start.error()}>

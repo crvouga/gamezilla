@@ -56,6 +56,19 @@
   touch-action: none;
   user-select: none;
 }
+/* The hero board: as wide as its column, tiles up to 5rem (80px), never
+   taller than most of the viewport; its pieces scale with its tiles. */
+.board[data-size="fill"] {
+  container-type: size;
+  width: min(
+    100%,
+    calc(var(--tile-board-columns) * 5rem),
+    calc(60dvh * var(--tile-board-columns) / var(--tile-board-rows))
+  );
+}
+.board[data-size="fill"] .piece {
+  font-size: calc(66cqw / var(--tile-board-columns));
+}
 .board:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;

@@ -84,6 +84,12 @@ export function GameLayout(props: {
    * its top, at a preview's size.
    */
   stagePreview?: boolean | undefined;
+  /**
+   * The stage is a real-time game's arena, wider than it is tall: on wide
+   * screens it takes the column's room beside a narrow rail (the players),
+   * instead of a square board's measure beside a wide one.
+   */
+  arena?: boolean | undefined;
 }): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
@@ -109,6 +115,7 @@ export function GameLayout(props: {
         data-has-setup={setup.present()}
         data-has-aside={aside.present()}
         data-stage-preview={props.stagePreview === true}
+        data-arena={props.arena === true}
         {...dataAttrs({ component: 'GameLayout' })}
       >
         <Show when={setup.present()}>

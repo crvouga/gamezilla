@@ -253,7 +253,9 @@ function RecordSelect(props: RecordProps): JSX.Element {
  * record's title, so it never weighs as much as a play command.
  */
 function HistoryButton(
-  props: RecordProps & { readonly quiet?: boolean | undefined }
+  props: Pick<RecordProps, 'record' | 'onOpenHistory'> & {
+    readonly quiet?: boolean | undefined;
+  }
 ): JSX.Element {
   return (
     <Show when={props.record.history}>
@@ -268,6 +270,19 @@ function HistoryButton(
       />
     </Show>
   );
+}
+
+/**
+ * The way to the space's history on its own, for a game with no moves to
+ * list (one played in real time): quiet at a card's title, or an outline
+ * beside the game's commands.
+ */
+export function FrameHistoryLink(
+  props: Pick<RecordProps, 'record' | 'onOpenHistory'> & {
+    readonly quiet?: boolean | undefined;
+  }
+): JSX.Element {
+  return <HistoryButton {...props} />;
 }
 
 /** "History and stats" in a row of its own, behind the phone's disclosure. */

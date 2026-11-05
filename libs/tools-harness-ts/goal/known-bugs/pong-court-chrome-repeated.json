@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's court drew its own Left / Right score row and status line over the players' points and the game's turn line (\"Keep the ball in play.\" twice), then a four-line paragraph and, on a wide screen, the phone's paddle slider. The court now shows the points that win and one short line on moving, the slider only on a phone, and its own status only when it says more (paused, reconnecting).",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

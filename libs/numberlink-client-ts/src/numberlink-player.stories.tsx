@@ -1,3 +1,7 @@
+import {
+  StoryPackAttempt,
+  type StoryPackPuzzle,
+} from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NumberlinkPlayer } from './numberlink-player';
@@ -14,11 +18,27 @@ function progress(paths: typeof SOLUTION): string {
   return JSON.stringify({ paths });
 }
 
+/** A five-pair puzzle, as a person plays it from a pack. */
+const PUZZLE: StoryPackPuzzle = {
+  title: 'Five pairs',
+  difficulty: 'Medium',
+  description: 'Join each pair of numbers and fill every square.',
+  pack: { title: 'Linking practice', position: 2, total: 5 },
+};
+
 const meta = {
   id: 'screens-games-numberlink-puzzle',
   title: 'Screens/Games/Numberlink/Puzzle',
   component: NumberlinkPlayer,
   tags: ['autodocs'],
+  // The player inside the screen a pack puzzle is played on.
+  render: (args) => (
+    <StoryPackAttempt
+      puzzle={PUZZLE}
+      disabled={args.disabled}
+      player={<NumberlinkPlayer {...args} />}
+    />
+  ),
   parameters: { appRouter: true, controls: { exclude: ['onAction'] } },
   args: {
     definition: JSON.stringify(FIVE_BY_FIVE),

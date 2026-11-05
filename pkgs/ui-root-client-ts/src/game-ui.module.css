@@ -15,6 +15,8 @@
   --game-board-chrome-block: 284px;
   /* A search's card: one column, its command as wide as the card. */
   --game-search-measure: 600px;
+  /* Beside a real-time game's arena: room for a player's full strip. */
+  --game-arena-rail-measure: 304px;
 }
 .column {
   container: game-column / inline-size;
@@ -462,6 +464,16 @@
   .layout[data-has-stage="true"][data-has-setup="true"] > .stage {
     grid-column: 1;
     grid-row: 1 / -1;
+  }
+  /* A real-time game's arena is wider than it is tall, so it never meets
+     the window's height at this width: it takes the column's room, and
+     the rail beside it (the players) keeps a strip's width. The column
+     keeps the game column's width, so its edges match every game. */
+  .layout[data-arena="true"][data-has-stage="true"][data-has-aside="true"] {
+    --game-board-measure: 100%;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(280px, var(--game-arena-rail-measure));
   }
   /* While the game is set up the setup is the main column, running the
      grid's height, with Start under its players; the board preview is a

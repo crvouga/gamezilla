@@ -1,0 +1,4 @@
+{
+  "summary": "While cards were passed, every Hearts seat kept an empty played-card slot and the felt a tall empty centre, so the table filled most of a desktop screen and pressing Pass scrolled the title and players out of view. Seats are compact plates while passing and keep room for a card only while tricks are played.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

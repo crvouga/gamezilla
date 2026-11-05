@@ -1,6 +1,7 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared-ts/puzzle-swipe-handlers';
 import { Trans } from '@lingui/solid/macro';
+import { createMeasure } from '@pkgs/ui-root-client-ts/measure';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -21,34 +22,52 @@ export type PuzzleMoveHistoryProps = {
   writing: PuzzleMoveWriting;
 };
 
-function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
-  // The selected move's cluster holds the target; keep it in view.
+function MoveHistoryPlies(
+  props: PuzzleMoveHistoryProps & {
+    /** The strip's width: its moves are revealed again once it settles. */
+    readonly stripWidth: () => number;
+  }
+): JSX.Element {
+  // The selected move's cluster holds the target; keep it in view. Only the
+  // strip scrolls (never the page). A new selection glides to it; a strip
+  // or a row of moves that is laid out or resized (its type loading) jumps
+  // to it at once, so the selected move is fully in view at rest.
   const selected = createScrollTarget();
+  const row = createMeasure();
+  let shownIdx: number | null = null;
   createEffect(() => {
-    void props.selectedSolveIdx;
-    selected.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
+    const idx = props.selectedSolveIdx;
+    void props.stripWidth();
+    void row.width();
+    const moved = shownIdx !== null && shownIdx !== idx;
+    if (
+      selected.scrollIntoView({
+        behavior: moved ? 'smooth' : 'instant',
+        inline: 'center',
+        scope: 'scroller',
+      })
+    )
+      shownIdx = idx;
   });
   return (
-    <For each={props.plies}>
-      {(ply) => (
-        <HistoryPlyCluster
-          ply={ply}
-          selectedSolveIdx={props.selectedSolveIdx}
-          interactive={props.interactive}
-          writing={props.writing}
-          onSeek={props.onSeek}
-          scrollTarget={
-            ply.solveIdxAfter === props.selectedSolveIdx
-              ? selected.target
-              : undefined
-          }
-        />
-      )}
-    </For>
+    <StackHorizontal align="center" gap="sm" measureTarget={row.target}>
+      <For each={props.plies}>
+        {(ply) => (
+          <HistoryPlyCluster
+            ply={ply}
+            selectedSolveIdx={props.selectedSolveIdx}
+            interactive={props.interactive}
+            writing={props.writing}
+            onSeek={props.onSeek}
+            scrollTarget={
+              ply.solveIdxAfter === props.selectedSolveIdx
+                ? selected.target
+                : undefined
+            }
+          />
+        )}
+      </For>
+    </StackHorizontal>
   );
 }
 
@@ -63,12 +82,15 @@ function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
 export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
   const swipe = puzzleSwipeHandlers((intent) => props.nav.onNavigate(intent));
   const hasPlies = (): boolean => props.plies.length > 0;
+  // The strip's own width, so selecting a move scrolls the strip alone and
+  // never shifts the page.
+  const strip = createMeasure();
   return (
     <StackHorizontal align="center" gap="sm" paddingX="lg">
       <P variant="caption" tone="secondary" testId="chess-puzzle-moves-label">
         <Trans>Moves</Trans>
       </P>
-      <StackVertical shrink>
+      <StackVertical shrink measureTarget={strip.target}>
         <MoveStrip
           testId="chess-puzzle-move-history"
           fit="content"
@@ -85,7 +107,7 @@ export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
           }
         >
           <Show when={hasPlies()}>
-            <MoveHistoryPlies {...props} />
+            <MoveHistoryPlies {...props} stripWidth={strip.width} />
           </Show>
         </MoveStrip>
       </StackVertical>

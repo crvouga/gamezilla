@@ -1,0 +1,4 @@
+{
+  "summary": "Light Cycles drew every rider's round wins over the arena as well as on each player's strip. The arena's own scores and round are now said only to a listener; the eye reads round wins from the strips and the round from the game's line.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

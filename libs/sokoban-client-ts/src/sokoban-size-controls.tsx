@@ -21,8 +21,9 @@ export function SokobanSizeControls(props: {
   const whole = (text: string): number =>
     /^\d{1,3}$/.test(text.trim()) ? Number(text.trim()) : Number.NaN;
   return (
-    <StackHorizontal gap="sm" wrap align="end">
+    <StackHorizontal gap="sm" align="end" dataSet={{ testid: 'sokoban-size' }}>
       <TextInput
+        grow
         label={t`Columns`}
         inputMode="numeric"
         value={columns()}
@@ -32,6 +33,7 @@ export function SokobanSizeControls(props: {
         dataSet={{ testid: 'sokoban-columns' }}
       />
       <TextInput
+        grow
         label={t`Rows`}
         inputMode="numeric"
         value={rows()}
