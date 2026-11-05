@@ -21,7 +21,7 @@ test('a Battleship hit is a solid mark in both themes', () => {
   const css = read('cell-grid-board/cell-grid-board.module.css');
   const hit = rule(
     css,
-    '.board[data-board-theme="battleship"] .cell[data-tone="alert"]'
+    '.board[data-board-theme="battleship"] .cell[data-tone="alert"],\n.legendMark[data-tone="alert"]'
   );
   expect(hit).toMatch(/background:\s*var\(--color-destructive\);/);
   expect(hit).toMatch(/color:\s*var\(--color-on-destructive\);/);
