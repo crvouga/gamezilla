@@ -41,12 +41,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    In at least 97 of every 100 hours in which the team checked, every check
-    found people can open the app and that it answers them, judged over the
-    last week. The team checks about once an hour, so a week holds at most
-    about 170 checks: this is the strictest rate those checks can tell apart
-    from chance. The team's minute-by-minute checks (The app is always
-    reachable) watch the same promise far more closely.
+    The app answers people. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: team-checks-passing
   timeWindow:
@@ -54,7 +51,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 97 of every 100 checked hours the app answers people
-      target: 0.97
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h

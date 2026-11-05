@@ -39,10 +39,9 @@ metadata:
     tier: "2"
 spec:
   description: >-
-    In at least 90 of every 100 hours in which the team checked, every one
-    of the team's own tools worked, judged over the last week. Nobody
-    playing notices when they fail, but the team is slower to find and fix
-    what people do notice.
+    The team can see what happened. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: runtime
   indicatorRef: team-tool-checks-passing
   timeWindow:
@@ -50,7 +49,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 90 of every 100 checked hours the team's tools work
-      target: 0.9
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h

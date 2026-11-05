@@ -43,12 +43,9 @@ metadata:
     tier: "0"
 spec:
   description: >-
-    In at least 97 of every 100 hours in which the team checked, every
-    game's critical journey and health check passed, judged over the last
-    week. The team checks about once an hour, so a week holds at most about
-    170 checks: 97 in 100 is the strictest rate those checks can tell apart
-    from chance. An hour counts as bad when any one game failed, so one
-    broken game cannot hide behind the others.
+    People can play games from start to finish. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
   service: games
   indicatorRef: game-journeys-passing
   timeWindow:
@@ -56,7 +53,7 @@ spec:
       isRolling: true
   budgetingMethod: Timeslices
   objectives:
-    - displayName: In at least 97 of every 100 checked hours every game can be played from start to finish
-      target: 0.97
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
       timeSliceTarget: 1
       timeSliceWindow: 1h
