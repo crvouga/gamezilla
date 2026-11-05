@@ -29,6 +29,13 @@ export type {
 const MARGIN = 1.5;
 
 /**
+ * How much larger `heads="large"` draws each rider's head: a phone's cells
+ * are about 8px, so a head two cells across is a 16px disc with a small
+ * letter; at 1.4 it is about 23px across, its letter read at a glance.
+ */
+export const LARGE_HEAD_SCALE = 1.4;
+
+/**
  * A grid arena of light trails. Coordinates are cells: the viewBox is fixed
  * by the grid size, so resizing scales the drawing and never moves a cell.
  * Each rider index has its own colour token and its own trail pattern;
@@ -42,6 +49,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
     trailShapes(props.cells, props.width, props.height)
   );
   const interactive = () => props.enabled && controlledSlots(props) > 0;
+  const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
     <div
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
@@ -96,6 +104,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
             <RiderHead
               rider={rider()}
               trailCount={shapes()[rider().index]?.count ?? 0}
+              scale={headScale()}
               testId={props.testId}
             />
           )}

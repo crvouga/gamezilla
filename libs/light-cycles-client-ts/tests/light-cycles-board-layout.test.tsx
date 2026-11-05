@@ -1,6 +1,8 @@
 /** Light Cycles' arena on a wide screen and a phone: how to steer, and the scores once. */
 
 import { afterEach, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { LightCyclesBoardView } from '@libs/light-cycles-client-ts/light-cycles-board-view';
 import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
@@ -86,4 +88,41 @@ test('phone: one rider steers from a compact pad beside the steering line', () =
     shared = shared.parentElement;
   expect(shared?.getAttribute('data-component')).toBe('StackHorizontal');
   expect(pad.parentElement?.textContent).not.toContain('Comet');
+});
+
+// regression: light-cycles-phone-pad-outweighs-arena — on a phone the
+// three-row direction pad stood about as tall as the arena's free space
+// under it, and each rider's head was a 12–16px disc whose letter could
+// hardly be read. The pad is the arrow keys' T, a row shorter, every
+// button still 44px; a phone draws each head 1.4 times larger.
+test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger", () => {
+  mount(390);
+  const pad = screen.getByTestId('arena-white-pad');
+  expect(pad.getAttribute('data-layout')).toBe('arrows');
+  expect(pad.getAttribute('data-size')).toBe('sm');
+  expect(
+    [...pad.querySelectorAll('button')].map((b) =>
+      b.getAttribute('data-heading')
+    )
+  ).toEqual(['up', 'left', 'down', 'right']);
+  for (const rider of [0, 1, 2])
+    expect(
+      screen.getByTestId(`arena-arena-rider-${rider}`).getAttribute('transform')
+    ).toContain('scale(1.4)');
+  cleanup();
+  mount(1440);
+  expect(
+    screen.getByTestId('arena-arena-rider-0').getAttribute('transform')
+  ).toContain('scale(1)');
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/direction-pad/direction-pad.module.css'
+    ),
+    'utf8'
+  );
+  const arrows = css.slice(css.indexOf('.pad[data-layout="arrows"] {'));
+  expect(arrows.slice(0, arrows.indexOf('}'))).toMatch(
+    /grid-template-areas:\s*". up ."\s*"left down right";/
+  );
 });

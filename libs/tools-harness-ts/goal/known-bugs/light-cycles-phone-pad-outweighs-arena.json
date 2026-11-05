@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Light Cycles direction pad was a three-row cross about as tall as the arena's free space, and each rider's head was a 12-16px disc whose letter could hardly be read. The pad is now the arrow keys' inverted T, a row shorter with 44px buttons, and a phone draws each head 1.4 times larger.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

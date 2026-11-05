@@ -121,6 +121,9 @@ function Pads(props: {
               </Show>
               <DirectionPad
                 size="sm"
+                // The arrow keys' T, a row shorter than a cross, so the
+                // arena keeps more of a phone's screen.
+                layout="arrows"
                 labels={{
                   up: t`Steer ${riderName(side)} up`,
                   right: t`Steer ${riderName(side)} right`,
@@ -146,6 +149,7 @@ function Arena(props: {
   board: GameBoardProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
+  const mode = useLayoutMode();
   const controlled = () => props.board.simulation?.sides ?? [];
   const steering = (side: GameSide | undefined) =>
     steeringOf(props.state, props.board.simulation, side);
@@ -180,6 +184,8 @@ function Arena(props: {
             steer(props.board.simulation, props.state, side, heading);
         }}
         label={t`Light Cycles arena`}
+        // A phone's cells are small: its heads are drawn larger.
+        heads={mode() === 'wide' ? 'regular' : 'large'}
         instructionsId={instructionsId}
         testId={`${props.board.testId}-arena`}
       />
