@@ -60,7 +60,7 @@ export function ScreenIntro(props: ScreenIntroProps): JSX.Element {
           class="box flex-row flex-wrap items-end justify-between gap-3 py-2 min-w-0 self-stretch"
           {...dataAttrs({ component: 'ScreenIntro', ...props.dataSet })}
         >
-          <div class="box gap-1 items-start grow min-w-0">{words()}</div>
+          <div class="box gap-1 items-start grow shrink min-w-0">{words()}</div>
           <div
             class="box flex-row flex-wrap items-center gap-2 min-w-0"
             {...dataAttrs({ component: 'ScreenIntroActions' })}

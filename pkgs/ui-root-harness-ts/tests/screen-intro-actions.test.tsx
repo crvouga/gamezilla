@@ -21,6 +21,10 @@ describe('ScreenIntro actions', () => {
     expect(intro.className).toContain('flex-row');
     expect(intro.className).toContain('flex-wrap');
     expect(intro.querySelector('h1')?.textContent).toBe('Counting');
+    // The words may shrink to a short line, so a long subtitle wraps
+    // there instead of running past the screen's edge.
+    expect(intro.firstElementChild?.className).toContain('shrink');
+    expect(intro.firstElementChild?.className).toContain('min-w-0');
   });
 
   test('without actions the title block is unchanged', () => {
