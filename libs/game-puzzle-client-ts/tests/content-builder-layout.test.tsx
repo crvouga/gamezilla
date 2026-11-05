@@ -209,9 +209,10 @@ test("a pack row keeps its title's room: Edit and one menu, the list a board's m
     (button) => button.getAttribute('data-testid') ?? button.textContent
   ).filter((id) => id !== 'content-pack-item-b');
   expect(controls).toEqual(['content-pack-open', 'content-pack-menu']);
-  expect(screen.getByRole('button', { name: 'More for Puzzle b' })).toBe(
-    second.querySelector('[data-testid="content-pack-menu"]')
-  );
+  expect(
+    second.querySelector('[data-testid="content-pack-menu"]') ===
+      screen.getByRole('button', { name: 'More for Puzzle b' })
+  ).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'More for Puzzle b' }));
   expect(
     screen.getAllByRole('menuitem').map((item) => item.textContent)
