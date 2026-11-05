@@ -1,8 +1,13 @@
 /* A section and the picture of what it sets up (a board preview), as two
    cards that read as one pair: the picture's card first, so a phone shows
    it above the section; wide, beside the section and as tall as it. */
-.sectionPair {
+/* The pair measures the room it is given (a container cannot measure
+   itself), and lays its two cards out by it. */
+.sectionRoom {
   container: game-section / inline-size;
+  min-width: 0;
+}
+.sectionPair {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ui-space-4);

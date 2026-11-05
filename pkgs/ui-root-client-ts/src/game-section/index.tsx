@@ -72,17 +72,18 @@ export function GameSection(props: {
   );
   return (
     <Show when={media.present()} fallback={card()}>
-      <div
-        class={split['sectionPair']}
-        data-section-media="true"
-        {...dataAttrs({ component: 'GameSectionPair' })}
-      >
+      <div class={split['sectionRoom']} data-section-media="true">
         <div
-          class={`${split['sectionMedia']} rounded-card border border-border bg-surface`}
+          class={split['sectionPair']}
+          {...dataAttrs({ component: 'GameSectionPair' })}
         >
-          {media.content()}
+          <div
+            class={`${split['sectionMedia']} rounded-card border border-border bg-surface`}
+          >
+            {media.content()}
+          </div>
+          {card()}
         </div>
-        {card()}
       </div>
     </Show>
   );

@@ -105,7 +105,8 @@ export function MultiplayerFindPanel(props: {
         </Show>
       }
       actions={
-        <StackVertical gap="sm">
+        // Grows to its half of the card, so the note wraps under the command.
+        <StackVertical gap="sm" grow>
           <GameActionButton
             title={
               <Show

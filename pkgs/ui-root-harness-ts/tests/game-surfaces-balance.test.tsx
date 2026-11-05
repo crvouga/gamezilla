@@ -60,6 +60,19 @@ describe('game surfaces', () => {
     expect(css).toMatch(
       /@container game-section \(min-width: 40rem\)\s*\{\s*\.sectionPair\s*\{[^}]*align-items: stretch/
     );
+    // regression: setup-pair-measures-itself — the pair was its own size
+    // container, which a container query cannot measure, so wide it never
+    // took its two columns and the picture's card shrank to its content.
+    // The room around the pair is the container; the pair is the grid.
+    expect(pair?.parentElement?.getAttribute('data-section-media')).toBe(
+      'true'
+    );
+    const room = css.slice(css.indexOf('.sectionRoom {'));
+    expect(room.slice(0, room.indexOf('}'))).toContain(
+      'container: game-section / inline-size'
+    );
+    const grid = css.slice(css.indexOf('.sectionPair {'));
+    expect(grid.slice(0, grid.indexOf('}'))).not.toContain('container');
   });
 
   test('a section with no picture keeps its plain body', () => {
