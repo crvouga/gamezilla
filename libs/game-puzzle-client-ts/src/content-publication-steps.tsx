@@ -1,7 +1,7 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
   StepTrack,
   type StepTrackStep,
@@ -66,7 +66,7 @@ function stateOf(
   return ORDER.indexOf(step) < ORDER.indexOf(next) ? 'done' : 'upcoming';
 }
 
-/** What to do next, in one line of text over the lead action. */
+/** Why the lead action is next, in one line of text beside it. */
 function NextLine(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   const line = (): string => {
@@ -175,9 +175,10 @@ function waitNotes(
 }
 
 /**
- * Where the draft stands on its way to publishing: a line saying the one
- * next step and, under it, that step's action, filled, the one thing to
- * press; then every step in order as status, each with its marker (done,
+ * Where the draft stands on its way to publishing: the one next step's
+ * action, filled, the one thing to press, with a line beside it saying
+ * why (under it where the row is narrow); then every step in order as
+ * status, each with its marker (done,
  * next or waiting). A step behind the person keeps its action as an
  * outline; a step that waits keeps its action locked (muted, still
  * pressable, so it can say what is missing) and says what it waits on.
@@ -241,10 +242,10 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
     );
   return (
     <StackVertical gap="md">
-      <StackVertical gap="sm" align="start">
-        <NextLine {...props} />
+      <StackHorizontal gap="md" wrap align="center">
         {lead()}
-      </StackVertical>
+        <NextLine {...props} />
+      </StackHorizontal>
       <StepTrack
         label={t`Steps to publish`}
         stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Later` }}

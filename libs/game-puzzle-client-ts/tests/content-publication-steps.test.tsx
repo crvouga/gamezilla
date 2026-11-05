@@ -105,16 +105,29 @@ test("a puzzle's steps read in order, each marked done, next or later", () => {
 // regression: builder-no-dominant-next-action — the next step's action
 // sat inside the track among the others, so publishing read as three
 // equal steps to work out (and a pack's next step had no action at all).
-// The next step's action now leads, filled, over the track, outside it.
+// The next step's action now leads, filled, over the track, outside it,
+// with the line saying why beside it.
 test('the next step leads, filled, over the steps', () => {
   mount(() => publication({ proven: true }));
   expect(lead()).toBe(screen.getByTestId('content-validate'));
   const status = screen.getByTestId('content-publication-status');
-  expect(
-    (status.compareDocumentPosition(lead()) &
-      Node.DOCUMENT_POSITION_FOLLOWING) !==
-      0
-  ).toBe(true);
+  const track = screen.getByTestId('content-publication-steps');
+  const follows = (a: Element, b: Element): boolean =>
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  expect(follows(lead(), status)).toBe(true);
+  expect(follows(status, track)).toBe(true);
+});
+
+// regression: builder-wide-lead-cut-at-fold — wide, the line naming the
+// next step sat on a row of its own over the lead action, so under the
+// Sokoban editor's board the filled action was cut by the window's foot.
+// The lead and the line saying why now share one row (the line wraps
+// under the action where the row is narrow).
+test('the lead action and the line saying why share one row', () => {
+  mount(() => publication({ proven: true }));
+  const status = screen.getByTestId('content-publication-status');
+  expect(lead().parentElement).toBe(status.parentElement);
+  expect(status.parentElement?.className).toContain('flex-wrap');
 });
 
 test('a checked, proven puzzle has Publish as its one next step', () => {
