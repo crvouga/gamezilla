@@ -10,6 +10,12 @@ export const GITHUB_KINDS: Readonly<Record<string, Kind>> = {
     category: 'Source control',
     links: (c) => link('Repository', gh(c)),
   },
+  github_repository_webhook: {
+    title: 'CI notification webhook',
+    logo: 'github-actions',
+    category: 'Source control',
+    links: settings('Webhooks', '/settings/hooks'),
+  },
   github_branch_default: {
     title: 'Default branch',
     logo: 'github',
