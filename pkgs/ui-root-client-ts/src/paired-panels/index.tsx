@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { SegmentedControl } from '../segmented-control/index';
 import styles from './paired-panels.module.css';
 
@@ -15,7 +15,29 @@ export type PairedPanelsProps<K extends string> = {
   readonly onSelect: (key: K) => void;
   readonly first: JSX.Element;
   readonly second: JSX.Element;
+  /**
+   * Each panel is named by its label above it while both show side by
+   * side; behind the switch the switch alone names the panel shown, so a
+   * panel never repeats the segment chosen just above it.
+   */
+  readonly titled?: boolean | undefined;
 };
+
+function PanelTitle(props: {
+  readonly titled: boolean | undefined;
+  readonly label: string;
+}): JSX.Element {
+  return (
+    <Show when={props.titled === true}>
+      <h3
+        class={`${styles['title']} text textLabel`}
+        {...dataAttrs({ component: 'PairedPanelsTitle' })}
+      >
+        {props.label}
+      </h3>
+    </Show>
+  );
+}
 
 /**
  * Two related panels: side by side where both fit, one at a time behind a
@@ -52,6 +74,10 @@ export function PairedPanels<K extends string>(
           data-panel={props.keys[0]}
           data-shown={String(shown(0))}
         >
+          <PanelTitle
+            titled={props.titled}
+            label={props.labels[props.keys[0]]}
+          />
           {props.first}
         </section>
         <section
@@ -60,6 +86,10 @@ export function PairedPanels<K extends string>(
           data-panel={props.keys[1]}
           data-shown={String(shown(1))}
         >
+          <PanelTitle
+            titled={props.titled}
+            label={props.labels[props.keys[1]]}
+          />
           {props.second}
         </section>
       </div>

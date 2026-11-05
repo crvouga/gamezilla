@@ -1,0 +1,4 @@
+{
+  "summary": "While a Hearts pass was being sent, its button showed a spinner with no words, so the person could not tell what was happening. It now reads \"Passing your cards…\" beside the spinner, across the hand's width.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

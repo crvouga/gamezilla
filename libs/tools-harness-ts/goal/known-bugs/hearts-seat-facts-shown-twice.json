@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts showed every seat's cards held, score and pass state twice: on the felt's seat boxes and again on each player's strip above and below it. The table alone now says them, and each strip names the seat its player sits in.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

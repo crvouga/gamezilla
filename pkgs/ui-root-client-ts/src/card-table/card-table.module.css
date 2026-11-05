@@ -41,16 +41,33 @@
   --ui-color-on-info: var(--ui-color-game-hearts-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* The table and the hand under it, one column the board's width. */
+/* The table's width decides how its seats lay out (container queries). */
+.root {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-3);
+  width: 100%;
+  min-width: 0;
+}
+/*
+ * The felt: the four seats around the trick. Each seat is one compact plate
+ * (its name, its facts on one line, and its played card while tricks are
+ * played), so the table is only as tall as what it says.
+ */
 .table {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
   grid-template-areas:
     ". top ."
     "left center right"
     ". bottom .";
+  align-items: center;
   gap: var(--ui-space-2);
   width: 100%;
-  max-width: 40rem;
   padding: var(--ui-space-3);
   border-radius: var(--ui-radius-sheet);
   border: 1px solid var(--ui-color-border);
@@ -61,11 +78,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ui-space-1);
+  gap: var(--ui-space-hairline);
   min-width: 0;
-  padding: var(--ui-space-2);
+  padding: var(--ui-space-2) var(--ui-space-2);
   border-radius: var(--ui-radius-control);
   border: 1px solid transparent;
+  background: var(--ui-color-background);
 }
 .seat[data-active="true"] {
   border-color: var(--ui-color-tint);
@@ -84,36 +102,99 @@
 }
 .name {
   font-weight: var(--ui-font-weight-semibold);
+  font-size: var(--ui-font-size-sm);
   text-align: center;
   overflow-wrap: anywhere;
 }
+/* Facts read as one quiet line, each kept whole when the line wraps. */
 .facts {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--ui-space-1);
+  column-gap: var(--ui-space-2);
   color: var(--ui-color-text-secondary);
-  font-size: var(--ui-font-size-sm);
+  font-size: var(--ui-font-size-xs, 0.75rem);
+  text-align: center;
 }
 .fact {
-  padding: 0 var(--ui-space-1);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-surface-muted);
+  white-space: nowrap;
 }
 .center {
   grid-area: center;
   display: grid;
   place-items: center;
-  min-height: 6rem;
-  padding: var(--ui-space-2);
+  margin: 0;
+  padding: var(--ui-space-1);
   text-align: center;
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);
 }
+/* The host shows this line beside the table: a listener still hears it. */
+.center[data-spoken-only="true"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 .played {
   display: grid;
   place-items: center;
-  min-height: 4.5rem;
+}
+.played:empty {
+  display: none;
+}
+/*
+ * While tricks are played every seat keeps room for its card, beside its
+ * name and on the side toward the trick, so the table stays low.
+ */
+.seat[data-trick="true"] {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "name card"
+    "facts card";
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--ui-space-2);
+}
+.seat[data-trick="true"][data-position="right"] {
+  grid-template-areas:
+    "card name"
+    "card facts";
+}
+.seat[data-trick="true"] .name {
+  grid-area: name;
+}
+.seat[data-trick="true"] .facts {
+  grid-area: facts;
+}
+.seat[data-trick="true"] .played {
+  grid-area: card;
+  display: grid;
+  min-width: 2.75rem;
+  min-height: 4rem;
+}
+/*
+ * On a phone the side seats are narrow: the middle column takes more of
+ * the width for the seats above and below, and a side seat's card goes
+ * under its name.
+ */
+@container (max-width: 30rem) {
+  .table {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, 1fr);
+  }
+  .seat[data-trick="true"][data-position="left"],
+  .seat[data-trick="true"][data-position="right"] {
+    grid-template-columns: auto;
+    grid-template-areas:
+      "name"
+      "facts"
+      "card";
+    row-gap: var(--ui-space-1);
+  }
 }
 .card {
   display: inline-flex;
@@ -129,10 +210,14 @@
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
   font: inherit;
+  font-size: var(--ui-font-size-base);
   font-weight: var(--ui-font-weight-semibold);
   line-height: 1;
   touch-action: manipulation;
   transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.card > span:first-child {
+  font-size: var(--ui-font-size-lg);
 }
 .suit {
   font-size: var(--ui-font-size-lg);
@@ -142,14 +227,31 @@
   font-weight: normal;
   color: var(--ui-color-board-card-ink);
 }
+/*
+ * The hand: at most seven cards a row, so thirteen wrap as seven over six
+ * and every face keeps room for its rank, symbol and suit name.
+ */
 .hand {
+  --card-gap: var(--ui-space-1);
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--ui-space-1);
+  gap: var(--card-gap);
   width: 100%;
-  max-width: 40rem;
-  padding: var(--ui-space-2) 0;
+  padding: var(--ui-space-2) 0 0;
+}
+.hand > .card {
+  flex: 0 0 calc((100% - 6 * var(--card-gap)) / 7);
+  max-width: 4.5rem;
+  min-height: 4.5rem;
+  padding-inline: var(--ui-space-hairline);
+}
+/* A phone's seven-a-row cards are narrow: the suit's name fits its face. */
+@container (max-width: 26rem) {
+  .hand > .card .suitName {
+    font-size: 0.625rem;
+  }
 }
 button.card {
   cursor: pointer;
@@ -158,8 +260,10 @@ button.card[aria-disabled="true"] {
   cursor: default;
   opacity: var(--ui-opacity-muted);
 }
+/* Chosen: lifted, and ringed in the table's accent, so it reads without motion. */
 button.card[aria-pressed="true"] {
-  border: 2px solid var(--ui-color-game-hearts-canvas);
+  border-color: var(--ui-color-game-hearts-accent);
+  box-shadow: 0 0 0 2px var(--ui-color-game-hearts-accent);
   transform: translateY(calc(-1 * var(--ui-space-2)));
 }
 button.card:focus-visible {
@@ -172,13 +276,9 @@ button.card:focus-visible {
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);
 }
-.hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+/* Empty until a card is refused: it takes no row of its own then. */
+.refusal:empty {
+  margin-top: calc(-1 * var(--ui-space-3));
 }
 @media (prefers-reduced-motion: reduce) {
   .card {

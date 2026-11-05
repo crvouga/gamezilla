@@ -65,6 +65,17 @@ export type CardTableProps = {
   readonly seats: readonly CardTableSeat[];
   /** What the table is doing now, in words. */
   readonly center: string;
+  /**
+   * The host already shows `center` beside the table (a game's turn line):
+   * the table keeps saying it to a listener but draws it only once.
+   */
+  readonly centerSpokenOnly?: boolean | undefined;
+  /**
+   * Tricks are being played: each seat keeps room for the card it puts on
+   * the table, so the table never changes height as a trick fills. While
+   * cards are chosen or passed nothing is played, and the seats are compact.
+   */
+  readonly trick?: boolean | undefined;
   readonly hand: readonly CardTableHandCard[];
   readonly handLabel: string;
   readonly cardTestId: (id: string) => string;
@@ -101,11 +112,12 @@ function CardFace(props: { card: CardTableCard }): JSX.Element {
   );
 }
 
-function Seat(props: { seat: () => CardTableSeat }) {
+function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   const seat = () => props.seat();
   return (
     <section
       class={styles['seat']}
+      data-trick={String(props.trick)}
       data-position={seat().position}
       data-active={String(seat().active)}
       data-testid={seat().testId}
@@ -239,9 +251,11 @@ function Hand(
  * `CardTable` -- four seats around a card game's shared play, and the
  * viewer's own hand.
  *
- * Each seat shows who sits there, its facts as separate tags (cards held,
- * score), whether it is deciding now and the card it put on the table. The
- * centre says what the table is doing. The hand is a row of card buttons:
+ * Each seat shows who sits there, its facts on one quiet line (cards held,
+ * score), whether it is deciding now (an accent ring, and `aria-current`)
+ * and, while tricks are played (`trick`), the card it put on the table. The
+ * centre says what the table is doing; a host that already shows that line
+ * beside the table keeps it for listeners only (`centerSpokenOnly`). The hand is a row of card buttons:
  * arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
@@ -267,13 +281,17 @@ export function CardTable(props: CardTableProps): JSX.Element {
   );
   return (
     <div
+      class={styles['root']}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
       data-testid={props.testId}
     >
       <div class={styles['table']} role="group" aria-label={props.label}>
-        <Index each={props.seats}>{(seat) => <Seat seat={seat} />}</Index>
+        <Index each={props.seats}>
+          {(seat) => <Seat seat={seat} trick={props.trick === true} />}
+        </Index>
         <p
           class={styles['center']}
+          data-spoken-only={String(props.centerSpokenOnly === true)}
           aria-live="polite"
           data-testid={`${props.testId}-center`}
         >
@@ -293,8 +311,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
           <Button
             title={action().label}
             variant="solid"
+            fullWidth
             disabled={!action().enabled}
             loading={action().pending === true}
+            loadingLabel={action().label}
             onClick={() => {
               if (action().pending !== true) action().onActivate();
             }}

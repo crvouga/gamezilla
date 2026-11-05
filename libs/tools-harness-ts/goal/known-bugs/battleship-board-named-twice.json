@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship named the board shown twice: the switch above it said Targeting, and a Targeting heading sat right under it. A board is now titled only while both boards show side by side, where no switch names them.",
+  "regressionTest": "libs/battleship-client-ts/tests/panel-titles.test.tsx"
+}
