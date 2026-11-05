@@ -7,3 +7,24 @@
   width: 100%;
   min-width: 0;
 }
+/* Three players on a phone: one row of three, each chip stacked (avatar
+   over name over figures), so no chip is left alone on a second row. */
+@container game-column (max-width: 879px) {
+  .playerRail:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipFrame {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-block: var(--ui-space-2);
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipText {
+    flex: none;
+    align-items: center;
+    width: 100%;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipFacts {
+    justify-content: center;
+  }
+}

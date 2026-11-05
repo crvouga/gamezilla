@@ -7,7 +7,6 @@ import {
   gameSpeed,
   MULTIPLAYER_SPEEDS,
 } from '@libs/game-matchmaking-shared-ts/time-control';
-import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -56,10 +55,11 @@ export function useMultiplayerRatings(
 }
 
 /**
- * Under the number: how many rated games stand behind it and, while it is
- * provisional, how many of the games that settle it are played
- * (`7 of 12 rated games`), over a bar showing the same, and what the "?"
- * beside the number means, in plain words.
+ * Under the number, one quiet footnote: how many rated games stand behind
+ * it and, while it is provisional, how many of the games that settle it
+ * are played (`7 of 12 rated games`) and what the "?" beside the number
+ * means, in plain words. No bar: the rating supports finding an opponent,
+ * it never competes with it.
  */
 function RatingGames(props: {
   readonly rating: MultiplayerRatingView;
@@ -106,7 +106,7 @@ function RatingGameCount(props: {
   );
 }
 
-/** One pool's rating: the number, its "Provisional" tag and how far it is from settling. */
+/** One pool's rating: the number, its quiet "Provisional" tag and how far it is from settling. */
 function RatingStat(props: {
   readonly rating: MultiplayerRatingView;
 }): JSX.Element {
@@ -141,7 +141,7 @@ function RatingStat(props: {
       tag={
         <Show when={provisional()}>
           <Badge
-            intent="info"
+            intent="neutral"
             label={<Trans>Provisional</Trans>}
             dataSet={{
               testid: `multiplayer-rating-${props.rating.pool}-provisional`,
@@ -149,12 +149,6 @@ function RatingStat(props: {
           />
         </Show>
       }
-      progress={
-        provisional()
-          ? props.rating.games / MULTIPLAYER_SETTLED_GAMES
-          : undefined
-      }
-      progressLabel={t`Rated games toward a settled rating`}
       detail={<RatingGames rating={props.rating} />}
     />
   );

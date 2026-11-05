@@ -1,0 +1,12 @@
+/*
+ * Pinned under the host's top bar while the body scrolls (a phone's game
+ * status strip): on the page's own background, so what scrolls under it
+ * never shows through, with a little of that background under it.
+ */
+.pinned {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-block-end: var(--ui-space-1);
+  background: var(--ui-color-background);
+}

@@ -69,8 +69,12 @@ export function FrameArenaRailView(
       title={<Trans>Players</Trans>}
       description={props.caption}
       dataSet={{ testid: 'custom-game-scoreboard' }}
-      trailing={<FrameHistoryLink {...props} quiet />}
-      footer={<GameActions>{props.commands}</GameActions>}
+      footer={
+        <GameActions>
+          {props.commands}
+          <FrameHistoryLink {...props} quiet />
+        </GameActions>
+      }
     >
       <StackVertical gap="sm">
         <For each={scoreboardSeats(props.table)}>

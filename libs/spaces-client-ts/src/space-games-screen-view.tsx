@@ -123,7 +123,9 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
           when={someoneWatches(props)}
           fallback={<Trans>Pick a game to play.</Trans>}
         >
-          <Trans>Pick a game to play; everyone else here watches.</Trans>
+          <Trans>
+            Choose a game, then its players; everyone else here can watch.
+          </Trans>
         </Show>
       }
       helper={<ListHelper {...props} />}

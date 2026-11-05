@@ -75,6 +75,71 @@ describe('game surfaces', () => {
     expect(grid.slice(0, grid.indexOf('}'))).not.toContain('container');
   });
 
+  // regression: setup-phone-preview-leads-players — on a phone the board
+  // preview was a 96px thumbnail in a card about 140px tall ahead of the
+  // Players card, so the preview, not the players, led the setup. It is a
+  // slim row now: a 48px thumbnail beside its label.
+  test("a phone's setup picture is a slim row, the thumbnail beside its label", () => {
+    const media = rule(
+      'game-section/game-section-media.module.css',
+      '.sectionMedia'
+    );
+    // regression: wide-setup-unbalanced — wide, the card beside the players
+    // holds the preview and how the game is played, spaced apart.
+    const pairCss = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    const wide = pairCss.slice(
+      pairCss.indexOf('@container game-section (min-width: 40rem)')
+    );
+    expect(wide).toMatch(/\.sectionMedia \{[^}]*gap: var\(--ui-space-4\);/);
+    expect(media).toContain('--game-board-preview-measure: 48px');
+    const pair = readFileSync(
+      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      'utf8'
+    );
+    expect(pair).toMatch(
+      /@container game-section \(max-width: 39\.99rem\)\s*\{\s*\.sectionPair \.sectionMedia \[data-preview="true"\]\s*\{[^}]*flex-direction: row/
+    );
+  });
+
+  // regression: phone-three-players-two-rows — on a phone three players'
+  // chips wrapped as two and one, the third alone on a second row, pushing
+  // a Light Cycles arena down. Three players make one row of three stacked
+  // chips.
+  test('three players on a phone share one row of stacked chips', () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
+      'utf8'
+    );
+    const phone = css.slice(
+      css.indexOf('@container game-column (max-width: 879px)')
+    );
+    expect(phone).toMatch(
+      /\.playerRail:has\(> :nth-child\(3\):last-child\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+    );
+    expect(phone).toMatch(/\.chipFrame \{\s*flex-direction: column;/);
+  });
+
+  // regression: battleship-phone-targets-small — on a phone each of the
+  // ten targets in a row was about 30px, the grid's gaps, padding and label
+  // column taking the rest. They are slim now, each target about 32px.
+  test("a phone's Battleship grid gives its room to the targets", () => {
+    const css = readFileSync(
+      join(UI_SRC, 'cell-grid-board/cell-grid-board.module.css'),
+      'utf8'
+    );
+    const phone = css.slice(
+      css.indexOf('@container game-column (max-width: 879px)')
+    );
+    const grid = phone.slice(0, phone.indexOf('}'));
+    expect(grid).toContain('[data-board-theme="battleship"]');
+    expect(grid).toContain('minmax(1rem, 0.5fr)');
+    expect(grid).toContain('gap: 1px');
+    expect(grid).toContain('padding: var(--ui-space-1)');
+  });
+
   test('a section with no picture keeps its plain body', () => {
     renderUi(() => (
       <GameSection title="Players">

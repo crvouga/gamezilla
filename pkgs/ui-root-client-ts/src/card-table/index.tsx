@@ -238,15 +238,12 @@ function fanOffset(index: number, count: number): number {
 }
 
 /**
- * More cards than one narrow row shows whole: a narrow hand lays them in two
- * staggered rows (the first holding one more), every corner in view.
+ * More cards than one narrow row shows whole: a narrow hand scrolls
+ * sideways instead, one row of overlapping cards, each showing at least
+ * this much of its left edge, where its rank and suit are printed.
  */
 const ONE_ROW_MAX = 7;
-
-/** The row a card sits in when a narrow hand needs two: 0 or 1. */
-function handRow(index: number, count: number): number {
-  return count > ONE_ROW_MAX && index >= Math.ceil(count / 2) ? 1 : 0;
-}
+const CORNER_PEEK = '30px';
 
 function Hand(
   props: CardTableProps & { readonly onRefused: (reason: string) => void }
@@ -296,10 +293,13 @@ function Hand(
     <div
       ref={row}
       class={styles['hand']}
-      style={{ '--hand-count': String(Math.max(1, props.hand.length)) }}
+      style={{
+        '--hand-count': String(Math.max(1, props.hand.length)),
+        '--hand-peek': CORNER_PEEK,
+      }}
       role="toolbar"
       aria-label={props.handLabel}
-      data-rows={props.hand.length > ONE_ROW_MAX ? '2' : '1'}
+      data-crowded={String(props.hand.length > ONE_ROW_MAX)}
       data-testid={`${props.testId}-hand`}
     >
       <For each={ids()}>
@@ -310,7 +310,6 @@ function Hand(
                 type="button"
                 class={styles['card']}
                 style={{ '--fan': String(fanOffset(index(), ids().length)) }}
-                data-row={String(handRow(index(), ids().length))}
                 data-refused={String(card().refusal !== undefined)}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
@@ -420,9 +419,9 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * (`centerSpokenOnly`). Cards are drawn as cards: the rank and a small pip
  * in the corner and a large pip in the middle, at full contrast; only a card
  * the rules refuse is dimmed. The hand is a fanned, overlapping row of card
- * buttons whose corners stay readable (on a narrow table, more than seven
- * cards sit in two staggered rows); a chosen card lifts out with a strong
- * ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * buttons whose corners stay readable (on a narrow table more than seven
+ * cards make one row that scrolls sideways, at least 30px of each card in
+ * view); a chosen card lifts 12px out of the row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
  * written as symbols and named in each card's words, never told by colour

@@ -34,6 +34,10 @@ const HOST_CHOICES: FrameSeatChoices = {
   ],
 };
 
+/** The board's game's own instructions, as its menu shows them. */
+const CONNECT_FOUR_RULES = () =>
+  'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.';
+
 const OPEN = seat('black', { kind: 'open' }, 'Open place');
 
 const CONFIGURING: Partial<GameFrameScreenViewProps> = {
@@ -78,6 +82,7 @@ const meta = {
     <GameFrameScreenView
       {...args}
       board={<ConnectFourStoryBoard moves={[]} />}
+      about={CONNECT_FOUR_RULES}
     />
   ),
 } satisfies Meta<typeof GameFrameScreenView>;

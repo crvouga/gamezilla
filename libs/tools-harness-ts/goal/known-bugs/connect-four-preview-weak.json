@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four's landing preview was a thin dashed ring of the dropping side's colour, faint against the blue board and fading to half at each breath. The ring is now thick, set off from the board by a dark halo, and never fades below 70%; it is still an unfilled, unmarked outline, so it reads as a disc to come.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

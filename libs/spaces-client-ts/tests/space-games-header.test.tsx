@@ -43,7 +43,11 @@ test('with more here than a game seats, the header never explains seats again', 
   const text = container.textContent ?? '';
   expect(text).toContain('5 here · you host');
   // Said once, in the list's subtitle; never again in the header.
-  expect(text.split('everyone else here watches')).toHaveLength(2);
+  expect(text.split('everyone else here can watch')).toHaveLength(2);
+  // regression: game-list-watch-rule-unclear — "Pick a game to play;
+  // everyone else here watches" sat over games for two to four players, as
+  // if only the chooser played. The line says the players are chosen next.
+  expect(text).toContain('Choose a game, then its players');
   // No game's tag repeats it.
   expect(text).not.toContain('others watch');
 });

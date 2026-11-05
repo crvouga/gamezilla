@@ -185,7 +185,9 @@ function PongScene(props: {
     <StackVertical gap="md">
       <CourtScores state={props.state} testId={props.board.testId} />
       <CourtStatus state={props.state} board={props.board} />
-      <StackHorizontal gap="sm" align="stretch">
+      {/* On a phone the slider beside the court takes as little of the
+          width as it can, so the court (its shape fixed) grows. */}
+      <StackHorizontal gap="xs" align="stretch">
         <PaddleSlider
           side="white"
           state={props.state}

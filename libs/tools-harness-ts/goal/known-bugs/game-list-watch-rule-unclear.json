@@ -1,0 +1,4 @@
+{
+  "summary": "The space's game list said \"Pick a game to play; everyone else here watches\" over games for two to four players, as if only the person choosing would play. It now says \"Choose a game, then its players; everyone else here can watch\".",
+  "regressionTest": "libs/spaces-client-ts/tests/space-games-header.test.tsx"
+}

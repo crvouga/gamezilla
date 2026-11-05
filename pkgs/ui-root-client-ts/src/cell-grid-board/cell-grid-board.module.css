@@ -61,6 +61,18 @@
 .board[data-fill="true"] {
   max-width: none;
 }
+/* On a phone a Battleship grid's ten targets are as large as its frame
+   allows: a narrow label column, hairline gaps and slim padding give the
+   room to the targets, each about 32px instead of 30px. */
+@container game-column (max-width: 879px) {
+  .board[data-fill="true"][data-board-theme="battleship"] {
+    grid-template-columns:
+      minmax(1rem, 0.5fr)
+      repeat(var(--cell-grid-columns), minmax(0, 1fr));
+    gap: 1px;
+    padding: var(--ui-space-1);
+  }
+}
 .header {
   display: grid;
   place-items: center;

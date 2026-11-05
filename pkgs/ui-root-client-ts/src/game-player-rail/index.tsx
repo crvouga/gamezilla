@@ -29,8 +29,9 @@ export type GamePlayerRailProps = {
 /**
  * `GamePlayerRail` + `GamePlayerChip` -- the players at a table of three or
  * more, as compact chips above the board that wrap onto as many rows as
- * they need (two across a phone), so every player is in view at once and
- * none is cut off at the screen's edge. Each chip shows the player's
+ * they need (two across a phone; three players on a phone make one row of
+ * three stacked chips, so none is left alone), so every player is in view
+ * at once and none is cut off at the screen's edge. Each chip shows the player's
  * avatar and name on its first line, then their swatch, figure, out /
  * reconnecting word and any short facts (`tags`) on the second, so the
  * name keeps the chip's width.
@@ -101,14 +102,18 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
           {props.avatar}
         </Show>
       </span>
-      <span class="box flex-1 min-w-0 items-start gap-1">
+      <span
+        class={`box flex-1 min-w-0 items-start gap-1 ${styles['chipText']}`}
+      >
         <span
           class="text textLabel truncate min-w-0 max-w-full"
           classList={{ 'text-on-primary-soft': props.active === true }}
         >
           {props.name}
         </span>
-        <span class="box flex-row flex-wrap items-center gap-1 min-w-0">
+        <span
+          class={`box flex-row flex-wrap items-center gap-1 min-w-0 ${styles['chipFacts']}`}
+        >
           <Show when={props.swatch}>
             {(look) => <GameSeatSwatch look={look()} />}
           </Show>
@@ -151,7 +156,10 @@ export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
       <Show
         when={props.onPress}
         fallback={
-          <div class={`box ${CHIP_FRAME}`} classList={look()}>
+          <div
+            class={`box ${CHIP_FRAME} ${styles['chipFrame']}`}
+            classList={look()}
+          >
             <ChipFace {...props} />
           </div>
         }
@@ -159,7 +167,7 @@ export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
         {(press) => (
           <button
             type="button"
-            class={`clickable clickableTint ${CHIP_FRAME}`}
+            class={`clickable clickableTint ${CHIP_FRAME} ${styles['chipFrame']}`}
             classList={look()}
             onClick={() => press()()}
           >

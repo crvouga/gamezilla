@@ -9,7 +9,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 
 afterEach(cleanup);
@@ -105,19 +105,15 @@ test("wide: the steps follow the moves, and the game's commands close the same c
 // regression: move-strip-chip-butts-arrow — under a phone's board the shown
 // turn sat squeezed between four arrows, its marked move touching the next
 // one, and "4 ● 3 ◆ 2" never said what its numbers were.
-test('phone: the steps head the record and the shown turn has the strip to itself, in words', () => {
+// regression: phone-replay-steps-compete — the four steps then headed the
+// record during live play, competing with the board and the game's
+// commands. While live they wait behind the record's chevron.
+test('phone: the shown turn has the strip to itself, in words; the steps wait behind the chevron while live', () => {
   mount(
     () => <FrameRecordView {...handlers} record={record()} layout="strip" />,
     390
   );
   const strip = screen.getByTestId('custom-game-move-strip');
-  for (const step of [
-    'custom-game-review-first',
-    'custom-game-review-back',
-    'custom-game-review-forward',
-    'custom-game-review-live',
-  ])
-    expect(strip.contains(screen.getByTestId(step))).toBe(false);
   expect(strip.textContent).toContain('Move 5');
   expect(strip.textContent).toContain('col');
   // The move itself still reads exactly as the game writes it.
@@ -125,10 +121,18 @@ test('phone: the steps head the record and the shown turn has the strip to itsel
   expect(screen.getByTestId('custom-game-review-move-10').textContent).toBe(
     '4'
   );
-  const head = screen.getByTestId('custom-game-move-strip-head');
-  expect(head.contains(screen.getByTestId('custom-game-review-back'))).toBe(
-    true
-  );
+  expect(screen.queryByTestId('custom-game-review-back')).toBeNull();
+  fireEvent.click(screen.getByTestId('custom-game-review-jump'));
+  const steps = screen.getByTestId('custom-game-record-steps');
+  for (const step of [
+    'custom-game-review-first',
+    'custom-game-review-back',
+    'custom-game-review-forward',
+    'custom-game-review-live',
+  ]) {
+    expect(strip.contains(screen.getByTestId(step))).toBe(false);
+    expect(steps.contains(screen.getByTestId(step))).toBe(true);
+  }
 });
 
 // regression: phone-record-said-twice — under a phone's board a "Moves ·
@@ -145,14 +149,18 @@ test('phone: the record is one card that says whether it is live and opens in pl
   if (card === null) throw new Error('No record card');
   const toggle = screen.getByTestId('custom-game-review-jump');
   expect(card.contains(toggle)).toBe(true);
-  expect(card.contains(screen.getByTestId('custom-game-review-live'))).toBe(
-    true
-  );
   expect(toggle.getAttribute('aria-expanded')).toBe('false');
   expect(screen.queryByText('Game record')).toBeNull();
   expect(screen.getByTestId('custom-game-move-strip-place').textContent).toBe(
     'Live'
   );
+  fireEvent.click(toggle);
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(card.contains(screen.getByTestId('custom-game-review-live'))).toBe(
+    true
+  );
+  // The way to the history is with the game's commands, not in the strip.
+  expect(screen.queryByTestId('custom-game-history-stats')).toBeNull();
 });
 
 test('phone: an earlier move reads as being reviewed, with its number', () => {
@@ -169,6 +177,14 @@ test('phone: an earlier move reads as being reviewed, with its number', () => {
   expect(screen.getByTestId('custom-game-move-strip-place').textContent).toBe(
     'Reviewing move 3 of 10'
   );
+  // Reviewing, the steps come out beside the place shown.
+  const steps = screen.getByTestId('custom-game-record-steps');
+  expect(steps.contains(screen.getByTestId('custom-game-review-live'))).toBe(
+    true
+  );
+  expect(
+    steps.contains(screen.getByTestId('custom-game-move-strip-place'))
+  ).toBe(true);
 });
 
 const AVERY: FrameSetupSeat = {

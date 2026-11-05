@@ -261,9 +261,10 @@ function RecordSelect(props: RecordProps): JSX.Element {
 }
 
 /**
- * Leaving for the space's history: never a filled bar. Under a phone's
- * board an outline at its own width; beside a wide one a quiet link at the
- * record's title, so it never weighs as much as a play command.
+ * Leaving for the space's history: never a filled bar. Always in one
+ * place, at the end of the game's commands (beside Resign under a phone's
+ * board, at the foot of the record's card beside a wide one); quiet there,
+ * so it never weighs as much as a play command.
  */
 function HistoryButton(
   props: Pick<RecordProps, 'record' | 'onOpenHistory'> & {
@@ -296,15 +297,6 @@ export function FrameHistoryLink(
   }
 ): JSX.Element {
   return <HistoryButton {...props} />;
-}
-
-/** "History and stats" in a row of its own, behind the phone's disclosure. */
-function RecordHistory(props: RecordProps): JSX.Element {
-  return (
-    <GameActions>
-      <HistoryButton {...props} />
-    </GameActions>
-  );
 }
 
 /**
@@ -380,8 +372,9 @@ function RecordIconToggle(props: {
  * moves as a table of turns, the steps right under them with a quiet way
  * to jump to a move by number, then the game's commands as the card's
  * foot (`commands`: Offer draw, Resign), so the whole rail reads as one
- * unit with no gap. The space's history is a quiet link at its title; a
- * long game's table scrolls inside. A game played by turns lists its
+ * unit with no gap. The space's history is a quiet link at the end of
+ * those commands, where every game keeps it; a long game's table scrolls
+ * inside. A game played by turns lists its
  * moves only once there are any.
  */
 function RecordPanel(props: RecordProps): JSX.Element {
@@ -393,8 +386,12 @@ function RecordPanel(props: RecordProps): JSX.Element {
       title={<Trans>Game record</Trans>}
       description={props.caption}
       dataSet={{ component: 'CustomGameReview' }}
-      trailing={<HistoryButton {...props} quiet />}
-      footer={<GameActions>{props.commands}</GameActions>}
+      footer={
+        <GameActions>
+          {props.commands}
+          <HistoryButton {...props} quiet />
+        </GameActions>
+      }
     >
       <RecordSelect {...props} />
       <Show when={played()}>
@@ -449,44 +446,75 @@ function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
 }
 
 /**
- * The record under a phone's board as one compact card, its one history
- * control: a head line saying whether the board is live, with the four
- * steps as one group at its end; then the shown turn in words on a well
- * of its own (`Move 4 · ● col 3 · ◆ col 2`), so a move is never squeezed
- * between arrows, beside the chevron that opens the rest of the record in
- * the same card (every move as a table, a move by number, earlier games,
- * the space's history). The well keeps its height before the first move,
- * so the board above never moves when it lands.
+ * A phone's record as one compact strip pinned under the host's top bar:
+ * the game's own line about the turn when it says more than the seat to
+ * move does (`caption`), then one row: whether the board is live, the
+ * shown turn in words on a well of its own (`Move 4 · ● col 3 · ◆ col 2`)
+ * and the chevron that opens the rest of the record in place. During live
+ * play the four steps wait behind that chevron with every move, a move
+ * by number and earlier games, so
+ * nothing competes with play; while an earlier position is reviewed they
+ * come out beside the place it shows. The well keeps its height before
+ * the first move (saying there is none yet), so the board under it never
+ * moves when it lands.
  */
 function RecordStrip(props: RecordProps): JSX.Element {
   const [open, setOpen] = createSignal(false);
+  const reviewing = (): boolean => recordReviewing(props.record);
   return (
     <Surface
       tone="surface"
       border
       radius="card"
       paddingX="sm"
-      paddingY="sm"
+      paddingY="xs"
       gap="xs"
       testId="custom-game-record"
     >
+      <Show when={props.caption}>
+        {(caption) => (
+          <P variant="label" testId="custom-game-record-caption">
+            {caption()}
+          </P>
+        )}
+      </Show>
       <StackHorizontal
-        justify="between"
         align="center"
         gap="sm"
         testId="custom-game-move-strip-head"
       >
-        <StripPlace record={props.record} />
-        <RecordSteps {...props} />
-      </StackHorizontal>
-      <StackHorizontal align="center" gap="sm">
+        <Show when={!reviewing()}>
+          <StripPlace record={props.record} />
+        </Show>
         <Surface tone="muted" radius="control" grow>
           <MoveStrip testId="custom-game-move-strip">
-            <RecordMoves {...props} layout="turn" />
+            <Show
+              when={props.record.moves.length > 0}
+              fallback={
+                <P variant="caption" tone="secondary">
+                  <Trans>No moves yet.</Trans>
+                </P>
+              }
+            >
+              <RecordMoves {...props} layout="turn" />
+            </Show>
           </MoveStrip>
         </Surface>
         <RecordIconToggle open={open()} onToggle={() => setOpen(!open())} />
       </StackHorizontal>
+      <Show when={reviewing() || open()}>
+        <StackHorizontal
+          justify={reviewing() ? 'between' : 'end'}
+          align="center"
+          gap="sm"
+          testId="custom-game-record-steps"
+        >
+          <Show when={reviewing()}>
+            <StripPlace record={props.record} />
+          </Show>
+          <RecordSteps {...props} />
+        </StackHorizontal>
+      </Show>
       <FrameErrorView text={props.record.error} />
       <Show when={open()}>
         <StackVertical gap="md" paddingY="sm">
@@ -495,7 +523,6 @@ function RecordStrip(props: RecordProps): JSX.Element {
           </Show>
           <ReviewJumpField {...props} />
           <RecordSelect {...props} />
-          <RecordHistory {...props} />
         </StackVertical>
       </Show>
     </Surface>

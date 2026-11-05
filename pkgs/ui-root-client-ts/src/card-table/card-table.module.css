@@ -388,15 +388,17 @@ button.card[aria-disabled="true"] {
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
   filter: brightness(0.72);
 }
-/* Chosen: lifted 14px out of the fan and ringed in the table's accent, so
-   it reads at a glance and without motion. */
+/* Chosen: lifted 12px out of the fan and ringed twice, the felt's green
+   inside the table's accent, so it reads at a glance on a light page and a
+   dark one, without motion. */
 button.card[aria-pressed="true"] {
-  border-color: var(--ui-color-game-hearts-accent);
+  border-color: var(--ui-color-game-hearts-canvas);
   box-shadow:
-    0 0 0 3px var(--ui-color-game-hearts-accent),
+    0 0 0 2px var(--ui-color-game-hearts-canvas),
+    0 0 0 5px var(--ui-color-game-hearts-accent),
     var(--ui-shadow-float);
   transform: translateY(
-      calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-3) - 2px)
+      calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-3))
     )
     rotate(calc(var(--fan) * 1deg));
 }
@@ -406,42 +408,44 @@ button.card:focus-visible {
   outline-offset: 2px;
 }
 /*
- * A narrow table with more than seven cards: two staggered rows, the second
- * overlapping the first's lower half, so every card's corner reads whole.
- * Seven cards step across the row, each nearly its whole width in view.
+ * A narrow table with more than seven cards: one flat row that scrolls
+ * sideways, each card showing at least `--hand-peek` of its left edge, so
+ * every corner (rank over suit) reads whole and no card hides another's.
+ * A chosen card lifts 12px out of the row, inside the row's top padding.
  */
 @container (max-width: 32rem) {
-  .hand[data-rows="2"] {
-    flex-wrap: wrap;
-    padding-inline: 0;
+  .hand[data-crowded="true"] {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* Room for a chosen card's ring at either end of the row. */
+    padding-inline: var(--ui-space-2);
+    scroll-padding-inline: var(--ui-space-2);
   }
-  .hand[data-rows="2"]::before {
-    content: "";
-    order: 1;
-    flex-basis: 100%;
-    height: 0;
-  }
-  .hand[data-rows="2"] > .card {
-    --card-w: min(60px, 100cqw / 6.4);
+  .hand[data-crowded="true"] > .card {
+    --card-w: 52px;
     transform: none;
   }
-  .hand[data-rows="2"] > .card[data-row="1"] {
-    order: 2;
-    margin-top: calc(var(--card-w) * -0.72);
+  .hand[data-crowded="true"] > .card + .card {
+    margin-inline-start: calc(
+      max(
+        var(--hand-peek),
+        (100cqw - var(--card-w)) /
+        max(1, var(--hand-count) - 1)
+      ) -
+      var(--card-w)
+    );
   }
-  .hand[data-rows="2"] > .card + .card {
-    margin-inline-start: calc((100cqw - var(--card-w)) / 6 - var(--card-w));
-  }
-  .hand[data-rows="2"] > .card[data-row="0"] + .card[data-row="1"] {
-    margin-inline-start: 0;
-  }
-  .hand[data-rows="2"] > button.card[aria-pressed="true"] {
+  .hand[data-crowded="true"] > button.card[aria-pressed="true"] {
     transform: translateY(calc(-1 * var(--ui-space-3)));
   }
 }
 @media (hover: hover) and (pointer: fine) {
   @container (max-width: 32rem) {
-    .hand[data-rows="2"] > button.card:not([aria-disabled="true"]):hover {
+    .hand[data-crowded="true"]
+      > button.card:not([aria-disabled="true"], [aria-pressed="true"]):hover {
       transform: translateY(calc(-1 * var(--ui-space-1)));
     }
   }
@@ -454,10 +458,12 @@ button.card:focus-visible {
   gap: var(--ui-space-3);
   min-height: 2.75rem;
 }
+/* The count chosen reads as the row's heading, the button its answer. */
 .actionStatus {
   margin: 0;
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-text);
   font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
 }
 .refusal {
   margin: 0;

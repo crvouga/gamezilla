@@ -1579,6 +1579,10 @@ msgstr "Choose a bot difficulty offered by this game."
 msgid "Choose a game with a puzzle editor."
 msgstr "Choose a game with a puzzle editor."
 
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "Choose a game, then its players; everyone else here can watch."
+msgstr "Choose a game, then its players; everyone else here can watch."
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
 msgstr "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
@@ -3274,6 +3278,10 @@ msgstr "How matchmaking works"
 msgid "How to find people"
 msgstr "How to find people"
 
+#: libs/game-session-client-ts/src/game-frame-screen-view.tsx
+msgid "How to play"
+msgstr "How to play"
+
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
 msgid "How you sign in"
 msgstr "How you sign in"
@@ -4290,6 +4298,7 @@ msgid "No membership yet."
 msgstr "No membership yet."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "No moves yet."
 msgstr "No moves yet."
 
@@ -4917,10 +4926,6 @@ msgid "Pick a fun emoji look"
 msgstr "Pick a fun emoji look"
 
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
-msgid "Pick a game to play; everyone else here watches."
-msgstr "Pick a game to play; everyone else here watches."
-
-#: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
@@ -5446,10 +5451,6 @@ msgstr "Rapid"
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "Rated"
 msgstr "Rated"
-
-#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
-msgid "Rated games toward a settled rating"
-msgstr "Rated games toward a settled rating"
 
 #: libs/game-puzzle-client-ts/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"

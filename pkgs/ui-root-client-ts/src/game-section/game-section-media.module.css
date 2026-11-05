@@ -13,14 +13,30 @@
   gap: var(--ui-space-4);
   min-width: 0;
 }
-/* A phone: a compact card, the thumbnail beside its label. */
+/* A phone: a slim row ahead of the section, a small thumbnail beside its
+   label, so what the section sets up (the players) takes the screen. */
 .sectionMedia {
-  --game-board-preview-measure: 96px;
+  --game-board-preview-measure: 48px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 0;
-  padding: var(--ui-space-3);
+  padding: var(--ui-space-2) var(--ui-space-3);
+}
+/* In a phone's pair the board stage's thumbnail sits beside its label, one
+   slim row (the stage is the preview's only `[data-preview]` element). */
+@container game-section (max-width: 39.99rem) {
+  .sectionPair .sectionMedia [data-preview="true"] {
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-start;
+    max-width: none;
+    gap: var(--ui-space-3);
+  }
+  .sectionPair .sectionMedia [data-preview="true"] > :first-child {
+    flex: 0 0 var(--game-board-preview-measure);
+    width: var(--game-board-preview-measure);
+  }
 }
 /* Wide: the section takes the room, the picture's card sits at its end,
    as tall as the section, the picture centred in it. */
@@ -34,6 +50,7 @@
     grid-column: 2;
     grid-row: 1;
     flex-direction: column;
+    gap: var(--ui-space-4);
     padding: var(--ui-space-5);
   }
 }
