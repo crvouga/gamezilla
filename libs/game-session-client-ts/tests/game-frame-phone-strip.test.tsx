@@ -192,6 +192,11 @@ test("History and stats ends the game's commands on a phone and beside a wide bo
     expect(
       resign.compareDocumentPosition(history) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
+    // regression: game-rail-actions-ragged — beside a wide board Offer draw
+    // and Resign sat on one row and History and stats wrapped alone onto a
+    // second, out of line with them. In the rail it drops its chevron so
+    // the three share one row; a phone's row keeps the chevron.
+    expect(history.querySelector('svg') === null).toBe(width === 1440);
     cleanup();
   }
 });

@@ -270,4 +270,29 @@ describe('game surfaces', () => {
     expect(bar).not.toMatch(/max-width/);
     expect(bar).toMatch(/width:\s*100%;/);
   });
+
+  // regression: game-rail-short-of-edge — beside a wide board the rail kept
+  // a fixed 376px, so it ended wherever the window's height left the board:
+  // Battleship's at x=1203, Chess's at 1300, Light Cycles' at 1320, under a
+  // header running to 1320, with about 380px of empty page under it. The
+  // rail takes what the board leaves of the column, so every rail ends at
+  // the column's edge, and a long game's moves grow to about the board's
+  // height before they scroll.
+  test("the rail beside a wide board runs to the column's edge and its moves grow beside the board", () => {
+    const css = readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8');
+    const wide = css.slice(css.indexOf('@container game-column (min-width: 880px)'));
+    const head =
+      '.layout[data-has-stage="true"][data-has-aside="true"],\n  .layout[data-has-stage="true"][data-has-setup="true"] {\n';
+    const grids = wide.split(head).slice(1).map((body) => body.slice(0, body.indexOf('}')));
+    const columns = grids.find((body) => body.includes('grid-template-columns'));
+    expect(columns).toMatch(
+      /grid-template-columns:\s*minmax\(0, var\(--game-board-measure\)\)\s*minmax\(280px, 1fr\);/
+    );
+    const table = wide.slice(
+      wide.indexOf('> .rail\n    [data-layout="table"] {')
+    );
+    expect(table.slice(0, table.indexOf('}'))).toMatch(
+      /max-height:\s*max\(320px, calc\(var\(--game-board-measure\) - 120px\)\);/
+    );
+  });
 });

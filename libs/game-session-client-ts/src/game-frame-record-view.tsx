@@ -270,8 +270,15 @@ function RecordSelect(props: RecordProps): JSX.Element {
 function HistoryButton(
   props: Pick<RecordProps, 'record' | 'onOpenHistory'> & {
     readonly quiet?: boolean | undefined;
+    /**
+     * Quiet beside a wide board, in the rail card's foot: no chevron, so it
+     * shares one row with Offer draw and Resign instead of wrapping under
+     * them. A phone's row keeps the chevron.
+     */
+    readonly inRail?: boolean | undefined;
   }
 ): JSX.Element {
+  const chevron = (): boolean => props.quiet === true && props.inRail !== true;
   return (
     <Show when={props.record.history}>
       <Button
@@ -279,7 +286,7 @@ function HistoryButton(
         variant={props.quiet === true ? 'ghost' : 'outline'}
         size={props.quiet === true ? 'sm' : undefined}
         intent="neutral"
-        endIcon={props.quiet === true ? <ChevronRightIcon /> : undefined}
+        endIcon={chevron() ? <ChevronRightIcon /> : undefined}
         onClick={() => props.onOpenHistory()}
         dataSet={{ testid: 'custom-game-history-stats' }}
       />
@@ -295,6 +302,7 @@ function HistoryButton(
 export function FrameHistoryLink(
   props: Pick<RecordProps, 'record' | 'onOpenHistory'> & {
     readonly quiet?: boolean | undefined;
+    readonly inRail?: boolean | undefined;
   }
 ): JSX.Element {
   return <HistoryButton {...props} />;
@@ -374,8 +382,9 @@ function RecordIconToggle(props: {
  * to jump to a move by number, then the game's commands as the card's
  * foot (`commands`: Offer draw, Resign), so the whole rail reads as one
  * unit with no gap. The space's history is a quiet link at the end of
- * those commands, where every game keeps it; a long game's table scrolls
- * inside. A game played by turns lists its
+ * those commands, where every game keeps it; a long game's table grows to
+ * about the board's height, then scrolls inside. A game played by turns
+ * lists its
  * moves only once there are any.
  */
 function RecordPanel(props: RecordProps): JSX.Element {
@@ -390,7 +399,7 @@ function RecordPanel(props: RecordProps): JSX.Element {
       footer={
         <GameActions>
           {props.commands}
-          <HistoryButton {...props} quiet />
+          <HistoryButton {...props} quiet inRail />
         </GameActions>
       }
     >

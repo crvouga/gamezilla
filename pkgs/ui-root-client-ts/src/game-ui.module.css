@@ -445,9 +445,12 @@
   }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
+    /* The rail takes what the board leaves of the column, so every game's
+       rail ends at the column's edge, under the header's own, however tall
+       the window lets its board be. */
     grid-template-columns:
       minmax(0, var(--game-board-measure))
-      minmax(280px, var(--game-rail-measure));
+      minmax(280px, 1fr);
     grid-template-rows: repeat(var(--game-rail-rows, 1), auto) 1fr;
     justify-content: start;
     column-gap: var(--ui-space-6);
@@ -531,6 +534,13 @@
     > .section[data-fill="true"] {
     flex: 1 1 auto;
     min-height: 0;
+  }
+  /* A long game's move table grows beside the board, to about the board's
+     own height, before it scrolls: the rail's room is the record's. */
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail
+    [data-layout="table"] {
+    max-height: max(320px, calc(var(--game-board-measure) - 120px));
   }
   .layout[data-has-stage="true"][data-has-aside="true"]
     > .rail
