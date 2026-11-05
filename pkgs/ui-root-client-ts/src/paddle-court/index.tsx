@@ -158,6 +158,11 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
         <circle
           class={styles['ball']}
           data-testid={`${props.testId}-ball`}
+          // The ball as the game plays it (court units), apart from how
+          // large it is drawn: what a reader of the court relies on.
+          data-ball-x={props.ball.x}
+          data-ball-y={props.ball.y}
+          data-ball-size={props.ball.size}
           cx={props.ball.x}
           cy={props.ball.y}
           r={(props.ball.size * BALL_DRAWN_SCALE) / 2}

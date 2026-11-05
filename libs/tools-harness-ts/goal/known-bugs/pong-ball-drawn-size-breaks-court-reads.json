@@ -1,0 +1,4 @@
+{
+  "summary": "Drawing the Pong ball as a larger circle removed the rect geometry the Pong harness read the ball's position from, so scoring scenarios steered with NaN and no point was scored; the ball now carries its played position and size as data attributes, apart from how it is drawn.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/paddle-court-ball.test.tsx"
+}
