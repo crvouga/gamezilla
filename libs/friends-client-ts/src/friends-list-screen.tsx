@@ -10,6 +10,7 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { FriendRequestsAside } from './friend-requests-aside';
+import { FriendRequestsEntry } from './friend-requests-entry';
 import { FriendRowDisclosure } from './friend-user-row';
 import { FriendsListScreenView } from './friends-list-screen-view';
 import {
@@ -73,6 +74,7 @@ function FriendsListContainer(): JSX.Element {
       friends={ordered()}
       notice={<FriendsRefusedChangeNotice />}
       aside={aside()}
+      requests={<FriendRequestsEntry />}
       friendStatus={(friend) => (
         <Show when={roomOf().get(friend.userId)}>
           {(live) => (

@@ -17,6 +17,7 @@ import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
@@ -301,6 +302,8 @@ function CardActionsRow(props: {
   readonly actionTestID?:
     | ((action: NotificationAction) => string | undefined)
     | undefined;
+  /** Beside the words (a desktop): one line that never wraps. */
+  readonly beside?: boolean | undefined;
 }): JSX.Element {
   const openStep = (): string | undefined =>
     props.inline.length === 0 ? props.openLabel : undefined;
@@ -309,7 +312,7 @@ function CardActionsRow(props: {
     (openStep() !== undefined && props.onOpen !== undefined);
   return (
     <Show when={hasRow()}>
-      <StackHorizontal align="center" gap="sm" wrap>
+      <StackHorizontal align="center" gap="sm" wrap={props.beside !== true}>
         <CardAnswers
           interaction={props.interaction}
           actions={props.actions}
@@ -354,8 +357,8 @@ export type NotificationCardDefaultProps = {
  * The inbox's card for one notification, in one compact anatomy: the face;
  * a column whose words wrap (and open the notification) — the title, led
  * by the accent unread dot while it waits on the person, then one caption
- * line saying when and what ("1h ago · Space invite") — and, beneath, the
- * card's answers (the main answer as the solid pill, other choices as
+ * line saying when and what ("1h ago · Space invite") — and, beneath on a
+ * phone or beside the words on a desktop, the card's answers (the main answer as the solid pill, other choices as
  * outlines, an unavailable answer as its reason in a neutral tag) or, when
  * it waits on the person without answers of its own, one explicit Open
  * pill; and a quiet "…" menu holding Archive at the top trailing corner. A card
@@ -398,32 +401,53 @@ export function NotificationCardDefault(
       ? undefined
       : cardState(props.interaction.isUnread);
 
+  const mode = useLayoutMode();
+  const headline = (): JSX.Element => (
+    <CardHeadline
+      interaction={shown()}
+      inactive={inactive()}
+      onOpen={open()}
+      testId={wordsTestId()}
+      dataSet={idOnWords() ? state() : undefined}
+    />
+  );
+  const answers = (beside: boolean): JSX.Element => (
+    <CardActionsRow
+      interaction={props.interaction}
+      actions={props.actions}
+      inline={inline()}
+      openLabel={openLabel()}
+      onOpen={open()}
+      actionTestID={props.actionTestID}
+      beside={beside}
+    />
+  );
+
   return (
     <StackHorizontal
-      align="start"
+      align={mode() === 'wide' ? 'center' : 'start'}
       gap="md"
       paddingY="md"
       testId={idOnWords() ? undefined : props.testID}
       dataSet={idOnWords() ? undefined : state()}
     >
       {props.leading ?? <DefaultLeading interaction={shown()} />}
-      <StackVertical grow gap="sm">
-        <CardHeadline
-          interaction={shown()}
-          inactive={inactive()}
-          onOpen={open()}
-          testId={wordsTestId()}
-          dataSet={idOnWords() ? state() : undefined}
-        />
-        <CardActionsRow
-          interaction={props.interaction}
-          actions={props.actions}
-          inline={inline()}
-          openLabel={openLabel()}
-          onOpen={open()}
-          actionTestID={props.actionTestID}
-        />
-      </StackVertical>
+      {/* A desktop's feed is short and wide enough for the answers beside
+          the words; a phone stacks them under the words. */}
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <StackVertical grow gap="sm">
+            {headline()}
+            {answers(false)}
+          </StackVertical>
+        }
+      >
+        <StackVertical grow shrink>
+          {headline()}
+        </StackVertical>
+        {answers(true)}
+      </Show>
       <CardMenu
         interaction={props.interaction}
         actions={props.actions}

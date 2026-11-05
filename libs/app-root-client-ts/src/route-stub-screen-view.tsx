@@ -22,9 +22,6 @@ export type RouteStubScreenViewProps = {
   readonly notFound?: boolean | undefined;
   /** Leave for Spaces, the app's home. */
   readonly onGoToSpaces: () => void;
-  /** Not found: the other places worth going instead. */
-  readonly onGoToSearch: () => void;
-  readonly onGoToProfile: () => void;
   /**
    * Return to the screen the person came from; set only when the app has
    * one to return to. Offered beside Go to Spaces.
@@ -62,8 +59,6 @@ export function RouteStubScreenView(
           screenId={props.screenId}
           title={props.title}
           onGoToSpaces={props.onGoToSpaces}
-          onGoToSearch={props.onGoToSearch}
-          onGoToProfile={props.onGoToProfile}
           onGoBack={props.onGoBack}
         />
       }

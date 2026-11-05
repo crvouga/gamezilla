@@ -3,12 +3,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import {
-  CompassIcon,
-  Gamepad2Icon,
-  SearchIcon,
-  UserIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { CompassIcon, Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
@@ -27,16 +22,15 @@ export type NotFoundScreenViewProps = {
   readonly title: JSX.Element;
   /** Spaces, the app's home: the primary way out. */
   readonly onGoToSpaces: () => void;
-  readonly onGoToSearch: () => void;
-  readonly onGoToProfile: () => void;
   /** Return where the person was; only when the app has a screen to return to. */
   readonly onGoBack?: (() => void) | undefined;
 };
 
 /**
- * The `*` route: the page title says it ("Not found") once, then, centred
- * in the content area, why and where to go instead: Spaces first, then
- * Search and Profile, and Go back when there is somewhere to go back to.
+ * The `*` route: the page title says what happened ("Page not found") and,
+ * centred in the content area, the message says why, without repeating it.
+ * Two ways out at most, side by side on one line: Go to Spaces (home), and
+ * Go back when there is somewhere to go back to.
  */
 export function NotFoundScreenView(
   props: NotFoundScreenViewProps
@@ -51,8 +45,7 @@ export function NotFoundScreenView(
             <StateBlockIcon icon={CompassIcon} />
             <P variant="body" tone="secondary" align="center">
               <Trans>
-                There's nothing at this address. The link may be old or
-                mistyped; your spaces are still here.
+                The link may be old or mistyped. Your spaces are still here.
               </Trans>
             </P>
             <StateBlockActions>
@@ -62,31 +55,17 @@ export function NotFoundScreenView(
                 onClick={() => props.onGoToSpaces()}
                 dataSet={{ testid: Handles.routeNotFoundAction }}
               />
-              <Button
-                title={<Trans>Search</Trans>}
-                icon={SearchIcon}
-                intent="neutral"
-                variant="outline"
-                onClick={() => props.onGoToSearch()}
-              />
-              <Button
-                title={<Trans>Profile</Trans>}
-                icon={UserIcon}
-                intent="neutral"
-                variant="outline"
-                onClick={() => props.onGoToProfile()}
-              />
+              <Show when={props.onGoBack}>
+                {(goBack) => (
+                  <Button
+                    title={<Trans>Go back</Trans>}
+                    intent="neutral"
+                    variant="outline"
+                    onClick={() => goBack()()}
+                  />
+                )}
+              </Show>
             </StateBlockActions>
-            <Show when={props.onGoBack}>
-              {(goBack) => (
-                <Button
-                  title={<Trans>Go back</Trans>}
-                  intent="neutral"
-                  variant="ghost"
-                  onClick={() => goBack()()}
-                />
-              )}
-            </Show>
           </StateBlock>
         </StackVertical>
       )}

@@ -7,10 +7,13 @@ import { SettingsIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import {
+  MetricStrip,
+  type SummaryMetric,
+} from '@pkgs/ui-root-client-ts/metric-strip';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import {
   createMemo,
@@ -37,6 +40,8 @@ export type ProfileIdentity = {
   readonly username: string | null;
   readonly avatarConfig: AvatarConfig | null;
   readonly isBot: boolean;
+  /** When the profile was made (ISO), or null until its row has synced. */
+  readonly joinedAt: string | null;
 };
 
 export type ProfileScreenViewProps = {
@@ -49,8 +54,10 @@ export type ProfileScreenViewProps = {
   readonly usernameChange: UsernameChange | null;
   /** Inline notice for a refused avatar change, under the identity. */
   readonly notice?: JSX.Element;
-  /** The friends panel's count row (signed-in counts; guests open sign-in on tap). */
+  /** The friends panel's row to the friends list (signed-in; guests open sign-in on tap). */
   readonly friendsStats?: JSX.Element | undefined;
+  /** How many friends, as the number the identity's Friends fact shows. */
+  readonly friendsCount?: JSX.Element | undefined;
   /** The friends panel's action rows, under the count (Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
   /**
@@ -80,7 +87,7 @@ function ProfileName(
               isBot={identity().isBot}
               variant="heading"
               numberOfLines={1}
-              align="center"
+              align="start"
               dataSet={{ testid: Handles.profileDisplayUsername }}
             />
           )}
@@ -152,22 +159,72 @@ function ProfileFriendsSection(props: {
   );
 }
 
-/** The face in the profile's own identity: smaller in the desktop's header band than atop a phone's column. */
-const AVATAR_SIZE = { compact: 96, wide: 64 } as const;
+/**
+ * The face in the profile's own identity, beside the name on every size:
+ * never a hero-sized echo of the header's own avatar.
+ */
+const AVATAR_SIZE = 64;
+
+/** "November 2023": the month a profile was made, in the reader's locale. */
+function useJoinedLabel(joinedAt: () => string | null): () => string | null {
+  const { i18n } = useLingui();
+  return () => {
+    const at = joinedAt();
+    if (at === null) return null;
+    const date = new Date(at);
+    if (Number.isNaN(date.getTime())) return null;
+    return new Intl.DateTimeFormat(i18n().locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+  };
+}
 
 /**
- * `/profile`, presentational: the person's own avatar, name, username and
- * avatar notices, Edit profile, the rooms friends are playing in now (each
- * with Join), the friends panel (count and faces, then Find friends) and
- * the way to Settings. On a phone they stack in that order under the
- * centered identity; on a desktop the identity is a compact band across
- * the top, the rooms take the wide main column, and Friends and Settings
- * sit in the rail beside them.
+ * Facts about the person beside their name, only those this device knows:
+ * how many friends (when a friends sub is composed) and when they joined.
+ * Nothing while neither is known.
+ */
+function ProfileFacts(props: {
+  readonly friendsCount: JSX.Element | undefined;
+  readonly joinedAt: string | null;
+}): JSX.Element {
+  const { t } = useLingui();
+  const joined = useJoinedLabel(() => props.joinedAt);
+  const metrics = createMemo((): readonly SummaryMetric[] => {
+    const out: SummaryMetric[] = [];
+    if (props.friendsCount !== undefined) {
+      out.push({ label: <Trans>Friends</Trans>, value: props.friendsCount });
+    }
+    const month = joined();
+    if (month !== null)
+      out.push({ label: <Trans>Joined</Trans>, value: month });
+    return out;
+  });
+  return (
+    <Show when={metrics().length > 0}>
+      <MetricStrip
+        aria-label={t`About you`}
+        metrics={metrics()}
+        dataSet={{ testid: Handles.profileFacts }}
+      />
+    </Show>
+  );
+}
+
+/**
+ * `/profile`, presentational: the person's own avatar, name and the facts
+ * this device knows (friends, when they joined), username and avatar
+ * notices, Edit profile, the rooms friends are playing in now (each with
+ * Join), the friends panel (their faces, then Find friends) and the way to
+ * Settings. The identity is a compact panel read from the start edge, the
+ * picture beside the name, as wide as what it holds on a desktop; on a
+ * phone the rest stacks under it, on a desktop the rooms take the main
+ * column and Friends and Settings sit in the rail beside them.
  * Data arrives as props; `ProfileScreen` wires them to the sync engine.
  */
 export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const mode = useLayoutMode();
   return (
     <ProfileScreenLayout
       screenId="profile"
@@ -177,7 +234,7 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
           <DeviceAvatar
             avatarConfig={props.identity?.avatarConfig ?? null}
             seedFallback={props.identity?.profileId ?? 'pending'}
-            size={AVATAR_SIZE[mode()]}
+            size={AVATAR_SIZE}
             vividBackdrop={false}
           />
         </ProfileAvatarFigure>
@@ -189,6 +246,12 @@ export function ProfileScreenView(props: ProfileScreenViewProps): JSX.Element {
             identity={props.identity}
             onRetry={props.onRetry}
           />
+          <Show when={props.status !== 'loading'}>
+            <ProfileFacts
+              friendsCount={props.friendsCount}
+              joinedAt={props.identity?.joinedAt ?? null}
+            />
+          </Show>
           <Show when={props.standInName}>
             {(alias) => <StandInNoticeView alias={alias()} />}
           </Show>

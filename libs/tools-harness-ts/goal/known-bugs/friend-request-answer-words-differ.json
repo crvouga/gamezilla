@@ -1,0 +1,4 @@
+{
+  "summary": "The same friend-request decision used two pairs of words: Search's rows and a requester's profile said Confirm / Delete, while the inbox and the request modal said Accept / Decline (and Delete sounded destructive). Every surface now says Accept / Decline.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-request-answer-words.test.tsx"
+}

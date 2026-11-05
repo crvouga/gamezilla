@@ -16,10 +16,12 @@ import { useStandInName } from './use-stand-in-name';
 import { useUsernameChange } from './use-username-change';
 
 export type ProfileScreenProps = {
-  /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
+  /** The friends panel's row to the friends list (guests open sign-in on tap). */
   readonly friendsStats?: JSX.Element | undefined;
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
+  /** How many friends, for the identity's Friends fact. */
+  readonly friendsCount?: JSX.Element | undefined;
   /** The rooms friends are playing in now: the main section (beside the rail on a desktop). */
   readonly friendsPlaying?: JSX.Element | undefined;
 };
@@ -51,6 +53,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
       username: current?.username ?? null,
       avatarConfig: parseAvatarConfig(current?.avatar_config ?? null),
       isBot: current?.account_kind === 'synthetic',
+      joinedAt: current?.created_at ?? null,
     };
   });
   return (
@@ -62,6 +65,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
       notice={<AvatarRefusedChangeNotice />}
       friendsStats={props.friendsStats}
       friendsActions={props.friendsActions}
+      friendsCount={props.friendsCount}
       friendsPlaying={props.friendsPlaying}
       onEditProfile={() => router.push('/profile/edit')}
       onOpenSettings={() => router.push('/more')}

@@ -1,0 +1,4 @@
+{
+  "summary": "The Account screen's Danger zone (Sign out of all devices, Delete account) took as much room as routine account management: each rare, destructive row carried a two-line caption. Both rows are now one line each; what they do is spelled out where each is confirmed.",
+  "regressionTest": "libs/auth-client-ts/tests/account-danger-zone.test.tsx"
+}

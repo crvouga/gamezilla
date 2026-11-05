@@ -93,7 +93,7 @@ export const RequestRefused: Story = {
   args: { requestOutcome: { status: 'rejected', code: 'FRIENDS_COOLDOWN' } },
 };
 
-/** They asked first: Confirm or Delete their request. */
+/** They asked first: Accept or Decline their request. */
 export const RequestReceived: Story = { args: { status: 'pending_incoming' } };
 
 /** Already friends: the status pill, with Remove friend in the menu. */

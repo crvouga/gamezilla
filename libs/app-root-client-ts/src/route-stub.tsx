@@ -14,7 +14,7 @@ import {
 
 export type RouteStubProps = Omit<
   RouteStubScreenViewProps,
-  'onGoToSpaces' | 'onGoToSearch' | 'onGoToProfile' | 'onGoBack'
+  'onGoToSpaces' | 'onGoBack'
 >;
 
 /**
@@ -30,8 +30,6 @@ export function RouteStub(props: RouteStubProps): JSX.Element {
       parent={props.parent}
       notFound={props.notFound}
       onGoToSpaces={() => router.replace('/')}
-      onGoToSearch={() => router.replace('/search')}
-      onGoToProfile={() => router.replace('/profile')}
       onGoBack={router.canGoBack() ? () => router.back() : undefined}
     />
   );

@@ -56,8 +56,10 @@ export type AccountScreenViewProps = {
  * The account's irreversible choices, set apart at the foot under their own
  * "Danger zone" label, each in the destructive ink: Sign out of all devices
  * (asks first, in place) and Delete account (opens what deletion removes,
- * where it is confirmed). Both are actions that ask before they act, so
- * both end the same way: no chevron on either.
+ * where it is confirmed). Compact: one line each, so the rare choices take
+ * less room than the everyday ones above; each one's consequences are
+ * spelled out where it is confirmed. Both ask before they act, so both end
+ * the same way: no chevron on either.
  */
 function AccountDangerZone(props: {
   readonly onSignOutEverywhere: () => void;
@@ -67,12 +69,11 @@ function AccountDangerZone(props: {
   return (
     <MenuSection
       title={<Trans>Danger zone</Trans>}
-      description={<Trans>Each asks first</Trans>}
+      description={<Trans>You confirm before either one happens</Trans>}
     >
       <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
       <MenuRow
         title={t`Delete account`}
-        caption={t`Permanently erase this account and its data`}
         leading={<Trash2Icon size={ROW_ICON_SIZE} color="destructive" />}
         tone="destructive"
         onClick={() => props.onOpenDeletion()}
@@ -131,7 +132,11 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
       <Show when={props.signedIn}>
         <MenuSection
           title={<Trans>Your data</Trans>}
-          description={<Trans>A copy of what you have here</Trans>}
+          description={
+            <Trans>
+              A copy of your profile, friends, progress and preferences
+            </Trans>
+          }
         >
           <MenuRow
             title={t`Export your data`}

@@ -22,7 +22,6 @@ export function SignOutEverywhereRow(props: {
   return (
     <MenuRow
       title={t`Sign out of all devices`}
-      caption={t`Ends every session on this account, this device included`}
       leading={<LogOutIcon size={ROW_ICON_SIZE} color="destructive" />}
       tone="destructive"
       onClick={() => props.onOpen()}

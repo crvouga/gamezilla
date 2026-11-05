@@ -36,8 +36,8 @@ const REQUEST = storyNotification({
   isUnread: true,
   payload: { fromUserId: AVERY_ID, fromUsername: 'avery' },
   actions: [
-    { id: 'confirm', label: 'Confirm', variant: 'solid' },
-    { id: 'delete', label: 'Delete', variant: 'outline', destructive: true },
+    { id: 'accept', label: 'Accept', variant: 'solid' },
+    { id: 'decline', label: 'Decline', variant: 'ghost' },
   ],
   deepLink: { path: '/profile/user/[userId]', params: { userId: AVERY_ID } },
 });
@@ -119,7 +119,7 @@ type Story = StoryObj<typeof meta>;
 /** A friend request (opens a decision) and an accepted request (opens the profile). */
 export const FriendCards: Story = {};
 
-/** Pressing a friend request opens Confirm / Delete with the sender's profile. */
+/** Pressing a friend request opens Accept / Decline with the sender's profile. */
 export const FriendRequestDecision: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

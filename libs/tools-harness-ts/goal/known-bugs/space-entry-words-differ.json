@@ -1,0 +1,4 @@
+{
+  "summary": "Going into a space you already belong to had two words: the lobby said \"Resume\" for the space open on this device and \"Open\" for your other one, and a friend's row said \"Resume\" too, beside \"Join\" for someone else's. A space you belong to now always says \"Open\", and someone else's \"Join\".",
+  "regressionTest": "libs/spaces-client-ts/tests/space-card-action-words.test.tsx"
+}

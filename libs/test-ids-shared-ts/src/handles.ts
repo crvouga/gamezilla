@@ -81,6 +81,7 @@ export const Handles = {
   spaceLeaveConfirm: 'space-leave-confirm',
   spaceEndConfirm: 'space-end-confirm',
   spaceShare: 'space-share',
+  spaceInviteFriends: 'space-invite-friends',
   spaceShareClose: 'space-share-close',
   spaceAddTrigger: 'space-add-trigger',
   spaceAddQuery: 'space-add-query',
@@ -285,6 +286,7 @@ export const Handles = {
   profileFriendsStats: 'profile-friends-stats',
   /** The number in the Profile tab's friends stat row. */
   profileFriendsCount: 'profile-friends-count',
+  profileFacts: 'profile-facts',
 
   // search
   searchInput: 'search-input',

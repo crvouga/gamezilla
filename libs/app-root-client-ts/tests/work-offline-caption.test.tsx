@@ -27,7 +27,7 @@ test('online, the row says turning it on pauses multiplayer', () => {
   mountSettings(false);
   expect(screen.getByText('Work offline')).toBeTruthy();
   expect(
-    screen.getByText('Disconnects multiplayer and pauses syncing')
+    screen.getByText('Disconnects multiplayer; changes wait on this device')
   ).toBeTruthy();
   const toggle = screen.getByRole('switch', { name: 'Work offline' });
   expect(toggle.getAttribute('aria-checked')).toBe('false');
@@ -37,7 +37,7 @@ test('online, the row says turning it on pauses multiplayer', () => {
 test('offline, the row says multiplayer is paused', () => {
   mountSettings(true);
   expect(
-    screen.getByText('Multiplayer is disconnected and syncing is paused')
+    screen.getByText('Multiplayer is off; changes wait on this device')
   ).toBeTruthy();
   const toggle = screen.getByRole('switch', { name: 'Work offline' });
   expect(toggle.getAttribute('aria-checked')).toBe('true');
@@ -48,10 +48,15 @@ test('the switch sits in its own Connection group that says what it ends', () =>
   mountSettings(false);
   expect(screen.getByText('Connection')).toBeTruthy();
   expect(
-    screen.getByText(
-      'While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online.'
-    )
+    screen.getByText('Disconnects multiplayer; changes wait on this device')
   ).toBeTruthy();
   // Not grouped with look and sound, as if it were one more preference.
   expect(screen.queryByText('Look, sound and connection')).toBeNull();
+});
+
+// regression: work-offline-needs-a-paragraph
+test('the one caption explains the switch, with no paragraph under it', () => {
+  mountSettings(false);
+  expect(screen.queryByText(/nobody can play with you/)).toBeNull();
+  expect(screen.queryByText(/until you go back online/)).toBeNull();
 });

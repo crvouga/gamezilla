@@ -113,10 +113,10 @@ function useAccountGroup(
 }
 
 /**
- * The Work offline row's caption, short: what turning it on does, and what
- * is stopped while it is on. Multiplayer leads either way, and so does what
- * it means for a game with others (it disconnects), so turning it on never
- * reads like an ordinary preference.
+ * The Work offline row's one caption: what turning it on stops (multiplayer)
+ * and where the person's changes go meanwhile (they wait on this device), so
+ * the switch explains itself without a paragraph under it and never reads
+ * like an ordinary preference.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -124,8 +124,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Multiplayer is disconnected and syncing is paused`
-      : t`Disconnects multiplayer and pauses syncing`;
+      ? t`Multiplayer is off; changes wait on this device`
+      : t`Disconnects multiplayer; changes wait on this device`;
 }
 
 function usePreferencesGroup(
@@ -158,8 +158,8 @@ function usePreferencesGroup(
 
 /**
  * Working offline on its own, apart from look and sound: it is not a
- * preference but a choice that ends every game with others, so its group
- * says so under the switch.
+ * preference but a choice that ends every game with others, which the row's
+ * own caption says.
  */
 function useConnectionGroup(
   props: SettingsScreenViewProps
@@ -170,7 +170,6 @@ function useConnectionGroup(
     key: 'connection',
     title: t`Connection`,
     description: t`Playing with others and syncing`,
-    footer: t`While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online.`,
     rows: [
       {
         title: t`Work offline`,

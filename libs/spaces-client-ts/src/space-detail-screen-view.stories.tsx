@@ -41,6 +41,7 @@ function gamesList(canSelectGame: boolean): JSX.Element {
           faces={faces([AVERY, ...GUESTS])}
           host={AVERY}
           hostIsYou={canSelectGame}
+          onInvite={fn()}
         />
       }
     />

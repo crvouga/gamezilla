@@ -80,11 +80,6 @@ msgstr "{0, plural, one {# rated game} other {# rated games}}"
 msgid "{0, plural, one {# seat is still open.} other {# seats are still open.}}"
 msgstr "{0, plural, one {# seat is still open.} other {# seats are still open.}}"
 
-#. placeholder {0}: friendsState.friends().length
-#: libs/friends-client-ts/src/profile-friends-stats-view.tsx
-msgid "{0, plural, one {friend} other {friends}}"
-msgstr "{0, plural, one {friend} other {friends}}"
-
 #. placeholder {0}: props.count
 #: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
@@ -745,8 +740,8 @@ msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
 
 #: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "A copy of what you have here"
-msgstr "A copy of what you have here"
+msgid "A copy of your profile, friends, progress and preferences"
+msgstr "A copy of your profile, friends, progress and preferences"
 
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "A different working copy was kept. Choose the copy you want below before publishing."
@@ -849,6 +844,11 @@ msgstr "Abort<0> the multiplayer game</0>"
 msgid "About"
 msgstr "About"
 
+#: libs/profile-client-ts/src/profile-screen-view.tsx
+msgid "About you"
+msgstr "About you"
+
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Accept"
@@ -862,10 +862,12 @@ msgstr "Accept<0> the multiplayer</0> draw"
 msgid "Accept<0> the multiplayer</0> rematch"
 msgstr "Accept<0> the multiplayer</0> rematch"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Accepted"
 msgstr "Accepted"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Accepting…"
 msgstr "Accepting…"
@@ -1040,6 +1042,10 @@ msgstr "All"
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "All five ships placed. Your fleet is ready."
 msgstr "All five ships placed. Your fleet is ready."
+
+#: libs/friends-client-ts/src/profile-friends-stats-view.tsx
+msgid "All friends"
+msgstr "All friends"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "All players are ready."
@@ -1817,7 +1823,6 @@ msgstr "Completed"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 msgid "Confirm"
@@ -1827,17 +1832,9 @@ msgstr "Confirm"
 msgid "Confirm permanent deletion"
 msgstr "Confirm permanent deletion"
 
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Confirmed"
-msgstr "Confirmed"
-
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
 msgstr "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
-
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Confirming…"
-msgstr "Confirming…"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "connect"
@@ -2003,6 +2000,7 @@ msgstr "Coral"
 msgid "Could not start local database"
 msgstr "Could not start local database"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
@@ -2014,10 +2012,6 @@ msgstr "Couldn't add person"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Couldn't cancel"
 msgstr "Couldn't cancel"
-
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Couldn't confirm"
-msgstr "Couldn't confirm"
 
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Couldn't connect"
@@ -2035,13 +2029,10 @@ msgstr "Couldn't copy the puzzle link"
 msgid "Couldn’t copy. Try again, or select the error details."
 msgstr "Couldn’t copy. Try again, or select the error details."
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Couldn't decline"
 msgstr "Couldn't decline"
-
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Couldn't delete"
-msgstr "Couldn't delete"
 
 #: libs/spaces-client-ts/src/end-space-confirm-modal.tsx
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
@@ -2230,6 +2221,7 @@ msgstr "debug"
 msgid "Decision Policy replay"
 msgstr "Decision Policy replay"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Decline"
@@ -2247,10 +2239,12 @@ msgstr "Decline<0> the multiplayer draw</0>"
 msgid "Decline<0> the multiplayer rematch</0>"
 msgstr "Decline<0> the multiplayer rematch</0>"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Declined"
 msgstr "Declined"
 
+#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Declining…"
 msgstr "Declining…"
@@ -2260,26 +2254,14 @@ msgstr "Declining…"
 msgid "Decrease {0}"
 msgstr "Decrease {0}"
 
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Delete"
-msgstr "Delete"
-
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Delete account"
 msgstr "Delete account"
 
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Deleted"
-msgstr "Deleted"
-
 #: libs/game-matchmaking-client-ts/src/use-shown-name.tsx
 msgid "Deleted account"
 msgstr "Deleted account"
-
-#: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-msgid "Deleting…"
-msgstr "Deleting…"
 
 #: pkgs/ui-root-client-ts/src/code-editor/code-editor.example.tsx
 msgid "Demo code editor"
@@ -2387,8 +2369,8 @@ msgid "Disconnected"
 msgstr "Disconnected"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Disconnects multiplayer and pauses syncing"
-msgstr "Disconnects multiplayer and pauses syncing"
+msgid "Disconnects multiplayer; changes wait on this device"
+msgstr "Disconnects multiplayer; changes wait on this device"
 
 #: pkgs/ui-root-client-ts/src/dismissible-top-banner/index.tsx
 #: pkgs/ui-root-client-ts/src/notice/index.tsx
@@ -2499,10 +2481,6 @@ msgstr "Duplicates skipped"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "Each asks first"
-msgstr "Each asks first"
-
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Each side chooses a private setup before the first move."
 msgstr "Each side chooses a private setup before the first move."
@@ -2608,10 +2586,6 @@ msgstr "Ending space…"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
-
-#: libs/auth-client-ts/src/sign-out-everywhere.tsx
-msgid "Ends every session on this account, this device included"
-msgstr "Ends every session on this account, this device included"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Enter a valid desired synthetic population."
@@ -2957,7 +2931,7 @@ msgid "Friend request not sent"
 msgstr "Friend request not sent"
 
 #: libs/friends-client-ts/src/friend-requests-aside.tsx
-#: libs/friends-client-ts/src/search-requests-entry.tsx
+#: libs/friends-client-ts/src/friend-requests-entry.tsx
 msgid "Friend requests"
 msgstr "Friend requests"
 
@@ -3340,6 +3314,10 @@ msgstr "Invite a person who is in this space."
 msgid "Invite a space member"
 msgstr "Invite a space member"
 
+#: libs/spaces-client-ts/src/space-who-is-here-view.tsx
+msgid "Invite friends"
+msgstr "Invite friends"
+
 #. placeholder {0}: name ?? t`Person`
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Invited person: {0}"
@@ -3432,6 +3410,7 @@ msgstr "Join to see who is here and hang out."
 msgid "Join your word to the tiles on the board."
 msgstr "Join your word to the tiles on the board."
 
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Joined"
 msgstr "Joined"
@@ -4021,8 +4000,8 @@ msgid "Multiplayer game is paused."
 msgstr "Multiplayer game is paused."
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "Multiplayer is disconnected and syncing is paused"
-msgstr "Multiplayer is disconnected and syncing is paused"
+msgid "Multiplayer is off; changes wait on this device"
+msgstr "Multiplayer is off; changes wait on this device"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "Multiplayer rematch offered"
@@ -4337,10 +4316,6 @@ msgstr "Not confirmed. Check again"
 msgid "Not connected"
 msgstr "Not connected"
 
-#: libs/app-root-client-ts/src/not-found.tsx
-msgid "Not found"
-msgstr "Not found"
-
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "Not in the word list: {missing}"
 msgstr "Not in the word list: {missing}"
@@ -4489,6 +4464,7 @@ msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
 #: libs/notifications-client-ts/src/notification-card-default.tsx
+#: libs/spaces-client-ts/src/friend-live-space.tsx
 #: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open"
 msgstr "Open"
@@ -4647,6 +4623,10 @@ msgstr "Page {current} of {total}"
 msgid "Page {label}"
 msgstr "Page {label}"
 
+#: libs/app-root-client-ts/src/not-found.tsx
+msgid "Page not found"
+msgstr "Page not found"
+
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Pagination"
 msgstr "Pagination"
@@ -4750,10 +4730,6 @@ msgstr "Performance monitor"
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
-
-#: libs/auth-client-ts/src/account-screen-view.tsx
-msgid "Permanently erase this account and its data"
-msgstr "Permanently erase this account and its data"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Person"
@@ -4984,7 +4960,6 @@ msgstr "Production"
 #: libs/app-root-client-ts/src/client-events-screen-view.tsx
 #: libs/app-root-client-ts/src/client-sql-screen-view.tsx
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
-#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/sound-screen-view.tsx
@@ -5624,16 +5599,9 @@ msgstr "Restart this puzzle?"
 msgid "Restart this Synthetic User?"
 msgstr "Restart this Synthetic User?"
 
-#: libs/spaces-client-ts/src/friend-live-space.tsx
-#: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resume"
 msgstr "Resume"
-
-#. placeholder {0}: space().title
-#: libs/spaces-client-ts/src/space-card-view.tsx
-msgid "Resume space {0}"
-msgstr "Resume space {0}"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resumed"
@@ -5901,7 +5869,6 @@ msgstr "Scores {total} points. Checking the words…"
 msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
-#: libs/app-root-client-ts/src/not-found-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
 msgid "Search"
 msgstr "Search"
@@ -7014,6 +6981,10 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
+#: libs/app-root-client-ts/src/not-found-screen-view.tsx
+msgid "The link may be old or mistyped. Your spaces are still here."
+msgstr "The link may be old or mistyped. Your spaces are still here."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
 msgstr "The link may be out of date. Pick a game from your list."
@@ -7167,10 +7138,6 @@ msgstr "There is no passing now."
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "There is no secret choice to make now."
 msgstr "There is no secret choice to make now."
-
-#: libs/app-root-client-ts/src/not-found-screen-view.tsx
-msgid "There's nothing at this address. The link may be old or mistyped; your spaces are still here."
-msgstr "There's nothing at this address. The link may be old or mistyped; your spaces are still here."
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "They already asked you"
@@ -7943,10 +7910,6 @@ msgstr "What Plus includes"
 msgid "Where you are signed in"
 msgstr "Where you are signed in"
 
-#: libs/app-root-client-ts/src/settings-screen-view.tsx
-msgid "While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online."
-msgstr "While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online."
-
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "White"
@@ -8158,6 +8121,10 @@ msgstr "You can't join this space"
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
 msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
+
+#: libs/auth-client-ts/src/account-screen-view.tsx
+msgid "You confirm before either one happens"
+msgstr "You confirm before either one happens"
 
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "You didn't leave the space"

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the friends list showed no friend requests at all, while a desktop listed them in a column beside the list. A phone now has a \"Friend requests\" entry with how many are waiting at the top of the list, as Search has, which opens to the same askers.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-requests-on-phone.test.tsx"
+}

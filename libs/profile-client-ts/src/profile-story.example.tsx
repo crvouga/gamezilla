@@ -23,6 +23,7 @@ export const STORY_IDENTITY: ProfileIdentity = {
   username: 'avery',
   avatarConfig: createDefaultAvatarConfig(STORY_AVATAR_SEED),
   isBot: false,
+  joinedAt: '2023-11-02T18:00:00.000Z',
 };
 
 /**
@@ -76,9 +77,9 @@ function StoryFace(props: {
 
 /**
  * Stand-in for the friends slot the friends sub fills in the app: a bare
- * count row, the first faces at its end, that the profile puts in its
- * friends panel. Profile cannot import friends, so stories draw the same
- * shape.
+ * row to the friends list, the first faces at its end, that the profile
+ * puts in its friends panel. Profile cannot import friends, so stories draw
+ * the same shape.
  */
 export function StoryFriendsStats(props: {
   readonly count: number;
@@ -95,18 +96,20 @@ export function StoryFriendsStats(props: {
         </AvatarGroup>
       }
       leading={<UsersIcon size={20} color="icon" />}
-      title={
-        <>
-          <Text variant="bodyBold" numeral>
-            {String(props.count)}
-          </Text>{' '}
-          <Text tone="secondary">
-            {props.count === 1 ? 'friend' : 'friends'}
-          </Text>
-        </>
-      }
+      title="All friends"
       onClick={() => undefined}
     />
+  );
+}
+
+/** Stand-in for the friends count slot: the identity's Friends number. */
+export function StoryFriendsCount(props: {
+  readonly count: number;
+}): JSX.Element {
+  return (
+    <Text variant="stat" numeral>
+      {String(props.count)}
+    </Text>
   );
 }
 

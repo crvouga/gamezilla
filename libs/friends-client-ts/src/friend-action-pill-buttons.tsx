@@ -24,32 +24,36 @@ function usePillSounds(
   };
 }
 
-export function ConfirmDeletePills(props: {
+/**
+ * A request's answer: Accept / Decline, the same two words the inbox and the
+ * request modal use, so one decision reads alike everywhere.
+ */
+export function AcceptDeclinePills(props: {
   /** A row's trailing pair: small pills that keep to their labels. */
   compact?: boolean;
-  onConfirm: () => Promise<void>;
-  onDelete: () => Promise<void>;
-  confirmTestID?: string;
-  deleteTestID?: string;
+  onAccept: () => Promise<void>;
+  onDecline: () => Promise<void>;
+  acceptTestID?: string;
+  declineTestID?: string;
 }): JSX.Element {
   const { t } = useLingui();
-  const confirm = useMutationButton({
-    operation: () => props.onConfirm(),
+  const accept = useMutationButton({
+    operation: () => props.onAccept(),
     labels: {
-      idle: <Trans>Confirm</Trans>,
-      loading: t`Confirming…`,
-      success: t`Confirmed`,
-      error: t`Couldn't confirm`,
+      idle: <Trans>Accept</Trans>,
+      loading: t`Accepting…`,
+      success: t`Accepted`,
+      error: t`Couldn't accept`,
     },
     successHoldMs: 0,
   });
-  const del = useMutationButton({
-    operation: () => props.onDelete(),
+  const decline = useMutationButton({
+    operation: () => props.onDecline(),
     labels: {
-      idle: <Trans>Delete</Trans>,
-      loading: t`Deleting…`,
-      success: t`Deleted`,
-      error: t`Couldn't delete`,
+      idle: <Trans>Decline</Trans>,
+      loading: t`Declining…`,
+      success: t`Declined`,
+      error: t`Couldn't decline`,
     },
     successHoldMs: 0,
   });
@@ -60,9 +64,9 @@ export function ConfirmDeletePills(props: {
         <Button
           variant="solid"
           size={compact() ? 'sm' : undefined}
-          {...confirm.buttonProps}
-          {...(props.confirmTestID !== undefined
-            ? { dataSet: { testid: props.confirmTestID } }
+          {...accept.buttonProps}
+          {...(props.acceptTestID !== undefined
+            ? { dataSet: { testid: props.acceptTestID } }
             : {})}
         />
       </StackVertical>
@@ -71,9 +75,9 @@ export function ConfirmDeletePills(props: {
           variant="outline"
           intent={compact() ? 'neutral' : undefined}
           size={compact() ? 'sm' : undefined}
-          {...del.buttonProps}
-          {...(props.deleteTestID !== undefined
-            ? { dataSet: { testid: props.deleteTestID } }
+          {...decline.buttonProps}
+          {...(props.declineTestID !== undefined
+            ? { dataSet: { testid: props.declineTestID } }
             : {})}
         />
       </StackVertical>

@@ -8,6 +8,7 @@ import {
   STORY_FRIEND_COUNT,
   STORY_IDENTITY,
   StoryFriendsActions,
+  StoryFriendsCount,
   StoryFriendsPlaying,
   StoryFriendsStats,
 } from './profile-story.example';
@@ -26,6 +27,7 @@ const meta = {
         'usernameChange',
         'notice',
         'friendsStats',
+        'friendsCount',
         'friendsActions',
         'friendsPlaying',
       ],
@@ -48,6 +50,7 @@ const meta = {
       {...args}
       friendsPlaying={<StoryFriendsPlaying />}
       friendsStats={<StoryFriendsStats count={STORY_FRIEND_COUNT} />}
+      friendsCount={<StoryFriendsCount count={STORY_FRIEND_COUNT} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),
@@ -132,6 +135,7 @@ export const RefusedAvatarChange: Story = {
       }
       friendsPlaying={<StoryFriendsPlaying />}
       friendsStats={<StoryFriendsStats count={STORY_FRIEND_COUNT} />}
+      friendsCount={<StoryFriendsCount count={STORY_FRIEND_COUNT} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),
@@ -149,6 +153,7 @@ export const LongName: Story = {
     <ProfileScreenView
       {...args}
       friendsStats={<StoryFriendsStats count={1284} />}
+      friendsCount={<StoryFriendsCount count={1284} />}
       friendsActions={<StoryFriendsActions />}
     />
   ),

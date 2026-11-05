@@ -237,7 +237,7 @@ export function usePlayingRooms(
         spaceId,
         title: titles().get(spaceId) ?? null,
         friends: entries,
-        action: open.spaceIds().includes(spaceId) ? 'resume' : 'join',
+        action: open.spaceIds().includes(spaceId) ? 'open' : 'join',
         onJoin: () => openSpaceDetail(router, spaceId),
       })
     );

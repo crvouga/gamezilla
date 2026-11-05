@@ -34,7 +34,7 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * An active person's lobby: under "Hosting 2 spaces" the one open here
- * ("Resume") and their other ("Open"), then under "Shared with you" four
+ * and their other (both "Open"), then under "Shared with you" four
  * friends' spaces, from filling up to "No guests yet", each "Join". Every
  * space wears its own mark (its colour and initial), the host's face is
  * secondary, and every row has the same anatomy: name, host and guests,

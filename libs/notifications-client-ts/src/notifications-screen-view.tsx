@@ -74,6 +74,7 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
       actions={actions()}
+      measure="prose"
       controls={
         <>
           <Show when={props.failure} keyed>
@@ -102,8 +103,9 @@ function InboxView(props: NotificationsScreenViewProps): JSX.Element {
  * and permission-denied states. Mark all read sits in the header beside the
  * title. On every size the inbox is one list: what needs the person first,
  * then the Activity timeline under it, so the "All" filter shows all of it
- * in one place. A desktop gives that list the whole column: a side column
- * would only repeat the filters or Mark all read.
+ * in one place. A desktop keeps it at the reading measure on the column's
+ * leading edge (a side column would only repeat the filters or Mark all
+ * read), so each card's answers and "…" stay beside its words.
  * `NotificationsScreen` wires it to the inbox and its actions.
  */
 export function NotificationsScreenView(
