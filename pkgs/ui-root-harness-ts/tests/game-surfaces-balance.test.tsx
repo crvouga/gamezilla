@@ -335,6 +335,14 @@ describe('game surfaces', () => {
     expect(
       rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')
     ).toMatch(/min-height:\s*var\(--ui-space-6\);/);
+    // A phone's preview row: the stage is as wide as its thumbnail, so the
+    // line beside it (how the game is played) has the rest of the row.
+    const phone = rule(
+      'game-section/game-section-media.module.css',
+      '  .sectionPair .sectionMedia [data-preview="true"]'
+    );
+    expect(phone).toMatch(/flex:\s*0 0 auto;/);
+    expect(phone).toMatch(/width:\s*auto;/);
   });
 
   // regression: matchmaking-columns-misaligned — wide, the search card's
