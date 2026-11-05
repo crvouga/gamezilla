@@ -1,0 +1,63 @@
+/* The seat sizes itself by the room the table gives it. */
+.place,
+.root {
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+}
+/* Narrow (beside the table): the avatar over the words, centred. */
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-1);
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  max-width: 100%;
+}
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+/* Wide (above or below the table): the avatar beside the words. */
+@container (min-width: 11rem) {
+  .face {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--ui-space-2);
+    text-align: start;
+  }
+  .text {
+    align-items: flex-start;
+  }
+  .tags {
+    justify-content: flex-start;
+  }
+}

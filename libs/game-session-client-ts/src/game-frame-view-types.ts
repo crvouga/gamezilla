@@ -84,7 +84,11 @@ export type FramePlaySeat = FrameSeat & {
 
 /** The seats around the board once the game is played. */
 export type FrameTable = {
-  readonly shape: 'strip' | 'rail' | 'none';
+  /**
+   * `board`: the game's board seats every player at its own table, and the
+   * frame lends it each player (`GameFrame.boardSeats`).
+   */
+  readonly shape: 'strip' | 'rail' | 'none' | 'board';
   readonly near: FramePlaySeat | null;
   readonly others: readonly FramePlaySeat[];
 };

@@ -1,0 +1,4 @@
+{
+  "summary": "Once a Hearts pass was sent every other card in the hand dimmed, so the whole hand read as disabled. Only a card the rules refuse now dims; a card that is waiting keeps full contrast.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

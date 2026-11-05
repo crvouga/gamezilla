@@ -20,12 +20,14 @@ import { tableCenter } from './hearts-table-view';
 const SEAT_COLORS: readonly FramePlayerColor[] = [1, 2, 3, 4];
 
 /**
- * South, West, North and East. Each player's strip names the seat they sit
- * in; the table itself says each seat's score, its cards and its deal, so
- * no fact is shown twice.
+ * South, West, North and East. Each player sits at their place at the
+ * table, their tag naming the seat; the table itself says each seat's
+ * score, its cards and its deal, so no fact is shown twice.
  */
 export const heartsFrame: GameFrame<JSX.Element> = {
   drawOffers: false,
+  // Each player sits at their own place at the table, once.
+  boardSeats: true,
   players: fixedPlayers(4),
   options: [],
   seats: {

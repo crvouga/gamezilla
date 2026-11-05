@@ -5,6 +5,8 @@ import {
   type CardTableCard,
   type CardTableHandCard,
 } from '@pkgs/ui-root-client-ts/card-table';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { GameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
@@ -59,10 +61,19 @@ function PassingTable(): JSX.Element {
         {
           position: 'top',
           name: 'North',
-          facts: ['13 cards', '12 points', 'Chose'],
+          facts: ['13 cards', '12 points'],
+          status: 'Passed',
           active: false,
           played: null,
           testId: 'example-seat-top',
+          player: (
+            <GameTableSeat
+              name="morgan"
+              swatch={{ color: 'player3' }}
+              tags={<Badge intent="neutral" label="North" />}
+              dataSet={{ testid: 'example-seat-top-player' }}
+            />
+          ),
         },
         {
           position: 'left',
@@ -93,8 +104,14 @@ function PassingTable(): JSX.Element {
       handLabel="Your hand"
       cardTestId={(id) => `example-card-${id}`}
       onCard={toggle}
+      pass={{
+        label: 'Passing to the left',
+        size: 3,
+        cards: HAND.filter((c) => selected().includes(c.id)),
+      }}
       action={{
-        label: 'Pass these three cards',
+        label: 'Pass left',
+        status: `${String(selected().length)} of 3 chosen`,
         enabled: selected().length === 3,
         pending: sent(),
         testId: 'example-pass',

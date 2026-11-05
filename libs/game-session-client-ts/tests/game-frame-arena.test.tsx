@@ -17,6 +17,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
 
@@ -168,9 +169,11 @@ test('phone: every player shows above the arena, the person first and marked as 
 
 // regression: unplayed-game-record-card — beside a wide Hearts table, while
 // the hands were passed and nothing was played yet, the rail was a "Game
-// record" card with nothing in it but History and stats. A game played by
-// turns shows its record card only once it holds something.
-test('wide: a game played by turns with no move yet has no empty record card', () => {
+// record" card with nothing in it but History and stats. Then it was only a
+// stray Resign and History. A game played by turns with no move yet keeps
+// the record card every game's rail has, its caption the game's line about
+// what happens now, so the card is never empty.
+test('wide: a game played by turns with no move yet captions its record card with the turn line', () => {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
@@ -190,18 +193,65 @@ test('wide: a game played by turns with no move yet has no empty record card', (
       </ThemeProvider>
     </ClockProvider>
   ));
-  expect(
-    document.querySelector('[data-component="CustomGameReview"]')
-  ).toBeNull();
   const rail = screen.getByTestId('custom-game-unplayed-rail');
+  const card = rail.querySelector('[data-component="CustomGameReview"]');
+  expect(card?.textContent).toContain('Game record');
+  expect(card?.textContent).toContain('Round 1 · first to 3');
   expect(
-    rail.querySelector('[data-testid="custom-game-resign"]')
+    card?.querySelector('[data-testid="custom-game-resign"]')
   ).not.toBeNull();
   expect(
-    rail.querySelector('[data-testid="custom-game-history-stats"]')
+    card?.querySelector('[data-testid="custom-game-history-stats"]')
   ).not.toBeNull();
-  // The commands show once, in the rail.
+  // The commands show once, in the card; the line is not drawn twice.
   expect(screen.getAllByTestId('custom-game-resign')).toHaveLength(1);
+  expect(
+    screen
+      .getByTestId('custom-game-status')
+      .closest('[data-component="GameTurnPill"]')
+      ?.getAttribute('data-spoken-only')
+  ).toBe('true');
+});
+
+// regression: hearts-seats-shown-twice — at a Hearts table every player
+// showed twice: as a chip above the table and as a seat plate on it. A
+// board that seats its players is lent each one, at their place at the
+// table, and the frame draws no seats around it.
+test('a board that seats its players is lent each player and no seat is drawn around it', () => {
+  const time = createHarnessClock();
+  const Seated = () => {
+    const lend = useGameTableSeat();
+    return <>{lend?.('black')}</>;
+  };
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          record={{ ...RECORD, turns: true }}
+          table={{
+            shape: 'board',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan'), seat('red', 'morgan')],
+          }}
+          board={<Seated />}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  expect(
+    document.querySelector('[data-component="GamePlayerRail"]')
+  ).toBeNull();
+  expect(screen.queryByTestId('custom-game-seat-near')).toBeNull();
+  const lent = screen.getByTestId('custom-game-black');
+  expect(lent.getAttribute('data-component')).toBe('GameTableSeat');
+  expect(screen.getByTestId('custom-game-black-person').textContent).toBe(
+    'jordan'
+  );
+  expect(screen.getAllByTestId('custom-game-black')).toHaveLength(1);
 });
 
 // regression: setup-preview-below-start — on a phone the board preview of a

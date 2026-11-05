@@ -146,6 +146,13 @@ export type GameFrame<View> = {
    * their commands are only the ones that fit them.
    */
   readonly drawOffers: boolean;
+  /**
+   * The board seats every player around its own table (a card game's four
+   * seats): the frame draws no seats above or below it and lends the board
+   * the person in each seat instead, so each player shows once, at their
+   * place at the table. Absent for a board the frame seats players around.
+   */
+  readonly boardSeats?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

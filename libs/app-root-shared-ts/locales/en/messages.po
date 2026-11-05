@@ -167,6 +167,11 @@ msgstr "{0} of {1} puzzles match."
 msgid "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
 msgstr "{0} of {MULTIPLAYER_SETTLED_GAMES} rated games"
 
+#. placeholder {0}: count()
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "{0} of 3 chosen"
+msgstr "{0} of 3 chosen"
+
 #. placeholder {0}: position.scoreless
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "{0} of 6 scoreless turns"
@@ -3504,6 +3509,10 @@ msgstr "Keep the current changes first. Try saving again."
 msgid "Keep working from this copy?"
 msgstr "Keep working from this copy?"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Keep your cards"
+msgstr "Keep your cards"
+
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
 msgstr "Kept"
@@ -4256,6 +4265,10 @@ msgid "No participant"
 msgstr "No participant"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "No passing this deal"
+msgstr "No passing this deal"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "No passing this deal."
 msgstr "No passing this deal."
 
@@ -4695,10 +4708,17 @@ msgstr "Pair label"
 msgid "Pass"
 msgstr "Pass"
 
-#. placeholder {0}: count()
-#: libs/hearts-client-ts/src/hearts-board.tsx
-msgid "Pass {0} of 3 cards"
-msgstr "Pass {0} of 3 cards"
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass across"
+msgstr "Pass across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass left"
+msgstr "Pass left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass right"
+msgstr "Pass right"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards across."
@@ -4716,9 +4736,33 @@ msgstr "Pass three cards to the right."
 msgid "Passed"
 msgstr "Passed"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed across"
+msgstr "Passed across"
+
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Passed its check"
 msgstr "Passed its check"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to the left"
+msgstr "Passed to the left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to the right"
+msgstr "Passed to the right"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing across"
+msgstr "Passing across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to the left"
+msgstr "Passing to the left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to the right"
+msgstr "Passing to the right"
 
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Passing your cards…"

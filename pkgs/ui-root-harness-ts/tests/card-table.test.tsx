@@ -145,3 +145,20 @@ test('cards are drawn as cards in one fanned hand, and the trick sits on the tab
   expect(played.parentElement?.getAttribute('data-position')).toBe('left');
   expect(at('example-seat-left').textContent).not.toContain('J');
 });
+
+// regression: hearts-seats-shown-twice — a seat showed its name and every
+// fact in a bordered box while the same player showed again above the
+// table. A seat holds the person the host lends it, keeps its name for a
+// listener, and says its phase (`Passed`) only to a listener when the
+// person's own tags already show it.
+test('a seat holds the person lent to it and keeps its name and phase for a listener', () => {
+  example();
+  const north = at('example-seat-top');
+  expect(north.getAttribute('aria-label')).toBe('North');
+  expect(north.getAttribute('data-player')).toBe('true');
+  expect(at('example-seat-top-player').textContent).toContain('morgan');
+  expect(north.textContent).toContain('Passed');
+  expect(north.textContent).toContain('13 cards');
+  // A seat with no person lent shows its own name.
+  expect(at('example-seat-left').textContent).toContain('West');
+});

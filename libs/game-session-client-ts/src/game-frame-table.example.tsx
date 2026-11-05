@@ -33,6 +33,7 @@ import type {
   FrameRecord,
   FrameResult,
   FrameStatus,
+  FrameTable,
 } from './game-frame-view-types';
 
 /** How a game's stories hand over its presentation. */
@@ -123,7 +124,7 @@ function playSeat(props: TableProps, side: GameSide): FramePlaySeat {
     stat: seats.stat(position, side),
     state: seats.out(position, side) ? { kind: 'out', label: 'Out' } : null,
     standIn: false,
-    committed: false,
+    committed: props.board.committed.includes(side),
     choosing: false,
     facts: seats.facts(position, side, props.board.committed),
     deciding: props.ending === undefined && side === props.turn,
@@ -217,6 +218,12 @@ function tableRecord(props: TableProps): FrameRecord {
   };
 }
 
+/** How the frame seats the players: as the game's own frame says. */
+function tableShape(props: TableProps): FrameTable['shape'] {
+  if (props.presentation.frame.boardSeats === true) return 'board';
+  return props.sides.length > 2 ? 'rail' : 'strip';
+}
+
 function GameFrameTable(props: TableProps): JSX.Element {
   const viewer = (): GameSide | null => viewerOf(props);
   // The board session is made once, as the frame makes it when it mounts.
@@ -245,7 +252,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       viewerSide={viewer()}
       status={tableStatus(props)}
       table={{
-        shape: props.sides.length > 2 ? 'rail' : 'strip',
+        shape: tableShape(props),
         near: playSeat(props, near()),
         others: props.sides
           .filter((side) => side !== near())
