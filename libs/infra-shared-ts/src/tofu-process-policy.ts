@@ -1,5 +1,13 @@
 import { type TofuPaths, varFileArgs } from './tofu-command';
 
+/** State JSON may contain credentials unknown to the environment redactor. */
+export function mayPrintToolStdout(
+  operation: string,
+  capture: boolean
+): boolean {
+  return !capture && !['show', 'output', 'state'].includes(operation);
+}
+
 /** Interrupt OpenTofu so its deferred state-lock cleanup can run. */
 export function toolDeadline(operation: string) {
   return operation === 'apply'

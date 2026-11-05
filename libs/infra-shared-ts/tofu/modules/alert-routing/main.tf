@@ -111,6 +111,16 @@ resource "grafana_oncall_user_notification_rule" "mobile" {
   type     = "notify_by_mobile_app"
 }
 
+# Give mobile delivery its measured minute before any existing fallback rule.
+# Existing email/phone rules are preserved after this position, not deleted.
+resource "grafana_oncall_user_notification_rule" "mobile_wait" {
+  depends_on = [grafana_oncall_user_notification_rule.mobile]
+  user_id    = data.grafana_oncall_user.responder.id
+  position   = 1
+  type       = "wait"
+  duration   = 60
+}
+
 resource "grafana_oncall_user_notification_rule" "important_mobile" {
   user_id   = data.grafana_oncall_user.responder.id
   important = true
@@ -119,16 +129,18 @@ resource "grafana_oncall_user_notification_rule" "important_mobile" {
 }
 
 resource "grafana_oncall_user_notification_rule" "important_wait" {
-  user_id   = data.grafana_oncall_user.responder.id
-  important = true
-  position  = 1
-  type      = "wait"
-  duration  = 60
+  depends_on = [grafana_oncall_user_notification_rule.important_mobile]
+  user_id    = data.grafana_oncall_user.responder.id
+  important  = true
+  position   = 1
+  type       = "wait"
+  duration   = 60
 }
 
 resource "grafana_oncall_user_notification_rule" "important_repeat" {
-  user_id   = data.grafana_oncall_user.responder.id
-  important = true
-  position  = 2
-  type      = "notify_by_mobile_app_critical"
+  depends_on = [grafana_oncall_user_notification_rule.important_wait]
+  user_id    = data.grafana_oncall_user.responder.id
+  important  = true
+  position   = 2
+  type       = "notify_by_mobile_app_critical"
 }

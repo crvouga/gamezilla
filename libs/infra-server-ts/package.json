@@ -28,7 +28,8 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
     "unlock:repository-policy": "bun run scripts/unlock-repository-policy.ts",
-    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts"
+    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts",
+    "check:alert-delivery": "bun run scripts/check-alert-delivery.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -47,7 +48,8 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "@pkgs/http-client-shared-ts": "workspace:*"
   },
   "category": "server",
   "language": "typescript"

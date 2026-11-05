@@ -37,6 +37,18 @@ test('both IRM urgency levels have a personal mobile delivery step', () => {
   );
 });
 
+test('mobile is given its delivery minute before preserved fallback rules and positions are applied in order', () => {
+  expect(source).toMatch(
+    /resource "grafana_oncall_user_notification_rule" "mobile_wait"\s*\{[^}]*depends_on\s*=\s*\[grafana_oncall_user_notification_rule.mobile\][^}]*position\s*=\s*1[^}]*duration\s*=\s*60/
+  );
+  expect(source).toMatch(
+    /resource "grafana_oncall_user_notification_rule" "important_wait"\s*\{[^}]*depends_on\s*=\s*\[grafana_oncall_user_notification_rule.important_mobile\]/
+  );
+  expect(source).toMatch(
+    /resource "grafana_oncall_user_notification_rule" "important_repeat"\s*\{[^}]*depends_on\s*=\s*\[grafana_oncall_user_notification_rule.important_wait\]/
+  );
+});
+
 test('notification grouping preserves distinct failing capabilities and no digest swallows warnings', () => {
   expect(source).toContain(
     'group_by        = ["environment", "route", "capability", "alertname"]'

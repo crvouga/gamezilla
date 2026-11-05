@@ -23,6 +23,13 @@ are owned by [`observability`](../libs/observability-server-ts/README.md).
 - Zero-budget objectives generate direct violation rules, not divide-by-zero
   burn expressions or hosted Grafana budget objects. No integrity measurement
   is claimed merely because the generator can now represent its alert.
+- Release now has a post-apply project alert canary: it requires the applied
+  GitHub hook, configured IRM responder, correct incident routing/content, a
+  mobile notification attempt and resolution. Failed/missing evidence fails
+  the release job. Canary recovery cannot resolve a real run's incident.
+  This code is covered by in-process HTTP/virtual-clock tests; no production
+  execution or handset receipt is claimed before the first main-branch apply.
+  The exact evidence and limits are in the [routing runbook](../libs/infra-shared-ts/tofu/modules/alert-routing/README.md).
 
 ## Remaining work before readiness
 

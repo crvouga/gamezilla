@@ -6,6 +6,9 @@
 # (modules/observability-views).
 
 locals {
+  # Match the pinned Grafana provider's Cloud OnCall endpoint explicitly so
+  # the post-apply verifier and provider address the same backend.
+  irm_api_url    = "https://oncall-prod-us-central-0.grafana.net/oncall"
   envs           = var.envs
   production_env = one([for name, env in local.envs : name if env.protection == "production"])
   routing_ready = alltrue([
@@ -81,9 +84,10 @@ resource "grafana_cloud_stack_service_account_token" "alerting" {
 }
 
 provider "grafana" {
-  alias = "alerting"
-  url   = module.trace_stack.url
-  auth  = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting[0].key : "routing-not-configured"
+  alias      = "alerting"
+  url        = module.trace_stack.url
+  auth       = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting[0].key : "routing-not-configured"
+  oncall_url = local.irm_api_url
 }
 
 module "alert_routing" {
