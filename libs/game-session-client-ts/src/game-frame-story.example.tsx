@@ -154,7 +154,7 @@ export function record(moves: readonly string[]): FrameRecord {
     perTurn: 2,
     movers: moves.map((_, index) => LOOKS[index % 2 === 0 ? 'white' : 'black']),
     // Connect Four's moves are column numbers: the record says `col 3`.
-    movePrefix: 'col',
+    moveHeading: 'Column',
     displayedPly: moves.length,
     error: '',
     history: true,

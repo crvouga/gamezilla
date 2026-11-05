@@ -31,7 +31,7 @@ export const connectFourPresentation: GameClientPresentation = {
   Board: ConnectFourGameBoard,
   sideLabel: (side) => (side === 'white' ? t`Red circle` : t`Yellow diamond`),
   // A move is its column's number: the record says so beside it.
-  movePrefix: () => t`col`,
+  moveHeading: () => t`Column`,
   frame: {
     drawOffers: true,
     players: fixedPlayers(2),

@@ -14,14 +14,6 @@ export type GameMoveListEntry = {
   readonly label: string;
   /** The look of the seat that made it; unset when the game names no mover. */
   readonly swatch?: GameSeatLook | undefined;
-  /**
-   * A short word before the move, outside its button (`col` before `3`),
-   * when the game's notation alone is a bare number: read the same way in
-   * the `turn` strip and the `table`, so a move is `● col 4` wherever the
-   * record shows it, the word quiet and a step clear of the swatch. The
-   * button keeps the move exactly as the game writes it.
-   */
-  readonly prefix?: string | undefined;
   /** Accessible name of the move's button ("Move 3, Red circle: 5"). */
   readonly accessibleName: string;
   /** Rendered as the button's `data-testid`. */
@@ -48,6 +40,13 @@ export type GameMoveListProps = {
   'aria-label': string;
   /** Before the first turn, inside the list: how many earlier moves are not listed. */
   leading?: JSX.Element | undefined;
+  /**
+   * The word that names every move once, when the game's notation alone
+   * is a bare number (`Column`): the `table`'s heading over its move
+   * columns, and after the `turn` strip's turn label. The moves stay bare
+   * (`● 4`) wherever the record shows them, so the word never repeats.
+   */
+  heading?: string | undefined;
   /**
    * `turn` only: the shown turn's number in words (`Move 4`), so a strip
    * under a phone's board never leaves a bare number beside the moves.
@@ -105,16 +104,6 @@ function MoveButton(props: {
     <span class={styles['move']} style={{ '--move-column': String(column()) }}>
       <Show when={props.move.swatch}>
         {(look) => <GameSeatSwatch look={look()} />}
-      </Show>
-      <Show when={props.move.prefix}>
-        {(prefix) => (
-          <span
-            class={`${styles['prefix']} text textCaption`}
-            aria-hidden="true"
-          >
-            {prefix()}
-          </span>
-        )}
       </Show>
       <button
         type="button"
@@ -185,6 +174,16 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
     >
       {props.leading}
+      <Show when={props.layout === 'table' && props.heading}>
+        {(heading) => (
+          <span
+            class={`${styles['heading']} text textCaption`}
+            aria-hidden="true"
+          >
+            {heading()}
+          </span>
+        )}
+      </Show>
       <ol class={styles['turns']} aria-label={props['aria-label']}>
         {/* By position, not by object: a move appended updates its own
             turn, never the whole list. */}
@@ -202,6 +201,16 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
                   {(label) => label()(turn().number)}
                 </Show>
               </span>
+              <Show when={props.layout === 'turn' && props.heading}>
+                {(heading) => (
+                  <span
+                    class={`${styles['heading']} text textCaption`}
+                    aria-hidden="true"
+                  >
+                    {heading()}
+                  </span>
+                )}
+              </Show>
               <Index each={turn().moves}>
                 {(move) => (
                   <MoveButton

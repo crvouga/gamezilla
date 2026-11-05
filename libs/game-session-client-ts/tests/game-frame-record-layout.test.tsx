@@ -27,7 +27,7 @@ function record(): FrameRecord {
     moves,
     perTurn: 2,
     movers: moves.map((_, index) => (index % 2 === 0 ? RED : YELLOW)),
-    movePrefix: 'col',
+    moveHeading: 'Column',
     displayedPly: moves.length,
     error: '',
     history: true,
@@ -115,7 +115,7 @@ test('phone: the shown turn has the strip to itself, in words; the steps wait be
   );
   const strip = screen.getByTestId('custom-game-move-strip');
   expect(strip.textContent).toContain('Move 5');
-  expect(strip.textContent).toContain('col');
+  expect(strip.textContent?.match(/Column/g)).toHaveLength(1);
   // The move itself still reads exactly as the game writes it.
   expect(screen.getByTestId('custom-game-review-move-9').textContent).toBe('7');
   expect(screen.getByTestId('custom-game-review-move-10').textContent).toBe(

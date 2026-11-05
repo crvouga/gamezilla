@@ -35,7 +35,7 @@
 }
 /* A wrapping turn breaks between its moves, never inside one, and keeps
    its lines centred in the strip's well. Slim side padding and a tighter
-   step between moves keep a two-move turn (`Move 5 ● col 7 ◆ col 4`) on
+   step between moves keep a two-move turn (`Move 5 Column ● 7 ◆ 4`) on
    one line in a phone's well, so the record stays one short row. */
 .list[data-layout="turn"][data-wrap="true"] {
   max-width: 100%;
@@ -95,12 +95,14 @@
 .list[data-layout="table"] .move {
   grid-column: var(--move-column);
 }
-/* The word a bare-number move is read with (`col 3`), quiet beside it and
-   a step clear of the seat's swatch, so the swatch never crowds it. */
-.prefix {
+/* The word naming every move once (`Column`), quiet: over the table's
+   move columns, clear of the turn numbers; after the strip's turn label. */
+.heading {
   color: var(--ui-color-text-secondary);
   white-space: nowrap;
-  margin-inline-start: var(--ui-space-1);
+}
+.list[data-layout="table"] .heading {
+  padding-inline-start: calc(32px + var(--ui-space-2));
 }
 .moveButton {
   display: inline-flex;

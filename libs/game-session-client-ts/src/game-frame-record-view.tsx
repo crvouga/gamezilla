@@ -186,8 +186,8 @@ function turnWords(turn: number): JSX.Element {
 }
 
 /**
- * The listed moves as numbered turns, each behind its mover's swatch (and
- * the game's word for a bare-number move, `col 3`): the shown turn in the
+ * The listed moves as numbered turns, each behind its mover's swatch (the
+ * game's word for bare-number moves, `Column`, said once): the shown turn in the
  * strip under a phone's board, named `Move 4` (any turn can be stepped
  * to), the latest moves in the table beside a wide one.
  */
@@ -209,11 +209,6 @@ function RecordMoves(
         ply,
         label,
         swatch: mover?.swatch,
-        prefix:
-          props.record.movePrefix === undefined ||
-          props.record.movePrefix === ''
-            ? undefined
-            : props.record.movePrefix,
         accessibleName:
           mover === undefined
             ? t`Move ${ply}: ${label}`
@@ -234,6 +229,7 @@ function RecordMoves(
       moves={moves()}
       onSelect={(ply) => props.onSeek(ply)}
       leading={<EarlierMoves count={first()} />}
+      heading={props.record.moveHeading || undefined}
       turnLabel={turnWords}
       wrap
     />

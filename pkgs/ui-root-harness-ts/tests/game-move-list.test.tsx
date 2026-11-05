@@ -106,12 +106,14 @@ describe('GameMoveList', () => {
 
   // regression: connect-four-moves-read-as-bare-numbers — the phone strip
   // read "4 ● 3 ◆ 2": nothing said 4 was a move's number and 3 a column.
-  test('a bare-number move is read with its word, and the shown turn is named', () => {
+  // regression: connect-four-record-col-repeated — every move then carried
+  // its own "col" ("● col 3 ◆ col 2"). The word now names the moves once,
+  // after the shown turn's name, and the moves stay bare.
+  test('bare-number moves are named once by their word, and the shown turn is named', () => {
     const columns: readonly GameMoveListEntry[] = ['3', '2'].map(
       (label, index) => ({
         ply: index + 7,
         label,
-        prefix: 'col',
         swatch: index === 0 ? { mark: '●' } : { mark: '◆' },
         accessibleName: `Move ${String(index + 7)}: column ${label}`,
         testId: `move-${String(index + 7)}`,
@@ -124,12 +126,13 @@ describe('GameMoveList', () => {
         perTurn={2}
         current={8}
         moves={columns}
+        heading="Column"
         onSelect={() => undefined}
         turnLabel={(turn) => `Move ${String(turn)}`}
       />
     ));
     const list = screen.getByRole('list', { name: 'Moves played' });
-    expect(list.textContent).toBe('Move 4●col3◆col2');
+    expect(list.textContent).toBe('Move 4Column●3◆2');
     // The button keeps the move exactly as the game writes it.
     expect(screen.getByTestId('move-7').textContent).toBe('3');
     expect(screen.getByTestId('move-8').textContent).toBe('2');
@@ -152,17 +155,19 @@ describe('GameMoveList', () => {
 
   // regression: connect-four-record-col-noise — beside a wide board every
   // row of the Connect Four record read "● col 4", the disc crowding the
-  // word. The word stays quiet and a step clear of the disc.
+  // word.
   // regression: connect-four-record-bare-digits — the table then read
   // "● 4", bare digits with nothing saying they were columns, while the
-  // phone's strip read "● col 4": two notations for one record. The table
-  // reads every move as the strip does.
-  test('the table reads a bare-number move with its word, as the strip does', () => {
+  // phone's strip read "● col 4": two notations for one record.
+  // regression: connect-four-record-col-repeated — then "col" repeated on
+  // every move. The table now says "Column" once, over its move columns,
+  // as the strip says it once after the turn's name; every move reads
+  // "● 4" in both, the disc a step clear of the number.
+  test('the table names bare-number moves once in its heading, as the strip does', () => {
     const columns: readonly GameMoveListEntry[] = ['4', '5'].map(
       (label, index) => ({
         ply: index + 1,
         label,
-        prefix: 'col',
         swatch: index === 0 ? { mark: '●' } : { mark: '◆' },
         accessibleName: `Move ${String(index + 1)}: column ${label}`,
       })
@@ -174,11 +179,15 @@ describe('GameMoveList', () => {
         perTurn={2}
         current={2}
         moves={columns}
+        heading="Column"
         onSelect={() => undefined}
       />
     ));
     const list = screen.getByRole('list', { name: 'Moves played' });
-    expect(list.textContent).toBe('1●col4◆col5');
+    expect(list.textContent).toBe('1●4◆5');
+    const root = list.closest('[data-component="GameMoveList"]');
+    expect(root?.textContent).toBe('Column1●4◆5');
+    expect((root?.textContent ?? '').match(/Column/g)).toHaveLength(1);
     const css = readFileSync(
       join(
         import.meta.dirname,
@@ -186,9 +195,19 @@ describe('GameMoveList', () => {
       ),
       'utf8'
     );
-    const prefix = css.slice(css.indexOf('.prefix {'));
-    expect(prefix.slice(0, prefix.indexOf('}'))).toMatch(
-      /color: var\(--ui-color-text-secondary\);[\s\S]*margin-inline-start: var\(--ui-space-1\);/
+    const heading = css.slice(css.indexOf('.heading {'));
+    expect(heading.slice(0, heading.indexOf('}'))).toMatch(
+      /color: var\(--ui-color-text-secondary\);/
+    );
+    // The disc a step clear of the number: the move's gap, then the
+    // button's own inline padding before its digits.
+    const move = css.slice(css.indexOf('.move {'));
+    expect(move.slice(0, move.indexOf('}'))).toMatch(
+      /gap: var\(--ui-space-1\);/
+    );
+    const button = css.slice(css.indexOf('.moveButton {'));
+    expect(button.slice(0, button.indexOf('}'))).toMatch(
+      /padding-inline: var\(--ui-space-2\);/
     );
   });
 
