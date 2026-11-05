@@ -129,6 +129,14 @@
   color: var(--color-on-destructive);
   border-color: var(--color-destructive);
 }
+/* A Battleship hit is a solid mark in both themes, never a pale wash: the
+   hit fill with its cross in the fill's own ink. A sunk ship's squares
+   keep that fill and add the heavy ink ring. */
+.board[data-board-theme="battleship"] .cell[data-tone="alert"] {
+  background: var(--color-destructive);
+  color: var(--color-on-destructive);
+  border-color: var(--color-destructive);
+}
 .cell[data-outlined="true"] {
   border-width: 3px;
   border-color: var(--color-text);

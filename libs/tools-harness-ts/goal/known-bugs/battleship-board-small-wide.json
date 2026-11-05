@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the Battleship board was held to about 440px by the room it reserved under it for the panel switch and the key, though the window had room to spare below the person's own seat. It now reserves only what those take, so the board is larger within the column.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}
