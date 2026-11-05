@@ -139,3 +139,20 @@ test('on a phone the switch to the other fleet follows the grid', () => {
     /\.pair\[data-switch-placement="below"\] > \.switch \{\s*order: 1;/
   );
 });
+
+// regression: battleship-phone-switch-full-width — on a phone the Your
+// fleet / Targeting switch under the grid was a bar as wide as the grid,
+// as heavy as the targets above it. The switch that follows its panel is a
+// compact control centred under it.
+test('on a phone the switch under the grid is a compact control, centred', () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/paired-panels/paired-panels.module.css'
+    ),
+    'utf8'
+  );
+  expect(css).toMatch(
+    /\.pair\[data-switch-placement="below"\] > \.switch \{\s*order: 1;\s*justify-self: center;\s*width: min\(100%, 18rem\);/
+  );
+});

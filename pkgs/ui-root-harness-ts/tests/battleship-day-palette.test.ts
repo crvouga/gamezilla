@@ -61,3 +61,19 @@ test('the light theme draws Battleship as a day sea, every mark readable', () =>
     contrast(hex(light, 'gameBattleshipAccent'), canvas)
   ).toBeGreaterThanOrEqual(4.5);
 });
+
+// regression: battleship-day-grid-washed-out — in the light theme the
+// targets were near-white (#f3f8fb) on a pale frame (#cde2ed), the cells'
+// edges the frame's colour, about 1.24:1, so the grid read as one wash.
+// The water is white and the frame a step deeper (about 1.6:1, as deep as a
+// day sea's pale frame allows), its labels still 4.5:1 on it.
+test('the light theme sets white targets on a frame a step deeper, so each cell reads', () => {
+  const light = tokens.color.light;
+  const canvas = hex(light, 'gameBattleshipCanvas');
+  const surface = hex(light, 'gameBattleshipSurface');
+  expect(contrast(canvas, surface)).toBeGreaterThanOrEqual(1.55);
+  expect(
+    contrast(hex(light, 'gameBattleshipMuted'), surface)
+  ).toBeGreaterThanOrEqual(4.5);
+  expect(contrast(hex(light, 'gameBattleshipInk'), surface)).toBeGreaterThan(7);
+});

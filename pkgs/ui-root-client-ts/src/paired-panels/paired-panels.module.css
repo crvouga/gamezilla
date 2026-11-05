@@ -17,9 +17,13 @@
 .panel[data-shown="false"] {
   display: none;
 }
-/* The switch after the panel it chooses: the panel starts a row higher. */
+/* The switch after the panel it chooses: the panel starts a row higher,
+   and the switch is a compact control centred under it, never a bar as
+   wide as the panel, so the panel (a game's grid) stays what is read. */
 .pair[data-switch-placement="below"] > .switch {
   order: 1;
+  justify-self: center;
+  width: min(100%, 18rem);
 }
 /* Only side by side: behind the switch, the switch names the panel. */
 .title {

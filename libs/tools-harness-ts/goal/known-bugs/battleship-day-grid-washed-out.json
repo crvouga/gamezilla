@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme Battleship's targets were near-white (#f3f8fb) on a pale frame (#cde2ed) whose colour was also every cell's edge, about 1.24:1, so the grid read as one wash. The water is now white and the frame a step deeper (#b3d1e1, about 1.6:1), its labels darkened to stay 4.5:1.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/battleship-day-palette.test.ts"
+}
