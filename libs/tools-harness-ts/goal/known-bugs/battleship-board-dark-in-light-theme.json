@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme the Battleship grid kept its dark navy night palette, a heavy slab that outweighed the white page. The light theme now has a day palette: pale water cells on a pale blue frame, dark navy ink and labels, and a deeper coral for hits, every mark at readable contrast.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/battleship-day-palette.test.ts"
+}

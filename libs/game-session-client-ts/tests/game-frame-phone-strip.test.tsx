@@ -141,6 +141,30 @@ test('phone: one strip pinned above the board says the turn and the last move', 
   expect(status.closest('[data-spoken-only="true"]')).not.toBeNull();
 });
 
+// regression: battleship-phone-strip-cramped — under the game's own line
+// ("Red fleet fired at C4 and missed. Your turn to fire.") the strip still
+// said "Live" beside the shown turn, which then wrapped into a cramped
+// two-line block and pushed the person's own seat off a phone's screen.
+// That line already says the board is live: the turn has the row to itself.
+test("phone: beside the game's own line the shown turn has the row to itself", () => {
+  mount(390);
+  expect(screen.getByTestId('custom-game-record-caption').textContent).toBe(
+    FIRED
+  );
+  expect(screen.queryByTestId('custom-game-move-strip-place')).toBeNull();
+  const head = screen.getByTestId('custom-game-move-strip-head');
+  expect(head.contains(screen.getByTestId('custom-game-move-strip'))).toBe(
+    true
+  );
+});
+
+test('phone: with no line of its own the strip says the board is live', () => {
+  mount(390, true);
+  expect(screen.getByTestId('custom-game-move-strip-place').textContent).toBe(
+    'Live'
+  );
+});
+
 test('phone: the plain turn stays with the seat to move, not the strip', () => {
   mount(390, true);
   expect(screen.queryByTestId('custom-game-record-caption')).toBeNull();

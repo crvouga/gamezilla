@@ -490,7 +490,8 @@ function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
 /**
  * A phone's record as one compact strip pinned under the host's top bar:
  * the game's own line about the turn when it says more than the seat to
- * move does (`caption`), then one row: whether the board is live, the
+ * move does (`caption`), then one row: whether the board is live (unless
+ * the caption, which only a live board has, already says so), the
  * shown turn in words on a well of its own (`Move 4 · ● col 3 · ◆ col 2`),
  * wrapping between its moves rather than cutting one at the well's edge,
  * and the chevron that opens the rest of the record in place. During live
@@ -526,7 +527,9 @@ function RecordStrip(props: RecordProps): JSX.Element {
         gap="sm"
         testId="custom-game-move-strip-head"
       >
-        <Show when={!reviewing()}>
+        {/* The game's own line about the live turn already says the board
+            is live: the turn then has the row to itself, on one line. */}
+        <Show when={!reviewing() && props.caption === undefined}>
           <StripPlace record={props.record} />
         </Show>
         <Surface tone="muted" radius="control" grow>

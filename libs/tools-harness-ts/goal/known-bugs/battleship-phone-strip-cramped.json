@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Battleship record strip showed \"Live\" beside the shown turn under the game's own line (\"Red fleet fired at C4 and missed. Your turn to fire.\"), so the turn wrapped into a cramped two-line block and the person's own seat fell below the screen. The game's own line only shows on a live board, so beside it the strip drops \"Live\" and the turn fits one row.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

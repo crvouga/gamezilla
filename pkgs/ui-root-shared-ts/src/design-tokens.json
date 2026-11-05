@@ -643,63 +643,63 @@
         "$description": "Battleship board only: canvas.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0353, 0.1725, 0.251],
+          "components": [0.9529, 0.9725, 0.9843],
           "alpha": 1.0,
-          "hex": "#092c40"
+          "hex": "#f3f8fb"
         }
       },
       "gameBattleshipSurface": {
         "$description": "Battleship board only: surface.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0706, 0.2471, 0.3294],
+          "components": [0.8039, 0.8863, 0.9294],
           "alpha": 1.0,
-          "hex": "#123f54"
+          "hex": "#cde2ed"
         }
       },
       "gameBattleshipInk": {
         "$description": "Battleship board only: ink.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.898, 0.9608, 1.0],
+          "components": [0.0431, 0.1882, 0.2784],
           "alpha": 1.0,
-          "hex": "#e5f5ff"
+          "hex": "#0b3047"
         }
       },
       "gameBattleshipMuted": {
         "$description": "Battleship board only: muted.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.6196, 0.7882, 0.8627],
+          "components": [0.2314, 0.3765, 0.4588],
           "alpha": 1.0,
-          "hex": "#9ec9dc"
+          "hex": "#3b6075"
         }
       },
       "gameBattleshipAccent": {
         "$description": "Battleship board only: accent.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.451, 0.8353, 0.9569],
+          "components": [0.0392, 0.4353, 0.6],
           "alpha": 1.0,
-          "hex": "#73d5f4"
+          "hex": "#0a6f99"
         }
       },
       "gameBattleshipOne": {
         "$description": "Battleship board only: one.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9686, 0.5725, 0.4471],
+          "components": [0.7137, 0.2471, 0.1333],
           "alpha": 1.0,
-          "hex": "#f79272"
+          "hex": "#b63f22"
         }
       },
       "gameBattleshipTwo": {
         "$description": "Battleship board only: two.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9608, 0.8039, 0.4627],
+          "components": [0.6039, 0.3961, 0.0706],
           "alpha": 1.0,
-          "hex": "#f5cd76"
+          "hex": "#9a6512"
         }
       },
       "gameQuoridorCanvas": {
