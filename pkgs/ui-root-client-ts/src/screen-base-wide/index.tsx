@@ -51,9 +51,7 @@ function WidePageHeader(
       data-component="ScreenBaseHeader"
     >
       {props.leading}
-      <Show
-        when={!props.shellNavigation && props.titlePlacement !== 'content'}
-      >
+      <Show when={!props.shellNavigation && props.titlePlacement !== 'content'}>
         <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
       </Show>
       <div class="box flex-1" aria-hidden="true" />

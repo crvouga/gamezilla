@@ -3,8 +3,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { CompassIcon, Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { H1 } from '@pkgs/ui-root-client-ts/heading';
+import { CompassIcon, Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import {
   StateBlock,

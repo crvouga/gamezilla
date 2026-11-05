@@ -16,15 +16,18 @@ function mountNotFound(
   back: boolean,
   layout?: typeof WIDE
 ): void {
-  renderChrome(() => (
-    <RouteStubScreenView
-      screenId="not-found"
-      title="Page not found"
-      notFound
-      onGoToSpaces={() => went.push('spaces')}
-      onGoBack={back ? () => went.push('back') : undefined}
-    />
-  ), layout);
+  renderChrome(
+    () => (
+      <RouteStubScreenView
+        screenId="not-found"
+        title="Page not found"
+        notFound
+        onGoToSpaces={() => went.push('spaces')}
+        onGoBack={back ? () => went.push('back') : undefined}
+      />
+    ),
+    layout
+  );
 }
 
 // regression: not-found-stranded-top-left
@@ -75,23 +78,26 @@ test('without a screen to return to, there is no Go back', () => {
 test.each([
   ['phone', undefined],
   ['wide', WIDE],
-] as const)('%s: title, message and ways out are one centred unit', (_, layout) => {
-  mountNotFound([], true, layout);
-  const unit = screen.getByTestId(Handles.routeNotFound);
-  expect(unit.getAttribute('data-align')).toBe('center');
-  expect(unit.getAttribute('data-variant')).toBe('fill');
-  const title = screen.getByRole('heading', { name: 'Page not found' });
-  expect(unit.contains(title)).toBe(true);
-  expect(unit.contains(screen.getByRole('button', { name: 'Go back' }))).toBe(
-    true
-  );
-  expect(
-    unit.contains(
-      screen.getByText(
-        'The link may be old or mistyped. Your spaces are still here.'
+] as const)(
+  '%s: title, message and ways out are one centred unit',
+  (_, layout) => {
+    mountNotFound([], true, layout);
+    const unit = screen.getByTestId(Handles.routeNotFound);
+    expect(unit.getAttribute('data-align')).toBe('center');
+    expect(unit.getAttribute('data-variant')).toBe('fill');
+    const title = screen.getByRole('heading', { name: 'Page not found' });
+    expect(unit.contains(title)).toBe(true);
+    expect(unit.contains(screen.getByRole('button', { name: 'Go back' }))).toBe(
+      true
+    );
+    expect(
+      unit.contains(
+        screen.getByText(
+          'The link may be old or mistyped. Your spaces are still here.'
+        )
       )
-    )
-  ).toBe(true);
-  // The header draws no second copy of the title.
-  expect(screen.getAllByText('Page not found')).toHaveLength(1);
-});
+    ).toBe(true);
+    // The header draws no second copy of the title.
+    expect(screen.getAllByText('Page not found')).toHaveLength(1);
+  }
+);
