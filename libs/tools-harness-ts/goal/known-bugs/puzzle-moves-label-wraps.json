@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle move list's \"Moves\" label sat inline beside the step buttons in a shrinking row, so it wrapped mid-word (\"Mov / es\") on phone and desktop and starved the move strip until the first chip was clipped (\"Nxe5\" read \"ке5\"). The label now heads the strip on its own line without wrapping, and the strip spans the full width.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-moves-label.test.tsx"
+}

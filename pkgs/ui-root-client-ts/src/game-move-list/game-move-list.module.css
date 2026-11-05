@@ -88,10 +88,14 @@
   cursor: pointer;
   transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
 }
+/* A move written in words (`G10 sinks the destroyer`) wraps inside its
+   column, never cut off: every word of the record stays readable. */
 .list[data-layout="table"] .moveButton {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding-block: var(--ui-space-1);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
 }
 @media (hover: hover) and (pointer: fine) {
   .moveButton:hover {

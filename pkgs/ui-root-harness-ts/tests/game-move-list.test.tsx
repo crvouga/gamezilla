@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   GameMoveList,
   type GameMoveListEntry,
@@ -146,5 +148,49 @@ describe('GameMoveList', () => {
       />
     ));
     expect(screen.queryByText('Move 1')).toBeNull();
+  });
+
+  // regression: connect-four-record-col-noise — beside a wide board every
+  // row of the Connect Four record read "● col 4", the disc crowding a word
+  // the seat columns already make plain. The table reads "● 4".
+  test('the table leaves out the word a bare-number move is read with', () => {
+    const columns: readonly GameMoveListEntry[] = ['4', '5'].map(
+      (label, index) => ({
+        ply: index + 1,
+        label,
+        prefix: 'col',
+        swatch: index === 0 ? { mark: '●' } : { mark: '◆' },
+        accessibleName: `Move ${String(index + 1)}: column ${label}`,
+      })
+    );
+    renderUi(() => (
+      <GameMoveList
+        layout="table"
+        aria-label="Moves played"
+        perTurn={2}
+        current={2}
+        moves={columns}
+        onSelect={() => undefined}
+      />
+    ));
+    const list = screen.getByRole('list', { name: 'Moves played' });
+    expect(list.textContent).toBe('1●4◆5');
+  });
+
+  // regression: battleship-record-truncated — the record beside a wide
+  // Battleship board cut a move written in words to "G10 sinks the d": a
+  // table move wraps inside its column instead of being clipped.
+  test('a table move written in words wraps, never clipped', () => {
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-move-list/game-move-list.module.css'
+      ),
+      'utf8'
+    );
+    const start = css.indexOf('.list[data-layout="table"] .moveButton {');
+    const rule = css.slice(start, css.indexOf('}', start));
+    expect(rule).toMatch(/white-space:\s*normal;/);
+    expect(rule).not.toMatch(/overflow:\s*hidden|text-overflow/);
   });
 });

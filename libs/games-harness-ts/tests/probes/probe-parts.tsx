@@ -75,6 +75,7 @@ export type ProbeCopy = {
 export function probeFrame(rules: GameRules): GameFrame<JSX.Element> {
   const sides = gameSides(rules);
   return {
+    drawOffers: true,
     players: fixedPlayers(sides.length as FrameSeatCount),
     options: [],
     seats: lookOnlySeats((side) => ({

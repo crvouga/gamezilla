@@ -33,6 +33,7 @@ export const connectFourPresentation: GameClientPresentation = {
   // A move is its column's number: the record says so beside it.
   movePrefix: () => t`col`,
   frame: {
+    drawOffers: true,
     players: fixedPlayers(2),
     options: [],
     // The disc each side drops: the board's own disc paint, so the seat

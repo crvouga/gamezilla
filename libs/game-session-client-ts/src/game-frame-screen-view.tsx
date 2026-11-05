@@ -6,8 +6,10 @@ import { Trans } from '@lingui/solid/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameActionsView } from './game-frame-actions-view';
@@ -288,7 +290,45 @@ function asideRecord(
   // A game played in real time lists no moves: with no earlier game to
   // choose it has no card, only its way to the history (`FrameArenaHistory`).
   const empty = frameArena(props.phase, shown) && !arenaRecordShown(shown);
-  return stripped || empty ? null : shown;
+  return stripped || empty || unplayedBeside(props, mode) ? null : shown;
+}
+
+/**
+ * Beside a wide board, a game played by turns whose record holds nothing
+ * yet (no move, no earlier game, no refusal: Hearts while hands are
+ * passed) shows no empty "Game record" card: the rail holds only the
+ * game's commands and its way to the history, until the first move lands.
+ */
+function unplayedBeside(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  const shown = shownRecord(props);
+  return (
+    mode() === 'wide' &&
+    shown !== null &&
+    shown.turns &&
+    shown.moves.length === 0 &&
+    !arenaRecordShown(shown) &&
+    (props.phase === 'active' || props.phase === 'completed')
+  );
+}
+
+/** The rail beside a board whose record holds nothing yet: commands and history only. */
+function FrameUnplayedRail(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show when={unplayedBeside(props, mode) ? shownRecord(props) : null}>
+      {(shown) => (
+        <StackVertical gap="sm" testId="custom-game-unplayed-rail">
+          <FrameActions {...props} width="content" />
+          <GameActions>
+            <FrameHistoryLink {...props} record={shown()} quiet />
+          </GameActions>
+        </StackVertical>
+      )}
+    </Show>
+  );
 }
 
 /**
@@ -352,7 +392,9 @@ function commandsInRecord(
 ): boolean {
   return (
     mode() === 'wide' &&
-    (asideRecord(props, mode) !== null || arenaBeside(props, mode))
+    (asideRecord(props, mode) !== null ||
+      arenaBeside(props, mode) ||
+      unplayedBeside(props, mode))
   );
 }
 
@@ -391,6 +433,7 @@ function FrameRecordAside(props: Props): JSX.Element {
         )}
       </Show>
       <FrameRecordPanelAside {...props} />
+      <FrameUnplayedRail {...props} />
     </>
   );
 }

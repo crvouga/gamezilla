@@ -1,0 +1,4 @@
+{
+  "summary": "The game record beside a wide Battleship board clipped a move written in words to \"G10 sinks the d\": table moves were single-line with hidden overflow. A table move now wraps inside its column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

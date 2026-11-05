@@ -1,0 +1,4 @@
+{
+  "summary": "The shared game frame showed the same commands (Offer draw, Resign) for every game: Pong and Light Cycles (real-time races), Hearts (a table that plays every hand out) and Battleship (which has no draw) all offered a draw by agreement. Each game's frame now declares `drawOffers`, and the frame offers a draw only where the game says it can be drawn by agreement.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-frame-commands.test.ts"
+}

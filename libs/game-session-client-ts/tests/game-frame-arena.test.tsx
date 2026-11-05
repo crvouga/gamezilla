@@ -147,3 +147,41 @@ test('phone: a real-time game keeps its seats around the arena and its history b
   expect(screen.getByTestId('custom-game-seat-near')).toBeTruthy();
   expect(screen.getByTestId('custom-game-history-stats')).toBeTruthy();
 });
+
+// regression: unplayed-game-record-card — beside a wide Hearts table, while
+// the hands were passed and nothing was played yet, the rail was a "Game
+// record" card with nothing in it but History and stats. A game played by
+// turns shows its record card only once it holds something.
+test('wide: a game played by turns with no move yet has no empty record card', () => {
+  const time = createHarnessClock();
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          record={{ ...RECORD, turns: true }}
+          table={{
+            shape: 'rail',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  expect(
+    document.querySelector('[data-component="CustomGameReview"]')
+  ).toBeNull();
+  const rail = screen.getByTestId('custom-game-unplayed-rail');
+  expect(
+    rail.querySelector('[data-testid="custom-game-resign"]')
+  ).not.toBeNull();
+  expect(
+    rail.querySelector('[data-testid="custom-game-history-stats"]')
+  ).not.toBeNull();
+  // The commands show once, in the rail.
+  expect(screen.getAllByTestId('custom-game-resign')).toHaveLength(1);
+});

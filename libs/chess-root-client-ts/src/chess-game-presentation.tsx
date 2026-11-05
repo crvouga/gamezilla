@@ -65,6 +65,7 @@ export const chessPresentation: GameClientPresentation = {
   Board: ChessGameBoard,
   sideLabel: (side) => (side === 'white' ? t`White` : t`Black`),
   frame: {
+    drawOffers: true,
     players: fixedPlayers(2),
     options: [],
     // White and Black are the pieces' own colors: a king says which.

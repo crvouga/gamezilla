@@ -72,6 +72,7 @@ export function frameFixture(
   seats: Partial<GameFrame<JSX.Element>['seats']> = {}
 ): GameFrame<JSX.Element> {
   return {
+    drawOffers: true,
     players: fixedPlayers(2),
     options: [],
     seats: {

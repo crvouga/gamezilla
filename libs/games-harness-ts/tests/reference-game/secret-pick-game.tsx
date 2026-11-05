@@ -134,6 +134,7 @@ export const SECRET_PICK_CLIENT: GameClient<typeof SECRET_PICK_SHARED> = {
     SetupBoard,
     sideLabel: notice.side,
     frame: {
+      drawOffers: true,
       players: fixedPlayers(2),
       options: [],
       seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),

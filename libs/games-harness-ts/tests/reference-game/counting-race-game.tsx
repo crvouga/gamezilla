@@ -431,6 +431,7 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
     Board,
     sideLabel,
     frame: {
+      drawOffers: true,
       players: fixedPlayers(2),
       options: [],
       seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),

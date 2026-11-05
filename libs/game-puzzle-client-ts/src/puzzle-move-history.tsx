@@ -72,11 +72,13 @@ function MoveHistoryPlies(
 }
 
 /**
- * The line played so far, named ("Moves") at the page's inset on the same
- * line as its controls, so a chip such as `4… g6` reads as a move and the
- * name never floats alone above them: nav buttons right beside the
- * scrubbable move list (a puzzle's line is short), and a horizontal swipe
- * over both. With no moves yet the row stays empty at its full height, so
+ * The line played so far, named ("Moves") on its own line over its
+ * controls, never squeezed beside them: a shrinking inline label broke
+ * mid-word ("Mov / es") and starved the moves of room until a chip was
+ * clipped at the strip's edge. Under the name, the nav buttons sit at the
+ * strip's ends with the scrubbable move list between them (a puzzle's line
+ * is short, so it usually shows whole), and a horizontal swipe works over
+ * all of it. With no moves yet the row stays empty at its full height, so
  * the board above keeps its size when the first move lands.
  */
 export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
@@ -86,14 +88,18 @@ export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
   // never shifts the page.
   const strip = createMeasure();
   return (
-    <StackHorizontal align="center" gap="sm" paddingX="lg">
-      <P variant="caption" tone="secondary" testId="chess-puzzle-moves-label">
+    <StackVertical gap="xs" paddingX="lg" testId="chess-puzzle-moves">
+      <P
+        variant="caption"
+        tone="secondary"
+        wrap="nowrap"
+        testId="chess-puzzle-moves-label"
+      >
         <Trans>Moves</Trans>
       </P>
-      <StackVertical shrink measureTarget={strip.target}>
+      <StackVertical measureTarget={strip.target}>
         <MoveStrip
           testId="chess-puzzle-move-history"
-          fit="content"
           pointer={hasPlies() ? swipe : undefined}
           leading={
             <Show when={hasPlies()}>
@@ -111,6 +117,6 @@ export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
           </Show>
         </MoveStrip>
       </StackVertical>
-    </StackHorizontal>
+    </StackVertical>
   );
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Hearts table, before any card was played (while hands were passed), the rail showed a \"Game record\" card holding nothing but History and stats. A game played by turns now shows its record card only once it holds a move, an earlier game or a refusal; until then the rail holds only the game's commands and its way to the history.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

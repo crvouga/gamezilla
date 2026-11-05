@@ -24,6 +24,7 @@ function points(position: string, side: GameSide): number {
 
 /** Left and Right paddles, their points, and the points that win. */
 export const pongFrame: GameFrame<JSX.Element> = {
+  drawOffers: false,
   players: fixedPlayers(2),
   options: [
     {
