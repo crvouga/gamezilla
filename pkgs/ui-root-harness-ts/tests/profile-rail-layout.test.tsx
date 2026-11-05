@@ -1,8 +1,8 @@
 /**
- * A profile with a rail composes as a page, not three ragged columns: on a
- * desktop the identity is a card of its own content in a narrow first
- * column, the main sections take what is left, and the rail (friends,
- * settings) is a column wide enough for its rows' captions on one line; a
+ * A profile with a rail composes as a page, not ragged columns: on a
+ * desktop the identity is the page's own header over two columns whose
+ * tops are level, the main sections taking what is left and the rail
+ * (friends, settings) wide enough for its rows' captions on one line; a
  * tablet's column draws the identity as one band across the top.
  */
 
@@ -62,28 +62,43 @@ const TABLET = '(min-width: 40rem) and (max-width: 55.99rem)';
 
 // regression: profile-desktop-ragged-columns
 // regression: profile-header-band-mostly-empty — on a desktop the identity
-// was a 960px band with the face and facts squeezed at its start, Edit
-// profile at its far end and about 600px of nothing between. It is now a
-// card of its own content in a narrow first column, level with the main
-// sections and the rail.
-test('a desktop profile with a rail is an identity card, a flexible main column and a rail wide enough for one-line captions', () => {
+// was a 960px framed band with the face and facts squeezed at its start,
+// Edit profile at its far end and about 600px of nothing between.
+// regression: profile-desktop-l-shaped-gap — it then became a 208px card in
+// a first column of three, each a different height, leaving a large
+// L-shaped empty area under the card and the main section. The identity is
+// now the page's own unframed header with Edit profile right after the
+// words, over two columns whose tops are on one line.
+test('a desktop profile with a rail is an identity header over a flexible main column and a rail wide enough for one-line captions', () => {
   const css = readFileSync(LAYOUTS_CSS, 'utf8');
   const grid = ruleIn(css, DESKTOP, '  .profile[data-rail="true"]');
-  // The main column flexes (its rows never truncate to fit a third
-  // column); the rail is fixed at a width that holds "Account, appearance,
-  // sound and more" on one line; the identity column is as narrow as a
-  // picture over a name.
-  expect(grid).toMatch(
-    /grid-template-columns:\s*13rem minmax\(0, 1fr\) 23rem;/
-  );
+  // The main column flexes (its rows never truncate to fit beside the
+  // rail); the rail is fixed at a width that holds "Account, appearance,
+  // sound and more" on one line. Two columns, never three.
+  expect(grid).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\) 23rem;/);
   expect(grid).toMatch(/align-items:\s*start;/);
-  const card = ruleIn(
+  // The identity spans both columns, above them.
+  expect(
+    ruleIn(css, DESKTOP, '  .profile[data-rail="true"] > .profileAside')
+  ).toMatch(/grid-column:\s*1 \/ -1;/);
+  const header = ruleIn(
     css,
     DESKTOP,
     '  .profile[data-rail="true"] > .profileAside > .identity'
   );
-  expect(card).toMatch(/flex-direction:\s*column;/);
-  expect(card).toMatch(/align-items:\s*center;/);
+  // One row, unframed: no panel to run empty past the words.
+  expect(header).toMatch(/flex-direction:\s*row;/);
+  expect(header).toMatch(/border:\s*0;/);
+  expect(header).toMatch(/background:\s*transparent;/);
+  expect(header).toMatch(/padding:\s*0;/);
+  // The words take their own width, so Edit profile follows them rather
+  // than standing at the column's far end.
+  const words = ruleIn(
+    css,
+    DESKTOP,
+    '  .profile[data-rail="true"] > .profileAside > .identity > .identityText'
+  );
+  expect(words).toMatch(/flex:\s*0 1 auto;/);
   // A tablet's column still draws the band across the top.
   expect(
     ruleIn(
@@ -111,15 +126,18 @@ test('a profile without a rail keeps the identity card beside its sections', () 
   expect(frame?.getAttribute('data-split')).toBe('true');
 });
 
-// regression: profile-identity-card-narrower-than-columns
-test('on desktop the identity card fills its own column, edge to edge with it', () => {
+// regression: profile-identity-card-narrower-than-columns — the desktop
+// identity card once shrank to its words inside its column. The identity
+// is now a header spanning both columns; its block is never held to its
+// content's width.
+test('on desktop the identity spans the columns under it', () => {
   const css = readFileSync(LAYOUTS_CSS, 'utf8');
+  const aside = ruleIn(css, DESKTOP, '  .profile[data-rail="true"] > .profileAside');
+  expect(aside).toMatch(/grid-column:\s*1 \/ -1;/);
   const body = ruleIn(
     css,
     DESKTOP,
     '  .profile[data-rail="true"] > .profileAside > .identity'
   );
-  // It stretches to its column's edges instead of shrinking to its words.
-  expect(body).toContain('align-self: stretch');
   expect(body).not.toContain('fit-content');
 });
