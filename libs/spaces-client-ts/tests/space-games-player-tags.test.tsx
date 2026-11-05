@@ -33,7 +33,7 @@ test('each row says only who plays; one line says the rest watch', () => {
   for (const width of [390, 1440]) {
     mount(width);
     expect(screen.queryByText(/others watch/)).toBeNull();
-    expect(screen.getAllByText(/everyone else here watches/)).toHaveLength(1);
+    expect(screen.getAllByText(/everyone else here can watch/)).toHaveLength(1);
     expect(screen.getByText('2 players')).toBeTruthy();
     expect(screen.getAllByText('4 players')).toHaveLength(2);
     expect(screen.getByText('Solo')).toBeTruthy();

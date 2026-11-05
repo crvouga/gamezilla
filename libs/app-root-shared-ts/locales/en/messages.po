@@ -1567,6 +1567,10 @@ msgstr "Choose a bot difficulty offered by this game."
 msgid "Choose a game with a puzzle editor."
 msgstr "Choose a game with a puzzle editor."
 
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
+msgid "Choose a game, then its players; everyone else here can watch."
+msgstr "Choose a game, then its players; everyone else here can watch."
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
 msgstr "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
@@ -4904,10 +4908,6 @@ msgstr "Pick a fruit…"
 #: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Pick a fun emoji look"
 msgstr "Pick a fun emoji look"
-
-#: libs/spaces-client-ts/src/space-games-screen-view.tsx
-msgid "Pick a game to play; everyone else here watches."
-msgstr "Pick a game to play; everyone else here watches."
 
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Pick a game to play."
