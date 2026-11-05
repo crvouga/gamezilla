@@ -32,6 +32,15 @@
   padding: calc(var(--preview-thumbnail-size) * 0.12);
   zoom: 0.5;
 }
+/* A tall area (a card's picture) has room for the board at its own size. */
+@container (min-height: 9rem) {
+  .thumbnail[data-size="fill"] .content {
+    width: var(--preview-thumbnail-size);
+    height: var(--preview-thumbnail-size);
+    padding: calc(var(--preview-thumbnail-size) * 0.08);
+    zoom: 1;
+  }
+}
 /* A collection: a second sheet behind the first, offset up and right,
    inside the same square, so a pack's row starts its title where a
    puzzle's does. */
