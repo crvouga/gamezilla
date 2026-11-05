@@ -3477,10 +3477,14 @@ msgstr "Join to see who is here and hang out."
 msgid "Join your word to the tiles on the board."
 msgstr "Join your word to the tiles on the board."
 
-#: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Joined"
 msgstr "Joined"
+
+#. placeholder {0}: month()
+#: libs/profile-client-ts/src/profile-screen-view.tsx
+msgid "Joined {0}"
+msgstr "Joined {0}"
 
 #: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "Joining someone else's space needs a connection."

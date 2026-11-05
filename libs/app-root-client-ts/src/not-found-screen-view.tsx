@@ -40,17 +40,21 @@ export function NotFoundScreenView(
       screenId={props.screenId}
       breadcrumbs={[{ name: props.title }]}
       content={() => (
-        // Under the title, not centred in the page: centred, the message
-        // floated a screen's height away from the heading it explains.
-        <StackVertical paddingTop="xl">
-          <StateBlock dataSet={{ testid: Handles.routeNotFound }}>
+        // Directly under the title, on the title's left edge: one alignment
+        // axis for the heading, its explanation and the ways out.
+        <StackVertical paddingTop="md">
+          <StateBlock
+            variant="compact"
+            align="start"
+            dataSet={{ testid: Handles.routeNotFound }}
+          >
             <StateBlockIcon icon={CompassIcon} />
-            <P variant="body" tone="secondary" align="center">
+            <P variant="body" tone="secondary">
               <Trans>
                 The link may be old or mistyped. Your spaces are still here.
               </Trans>
             </P>
-            <StateBlockActions>
+            <StateBlockActions align="start">
               <Button
                 title={<Trans>Go to Spaces</Trans>}
                 icon={Gamepad2Icon}

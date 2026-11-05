@@ -13,6 +13,7 @@ import {
 } from '@pkgs/ui-root-client-ts/metric-strip';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import {
@@ -182,8 +183,9 @@ function useJoinedLabel(joinedAt: () => string | null): () => string | null {
 
 /**
  * Facts about the person beside their name, only those this device knows:
- * how many friends (when a friends sub is composed) and when they joined.
- * Nothing while neither is known.
+ * how many friends (when a friends sub is composed) as the one stat, and
+ * when they joined as a quiet caption under it, so the date never outweighs
+ * the name. Nothing while neither is known.
  */
 function ProfileFacts(props: {
   readonly friendsCount: JSX.Element | undefined;
@@ -191,23 +193,25 @@ function ProfileFacts(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const joined = useJoinedLabel(() => props.joinedAt);
-  const metrics = createMemo((): readonly SummaryMetric[] => {
-    const out: SummaryMetric[] = [];
-    if (props.friendsCount !== undefined) {
-      out.push({ label: <Trans>Friends</Trans>, value: props.friendsCount });
-    }
-    const month = joined();
-    if (month !== null)
-      out.push({ label: <Trans>Joined</Trans>, value: month });
-    return out;
-  });
+  const metrics = createMemo((): readonly SummaryMetric[] =>
+    props.friendsCount === undefined
+      ? []
+      : [{ label: <Trans>Friends</Trans>, value: props.friendsCount }]
+  );
   return (
-    <Show when={metrics().length > 0}>
-      <MetricStrip
-        aria-label={t`About you`}
-        metrics={metrics()}
-        dataSet={{ testid: Handles.profileFacts }}
-      />
+    <Show when={metrics().length > 0 || joined() !== null}>
+      <StackVertical gap="xs" testId={Handles.profileFacts}>
+        <Show when={metrics().length > 0}>
+          <MetricStrip aria-label={t`About you`} metrics={metrics()} />
+        </Show>
+        <Show when={joined()}>
+          {(month) => (
+            <P variant="caption" tone="secondary">
+              <Trans>Joined {month()}</Trans>
+            </P>
+          )}
+        </Show>
+      </StackVertical>
     </Show>
   );
 }

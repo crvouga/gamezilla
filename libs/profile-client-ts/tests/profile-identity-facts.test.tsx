@@ -101,3 +101,12 @@ test('on a phone the picture is small, beside the name, not a hero', () => {
   expect(avatar).not.toBeNull();
   expect(avatar?.style.width).toBe('64px');
 });
+
+// regression: profile-joined-date-outweighs-name
+test('the joined date is a quiet caption, not a stat beside the friends count', () => {
+  mountProfile(true);
+  const facts = screen.getByTestId(Handles.profileFacts);
+  const strip = facts.querySelector('[data-component="MetricStrip"]');
+  expect(strip?.textContent ?? '').not.toContain('November 2023');
+  expect(facts.textContent).toContain('Joined November 2023');
+});

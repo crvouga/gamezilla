@@ -22,14 +22,16 @@ function mountNotFound(went: string[], back: boolean): void {
 }
 
 // regression: not-found-stranded-top-left
-test('not found says so once, centred, with a way to Spaces', () => {
+test('not found says so once, under its title, with a way to Spaces', () => {
   const went: string[] = [];
   mountNotFound(went, true);
   // One heading: the page title. No second "nothing here" heading under it.
   expect(screen.queryByText("There's nothing at this address")).toBeNull();
+  // Not stranded: a compact block directly under the title, on the
+  // title's left edge (one alignment axis), never a full-height centred box.
   const state = screen.getByTestId(Handles.routeNotFound);
-  expect(state.getAttribute('data-variant')).toBe('fill');
-  expect(state.getAttribute('data-align')).toBe('center');
+  expect(state.getAttribute('data-variant')).toBe('compact');
+  expect(state.getAttribute('data-align')).toBe('start');
   fireEvent.click(screen.getByTestId(Handles.routeNotFoundAction));
   fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
   expect(went).toEqual(['spaces', 'back']);
