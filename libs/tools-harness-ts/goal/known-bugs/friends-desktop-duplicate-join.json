@@ -1,0 +1,4 @@
+{
+  "summary": "On desktop the friends list's Playing now column repeated the Join actions already on the friends' rows, so every live room could be joined from two places on one screen. The column now holds the friend requests waiting on an answer, and Join lives only on the rows.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-playing-now.test.tsx"
+}

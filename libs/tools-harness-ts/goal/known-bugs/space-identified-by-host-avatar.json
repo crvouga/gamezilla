@@ -1,0 +1,4 @@
+{
+  "summary": "Rooms in Playing now and on the friends list were identified by the host's avatar (or by nothing but words), so a room had no identity of its own and the same face stood for a person and a room. Each room now wears its MonogramTile (seeded by the space id, lettered from the room name), the same paint on the profile's room row and under every friend in it.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-playing-now.test.tsx"
+}

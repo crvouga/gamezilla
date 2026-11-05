@@ -31,6 +31,29 @@
   min-width: 0;
   gap: var(--ui-space-3);
 }
+/* An identity whose picture stands apart (a profile with a rail): on a
+   phone the same centered column; in a wide band the picture, the words
+   and the actions in one line. */
+.identityAvatar {
+  display: flex;
+  flex-shrink: 0;
+}
+.identityText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+  gap: var(--ui-space-3);
+}
+.identityText > * {
+  max-width: 100%;
+}
+.identityActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--ui-space-2);
+}
 /* A profile: identity, then its sections. Stacked on a phone; side by side
    once the column is wide enough, the identity a card in a fixed left
    column. */
@@ -77,6 +100,53 @@
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
+  }
+}
+.profileRail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileRail:empty {
+  display: none;
+}
+/* With a rail, the identity is a band across the top once there is room
+   for it in one line: a panel with the picture at its start, the name
+   beside it (read from the start edge, not centered) and the actions at
+   its end. */
+@container (min-width: 40rem) {
+  .profile[data-rail="true"] > .profileAside > .identity {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ui-space-lg);
+    box-sizing: border-box;
+    padding: var(--ui-space-lg) var(--ui-space-xl);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityText {
+    flex: 1;
+    align-items: flex-start;
+    align-self: center;
+    gap: var(--ui-space-1);
+  }
+}
+/* A desktop column has room for the rail beside the main sections: the
+   main column takes what the rail leaves, the rail is as wide as its rows'
+   captions need on one line, and both start under the band at the same
+   line. */
+@container (min-width: 56rem) {
+  .profile[data-rail="true"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24rem;
+    column-gap: var(--ui-space-2xl);
+    row-gap: var(--ui-space-section);
+    align-items: start;
+  }
+  .profile[data-rail="true"] > .profileAside {
+    grid-column: 1 / -1;
   }
 }
 /* A desktop column (the whole frame column) has room for the sections

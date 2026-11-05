@@ -105,8 +105,8 @@ msgstr "{0, plural, one {Waiting for # invitation to be answered.} other {Waitin
 msgid "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 
-#. placeholder {0}: requests.outgoing().length
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#. placeholder {0}: props.outgoingCount
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 
@@ -340,10 +340,6 @@ msgstr "{held, plural, one {# card} other {# cards}}"
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "{host} hosts"
 msgstr "{host} hosts"
-
-#: libs/friends-client-ts/src/friends-playing-now.tsx
-msgid "{host} hosts, with {others}"
-msgstr "{host} hosts, with {others}"
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
 msgid "{host}'s space"
@@ -2977,7 +2973,7 @@ msgstr "Friend request"
 msgid "Friend request not sent"
 msgstr "Friend request not sent"
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Friend requests"
 msgstr "Friend requests"
 
@@ -4298,7 +4294,7 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Nobody is waiting on you"
 msgstr "Nobody is waiting on you"
 
@@ -4887,7 +4883,6 @@ msgid "Playing"
 msgstr "Playing"
 
 #: libs/friends-client-ts/src/friends-playing-now.tsx
-#: libs/friends-client-ts/src/profile-friends-playing.tsx
 msgid "Playing now"
 msgstr "Playing now"
 
@@ -7917,7 +7912,7 @@ msgstr "Walls"
 msgid "Walls must fit between four squares. Choose an anchor from a1 to h8."
 msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
 
-#: libs/friends-client-ts/src/search-requests-aside.tsx
+#: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Wants to be friends"
 msgstr "Wants to be friends"
 
