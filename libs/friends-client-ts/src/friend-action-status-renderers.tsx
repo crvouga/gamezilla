@@ -14,7 +14,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import {
-  ConfirmDeletePills,
+  AcceptDeclinePills,
   SingleActionPill,
 } from './friend-action-pill-buttons';
 
@@ -88,14 +88,14 @@ function renderPendingIncoming(
   compact: boolean
 ): JSX.Element {
   return (
-    <ConfirmDeletePills
+    <AcceptDeclinePills
       compact={compact}
-      onConfirm={wrap(mutations.confirmRequest)}
-      onDelete={wrap(mutations.deleteRequest)}
+      onAccept={wrap(mutations.confirmRequest)}
+      onDecline={wrap(mutations.deleteRequest)}
       {...(username !== undefined && username.length > 0
         ? {
-            confirmTestID: Handles.friendConfirm(username),
-            deleteTestID: Handles.friendDecline(username),
+            acceptTestID: Handles.friendConfirm(username),
+            declineTestID: Handles.friendDecline(username),
           }
         : {})}
     />
@@ -114,7 +114,7 @@ export function FriendRequestSentTag(): JSX.Element {
 
 /**
  * "Asked you": they asked the person to be friends, as the same info tag
- * under their name as "Request sent", so a row's Confirm / Delete says what
+ * under their name as "Request sent", so a row's Accept / Decline says what
  * it answers. Short, so it fits beside both pills on a phone.
  */
 export function FriendRequestReceivedTag(): JSX.Element {

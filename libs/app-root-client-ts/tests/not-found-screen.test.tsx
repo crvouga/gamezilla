@@ -13,18 +13,16 @@ function mountNotFound(went: string[], back: boolean): void {
   renderChrome(() => (
     <RouteStubScreenView
       screenId="not-found"
-      title="Not found"
+      title="Page not found"
       notFound
       onGoToSpaces={() => went.push('spaces')}
-      onGoToSearch={() => went.push('search')}
-      onGoToProfile={() => went.push('profile')}
       onGoBack={back ? () => went.push('back') : undefined}
     />
   ));
 }
 
 // regression: not-found-stranded-top-left
-test('not found says so once, centred, with Spaces, Search and Profile', () => {
+test('not found says so once, centred, with a way to Spaces', () => {
   const went: string[] = [];
   mountNotFound(went, true);
   // One heading: the page title. No second "nothing here" heading under it.
@@ -33,10 +31,27 @@ test('not found says so once, centred, with Spaces, Search and Profile', () => {
   expect(state.getAttribute('data-variant')).toBe('fill');
   expect(state.getAttribute('data-align')).toBe('center');
   fireEvent.click(screen.getByTestId(Handles.routeNotFoundAction));
-  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Profile' }));
   fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
-  expect(went).toEqual(['spaces', 'search', 'profile', 'back']);
+  expect(went).toEqual(['spaces', 'back']);
+});
+
+// regression: not-found-too-many-ways-out
+test('two ways out on one line, and a message that does not echo the title', () => {
+  mountNotFound([], true);
+  expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Profile' })).toBeNull();
+  const spaces = screen.getByTestId(Handles.routeNotFoundAction);
+  const back = screen.getByRole('button', { name: 'Go back' });
+  // Both in the one actions row, so neither is stranded on a line alone.
+  const row = spaces.parentElement;
+  expect(row?.contains(back)).toBe(true);
+  expect(row?.getAttribute('data-testid')).not.toBe(Handles.routeNotFound);
+  expect(
+    screen.getByText(
+      'The link may be old or mistyped. Your spaces are still here.'
+    )
+  ).toBeTruthy();
+  expect(screen.queryByText(/nothing at this address/)).toBeNull();
 });
 
 test('without a screen to return to, there is no Go back', () => {

@@ -1,0 +1,4 @@
+{
+  "summary": "The not-found screen offered four ways out (Go to Spaces, Search, Profile, Go back), which wrapped 2 + 1 on a phone with Profile alone on its line and Go back below, and its message (\"There's nothing at this address\") repeated the \"Not found\" title. It now offers Go to Spaces and, when there is somewhere to return to, Go back, side by side; the title is \"Page not found\" and the message says only why.",
+  "regressionTest": "libs/app-root-client-ts/tests/not-found-screen.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The Account screen's section copy was vague: the Danger zone said \"Each asks first\" and Your data said \"A copy of what you have here\". They now say \"You confirm before either one happens\" and \"A copy of your profile, friends, progress and preferences\".",
+  "regressionTest": "libs/auth-client-ts/tests/account-danger-zone.test.tsx"
+}

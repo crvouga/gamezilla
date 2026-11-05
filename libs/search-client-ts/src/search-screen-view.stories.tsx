@@ -66,7 +66,7 @@ export const Searching: Story = {
  * People whose username starts with the query, in one panel: each face, and
  * the typed "jor" emphasised where it matched in each handle
  * (a profile not yet on this device shows its initials). Each row ends on
- * one shared edge: a Friends tag, Confirm / Delete for one who asked to be
+ * one shared edge: a Friends tag, Accept / Decline for one who asked to be
  * friends (an Asked you tag under the name), and Cancel request for
  * one that is out (a Request sent tag) as the same small outlined pill as
  * Add friend. The panel sits on the search field's inset. On a desktop a

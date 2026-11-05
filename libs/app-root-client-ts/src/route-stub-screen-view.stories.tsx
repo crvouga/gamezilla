@@ -10,11 +10,9 @@ const meta = {
   parameters: { appRouter: true, controls: { exclude: ['title', 'parent'] } },
   args: {
     screenId: 'not-found',
-    title: 'Not found',
+    title: 'Page not found',
     notFound: true,
     onGoToSpaces: fn(),
-    onGoToSearch: fn(),
-    onGoToProfile: fn(),
     onGoBack: fn(),
   },
 } satisfies Meta<typeof RouteStubScreenView>;
@@ -23,10 +21,10 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * An address with nothing at it, reached from another screen: the title
- * says it once, then, centred in the content area, why and where to go
- * instead: Spaces (home), Search and Profile, and Go back (offered only
- * when the app has a screen to return to). It belongs to no section, so
- * the header shows no parent crumb.
+ * says what happened, then, centred in the content area, why, and two ways
+ * out on one line: Go to Spaces (home) and Go back (offered only when the
+ * app has a screen to return to). It belongs to no section, so the header
+ * shows no parent crumb.
  */
 export const NotFound: Story = {};
 

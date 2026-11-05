@@ -1,0 +1,4 @@
+{
+  "summary": "Settings' Work offline switch needed a three-line paragraph under its group to explain itself, repeating its own caption. The row's one caption now says both what turning it on stops (multiplayer) and where changes wait (on this device), and the paragraph is gone.",
+  "regressionTest": "libs/app-root-client-ts/tests/work-offline-caption.test.tsx"
+}
