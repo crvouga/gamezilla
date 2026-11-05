@@ -9,8 +9,8 @@ export default function KeyHintsExample(): JSX.Element {
       <KeyHints
         lead="Drag a number to its match."
         hints={[
-          { keys: ['↵'], label: 'start or end' },
-          { keys: ['←↑→↓'], label: 'draw' },
+          { keys: ['Enter'], label: 'start or end' },
+          { keys: ['Arrows'], label: 'draw' },
           { keys: ['Esc'], label: 'cancel' },
           { keys: ['Del'], label: 'remove' },
         ]}

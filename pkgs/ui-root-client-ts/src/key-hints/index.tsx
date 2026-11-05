@@ -6,7 +6,7 @@ import { For, type JSX, Show } from 'solid-js';
 import styles from './key-hints.module.css';
 
 export type KeyHint = {
-  /** The keys, each drawn as a key cap (`↵`, `Esc`). */
+  /** The keys, each drawn as a key cap (`Enter`, `Esc`). */
   readonly keys: readonly string[];
   /** What they do, one or two words (`start a path`). */
   readonly label: string;
@@ -22,8 +22,9 @@ export type KeyHintsProps = {
 
 /**
  * `KeyHints` -- how to play by keyboard as one quiet line of key caps,
- * each beside what it does, after the pointer's way in words: a compact
- * hint under a board instead of a paragraph about keys.
+ * each beside what it does, under the pointer's way in words: a compact
+ * hint under a board instead of a paragraph about keys. Name keys in
+ * words (`Enter`, `Arrows`), which read at a caption's size.
  */
 export function KeyHints(props: KeyHintsProps): JSX.Element {
   return (

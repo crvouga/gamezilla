@@ -1152,6 +1152,10 @@ msgstr "Archived"
 msgid "Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor."
 msgstr "Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor."
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Arrows"
+msgstr "Arrows"
+
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Ask for a new export"
 msgstr "Ask for a new export"
@@ -2650,6 +2654,10 @@ msgstr "Ending space…"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
+
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Enter"
+msgstr "Enter"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Enter a valid desired synthetic population."

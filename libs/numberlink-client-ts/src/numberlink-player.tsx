@@ -58,8 +58,8 @@ function Drawing(props: {
           testId="numberlink-key-hints"
           lead={t`Drag a number to its match.`}
           hints={[
-            { keys: ['↵'], label: t`start or end` },
-            { keys: ['←↑→↓'], label: t`draw` },
+            { keys: [t`Enter`], label: t`start or end` },
+            { keys: [t`Arrows`], label: t`draw` },
             { keys: ['Esc'], label: t`cancel` },
             { keys: ['Del'], label: t`remove` },
           ]}

@@ -1,15 +1,15 @@
-/* One quiet caption line that wraps: the pointer's way in words, then
-   each key cap beside what it does. */
+/* A quiet caption: the pointer's way in words on its own line, then one
+   line of key caps, each beside what it does. */
 .hints {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ui-space-1) var(--ui-space-3);
+  gap: var(--ui-space-1) var(--ui-space-2);
   margin: 0;
   color: var(--ui-color-text-secondary);
 }
 .lead {
-  margin-inline-end: var(--ui-space-1);
+  flex-basis: 100%;
 }
 .hint {
   display: inline-flex;
@@ -25,8 +25,8 @@
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);
-  /* The mono face draws arrows and Enter at the size of the letters. */
-  font-family: var(--ui-font-mono);
+  font-family: var(--ui-font-sans);
   font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-medium);
   line-height: var(--ui-leading-sm);
 }
