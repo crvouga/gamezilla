@@ -1,7 +1,5 @@
 # live
-# People can sign in. On every one of its regular checks the team starts
-# signing in with Google the way a person does, from outside, and follows it
-# as far as it can without a person's password (Sign in).
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

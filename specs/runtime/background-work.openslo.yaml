@@ -1,8 +1,5 @@
 # live
-# What the app does for people without them waiting on it gets done: notices,
-# the next step of a match, erasing an account, sending the app's own
-# records. The app does that work every minute; this counts whether it
-# finished.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

@@ -1,9 +1,5 @@
 # live
-# The app answers people quickly. Measured from the requests people's devices
-# really make to the live app, so it is the wait people live with, not the
-# wait on a quiet day in the team's own checks. Reading and saving (a move in
-# a game among them) and signing in are held apart, so a slow one cannot hide
-# inside a quick total.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

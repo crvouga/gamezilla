@@ -1,9 +1,5 @@
 # live
-# People can find a game, play it to the end with another person or alone,
-# and find it again afterwards. The team plays every game's critical journey,
-# and every game's own health check, from outside on every one of its regular
-# checks, each game on its own, so one broken game shows even when the others
-# work.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

@@ -1,6 +1,5 @@
 # live
-# People can pay for Plus and see it on their account (Payments). The team
-# checks it from outside on every one of its regular checks.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

@@ -1,8 +1,5 @@
 # live
-# What people ask of the app, the app answers; what people change, the app
-# saves. Both are counted from the requests people's devices really make to
-# the live app, not from the team's own checks, so a bad hour for real people
-# shows even when every check passes.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

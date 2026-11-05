@@ -1,8 +1,5 @@
 # live
-# People can open the app at its address at any minute of the day, and it
-# opens quickly. The team checks that every minute, from outside, without
-# waiting for people to notice: one check opens the app's address, the other
-# asks the app whether it is ready to serve people, what they saved included.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

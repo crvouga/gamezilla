@@ -1,8 +1,5 @@
 # live
-# People can open the app at its address, and the app answers them.
-# Reaching the app and Serving people require that right now. They do not
-# say how often; the rate below is the most the team's regular checks can
-# tell apart.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

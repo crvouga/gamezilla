@@ -1,8 +1,5 @@
 # live
-# The team can see what happened: it can follow a request's trail, find a
-# person's trouble, and see that the environment matches its plan (Request
-# records, Finding a person, Declared environment). People never use these;
-# they are how the team helps them.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

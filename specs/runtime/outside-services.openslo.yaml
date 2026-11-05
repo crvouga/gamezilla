@@ -1,8 +1,5 @@
 # live
-# The services the app relies on answer it, and the files people store come
-# back (Connected services, Stored files). The team checks both from outside
-# on every one of its regular checks, so when they fail the team can tell
-# whose failure it is.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:

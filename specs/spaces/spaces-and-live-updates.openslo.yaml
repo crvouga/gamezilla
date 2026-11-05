@@ -1,10 +1,5 @@
 # live
-# People can host and join spaces, and the app can pass on what happens in a
-# space to everyone in it as it happens. The team checks both from outside on
-# every one of its regular checks (Spaces, Seeing each other play), and every
-# ten minutes that people's apps can reach the place live updates pass
-# through. Two people really seeing each other's moves is checked by the game
-# journeys.
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
