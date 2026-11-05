@@ -47,14 +47,15 @@
    as tall as the section, the picture centred in it. */
 @container game-section (min-width: 40rem) {
   .sectionPair {
-    grid-template-columns: minmax(0, 1fr) 15rem;
+    grid-template-columns: minmax(0, 1fr) 17rem;
     align-items: stretch;
   }
-  /* A thumbnail small enough that the picture's card, with how the game
-     is played under it, is no taller than the section it pairs with, so
-     neither card is stretched around empty room. */
+  /* A thumbnail that reads as the board, yet small enough that the
+     picture's card, with how the game is played under it, is no taller
+     than the section it pairs with, so neither card is stretched around
+     empty room. */
   .sectionMedia {
-    --game-board-preview-measure: 120px;
+    --game-board-preview-measure: 160px;
     grid-column: 2;
     grid-row: 1;
     flex-direction: column;

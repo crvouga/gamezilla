@@ -594,12 +594,9 @@ function FrameBoardStage(props: Props): JSX.Element {
   return (
     <GameBoardStage
       preview={!seated()}
-      // A phone's slim preview row says how the game is played beside its
-      // thumbnail instead, when the game says it.
+      // How the game is played, beside the preview, names it instead.
       previewLabel={
-        mode() === 'wide' || props.about === undefined ? (
-          <Trans>Board preview</Trans>
-        ) : undefined
+        props.about === undefined ? <Trans>Board preview</Trans> : undefined
       }
       dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
       others={

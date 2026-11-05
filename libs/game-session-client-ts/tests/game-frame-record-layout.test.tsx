@@ -248,7 +248,11 @@ function seats(width: number): void {
 // regression: setup-player-controls-scattered — wide, "Change player" sat
 // about 450px from its player at the row's far edge while "I'm not ready"
 // sat on a line of its own under the name, in a half-empty card.
-test('setup: each player is a card holding its identity, readiness and every control, two across when wide', () => {
+// regression: setup-seats-nested-cards — each seat was then a bordered card
+// inside the Players card, and a bot said "Ready" though it always is and
+// the game never waits for it. The seats are one plain list of player rows,
+// and only a person's seat says whether they are ready.
+test('setup: the players are one plain list, each row holding its identity, readiness and controls', () => {
   for (const width of [390, 1440]) {
     seats(width);
     const avery = screen.getByTestId('custom-game-red');
@@ -259,13 +263,18 @@ test('setup: each player is a card holding its identity, readiness and every con
     expect(toggle.parentElement?.contains(screen.getByText('avery'))).toBe(
       false
     );
-    // Each seat is its own card, side by side in a grid when wide.
-    const card = avery.parentElement;
-    expect(card?.getAttribute('data-component')).toBe('Surface');
-    expect(card?.contains(screen.getByTestId('custom-game-blue'))).toBe(false);
-    const grid = card?.parentElement;
-    expect(grid?.getAttribute('data-component')).toBe('Grid');
-    expect(grid?.className).toMatch(/\blg:grid-cols-2\b/);
+    // No card inside the card: the rows sit straight in one list.
+    const list = screen.getByTestId('custom-game-setup-seats');
+    expect(avery.parentElement).toBe(list);
+    expect(screen.getByTestId('custom-game-blue').parentElement).toBe(list);
+    expect(list.querySelector('[data-component="Surface"]')).toBeNull();
+    // The person says they are ready; the bot says nothing about it.
+    const readiness = (side: string) =>
+      screen
+        .getByTestId(`custom-game-${side}`)
+        .querySelector('[data-component="GameSeatReadiness"]');
+    expect(readiness('red')?.textContent).toContain('Ready');
+    expect(readiness('blue')).toBeNull();
     cleanup();
   }
 });

@@ -351,8 +351,11 @@ describe('game surfaces', () => {
       css.indexOf('@container game-section (min-width: 40rem)')
     );
     const media = wide.slice(wide.indexOf('.sectionMedia {'));
+    // regression: setup-preview-tiny — the 120px board then read as a
+    // speck beside "How to play"; at 160px in a 17rem card, with its label
+    // left to how to play, the card still ends level with the players.
     expect(media.slice(0, media.indexOf('}'))).toMatch(
-      /--game-board-preview-measure:\s*120px;/
+      /--game-board-preview-measure:\s*160px;/
     );
     expect(
       rule('game-ui.module.css', '.player[data-density="compact"] .playerTags')

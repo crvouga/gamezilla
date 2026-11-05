@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the card beside a custom game's Players card showed a 120px board over a \"Board preview\" label and then \"How to play\", a small picture labelled twice. The board is now 160px in a slightly wider card, and how to play names it; the label shows only for a game that says nothing about how it is played.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

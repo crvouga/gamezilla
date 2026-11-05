@@ -381,8 +381,11 @@ test('wide: the card beside the players says how the game is played', () => {
       expect(about?.textContent).toBe(RULES);
       expect(preview.textContent).not.toContain('Board preview');
     } else {
+      // regression: setup-preview-tiny — wide, a 120px board over a "Board
+      // preview" label beside "How to play" said the same thing twice in
+      // little. How to play names the 160px board instead.
       expect(about?.textContent).toBe(`How to play${RULES}`);
-      expect(preview.textContent).toContain('Board preview');
+      expect(preview.textContent).not.toContain('Board preview');
     }
     cleanup();
   }
