@@ -48,3 +48,22 @@ module "auth_relay_edge" {
     auth = { hostname = var.auth_relay.hostname, service = var.auth_relay.worker }
   }
 }
+
+# The static Storybook site (`apps/storybook-ts`, an assets-only Worker deployed
+# by the Release workflow's fleet job just before this apply). Global: one
+# Storybook for the product, built from main, not one per environment.
+data "cloudflare_zone" "storybook" {
+  filter = {
+    name    = var.storybook.zone_name
+    account = { id = var.storybook.account_id }
+  }
+}
+
+module "storybook_edge" {
+  source     = "../../modules/edge"
+  account_id = var.storybook.account_id
+  zone_id    = data.cloudflare_zone.storybook.zone_id
+  domains = {
+    storybook = { hostname = var.storybook.hostname, service = var.storybook.worker }
+  }
+}

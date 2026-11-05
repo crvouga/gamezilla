@@ -297,6 +297,17 @@
         "wrangler": "catalog:",
       },
     },
+    "apps/storybook-ts": {
+      "name": "@apps/storybook-ts",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@libs/infra-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "apps/synthetic-population-worker-ts": {
       "name": "@apps/synthetic-population-worker-ts",
       "version": "0.0.0",
@@ -7825,6 +7836,8 @@
     "@apps/product-ts": ["@apps/product-ts@workspace:apps/product-ts"],
 
     "@apps/server-ts": ["@apps/server-ts@workspace:apps/server-ts"],
+
+    "@apps/storybook-ts": ["@apps/storybook-ts@workspace:apps/storybook-ts"],
 
     "@apps/synthetic-population-worker-ts": ["@apps/synthetic-population-worker-ts@workspace:apps/synthetic-population-worker-ts"],
 

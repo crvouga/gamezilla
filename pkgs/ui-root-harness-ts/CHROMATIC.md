@@ -6,6 +6,11 @@ It does not replace `bun verify`, the Bun contracts or the Playwright/axe matrix
 
 ## Published project
 
+The same static build from `main` is also served at `https://storybook.<domain>`
+by the assets-only Worker `@apps/storybook-ts`, released in Release's fleet job
+([infrastructure](../../README.md#infrastructure)). Chromatic stays the place for
+cloud comparisons and review.
+
 [Latest Storybook on main](https://main--6aea25769c1aa1557bf4af0c.chromatic.com/)
 updates after each verified main release. This branch permalink becomes available
 after the first main publication. The [initial publication](https://6aea25769c1aa1557bf4af0c-tmrcgmtoyo.chromatic.com/)

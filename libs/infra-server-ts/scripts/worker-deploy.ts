@@ -21,6 +21,7 @@ import type {
 } from '@libs/infra-shared-ts/wrangler';
 import {
   renderAuthRelayWranglerConfig,
+  renderStorybookWranglerConfig,
   renderWranglerConfig,
 } from '@libs/infra-shared-ts/wrangler';
 import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
@@ -118,20 +119,47 @@ export function deployWorker(options: {
   });
 }
 
-/** The global OAuth callback relay: one Worker, not one per environment. */
-export function deployAuthRelayWorker(options: {
+/** A global Worker: one for the product, not one per environment. */
+function deployGlobalWorker(options: {
   readonly appDir: string;
+  readonly label: string;
+  readonly accountId: string;
+  readonly render: (committed: WranglerConfig) => WranglerConfig;
 }): void {
   requireConfiguredIdentity(process.env['PRODUCT_IDENTITY_JSON'], PRODUCT);
   runWrangler({
     appDir: options.appDir,
-    label: 'auth-relay',
+    label: options.label,
     config: writeConfig(
       options.appDir,
       'global',
-      renderAuthRelayWranglerConfig(readBaseConfig(options.appDir))
+      options.render(readBaseConfig(options.appDir))
     ),
-    accountId: GLOBAL.auth_relay.account_id,
+    accountId: options.accountId,
     secrets: {},
+  });
+}
+
+/** The global OAuth callback relay. */
+export function deployAuthRelayWorker(options: {
+  readonly appDir: string;
+}): void {
+  deployGlobalWorker({
+    appDir: options.appDir,
+    label: 'auth-relay',
+    accountId: GLOBAL.auth_relay.account_id,
+    render: renderAuthRelayWranglerConfig,
+  });
+}
+
+/** The static Storybook site: an assets-only Worker over the built Storybook. */
+export function deployStorybookWorker(options: {
+  readonly appDir: string;
+}): void {
+  deployGlobalWorker({
+    appDir: options.appDir,
+    label: 'storybook',
+    accountId: GLOBAL.storybook.account_id,
+    render: renderStorybookWranglerConfig,
   });
 }

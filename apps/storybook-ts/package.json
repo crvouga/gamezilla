@@ -1,0 +1,20 @@
+{
+  "name": "@apps/storybook-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "bun run scripts/deploy.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@libs/infra-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}
