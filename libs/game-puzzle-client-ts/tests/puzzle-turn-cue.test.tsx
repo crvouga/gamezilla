@@ -33,6 +33,20 @@ test("the solver's turn is the accent pill the game screens use, in the board's 
   );
 });
 
+// regression: puzzle-correct-move-neutral-pill — after a right move the
+// coach said "Yes!" but the pill kept the neutral accent "White to move",
+// so a success read like any other turn. The pill now takes the success
+// colour and says so.
+test('after a right move the turn pill says so in the success colour', () => {
+  mount(() => <PuzzleStatusHeader kind="started" solverSide="White" correct />);
+  const pill = screen.getByTestId('chess-puzzle-your-move');
+  expect(pill.getAttribute('data-intent')).toBe('success');
+  expect(pill.getAttribute('data-correct')).toBe('true');
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
+    'Correct · White to move'
+  );
+});
+
 test('any other status keeps its plain words', () => {
   mount(() => <PuzzleStatusHeader kind="solved" solverSide="White" />);
   expect(screen.queryByTestId('chess-puzzle-your-move')).toBeNull();

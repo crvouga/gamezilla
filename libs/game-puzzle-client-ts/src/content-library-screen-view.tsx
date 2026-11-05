@@ -13,13 +13,13 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
 import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
-import { ContentAttemptSection } from './content-library-attempts';
 import {
   ContentDifficultyChip,
   ContentKindChip,
   ContentRowCaption,
   ContentStatusChip,
 } from './content-chips';
+import { ContentAttemptSection } from './content-library-attempts';
 import { ContentLoadMore } from './content-load-more';
 import { ContentThumbnail } from './content-thumbnail';
 

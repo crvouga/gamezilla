@@ -64,6 +64,11 @@ export type PuzzlePlayScreenViewProps = {
   readonly statusKind: PuzzleStatusKind;
   /** The solver's side as the game names it, once a position is shown. */
   readonly solverSide?: string | null | undefined;
+  /**
+   * The solver's last move was right and the line goes on: the turn pill
+   * takes the success colour ("Correct · White to move").
+   */
+  readonly correct?: boolean | undefined;
   readonly coach: PuzzlePlayCoach;
   /** The coach's words are still being chosen. */
   readonly coachResolving?: boolean | undefined;
@@ -143,6 +148,7 @@ function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
         <PuzzleStatusHeader
           kind={props.statusKind}
           solverSide={props.solverSide ?? null}
+          correct={props.correct}
           trailing={
             <Show when={props.pick === 'playing'}>
               <HeaderTrailing {...props} />

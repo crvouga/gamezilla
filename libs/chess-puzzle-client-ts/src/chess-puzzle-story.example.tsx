@@ -61,6 +61,7 @@ export function StoryChessPuzzleBoard(
       moveMs={null}
       marks={props.marks ?? { wrong: null, hint: null, solution: null }}
       suggestions={[]}
+      lastAction={props.lastAction ?? null}
     />
   );
 }

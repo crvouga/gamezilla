@@ -273,6 +273,8 @@ export type StoryPuzzleBoardProps = {
   readonly marks?: PuzzleBoardMarks | undefined;
   /** The board well's size, px; a board that fills its box may ignore it. */
   readonly size: number;
+  /** The line's move that led to `position`, for the board to mark. */
+  readonly lastAction?: string | null | undefined;
 };
 
 /**
@@ -300,6 +302,8 @@ export type PuzzleScene = {
   readonly fen: string;
   readonly marks?: PuzzleBoardMarks;
   readonly plies: number;
+  /** The line's move that led to `fen` (UCI), marked on the board. */
+  readonly lastAction?: string;
   readonly over?: boolean;
   readonly ratingChange?: number | 'unrated';
   readonly allowanceLabel?: string;
@@ -318,7 +322,11 @@ export const STORY_SOLVED: PuzzleCompletion = {
 };
 
 /** The solver's turn after the setup move, the line's opening state. */
-const SOLVING_SCENE: PuzzleScene = { fen: STORY_LINE.start, plies: 1 };
+const SOLVING_SCENE: PuzzleScene = {
+  fen: STORY_LINE.start,
+  plies: 1,
+  lastAction: 'g7g6',
+};
 
 /** The play view's slots a story fills itself, hidden from Controls. */
 export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
@@ -404,6 +412,7 @@ export function renderPuzzlePlayScene(
           testId="chess-puzzle-board"
           marks={scene.marks}
           size={size}
+          lastAction={scene.lastAction ?? null}
         />
       )}
       overlay={

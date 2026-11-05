@@ -1,0 +1,4 @@
+{
+  "summary": "After a right move in a chess puzzle, the turn pill kept the neutral accent 'White to move' while the coach said 'Yes!'. The pill now takes the success colour and reads 'Correct · White to move'.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-turn-cue.test.tsx"
+}

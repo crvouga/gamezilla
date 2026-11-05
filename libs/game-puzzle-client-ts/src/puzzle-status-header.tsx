@@ -37,8 +37,12 @@ function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
  * in the board's own words; the coach beside it adds the one hint worth
  * saying, so the two never repeat each other.
  */
-function yourTurnLabel(side: string): JSX.Element {
-  return <Trans>{side} to move</Trans>;
+function yourTurnLabel(side: string, correct: boolean): JSX.Element {
+  return correct ? (
+    <Trans>Correct · {side} to move</Trans>
+  ) : (
+    <Trans>{side} to move</Trans>
+  );
 }
 
 export type PuzzleStatusHeaderProps = {
@@ -48,6 +52,11 @@ export type PuzzleStatusHeaderProps = {
    * the §5 "your turn" prompt.
    */
   solverSide?: string | null;
+  /**
+   * The solver's last move was right and the line goes on: the turn pill
+   * says so in the success colour instead of the plain accent.
+   */
+  correct?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -77,10 +86,13 @@ export function PuzzleStatusHeader(
                 the seat to move, right above (or beside) the board. */}
             {(side) => (
               <Badge
-                intent="brand"
+                intent={props.correct === true ? 'success' : 'brand'}
                 tone="solid"
-                label={yourTurnLabel(side())}
-                dataSet={{ testid: 'chess-puzzle-your-move' }}
+                label={yourTurnLabel(side(), props.correct === true)}
+                dataSet={{
+                  testid: 'chess-puzzle-your-move',
+                  correct: String(props.correct === true),
+                }}
               />
             )}
           </Show>
