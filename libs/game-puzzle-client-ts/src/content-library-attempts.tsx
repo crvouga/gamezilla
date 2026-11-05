@@ -36,10 +36,10 @@ function ListTitle(props: { list: ContentAttemptList }): JSX.Element {
         <Trans>Continue playing</Trans>
       </Match>
       <Match when={props.list === 'finished'}>
-        <Trans>Finished</Trans>
+        <Trans>Solved</Trans>
       </Match>
       <Match when={props.list === 'playtest'}>
-        <Trans>Your private playtests</Trans>
+        <Trans>Playtests of your drafts</Trans>
       </Match>
     </Switch>
   );
@@ -50,11 +50,11 @@ function ListFooter(props: { list: ContentAttemptList }): JSX.Element {
     <Switch>
       <Match when={props.list === 'unfinished'}>
         <Trans>
-          Each attempt keeps your progress at the edition you started.
+          Each puzzle keeps your place, even if its author changes it later.
         </Trans>
       </Match>
       <Match when={props.list === 'playtest'}>
-        <Trans>Playtests change no personal or pack progress.</Trans>
+        <Trans>Practice runs don't count toward your progress.</Trans>
       </Match>
     </Switch>
   );
@@ -69,17 +69,24 @@ function difficultyOf(difficulty: string | undefined): JSX.Element | undefined {
   ) : undefined;
 }
 
-/** The pack it was started in and how much of it is solved, when any. */
-function packOf(pack: ListedAttempt['pack']): JSX.Element | undefined {
+/**
+ * The pack it was started in and how much of it is solved, when any; a
+ * solved puzzle's line says so first, so the pack's count never reads as
+ * the puzzle's own.
+ */
+function packOf(
+  pack: ListedAttempt['pack'],
+  solved: boolean
+): JSX.Element | undefined {
   return pack === undefined ? undefined : (
-    <ContentProgressLine progress={pack} pack={pack.title} />
+    <ContentProgressLine progress={pack} pack={pack.title} solved={solved} />
   );
 }
 
 /**
- * One list of the person's attempts, each row opening where they left it:
- * compact rows at every width, so what is unfinished and what is finished
- * are both in view.
+ * One list of the person's attempts, each row opening where they left it,
+ * as compact rows at every width: what to continue, what is solved, or the
+ * playtests of their drafts.
  */
 export function ContentAttemptSection(props: {
   list: ContentAttemptList;
@@ -110,7 +117,7 @@ export function ContentAttemptSection(props: {
                 preview={attempt()?.preview}
                 renderPreview={props.renderPreview}
                 caption={difficultyOf(attempt()?.difficulty)}
-                meta={packOf(attempt()?.pack)}
+                meta={packOf(attempt()?.pack, props.list === 'finished')}
                 onOpen={() => props.onOpenAttempt(id)}
                 testid={`content-attempt-${id}`}
               />

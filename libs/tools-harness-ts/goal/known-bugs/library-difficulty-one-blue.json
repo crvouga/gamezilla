@@ -1,0 +1,4 @@
+{
+  "summary": "The library's Easy and Medium tags were the same blue, so how hard a puzzle is read only from its word. The usual words now take tints that climb with them (easy green, medium amber, hard red); any other word an author chose stays the plain info tag, and the word is always the label.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

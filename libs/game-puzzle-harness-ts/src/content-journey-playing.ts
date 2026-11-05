@@ -9,11 +9,20 @@ export async function startJourneyAttempt(
   return contentAttribute(device, 'content-attempt', 'data-attemptid');
 }
 
+/**
+ * Reopens a saved attempt from the library: one to continue under
+ * Continue, a `solved` one under Browse, where the library lists it.
+ */
 export async function openJourneyAttempt(
   device: ContentJourneyDevice,
-  id: string
+  id: string,
+  list: 'unfinished' | 'solved' = 'unfinished'
 ): Promise<void> {
-  await contentTap(device, `content-attempt-${id}`);
+  await contentTap(
+    device,
+    `content-attempt-${id}`,
+    list === 'solved' ? 'content-library-tab-browse' : undefined
+  );
   if (
     (await contentAttribute(device, 'content-attempt', 'data-attemptid')) !== id
   )

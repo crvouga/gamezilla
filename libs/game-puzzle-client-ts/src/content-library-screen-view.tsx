@@ -7,7 +7,6 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -19,7 +18,10 @@ import {
   ContentRowCaption,
   ContentStatusChip,
 } from './content-chips';
-import { ContentAttemptSection } from './content-library-attempts';
+import {
+  type ContentAttemptList,
+  ContentAttemptSection,
+} from './content-library-attempts';
 import {
   ContentLibraryCard,
   type ContentLibraryProgress,
@@ -258,7 +260,31 @@ function MoreAttempts(props: { view: View }): JSX.Element {
 
 type LibraryTab = 'browse' | 'continue' | 'mine';
 
-/** Everyone's puzzles: the shipped starter packs, then everything published. */
+/** Which of the person's attempts are finished or not. */
+function attemptsDone(view: View, completed: boolean) {
+  return view.attempts.filter((attempt) => attempt.completed === completed);
+}
+
+/** One list of the person's attempts or playtests, as compact rows. */
+function AttemptList(props: {
+  view: View;
+  list: ContentAttemptList;
+  attempts: readonly ContentLibraryAttempt[];
+}): JSX.Element {
+  return (
+    <ContentAttemptSection
+      list={props.list}
+      attempts={props.attempts}
+      renderPreview={props.view.renderPreview}
+      onOpenAttempt={props.view.onOpenAttempt}
+    />
+  );
+}
+
+/**
+ * Everyone's puzzles: the shipped starter packs, then everything
+ * published, then the ones the person has solved.
+ */
 function BrowsePanel(props: { view: View }): JSX.Element {
   return (
     <StackVertical
@@ -268,53 +294,19 @@ function BrowsePanel(props: { view: View }): JSX.Element {
     >
       <BundledPacks view={props.view} />
       <PublishedContent view={props.view} />
+      <AttemptList
+        view={props.view}
+        list="finished"
+        attempts={attemptsDone(props.view, true)}
+      />
     </StackVertical>
   );
 }
 
-/**
- * The Continue tab's sections on one grid. Wide, when there is something
- * on both sides, what to pick up takes one column and what is finished
- * and the private playtests the other, each a list of its own, so no
- * section hangs alone under a two-column one; otherwise one column.
- */
-function AttemptColumns(props: {
-  main: JSX.Element;
-  side: JSX.Element;
-  split: boolean;
-}): JSX.Element {
-  return (
-    <Grid
-      columns={props.split ? { base: 1, lg: 2 } : 1}
-      gap="lg"
-      align="start"
-      testId="content-library-attempt-columns"
-    >
-      {props.main}
-      <StackVertical gap="lg">{props.side}</StackVertical>
-    </Grid>
-  );
-}
-
-/**
- * The person's play: attempts to pick up where they left off beside the
- * ones they finished and their private playtests.
- */
+/** Only what the person left unfinished, to pick up where they left it. */
 function ContinuePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
-  const list = (completed: boolean) =>
-    props.view.attempts.filter((attempt) => attempt.completed === completed);
-  const section = (
-    kind: 'unfinished' | 'finished' | 'playtest',
-    attempts: readonly ContentLibraryAttempt[]
-  ): JSX.Element => (
-    <ContentAttemptSection
-      list={kind}
-      attempts={attempts}
-      renderPreview={props.view.renderPreview}
-      onOpenAttempt={props.view.onOpenAttempt}
-    />
-  );
+  const unfinished = () => attemptsDone(props.view, false);
   return (
     <StackVertical
       gap="lg"
@@ -322,11 +314,7 @@ function ContinuePanel(props: { view: View }): JSX.Element {
       dataSet={{ testid: 'content-library-continue' }}
     >
       <Show
-        when={
-          props.view.attempts.length > 0 ||
-          props.view.playtests.length > 0 ||
-          props.view.more.attempts
-        }
+        when={unfinished().length > 0 || props.view.more.attempts}
         fallback={
           <EmptyState
             variant="compact"
@@ -335,18 +323,10 @@ function ContinuePanel(props: { view: View }): JSX.Element {
           />
         }
       >
-        <AttemptColumns
-          main={section('unfinished', list(false))}
-          side={
-            <>
-              {section('finished', list(true))}
-              {section('playtest', props.view.playtests)}
-            </>
-          }
-          split={
-            list(false).length > 0 &&
-            (list(true).length > 0 || props.view.playtests.length > 0)
-          }
+        <AttemptList
+          view={props.view}
+          list="unfinished"
+          attempts={unfinished()}
         />
         <MoreAttempts view={props.view} />
       </Show>
@@ -354,7 +334,7 @@ function ContinuePanel(props: { view: View }): JSX.Element {
   );
 }
 
-/** What the person builds: their drafts and publications. */
+/** What the person builds: their drafts and publications, then playtests. */
 function MinePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -367,7 +347,11 @@ function MinePanel(props: { view: View }): JSX.Element {
         when={props.view.personalDenial}
         fallback={
           <Show
-            when={props.view.drafts.length > 0 || props.view.more.owned}
+            when={
+              props.view.drafts.length > 0 ||
+              props.view.more.owned ||
+              props.view.playtests.length > 0
+            }
             fallback={
               <EmptyState
                 variant="compact"
@@ -382,6 +366,11 @@ function MinePanel(props: { view: View }): JSX.Element {
       >
         {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
       </Show>
+      <AttemptList
+        view={props.view}
+        list="playtest"
+        attempts={props.view.playtests}
+      />
     </StackVertical>
   );
 }
@@ -438,10 +427,10 @@ function LibraryTabs(props: { view: View }): JSX.Element {
 /**
  * A game's puzzle library, presentational: creating a puzzle or a pack as
  * the screen's own actions at its title, then three tabs, one shown at a
- * time: Continue (attempts left unfinished, the finished ones apart,
- * private playtests, as compact rows), Browse (the shipped starter packs
- * and everything published) and My creations (drafts and publications);
- * each list paged. It opens on
+ * time: Continue (only what is left unfinished, as compact rows), Browse
+ * (the shipped starter packs, everything published, then what the person
+ * solved) and My creations (drafts and publications, then the playtests of
+ * their drafts); each list paged. It opens on
  * Continue when something is unfinished, else on Browse. Data arrives as
  * props; `ContentLibraryScreen` reads it from the synced library.
  */
@@ -456,8 +445,7 @@ export function ContentLibraryScreenView(
         title={props.title}
         subtitle={
           <Trans>
-            Play published puzzles, continue your attempts, or build something
-            of your own.
+            Play puzzles, pick up where you left off, or make your own.
           </Trans>
         }
         actions={props.createControls}

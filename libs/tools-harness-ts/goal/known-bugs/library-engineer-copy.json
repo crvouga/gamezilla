@@ -1,0 +1,4 @@
+{
+  "summary": "The library and pack builder spoke in engineering terms: \"Each attempt keeps your progress at the edition you started\", \"Playtests change no personal or pack progress\", \"keeps the edition of each puzzle it holds now\". They now say \"Each puzzle keeps your place, even if its author changes it later\", \"Practice runs don't count toward your progress\" and \"keeps each puzzle as it is now\".",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

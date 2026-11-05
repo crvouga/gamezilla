@@ -87,7 +87,7 @@ async function playWhileOffline(
   await host.actAsGuest('reopenNumberlinkWithoutConnection', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await ui.get('content-offline').expect.visible(device);
-    await openJourneyAttempt(device, attemptId);
+    await openJourneyAttempt(device, attemptId, 'solved');
     await ui
       .get('content-attempt-complete')
       .expect.text('Puzzle completed', { ...device, exact: false });
@@ -132,7 +132,7 @@ export async function keepNumberlinkOfflineWork(
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
     await contentTap(device, Handles.navBack);
     await contentTap(device, Handles.navBack);
-    await openJourneyAttempt(device, attemptId);
+    await openJourneyAttempt(device, attemptId, 'solved');
   });
   return { draft, attemptId };
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The library's Continue tab listed finished puzzles and private playtests beside the ones to pick up, so Continue did not mean what it said. It now holds only what is unfinished; solved puzzles are listed under Browse after the puzzles they came from, and the playtests of the person's drafts under My creations.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A finished puzzle's library card read \"Finished … 1 of 3 solved\", as if the puzzle itself were unsolved. Its line now says \"Solved · 1 of 3 in Weekend counts\": the puzzle is solved, then where its pack stands.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

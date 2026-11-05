@@ -68,6 +68,8 @@ const VIEW: ContentLibraryScreenViewProps = {
 // publishing, drafts and playtests competed on one long page. Browse,
 // Continue and My creations are tabs; finished attempts sit apart from
 // the ones to continue.
+// regression: library-engineer-copy — the note said "Each attempt keeps
+// your progress at the edition you started". It now says it plainly.
 test('browsing, continuing and building are separate tabs, the attempt note said once', () => {
   renderWithI18n(() => (
     <ThemeProvider
@@ -86,13 +88,10 @@ test('browsing, continuing and building are separate tabs, the attempt note said
   expect(resume.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
     true
   );
-  expect(
-    resume.contains(screen.getByTestId('content-attempt-playtest-1'))
-  ).toBe(true);
   expect(mine.contains(screen.getByTestId('content-draft-draft-1'))).toBe(true);
   expect(
     screen.getAllByText(
-      'Each attempt keeps your progress at the edition you started.'
+      'Each puzzle keeps your place, even if its author changes it later.'
     )
   ).toHaveLength(1);
   expect(
@@ -113,51 +112,55 @@ test('browsing, continuing and building are separate tabs, the attempt note said
   );
 });
 
-test('finished attempts sit apart from the ones to continue, without status pills', () => {
+// regression: library-continue-holds-finished — the Continue tab listed
+// finished puzzles and private playtests beside the ones to pick up, so
+// "Continue" did not mean what it said. It now holds only what is
+// unfinished; what is solved is listed under Browse, after the puzzles it
+// came from, and the playtests of the person's drafts under My creations.
+// regression: library-sections-hang-left — wide, "Finished" and the
+// playtests once hung in one column under a two-column list: the Continue
+// tab now holds that one list alone.
+test('Continue holds only what is unfinished; solved under Browse, playtests under My creations', () => {
   renderLibrary(VIEW);
-  const unfinished = screen.getByTestId('content-attempt-attempt-1');
-  const finished = screen.getByTestId('content-attempt-attempt-2');
+  const resume = screen.getByTestId('content-library-continue');
+  const browse = screen.getByTestId('content-library-browse');
+  const mine = screen.getByTestId('content-library-mine');
   const section = (row: HTMLElement) =>
     row.closest('[data-component="PreviewCardGrid"]');
-  expect(section(unfinished)).not.toBe(section(finished));
-  expect(section(unfinished)?.textContent).toContain('Continue playing');
-  expect(section(finished)?.textContent).toContain('Finished');
+  const unfinished = screen.getByTestId('content-attempt-attempt-1');
+  const finished = screen.getByTestId('content-attempt-attempt-2');
+  const playtest = screen.getByTestId('content-attempt-playtest-1');
+  expect(resume.contains(unfinished)).toBe(true);
+  expect(resume.contains(finished)).toBe(false);
+  expect(resume.contains(playtest)).toBe(false);
   expect(
-    screen
-      .getByTestId('content-library-continue')
-      .querySelector('[data-testid="content-chip-status"]')
+    resume.querySelectorAll('[data-component="PreviewCardGrid"]')
+  ).toHaveLength(1);
+  expect(section(unfinished)?.textContent).toContain('Continue playing');
+  expect(browse.contains(finished)).toBe(true);
+  expect(section(finished)?.textContent?.startsWith('Solved')).toBe(true);
+  expect(mine.contains(playtest)).toBe(true);
+  expect(section(playtest)?.textContent).toContain('Playtests of your drafts');
+  expect(section(playtest)?.textContent).toContain(
+    "Practice runs don't count toward your progress."
+  );
+  expect(
+    resume.querySelector('[data-testid="content-chip-status"]')
   ).toBeNull();
 });
 
-// regression: library-sections-hang-left — wide, "Continue playing" was
-// two columns of cards while "Finished" and the playtests below it were
-// one card each in the left column, the right half empty. The Continue
-// tab's sections now share one grid: what to pick up in one column, what
-// is finished and the playtests in the other, each a list of its own.
-test('wide, what to continue sits beside what is finished and the playtests', () => {
-  renderLibrary(VIEW);
-  const columns = screen.getByTestId('content-library-attempt-columns');
-  expect(columns.className).toContain('lg:grid-cols-2');
-  const [main, side] = [...columns.children];
-  expect(main?.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
-    true
-  );
-  expect(side?.contains(screen.getByTestId('content-attempt-attempt-2'))).toBe(
-    true
-  );
-  expect(side?.contains(screen.getByTestId('content-attempt-playtest-1'))).toBe(
-    true
-  );
-});
-
-test('with only attempts to continue, they keep the whole width', () => {
+test('with nothing unfinished, Continue says so and the solved stay under Browse', () => {
   renderLibrary({
     ...VIEW,
-    attempts: [{ id: 'attempt-1', title: 'Count to seven', completed: false }],
-    playtests: [],
+    attempts: [{ id: 'attempt-2', title: 'Count to nine', completed: true }],
   });
-  const columns = screen.getByTestId('content-library-attempt-columns');
-  expect(columns.className).not.toContain('grid-cols-2');
+  const resume = screen.getByTestId('content-library-continue');
+  expect(resume.textContent).toContain('Nothing to continue yet');
+  expect(
+    screen
+      .getByTestId('content-library-browse')
+      .contains(screen.getByTestId('content-attempt-attempt-2'))
+  ).toBe(true);
 });
 
 test('with nothing unfinished the library opens on Browse', () => {
@@ -307,6 +310,12 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
         pack: { title: 'Weekend counts', completed: 1, total: 3 },
       },
       { id: 'attempt-3', title: 'Count to nine', completed: false },
+      {
+        id: 'attempt-4',
+        title: 'Count to five',
+        completed: true,
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
+      },
     ],
     published: [
       {
@@ -330,6 +339,13 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
     null
   );
   expect(plain.querySelector('[data-testid="content-progress"]')).toBe(null);
+  // regression: library-solved-progress-contradicts — a finished puzzle's
+  // card read "Finished … 1 of 3 solved", as if it were itself unsolved.
+  // Its line now says it is solved first, then where its pack stands.
+  expect(
+    chip(screen.getByTestId('content-attempt-attempt-4'), 'content-progress')
+      .textContent
+  ).toBe('Solved · 1\u00a0of\u00a03 in Weekend counts');
   const pack = screen.getByTestId('content-published-revision-2');
   expect(chip(pack, 'content-progress').textContent).toBe(
     '2\u00a0of\u00a05\u00a0solved'
@@ -392,4 +408,27 @@ test('Continue leads the tabs, creating is a title action, and attempts are rows
       .querySelector('[data-component="PreviewCardGrid"]')
       ?.getAttribute('data-layout')
   ).toBe('cards');
+});
+
+// regression: library-difficulty-one-blue — "Easy" and "Medium" were the
+// same blue tag, so how hard a puzzle is read only from its word. The usual
+// words now take tints that climb with them (easy green, medium amber, hard
+// red), and any other word an author chose stays the plain info tag.
+test('difficulty tags take distinct tints that climb with how hard', () => {
+  const difficulties = ['Easy', 'Medium', 'Hard', 'Tricky'];
+  renderLibrary({
+    ...VIEW,
+    published: difficulties.map((difficulty, index) => ({
+      ...PUBLISHED_PUZZLE,
+      id: `revision-${index}`,
+      difficulty,
+    })),
+  });
+  const intents = difficulties.map((_, index) =>
+    chip(
+      screen.getByTestId(`content-published-revision-${index}`),
+      'content-chip-difficulty'
+    ).getAttribute('data-intent')
+  );
+  expect(intents).toEqual(['success', 'warning', 'destructive', 'info']);
 });

@@ -20,9 +20,9 @@ export type ContentStatus =
 
 /**
  * One chip system for the library, three kinds kept apart by look: what a
- * thing is (Puzzle, Pack) is a plain neutral tag; how hard it is, an info
- * tag; where it stands, a status tag led by a dot in its own hue. A row
- * never mixes them in one column of values.
+ * thing is (Puzzle, Pack) is a plain neutral tag; how hard it is, a tag
+ * tinted by how hard (`difficultyTint`); where it stands, a status tag led
+ * by a dot in its own hue. A row never mixes them in one column of values.
  */
 export function ContentKindChip(props: { kind: ContentKind }): JSX.Element {
   const { t } = useLingui();
@@ -35,12 +35,36 @@ export function ContentKindChip(props: { kind: ContentKind }): JSX.Element {
   );
 }
 
+/**
+ * How hard the usual words say a puzzle is, as a tint that climbs with it:
+ * easy green, medium amber, hard red; any other word an author chose, the
+ * plain info blue. The word itself is always the label, so the tint is
+ * never the only cue.
+ */
+const DIFFICULTY_TINT: Readonly<
+  Record<string, 'success' | 'warning' | 'destructive'>
+> = {
+  easy: 'success',
+  beginner: 'success',
+  medium: 'warning',
+  normal: 'warning',
+  intermediate: 'warning',
+  hard: 'destructive',
+  expert: 'destructive',
+};
+
+export function difficultyTint(
+  difficulty: string
+): 'success' | 'warning' | 'destructive' | 'info' {
+  return DIFFICULTY_TINT[difficulty.trim().toLowerCase()] ?? 'info';
+}
+
 export function ContentDifficultyChip(props: {
   difficulty: string;
 }): JSX.Element {
   return (
     <Badge
-      intent="info"
+      intent={difficultyTint(props.difficulty)}
       label={props.difficulty}
       dataSet={{ testid: 'content-chip-difficulty' }}
     />

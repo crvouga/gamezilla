@@ -14,21 +14,29 @@ export type ContentLibraryProgress = {
 /**
  * Where the person stands with a pack: how many of its puzzles are solved.
  * On one of its puzzles' cards the line names the pack first, so the count
- * reads as the pack's, never as the puzzle's own.
+ * reads as the pack's, never as the puzzle's own; on a solved puzzle's card
+ * it says the puzzle is solved, then where the pack stands.
  */
 export function ContentProgressLine(props: {
   progress: ContentLibraryProgress;
   /** The pack's name, when the card is one of its puzzles. */
   pack?: string | undefined;
+  /** The card's puzzle is solved. */
+  solved?: boolean | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   // Non-breaking spaces keep the count one phrase when the line wraps.
-  const solved = () =>
-    t`${props.progress.completed}\u00a0of\u00a0${props.progress.total}\u00a0solved`;
+  const count = () =>
+    t`${props.progress.completed}\u00a0of\u00a0${props.progress.total}`;
+  const solved = () => t`${count()}\u00a0solved`;
   return (
     <Text variant="inherit" testId="content-progress">
       <Show when={props.pack} fallback={solved()}>
-        {(pack) => t`Pack: ${pack()} · ${solved()}`}
+        {(pack) =>
+          props.solved === true
+            ? t`Solved · ${count()} in ${pack()}`
+            : t`Pack: ${pack()} · ${solved()}`
+        }
       </Show>
     </Text>
   );

@@ -14,8 +14,9 @@ export type ContentJourneyBoard = {
 
 /**
  * The library tab that lists a row, by the row's id: published and
- * starter content under Browse, attempts and playtests under Continue,
- * the person's drafts and publications under My creations.
+ * starter content under Browse, attempts to continue under Continue, the
+ * person's drafts and publications under My creations. A solved attempt
+ * is listed under Browse instead: its caller says so (`openJourneyAttempt`).
  */
 function libraryTabOf(id: string): string | null {
   if (/^content-(published|bundled)-|^content-more-published$/.test(id))
@@ -26,15 +27,16 @@ function libraryTabOf(id: string): string | null {
 }
 
 /**
- * On the library, shows the tab that lists `id` before it is pressed: the
- * library shows one tab at a time. Elsewhere (an attempt's own screen has
- * ids of the same shape) there are no library tabs and nothing changes.
+ * On the library, shows the tab that lists `id` (by default the one its id
+ * says) before it is pressed: the library shows one tab at a time.
+ * Elsewhere (an attempt's own screen has ids of the same shape) there are
+ * no library tabs and nothing changes.
  */
 export async function showLibraryTabOf(
   device: ContentJourneyDevice,
-  id: string
+  id: string,
+  tab: string | null = libraryTabOf(id)
 ): Promise<void> {
-  const tab = libraryTabOf(id);
   if (tab === null) return;
   await device.ui
     .get(id)
@@ -46,11 +48,13 @@ export async function showLibraryTabOf(
     await device.ui.get(tab).tap(device);
 }
 
+/** Taps `id`, first showing its library tab (`tab`, else the one its id says). */
 export async function contentTap(
   device: ContentJourneyDevice,
-  id: string
+  id: string,
+  tab?: string
 ): Promise<void> {
-  await showLibraryTabOf(device, id);
+  await showLibraryTabOf(device, id, tab);
   await device.ui.get(id).wait('enabled', device);
   await device.ui.get(id).tap(device);
 }

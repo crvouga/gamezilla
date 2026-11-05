@@ -150,6 +150,12 @@ msgstr "{0} matching · {1} local puzzles"
 msgid "{0} no longer signs in to this account."
 msgstr "{0} no longer signs in to this account."
 
+#. placeholder {0}: props.progress.completed
+#. placeholder {1}: props.progress.total
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "{0} of {1}"
+msgstr "{0} of {1}"
+
 #. placeholder {0}: pack().completedCount
 #. placeholder {1}: pack().total
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
@@ -161,12 +167,6 @@ msgstr "{0} of {1} puzzles completed"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "{0} of {1} puzzles match."
 msgstr "{0} of {1} puzzles match."
-
-#. placeholder {0}: props.progress.completed
-#. placeholder {1}: props.progress.total
-#: libs/game-puzzle-client-ts/src/content-library-card.tsx
-msgid "{0} of {1} solved"
-msgstr "{0} of {1} solved"
 
 #. placeholder {0}: props.rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
@@ -212,6 +212,11 @@ msgstr "{0} rated puzzles remaining today"
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "{0} removed"
 msgstr "{0} removed"
+
+#. placeholder {0}: count()
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "{0} solved"
+msgstr "{0} solved"
 
 #. placeholder {0}: themes.length
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
@@ -2549,8 +2554,8 @@ msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
 #: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
-msgid "Each attempt keeps your progress at the edition you started."
-msgstr "Each attempt keeps your progress at the edition you started."
+msgid "Each puzzle keeps your place, even if its author changes it later."
+msgstr "Each puzzle keeps your place, even if its author changes it later."
 
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 msgid "Each save keeps a copy of this draft. Choose one to keep working from it; the others stay saved, and published editions do not change."
@@ -2891,7 +2896,6 @@ msgid "Finish your Custom Game first"
 msgstr "Finish your Custom Game first"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
-#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Finished"
 msgstr "Finished"
 
@@ -4907,14 +4911,14 @@ msgstr "Payments are processed securely by our billing provider. We never see yo
 msgid "People can choose any puzzle. Only published editions can be included when you publish this pack."
 msgstr "People can choose any puzzle. Only published editions can be included when you publish this pack."
 
+#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
+msgid "People can play them in any order. Publishing the pack keeps each puzzle as it is now."
+msgstr "People can play them in any order. Publishing the pack keeps each puzzle as it is now."
+
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "People in this space"
 msgstr "People in this space"
-
-#: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
-msgid "People may play them in any order. Publishing the pack keeps the edition of each puzzle it holds now."
-msgstr "People may play them in any order. Publishing the pack keeps the edition of each puzzle it holds now."
 
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "People with access"
@@ -5017,8 +5021,8 @@ msgid "Play history"
 msgstr "Play history"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
-msgid "Play published puzzles, continue your attempts, or build something of your own."
-msgstr "Play published puzzles, continue your attempts, or build something of your own."
+msgid "Play puzzles, pick up where you left off, or make your own."
+msgstr "Play puzzles, pick up where you left off, or make your own."
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 msgid "Play with friends"
@@ -5089,8 +5093,8 @@ msgid "Playtest: this uses the real puzzle rules. It does not count toward perso
 msgstr "Playtest: this uses the real puzzle rules. It does not count toward personal or pack completion."
 
 #: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
-msgid "Playtests change no personal or pack progress."
-msgstr "Playtests change no personal or pack progress."
+msgid "Playtests of your drafts"
+msgstr "Playtests of your drafts"
 
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Plus"
@@ -5124,6 +5128,10 @@ msgstr "Pong could not be opened. Return to the game choices and open it again."
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Pong court"
 msgstr "Pong court"
+
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
+msgid "Practice runs don't count toward your progress."
+msgstr "Practice runs don't count toward your progress."
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Preferences"
@@ -6570,12 +6578,19 @@ msgstr "Solve rated puzzles and climb the ladder"
 msgid "solved"
 msgstr "solved"
 
+#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"
+
+#. placeholder {0}: count()
+#. placeholder {1}: pack()
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "Solved · {0} in {1}"
+msgstr "Solved · {0} in {1}"
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -8765,10 +8780,6 @@ msgstr "Your payment isn't confirmed yet, but it may have gone through. Check ag
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
-
-#: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
-msgid "Your private playtests"
-msgstr "Your private playtests"
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Your private setup"
