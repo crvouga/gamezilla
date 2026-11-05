@@ -2,8 +2,8 @@ import { expect, test } from 'bun:test';
 import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
 import {
   actOnLiveDevice,
-  navigateLiveDevice,
   type LiveDevices,
+  navigateLiveDevice,
   openGuestDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';

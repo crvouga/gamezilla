@@ -7,8 +7,8 @@ import {
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
 import {
   actOnLiveDevice,
-  navigateLiveDevice,
   type LiveDevices,
+  navigateLiveDevice,
   openGuestDevice,
   requireDevice,
   runLiveCleanups,

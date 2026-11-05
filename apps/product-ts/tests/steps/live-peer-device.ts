@@ -7,8 +7,8 @@ import {
 } from '@apps/product-ts/live-browser';
 import {
   actOnLiveDevice,
-  navigateLiveDevice,
   type LiveDevices,
+  navigateLiveDevice,
   requireDevice,
 } from '@apps/product-ts/live-journey-devices';
 import { prepareCriticalJourneyAccess } from '@apps/product-ts/prepare-critical-journey-access';
