@@ -1,8 +1,11 @@
-/* The title over one row of status and actions. The strip around it (its
-   surface, hairline and inset) is the screen's footer. */
+/* The screen's last section: a hairline across the column, then the title
+   over the step's status and actions. It sits in the flow, so nothing
+   scrolls beneath it and the scroll ends with it in view. */
 .footer {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-space-xs);
+  gap: var(--ui-space-sm);
   min-width: 0;
+  padding-top: var(--ui-space-lg);
+  border-top: 1px solid var(--ui-color-border);
 }

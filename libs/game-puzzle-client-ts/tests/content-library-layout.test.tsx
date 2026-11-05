@@ -118,7 +118,7 @@ test('finished attempts sit apart from the ones to continue, without status pill
   const unfinished = screen.getByTestId('content-attempt-attempt-1');
   const finished = screen.getByTestId('content-attempt-attempt-2');
   const section = (row: HTMLElement) =>
-    row.closest('[data-component="MenuSection"]');
+    row.closest('[data-component="PreviewCardGrid"]');
   expect(section(unfinished)).not.toBe(section(finished));
   expect(section(unfinished)?.textContent).toContain('Continue playing');
   expect(section(finished)?.textContent).toContain('Finished');
@@ -158,9 +158,10 @@ test('creating a puzzle or pack comes before the tabs on a phone', () => {
   ).toBe(true);
 });
 
-// Library rows lead with the larger thumbnail, a pack's on stacked sheets
-// (their alignment: pkgs/ui-root-harness-ts/tests/preview-thumbnail-stack).
-test("every library row leads with the large thumbnail, a pack's stacked", () => {
+// Library cards lead with their picture filling the card's picture area,
+// a pack's on stacked sheets (their alignment:
+// pkgs/ui-root-harness-ts/tests/preview-thumbnail-stack).
+test("every library card leads with its picture, a pack's stacked", () => {
   renderLibrary({
     ...VIEW,
     published: [
@@ -172,8 +173,8 @@ test("every library row leads with the large thumbnail, a pack's stacked", () =>
     chip(screen.getByTestId(`content-published-${id}`), 'content-thumbnail')
   );
   expect(thumbnails.map((t) => t.getAttribute('data-size'))).toEqual([
-    'xl',
-    'xl',
+    'fill',
+    'fill',
   ]);
   expect(thumbnails[1]?.getAttribute('data-stacked')).toBe('true');
 });
@@ -252,4 +253,55 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
     ].map((element) => element.getAttribute('data-intent'))
   );
   expect(looks.size).toBe(3);
+});
+
+// regression: content-library-sparse-rows — each 960px row held a small
+// thumbnail and a title and nothing else, and on a phone "Thirteen
+// without …" was cut short beside an empty thumbnail box. Each card now
+// shows the puzzle's difficulty and, for a pack or a puzzle started in
+// one, how much of the pack is solved; titles wrap instead of being cut.
+test('cards say difficulty and pack progress, and titles are never cut short', () => {
+  renderLibrary({
+    ...VIEW,
+    attempts: [
+      {
+        id: 'attempt-1',
+        title: 'Thirteen without overshooting, all the way',
+        completed: false,
+        difficulty: 'Medium',
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
+      },
+      { id: 'attempt-3', title: 'Count to nine', completed: false },
+    ],
+    published: [
+      {
+        ...PUBLISHED_PUZZLE,
+        id: 'revision-2',
+        kind: 'pack',
+        difficulty: '',
+        progress: { completed: 2, total: 5 },
+      },
+    ],
+  });
+  const attempt = screen.getByTestId('content-attempt-attempt-1');
+  expect(attempt.getAttribute('data-component')).toBe('PreviewCard');
+  expect(chip(attempt, 'content-chip-difficulty').textContent).toBe('Medium');
+  expect(chip(attempt, 'content-progress').textContent).toBe(
+    'Weekend counts · Solved 1/3'
+  );
+  // Without a difficulty or a pack, a card shows neither.
+  const plain = screen.getByTestId('content-attempt-attempt-3');
+  expect(plain.querySelector('[data-testid="content-chip-difficulty"]')).toBe(
+    null
+  );
+  expect(plain.querySelector('[data-testid="content-progress"]')).toBe(null);
+  const pack = screen.getByTestId('content-published-revision-2');
+  expect(chip(pack, 'content-progress').textContent).toBe('Solved 2/5');
+  for (const card of [attempt, plain, pack]) {
+    const title = card.querySelector('.textRowTitle');
+    expect(title?.className).not.toMatch(/line-clamp|truncate/);
+  }
+  expect(attempt.querySelector('.textRowTitle')?.textContent).toBe(
+    'Thirteen without overshooting, all the way'
+  );
 });

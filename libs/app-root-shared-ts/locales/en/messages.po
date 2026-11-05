@@ -100,6 +100,12 @@ msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for #
 msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 
+#. placeholder {0}: pack()
+#. placeholder {1}: solved()
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "{0} · {1}"
+msgstr "{0} · {1}"
+
 #. placeholder {0}: riderName(rider.seat)
 #. placeholder {1}: props.state.scores[index()] ?? 0
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -1299,6 +1305,12 @@ msgstr "Blue fleet"
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "Board preview"
 msgstr "Board preview"
+
+#. placeholder {0}: props.board.width
+#. placeholder {1}: props.board.height
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
+msgid "Board size · {0} × {1}"
+msgstr "Board size · {0} × {1}"
 
 #. placeholder {0}: cellName(112)
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
@@ -5540,13 +5552,10 @@ msgid "Red fleet"
 msgstr "Red fleet"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Redo"
 msgstr "Redo"
-
-#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
-msgid "Redo edit"
-msgstr "Redo edit"
 
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Redoing…"
@@ -6513,6 +6522,12 @@ msgstr "solved"
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"
+
+#. placeholder {0}: props.progress.completed
+#. placeholder {1}: props.progress.total
+#: libs/game-puzzle-client-ts/src/content-library-card.tsx
+msgid "Solved {0}/{1}"
+msgstr "Solved {0}/{1}"
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -7837,13 +7852,10 @@ msgid "Unblocking…"
 msgstr "Unblocking…"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Undo"
 msgstr "Undo"
-
-#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
-msgid "Undo edit"
-msgstr "Undo edit"
 
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Undoing…"

@@ -11,7 +11,8 @@
   min-width: 0;
 }
 .canvas,
-.tools {
+.tools,
+.notes {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-4);
@@ -22,14 +23,20 @@
     display: grid;
     grid-template-columns: minmax(0, 520px) minmax(240px, 1fr);
     column-gap: var(--ui-space-6);
+    grid-template-rows: auto 1fr;
+    row-gap: var(--ui-space-4);
     align-items: start;
   }
   .canvas {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / span 2;
   }
   .tools {
     grid-column: 2;
     grid-row: 1;
+  }
+  .notes {
+    grid-column: 2;
+    grid-row: 2;
   }
 }

@@ -11,6 +11,7 @@ import type {
   ContentKind,
   ContentRevision,
 } from '@libs/game-puzzle-shared-ts/content-types';
+import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX } from 'solid-js';
@@ -48,12 +49,47 @@ function previewOf(
   return undefined;
 }
 
-/** A listed edition with the board its thumbnail draws. */
-function withPreview(content: ContentLibrary, edition: ContentRevision) {
+/** How many of a pack's puzzles the person solved; absent for a puzzle. */
+function progressOf(
+  content: ContentLibrary,
+  play: AttemptLibrary,
+  edition: Pick<ContentRevision, 'id' | 'kind'>
+) {
+  if (edition.kind !== 'pack') return undefined;
+  const progress = packProgress({ content, play, packRevisionId: edition.id });
+  return progress === null
+    ? undefined
+    : { completed: progress.completedCount, total: progress.total };
+}
+
+/** A listed edition with the board its thumbnail draws and its progress. */
+function withPreview(
+  content: ContentLibrary,
+  play: AttemptLibrary,
+  edition: ContentRevision
+) {
   return {
     ...edition,
     preview: previewOf(content, edition.kind, edition.definition),
+    progress: progressOf(content, play, edition),
   };
+}
+
+/** The pack an attempt was started in, by title, with its solved count. */
+function packOf(
+  content: ContentLibrary,
+  play: AttemptLibrary,
+  packRevisionId: string | null
+) {
+  const pack =
+    packRevisionId === null
+      ? undefined
+      : content.revisions.find((entry) => entry.id === packRevisionId);
+  const progress =
+    pack === undefined ? undefined : progressOf(content, play, pack);
+  return pack === undefined || progress === undefined
+    ? undefined
+    : { title: pack.title, ...progress };
 }
 
 /** The saved attempts of `mode` on the loaded page, titled by their source. */
@@ -77,6 +113,8 @@ function savedAttempts(args: {
         id: attempt.id,
         title: source?.title ?? '',
         preview: source?.definition,
+        difficulty: source?.difficulty,
+        pack: packOf(args.content, args.play, attempt.pack_revision_id),
         completed:
           args.mode === 'ordinary' &&
           args.play.completions.some(
@@ -112,8 +150,8 @@ function ownedDrafts(
 /** Published (not shipped) editions on the loaded page, by id. */
 function publishedEditions(
   content: ContentLibrary,
-  gameId: string,
-  limit: number
+  play: AttemptLibrary,
+  page: { readonly gameId: string; readonly limit: number }
 ) {
   const editions = discoverContent(
     {
@@ -124,11 +162,11 @@ function publishedEditions(
             doc.published_revision_id !== null && !isBundledContent(doc.id)
         )
         .toSorted(byContentId)
-        .slice(0, limit),
+        .slice(0, page.limit),
     },
-    gameId
+    page.gameId
   );
-  return editions.map((edition) => withPreview(content, edition));
+  return editions.map((edition) => withPreview(content, play, edition));
 }
 
 /** The library wired to the synced content, attempts and their pages. */
@@ -155,7 +193,7 @@ export function ContentLibraryScreen(): JSX.Element {
       .filter(
         (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
       )
-      .map((edition) => withPreview(data.content(), edition))
+      .map((edition) => withPreview(data.content(), data.play(), edition))
   );
   const preview = game.client.Preview;
   const openEdition = (revisionId: string): void =>
@@ -170,11 +208,10 @@ export function ContentLibraryScreen(): JSX.Element {
       drafts={ownedDrafts(data.content(), myId(), pages.owned.limit())}
       attempts={attempts('ordinary')}
       playtests={attempts('playtest')}
-      published={publishedEditions(
-        data.content(),
-        game.id,
-        pages.published.limit()
-      )}
+      published={publishedEditions(data.content(), data.play(), {
+        gameId: game.id,
+        limit: pages.published.limit(),
+      })}
       more={{
         owned: pages.owned.hasMore(),
         attempts: pages.attempts.hasMore(),

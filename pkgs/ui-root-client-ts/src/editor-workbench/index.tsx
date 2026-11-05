@@ -16,6 +16,12 @@ export type EditorWorkbenchProps = {
    * `canvas-first` puts them after it, for settings changed rarely.
    */
   narrowOrder?: 'tools-first' | 'canvas-first' | undefined;
+  /**
+   * What is said about the canvas (how to use the tools, what to correct):
+   * under the tools beside the canvas when there is room, after the canvas
+   * when there is not, so the canvas never waits behind it.
+   */
+  notes?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -25,8 +31,9 @@ export type EditorWorkbenchProps = {
  * Measured on its own width: where there is room (720px and up) the canvas
  * takes a board's measure at the start edge and the tools fill a column
  * beside it, top-aligned, so every control stays in view with what it
- * changes. Narrower, the two stack in `narrowOrder`, which is also their
- * reading order at every size.
+ * changes, and the notes follow the tools in that column. Narrower, the two
+ * stack in `narrowOrder`, which is also their reading order at every size,
+ * and the notes come last.
  */
 export function EditorWorkbench(props: EditorWorkbenchProps): JSX.Element {
   return (
@@ -48,6 +55,9 @@ export function EditorWorkbench(props: EditorWorkbenchProps): JSX.Element {
         >
           <div class={styles['canvas']}>{props.canvas}</div>
           <div class={styles['tools']}>{props.tools}</div>
+        </Show>
+        <Show when={props.notes}>
+          <div class={styles['notes']}>{props.notes}</div>
         </Show>
       </div>
     </div>

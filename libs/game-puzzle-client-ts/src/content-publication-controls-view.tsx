@@ -8,7 +8,15 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+  untrack,
+} from 'solid-js';
 import { ContentWithdraw } from './content-withdraw';
 
 /**
@@ -43,8 +51,13 @@ export type ContentPublicationControlsViewProps = {
    * start of the actions' row, and only what blocks publishing is a notice.
    */
   readonly layout?: 'stacked' | 'bar' | undefined;
-  /** A step before the check (a puzzle's playtest), first among the actions. */
-  readonly before?: JSX.Element;
+  /**
+   * A step before the check (a puzzle's playtest), first among the
+   * actions; told whether it is the one next step, to be filled. Called
+   * once: the step stays mounted, with its own state, as the draft's
+   * check changes.
+   */
+  readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -189,13 +202,18 @@ function BarFinding(props: ContentPublicationControlsViewProps): JSX.Element {
 }
 
 /**
- * The one next step, filled: Validate until the draft passes its check,
- * then Publish. The other stays an outline, so the builder never offers two
- * equally loud choices.
+ * The one next step, filled: a puzzle's playtest until one proves it, then
+ * Validate until the draft passes its check, then Publish. An earlier step
+ * stays an outline and Publish stays quiet (a ghost) until it is next, so
+ * the builder never offers two equally loud choices and never makes
+ * publishing look ready before it is. Publish is still pressable: it says
+ * what is missing.
  */
 export function publicationNextStep(
-  validation: ContentPublicationControlsViewProps['validation']
-): 'validate' | 'publish' {
+  validation: ContentPublicationControlsViewProps['validation'],
+  needsProof = false
+): 'playtest' | 'validate' | 'publish' {
+  if (needsProof) return 'playtest';
   return validation === 'valid' ? 'publish' : 'validate';
 }
 
@@ -232,10 +250,17 @@ export function ContentPublicationControlsView(
       return props.disabled;
     },
   });
-  const next = () => publicationNextStep(props.validation);
+  const next = () =>
+    publicationNextStep(
+      props.validation,
+      props.kind === 'puzzle' && !props.proven
+    );
+  const playtestNext = createMemo(() => next() === 'playtest');
+  // Mounted once, so a started playtest keeps its "Open playtest".
+  const before = untrack(() => props.before?.(playtestNext));
   const actions = (): JSX.Element => (
     <StackHorizontal gap="sm" wrap>
-      {props.before}
+      {before}
       <Button
         {...validate.buttonProps}
         intent={next() === 'validate' ? 'primary' : 'neutral'}
@@ -248,7 +273,7 @@ export function ContentPublicationControlsView(
           <Button
             {...publish.buttonProps}
             intent={next() === 'publish' ? 'primary' : 'neutral'}
-            variant={next() === 'publish' ? 'solid' : 'outline'}
+            variant={next() === 'publish' ? 'solid' : 'ghost'}
             dataSet={{ testid: 'content-publish' }}
           />
         }

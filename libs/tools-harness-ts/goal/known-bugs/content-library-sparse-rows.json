@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle library's 960px rows held a small thumbnail and a title and nothing else, and on a phone titles were cut short (Thirteen without …) beside an oversized, mostly empty thumbnail box. The lists are now PreviewCardGrid cards (a grid on desktop, compact rows on a phone) whose pictures fill their area, whose titles wrap, and which show the puzzle's difficulty and a pack's solved count from the person's completions.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

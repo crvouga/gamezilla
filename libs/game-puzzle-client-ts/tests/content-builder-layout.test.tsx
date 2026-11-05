@@ -16,7 +16,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import { createEffect, createSignal, type JSX } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -73,12 +73,48 @@ function variants(): { validate: string | null; publish: string | null } {
 // were both filled, so the builder offered two equally loud next steps.
 test('until the draft passes its check, Validate is the one filled step', () => {
   mount(() => publication());
-  expect(variants()).toEqual({ validate: 'solid', publish: 'outline' });
+  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
 });
 
 test('once the draft passes its check, Publish is the one filled step', () => {
   mount(() => publication({ validation: 'valid' }));
   expect(variants()).toEqual({ validate: 'outline', publish: 'solid' });
+});
+
+// regression: builder-publish-looks-ready-early — a Sokoban draft said
+// "Finish a playtest, then validate" while Validate was the filled button
+// and Publish an outline beside it, as available as any other step. The
+// playtest is now the one filled step until it proves the puzzle, and
+// Publish stays a quiet ghost until the draft passes its check.
+test('until a playtest proves a puzzle, the playtest is the one filled step', () => {
+  const next: boolean[] = [];
+  mount(() =>
+    publication({
+      kind: 'puzzle',
+      before: (isNext) => {
+        next.push(isNext());
+        return <span data-testid="playtest" />;
+      },
+    })
+  );
+  expect(next).toEqual([true]);
+  expect(variants()).toEqual({ validate: 'outline', publish: 'ghost' });
+});
+
+test('a proven puzzle not yet checked fills Validate, and Publish stays quiet', () => {
+  const next: boolean[] = [];
+  mount(() =>
+    publication({
+      kind: 'puzzle',
+      proven: true,
+      before: (isNext) => {
+        next.push(isNext());
+        return <span data-testid="playtest" />;
+      },
+    })
+  );
+  expect(next).toEqual([false]);
+  expect(variants()).toEqual({ validate: 'solid', publish: 'ghost' });
 });
 
 function row(id: string, first: boolean, last: boolean): JSX.Element {
@@ -161,7 +197,7 @@ test('the editing tools head the stage, and publishing has a section of its own'
       publication={publication({
         kind: 'puzzle',
         layout: 'bar',
-        before: <span data-testid="playtest" />,
+        before: () => <span data-testid="playtest" />,
       })}
       stage={<span data-testid="editor" />}
       onChangeBody={() => undefined}
@@ -222,17 +258,17 @@ function builder(
 // rows: on a phone the draft copies came before the pack's details and its
 // publishing controls, and Validate / Publish sat in a card far from the
 // stage. The builder now reads as numbered steps (details, then the stage
-// headed by its tools, then the copies), and checking and publishing is
-// the screen's footer.
-test('the builder reads as steps, with publishing in the screen footer', () => {
+// headed by its tools, then checking and publishing), and the copies,
+// which are no step, come after them.
+test('the builder reads as steps, with the draft copies after them', () => {
   mount(() => builder());
   const details = screen.getByTestId('content-author-details');
   const stage = screen.getByTestId('content-author-stage');
   const copies = screen.getByTestId('copies');
   const publish = screen.getByTestId('content-author-publish');
   expect(before(details, stage)).toBe(true);
-  expect(before(stage, copies)).toBe(true);
-  expect(before(copies, publish)).toBe(true);
+  expect(before(stage, publish)).toBe(true);
+  expect(before(publish, copies)).toBe(true);
   expect(details.textContent?.startsWith('1 · Details')).toBe(true);
   expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
     '2 · Puzzles'
@@ -251,25 +287,33 @@ test('the builder reads as steps, with publishing in the screen footer', () => {
 // regression: builder-publish-bar-covers-content — the publish bar was a
 // sticky card inside the scroll area, so on both sizes it covered the
 // board's last row, the pack's puzzle list and the helper text under it.
-// It is now the screen's footer: a strip after the scroll area, outside
-// it, so nothing can scroll beneath it.
+// regression: builder-publish-strip-clips-stage — then it was a strip
+// pinned under the scroll area, which cut the pack builder's "Create puzzle
+// in this pack" in half and hid the phone's Sokoban board. It is now a
+// section in the scroll content's flow, right after the stage, and nothing
+// is pinned at the screen's foot.
 for (const [size, name] of [
   [PHONE, 'a phone'],
   [DESKTOP, 'a desktop'],
 ] as const)
-  test(`on ${name} the publish step sits under the scroll area, never in it`, () => {
+  test(`on ${name} the publish step is a section in the scroll content, never pinned over it`, () => {
     mount(() => builder(), size);
     const publish = screen.getByTestId('content-author-publish');
     // The screen's own scroll area carries its screen id.
     const scroller = document.querySelector(
       '[data-screen="puzzle-content-author"]'
     );
-    const footer = publish.closest('[data-component="EmbeddedScreenFooter"]');
     expect(scroller).not.toBeNull();
-    expect(footer).not.toBeNull();
-    expect(scroller?.contains(publish)).toBe(false);
-    expect(scroller?.parentElement).toBe(footer?.parentElement ?? null);
-    expect(before(scroller as Element, footer as Element)).toBe(true);
+    expect(scroller?.contains(publish)).toBe(true);
+    // It is one section in the stage's column, right after the stage.
+    const stage = screen.getByTestId('content-author-stage');
+    expect(publish.parentElement).toBe(stage.parentElement);
+    expect(stage.nextElementSibling).toBe(publish);
+    // No strip outside the scroll area holds a screen footer.
+    expect(scroller?.parentElement?.children.length).toBe(1);
+    expect(
+      document.querySelector('[data-component="EmbeddedScreenFooter"]')
+    ).toBeNull();
   });
 
 // regression: builder-step-two-left-of-step-one — wide, the details sat in
@@ -338,4 +382,67 @@ test('the publish footer says where the draft stands in its own text', () => {
   expect(
     screen.getByTestId('content-proof').closest('[data-component="Badge"]')
   ).toBeNull();
+});
+
+// regression: pack-builder-phone-list-buried — on a phone the pack
+// builder's title, a save line, the details and a row of three outlined
+// pills came before the pack's puzzles, which then sat behind the publish
+// strip. The save line is now part of the title's subtitle, and undo,
+// redo and preview are small ghost tools on the step's own row, so the
+// pack's puzzles and their actions follow the details directly.
+test('on a phone the save line joins the subtitle and the stage tools share the step row', () => {
+  mount(() => builder(), PHONE);
+  const save = screen.getByTestId('content-draft-save-status');
+  expect(save.getAttribute('role')).toBe('status');
+  expect(save.closest('[data-component="ScreenIntro"]')).not.toBeNull();
+  expect(save.closest('[data-component="ScreenIntro"]')?.textContent).toContain(
+    'Pack builder · Saved on this device.'
+  );
+  const tools = screen.getByTestId('content-author-tools');
+  const preview = screen.getByTestId('content-preview');
+  expect(tools.contains(screen.getByTestId('content-author-stage-step'))).toBe(
+    true
+  );
+  expect(preview.getAttribute('data-variant')).toBe('ghost');
+  expect(preview.getAttribute('data-size')).toBe('sm');
+  expect(preview.textContent).toBe('Preview');
+});
+
+// regression: builder-playtest-remounts — the playtest step was rebuilt
+// each time the draft's check changed, so a started playtest lost its
+// "Open playtest" and the Sokoban journey could not open it. The step is
+// mounted once and only told whether it is the next one.
+test('the playtest step stays mounted as the check changes, told when it is next', () => {
+  const [validation, setValidation] = createSignal<
+    'unchecked' | 'valid' | 'invalid' | null
+  >('unchecked');
+  const [proven, setProven] = createSignal(false);
+  let mounts = 0;
+  const seen: boolean[] = [];
+  mount(() => (
+    <ContentPublicationControlsView
+      kind="puzzle"
+      validation={validation()}
+      validationMessage=""
+      proven={proven()}
+      pending={null}
+      published={false}
+      disabled={false}
+      onValidate={resolved}
+      onPublish={resolved}
+      onViewPublication={() => undefined}
+      onWithdraw={resolved}
+      before={(isNext) => {
+        mounts += 1;
+        createEffect(() => seen.push(isNext()));
+        return <span data-testid="playtest" />;
+      }}
+    />
+  ));
+  setValidation(null);
+  setValidation('unchecked');
+  setProven(true);
+  setValidation('valid');
+  expect(mounts).toBe(1);
+  expect(seen).toEqual([true, false]);
 });

@@ -33,9 +33,14 @@ function publication(
     <ContentPublicationControlsView
       layout="bar"
       before={
-        overrides.kind === 'pack' ? undefined : (
-          <StoryPlaytest disabled={overrides.disabled === true} />
-        )
+        overrides.kind === 'pack'
+          ? undefined
+          : (next) => (
+              <StoryPlaytest
+                disabled={overrides.disabled === true}
+                next={next()}
+              />
+            )
       }
       kind="puzzle"
       validation="unchecked"

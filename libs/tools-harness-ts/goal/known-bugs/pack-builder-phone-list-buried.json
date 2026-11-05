@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the pack builder's title, a separate save line, the details and a row of three outlined pills came before the pack's puzzles, which then sat behind the publish strip. The save line joined the title's subtitle, and undo, redo and preview became small ghost tools on the step's own row, so the pack's puzzles and their actions follow the details directly.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

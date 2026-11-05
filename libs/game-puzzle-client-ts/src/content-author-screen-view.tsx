@@ -16,7 +16,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StepFooter } from '@pkgs/ui-root-client-ts/step-footer';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
@@ -69,22 +69,28 @@ export type ContentAuthorScreenViewProps = {
   readonly onReturnToLibrary: () => void;
 };
 
-function SaveStatus(props: ContentAuthorScreenViewProps): JSX.Element {
+/**
+ * Where the working copy's last save stands, one quiet line after the
+ * builder's kind under its title.
+ */
+function SaveLine(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Text variant="inherit" role="status" testId="content-draft-save-status">
+      {props.save.saving
+        ? t`Saving your draft…`
+        : props.save.dirty
+          ? t`Your changes still need to be saved.`
+          : t`Saved on this device. Changes share when connected.`}
+    </Text>
+  );
+}
+
+/** A failed save or a conflicting copy: what needs the author first. */
+function SaveNotices(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <>
-      <P
-        role="status"
-        variant="caption"
-        tone="secondary"
-        dataSet={{ testid: 'content-draft-save-status' }}
-      >
-        {props.save.saving
-          ? t`Saving your draft…`
-          : props.save.dirty
-            ? t`Your changes still need to be saved.`
-            : t`Saved on this device. Changes share when connected.`}
-      </P>
       <Show when={props.save.error}>
         {(error) => (
           <ErrorState
@@ -125,13 +131,14 @@ function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
       <H2 size="navigationTitle" testId="content-author-stage-step">
         {props.kind === 'pack' ? t`2 · Puzzles` : t`2 · Board`}
       </H2>
-      <StackHorizontal gap="sm" wrap align="center">
+      <StackHorizontal gap="xs" wrap align="center">
         {props.history}
         <Button
           title={props.preview ? t`Return to editing` : t`Preview`}
           intent="neutral"
           variant="ghost"
-          startIcon={<EyeIcon size={20} />}
+          size="sm"
+          startIcon={<EyeIcon size={16} />}
           onClick={() => props.onTogglePreview()}
           disabled={props.disabled}
           dataSet={{ testid: 'content-preview' }}
@@ -175,9 +182,10 @@ function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
 }
 
 /**
- * The last step, in the screen's footer under the scroll area: where the
- * draft stands, a puzzle's playtest, then the check and publication, the
- * one filled next step last. Nothing scrolls beneath it.
+ * The last step, in the flow right after the stage: where the draft
+ * stands, a puzzle's playtest, then the check and publication. It scrolls
+ * with the stage instead of being pinned over it, so it never covers the
+ * board or the pack's puzzles.
  */
 function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -194,9 +202,9 @@ function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
 /**
  * One builder in three numbered steps, read top to bottom at every size:
  * the details (one row once titled), the stage with its tools across the
- * whole column (a game's editor sets its own tools beside its board), the
- * draft's other saved copies after it, and checking and publishing in the
- * screen's footer.
+ * whole column (a game's editor sets its own tools beside its board), and
+ * checking and publishing right after the stage; the draft's other saved
+ * copies, no step of their own, come last.
  */
 function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -209,13 +217,18 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
           {props.body.title || t`Untitled draft`}
         </Text>
       }
-      subtitle={props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
-      footer={<AuthorPublish {...props} />}
+      subtitle={
+        <>
+          {props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
+          {' · '}
+          <SaveLine {...props} />
+        </>
+      }
     >
       <GameSessionLayout
         notices={
           <>
-            <SaveStatus {...props} />
+            <SaveNotices {...props} />
             <AuthorDetails {...props} />
           </>
         }
@@ -226,6 +239,7 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
             <AuthorTools {...props} />
             {props.stage}
           </StackVertical>
+          <AuthorPublish {...props} />
           {props.keptCopies}
         </StackVertical>
       </GameSessionLayout>
@@ -236,9 +250,9 @@ function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
 /**
  * The puzzle or pack builder, presentational, one layout for both, in
  * three numbered steps: the draft's details; the stage (the game's editor,
- * the pack's puzzles, or a preview) headed by its editing tools, with the
- * draft's other saved copies; and checking and publishing it in the
- * screen's footer — or loading, denied and not-on-this-device states. The
+ * the pack's puzzles, or a preview) headed by its editing tools; and
+ * checking and publishing it, then the draft's other saved copies — or
+ * loading, denied and not-on-this-device states. The
  * host's bar holds the way back to the puzzles. Smart widgets arrive as
  * slots.
  */

@@ -1,0 +1,108 @@
+/* Narrow: rows in one panel, a 64px picture at the start. Wide (640px of
+   its own width and up): a grid of cards, each picture across its card. */
+.section {
+  container: preview-card-grid / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+}
+.item {
+  min-width: 0;
+}
+.item + .item {
+  border-top: 1px solid var(--ui-color-border);
+}
+.card {
+  display: grid;
+  grid-template-columns: var(--ui-space-16) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--ui-space-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--ui-space-3) var(--ui-space-4) var(--ui-space-3)
+    var(--ui-space-3);
+  border: 0;
+  background: transparent;
+  color: var(--ui-color-text);
+  text-align: start;
+}
+.card:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: -2px;
+}
+.picture {
+  display: grid;
+  width: var(--ui-space-16);
+  height: var(--ui-space-16);
+  min-width: 0;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.title {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.caption,
+.meta {
+  max-width: 100%;
+  color: var(--ui-color-text-secondary);
+}
+.chevron {
+  display: inline-flex;
+}
+@container preview-card-grid (min-width: 640px) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: var(--ui-space-4);
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .item + .item {
+    border-top: 0;
+  }
+  .item {
+    display: flex;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ui-space-3);
+    padding: var(--ui-space-3);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+  .picture {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+  .body {
+    padding-inline: var(--ui-space-1);
+  }
+  .chevron {
+    display: none;
+  }
+}

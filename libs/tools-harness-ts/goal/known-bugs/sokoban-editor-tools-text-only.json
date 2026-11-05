@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban builder's eight tools were text-only pills. They are now one segmented picker (CellGridPalette) whose tiles each show a swatch of the square the tool lays down, drawn as the board draws it, over the tool's name.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

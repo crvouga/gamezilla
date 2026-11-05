@@ -36,27 +36,15 @@ export function GameScreen(props: {
    * facts instead of leaving it for a listener only.
    */
   keepTitle?: boolean | undefined;
-  /**
-   * The step that finishes the screen (a `StepFooter`, such as checking
-   * and publishing a draft): held in the screen's footer under the scroll
-   * area, as wide as the game column, so nothing scrolls beneath it.
-   */
-  footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
   children: JSX.Element;
 }): JSX.Element {
   const facts = createScreenSlot(() => props.facts);
-  const footer = createScreenSlot(() => props.footer);
   return (
     <EmbeddedScreen
       screenId={props.screenId}
       width="full"
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
-      footer={
-        <Show when={footer.present()}>
-          <div class={styles['footer']}>{footer.content()}</div>
-        </Show>
-      }
     >
       <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
         <Show

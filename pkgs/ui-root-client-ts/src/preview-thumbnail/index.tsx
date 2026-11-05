@@ -8,9 +8,10 @@ import styles from './preview-thumbnail.module.css';
 /**
  * `md` 48px beside a row's title; `lg` 64px leading a card or a list row;
  * `xl` 80px leading a row whose picture is how it is told apart (a
- * library of boards).
+ * library of boards); `fill` the whole of its host's picture area (a
+ * `PreviewCard`'s), drawn as large as that area's shorter side allows.
  */
-export type PreviewThumbnailSize = 'md' | 'lg' | 'xl';
+export type PreviewThumbnailSize = 'md' | 'lg' | 'xl' | 'fill';
 
 export type PreviewThumbnailProps = {
   /**

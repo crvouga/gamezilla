@@ -8,8 +8,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
 import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
@@ -20,8 +19,12 @@ import {
   ContentStatusChip,
 } from './content-chips';
 import { ContentAttemptSection } from './content-library-attempts';
+import {
+  ContentLibraryCard,
+  type ContentLibraryProgress,
+  ContentProgressLine,
+} from './content-library-card';
 import { ContentLoadMore } from './content-load-more';
-import { ContentThumbnail } from './content-thumbnail';
 
 /**
  * A puzzle definition a row's thumbnail draws (a pack's: its first
@@ -36,7 +39,10 @@ export type ContentLibraryEdition = Pick<
   ContentRevision,
   'id' | 'document_id' | 'kind' | 'title' | 'description' | 'difficulty'
 > &
-  ContentPreviewSource;
+  ContentPreviewSource & {
+    /** A pack's puzzles the person has solved; absent for a puzzle. */
+    readonly progress?: ContentLibraryProgress | undefined;
+  };
 
 /** One of the person's own drafts or publications. */
 export type ContentLibraryDraft = ContentPreviewSource & {
@@ -54,6 +60,12 @@ export type ContentLibraryAttempt = ContentPreviewSource & {
   /** Empty when the source has not reached this device. */
   readonly title: string;
   readonly completed: boolean;
+  /** The difficulty its author gave the puzzle; empty when none. */
+  readonly difficulty?: string | undefined;
+  /** The pack it was started in, and how much of that pack is solved. */
+  readonly pack?:
+    | (ContentLibraryProgress & { readonly title: string })
+    | undefined;
 };
 
 /** Which lists have a further page to load. */
@@ -108,22 +120,17 @@ function PublishedContent(props: { view: View }): JSX.Element {
           />
         }
       >
-        <MenuSection title={<Trans>Published puzzles and packs</Trans>}>
+        <PreviewCardGrid title={<Trans>Published puzzles and packs</Trans>}>
           <For each={ids()}>
             {(id) => {
               const entry = () =>
                 props.view.published.find((revision) => revision.id === id);
               return (
-                <MenuRow
-                  leading={
-                    <ContentThumbnail
-                      size="xl"
-                      renderPreview={props.view.renderPreview}
-                      kind={entry()?.kind ?? 'puzzle'}
-                      preview={entry()?.preview}
-                    />
-                  }
-                  title={entry()?.title}
+                <ContentLibraryCard
+                  kind={entry()?.kind ?? 'puzzle'}
+                  title={entry()?.title ?? ''}
+                  preview={entry()?.preview}
+                  renderPreview={props.view.renderPreview}
                   caption={
                     <ContentRowCaption description={entry()?.description}>
                       <ContentKindChip kind={entry()?.kind ?? 'puzzle'} />
@@ -134,13 +141,14 @@ function PublishedContent(props: { view: View }): JSX.Element {
                       </Show>
                     </ContentRowCaption>
                   }
-                  onClick={() => props.view.onOpenEdition(id)}
-                  dataSet={{ testid: `content-published-${id}` }}
+                  meta={editionProgress(entry()?.progress)}
+                  onOpen={() => props.view.onOpenEdition(id)}
+                  testid={`content-published-${id}`}
                 />
               );
             }}
           </For>
-        </MenuSection>
+        </PreviewCardGrid>
       </Show>
       <ContentLoadMore
         testId="content-more-published"
@@ -154,34 +162,39 @@ function PublishedContent(props: { view: View }): JSX.Element {
   );
 }
 
+/** A pack's solved count, when it has puzzles to solve; else nothing. */
+function editionProgress(
+  progress: ContentLibraryProgress | undefined
+): JSX.Element | undefined {
+  return progress === undefined || progress.total === 0 ? undefined : (
+    <ContentProgressLine progress={progress} />
+  );
+}
+
 /** Packs the game ships: available to everyone, with or without a connection. */
 function BundledPacks(props: { view: View }): JSX.Element {
   return (
     <Show when={props.view.bundledPacks.length > 0}>
-      <MenuSection title={<Trans>Starter packs</Trans>}>
+      <PreviewCardGrid title={<Trans>Starter packs</Trans>}>
         <For each={props.view.bundledPacks}>
           {(pack) => (
-            <MenuRow
-              leading={
-                <ContentThumbnail
-                  size="xl"
-                  renderPreview={props.view.renderPreview}
-                  kind={pack.kind}
-                  preview={pack.preview}
-                />
-              }
+            <ContentLibraryCard
+              kind={pack.kind}
               title={pack.title}
+              preview={pack.preview}
+              renderPreview={props.view.renderPreview}
               caption={
                 <ContentRowCaption description={pack.description}>
                   <ContentKindChip kind={pack.kind} />
                 </ContentRowCaption>
               }
-              onClick={() => props.view.onOpenEdition(pack.id)}
-              dataSet={{ testid: `content-bundled-${pack.document_id}` }}
+              meta={editionProgress(pack.progress)}
+              onOpen={() => props.view.onOpenEdition(pack.id)}
+              testid={`content-bundled-${pack.document_id}`}
             />
           )}
         </For>
-      </MenuSection>
+      </PreviewCardGrid>
     </Show>
   );
 }
@@ -192,35 +205,30 @@ function OwnedContent(props: { view: View }): JSX.Element {
   return (
     <>
       <Show when={ids().length > 0}>
-        <MenuSection title={<Trans>Your drafts and publications</Trans>}>
+        <PreviewCardGrid title={<Trans>Your drafts and publications</Trans>}>
           <For each={ids()}>
             {(id) => {
               const draft = () =>
                 props.view.drafts.find((entry) => entry.id === id);
               return (
-                <MenuRow
-                  leading={
-                    <ContentThumbnail
-                      size="xl"
-                      renderPreview={props.view.renderPreview}
-                      kind={draft()?.kind ?? 'puzzle'}
-                      preview={draft()?.preview}
-                    />
-                  }
+                <ContentLibraryCard
+                  kind={draft()?.kind ?? 'puzzle'}
                   title={(draft()?.title ?? '') || t`Untitled draft`}
+                  preview={draft()?.preview}
+                  renderPreview={props.view.renderPreview}
                   caption={
                     <ContentRowCaption>
                       <ContentStatusChip status={draft()?.status ?? 'draft'} />
                       <ContentKindChip kind={draft()?.kind ?? 'puzzle'} />
                     </ContentRowCaption>
                   }
-                  onClick={() => props.view.onOpenDraft(id)}
-                  dataSet={{ testid: `content-draft-${id}` }}
+                  onOpen={() => props.view.onOpenDraft(id)}
+                  testid={`content-draft-${id}`}
                 />
               );
             }}
           </For>
-        </MenuSection>
+        </PreviewCardGrid>
       </Show>
       <ContentLoadMore
         page={{

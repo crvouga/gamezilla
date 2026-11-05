@@ -6,26 +6,24 @@ import { createUniqueId, type JSX } from 'solid-js';
 import styles from './step-footer.module.css';
 
 export type StepFooterProps = {
-  /** What the footer's actions finish (`3 · Check and publish`); names it. */
+  /** What the step's actions finish (`3 · Check and publish`); names it. */
   title: JSX.Element;
   /**
-   * Where the step stands and its actions, as one row: a line of status
-   * text at the start, the actions (the one filled next step last) at the
-   * end, wrapping under the status when the line is short.
+   * Where the step stands and its actions: a line of status text, then the
+   * actions in one row (the one filled next step among them).
    */
   children: JSX.Element;
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
- * `StepFooter` -- the step that finishes a long screen, in the screen's
- * footer.
+ * `StepFooter` -- the step that finishes a long screen's work.
  *
- * Place it in a screen's `footer` slot (`EmbeddedScreen`, `GameScreen`):
- * the footer is a strip of its own under the scroll area, so the step is
- * always one press away and nothing ever scrolls beneath it. Its title
- * names it as a region; under the title, the step's status and actions
- * share one row.
+ * Place it in the screen's body right after the work it finishes. It
+ * scrolls with everything around it behind a full-width hairline, so it
+ * never covers what comes before it: nothing is pinned over the work.
+ * Its title names it as a region; under the title, the step's status and
+ * actions.
  */
 export function StepFooter(props: StepFooterProps): JSX.Element {
   const id = createUniqueId();

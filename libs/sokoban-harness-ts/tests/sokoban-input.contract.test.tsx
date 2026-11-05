@@ -116,6 +116,9 @@ test('the editor paints with its tools, refuses misplaced pieces and lists corre
   const board = decodeSokobanBoard(definition());
   expect(board.valid && board.value.worker).toBeNull();
   expect(view.queryByTestId('sokoban-correction-needs_worker')).not.toBeNull();
+  // On a phone the size is one closed row until it is opened.
+  expect(view.queryByLabelText('Columns')).toBeNull();
+  fireEvent.click(view.getByTestId('sokoban-size-toggle'));
   fireEvent.input(view.getByLabelText('Columns'), { target: { value: '3' } });
   fireEvent.click(view.getByTestId('sokoban-resize'));
   expect(view.getByTestId('sokoban-removed').getAttribute('data-removed')).toBe(
@@ -137,6 +140,27 @@ test('the editor offers its tools as one group, with the chosen tool marked', ()
   const group = view.getByRole('radiogroup', { name: 'Tool' });
   const chips = group.querySelectorAll('[role="radio"]');
   expect(chips).toHaveLength(8);
+  // regression: sokoban-editor-tools-text-only — the tools were text-only
+  // pills. Each is now a tile with a swatch of the square it lays down,
+  // drawn as the board draws it, over its name.
+  const swatch = (tool: string): Element | null =>
+    view
+      .getByTestId(`sokoban-tool-${tool}`)
+      .querySelector('[data-board-theme="sokoban"] [data-tone]');
+  expect(
+    ['wall', 'floor', 'goal', 'outside', 'worker', 'crate'].map((tool) => [
+      swatch(tool)?.getAttribute('data-tone'),
+      swatch(tool)?.getAttribute('data-identity') ?? null,
+    ])
+  ).toEqual([
+    ['occupied', null],
+    ['open', null],
+    ['open', 'four'],
+    ['quiet', null],
+    ['open', 'three'],
+    ['open', 'one'],
+  ]);
+  expect(view.getByTestId('sokoban-tool-crate').textContent).toContain('Crate');
   const wall = view.getByTestId('sokoban-tool-wall');
   const crate = view.getByTestId('sokoban-tool-crate');
   expect(group.contains(crate)).toBe(true);
@@ -174,6 +198,29 @@ test('the editor puts the size and tools above the board, pieces as tokens', () 
   expect(
     ['A1', 'B1', 'C1', 'D1', 'E1'].map((square) => identity(square))
   ).toEqual([null, 'three', 'one', 'four', 'two']);
+});
+
+// regression: sokoban-editor-board-below-config — on a phone the size
+// inputs, the undo row and two rows of tool pills filled the screen and
+// the board started below them. The size is now one closed row there,
+// the tools one picker, and what to correct follows the board.
+test('on a phone the board follows its tools, the size a closed row, the notes after it', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={CORRIDOR}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const toggle = view.getByTestId('sokoban-size-toggle');
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(toggle.textContent).toBe('Board size · 5 × 1');
+  const board = view.getByTestId('sokoban-editor-board');
+  expect(precedes(view.getByTestId('sokoban-tools'), board)).toBe(true);
+  const said =
+    view.queryByTestId('sokoban-ready') ??
+    view.getByTestId('sokoban-corrections');
+  expect(precedes(board, said)).toBe(true);
 });
 
 // regression: sokoban-direction-text-row — on a phone the movement

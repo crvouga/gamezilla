@@ -1,0 +1,101 @@
+/* A grid editor's tools: a segmented track of tiles. Narrow, one row of
+   swatches, the chosen tool named after the label; from 400px, four to a
+   row, each a swatch over its name. */
+.palette {
+  container: cell-grid-palette / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.label {
+  display: flex;
+  gap: var(--ui-space-2);
+}
+.chosen {
+  color: var(--ui-color-text);
+}
+.chosen::before {
+  content: "·";
+  margin-inline-end: var(--ui-space-2);
+  color: var(--ui-color-text-secondary);
+}
+.track {
+  display: grid;
+  grid-template-columns: repeat(var(--cell-grid-palette-count), minmax(0, 1fr));
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-1);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-card);
+}
+.track[aria-disabled="true"] {
+  opacity: var(--ui-opacity-disabled);
+}
+.tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--ui-space-2) var(--ui-space-1);
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-md);
+  background: transparent;
+  color: var(--ui-color-text);
+}
+.tool[aria-checked="true"] {
+  background: var(--ui-color-tint-subtle);
+  border-color: var(--ui-color-primary-strong);
+  color: var(--ui-color-on-primary-soft);
+}
+.tool:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 1px;
+}
+.name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.tool {
+  position: relative;
+  padding: var(--ui-space-1);
+}
+@container cell-grid-palette (min-width: 400px) {
+  .chosen {
+    display: none;
+  }
+  .track {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .tool {
+    padding: var(--ui-space-2) var(--ui-space-1);
+  }
+  .name {
+    position: static;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+}
+/* A one-square board: its padding a frame round the square, as the
+   board's own rim is. */
+.swatch {
+  grid-template-columns: minmax(0, 1fr);
+  width: var(--ui-space-8);
+  max-width: none;
+  padding: var(--ui-space-1);
+  border-radius: var(--ui-radius-sm);
+  pointer-events: none;
+}
