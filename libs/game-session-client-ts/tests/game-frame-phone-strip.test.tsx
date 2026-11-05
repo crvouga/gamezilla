@@ -229,5 +229,7 @@ test('phone: a turn too long for the strip wraps between its moves, never cut', 
   expect(rule).toMatch(/flex-wrap:\s*wrap;/);
   // A move itself never breaks: its button keeps one line.
   const button = css.slice(css.indexOf('.moveButton {'));
-  expect(button.slice(0, button.indexOf('}'))).toMatch(/white-space:\s*nowrap;/);
+  expect(button.slice(0, button.indexOf('}'))).toMatch(
+    /white-space:\s*nowrap;/
+  );
 });

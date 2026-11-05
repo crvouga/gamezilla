@@ -280,11 +280,18 @@ describe('game surfaces', () => {
   // height before they scroll.
   test("the rail beside a wide board runs to the column's edge and its moves grow beside the board", () => {
     const css = readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8');
-    const wide = css.slice(css.indexOf('@container game-column (min-width: 880px)'));
+    const wide = css.slice(
+      css.indexOf('@container game-column (min-width: 880px)')
+    );
     const head =
       '.layout[data-has-stage="true"][data-has-aside="true"],\n  .layout[data-has-stage="true"][data-has-setup="true"] {\n';
-    const grids = wide.split(head).slice(1).map((body) => body.slice(0, body.indexOf('}')));
-    const columns = grids.find((body) => body.includes('grid-template-columns'));
+    const grids = wide
+      .split(head)
+      .slice(1)
+      .map((body) => body.slice(0, body.indexOf('}')));
+    const columns = grids.find((body) =>
+      body.includes('grid-template-columns')
+    );
     expect(columns).toMatch(
       /grid-template-columns:\s*minmax\(0, var\(--game-board-measure\)\)\s*minmax\(280px, 1fr\);/
     );
@@ -302,7 +309,10 @@ describe('game surfaces', () => {
   // Every chip of a row takes the row's height and a stacked chip's lines
   // start at its top, so avatars, names and figures line up.
   test("a rail's chips share their row's height, a stacked chip's lines from its top", () => {
-    const source = readFileSync(join(UI_SRC, 'game-player-rail/index.tsx'), 'utf8');
+    const source = readFileSync(
+      join(UI_SRC, 'game-player-rail/index.tsx'),
+      'utf8'
+    );
     const frame = source.slice(source.indexOf('const CHIP_FRAME ='));
     expect(frame.slice(0, frame.indexOf(';'))).toMatch(/\bflex-1'/);
     expect(source).toMatch(/class="box min-w-0 flex-1"\s*role=/);
@@ -327,7 +337,9 @@ describe('game surfaces', () => {
       join(UI_SRC, 'game-section/game-section-media.module.css'),
       'utf8'
     );
-    const wide = css.slice(css.indexOf('@container game-section (min-width: 40rem)'));
+    const wide = css.slice(
+      css.indexOf('@container game-section (min-width: 40rem)')
+    );
     const media = wide.slice(wide.indexOf('.sectionMedia {'));
     expect(media.slice(0, media.indexOf('}'))).toMatch(
       /--game-board-preview-measure:\s*120px;/
@@ -351,18 +363,23 @@ describe('game surfaces', () => {
   // The card is one grid: its title heads the search's half and the
   // ratings' half starts level with it.
   test("a split setup card's two halves start on one line", () => {
-    const css = readFileSync(join(UI_SRC, 'game-ui.module.css'), 'utf8');
-    const wide = css.slice(css.indexOf('@container game-column (min-width: 880px)'));
+    const css = readFileSync(
+      join(UI_SRC, 'game-setup-panel/game-setup-panel.module.css'),
+      'utf8'
+    );
+    const wide = css.slice(
+      css.lastIndexOf('@container game-column (min-width: 880px)')
+    );
     const body = (head: string): string => {
       const start = wide.indexOf(`${head} {`);
       expect(start).toBeGreaterThan(-1);
       return wide.slice(start, wide.indexOf('}', start));
     };
-    expect(body('.section:has(> [data-setup-split="true"]) > :first-child')).toMatch(
+    expect(body('section:has(> .setupSplit) > :first-child')).toMatch(
       /grid-row:\s*1;/
     );
-    expect(body('.section > [data-setup-split="true"]')).toMatch(/display:\s*contents;/);
-    expect(body('.section > [data-setup-split="true"] > :last-child')).toMatch(
+    expect(body('section > .setupSplit')).toMatch(/display:\s*contents;/);
+    expect(body('section > .setupSplit > .setupAside')).toMatch(
       /grid-row:\s*1 \/ span 2;/
     );
   });

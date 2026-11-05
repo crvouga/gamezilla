@@ -29,7 +29,11 @@
   /* The lane's width less its padding and border: a percentage of the
      track resolves to nothing on an upright range. */
   width: calc(
-    var(--paddle-lane) - 2 * var(--ui-space-2) - 2 * var(--ui-space-hairline)
+    var(--paddle-lane) -
+    2 *
+    var(--ui-space-2) -
+    2 *
+    var(--ui-space-hairline)
   );
   height: var(--ui-space-12);
   margin-block: auto;
@@ -41,7 +45,11 @@
   /* The lane's width less its padding and border: a percentage of the
      track resolves to nothing on an upright range. */
   width: calc(
-    var(--paddle-lane) - 2 * var(--ui-space-2) - 2 * var(--ui-space-hairline)
+    var(--paddle-lane) -
+    2 *
+    var(--ui-space-2) -
+    2 *
+    var(--ui-space-hairline)
   );
   height: var(--ui-space-12);
   border: 0;

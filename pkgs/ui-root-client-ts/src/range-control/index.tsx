@@ -37,9 +37,7 @@ export function RangeControl(props: RangeControlProps) {
           : 'box w-full min-h-11 accent-tint bg-transparent cursor-pointer'
       }
       aria-orientation={props.orientation}
-      data-paddle={
-        props.orientation === 'vertical' ? props.paddle : undefined
-      }
+      data-paddle={props.orientation === 'vertical' ? props.paddle : undefined}
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}

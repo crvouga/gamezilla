@@ -1730,7 +1730,7 @@
         "$description": "ConnectFour board only: surface. Dark: a deeper, less saturated blue than light, so the board never glares on a dark page.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1098, 0.2627, 0.5020],
+          "components": [0.1098, 0.2627, 0.502],
           "alpha": 1.0,
           "hex": "#1c4380"
         }

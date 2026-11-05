@@ -505,36 +505,6 @@
     > .stage:has([data-setup-split="true"]) {
     max-width: var(--game-search-split-measure);
   }
-  /* A setup card split beside what the person brings (a search beside
-     their ratings): one grid, its title heading the choice's half, so the
-     other half's heading (`Your ratings`) starts level with it, never a
-     line lower; how a search works spans both under them. */
-  .section:has(> [data-setup-split="true"]) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--ui-space-8);
-    row-gap: var(--ui-space-4);
-    align-content: start;
-  }
-  .section:has(> [data-setup-split="true"]) > :first-child {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .section > [data-setup-split="true"] {
-    display: contents;
-  }
-  .section > [data-setup-split="true"] > :first-child {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .section > [data-setup-split="true"] > :last-child {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-  }
-  .section:has(> [data-setup-split="true"]) > .sectionFooter {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
   /* In document order, each in the next free row of the rail. */
   .layout[data-has-stage="true"][data-has-aside="true"]
   > :is(.setup, .controls, .rail),

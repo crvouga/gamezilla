@@ -34,3 +34,35 @@
     padding-left: var(--ui-space-8);
   }
 }
+/* Wide, the card is one grid (the split's halves its own cells): its title
+   heads the choice's half, so the other half's heading (`Your ratings`)
+   starts level with it, never a line lower; the card's foot (how a search
+   works) spans both under them. */
+@container game-column (min-width: 880px) {
+  section:has(> .setupSplit) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--ui-space-8);
+    row-gap: var(--ui-space-4);
+    align-content: start;
+  }
+  section:has(> .setupSplit) > :first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  section > .setupSplit {
+    display: contents;
+  }
+  section > .setupSplit > .setupMain {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  section > .setupSplit > .setupAside {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  section > .setupSplit ~ * {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}

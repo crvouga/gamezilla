@@ -353,11 +353,17 @@ test("the prompt under the columns is in the board's ink, and the dark board is 
   expect(prompt).toMatch(/color:\s*var\(--ui-color-text\);/);
   const tokens = JSON.parse(
     readFileSync(
-      join(import.meta.dirname, '../../ui-root-shared-ts/src/design-tokens.json'),
+      join(
+        import.meta.dirname,
+        '../../ui-root-shared-ts/src/design-tokens.json'
+      ),
       'utf8'
     )
   ) as {
-    color: Record<'light' | 'dark', Record<string, { $value: { hex: string } }>>;
+    color: Record<
+      'light' | 'dark',
+      Record<string, { $value: { hex: string } }>
+    >;
   };
   const hex = (theme: 'light' | 'dark', name: string): string =>
     tokens.color[theme][name]?.$value.hex ?? '';
