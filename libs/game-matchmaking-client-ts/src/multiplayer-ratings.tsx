@@ -128,13 +128,20 @@ function RatingStat(props: {
           testId={`multiplayer-rating-${props.rating.pool}-value`}
         >
           {props.rating.rating}
-          {provisional() ? '?' : ''}
+          {/* The "?" a provisional rating keeps is quiet beside the number,
+              the tag after it saying what it means, so it never reads as
+              an error. */}
+          <Show when={provisional()}>
+            <Text variant="inherit" tone="secondary">
+              ?
+            </Text>
+          </Show>
         </Text>
       }
       tag={
         <Show when={provisional()}>
           <Badge
-            intent="neutral"
+            intent="info"
             label={<Trans>Provisional</Trans>}
             dataSet={{
               testid: `multiplayer-rating-${props.rating.pool}-provisional`,

@@ -128,25 +128,22 @@ function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
 }
 
 /**
- * While a game is set up on a wide screen, its board preview sits inside
- * the Players card, beside the seats, so the card and its picture read as
- * one unit; a phone shows the preview under the card.
+ * While a game is set up, its board preview sits inside the Players card,
+ * so the card and its picture read as one unit: beside the seats when
+ * wide, heading the card on a phone, never under Start.
  */
-function previewInSeats(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): boolean {
-  return props.phase === 'configuring' && mode() === 'wide';
+function previewInSeats(props: Props): boolean {
+  return props.phase === 'configuring' && props.setup !== null;
 }
 
 /**
  * Before a game, the starter; while one is set up, its seats and options,
  * then starting it as the foot of the last of those cards, so Start sits
  * with the players it starts with on every size (the board preview is
- * only a thumbnail beside them, inside the Players card when wide).
+ * only a thumbnail inside the Players card: beside the seats when wide,
+ * heading the card on a phone).
  */
 function FrameSetupSlot(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <Show
       when={props.phase !== 'none'}
@@ -183,7 +180,7 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 }
                 footer={footer('seats')}
                 media={
-                  <Show when={previewInSeats(props, mode)}>
+                  <Show when={previewInSeats(props)}>
                     <FrameBoardStage {...props} />
                   </Show>
                 }
@@ -583,7 +580,7 @@ function FrameContent(props: Props): JSX.Element {
         <FrameWatchingView phase={props.phase} viewerSide={props.viewerSide} />
       }
     >
-      <Show when={props.phase !== 'none' && !previewInSeats(props, mode)}>
+      <Show when={props.phase !== 'none' && !previewInSeats(props)}>
         <FrameBoardStage {...props} />
       </Show>
     </GameSessionLayout>

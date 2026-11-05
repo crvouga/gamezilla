@@ -203,3 +203,45 @@ test('wide: a game played by turns with no move yet has no empty record card', (
   // The commands show once, in the rail.
   expect(screen.getAllByTestId('custom-game-resign')).toHaveLength(1);
 });
+
+// regression: setup-preview-below-start — on a phone the board preview of a
+// game being set up fell under the Players card, after Start. It now heads
+// the Players card on a phone, as it sits beside the seats when wide.
+test('phone and wide: the board preview of a game being set up is in the Players card, before Start', () => {
+  for (const width of [390, 1440]) {
+    const time = createHarnessClock();
+    renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+          <GameFrameScreenView
+            {...props()}
+            phase="configuring"
+            record={null}
+            setup={{
+              viewerNotice: null,
+              takeSeat: null,
+              seats: [],
+              privateSetup: null,
+              options: null,
+              start: {
+                reason: null,
+                hostStarts: false,
+                readiness: { ready: true, blocked: false },
+                canStart: true,
+              },
+            }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const preview = screen.getByTestId('custom-game-public');
+    const start = screen.getByTestId('custom-game-start');
+    const card = preview.closest('[data-component="GameSection"]');
+    expect(card).not.toBeNull();
+    expect(card?.contains(start)).toBe(true);
+    expect(
+      preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    cleanup();
+  }
+});

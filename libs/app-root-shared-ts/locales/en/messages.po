@@ -1636,18 +1636,6 @@ msgstr "Choose the tiles to exchange."
 msgid "Choose this setup"
 msgstr "Choose this setup"
 
-#: libs/hearts-client-ts/src/hearts-copy.tsx
-msgid "Choose three cards to pass across."
-msgstr "Choose three cards to pass across."
-
-#: libs/hearts-client-ts/src/hearts-copy.tsx
-msgid "Choose three cards to pass to the left."
-msgstr "Choose three cards to pass to the left."
-
-#: libs/hearts-client-ts/src/hearts-copy.tsx
-msgid "Choose three cards to pass to the right."
-msgstr "Choose three cards to pass to the right."
-
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
 msgstr "Choose who plays each side. Anyone in this space can watch."
@@ -4700,6 +4688,18 @@ msgstr "Pass"
 msgid "Pass {0} of 3 cards"
 msgstr "Pass {0} of 3 cards"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards across."
+msgstr "Pass three cards across."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the left."
+msgstr "Pass three cards to the left."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the right."
+msgstr "Pass three cards to the right."
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
 msgstr "Passed"
@@ -4889,6 +4889,7 @@ msgstr "Player search accepted"
 #: libs/game-session-client-ts/src/game-frame-arena-view.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Players"
 msgstr "Players"
 
@@ -8127,6 +8128,7 @@ msgstr "Yes"
 msgid "Yesterday"
 msgstr "Yesterday"
 
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "You"
 msgstr "You"

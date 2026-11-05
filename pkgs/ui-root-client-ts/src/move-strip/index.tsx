@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import type { PointerHandlers } from '../board-fit/index';
 import { ScrollView } from '../scroll-view/index';
 
@@ -20,6 +20,13 @@ export type MoveStripProps = {
    * of across an empty gap; it still scrolls once the moves fill the row.
    */
   fit?: 'fill' | 'content' | undefined;
+  /**
+   * `scroll` (default): one row that scrolls sideways once the moves fill
+   * it. `wrap`: the moves wrap onto further rows instead, every move whole
+   * and in view, for a short line (a puzzle's) where no move may be cut at
+   * the strip's edge; the row still keeps its height with no moves.
+   */
+  overflow?: 'scroll' | 'wrap' | undefined;
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
 };
@@ -47,10 +54,15 @@ export type MoveStripProps = {
 export function MoveStrip(props: MoveStripProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0 h-ui-control-md"
+      class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0"
+      classList={{
+        'h-ui-control-md': props.overflow !== 'wrap',
+        'min-h-ui-control-md': props.overflow === 'wrap',
+      }}
       data-testid={props.testId}
       data-component={componentId('MoveStrip')}
       data-fit={props.fit ?? 'fill'}
+      data-overflow={props.overflow ?? 'scroll'}
       onPointerDown={(event) => props.pointer?.onPointerDown?.(event)}
       onPointerUp={(event) => props.pointer?.onPointerUp?.(event)}
       onPointerCancel={() => props.pointer?.onPointerCancel?.()}
@@ -58,16 +70,25 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
       <div class="box flex-row items-center gap-1 shrink-0">
         {props.leading}
       </div>
-      <ScrollView
-        grow={props.fit !== 'content'}
-        align="center"
-        paddingX="md"
-        gap="sm"
-        horizontal
-        hideScrollbar
+      <Show
+        when={props.overflow === 'wrap'}
+        fallback={
+          <ScrollView
+            grow={props.fit !== 'content'}
+            align="center"
+            paddingX="md"
+            gap="sm"
+            horizontal
+            hideScrollbar
+          >
+            {props.children}
+          </ScrollView>
+        }
       >
-        {props.children}
-      </ScrollView>
+        <div class="box flex-row flex-wrap items-center gap-2 grow min-w-0">
+          {props.children}
+        </div>
+      </Show>
       <div class="box flex-row items-center gap-1 shrink-0">
         {props.trailing}
       </div>

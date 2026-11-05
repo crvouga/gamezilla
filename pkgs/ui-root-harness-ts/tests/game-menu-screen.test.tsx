@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { GameMenuScreen } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import {
@@ -141,6 +143,26 @@ describe('GameMenuScreen', () => {
     view.unmount();
   });
 
+  // regression: game-menu-lead-empty-top — wide, the featured lead tile
+  // stacked its picture over its words, leaving an empty top, with its
+  // chevron centred apart from the words. It reads across like every tile.
+  test("wide: the featured lead reads across, its chevron on its words' axis", () => {
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-menu-screen/game-menu-screen.module.css'
+      ),
+      'utf8'
+    );
+    const lead = css.slice(css.indexOf('.tile[data-lead="true"] {'));
+    const rule = lead.slice(0, lead.indexOf('}'));
+    expect(rule).not.toContain('flex-direction: column');
+    expect(css).not.toMatch(/\.tile\[data-lead="true"\] \.chevron/);
+    const view = threeChoices(1440);
+    expect(view.getByTestId('choice-play').children).toHaveLength(3);
+    view.unmount();
+  });
+
   test('phone: the same choices as one panel of menu rows', () => {
     const view = menu(390, () => undefined);
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(
@@ -194,13 +216,23 @@ describe('GameMenuScreen', () => {
 
   // regression: game-menu-recommended-own-line — on a phone the
   // "Recommended" tag took a line of its own between the title and caption.
-  test("phone: the lead's tag opens its caption's line, never a line of its own", () => {
+  // regression: game-menu-recommended-splits-sentence — moved to the start
+  // of the caption, it then broke the caption's sentence. It heads the row,
+  // over the title: never between the title and its caption, never in it.
+  test("phone: the lead's tag heads its row, never between the title and caption or inside the caption", () => {
     const view = threeChoices(390);
     const caption = view.getByText('With the people in this space, or bots');
-    expect(caption.textContent).toContain('Recommended');
-    expect(caption.querySelector('[data-component="Badge"]')?.textContent).toBe(
-      'Recommended'
-    );
+    expect(caption.querySelector('[data-component="Badge"]')).toBeNull();
+    const badge = view
+      .getByTestId('choice-play')
+      .querySelector('[data-component="Badge"]');
+    expect(badge?.textContent).toBe('Recommended');
+    const title = view.getByText('Play with friends or bots');
+    const before = (a: Node, b: Node): boolean =>
+      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    if (badge === null || badge === undefined) throw new Error('No tag');
+    expect(before(badge, title)).toBe(true);
+    expect(before(title, caption)).toBe(true);
     view.unmount();
   });
 });

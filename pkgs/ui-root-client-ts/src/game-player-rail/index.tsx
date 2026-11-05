@@ -12,7 +12,7 @@ import {
 } from '../game-player-parts/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { createScreenSlot } from '../screen-slot';
-import styles from '../game-ui.module.css';
+import styles from './game-player-rail.module.css';
 
 /** The avatar size of a chip: compact, a step below a full strip. */
 export const GAME_PLAYER_CHIP_AVATAR_SIZE = 32;

@@ -21,7 +21,7 @@ const PLIES = [
 // broke mid-word ("Mov / es") and left the strip so little room that the
 // first move chip was clipped ("ке5" for "Nxe5"). The label now heads the
 // strip on a line of its own and never wraps; the strip spans the width.
-test('the move list is named on its own line, above the strip, in one line', () => {
+test('the move list is named on its own row, over moves that wrap rather than clip', () => {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
@@ -52,9 +52,21 @@ test('the move list is named on its own line, above the strip, in one line', () 
   expect(label.className).toContain('whitespace-nowrap');
   const column = screen.getByTestId('chess-puzzle-moves');
   expect(column.getAttribute('data-component')).toBe('StackVertical');
-  expect(label.parentElement).toBe(column);
+  // The name heads the column on a row of its own, over the moves.
+  expect(label.parentElement?.parentElement).toBe(column);
+  expect(column.firstElementChild?.contains(label)).toBe(true);
   const strip = screen.getByTestId('chess-puzzle-move-history');
   expect(strip.contains(label)).toBe(false);
-  // The strip fills its row: its controls sit at its ends, the moves between.
-  expect(strip.getAttribute('data-fit')).toBe('fill');
+  // The moves have the strip to themselves and wrap rather than scroll, so
+  // no chip is ever cut at the strip's edge; the steps head it with its name.
+  expect(strip.getAttribute('data-overflow')).toBe('wrap');
+  expect(strip.querySelector('[data-component="ScrollView"]')).toBeNull();
+  expect(strip.contains(screen.getByTestId('chess-puzzle-move-nav-back'))).toBe(
+    false
+  );
+  expect(
+    label.parentElement?.contains(
+      screen.getByTestId('chess-puzzle-move-nav-back')
+    )
+  ).toBe(true);
 });

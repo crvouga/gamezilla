@@ -1,0 +1,9 @@
+/* The players at a table of three or more: chips that wrap, two across a
+   phone, more beside a wide board, so none is cut off at the edge. */
+.playerRail {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  gap: var(--ui-space-2);
+  width: 100%;
+  min-width: 0;
+}

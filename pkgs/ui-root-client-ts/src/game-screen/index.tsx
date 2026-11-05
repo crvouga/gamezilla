@@ -5,11 +5,14 @@ import { EmbeddedScreen } from '../embedded-screen/index';
 import styles from '../game-ui.module.css';
 import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
+import heading from './game-heading.module.css';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
  * control and the space; the game names itself once in the body and then
- * gets out of the way of the board. Never a second bar.
+ * gets out of the way of the board. Never a second bar. With `facts` (a
+ * game in play) a phone shows only the facts: its top bar already names
+ * the game, and the title stays for a listener.
  *
  * Every game screen is one column centered in the frame, its title block
  * at the column's start edge: as wide as the board and its rail together
@@ -45,11 +48,16 @@ export function GameScreen(props: {
           }
         >
           <div
-            class={styles['heading']}
+            class={heading['heading']}
             {...dataAttrs({ component: 'GameHeading' })}
           >
-            <ScreenIntro title={props.title} subtitle={props.subtitle} />
-            <div class={styles['facts']}>{facts.content()}</div>
+            <div
+              class={heading['headingTitle']}
+              {...dataAttrs({ component: 'GameHeadingTitle' })}
+            >
+              <ScreenIntro title={props.title} subtitle={props.subtitle} />
+            </div>
+            <div class={heading['facts']}>{facts.content()}</div>
           </div>
         </Show>
         {props.children}

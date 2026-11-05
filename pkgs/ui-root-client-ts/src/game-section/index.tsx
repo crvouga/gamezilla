@@ -3,6 +3,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createUniqueId, type JSX, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
+import split from './game-section-media.module.css';
 
 /**
  * Named game content section with optional description and footer. Compose game controls in its body; the generated heading labels the section for assistive technology.
@@ -63,9 +64,9 @@ export function GameSection(props: {
         </Show>
       </div>
       <Show when={media.present()} fallback={props.children}>
-        <div class={styles['sectionSplit']}>
-          <div class={styles['sectionBody']}>{props.children}</div>
-          <div class={styles['sectionMedia']}>{media.content()}</div>
+        <div class={split['sectionSplit']}>
+          <div class={split['sectionBody']}>{props.children}</div>
+          <div class={split['sectionMedia']}>{media.content()}</div>
         </div>
       </Show>
       <Show when={footer.present()}>

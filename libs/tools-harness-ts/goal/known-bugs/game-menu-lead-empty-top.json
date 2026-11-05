@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the game menu's featured \"Recommended\" tile stacked its picture over its words, leaving a large empty top area, and centred its chevron apart from the words. The lead tile now reads across like every tile, a larger picture, its words and chevron on one axis through the middle of the card.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

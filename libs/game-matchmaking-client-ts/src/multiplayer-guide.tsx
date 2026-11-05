@@ -2,10 +2,9 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 
 /** One thing a search does: a short title over one plain line. */
 function GuidePoint(props: {
@@ -45,36 +44,24 @@ function GuidePoints(props: { readonly columns: 1 | 3 }): JSX.Element {
 }
 
 /**
- * Under the search, past its card's hairline: what a search does, quieter
- * than the choice above it so it never outweighs the decision. Wide, three
- * short points side by side; on a phone (`compact`) the same points wait
- * behind one closed disclosure, so both sizes say the same things and the
- * phone's command stays near the top.
+ * Under the search, past its card's hairline: what a search does, behind
+ * one closed disclosure on every size, so the explanation never outweighs
+ * the decision above it and both sizes say the same things the same way.
+ * Opened, the three short points sit side by side when `wide`, one per
+ * line on a phone.
  */
 export function MultiplayerGuide(props: {
-  readonly compact?: boolean | undefined;
+  readonly wide?: boolean | undefined;
 }): JSX.Element {
   return (
-    <Show
-      when={props.compact === true}
-      fallback={
-        <StackVertical gap="sm" testId="multiplayer-guide">
-          <H3 size="label" tone="secondary">
-            <Trans>How matchmaking works</Trans>
-          </H3>
-          <GuidePoints columns={3} />
-        </StackVertical>
-      }
-    >
-      <StackVertical testId="multiplayer-guide">
-        <GameDisclosure
-          title={<Trans>How matchmaking works</Trans>}
-          rule={false}
-          dataSet={{ testid: 'multiplayer-guide-toggle' }}
-        >
-          <GuidePoints columns={1} />
-        </GameDisclosure>
-      </StackVertical>
-    </Show>
+    <StackVertical testId="multiplayer-guide">
+      <GameDisclosure
+        title={<Trans>How matchmaking works</Trans>}
+        rule={false}
+        dataSet={{ testid: 'multiplayer-guide-toggle' }}
+      >
+        <GuidePoints columns={props.wide === true ? 3 : 1} />
+      </GameDisclosure>
+    </StackVertical>
   );
 }

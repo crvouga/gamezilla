@@ -81,19 +81,41 @@ test("the conditions are the game's settings chips, right above the command", ()
 
 // regression: matchmaking-phone-drops-guide — a phone left out "How
 // matchmaking works", which the wide card explains.
-test('a phone keeps the ratings in the card and the guide behind one closed disclosure', () => {
-  const container = mount(390);
-  const card = container.querySelector('[data-component="GameSetupPanel"]');
-  expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
-    true
+// regression: matchmaking-guide-dominates — wide, the three points of the
+// guide sat open under the search and outweighed its one command, while a
+// phone kept them closed. Every size keeps them behind one closed disclosure.
+test.each([390, 1440])(
+  'at %ipx the ratings are in the card and the guide behind one closed disclosure',
+  (width) => {
+    const container = mount(width);
+    const card = container.querySelector('[data-component="GameSetupPanel"]');
+    expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
+      true
+    );
+    const guide = screen.getByTestId('multiplayer-guide');
+    expect(card?.contains(guide)).toBe(true);
+    const toggle = screen.getByTestId('multiplayer-guide-toggle');
+    expect(toggle.textContent).toContain('How matchmaking works');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByText('Every match is rated')).toBeNull();
+    toggle.click();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText('Every match is rated')).toBeTruthy();
+  }
+);
+
+// regression: provisional-rating-reads-as-error — "1512?" read like an
+// error: the "?" the spec keeps is a quiet glyph beside the number, and the
+// tag beside it says the rating is provisional.
+test('a provisional rating keeps its "?" quietly, its tag saying what it means', () => {
+  mount(1440);
+  const value = screen.getByTestId('multiplayer-rating-game-value');
+  expect(value.textContent).toBe('1512?');
+  const mark = [...value.querySelectorAll('span')].find(
+    (span) => span.textContent === '?'
   );
-  const guide = screen.getByTestId('multiplayer-guide');
-  expect(card?.contains(guide)).toBe(true);
-  const toggle = screen.getByTestId('multiplayer-guide-toggle');
-  expect(toggle.textContent).toContain('How matchmaking works');
-  expect(toggle.getAttribute('aria-expanded')).toBe('false');
-  expect(screen.queryByText('Every match is rated')).toBeNull();
-  toggle.click();
-  expect(toggle.getAttribute('aria-expanded')).toBe('true');
-  expect(screen.getByText('Every match is rated')).toBeTruthy();
+  expect(mark?.className).toContain('text-text-secondary');
+  const tag = screen.getByTestId('multiplayer-rating-game-provisional');
+  expect(tag.textContent).toBe('Provisional');
+  expect(tag.getAttribute('data-intent')).toBe('info');
 });
