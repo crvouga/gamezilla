@@ -5,6 +5,7 @@ import {
 import { contentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
+import { openBuilderDetails } from './builder-session';
 import { contentClient } from './content-actions';
 import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
@@ -26,9 +27,7 @@ export const createContentThroughScreen = defineAction({
         )
       );
       fireEvent.click(view.getByTestId('content-open-created-draft'));
-      await waitForContent(s, () =>
-        Promise.resolve(view.queryByLabelText('Title') !== null)
-      );
+      await openBuilderDetails(s, view);
       fireEvent.input(view.getByLabelText('Title'), {
         target: { value: title },
       });

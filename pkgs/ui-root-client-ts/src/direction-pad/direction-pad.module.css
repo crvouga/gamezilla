@@ -13,14 +13,24 @@
   -webkit-user-select: none;
 }
 /* A thumb's pad: 44px buttons, every one still a full touch target. */
-.pad[data-size="compact"] {
+.pad[data-size="sm"] {
   grid-template-columns: repeat(3, 2.75rem);
   grid-template-rows: repeat(3, 2.75rem);
   gap: var(--ui-space-1);
 }
-.pad[data-size="compact"] .glyph {
+.pad[data-size="sm"] .glyph {
   width: var(--ui-icon-size-md);
   height: var(--ui-icon-size-md);
+}
+/* A step at a time beside other controls: the same pad at a 48px step. */
+.pad[data-size="md"] {
+  grid-template-columns: repeat(3, var(--ui-space-12));
+  grid-template-rows: repeat(3, var(--ui-space-12));
+  gap: var(--ui-space-1);
+}
+.pad[data-size="md"] .glyph {
+  width: var(--ui-icon-size-lg);
+  height: var(--ui-icon-size-lg);
 }
 .button {
   display: grid;

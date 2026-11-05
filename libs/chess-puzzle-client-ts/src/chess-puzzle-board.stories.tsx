@@ -62,6 +62,7 @@ export const Hint: Story = {
     puzzleScene: {
       fen: STORY_LINE.start,
       plies: 1,
+      lastAction: 'g7g6',
       marks: { wrong: null, hint: 'f3', solution: null },
     },
   },
@@ -79,6 +80,7 @@ export const SolutionShown: Story = {
     puzzleScene: {
       fen: STORY_LINE.start,
       plies: 1,
+      lastAction: 'g7g6',
       over: true,
       marks: { wrong: null, hint: null, solution: { from: 'f3', to: 'e5' } },
     },

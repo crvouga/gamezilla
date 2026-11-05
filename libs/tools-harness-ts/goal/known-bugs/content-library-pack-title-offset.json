@@ -1,0 +1,4 @@
+{
+  "summary": "A pack's stacked thumbnail took a margin beside and above its square, so a pack's title (Counting starter pack, Old count) started 4px right of a puzzle's in the library. The second sheet is drawn inside the same square.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/preview-thumbnail-stack.test.ts"
+}

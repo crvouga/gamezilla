@@ -175,3 +175,27 @@ test('the editor puts the size and tools above the board, pieces as tokens', () 
     ['A1', 'B1', 'C1', 'D1', 'E1'].map((square) => identity(square))
   ).toEqual([null, 'three', 'one', 'four', 'two']);
 });
+
+// regression: sokoban-direction-text-row — on a phone the movement
+// controls were a wrapping row of text buttons ("← Left", "↑ Up"), not
+// laid out the way the moves go. They are now a spatial pad of icon
+// buttons (up over left and right, down below), named for listeners.
+test('on a phone the moves are a spatial pad of named icon buttons', () => {
+  const { view, actions } = player();
+  const pad = view.getByTestId('sokoban-move');
+  expect(pad.getAttribute('data-component')).toBe('DirectionPad');
+  expect(pad.getAttribute('data-size')).toBe('md');
+  for (const [heading, name] of [
+    ['up', 'Move up'],
+    ['left', 'Move left'],
+    ['right', 'Move right'],
+    ['down', 'Move down'],
+  ] as const) {
+    const button = view.getByTestId(`sokoban-move-${heading}`);
+    expect(pad.contains(button)).toBe(true);
+    expect(button.getAttribute('aria-label')).toBe(name);
+    expect(button.textContent).toBe('');
+  }
+  fireEvent.click(view.getByTestId('sokoban-move-right'));
+  expect(actions).toEqual(['r']);
+});

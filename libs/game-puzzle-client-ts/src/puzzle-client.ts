@@ -49,6 +49,12 @@ export type PuzzleBoardProps = GameBoardProps & {
   readonly moveMs: number | null;
   readonly marks: PuzzleBoardMarks;
   readonly suggestions: readonly PuzzleSuggestion[];
+  /**
+   * The line's action that led to the position shown (the setup move, the
+   * opponent's reply), for the board to mark where it came from and went;
+   * absent or null when there is none to mark.
+   */
+  readonly lastAction?: string | null | undefined;
 };
 
 /** The attempt on the board, as the platform knows it. */

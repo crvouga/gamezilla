@@ -43,10 +43,10 @@ export function StoryPuzzleBuilder(props: {
       disabled={props.disabled}
       preview={false}
       history={<StoryDraftHistory disabled={props.disabled} />}
-      playtest={<StoryPlaytest disabled={props.disabled} />}
       publication={
         <ContentPublicationControlsView
           layout="bar"
+          before={<StoryPlaytest disabled={props.disabled} />}
           kind="puzzle"
           validation="unchecked"
           validationMessage=""

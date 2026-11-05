@@ -270,7 +270,17 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
             {/* §9: a re-serve is played again but never re-rated (§8). */}
             <FeedBarRatingChange change={props.ratingChange} />
           </StackHorizontal>
-          <SlidersHorizontalIcon size={18} color="icon" />
+          {/* What pressing the bar does, said beside its icon. */}
+          <StackHorizontal
+            align="center"
+            gap="xs"
+            testId="chess-puzzle-feed-settings-label"
+          >
+            <SlidersHorizontalIcon size={18} color="tint" />
+            <Text variant="label" tone="tint" wrap="nowrap">
+              <Trans>Settings</Trans>
+            </Text>
+          </StackHorizontal>
         </StackHorizontal>
         {/* The feed in one line; the settings hold the rest. */}
         <FeedBarSummary

@@ -22,13 +22,21 @@ import {
 
 const DOCUMENT_ID = '5d0c1a00-0000-4000-8000-0000000000a1';
 
-/** Validation and publication of the draft, with nothing in flight. */
+/**
+ * Validation and publication of the draft, with nothing in flight; a
+ * puzzle's playtest comes first among its actions.
+ */
 function publication(
   overrides: Partial<ContentPublicationControlsViewProps> = {}
 ) {
   return (
     <ContentPublicationControlsView
       layout="bar"
+      before={
+        overrides.kind === 'pack' ? undefined : (
+          <StoryPlaytest disabled={overrides.disabled === true} />
+        )
+      }
       kind="puzzle"
       validation="unchecked"
       validationMessage=""
@@ -47,7 +55,7 @@ function publication(
 
 type Slots = Pick<
   ContentAuthorScreenViewProps,
-  'history' | 'playtest' | 'publication' | 'stage' | 'keptCopies'
+  'history' | 'publication' | 'stage' | 'keptCopies'
 >;
 
 /**
@@ -63,7 +71,6 @@ function renderWith(
     <ContentAuthorScreenView
       {...args}
       history={chosen.history ?? <StoryDraftHistory />}
-      playtest={chosen.playtest ?? <StoryPlaytest />}
       publication={chosen.publication ?? publication()}
       stage={chosen.stage ?? <StoryCountingEditor target="7" />}
       keptCopies={chosen.keptCopies ?? <StoryKeptCopies />}
@@ -85,7 +92,6 @@ const meta = {
         'body',
         'save',
         'history',
-        'playtest',
         'publication',
         'stage',
         'keptCopies',
@@ -145,7 +151,6 @@ export const Saving: Story = {
   render: (args) =>
     renderWith(args, () => ({
       history: <StoryDraftHistory disabled />,
-      playtest: <StoryPlaytest disabled />,
       publication: publication({ disabled: true }),
     })),
 };

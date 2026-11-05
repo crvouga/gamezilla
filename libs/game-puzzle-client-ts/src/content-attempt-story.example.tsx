@@ -32,17 +32,30 @@ function StoryPackAttemptControls(props: {
         title="Undo"
         intent="neutral"
         variant="outline"
+        size="sm"
         disabled={props.disabled}
       />
-      <Button title="Redo" intent="neutral" variant="outline" disabled />
+      <Button
+        title="Redo"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        disabled
+      />
       <Button
         title="Restart"
         intent="neutral"
         variant="outline"
+        size="sm"
         disabled={props.disabled}
       />
       <Show when={props.pack}>
-        <Button title="Pack overview" intent="neutral" variant="outline" />
+        <Button
+          title="Pack overview"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+        />
       </Show>
     </StackHorizontal>
   );

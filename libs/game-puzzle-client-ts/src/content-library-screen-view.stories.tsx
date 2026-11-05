@@ -144,7 +144,13 @@ const meta = {
         status: 'draft',
         preview: 'target:11',
       },
-      { id: 'doc-draft-2', kind: 'puzzle', title: '', status: 'draft' },
+      {
+        id: 'doc-draft-2',
+        kind: 'puzzle',
+        title: 'Five in two steps',
+        status: 'draft',
+        preview: 'target:5',
+      },
       {
         id: 'doc-draft-3',
         kind: 'puzzle',
@@ -173,7 +179,12 @@ const meta = {
         completed: true,
         preview: 'target:9',
       },
-      { id: 'attempt-3', title: '', completed: false },
+      {
+        id: 'attempt-3',
+        title: 'Thirteen without overshooting',
+        completed: false,
+        preview: 'target:13',
+      },
     ],
     playtests: [
       {

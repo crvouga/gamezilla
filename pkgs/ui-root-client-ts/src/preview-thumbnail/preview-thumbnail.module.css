@@ -12,19 +12,22 @@
 .thumbnail[data-size="md"] {
   --preview-thumbnail-size: 3rem;
 }
-/* A collection: a second sheet behind the first, offset up and right. */
+.thumbnail[data-size="xl"] {
+  --preview-thumbnail-size: 5rem;
+}
+/* A collection: a second sheet behind the first, offset up and right,
+   inside the same square, so a pack's row starts its title where a
+   puzzle's does. */
 .thumbnail[data-stacked="true"]::before {
   content: "";
   position: absolute;
-  inset: 0;
-  transform: translate(0.25rem, -0.25rem);
+  inset: 0 0 0.25rem 0.25rem;
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface-muted);
 }
-.thumbnail[data-stacked="true"] {
-  margin-top: 0.25rem;
-  margin-right: 0.25rem;
+.thumbnail[data-stacked="true"] > .frame {
+  margin: 0.25rem 0.25rem 0 0;
 }
 .frame {
   position: relative;
@@ -42,7 +45,7 @@
   place-items: center;
   width: calc(var(--preview-thumbnail-size) * 4);
   height: calc(var(--preview-thumbnail-size) * 4);
-  padding: calc(var(--preview-thumbnail-size) * 0.4);
+  padding: calc(var(--preview-thumbnail-size) * 0.24);
   box-sizing: border-box;
   zoom: 0.25;
 }

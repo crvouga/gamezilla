@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Sokoban's movement controls were a wrapping row of text buttons ('← Left', '↑ Up'), taking two rows and pushing the puzzle card below the fold. They are now a compact spatial pad of named icon buttons (DirectionPad md) beside the move counts.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

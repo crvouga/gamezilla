@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the chess puzzle screen's grid was centred in the whole frame, so the 'Puzzles' title and board began 10px right of the space bar's breadcrumb. A square board's grid now spans the game column and starts at its edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-title-edge.test.ts"
+}

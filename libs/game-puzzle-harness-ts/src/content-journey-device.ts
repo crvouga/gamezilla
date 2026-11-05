@@ -12,10 +12,45 @@ export type ContentJourneyBoard = {
   solve(device: ContentJourneyDevice): Promise<void>;
 };
 
+/**
+ * The library tab that lists a row, by the row's id: published and
+ * starter content under Browse, attempts and playtests under Continue,
+ * the person's drafts and publications under My creations.
+ */
+function libraryTabOf(id: string): string | null {
+  if (/^content-(published|bundled)-|^content-more-published$/.test(id))
+    return 'content-library-tab-browse';
+  if (/^content-attempt-/.test(id)) return 'content-library-tab-continue';
+  if (/^content-draft-/.test(id)) return 'content-library-tab-mine';
+  return null;
+}
+
+/**
+ * On the library, shows the tab that lists `id` before it is pressed: the
+ * library shows one tab at a time. Elsewhere (an attempt's own screen has
+ * ids of the same shape) there are no library tabs and nothing changes.
+ */
+export async function showLibraryTabOf(
+  device: ContentJourneyDevice,
+  id: string
+): Promise<void> {
+  const tab = libraryTabOf(id);
+  if (tab === null) return;
+  await device.ui
+    .get(id)
+    .wait('visible', { ...device, visibleOr: [tab] })
+    .catch(() => undefined);
+  if (await device.ui.get(id).isVisible()) return;
+  if (!(await device.ui.get(tab).isVisible())) return;
+  if ((await device.ui.get(tab).attribute('aria-selected')) !== 'true')
+    await device.ui.get(tab).tap(device);
+}
+
 export async function contentTap(
   device: ContentJourneyDevice,
   id: string
 ): Promise<void> {
+  await showLibraryTabOf(device, id);
   await device.ui.get(id).wait('enabled', device);
   await device.ui.get(id).tap(device);
 }
@@ -39,4 +74,18 @@ export async function contentInput(
 ): Promise<void> {
   await device.ui.get(id).clear();
   await device.ui.get(id).input(value, device);
+}
+
+/**
+ * The builder's details (title, description, difficulty), opened when the
+ * builder shows them closed to one row over its stage.
+ */
+export async function openContentDetails(
+  device: ContentJourneyDevice
+): Promise<void> {
+  const toggle = device.ui.get('content-author-details-toggle');
+  await toggle.expect.visible(device);
+  if ((await toggle.attribute('aria-expanded')) !== 'true')
+    await contentTap(device, 'content-author-details-toggle');
+  await device.ui.get('content-title').expect.visible(device);
 }

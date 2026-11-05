@@ -1,0 +1,4 @@
+{
+  "summary": "A phone hid a puzzle attempt's own title ('Five pairs') as it hides a game's, though the host's bar names only the game. GameScreen keepTitle keeps it beside the difficulty.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-heading-keep-title.test.ts"
+}

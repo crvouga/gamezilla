@@ -361,6 +361,11 @@
       ),
       560px
     );
+    /* As wide as a game's board and rail (the column the host's bar and
+       every game screen share), its tracks from that column's start, so
+       the title, the board and the bar above all begin on one edge. */
+    max-width: calc(560px + var(--ui-space-6) + var(--puzzle-panel-measure));
+    justify-content: start;
   }
   .title {
     grid-area: title;

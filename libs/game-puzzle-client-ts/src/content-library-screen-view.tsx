@@ -7,18 +7,19 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX, Show } from 'solid-js';
+import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
+import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
 import {
   ContentDifficultyChip,
   ContentKindChip,
   ContentRowCaption,
   ContentStatusChip,
 } from './content-chips';
+import { ContentAttemptSection } from './content-library-attempts';
 import { ContentLoadMore } from './content-load-more';
 import { ContentThumbnail } from './content-thumbnail';
 
@@ -116,6 +117,7 @@ function PublishedContent(props: { view: View }): JSX.Element {
                 <MenuRow
                   leading={
                     <ContentThumbnail
+                      size="xl"
                       renderPreview={props.view.renderPreview}
                       kind={entry()?.kind ?? 'puzzle'}
                       preview={entry()?.preview}
@@ -162,6 +164,7 @@ function BundledPacks(props: { view: View }): JSX.Element {
             <MenuRow
               leading={
                 <ContentThumbnail
+                  size="xl"
                   renderPreview={props.view.renderPreview}
                   kind={pack.kind}
                   preview={pack.preview}
@@ -198,6 +201,7 @@ function OwnedContent(props: { view: View }): JSX.Element {
                 <MenuRow
                   leading={
                     <ContentThumbnail
+                      size="xl"
                       renderPreview={props.view.renderPreview}
                       kind={draft()?.kind ?? 'puzzle'}
                       preview={draft()?.preview}
@@ -229,89 +233,6 @@ function OwnedContent(props: { view: View }): JSX.Element {
   );
 }
 
-function SavedAttempts(props: {
-  view: View;
-  mode: 'ordinary' | 'playtest';
-  attempts: readonly ContentLibraryAttempt[];
-  onOpenAttempt: (attemptId: string) => void;
-}): JSX.Element {
-  const { t } = useLingui();
-  const ordinary = () => props.mode === 'ordinary';
-  return (
-    <Show when={props.attempts.length > 0}>
-      <MenuSection
-        title={
-          ordinary() ? (
-            <Trans>Continue playing</Trans>
-          ) : (
-            <Trans>Your private playtests</Trans>
-          )
-        }
-        footer={
-          ordinary() ? (
-            <Trans>
-              Each attempt keeps your progress at the edition you started.
-            </Trans>
-          ) : (
-            <Trans>Playtests change no personal or pack progress.</Trans>
-          )
-        }
-      >
-        <For each={props.attempts.map((attempt) => attempt.id)}>
-          {(id) => {
-            const attempt = () =>
-              props.attempts.find((entry) => entry.id === id);
-            return (
-              <MenuRow
-                leading={
-                  <ContentThumbnail
-                    renderPreview={props.view.renderPreview}
-                    kind="puzzle"
-                    preview={attempt()?.preview}
-                  />
-                }
-                title={(attempt()?.title ?? '') || t`Saved puzzle`}
-                caption={
-                  <ContentRowCaption>
-                    <ContentStatusChip
-                      status={
-                        attempt()?.completed === true
-                          ? 'completed'
-                          : ordinary()
-                            ? 'in-progress'
-                            : 'playtest'
-                      }
-                    />
-                  </ContentRowCaption>
-                }
-                onClick={() => props.onOpenAttempt(id)}
-                dataSet={{ testid: `content-attempt-${id}` }}
-              />
-            );
-          }}
-        </For>
-      </MenuSection>
-    </Show>
-  );
-}
-
-/** The person's attempts: where they left off first, then their playtests. */
-function Attempts(props: {
-  view: View;
-  mode: 'ordinary' | 'playtest';
-}): JSX.Element {
-  return (
-    <SavedAttempts
-      view={props.view}
-      mode={props.mode}
-      attempts={
-        props.mode === 'ordinary' ? props.view.attempts : props.view.playtests
-      }
-      onOpenAttempt={props.view.onOpenAttempt}
-    />
-  );
-}
-
 /** Earlier attempts and playtests share one page of the person's play. */
 function MoreAttempts(props: { view: View }): JSX.Element {
   const { t } = useLingui();
@@ -326,44 +247,158 @@ function MoreAttempts(props: { view: View }): JSX.Element {
   );
 }
 
-/**
- * Playing: the person's attempts to continue, the shipped starter packs,
- * then everything published.
- */
-function PlayColumn(props: { view: View }): JSX.Element {
+type LibraryTab = 'browse' | 'continue' | 'mine';
+
+/** Everyone's puzzles: the shipped starter packs, then everything published. */
+function BrowsePanel(props: { view: View }): JSX.Element {
   return (
-    <StackVertical gap="lg" dataSet={{ testid: 'content-library-play' }}>
-      <Attempts view={props.view} mode="ordinary" />
-      <MoreAttempts view={props.view} />
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-browse' }}
+    >
       <BundledPacks view={props.view} />
       <PublishedContent view={props.view} />
     </StackVertical>
   );
 }
 
-/** Building: creating a draft, the person's own drafts, their playtests. */
-function CreateColumn(props: { view: View }): JSX.Element {
+/**
+ * The person's play: attempts to pick up where they left off, the ones
+ * they finished apart from them, then their private playtests.
+ */
+function ContinuePanel(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  const list = (completed: boolean) =>
+    props.view.attempts.filter((attempt) => attempt.completed === completed);
+  const section = (
+    kind: 'unfinished' | 'finished' | 'playtest',
+    attempts: readonly ContentLibraryAttempt[]
+  ): JSX.Element => (
+    <ContentAttemptSection
+      list={kind}
+      attempts={attempts}
+      renderPreview={props.view.renderPreview}
+      onOpenAttempt={props.view.onOpenAttempt}
+    />
+  );
   return (
-    <StackVertical gap="lg" dataSet={{ testid: 'content-library-create' }}>
-      {props.view.createControls}
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-continue' }}
+    >
       <Show
-        when={props.view.personalDenial}
-        fallback={<OwnedContent view={props.view} />}
+        when={
+          props.view.attempts.length > 0 ||
+          props.view.playtests.length > 0 ||
+          props.view.more.attempts
+        }
+        fallback={
+          <EmptyState
+            variant="compact"
+            title={t`Nothing to continue yet`}
+            body={t`Puzzles you start from Browse wait here, at the move you left them.`}
+          />
+        }
       >
-        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
+        {section('unfinished', list(false))}
+        {section('finished', list(true))}
+        <MoreAttempts view={props.view} />
+        {section('playtest', props.view.playtests)}
       </Show>
-      <Attempts view={props.view} mode="playtest" />
     </StackVertical>
   );
 }
 
+/** What the person builds: their drafts and publications. */
+function MinePanel(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackVertical
+      gap="lg"
+      paddingTop="lg"
+      dataSet={{ testid: 'content-library-mine' }}
+    >
+      <Show
+        when={props.view.personalDenial}
+        fallback={
+          <Show
+            when={props.view.drafts.length > 0 || props.view.more.owned}
+            fallback={
+              <EmptyState
+                variant="compact"
+                title={t`Nothing built yet`}
+                body={t`Create a puzzle or a pack above. Drafts stay private until you publish them.`}
+              />
+            }
+          >
+            <OwnedContent view={props.view} />
+          </Show>
+        }
+      >
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
+      </Show>
+    </StackVertical>
+  );
+}
+
+/** Where a library opens: what the person left unfinished, else browsing. */
+function firstTab(view: View): LibraryTab {
+  return view.attempts.some((attempt) => !attempt.completed)
+    ? 'continue'
+    : 'browse';
+}
+
 /**
- * A game's puzzle library, presentational, in two columns on a wide screen
- * (one after the other on a phone, playing first): playing — saved attempts
- * to continue, the shipped starter packs, the published puzzles and packs
- * — and building — create a draft, the person's own drafts and their
- * playtests; each list paged. Data arrives as props;
- * `ContentLibraryScreen` reads it from the synced library.
+ * Browse, Continue and My creations, one at a time. Every panel stays
+ * rendered so its loaded pages keep their place across switches.
+ */
+function LibraryTabs(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  const unfinished = () =>
+    props.view.attempts.filter((attempt) => !attempt.completed).length;
+  return (
+    <Tabs<LibraryTab>
+      aria-label={t`Puzzles`}
+      testId="content-library-tab"
+      keepMounted
+      defaultValue={untrack(() => firstTab(props.view))}
+      items={[
+        { value: 'browse', label: t`Browse` },
+        {
+          value: 'continue',
+          label: t`Continue`,
+          badge: unfinished() > 0 ? unfinished() : undefined,
+        },
+        { value: 'mine', label: t`My creations` },
+      ]}
+    >
+      {(tab) => (
+        <Switch>
+          <Match when={tab === 'browse'}>
+            <BrowsePanel view={props.view} />
+          </Match>
+          <Match when={tab === 'continue'}>
+            <ContinuePanel view={props.view} />
+          </Match>
+          <Match when={tab === 'mine'}>
+            <MinePanel view={props.view} />
+          </Match>
+        </Switch>
+      )}
+    </Tabs>
+  );
+}
+
+/**
+ * A game's puzzle library, presentational: creating a puzzle or a pack
+ * under the title, then three tabs, one shown at a time: Browse (the
+ * shipped starter packs and everything published), Continue (attempts
+ * left unfinished, the finished ones apart, private playtests) and My
+ * creations (drafts and publications); each list paged. It opens on
+ * Continue when something is unfinished, else on Browse. Data arrives as
+ * props; `ContentLibraryScreen` reads it from the synced library.
  */
 export function ContentLibraryScreenView(
   props: ContentLibraryScreenViewProps
@@ -381,10 +416,8 @@ export function ContentLibraryScreenView(
           </Trans>
         }
       >
-        <Grid columns={{ base: 1, lg: 2 }} gap="xl" align="start">
-          <PlayColumn view={props} />
-          <CreateColumn view={props} />
-        </Grid>
+        {props.createControls}
+        <LibraryTabs view={props} />
       </EmbeddedScreen>
     </Show>
   );

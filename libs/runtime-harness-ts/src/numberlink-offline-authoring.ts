@@ -29,7 +29,7 @@ export async function reopenOfflineNumberlinkDraft(
     await contentTap(device, Handles.navBack);
     await contentTap(device, `content-draft-${draft.puzzleId}`);
     await ui
-      .get('content-author')
+      .get('content-author-title')
       .expect.text(draft.puzzleTitle, { ...device, exact: false });
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
     await ui

@@ -17,10 +17,12 @@ export type DirectionPadProps = {
   /** The group's `data-testid`; each button is `${testId}-<heading>`. */
   readonly testId: string;
   /**
-   * `compact`: 44px buttons, a thumb's pad that fits under a phone's board
-   * with the board in view. Defaults to `regular` (64px).
+   * `lg` (default): 64px buttons, for steering in real time. `md`: 48px
+   * buttons, for stepping a turn at a time beside other controls. `sm`:
+   * 44px buttons, a thumb's pad that fits under a phone's board with the
+   * board in view (still a full touch target).
    */
-  readonly size?: 'regular' | 'compact' | undefined;
+  readonly size?: 'sm' | 'md' | 'lg' | undefined;
 };
 
 /** Up on top, left and right beside an empty centre, down below. */
@@ -89,9 +91,9 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
     <div
       {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       class={styles['pad']}
+      data-size={props.size ?? 'lg'}
       role="group"
       data-disabled={props.disabled}
-      data-size={props.size ?? 'regular'}
     >
       <For each={HEADINGS}>
         {(heading) => <PadButton heading={heading} pad={props} />}

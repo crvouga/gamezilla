@@ -77,7 +77,7 @@ test('the scores and the round are said to a listener, not drawn over the arena 
 test('phone: one rider steers from a compact pad beside the steering line', () => {
   mount(390);
   const pad = screen.getByTestId('arena-white-pad');
-  expect(pad.getAttribute('data-size')).toBe('compact');
+  expect(pad.getAttribute('data-size')).toBe('sm');
   const hint = screen.getByText(/Swipe the arena or use the pad to steer/);
   // The pad and the line share one row under the arena: the nearest box
   // holding both is a row, not the arena's column.

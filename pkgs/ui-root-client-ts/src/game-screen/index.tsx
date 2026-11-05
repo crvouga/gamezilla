@@ -30,15 +30,33 @@ export function GameScreen(props: {
    * they wrap under the title only when the line is too short.
    */
   facts?: JSX.Element | undefined;
+  /**
+   * The title names what the host's bar does not (a puzzle by its own
+   * name, under a bar that names its game): a phone keeps it beside the
+   * facts instead of leaving it for a listener only.
+   */
+  keepTitle?: boolean | undefined;
+  /**
+   * The step that finishes the screen (a `StepFooter`, such as checking
+   * and publishing a draft): held in the screen's footer under the scroll
+   * area, as wide as the game column, so nothing scrolls beneath it.
+   */
+  footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
   children: JSX.Element;
 }): JSX.Element {
   const facts = createScreenSlot(() => props.facts);
+  const footer = createScreenSlot(() => props.footer);
   return (
     <EmbeddedScreen
       screenId={props.screenId}
       width="full"
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
+      footer={
+        <Show when={footer.present()}>
+          <div class={styles['footer']}>{footer.content()}</div>
+        </Show>
+      }
     >
       <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
         <Show
@@ -49,6 +67,7 @@ export function GameScreen(props: {
         >
           <div
             class={heading['heading']}
+            data-keep-title={props.keepTitle === true}
             {...dataAttrs({ component: 'GameHeading' })}
           >
             <div
@@ -98,6 +117,11 @@ export function GameLayout(props: {
    * instead of a square board's measure beside a wide one.
    */
   arena?: boolean | undefined;
+  /**
+   * The stage is an editor's workspace: the stage takes the column's whole
+   * width, as wide as a board and its rail, with nothing beside it.
+   */
+  workspace?: boolean | undefined;
 }): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
@@ -124,6 +148,7 @@ export function GameLayout(props: {
         data-has-aside={aside.present()}
         data-stage-preview={props.stagePreview === true}
         data-arena={props.arena === true}
+        data-workspace={props.workspace === true}
         {...dataAttrs({ component: 'GameLayout' })}
       >
         <Show when={setup.present()}>

@@ -5,7 +5,7 @@ import {
 import { contentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
-import { openBuilder, settleBuilder } from './builder-session';
+import { builderField, openBuilder, settleBuilder } from './builder-session';
 import { contentClient, currentContentEditor } from './content-actions';
 import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
@@ -19,13 +19,13 @@ export const saveMetadataThroughScreen = defineAction({
   act: async (s: ContentHarness, clientId: string) => {
     const editor = currentContentEditor(s, clientId);
     const view = await openBuilder(s, clientId, editor.documentId);
-    fireEvent.input(view.getByLabelText('Title'), {
+    fireEvent.input(builderField(view, 'Title'), {
       target: { value: editor.body.title },
     });
-    fireEvent.input(view.getByLabelText('Description'), {
+    fireEvent.input(builderField(view, 'Description'), {
       target: { value: editor.body.description },
     });
-    fireEvent.input(view.getByLabelText('Difficulty (optional)'), {
+    fireEvent.input(builderField(view, 'Difficulty (optional)'), {
       target: { value: editor.body.difficulty },
     });
     const db = contentClient(s, clientId).db;

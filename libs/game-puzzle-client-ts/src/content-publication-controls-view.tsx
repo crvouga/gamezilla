@@ -2,11 +2,11 @@ import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentWithdraw } from './content-withdraw';
@@ -39,10 +39,12 @@ export type ContentPublicationControlsViewProps = {
   readonly onWithdraw: () => Promise<void>;
   /**
    * `stacked` (default): each finding a notice above the actions. `bar`:
-   * for a sticky action bar, the check and the proof are tags on one line
-   * over the actions, and only what blocks publishing is a notice.
+   * for a `StepFooter`, where the draft stands is one line of text at the
+   * start of the actions' row, and only what blocks publishing is a notice.
    */
   readonly layout?: 'stacked' | 'bar' | undefined;
+  /** A step before the check (a puzzle's playtest), first among the actions. */
+  readonly before?: JSX.Element;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -119,43 +121,70 @@ function ValidationNotices(
   );
 }
 
-/** The last check and the playtest proof as tags, for the action bar. */
-function CompactValidation(
-  props: ContentPublicationControlsViewProps
-): JSX.Element {
+/**
+ * Where the draft stands, as the publish footer's text: the playtest proof
+ * (puzzles), the last check, then the one next step. A failed check that
+ * blocks publishing is a notice above it.
+ */
+function BarStatus(props: ContentPublicationControlsViewProps): JSX.Element {
+  const { t } = useLingui();
+  const next = (): string => {
+    if (props.kind === 'puzzle' && !props.proven)
+      return t`Finish a playtest, then validate.`;
+    return props.validation === 'valid'
+      ? t`Publish to share it with everyone who plays.`
+      : t`Validate, then publish.`;
+  };
+  return (
+    <P
+      variant="caption"
+      tone="secondary"
+      dataSet={{ testid: 'content-publication-status' }}
+    >
+      <Show when={props.kind === 'puzzle'}>
+        <Text
+          variant="inherit"
+          tone={props.proven ? 'success' : 'default'}
+          dataSet={{ testid: 'content-proof', proven: String(props.proven) }}
+        >
+          {props.proven ? t`Proven by a playtest` : t`Not proven yet`}
+        </Text>
+        {' · '}
+      </Show>
+      <Show
+        when={props.validation === 'valid'}
+        fallback={
+          <Text variant="inherit" tone="default">
+            {props.validation === 'invalid'
+              ? t`Needs changes`
+              : t`Not checked yet`}
+          </Text>
+        }
+      >
+        <Text
+          variant="inherit"
+          tone="success"
+          dataSet={{ testid: 'content-validation-passed' }}
+        >
+          {t`Passed its check`}
+        </Text>
+      </Show>
+      {'. '}
+      {next()}
+    </P>
+  );
+}
+
+/** A failed check, the one finding that blocks publishing, as a notice. */
+function BarFinding(props: ContentPublicationControlsViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <>
-      <Show when={props.validation === 'invalid'}>
-        <Notice tone="error">
-          {props.validationMessage ||
-            t`Complete the required details and validate again.`}
-        </Notice>
-      </Show>
-      <Show when={props.kind === 'puzzle' || props.validation === 'valid'}>
-        <StackHorizontal gap="xs" wrap align="center">
-          <Show when={props.kind === 'puzzle'}>
-            <Badge
-              intent={props.proven ? 'success' : 'neutral'}
-              dot={props.proven ? 'online' : 'pending'}
-              label={props.proven ? t`Proven by a playtest` : t`Not proven yet`}
-              dataSet={{
-                testid: 'content-proof',
-                proven: String(props.proven),
-              }}
-            />
-          </Show>
-          <Show when={props.validation === 'valid'}>
-            <Badge
-              intent="success"
-              dot="online"
-              label={t`Passed its check`}
-              dataSet={{ testid: 'content-validation-passed' }}
-            />
-          </Show>
-        </StackHorizontal>
-      </Show>
-    </>
+    <Show when={props.validation === 'invalid'}>
+      <Notice tone="error">
+        {props.validationMessage ||
+          t`Complete the required details and validate again.`}
+      </Notice>
+    </Show>
   );
 }
 
@@ -204,40 +233,46 @@ export function ContentPublicationControlsView(
     },
   });
   const next = () => publicationNextStep(props.validation);
+  const actions = (): JSX.Element => (
+    <StackHorizontal gap="sm" wrap>
+      {props.before}
+      <Button
+        {...validate.buttonProps}
+        intent={next() === 'validate' ? 'primary' : 'neutral'}
+        variant={next() === 'validate' ? 'solid' : 'outline'}
+        dataSet={{ testid: 'content-validate' }}
+      />
+      <Show
+        when={props.publishDenial}
+        fallback={
+          <Button
+            {...publish.buttonProps}
+            intent={next() === 'publish' ? 'primary' : 'neutral'}
+            variant={next() === 'publish' ? 'solid' : 'outline'}
+            dataSet={{ testid: 'content-publish' }}
+          />
+        }
+      >
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
+      </Show>
+    </StackHorizontal>
+  );
   return (
     <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
       <PublicationStatus pending={props.pending} refusal={props.refusal} />
       <Switch>
         <Match when={props.layout === 'bar'}>
-          <CompactValidation {...props} />
+          <BarFinding {...props} />
+          <StackHorizontal gap="sm" wrap align="center" justify="between">
+            <BarStatus {...props} />
+            {actions()}
+          </StackHorizontal>
         </Match>
         <Match when={props.layout !== 'bar'}>
           <ValidationNotices {...props} />
+          {actions()}
         </Match>
       </Switch>
-      <StackHorizontal gap="sm" wrap>
-        <Button
-          {...validate.buttonProps}
-          intent={next() === 'validate' ? 'primary' : 'neutral'}
-          variant={next() === 'validate' ? 'solid' : 'outline'}
-          dataSet={{ testid: 'content-validate' }}
-        />
-        <Show
-          when={props.publishDenial}
-          fallback={
-            <Button
-              {...publish.buttonProps}
-              intent={next() === 'publish' ? 'primary' : 'neutral'}
-              variant={next() === 'publish' ? 'solid' : 'outline'}
-              dataSet={{ testid: 'content-publish' }}
-            />
-          }
-        >
-          {(denial) => (
-            <DenialSurfaceView denial={denial()} variant="compact" />
-          )}
-        </Show>
-      </StackHorizontal>
       <Show when={validate.error() ?? publish.error()}>
         {(error) => (
           <ErrorState

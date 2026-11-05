@@ -1,7 +1,3 @@
-import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, fn, userEvent, within } from 'storybook/test';
-import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
@@ -10,27 +6,43 @@ import {
   STORY_FEED_CONFIG,
   STORY_LINE,
   STORY_SOLVED,
-  StoryPuzzleBoard,
   withScreenFrame,
-} from './puzzle-screen-story.example';
+} from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
+import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
+import { expect, fn, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import {
+  StoryChessPuzzleBoard,
+  StoryChessPuzzlePlayScreen,
+  withChessPuzzleBoardContext,
+} from './chess-puzzle-story.example';
 
-const SOLVING: PuzzleScene = { fen: STORY_LINE.start, plies: 1 };
+const SOLVING: PuzzleScene = {
+  fen: STORY_LINE.start,
+  plies: 1,
+  lastAction: 'g7g6',
+};
 const SOLVED = STORY_SOLVED;
 
+/**
+ * The platform's puzzle play screen in each of its states, drawn with the
+ * board its puzzle feed plays on (chess's), so a state's board looks the
+ * way it will in the app and the same from one state to the next.
+ */
 const meta = {
   id: 'screens-puzzles-play',
   title: 'Screens/Puzzles/Play',
-  component: PuzzlePlayScreenView,
+  component: StoryChessPuzzlePlayScreen,
   tags: ['autodocs'],
-  decorators: [withScreenFrame],
+  decorators: [withScreenFrame, withChessPuzzleBoardContext],
   render: (args, context) =>
-    renderPuzzlePlayScene(args, context, StoryPuzzleBoard),
+    renderPuzzlePlayScene(args, context, StoryChessPuzzleBoard),
   parameters: {
     appRouter: true,
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
   args: PUZZLE_PLAY_STORY_ARGS,
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<typeof StoryChessPuzzlePlayScreen>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -46,8 +58,11 @@ export const CorrectMove: Story = {
       contextKey: 'after-bxd1',
     },
     elapsedMs: 27_000,
+    correct: true,
   },
-  parameters: { puzzleScene: { fen: STORY_LINE.afterBxd1, plies: 3 } },
+  parameters: {
+    puzzleScene: { fen: STORY_LINE.afterBxd1, plies: 3, lastAction: 'g4d1' },
+  },
 };
 
 /** A wrong move: it is crossed on the board and Retry is offered. */
@@ -64,6 +79,7 @@ export const WrongMove: Story = {
     puzzleScene: {
       fen: STORY_LINE.wrong,
       plies: 1,
+      lastAction: 'c3d5',
       marks: { wrong: 'd5', hint: null, solution: null },
     },
   },
@@ -82,6 +98,7 @@ export const Hint: Story = {
     puzzleScene: {
       fen: STORY_LINE.start,
       plies: 1,
+      lastAction: 'g7g6',
       marks: { wrong: null, hint: 'f3', solution: null },
     },
   },
@@ -99,6 +116,7 @@ export const SolutionShown: Story = {
     puzzleScene: {
       fen: STORY_LINE.start,
       plies: 1,
+      lastAction: 'g7g6',
       over: true,
       marks: { wrong: null, hint: null, solution: { from: 'f3', to: 'e5' } },
     },
@@ -117,6 +135,7 @@ export const Solved: Story = {
     puzzleScene: {
       fen: STORY_LINE.mate,
       plies: 6,
+      lastAction: 'c3d5',
       over: true,
       ratingChange: 16,
       completion: SOLVED,
@@ -137,6 +156,7 @@ export const Failed: Story = {
     puzzleScene: {
       fen: STORY_LINE.mate,
       plies: 6,
+      lastAction: 'c3d5',
       over: true,
       ratingChange: -9,
       completion: {
@@ -157,6 +177,7 @@ export const Unrated: Story = {
     puzzleScene: {
       fen: STORY_LINE.mate,
       plies: 6,
+      lastAction: 'c3d5',
       over: true,
       ratingChange: 'unrated',
     },

@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
+import { lineActions } from '@libs/game-puzzle-shared-ts/step';
 import {
   DefineBackButton,
   useGameChoicesName,
@@ -10,6 +11,7 @@ import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -72,6 +74,11 @@ function PuzzlePlayerBoardSlot(props: {
         moveMs={PUZZLE_PIECE_MOVE_MS}
         marks={p.marks()}
         suggestions={p.suggestions()}
+        lastAction={
+          p.atFrontier()
+            ? (lineActions(p.attempt.line())[p.attempt.solveIdx() - 1] ?? null)
+            : null
+        }
         onAction={(action: string) =>
           p.isSpectator() ? p.onRecommendAction(action) : p.onMove(action)
         }
@@ -97,6 +104,26 @@ function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
   );
 }
 
+/** The solver's side as the game names it, once a position is shown. */
+function useSolverSide(p: PuzzlePlayerChromeModel): () => string | null {
+  const presentation = useGamePresentation();
+  return () => {
+    const position = p.boardPosition();
+    return position === null || position.length === 0
+      ? null
+      : presentation(position).sideLabel(p.orientation());
+  };
+}
+
+/**
+ * The solver has played at least one right move of the line and is to
+ * move again: past the line's first solver move, still solving.
+ */
+function useCorrectSoFar(p: PuzzlePlayerChromeModel): () => boolean {
+  const firstSolveIdx = puzzleLineLayout(usePuzzleGame().game.puzzles).start;
+  return () => p.status() === 'solving' && p.attempt.solveIdx() > firstSolveIdx;
+}
+
 /** The solver's own run so far; nothing for a spectator. */
 function usePlayProgress(p: PuzzlePlayerChromeModel) {
   const history = usePuzzleHistory();
@@ -119,16 +146,10 @@ function PuzzlePlayerChrome(props: {
   const allowance = usePuzzleAllowance();
   const [config] = usePuzzleFeedConfig();
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
-  const presentation = useGamePresentation();
   const choices = useGameChoicesName();
   const progress = usePlayProgress(p);
-  /** The solver's side as the game names it, once a position is shown. */
-  const solverSide = (): string | null => {
-    const position = p.boardPosition();
-    return position === null || position.length === 0
-      ? null
-      : presentation(position).sideLabel(p.orientation());
-  };
+  const correct = useCorrectSoFar(p);
+  const solverSide = useSolverSide(p);
   return (
     <>
       <DefineBackButton onPress={p.backToRoot} label={choices()} />
@@ -136,6 +157,7 @@ function PuzzlePlayerChrome(props: {
         pick="playing"
         statusKind={p.statusKind()}
         solverSide={solverSide()}
+        correct={correct()}
         coach={{
           message: p.coach()?.text ?? '',
           contextKey: p.coach()?.positionKey ?? '',

@@ -11,6 +11,7 @@ import {
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
+import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -186,24 +187,37 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
-        // The board's size and the tools head it, so every control that
-        // shapes the board is in view with it; what to correct follows.
-        <StackVertical gap="md">
-          <SokobanSizeControls
-            board={board()}
-            disabled={props.disabled}
-            onResize={editor.resize}
-          />
-          <ToolPalette editor={editor} disabled={props.disabled} />
-          <Board editor={editor} board={board()} disabled={props.disabled} />
-          <P variant="caption" tone="secondary">
-            <Trans>
-              Choose a tool, then a square. Walls and outside squares remove any
-              piece on them; erasing makes plain floor.
-            </Trans>
-          </P>
-          <Feedback editor={editor} board={board()} />
-        </StackVertical>
+        // The board's size and the tools sit beside it when there is room
+        // and head it on a phone, so every control that shapes the board
+        // is in view with it; what to correct follows the board.
+        <EditorWorkbench
+          tools={
+            <>
+              <SokobanSizeControls
+                board={board()}
+                disabled={props.disabled}
+                onResize={editor.resize}
+              />
+              <ToolPalette editor={editor} disabled={props.disabled} />
+            </>
+          }
+          canvas={
+            <>
+              <Board
+                editor={editor}
+                board={board()}
+                disabled={props.disabled}
+              />
+              <P variant="caption" tone="secondary">
+                <Trans>
+                  Choose a tool, then a square. Walls and outside squares remove
+                  any piece on them; erasing makes plain floor.
+                </Trans>
+              </P>
+              <Feedback editor={editor} board={board()} />
+            </>
+          }
+        />
       )}
     </Show>
   );

@@ -3,6 +3,7 @@ import {
   contentAttribute,
   contentInput,
   contentTap,
+  openContentDetails,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import {
@@ -45,6 +46,7 @@ export async function reviseNumberlinkJourney(
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await contentTap(device, Handles.navBack);
     await contentTap(device, `content-draft-${source.documentId}`);
+    await openContentDetails(device);
     await contentInput(device, 'content-title', `Canyon ${host.runId}`);
     await contentInput(device, 'numberlink-pair-label', 'B');
     const latest = await publishJourneyDraft(device, `Canyon ${host.runId}`);

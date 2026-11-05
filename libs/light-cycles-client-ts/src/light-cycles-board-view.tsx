@@ -120,7 +120,7 @@ function Pads(props: {
                 <Text variant="label">{riderName(side)}</Text>
               </Show>
               <DirectionPad
-                size="compact"
+                size="sm"
                 labels={{
                   up: t`Steer ${riderName(side)} up`,
                   right: t`Steer ${riderName(side)} right`,

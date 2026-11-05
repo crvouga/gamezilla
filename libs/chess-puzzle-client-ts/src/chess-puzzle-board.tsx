@@ -5,6 +5,7 @@
  * crossed, the shown solution and each suggestion are arrows.
  */
 import { chessPuzzleCellFeedback } from '@libs/chess-puzzle-shared-ts/cell-feedback';
+import { chessPuzzleLastMove } from '@libs/chess-puzzle-shared-ts/last-move';
 import { chessPuzzleArrows } from '@libs/chess-puzzle-shared-ts/recommendation-arrows';
 import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-client';
@@ -33,6 +34,7 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
         autoPromoteQueen={false}
         showCoordinates
         highlightLastMove
+        lastMove={chessPuzzleLastMove(props.lastAction)}
         highlightLegalMoves
         cellFeedback={chessPuzzleCellFeedback(props.marks)}
         arrows={chessPuzzleArrows({

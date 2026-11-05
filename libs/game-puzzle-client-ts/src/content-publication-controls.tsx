@@ -54,12 +54,14 @@ function useWithdraw(documentId: () => string): () => Promise<void> {
 
 /**
  * Validation and publication wired to the draft, permissions and sync, laid
- * out for the builder's sticky action bar.
+ * out for the builder's publish footer; `before` (a puzzle's playtest) comes
+ * first among its actions.
  */
 export function ContentPublicationControls(props: {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
+  before?: JSX.Element;
 }): JSX.Element {
   const tools = useContentPublication(props);
   const game = useContentGame();
@@ -76,6 +78,7 @@ export function ContentPublicationControls(props: {
   return (
     <ContentPublicationControlsView
       layout="bar"
+      before={props.before}
       kind={props.document.kind}
       validation={tools.draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools.draft())}

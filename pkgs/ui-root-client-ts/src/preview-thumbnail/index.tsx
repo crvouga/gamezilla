@@ -5,8 +5,12 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
 import styles from './preview-thumbnail.module.css';
 
-/** `md` 48px beside a row's title; `lg` 64px leading a card or a list row. */
-export type PreviewThumbnailSize = 'md' | 'lg';
+/**
+ * `md` 48px beside a row's title; `lg` 64px leading a card or a list row;
+ * `xl` 80px leading a row whose picture is how it is told apart (a
+ * library of boards).
+ */
+export type PreviewThumbnailSize = 'md' | 'lg' | 'xl';
 
 export type PreviewThumbnailProps = {
   /**

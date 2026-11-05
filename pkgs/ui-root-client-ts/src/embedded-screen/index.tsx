@@ -6,6 +6,7 @@ import { type JSX, Show } from 'solid-js';
 import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import type { ScreenMeasure } from '../screen-measure';
+import { createScreenSlot } from '../screen-slot';
 import { ScrollView } from '../scroll-view/index';
 import { useLayoutMode } from '../use-layout-mode';
 
@@ -31,6 +32,13 @@ export type EmbeddedScreenProps = {
    * its own, so the page still has one scroller.
    */
   fill?: boolean | undefined;
+  /**
+   * The step that finishes the screen (a `StepFooter`): a strip of its own
+   * under the scroll area, on the screen's surface behind a hairline, so it
+   * stays in view and nothing ever scrolls beneath it. Only a scrolling
+   * screen has one; an empty slot draws nothing.
+   */
+  footer?: JSX.Element | undefined;
   children: JSX.Element;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -104,12 +112,37 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
   );
 }
 
-function ScrolledEmbeddedScreen(
-  props: EmbeddedScreenProps & {
-    inset: boolean;
-    setRoot: (el: HTMLDivElement) => void;
-  }
-): JSX.Element {
+type ScrolledProps = EmbeddedScreenProps & {
+  inset: boolean;
+  setRoot: (el: HTMLDivElement) => void;
+};
+
+/**
+ * With a footer, the scroll area and the footer share the host's height:
+ * the scroll area takes what the footer leaves, so its last row ends above
+ * the footer instead of under it.
+ */
+function ScrolledEmbeddedScreen(props: ScrolledProps): JSX.Element {
+  const footer = createScreenSlot(() => props.footer);
+  return (
+    <Show when={footer.present()} fallback={<EmbeddedScroller {...props} />}>
+      <div
+        class="box flex-1 min-h-0 self-stretch min-w-0"
+        {...dataAttrs({ component: 'EmbeddedScreenFrame' })}
+      >
+        <EmbeddedScroller {...props} />
+        <div
+          class="box shrink-0 min-w-0 border-t border-border bg-surface px-ui-lg py-ui-md"
+          {...dataAttrs({ component: 'EmbeddedScreenFooter' })}
+        >
+          {footer.content()}
+        </div>
+      </div>
+    </Show>
+  );
+}
+
+function EmbeddedScroller(props: ScrolledProps): JSX.Element {
   return (
     <ScrollView
       ref={(el) => {

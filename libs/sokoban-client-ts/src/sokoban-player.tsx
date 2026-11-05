@@ -6,17 +6,16 @@ import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { decodeSokobanPosition } from '@libs/sokoban-shared-ts/sokoban-position';
 import type {
   SokobanBoard,
-  SokobanDirection,
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
+import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import {
   positionPieces,
@@ -41,15 +40,6 @@ function Steering(props: {
     disabled: () => props.disabled,
     onAction: (action) => props.onAction(action),
   });
-  const buttons = (): readonly {
-    direction: SokobanDirection;
-    title: string;
-  }[] => [
-    { direction: 'left', title: t`← Left` },
-    { direction: 'up', title: t`↑ Up` },
-    { direction: 'down', title: t`↓ Down` },
-    { direction: 'right', title: t`→ Right` },
-  ];
   const wide = () => mode() === 'wide';
   return (
     <StackVertical gap="md">
@@ -65,51 +55,55 @@ function Steering(props: {
         onDirection={steering.steer}
         onTile={steering.tap}
       />
-      {/* How to move, under the board it describes. The movement buttons
-          come last, so the attempt's undo follows right after them. */}
-      <P id={help} variant="caption" tone="secondary">
-        <Show
-          when={wide()}
-          fallback={
-            <Trans>
-              Swipe the board, tap a square beside the worker, or use the
-              buttons.
-            </Trans>
-          }
-        >
-          <Trans>
-            Move with the arrow keys or W A S D, or click a square beside the
-            worker.
-          </Trans>
+      {/* How to move and how far, beside the movement pad on a phone, so
+          the board, the pad and the attempt's undo stay on one screen. */}
+      <StackHorizontal gap="md" align="center" justify="between">
+        <StackVertical gap="xs" shrink>
+          <P
+            role="status"
+            variant="label"
+            dataSet={{
+              testid: 'sokoban-counts',
+              moves: String(props.position.moves),
+              pushes: String(props.position.pushes),
+            }}
+          >
+            {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
+          </P>
+          <P id={help} variant="caption" tone="secondary">
+            <Show
+              when={wide()}
+              fallback={
+                <Trans>
+                  Swipe the board, tap a square beside the worker, or use the
+                  pad.
+                </Trans>
+              }
+            >
+              <Trans>
+                Move with the arrow keys or W A S D, or click a square beside
+                the worker.
+              </Trans>
+            </Show>
+          </P>
+        </StackVertical>
+        {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
+        <Show when={!wide()}>
+          <DirectionPad
+            size="md"
+            labels={{
+              up: t`Move up`,
+              right: t`Move right`,
+              down: t`Move down`,
+              left: t`Move left`,
+            }}
+            // Presses while a move is being kept queue, as keys do.
+            disabled={false}
+            testId="sokoban-move"
+            onDirection={(heading) => steering.steer(heading)}
+          />
         </Show>
-      </P>
-      <P
-        role="status"
-        variant="label"
-        dataSet={{
-          testid: 'sokoban-counts',
-          moves: String(props.position.moves),
-          pushes: String(props.position.pushes),
-        }}
-      >
-        {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
-      </P>
-      {/* A keyboard is at hand on a wide screen; a phone gets buttons. */}
-      <Show when={!wide()}>
-        <StackHorizontal gap="sm" wrap>
-          <For each={buttons()}>
-            {(button) => (
-              <Button
-                title={button.title}
-                intent="neutral"
-                variant="outline"
-                onClick={() => steering.steer(button.direction)}
-                dataSet={{ testid: `sokoban-move-${button.direction}` }}
-              />
-            )}
-          </For>
-        </StackHorizontal>
-      </Show>
+      </StackHorizontal>
       <Show when={steering.refusal()}>
         {(refused) => (
           <Notice

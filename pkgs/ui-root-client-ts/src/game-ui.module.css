@@ -5,7 +5,8 @@
    inside answers to this column's width, not the window's, so a frame
    narrowed by the host's own chrome never squeezes a rail beside the board. */
 .column,
-.layout {
+.layout,
+.footer {
   /* A board's width: the stage column, and the seats around the board. */
   --game-board-measure: 560px;
   /* The rail beside the board on wide screens: with the board and the gap
@@ -30,9 +31,22 @@
   min-width: 0;
   margin-inline: auto;
 }
+/* A game screen's footer: as wide as a column holding a board and its
+   rail, centered the same way, so its edges meet the column's. */
+.footer {
+  width: 100%;
+  max-width: calc(
+    var(--game-board-measure) +
+    var(--ui-space-6) +
+    var(--game-rail-measure)
+  );
+  min-width: 0;
+  margin-inline: auto;
+}
 .column:has(.layout) {
   max-width: var(--ui-max-width-prose);
 }
+.column:has(.layout[data-workspace="true"]),
 .column:has(.layout[data-has-stage="true"][data-has-aside="true"]),
 .column:has(.layout[data-has-stage="true"][data-has-setup="true"]),
 .column:has([data-setup-split="true"]),
@@ -73,6 +87,11 @@
   width: 100%;
   max-width: var(--game-board-measure);
   justify-self: start;
+}
+/* An editor's workspace fills the column; the editor sets its own tools
+   beside its canvas. */
+.layout[data-workspace="true"] > .stage {
+  max-width: none;
 }
 /* With nothing beside it, the one column fills the game menu's measure. */
 .column .layout:not([data-has-stage="true"]) > .setup,

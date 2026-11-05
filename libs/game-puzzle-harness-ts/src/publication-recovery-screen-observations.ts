@@ -30,6 +30,11 @@ export async function publicationRefusalVisible(
     await waitForContent(s, () =>
       Promise.resolve(view.queryByTestId(Handles.refusedChange) !== null)
     );
+    // The builder shows its details closed to one row; open them as a
+    // person would, to see the draft is still there to edit.
+    const details = view.queryByTestId('content-author-details-toggle');
+    if (details?.getAttribute('aria-expanded') === 'false')
+      fireEvent.click(details);
     const notice = view.getByTestId(Handles.refusedChange);
     return (
       notice.getAttribute('data-mutation') === 'publishPuzzleContent' &&
