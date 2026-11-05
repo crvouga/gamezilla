@@ -20,8 +20,8 @@ export type ContentJourneyBoard = {
 function libraryTabOf(id: string): string | null {
   if (/^content-(published|bundled)-|^content-more-published$/.test(id))
     return 'content-library-tab-browse';
-  if (/^content-attempt-/.test(id)) return 'content-library-tab-continue';
-  if (/^content-draft-/.test(id)) return 'content-library-tab-mine';
+  if (id.startsWith('content-attempt-')) return 'content-library-tab-continue';
+  if (id.startsWith('content-draft-')) return 'content-library-tab-mine';
   return null;
 }
 

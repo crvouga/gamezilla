@@ -4,10 +4,10 @@
  * chess's own puzzle board. Production never imports this module.
  */
 import {
-  PuzzlePlayScreenView,
-  type PuzzlePlayScreenViewProps,
-} from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
-import type { StoryPuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
+  type PuzzlePlayStoryArgs,
+  type StoryPuzzleBoardProps,
+  StoryPuzzlePlayScreen,
+} from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import {
   AudioPlaybackProvider,
@@ -77,7 +77,7 @@ export function StoryChessPuzzleBoard(
  * chess's own puzzle board in its well.
  */
 export function StoryChessPuzzlePlayScreen(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzlePlayStoryArgs
 ): JSX.Element {
-  return <PuzzlePlayScreenView {...props} />;
+  return <StoryPuzzlePlayScreen {...props} />;
 }

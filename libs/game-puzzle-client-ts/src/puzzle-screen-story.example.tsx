@@ -425,3 +425,10 @@ export function renderPuzzlePlayScene(
     />
   );
 }
+
+/** The platform's puzzle play screen, for a game's own play stories. */
+export function StoryPuzzlePlayScreen(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
+  return <PuzzlePlayScreenView {...props} />;
+}
