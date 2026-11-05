@@ -230,7 +230,7 @@ describe('GameMenuScreen', () => {
     const title = view.getByText('Play with friends or bots');
     const before = (a: Node, b: Node): boolean =>
       (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    if (badge === null || badge === undefined) throw new Error('No tag');
+    if (badge === null) throw new Error('No tag');
     expect(before(badge, title)).toBe(true);
     expect(before(title, caption)).toBe(true);
     view.unmount();
