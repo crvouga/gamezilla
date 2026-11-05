@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, the puzzle feed after a correct move was shifted sideways: its title read \"uzzles\" and the board ran off the left edge. The move strip revealed the selected move with the browser's scrollIntoView, which scrolls every scrolling ancestor, so the page itself was scrolled sideways. The strip now scrolls only itself (createScrollTarget's opt-in scope: 'scroller'), and its first reveal is instant, so the selected move is fully in view from the start.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-move-strip-scroll.test.tsx"
+}

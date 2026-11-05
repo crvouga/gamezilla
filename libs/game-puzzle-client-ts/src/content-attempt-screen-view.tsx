@@ -1,10 +1,13 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -25,11 +28,21 @@ export type ContentAttemptSummary = {
   readonly description: string;
 };
 
+/** Where the puzzle sits in the pack it is played from. */
+export type ContentAttemptPack = {
+  readonly title: string;
+  /** The puzzle's place in the pack, from 1. */
+  readonly position: number;
+  readonly total: number;
+};
+
 export type ContentAttemptScreenViewProps = {
   readonly status: ContentAttemptStatus;
   /** Set when the person may not change this attempt. */
   readonly denial?: DenialView | undefined;
   readonly attempt: ContentAttemptSummary;
+  /** The pack this attempt is played from; absent for a puzzle on its own. */
+  readonly pack?: ContentAttemptPack | null | undefined;
   /** A private playtest of a draft: it counts toward no completion. */
   readonly playtest: boolean;
   /** The last change is still being saved. */
@@ -51,20 +64,31 @@ export type ContentAttemptScreenViewProps = {
   readonly onReturnToLibrary: () => void;
 };
 
-function AttemptNotices(props: ContentAttemptScreenViewProps): JSX.Element {
+/** Where the last change stands: saved, or still being saved. */
+function SaveStatus(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <P
+      role="status"
+      variant="caption"
+      tone="secondary"
+      dataSet={{ testid: 'content-position-save-status' }}
+    >
+      {props.saving
+        ? t`Saving your position…`
+        : t`Progress saved on this device. Changes share when connected.`}
+    </P>
+  );
+}
+
+/**
+ * What stops play or needs the person first, above the board on every
+ * size: rules this app lacks, or a change that was not saved.
+ */
+function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <>
-      <P
-        role="status"
-        variant="caption"
-        tone="secondary"
-        dataSet={{ testid: 'content-position-save-status' }}
-      >
-        {props.saving
-          ? t`Saving your position…`
-          : t`Progress saved on this device. Changes share when connected.`}
-      </P>
       <Show when={props.rulesChanged}>
         <Notice
           tone="warning"
@@ -73,14 +97,6 @@ function AttemptNotices(props: ContentAttemptScreenViewProps): JSX.Element {
           <Trans>
             This puzzle needs a version of the app with its rules. Your saved
             attempt stays kept; update the app to continue it.
-          </Trans>
-        </Notice>
-      </Show>
-      <Show when={props.playtest}>
-        <Notice>
-          <Trans>
-            Playtest: this uses the real puzzle rules. It does not count toward
-            personal or pack completion.
           </Trans>
         </Notice>
       </Show>
@@ -94,6 +110,50 @@ function AttemptNotices(props: ContentAttemptScreenViewProps): JSX.Element {
           />
         )}
       </Show>
+    </>
+  );
+}
+
+/** `Puzzle 3 of 4 in Warehouse basics`, for a puzzle played from a pack. */
+function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
+  return (
+    <P variant="label" testId="puzzle-attempt-pack-place">
+      <Trans>
+        Puzzle {props.pack.position} of {props.pack.total} in {props.pack.title}
+      </Trans>
+    </P>
+  );
+}
+
+/**
+ * The puzzle panel: beside the board when wide, under it on a phone, as a
+ * game's record is. Where the puzzle sits in its pack, what it asks, a
+ * playtest's note, the completion and the save status, with the attempt's
+ * commands (undo, redo, restart, the pack) at its foot.
+ */
+function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <GameSection
+      title={<Trans>This puzzle</Trans>}
+      footer={props.controls}
+      dataSet={{ testid: 'puzzle-attempt-panel' }}
+    >
+      <StackVertical gap="sm">
+        <Show when={props.pack}>{(pack) => <PackPlace pack={pack()} />}</Show>
+        <Show when={props.attempt.description}>
+          <P tone="secondary">{props.attempt.description}</P>
+        </Show>
+        <SaveStatus {...props} />
+      </StackVertical>
+      <Show when={props.playtest}>
+        <Notice>
+          <Trans>
+            Playtest: this uses the real puzzle rules. It does not count toward
+            personal or pack completion.
+          </Trans>
+        </Notice>
+      </Show>
       <Show when={props.complete}>
         <SuccessState
           variant="compact"
@@ -106,7 +166,7 @@ function AttemptNotices(props: ContentAttemptScreenViewProps): JSX.Element {
           }
         />
       </Show>
-    </>
+    </GameSection>
   );
 }
 
@@ -121,12 +181,15 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         packrevisionid: props.attempt.packRevisionId ?? '',
       }}
       title={props.attempt.title}
-      subtitle={props.attempt.difficulty}
+      facts={
+        <Show when={props.attempt.difficulty}>
+          {(difficulty) => <Badge intent="neutral" label={difficulty()} />}
+        </Show>
+      }
     >
       <GameSessionLayout
-        notices={<AttemptNotices {...props} />}
-        aside={<P>{props.attempt.description}</P>}
-        actions={props.controls}
+        notices={<AttemptAlerts {...props} />}
+        aside={<AttemptPanel {...props} />}
       >
         <Show
           when={!props.unopenable}
@@ -150,8 +213,10 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
 
 /**
  * A saved attempt at a published puzzle or a private playtest,
- * presentational: the game's player on the saved position, its save
- * status, completion and recovery notices — or denied and
+ * presentational: the puzzle's title and difficulty, the game's player on
+ * the saved position as the hero, and beside it (under it on a phone) the
+ * puzzle panel: its place in the pack, what it asks, the save status,
+ * completion and the attempt's commands — or denied and
  * not-on-this-device states. Player and controls arrive as slots.
  */
 export function ContentAttemptScreenView(

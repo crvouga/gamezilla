@@ -44,6 +44,35 @@ function mount(disabled = false) {
   return { view, seen, setPieces };
 }
 
+test('a board is compact unless it is the screen hero', () => {
+  const view = render(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 844 }}
+    >
+      <TileBoard
+        label="Compact"
+        testId="compact"
+        columns={3}
+        rows={1}
+        tiles={TILES}
+        pieces={[]}
+      />
+      <TileBoard
+        label="Hero"
+        testId="hero"
+        size="fill"
+        columns={3}
+        rows={1}
+        tiles={TILES}
+        pieces={[]}
+      />
+    </ThemeProvider>
+  ));
+  expect(view.getByTestId('compact').getAttribute('data-size')).toBe('compact');
+  expect(view.getByTestId('hero').getAttribute('data-size')).toBe('fill');
+});
+
 test('arrow keys and W A S D steer only while enabled; other keys pass through', () => {
   const { view, seen } = mount();
   const board = view.getByTestId('board');
