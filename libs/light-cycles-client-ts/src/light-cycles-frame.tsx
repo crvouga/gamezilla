@@ -85,8 +85,9 @@ export function lightCyclesFrame(
         color: RIDER_COLORS[side as LightCyclesSeat],
         mark: LIGHT_CYCLES_RIDERS[side as LightCyclesSeat].mark,
       }),
+      // Short, so a player's name keeps its room on a strip or a chip.
       stat: (position, side) => ({
-        label: t`Round wins`,
+        label: t`Wins`,
         value: String(roundWins(decodeLightCycles(position), side)),
       }),
       facts: () => [],

@@ -2441,6 +2441,10 @@ msgstr "Draft created"
 msgid "Draft: publish this puzzle before publishing the pack"
 msgstr "Draft: publish this puzzle before publishing the pack"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Drag on your side of the court or use the slider."
+msgstr "Drag on your side of the court or use the slider."
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
 msgstr "Draining"
@@ -2885,14 +2889,6 @@ msgstr "floor"
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Floor"
 msgstr "Floor"
-
-#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
-msgstr "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
-msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Follows your device appearance"
@@ -4862,6 +4858,7 @@ msgstr "Player on this device"
 msgid "Player search accepted"
 msgstr "Player search accepted"
 
+#: libs/game-session-client-ts/src/game-frame-arena-view.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Players"
@@ -6550,6 +6547,10 @@ msgstr "Steer {0} right"
 msgid "Steer {0} up"
 msgstr "Steer {0} up"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+msgid "Steer with the arrow keys or W, A, S and D. Avoid the edge and every trail."
+msgstr "Steer with the arrow keys or W, A, S and D. Avoid the edge and every trail."
+
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
@@ -6617,6 +6618,10 @@ msgstr "Suggested"
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Swap sides"
 msgstr "Swap sides"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
+msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
@@ -6872,6 +6877,10 @@ msgstr "The {name} does not fit there: it would run off the board."
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "The 15th round was played; the rider with the most round wins takes the game."
 msgstr "The 15th round was played; the rider with the most round wins takes the game."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "The arrow keys move your paddle."
+msgstr "The arrow keys move your paddle."
 
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "The attempt could not be saved. Try starting again."
@@ -7860,6 +7869,14 @@ msgstr "Viewing move {0} of {1}"
 msgid "Violet"
 msgstr "Violet"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "W and S move Left; the arrow keys move Right."
+msgstr "W and S move Left; the arrow keys move Right."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "W and S or the arrow keys move your paddle."
+msgstr "W and S or the arrow keys move your paddle."
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Waiting for participants and readiness."
 msgstr "Waiting for participants and readiness."
@@ -7957,6 +7974,7 @@ msgid "Win, lose or draw, your rating moves once."
 msgstr "Win, lose or draw, your rating moves once."
 
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 msgid "Wins"
 msgstr "Wins"
 

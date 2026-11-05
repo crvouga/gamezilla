@@ -15,6 +15,8 @@ import {
   TrailArena,
   type TrailHeading,
 } from '@pkgs/ui-root-client-ts/trail-arena';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
 import {
   arenaOverlay,
@@ -38,9 +40,14 @@ function steer(
   controls?.onInput(side, { round: state.round, heading });
 }
 
+/**
+ * Every rider's round wins and the round, for a listener: the eye reads
+ * them from the players' strips (round wins) and the turn line (the
+ * round), so they are not drawn a second time over the arena.
+ */
 function Scores(props: { state: LightCyclesState; testId: string }) {
   return (
-    <StackHorizontal gap="md" justify="between" align="center" wrap>
+    <VisuallyHidden>
       <For each={props.state.riders}>
         {(rider, index) => (
           <Text
@@ -64,7 +71,34 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
           target: String(props.state.targetScore),
         }}
       >{t`Round ${props.state.round} · first to ${props.state.targetScore}`}</Text>
-    </StackHorizontal>
+    </VisuallyHidden>
+  );
+}
+
+/**
+ * How to steer, in one line under the arena: by keys on a wide screen
+ * (keyboard first, so no pad is drawn there), by swipe or the pad below
+ * on a phone. It also describes the arena to a listener.
+ */
+function SteeringHint(props: { id: string }): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <P id={props.id} variant="caption" tone="secondary">
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <Trans>
+            Swipe the arena or use the pad to steer. Avoid the edge and every
+            trail.
+          </Trans>
+        }
+      >
+        <Trans>
+          Steer with the arrow keys or W, A, S and D. Avoid the edge and every
+          trail.
+        </Trans>
+      </Show>
+    </P>
   );
 }
 
@@ -73,29 +107,32 @@ function Pads(props: {
   board: GameBoardProps;
   steerable: (side: GameSide) => boolean;
 }): JSX.Element {
+  const mode = useLayoutMode();
   return (
-    <StackHorizontal gap="lg" justify="center" wrap>
-      <For each={props.board.simulation?.sides ?? []}>
-        {(side) => (
-          <StackVertical gap="xs" align="center">
-            <Text variant="label">{riderName(side)}</Text>
-            <DirectionPad
-              labels={{
-                up: t`Steer ${riderName(side)} up`,
-                right: t`Steer ${riderName(side)} right`,
-                down: t`Steer ${riderName(side)} down`,
-                left: t`Steer ${riderName(side)} left`,
-              }}
-              disabled={!props.steerable(side)}
-              onDirection={(heading) =>
-                steer(props.board.simulation, props.state, side, heading)
-              }
-              testId={`${props.board.testId}-${side}-pad`}
-            />
-          </StackVertical>
-        )}
-      </For>
-    </StackHorizontal>
+    <Show when={mode() !== 'wide'}>
+      <StackHorizontal gap="lg" justify="center" wrap>
+        <For each={props.board.simulation?.sides ?? []}>
+          {(side) => (
+            <StackVertical gap="xs" align="center">
+              <Text variant="label">{riderName(side)}</Text>
+              <DirectionPad
+                labels={{
+                  up: t`Steer ${riderName(side)} up`,
+                  right: t`Steer ${riderName(side)} right`,
+                  down: t`Steer ${riderName(side)} down`,
+                  left: t`Steer ${riderName(side)} left`,
+                }}
+                disabled={!props.steerable(side)}
+                onDirection={(heading) =>
+                  steer(props.board.simulation, props.state, side, heading)
+                }
+                testId={`${props.board.testId}-${side}-pad`}
+              />
+            </StackVertical>
+          )}
+        </For>
+      </StackHorizontal>
+    </Show>
   );
 }
 
@@ -141,13 +178,7 @@ function Arena(props: {
         instructionsId={instructionsId}
         testId={`${props.board.testId}-arena`}
       />
-      <P id={instructionsId} variant="caption" tone="secondary">
-        <Trans>
-          Focus the arena and steer with the arrow keys or W, A, S and D, or use
-          the direction pad. A turn straight back is ignored. Avoid the edge and
-          every trail; the last rider riding wins the round.
-        </Trans>
-      </P>
+      <SteeringHint id={instructionsId} />
       <Pads state={props.state} board={props.board} steerable={steerable} />
     </StackVertical>
   );

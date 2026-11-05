@@ -12,6 +12,11 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameActionsView } from './game-frame-actions-view';
 import {
+  arenaRecordShown,
+  FrameArenaRailView,
+  frameArena,
+} from './game-frame-arena-view';
+import {
   FrameOptionsView,
   FrameOwnReadinessView,
   FramePrivateSetupView,
@@ -19,6 +24,7 @@ import {
   FrameStartView,
 } from './game-frame-configuration-view';
 import {
+  FrameHistoryLink,
   FrameRecordView,
   type FrameReviewHandlers,
   FrameReviewingView,
@@ -279,7 +285,61 @@ function asideRecord(
     mode() !== 'wide' &&
     shown.turns &&
     (props.phase === 'active' || props.phase === 'completed');
-  return stripped ? null : shown;
+  // A game played in real time lists no moves: with no earlier game to
+  // choose it has no card, only its way to the history (`FrameArenaHistory`).
+  const empty = frameArena(props.phase, shown) && !arenaRecordShown(shown);
+  return stripped || empty ? null : shown;
+}
+
+/**
+ * Beside a wide arena (a game played in real time, once it is played) the
+ * rail is the players' scoreboard, and the seats leave the stage to it.
+ */
+function arenaBeside(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  return mode() === 'wide' && frameArena(props.phase, shownRecord(props));
+}
+
+/**
+ * Beside a wide arena a plain line about the game (the round, the serve)
+ * is the scoreboard's caption, not a pill under the arena; a warning
+ * (reconnecting, a stand-in) still shows by the arena.
+ */
+function arenaCaption(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): string | undefined {
+  return arenaBeside(props, mode) &&
+    props.status !== null &&
+    props.status.tone === 'neutral' &&
+    !props.status.sending &&
+    props.status.description !== ''
+    ? props.status.description
+    : undefined;
+}
+
+/**
+ * A phone's real-time game keeps its way to the space's history beside
+ * the play actions, as its record has no card of its own.
+ */
+function FrameArenaHistory(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  const record = (): FrameRecord | null => {
+    const shown = shownRecord(props);
+    return shown !== null &&
+      !arenaBeside(props, mode) &&
+      frameArena(props.phase, shown) &&
+      !arenaRecordShown(shown)
+      ? shown
+      : null;
+  };
+  return (
+    <Show when={record()}>
+      {(shown) => <FrameHistoryLink {...props} record={shown()} quiet />}
+    </Show>
+  );
 }
 
 /**
@@ -290,7 +350,10 @@ function commandsInRecord(
   props: Props,
   mode: ReturnType<typeof useLayoutMode>
 ): boolean {
-  return mode() === 'wide' && asideRecord(props, mode) !== null;
+  return (
+    mode() === 'wide' &&
+    (asideRecord(props, mode) !== null || arenaBeside(props, mode))
+  );
 }
 
 function FrameActions(
@@ -310,6 +373,29 @@ function FrameActions(
 }
 
 function FrameRecordAside(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <>
+      <Show when={arenaBeside(props, mode) ? shownRecord(props) : null}>
+        {(shown) => (
+          <FrameArenaRailView
+            {...props}
+            record={shown()}
+            caption={arenaCaption(props, mode)}
+            commands={
+              <Show when={!arenaRecordShown(shown())}>
+                <FrameActions {...props} width="content" />
+              </Show>
+            }
+          />
+        )}
+      </Show>
+      <FrameRecordPanelAside {...props} />
+    </>
+  );
+}
+
+function FrameRecordPanelAside(props: Props): JSX.Element {
   const mode = useLayoutMode();
   return (
     <Show when={asideRecord(props, mode)}>
@@ -346,14 +432,17 @@ function turnInSeats(props: Props): boolean {
  * and the board is only a labelled preview beside (or under) them.
  */
 function FrameBoardStage(props: Props): JSX.Element {
+  const mode = useLayoutMode();
   const seated = (): boolean => props.phase !== 'configuring';
+  // Beside a wide arena the seats are the rail's scoreboard instead.
+  const seatsAround = (): boolean => seated() && !arenaBeside(props, mode);
   return (
     <GameBoardStage
       preview={!seated()}
       previewLabel={<Trans>Board preview</Trans>}
       dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
       others={
-        <Show when={seated()}>
+        <Show when={seatsAround()}>
           <FrameOthersView
             table={props.table}
             people={props.people}
@@ -370,12 +459,14 @@ function FrameBoardStage(props: Props): JSX.Element {
           />
           <FrameStatusView
             status={props.status}
-            spokenOnly={turnInSeats(props)}
+            spokenOnly={
+              turnInSeats(props) || arenaCaption(props, mode) !== undefined
+            }
           />
         </Show>
       }
       own={
-        <Show when={seated()}>
+        <Show when={seatsAround()}>
           <FrameNearSeatView
             table={props.table}
             people={props.people}
@@ -430,11 +521,13 @@ function FrameContent(props: Props): JSX.Element {
       setup={<FrameSetupSlot {...props} />}
       aside={<FrameRecordAside {...props} />}
       actionsBeside
+      arena={arenaBeside(props, mode)}
       boardPreview={props.phase === 'configuring'}
       status={<FrameStatusRow {...props} />}
       actions={
         <Show when={!commandsInRecord(props, mode)}>
           <FrameActions {...props} />
+          <FrameArenaHistory {...props} />
         </Show>
       }
       footer={

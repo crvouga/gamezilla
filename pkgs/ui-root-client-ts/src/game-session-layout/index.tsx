@@ -28,6 +28,12 @@ export type GameSessionLayoutProps = {
    * `setup` takes the main column and the board sits beside it, small.
    */
   boardPreview?: boolean | undefined;
+  /**
+   * A game played in real time: on wide screens its arena (wider than a
+   * square board) takes the room and the rail beside it is narrow, holding
+   * the players. Phones are unchanged. See `GameLayout`'s `arena`.
+   */
+  arena?: boolean | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
   footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -84,6 +90,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
         }
         aside={props.aside}
         stagePreview={props.boardPreview}
+        arena={props.arena}
       >
         <SessionStage {...props} />
       </GameLayout>
