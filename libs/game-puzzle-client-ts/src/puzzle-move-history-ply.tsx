@@ -51,8 +51,10 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
           : `${props.prefix} ${props.ply.label}`
       }
     >
+      {/* The move on the board is what is chosen, in the selection's blue,
+          never the green that says a move was correct. */}
       <Surface
-        tone={props.selected ? 'success' : 'transparent'}
+        tone={props.selected ? 'tint-subtle' : 'transparent'}
         radius="sm"
         paddingX="sm"
         direction="horizontal"
@@ -64,7 +66,7 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
         <Code
           variant="label"
           numeral
-          tone={props.selected ? 'success' : undefined}
+          tone={props.selected ? 'tint' : undefined}
         >
           {props.writing.format(props.ply.label)}
         </Code>
