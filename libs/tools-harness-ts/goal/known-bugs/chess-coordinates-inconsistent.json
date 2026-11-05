@@ -1,0 +1,4 @@
+{
+  "summary": "Chess coordinates were written inside the squares' corners on a desktop game board, outside the board on a phone game board, and inside again on a phone puzzle board. Every playing chess board (280px and wider, game or puzzle) now labels its edges outside the squares; only a thumbnail keeps corner labels.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx"
+}

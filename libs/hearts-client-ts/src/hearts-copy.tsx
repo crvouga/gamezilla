@@ -72,9 +72,9 @@ export function cardName(card: Card): string {
 
 export function passInstruction(direction: PassDirection): string {
   const instructions: Readonly<Record<PassDirection, string>> = {
-    left: t`Choose three cards to pass to the left.`,
-    right: t`Choose three cards to pass to the right.`,
-    across: t`Choose three cards to pass across.`,
+    left: t`Pass three cards to the left.`,
+    right: t`Pass three cards to the right.`,
+    across: t`Pass three cards across.`,
     hold: t`No passing this deal.`,
   };
   return instructions[direction];

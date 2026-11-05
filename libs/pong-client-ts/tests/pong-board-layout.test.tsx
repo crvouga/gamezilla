@@ -64,3 +64,20 @@ test('the scores and a plain status are said to a listener only', () => {
       screen.getByTestId(id).closest('[data-component="VisuallyHidden"]')
     ).not.toBeNull();
 });
+
+// regression: pong-score-off-court — the score sat only in the players'
+// panel beside a bare court (an 8px ball on a flat field). Each side's
+// points are drawn large in its own half of the court, behind the play.
+test('the court draws each side’s points in its own half', () => {
+  mount(1440);
+  const first = screen.getByTestId('pong-court-score-first');
+  const second = screen.getByTestId('pong-court-score-second');
+  expect([first.textContent, second.textContent]).toEqual(['0', '0']);
+  expect(Number(first.getAttribute('x'))).toBeLessThan(
+    Number(second.getAttribute('x'))
+  );
+  // Drawn for the eye: the court's drawing is hidden from a listener, who
+  // hears the score from the court's own words.
+  expect(first.closest('svg')?.getAttribute('aria-hidden')).toBe('true');
+  expect(screen.getByTestId('pong-score-left').textContent).toBe('Left 0');
+});

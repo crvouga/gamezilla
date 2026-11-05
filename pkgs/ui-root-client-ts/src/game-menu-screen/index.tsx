@@ -86,9 +86,10 @@ export type GameMenuScreenProps = {
 /**
  * A choice as a tile, read in one line across: its picture, its name with
  * the main way in's tag beside it and what it opens under them, then a
- * chevron centred at the far edge. Sized by its words, never a tall card
- * of empty room. `lead`: the featured tile that spans its neighbours'
- * height, read top to bottom (its picture over its words).
+ * chevron centred at the far edge, level with the words. Sized by its
+ * words, never a tall card of empty room. `lead`: the featured tile that
+ * spans its neighbours' height, read the same way across with a larger
+ * picture, its words and chevron on one axis in the middle of the card.
  */
 function ChoiceTile(props: {
   choice: GameMenuChoice;
@@ -330,9 +331,10 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
       onClick: choice.onClick,
       leading: <ChoiceIcon choice={choice} size="row" />,
       meta: choice.emphasis === 'primary' ? choice.badge : undefined,
-      // The lead's tag opens its caption's line: beside a long title it
-      // would take a line of its own between the title and the caption.
-      metaPlacement: 'caption',
+      // The lead's tag heads its row: beside a long title it would take a
+      // line of its own between the title and the caption, and at the
+      // start of the caption it broke the caption's sentence.
+      metaPlacement: 'above',
     }))
   );
   return (

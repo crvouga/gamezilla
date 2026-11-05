@@ -1,7 +1,8 @@
 /**
  * The Hearts table read off rendered markup alone: each seat as the words it
  * is named with, its facts (cards held, score, whether it has passed),
- * whether it is marked as deciding, and the card it put in the trick; the
+ * whether it is marked as deciding, and the card it put in the trick (drawn
+ * on its side of the trick in the middle of the table); the
  * viewer's hand, each card as its face and whether it is chosen or allowed;
  * the sentence the table says what it is doing in; and the pass control. It
  * loads no client code, so a real browser's page is read the same way.
@@ -72,6 +73,21 @@ function words(markup: string): string[] {
     .filter((text) => text !== '');
 }
 
+/**
+ * The card a seat put in the trick shown: the card marked as the seat's
+ * own (`<seat>-played`) wherever the table draws it (in the middle of the
+ * table, on the seat's side).
+ */
+function playedShown(html: string, seat: string): string | null {
+  for (const match of html.matchAll(/<span([^>]*)>/g)) {
+    const attrs = attributes(match[1]!);
+    if (attrs.get('data-testid') !== `${seat}-played`) continue;
+    const card = attrs.get('data-card') ?? '';
+    return /^[2-9TJQKA][CDSH]$/.test(card) ? card : null;
+  }
+  return null;
+}
+
 function seatsShown(
   html: string,
   board: string
@@ -85,13 +101,12 @@ function seatsShown(
     if (side === undefined) continue;
     const body = match[2]!;
     const name = attrs.get('aria-label') ?? '';
-    const played = /data-card="([2-9TJQKA][CDSH])"/.exec(body)?.[1] ?? null;
-    const facts = words(body.replace(/<span[^>]*-played"[\s\S]*$/, ''));
+    const facts = words(body);
     seats[side] = {
       name,
       facts: facts.filter((fact) => fact !== name),
       deciding: attrs.get('aria-current') === 'step',
-      played,
+      played: playedShown(html, `${board}-seat-${side}`),
     };
   }
   return seats;

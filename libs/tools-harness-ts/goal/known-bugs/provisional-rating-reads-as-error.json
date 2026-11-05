@@ -1,0 +1,4 @@
+{
+  "summary": "A provisional matchmaking rating showed as \"1512?\" in one run of stat type, which read like an error. The \"?\" the spec requires is kept as a quiet secondary glyph beside the number, and the \"Provisional\" tag beside it is an info tag that says what it means.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

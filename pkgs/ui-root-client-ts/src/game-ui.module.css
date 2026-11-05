@@ -40,22 +40,6 @@
     var(--game-rail-measure)
   );
 }
-/* The title and the game's facts share one line; the facts wrap under the
-   title only when the line is too short for both. */
-.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: var(--ui-space-3);
-  min-width: 0;
-}
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -136,30 +120,6 @@
   padding: var(--ui-space-5);
   min-width: 0;
 }
-/* A section with a picture beside its body: the body takes the room, the
-   picture (a board preview) keeps a thumbnail's size at the top. */
-.sectionSplit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--ui-space-6);
-  align-items: start;
-  min-width: 0;
-}
-.sectionBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-4);
-  min-width: 0;
-}
-/* A thumbnail about as tall as two player cards beside it, so the card's
-   body and its picture end close together. */
-.sectionMedia {
-  --game-board-preview-measure: 160px;
-  display: flex;
-  flex-direction: column;
-  width: var(--game-board-preview-measure);
-  min-width: 0;
-}
 .sectionFooter {
   border-top: 1px solid var(--ui-color-border);
   padding-top: var(--ui-space-4);
@@ -196,6 +156,17 @@
 }
 .player[data-density="compact"] {
   gap: var(--ui-space-2);
+}
+/* A compact seat card measures itself: on a phone's narrow card its row of
+   controls starts at the card's edge, so a seat's controls keep one row and
+   every seat card has the same shape. */
+.player[data-density="compact"] {
+  container: seat-card / inline-size;
+}
+@container seat-card (max-width: 20rem) {
+  .player .playerBelow {
+    padding-inline-start: 0;
+  }
 }
 /* A compact seat row measures itself for its toggle (seat-options.module.css). */
 .player[data-density="compact"] .playerRow {

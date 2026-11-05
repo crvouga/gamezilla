@@ -34,6 +34,7 @@ function BoardPanel(props: {
 }): JSX.Element {
   return (
     <CellGridBoard
+      fill
       label={props.label}
       testId={`${props.testId}-${props.view}-grid`}
       cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}

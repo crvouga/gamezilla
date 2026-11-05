@@ -253,3 +253,39 @@ test('setup: each player is a card holding its identity, readiness and every con
     cleanup();
   }
 });
+
+// regression: replay-controls-heavy-live — during live play the record's
+// four steps were filled discs that outweighed the board and the game's
+// commands. They are quiet glyphs while the board is live, and take their
+// plates only while an earlier position is reviewed.
+test('the steps are quiet during live play and plated while reviewing', () => {
+  const plated = (): boolean[] =>
+    [
+      'custom-game-review-first',
+      'custom-game-review-back',
+      'custom-game-review-forward',
+      'custom-game-review-live',
+    ].map(
+      (id) =>
+        !screen
+          .getByTestId(id)
+          .innerHTML.includes('background-color: transparent')
+    );
+  mount(
+    () => <FrameRecordView {...handlers} record={record()} layout="panel" />,
+    1440
+  );
+  expect(plated()).toEqual([false, false, false, false]);
+  cleanup();
+  mount(
+    () => (
+      <FrameRecordView
+        {...handlers}
+        record={{ ...record(), displayedPly: 4 }}
+        layout="panel"
+      />
+    ),
+    1440
+  );
+  expect(plated()).toEqual([true, true, true, true]);
+});

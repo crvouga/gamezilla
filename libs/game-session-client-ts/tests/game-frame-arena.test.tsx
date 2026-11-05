@@ -138,12 +138,110 @@ test('wide: a real-time game has no record card; its players, history and comman
   expect(screen.getAllByTestId('custom-game-white')).toHaveLength(1);
 });
 
-test('phone: a real-time game keeps its seats around the arena and its history beside the actions', () => {
+// regression: phone-player-rail-clipped — on a phone the other riders
+// were one sideways-scrolling strip cut off mid-name at the screen's edge,
+// and the person's own seat sat below the arena and its steering pad, out
+// of view. Every player is now a chip in a wrapping rail above the arena,
+// the person's own first and marked "You".
+test('phone: every player shows above the arena, the person first and marked as them', () => {
   mount(390);
   expect(
     document.querySelector('[data-component="CustomGameReview"]')
   ).toBeNull();
   expect(screen.queryByTestId('custom-game-scoreboard')).toBeNull();
-  expect(screen.getByTestId('custom-game-seat-near')).toBeTruthy();
+  const rail = document.querySelector(
+    '[data-component="GamePlayerRail"]'
+  ) as HTMLElement;
+  expect(rail.getAttribute('role')).toBe('list');
+  const near = screen.getByTestId('custom-game-seat-near');
+  expect(rail.firstElementChild).toBe(near);
+  expect(
+    near.querySelector('[data-testid="custom-game-white"]')
+  ).not.toBeNull();
+  expect(near.textContent).toContain('You');
+  for (const name of ['custom-game-black', 'custom-game-red'])
+    expect(rail.querySelector(`[data-testid="${name}"]`)).not.toBeNull();
+  // The person shows once, in the rail.
+  expect(screen.getAllByTestId('custom-game-white')).toHaveLength(1);
   expect(screen.getByTestId('custom-game-history-stats')).toBeTruthy();
+});
+
+// regression: unplayed-game-record-card — beside a wide Hearts table, while
+// the hands were passed and nothing was played yet, the rail was a "Game
+// record" card with nothing in it but History and stats. A game played by
+// turns shows its record card only once it holds something.
+test('wide: a game played by turns with no move yet has no empty record card', () => {
+  const time = createHarnessClock();
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 1440, height: 900 }}
+      >
+        <GameFrameScreenView
+          {...props()}
+          record={{ ...RECORD, turns: true }}
+          table={{
+            shape: 'rail',
+            near: seat('white', 'avery'),
+            others: [seat('black', 'jordan')],
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  expect(
+    document.querySelector('[data-component="CustomGameReview"]')
+  ).toBeNull();
+  const rail = screen.getByTestId('custom-game-unplayed-rail');
+  expect(
+    rail.querySelector('[data-testid="custom-game-resign"]')
+  ).not.toBeNull();
+  expect(
+    rail.querySelector('[data-testid="custom-game-history-stats"]')
+  ).not.toBeNull();
+  // The commands show once, in the rail.
+  expect(screen.getAllByTestId('custom-game-resign')).toHaveLength(1);
+});
+
+// regression: setup-preview-below-start — on a phone the board preview of a
+// game being set up fell under the Players card, after Start. It now heads
+// the Players card on a phone, as it sits beside the seats when wide.
+test('phone and wide: the board preview of a game being set up is in the Players card, before Start', () => {
+  for (const width of [390, 1440]) {
+    const time = createHarnessClock();
+    renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+          <GameFrameScreenView
+            {...props()}
+            phase="configuring"
+            record={null}
+            setup={{
+              viewerNotice: null,
+              takeSeat: null,
+              seats: [],
+              privateSetup: null,
+              options: null,
+              start: {
+                reason: null,
+                hostStarts: false,
+                readiness: { ready: true, blocked: false },
+                canStart: true,
+              },
+            }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const preview = screen.getByTestId('custom-game-public');
+    const start = screen.getByTestId('custom-game-start');
+    const card = preview.closest('[data-component="GameSection"]');
+    expect(card).not.toBeNull();
+    expect(card?.contains(start)).toBe(true);
+    expect(
+      preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    cleanup();
+  }
 });

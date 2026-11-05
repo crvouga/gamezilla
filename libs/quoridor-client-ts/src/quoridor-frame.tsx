@@ -44,6 +44,7 @@ function quoridorTurnStatus(
 export function quoridorFrame(hill: boolean): GameFrame<JSX.Element> {
   const sides = hill ? QUORIDOR_SIDES : QUORIDOR_SIDES.slice(0, 2);
   return {
+    drawOffers: true,
     players: fixedPlayers(hill ? 4 : 2),
     options: [],
     seats: {

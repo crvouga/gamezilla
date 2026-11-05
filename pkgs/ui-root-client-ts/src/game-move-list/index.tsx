@@ -16,7 +16,10 @@ export type GameMoveListEntry = {
   readonly swatch?: GameSeatLook | undefined;
   /**
    * A short word before the move, outside its button (`col` before `3`),
-   * when the game's notation alone is a bare number. The button keeps the
+   * when the game's notation alone is a bare number: read in the `turn`
+   * strip, where the move stands alone beside its turn's name. The `table`
+   * leaves it out: its seat columns already say what the numbers are, so a
+   * row reads `● 4`, never a swatch crowding a word. The button keeps the
    * move exactly as the game writes it.
    */
   readonly prefix?: string | undefined;
@@ -82,6 +85,7 @@ function turnsOf(
 
 function MoveButton(props: {
   readonly move: GameMoveListEntry;
+  readonly layout: GameMoveListProps['layout'];
   readonly perTurn: number;
   readonly current: boolean;
   readonly onSelect: (ply: number) => void;
@@ -96,7 +100,7 @@ function MoveButton(props: {
       <Show when={props.move.swatch}>
         {(look) => <GameSeatSwatch look={look()} />}
       </Show>
-      <Show when={props.move.prefix}>
+      <Show when={props.layout === 'turn' ? props.move.prefix : undefined}>
         {(prefix) => (
           <span
             class={`${styles['prefix']} text textCaption`}
@@ -195,6 +199,7 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
                 {(move) => (
                   <MoveButton
                     move={move()}
+                    layout={props.layout}
                     perTurn={props.perTurn}
                     current={props.current === move().ply}
                     onSelect={(ply) => props.onSelect(ply)}

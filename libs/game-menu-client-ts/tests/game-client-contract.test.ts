@@ -80,6 +80,7 @@ const puzzlesPart: GamePuzzlesClient = { Board: () => null };
 const contentFrame = { stats: {}, turnStatus: () => null };
 
 const frame = {
+  drawOffers: true,
   players: fixedPlayers(2),
   options: [],
   seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),

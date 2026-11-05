@@ -25,6 +25,7 @@ const SEAT_COLORS: readonly FramePlayerColor[] = [1, 2, 3, 4];
  * no fact is shown twice.
  */
 export const heartsFrame: GameFrame<JSX.Element> = {
+  drawOffers: false,
   players: fixedPlayers(4),
   options: [],
   seats: {

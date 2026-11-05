@@ -170,13 +170,18 @@ function chipStat(seat: FramePlaySeat): GameSeatStat | null {
     : { label: t`Time`, value: seat.clock.value };
 }
 
-/** One of three or more other seats, as a compact chip in the rail. */
+/**
+ * One seat at a table of three or more, as a compact chip in the rail. The
+ * viewer's own (`own`) says "You" and marks its place as the seat nearest
+ * them.
+ */
 export function FrameSeatChipView(
-  props: Omit<SeatProps, 'onChoose'>
+  props: Omit<SeatProps, 'onChoose'> & { readonly own?: boolean | undefined }
 ): JSX.Element {
   return (
     <GamePlayerChip
       dataSet={{ testid: `custom-game-${props.seat.side}` }}
+      placeTestId={props.own === true ? 'custom-game-seat-near' : undefined}
       name={props.seat.plainName}
       avatar={
         <FrameHolderAvatar
@@ -187,7 +192,14 @@ export function FrameSeatChipView(
         />
       }
       swatch={props.seat.swatch}
-      tags={<PlaySeatTags seat={props.seat} />}
+      tags={
+        <>
+          <Show when={props.own === true}>
+            <Badge intent="info" label={<Trans>You</Trans>} />
+          </Show>
+          <PlaySeatTags seat={props.seat} />
+        </>
+      }
       stat={chipStat(props.seat)}
       state={props.seat.state}
       active={props.seat.deciding}
@@ -202,15 +214,42 @@ type TableProps = {
   readonly onChoose: Choose;
   /** The viewer's own seat; `null` while watching. */
   readonly viewerSide?: string | null | undefined;
+  /**
+   * A phone: at a table of three or more the person's own seat leads the
+   * rail of chips above the board, so they always see themselves beside
+   * everyone else without scrolling past the board.
+   */
+  readonly compact?: boolean | undefined;
 };
+
+/**
+ * At a table of three or more on a phone, the person's own seat is a chip
+ * leading the rail above the board, unless it needs its full strip (to
+ * take the side back).
+ */
+function nearInRail(props: TableProps): FramePlaySeat | null {
+  const near = props.table.near;
+  return props.compact === true &&
+    props.table.shape === 'rail' &&
+    near !== null &&
+    !near.reclaim
+    ? near
+    : null;
+}
 
 /**
  * Whether a full seat strip says whose move it is, so the turn line can be
  * left to a listener: the near seat, or the one opponent across the board.
  */
-export function tableShowsTurn(table: FrameTable): boolean {
+export function tableShowsTurn(
+  table: FrameTable,
+  compact?: boolean | undefined
+): boolean {
+  // A chip in the rail says nothing of the turn: the turn line does.
+  const nearStrip =
+    nearInRail({ table, compact, onChoose: async () => undefined }) === null;
   return (
-    seatShowsTurn(table.near) ||
+    (nearStrip && seatShowsTurn(table.near)) ||
     (table.shape === 'strip' && seatShowsTurn(table.others[0]))
   );
 }
@@ -233,7 +272,16 @@ export function FrameOthersView(props: TableProps): JSX.Element {
         )}
       </Match>
       <Match when={props.table.shape === 'rail'}>
-        <GamePlayerRail aria-label={t`Other players`}>
+        <GamePlayerRail
+          aria-label={
+            nearInRail(props) === null ? t`Other players` : t`Players`
+          }
+        >
+          <Show when={nearInRail(props)}>
+            {(near) => (
+              <FrameSeatChipView seat={near()} people={props.people} own />
+            )}
+          </Show>
           <Index each={props.table.others}>
             {(seat) => (
               <FrameSeatChipView seat={seat()} people={props.people} />
@@ -245,10 +293,13 @@ export function FrameOthersView(props: TableProps): JSX.Element {
   );
 }
 
-/** The seat below the board, nearest the person holding the device. */
+/**
+ * The seat below the board, nearest the person holding the device (on a
+ * phone at a bigger table it leads the rail above instead).
+ */
 export function FrameNearSeatView(props: TableProps): JSX.Element {
   return (
-    <Show when={props.table.near}>
+    <Show when={nearInRail(props) === null ? props.table.near : null}>
       {(seat) => (
         <StackVertical testId="custom-game-seat-near">
           <FrameSeatStripView

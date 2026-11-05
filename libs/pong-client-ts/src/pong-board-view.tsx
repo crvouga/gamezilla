@@ -80,7 +80,7 @@ function PongControls(props: {
 
 /**
  * Both scores and the points that win, for a listener: the eye reads the
- * points from the players' strips and the target under the court.
+ * points in each half of the court and the target under it.
  */
 function CourtScores(props: { state: PongState; testId: string }): JSX.Element {
   return (
@@ -182,6 +182,10 @@ function PongScene(props: {
         testId={props.board.testId}
         label={t`Pong court`}
         instructionsId={instructionsId}
+        score={{
+          first: String(props.state.score.left),
+          second: String(props.state.score.right),
+        }}
         paddles={(['first', 'second'] as const).map((side) => ({
           side,
           x:

@@ -125,3 +125,23 @@ test('the table passes the accessibility audit', () => {
   const failures = auditTree(container);
   expect(failures.map(formatFailure)).toEqual([]);
 });
+
+// regression: hearts-cards-text-tiles — cards were text tiles in two
+// wrapped rows, a chosen card a faint outline, and a played card sat beside
+// its seat's name instead of on the table.
+test('cards are drawn as cards in one fanned hand, and the trick sits on the table', () => {
+  example();
+  const queen = at('example-card-QS');
+  // The corner index leads the face: the rank, then the large pip, then the name.
+  expect(queen.firstElementChild?.textContent).toBe('Q');
+  // One fanned row: every card knows its place from the middle of the hand.
+  const hand = at('example-card-table-hand');
+  expect(hand.style.getPropertyValue('--hand-count')).toBe('6');
+  expect(at('example-card-2C').style.getPropertyValue('--fan')).toBe('-2.5');
+  expect(at('example-card-KH').style.getPropertyValue('--fan')).toBe('2.5');
+  // The played card is on the table, on its seat's side, not in the seat's plate.
+  const played = at('example-seat-left-played');
+  expect(played.closest('section')).toBeNull();
+  expect(played.parentElement?.getAttribute('data-position')).toBe('left');
+  expect(at('example-seat-left').textContent).not.toContain('J');
+});

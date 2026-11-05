@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the game menu's \"Recommended\" tag opened the caption's line, so it interrupted the sentence (\"[Recommended] With the people in this space, or bots\"). The tag now heads the row over its title: never between the title and its caption, never inside the caption.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

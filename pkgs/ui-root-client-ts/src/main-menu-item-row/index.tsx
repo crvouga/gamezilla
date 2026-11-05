@@ -20,11 +20,12 @@ export type MainMenuItem = {
    */
   meta?: JSX.Element | string | undefined;
   /**
-   * Where `meta` sits: `title` (default) beside the title; `caption` at the
-   * start of the caption's line, for a title too long to share its line
-   * with the tag on a phone, so the tag never takes a line of its own.
+   * Where `meta` sits: `title` (default) beside the title; `above` over the
+   * title as a small heading of the row, for a title too long to share its
+   * line with the tag on a phone, so the tag neither splits the title from
+   * its caption nor interrupts the caption's sentence.
    */
-  metaPlacement?: 'title' | 'caption' | undefined;
+  metaPlacement?: 'title' | 'above' | undefined;
   /** Before the title: a `GameTile` or an icon that says what the row is. */
   leading?: JSX.Element | undefined;
   /** Overrides the default trailing affordance (chevron / selection check). */
@@ -96,8 +97,8 @@ function ItemBody(props: {
   interactive: boolean;
 }): JSX.Element {
   const disabled = (): boolean => props.item.disabled === true;
-  const metaInCaption = (): boolean =>
-    props.item.metaPlacement === 'caption' && props.item.meta !== undefined;
+  const metaAbove = (): boolean =>
+    props.item.metaPlacement === 'above' && props.item.meta !== undefined;
   const captionInTrailing = (): boolean =>
     disabled() && props.item.caption !== undefined;
   return (
@@ -117,11 +118,16 @@ function ItemBody(props: {
           so it starts past a leading picture. */}
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
+          <Show when={metaAbove()}>
+            <div class="box pb-1">
+              <ItemMeta item={props.item} />
+            </div>
+          </Show>
           <div class="box flex-row flex-wrap items-center gap-2 min-w-0 max-w-full">
             <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
               {props.item.title}
             </p>
-            <Show when={props.item.meta !== undefined && !metaInCaption()}>
+            <Show when={props.item.meta !== undefined && !metaAbove()}>
               <ItemMeta item={props.item} />
             </Show>
           </div>
@@ -133,11 +139,6 @@ function ItemBody(props: {
                 'line-clamp-2': props.item.emphasis !== 'quiet',
               }}
             >
-              <Show when={metaInCaption()}>
-                <span class="inline-block align-middle me-2">
-                  <ItemMeta item={props.item} />
-                </span>
-              </Show>
               {props.item.caption}
             </p>
           </Show>

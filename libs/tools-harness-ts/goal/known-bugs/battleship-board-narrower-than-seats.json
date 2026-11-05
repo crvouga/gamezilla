@@ -1,0 +1,4 @@
+{
+  "summary": "The Battleship grid stopped at 44px cells (466px across) under the 540px seat strips above and below it, so the board and its seats had different edges. The game's board now fills its column (`CellGridBoard` `fill`), edge to edge with the seats.",
+  "regressionTest": "libs/battleship-client-ts/tests/panel-titles.test.tsx"
+}

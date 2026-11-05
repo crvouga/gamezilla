@@ -1,6 +1,5 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
-import type { ScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { Code, Text } from '@pkgs/ui-root-client-ts/text';
@@ -99,12 +98,10 @@ export function HistoryPlyCluster(props: {
   interactive: boolean;
   writing: PuzzleMoveWriting;
   onSeek: (solveIdx: number) => void;
-  /** The move list's scroll target, given to the cluster it should reveal. */
-  scrollTarget?: ScrollTarget | undefined;
 }): JSX.Element {
   const prefix = props.writing.moveNumber(props.ply.before, props.ply.plyIndex);
   return (
-    <StackHorizontal align="center" gap="xs" scrollTarget={props.scrollTarget}>
+    <StackHorizontal align="center" gap="xs">
       <HistoryPlyChip
         ply={props.ply}
         prefix={prefix}

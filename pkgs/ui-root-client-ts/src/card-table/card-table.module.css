@@ -53,19 +53,21 @@
   min-width: 0;
 }
 /*
- * The felt: the four seats around the trick. Each seat is one compact plate
- * (its name, its facts on one line, and its played card while tricks are
- * played), so the table is only as tall as what it says.
+ * The felt: a seat's plate at each edge and the trick in the middle, each
+ * seat's card on its own side, so the table reads as four players around
+ * one trick.
  */
 .table {
+  --card-w: 44px;
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   grid-template-areas:
     ". top ."
     "left center right"
     ". bottom .";
   align-items: center;
+  justify-items: center;
   gap: var(--ui-space-2);
   width: 100%;
   padding: var(--ui-space-3);
@@ -80,13 +82,17 @@
   align-items: center;
   gap: var(--ui-space-hairline);
   min-width: 0;
-  padding: var(--ui-space-2) var(--ui-space-2);
+  max-width: 100%;
+  padding: var(--ui-space-2) var(--ui-space-3);
   border-radius: var(--ui-radius-control);
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   background: var(--ui-color-background);
 }
+/* Deciding now: a strong ring in the table's accent, never colour alone
+   (the seat is also `aria-current`). */
 .seat[data-active="true"] {
-  border-color: var(--ui-color-tint);
+  border-color: var(--ui-color-game-hearts-accent);
+  box-shadow: var(--ui-shadow-float);
 }
 .seat[data-position="top"] {
   grid-area: top;
@@ -119,15 +125,62 @@
 .fact {
   white-space: nowrap;
 }
+/*
+ * The trick: a cross of four places, each seat's card on the side of the
+ * table the seat sits on. While tricks are played an empty place is drawn
+ * as an outline; while cards are passed the places stay quiet felt.
+ */
+.trick {
+  grid-area: center;
+  display: grid;
+  grid-template-columns: repeat(3, var(--card-w));
+  grid-template-rows: repeat(4, calc(var(--card-w) * 0.7));
+  gap: var(--ui-space-1);
+  padding-block: var(--ui-space-1);
+}
+.slot {
+  display: grid;
+  width: var(--card-w);
+  height: calc(var(--card-w) * 1.4);
+  border-radius: var(--ui-radius-sm);
+}
+.slot[data-position="top"] {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.slot[data-position="bottom"] {
+  grid-column: 2;
+  grid-row: 3 / span 2;
+}
+.slot[data-position="left"] {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+}
+.slot[data-position="right"] {
+  grid-column: 3;
+  grid-row: 2 / span 2;
+}
+.trick[data-trick="true"] .slot[data-filled="false"] {
+  border: 1px dashed var(--ui-color-outline);
+}
+/* While cards are chosen or passed nothing is on the table: the trick
+   takes no room, and the felt is only as tall as its seats. */
+.trick[data-trick="false"] {
+  display: none;
+}
 .center {
   grid-area: center;
   display: grid;
   place-items: center;
+  max-width: 16rem;
   margin: 0;
-  padding: var(--ui-space-1);
+  padding: var(--ui-space-2);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-background);
   text-align: center;
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-text);
   font-size: var(--ui-font-size-sm);
+  z-index: 1;
 }
 /* The host shows this line beside the table: a listener still hears it. */
 .center[data-spoken-only="true"] {
@@ -139,136 +192,176 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-.played {
-  display: grid;
-  place-items: center;
-}
-.played:empty {
-  display: none;
-}
-/*
- * While tricks are played every seat keeps room for its card, beside its
- * name and on the side toward the trick, so the table stays low.
- */
-.seat[data-trick="true"] {
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-areas:
-    "name card"
-    "facts card";
-  justify-content: center;
-  align-items: center;
-  column-gap: var(--ui-space-2);
-}
-.seat[data-trick="true"][data-position="right"] {
-  grid-template-areas:
-    "card name"
-    "card facts";
-}
-.seat[data-trick="true"] .name {
-  grid-area: name;
-}
-.seat[data-trick="true"] .facts {
-  grid-area: facts;
-}
-.seat[data-trick="true"] .played {
-  grid-area: card;
-  display: grid;
-  min-width: 2.75rem;
-  min-height: 4rem;
-}
-/*
- * On a phone the side seats are narrow: the middle column takes more of
- * the width for the seats above and below, and a side seat's card goes
- * under its name.
- */
-@container (max-width: 30rem) {
+/* A wider table: larger cards in the trick, the side seats beside it. */
+@container (min-width: 30rem) {
   .table {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, 1fr);
-  }
-  .seat[data-trick="true"][data-position="left"],
-  .seat[data-trick="true"][data-position="right"] {
-    grid-template-columns: auto;
-    grid-template-areas:
-      "name"
-      "facts"
-      "card";
-    row-gap: var(--ui-space-1);
+    --card-w: 56px;
+    column-gap: var(--ui-space-4);
+    padding: var(--ui-space-4);
   }
 }
+/*
+ * A card as a card prints it, at the width its row gives it (`--card-w`,
+ * five by seven): the rank in the top corner with a small pip under it and
+ * the suit's name running down the same edge, so the strip of a card that
+ * shows in a fanned hand still names it in full; a large pip in the middle.
+ */
 .card {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ui-space-hairline);
-  min-width: 2.75rem;
-  min-height: 4rem;
-  padding: var(--ui-space-1);
-  border-radius: var(--ui-radius-control);
+  --pip: "";
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: var(--card-w);
+  height: calc(var(--card-w) * 1.4);
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--ui-radius-sm);
   border: 1px solid var(--ui-color-outline);
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
+  box-shadow: var(--ui-shadow-float);
   font: inherit;
-  font-size: var(--ui-font-size-base);
-  font-weight: var(--ui-font-weight-semibold);
   line-height: 1;
+  text-align: start;
   touch-action: manipulation;
-  transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+  transition:
+    transform var(--ui-duration-fast) var(--ui-easing-standard),
+    box-shadow var(--ui-duration-fast) var(--ui-easing-standard);
 }
-.card > span:first-child {
-  font-size: var(--ui-font-size-lg);
+.card[data-suit="clubs"] {
+  --pip: "♣";
 }
-.suit {
-  font-size: var(--ui-font-size-lg);
+.card[data-suit="diamonds"] {
+  --pip: "♦";
 }
-.suitName {
+.card[data-suit="spades"] {
+  --pip: "♠";
+}
+.card[data-suit="hearts"] {
+  --pip: "♥";
+}
+.card[data-suit="hearts"],
+.card[data-suit="diamonds"] {
+  color: var(--ui-color-board-card-ink-red);
+}
+/* The corner index: the rank, and the suit's small pip under it. */
+.index {
+  position: absolute;
+  top: var(--ui-space-1);
+  left: var(--ui-space-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 1.25rem;
+  font-size: var(--ui-font-size-base);
+  font-weight: var(--ui-font-weight-bold);
+  letter-spacing: -0.04em;
+}
+.index::after {
+  content: var(--pip);
+  margin-top: var(--ui-space-hairline);
   font-size: var(--ui-font-size-xs, 0.75rem);
-  font-weight: normal;
-  color: var(--ui-color-board-card-ink);
+  line-height: 1;
+}
+/* The large pip, in the middle of the face. */
+.suit {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: var(--ui-space-2);
+  font-size: calc(var(--card-w) * 0.52);
+  line-height: 1;
+}
+/* The suit's name down the corner's edge, under the index. */
+.suitName {
+  position: absolute;
+  top: 2.375rem;
+  left: var(--ui-space-1);
+  width: 1.25rem;
+  max-height: calc(100% - 2.625rem);
+  overflow: hidden;
+  writing-mode: vertical-rl;
+  font-size: 0.5rem;
+  font-weight: var(--ui-font-weight-bold);
+  letter-spacing: 0.08em;
+  line-height: 1.25rem;
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 /*
- * The hand: at most seven cards a row, so thirteen wrap as seven over six
- * and every face keeps room for its rank, symbol and suit name.
+ * The hand: one fanned row of overlapping cards, every corner index in
+ * view. Each card steps along by what the row leaves it (never more than
+ * its own width), tilts a little away from the middle and sits a little
+ * lower towards the ends, as a hand of cards is held.
  */
 .hand {
-  --card-gap: var(--ui-space-1);
+  --card-w: 58px;
   container-type: inline-size;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--card-gap);
   width: 100%;
-  padding: var(--ui-space-2) 0 0;
+  /* Room for the tilted ends of the fan and a chosen card's lift. */
+  padding: var(--ui-space-5) var(--ui-space-3) var(--ui-space-3);
+}
+@container (min-width: 30rem) {
+  .hand {
+    --card-w: 64px;
+  }
 }
 .hand > .card {
-  flex: 0 0 calc((100% - 6 * var(--card-gap)) / 7);
-  max-width: 4.5rem;
-  min-height: 4.5rem;
-  padding-inline: var(--ui-space-hairline);
+  flex: 0 0 var(--card-w);
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--fan) * var(--fan) * 0.3px))
+    rotate(calc(var(--fan) * 1deg));
 }
-/* A phone's seven-a-row cards are narrow: the suit's name fits its face. */
-@container (max-width: 26rem) {
-  .hand > .card .suitName {
-    font-size: 0.625rem;
-  }
+.hand > .card + .card {
+  margin-inline-start: calc(
+    min(
+      var(--card-w) +
+      var(--ui-space-1),
+      (100cqw - var(--card-w)) /
+      max(1, var(--hand-count) - 1)
+    ) -
+    var(--card-w)
+  );
 }
 button.card {
   cursor: pointer;
 }
+@media (hover: hover) and (pointer: fine) {
+  button.card:not([aria-disabled="true"]):hover {
+    z-index: 1;
+    transform: translateY(
+        calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-1))
+      )
+      rotate(calc(var(--fan) * 1deg));
+  }
+}
 button.card[aria-disabled="true"] {
   cursor: default;
-  opacity: var(--ui-opacity-muted);
 }
-/* Chosen: lifted, and ringed in the table's accent, so it reads without motion. */
+/* Not playable now: the face dims, still a card, never see-through. */
+button.card[aria-disabled="true"]:not([aria-pressed="true"]) {
+  filter: brightness(0.72);
+}
+/* Chosen: lifted 14px out of the fan and ringed in the table's accent, so
+   it reads at a glance and without motion. */
 button.card[aria-pressed="true"] {
   border-color: var(--ui-color-game-hearts-accent);
-  box-shadow: 0 0 0 2px var(--ui-color-game-hearts-accent);
-  transform: translateY(calc(-1 * var(--ui-space-2)));
+  box-shadow:
+    0 0 0 3px var(--ui-color-game-hearts-accent),
+    var(--ui-shadow-float);
+  transform: translateY(
+      calc(var(--fan) * var(--fan) * 0.3px - var(--ui-space-3) - 2px)
+    )
+    rotate(calc(var(--fan) * 1deg));
 }
 button.card:focus-visible {
-  outline: 2px solid var(--ui-color-game-hearts-canvas);
-  outline-offset: -4px;
+  z-index: 2;
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 .refusal {
   margin: 0;
@@ -284,12 +377,9 @@ button.card:focus-visible {
   .card {
     transition: none;
   }
-  button.card[aria-pressed="true"] {
-    transform: none;
-  }
 }
-
-.card[data-suit="hearts"],
-.card[data-suit="diamonds"] {
-  color: var(--ui-color-game-hearts-one);
+/* A card in the trick is read by its corner and pip (and named in full to
+   a listener); its name's edge stays clear at the trick's smaller size. */
+.trick .suitName {
+  display: none;
 }

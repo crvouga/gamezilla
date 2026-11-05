@@ -31,6 +31,7 @@ function battle(position: string): BattleshipPosition {
 
 /** Blue and Red fleets; under each, the ships it has lost. */
 export const battleshipFrame: GameFrame<JSX.Element> = {
+  drawOffers: false,
   players: fixedPlayers(2),
   options: [],
   seats: {

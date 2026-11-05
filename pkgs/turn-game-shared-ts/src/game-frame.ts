@@ -138,6 +138,14 @@ export type GameFrameBoardSession<View> = {
 
 export type GameFrame<View> = {
   readonly players: GamePlayers;
+  /**
+   * Whether the frame offers the people playing a draw by agreement among
+   * its commands. A game says so itself: one that can never be drawn
+   * (Battleship), one played in real time (Pong, Light Cycles) and one
+   * whose table plays every hand out (Hearts) leave Offer draw out, so
+   * their commands are only the ones that fit them.
+   */
+  readonly drawOffers: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

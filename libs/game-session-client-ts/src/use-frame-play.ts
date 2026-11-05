@@ -43,15 +43,23 @@ function awayOpponent(model: CustomGameScreenModel): string | null {
 const allPeople = (game: CustomGame): boolean =>
   game.sides.every((side) => game[side].kind === 'person');
 
-/** The draw offers a participant is told of and may make or answer. */
-function drawFacts(model: CustomGameScreenModel, game: CustomGame) {
+/**
+ * The draw offers a participant is told of and may make or answer. A game
+ * whose frame offers no draws (`drawOffers`) never shows the offer.
+ */
+function drawFacts(
+  model: CustomGameScreenModel,
+  game: CustomGame,
+  drawOffers: boolean
+) {
   const offer = game.drawOfferedBy;
   const playing = model.mySide() !== null && model.canPlay();
   const declined = game.declinedOffers.includes(model.myId());
+  const offerable = drawOffers && playing && allPeople(game) && offer === '';
   return {
     drawOffered: offer !== '',
-    offerAgainLater: playing && allPeople(game) && offer === '' && declined,
-    canOfferDraw: playing && allPeople(game) && offer === '' && !declined,
+    offerAgainLater: offerable && declined,
+    canOfferDraw: offerable && !declined,
     canAnswerDraw:
       playing &&
       offer !== '' &&
@@ -69,6 +77,7 @@ export function useFramePlay(
     model.sharedAvailable() ? awayOpponent(model) : null
   );
   const awayName = usePersonName(() => away() ?? '');
+  const presentation = useGamePresentation();
   return createMemo((): FramePlay => {
     const game = model.current();
     const boardActions = frameActionItems(
@@ -81,7 +90,7 @@ export function useFramePlay(
     const unfinished =
       game.status === 'configuring' || game.status === 'active';
     return {
-      ...drawFacts(model, game),
+      ...drawFacts(model, game, presentation(game.fen).frame.drawOffers),
       away:
         person === null ? null : { person, plainName: awayName(), twoSided },
       canClaimWin: person !== null && model.canPlay() && twoSided,

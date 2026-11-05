@@ -6,8 +6,10 @@ import { Trans } from '@lingui/solid/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameActionsView } from './game-frame-actions-view';
@@ -126,25 +128,22 @@ function lastSetupCard(setup: FrameSetup): 'seats' | 'private' | 'options' {
 }
 
 /**
- * While a game is set up on a wide screen, its board preview sits inside
- * the Players card, beside the seats, so the card and its picture read as
- * one unit; a phone shows the preview under the card.
+ * While a game is set up, its board preview sits inside the Players card,
+ * so the card and its picture read as one unit: beside the seats when
+ * wide, heading the card on a phone, never under Start.
  */
-function previewInSeats(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): boolean {
-  return props.phase === 'configuring' && mode() === 'wide';
+function previewInSeats(props: Props): boolean {
+  return props.phase === 'configuring' && props.setup !== null;
 }
 
 /**
  * Before a game, the starter; while one is set up, its seats and options,
  * then starting it as the foot of the last of those cards, so Start sits
  * with the players it starts with on every size (the board preview is
- * only a thumbnail beside them, inside the Players card when wide).
+ * only a thumbnail inside the Players card: beside the seats when wide,
+ * heading the card on a phone).
  */
 function FrameSetupSlot(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <Show
       when={props.phase !== 'none'}
@@ -181,7 +180,7 @@ function FrameSetupSlot(props: Props): JSX.Element {
                 }
                 footer={footer('seats')}
                 media={
-                  <Show when={previewInSeats(props, mode)}>
+                  <Show when={previewInSeats(props)}>
                     <FrameBoardStage {...props} />
                   </Show>
                 }
@@ -288,7 +287,45 @@ function asideRecord(
   // A game played in real time lists no moves: with no earlier game to
   // choose it has no card, only its way to the history (`FrameArenaHistory`).
   const empty = frameArena(props.phase, shown) && !arenaRecordShown(shown);
-  return stripped || empty ? null : shown;
+  return stripped || empty || unplayedBeside(props, mode) ? null : shown;
+}
+
+/**
+ * Beside a wide board, a game played by turns whose record holds nothing
+ * yet (no move, no earlier game, no refusal: Hearts while hands are
+ * passed) shows no empty "Game record" card: the rail holds only the
+ * game's commands and its way to the history, until the first move lands.
+ */
+function unplayedBeside(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
+  const shown = shownRecord(props);
+  return (
+    mode() === 'wide' &&
+    shown !== null &&
+    shown.turns &&
+    shown.moves.length === 0 &&
+    !arenaRecordShown(shown) &&
+    (props.phase === 'active' || props.phase === 'completed')
+  );
+}
+
+/** The rail beside a board whose record holds nothing yet: commands and history only. */
+function FrameUnplayedRail(props: Props): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show when={unplayedBeside(props, mode) ? shownRecord(props) : null}>
+      {(shown) => (
+        <StackVertical gap="sm" testId="custom-game-unplayed-rail">
+          <FrameActions {...props} width="content" />
+          <GameActions>
+            <FrameHistoryLink {...props} record={shown()} quiet />
+          </GameActions>
+        </StackVertical>
+      )}
+    </Show>
+  );
 }
 
 /**
@@ -352,7 +389,9 @@ function commandsInRecord(
 ): boolean {
   return (
     mode() === 'wide' &&
-    (asideRecord(props, mode) !== null || arenaBeside(props, mode))
+    (asideRecord(props, mode) !== null ||
+      arenaBeside(props, mode) ||
+      unplayedBeside(props, mode))
   );
 }
 
@@ -391,6 +430,7 @@ function FrameRecordAside(props: Props): JSX.Element {
         )}
       </Show>
       <FrameRecordPanelAside {...props} />
+      <FrameUnplayedRail {...props} />
     </>
   );
 }
@@ -416,12 +456,15 @@ function FrameRecordPanelAside(props: Props): JSX.Element {
 }
 
 /** The seat to move says the plain `<Side> to move.` line itself. */
-function turnInSeats(props: Props): boolean {
+function turnInSeats(
+  props: Props,
+  mode: ReturnType<typeof useLayoutMode>
+): boolean {
   return (
     props.phase === 'active' &&
     props.status?.plainTurn === true &&
     props.status.tone === 'neutral' &&
-    tableShowsTurn(props.table)
+    tableShowsTurn(props.table, mode() !== 'wide')
   );
 }
 
@@ -448,6 +491,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            compact={mode() !== 'wide'}
           />
         </Show>
       }
@@ -460,7 +504,8 @@ function FrameBoardStage(props: Props): JSX.Element {
           <FrameStatusView
             status={props.status}
             spokenOnly={
-              turnInSeats(props) || arenaCaption(props, mode) !== undefined
+              turnInSeats(props, mode) ||
+              arenaCaption(props, mode) !== undefined
             }
           />
         </Show>
@@ -472,6 +517,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            compact={mode() !== 'wide'}
           />
         </Show>
       }
@@ -534,7 +580,7 @@ function FrameContent(props: Props): JSX.Element {
         <FrameWatchingView phase={props.phase} viewerSide={props.viewerSide} />
       }
     >
-      <Show when={props.phase !== 'none' && !previewInSeats(props, mode)}>
+      <Show when={props.phase !== 'none' && !previewInSeats(props)}>
         <FrameBoardStage {...props} />
       </Show>
     </GameSessionLayout>

@@ -56,6 +56,7 @@ export function lightCyclesFrame(
 ): GameFrame<JSX.Element> {
   const sides = LIGHT_CYCLES_SEATS[count];
   return {
+    drawOffers: false,
     players: {
       min: 2,
       max: 4,

@@ -273,9 +273,9 @@
   fill: var(--chess-coord-on-dark);
 }
 
-/* Inside a phone-sized `ChessBoardFrame` the labels sit outside the
-   squares, larger than a corner holds: the corner labels step aside. */
-@container chess-frame (min-width: 280px) and (max-width: 479px) {
+/* Inside a `ChessBoardFrame` (any playing board) the labels sit outside
+   the squares, larger than a corner holds: the corner labels step aside. */
+@container chess-frame (min-width: 280px) {
   .coords {
     display: none;
   }

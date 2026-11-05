@@ -58,6 +58,12 @@ export type CellGridBoardProps = {
     | 'checkered'
     | 'sokoban'
     | undefined;
+  /**
+   * The grid spans its column's whole width, its cells growing past 44px,
+   * so a game's board lines up with the seats above and below it. Unset,
+   * a cell stops at 44px and the grid at its own width.
+   */
+  readonly fill?: boolean | undefined;
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -254,6 +260,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       ref={root}
       class={styles['board']}
       data-board-theme={props.boardTheme ?? 'battleship'}
+      data-fill={props.fill === true}
       {...dataAttrs({ component: 'CellGridBoard' })}
       role="group"
       aria-label={props.label}

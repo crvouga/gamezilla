@@ -55,7 +55,7 @@ test("the players' strips name their seat; the table alone says each seat's card
 test('the table keeps its sentence for a listener and leaves the eye to the turn line', () => {
   board();
   const center = byTestId('hearts-center');
-  expect(center.textContent).toContain('Choose three cards to pass');
+  expect(center.textContent).toContain('Pass three cards to the left.');
   expect(center.getAttribute('aria-live')).toBe('polite');
   expect(center.getAttribute('data-spoken-only')).toBe('true');
   // Cards still on their way: the table alone says so, so it shows it.
@@ -83,4 +83,26 @@ test('while cards are passed the seats hold no room for a played card', () => {
   expect(byTestId('hearts-seat-black').getAttribute('data-trick')).toBe(
     'false'
   );
+});
+
+// regression: hearts-pass-status-contradicts — once three cards were sent
+// the button said "Passing your cards…" while the line beside the table
+// still told the person to choose three cards and the hand stayed open.
+// The line names the pass itself, and a pass on its way locks the hand.
+test('a pass on its way locks the hand and the line never asks to choose again', () => {
+  board();
+  expect(byTestId('hearts-center').textContent).not.toContain('Choose');
+  for (const card of ['2C', '3C', '4C'])
+    fireEvent.click(byTestId(`hearts-card-${card}`));
+  fireEvent.click(byTestId('hearts-pass'));
+  for (const card of ['2C', '3C', '4C']) {
+    expect(byTestId(`hearts-card-${card}`).getAttribute('aria-pressed')).toBe(
+      'true'
+    );
+    expect(byTestId(`hearts-card-${card}`).getAttribute('aria-disabled')).toBe(
+      'true'
+    );
+  }
+  expect(byTestId('hearts-card-5C').getAttribute('aria-disabled')).toBe('true');
+  expect(byTestId('hearts-center').textContent).not.toContain('Choose');
 });

@@ -46,11 +46,18 @@ type RecordProps = FrameReviewHandlers & {
 };
 
 /**
- * Every step is a bounded disc on the sunken well, so it reads as a
- * control (and its edge as its target), never as a stray glyph.
+ * While the board shows an earlier position every step is a bounded disc
+ * on the sunken well, so the way through the record reads as the control
+ * in hand. During live play the steps are quiet glyphs with no plate, so
+ * they never outweigh the board and the game's commands.
  */
 const STEP_SIZE = 36;
 const STEP_PLATE = 'surfaceMuted';
+
+/** The steps' plate: shown only while reviewing an earlier position. */
+function stepPlate(record: FrameRecord): typeof STEP_PLATE | undefined {
+  return recordReviewing(record) ? STEP_PLATE : undefined;
+}
 
 /** How many of the latest moves the record lists; earlier ones are reached by number. */
 const LISTED_MOVES = 40;
@@ -68,7 +75,7 @@ function StepToStart(props: StepProps): JSX.Element {
     <IconButton
       label={t`Go to the start`}
       size={props.size ?? STEP_SIZE}
-      background={STEP_PLATE}
+      background={stepPlate(props.record)}
       disabled={props.record.displayedPly === 0}
       onClick={() => props.onSeek(0)}
       dataSet={{ testid: 'custom-game-review-first' }}
@@ -84,7 +91,7 @@ function StepBack(props: StepProps): JSX.Element {
     <IconButton
       label={t`Previous move`}
       size={props.size ?? STEP_SIZE}
-      background={STEP_PLATE}
+      background={stepPlate(props.record)}
       disabled={props.record.displayedPly === 0}
       onClick={() => props.onSeek(props.record.displayedPly - 1)}
       dataSet={{ testid: 'custom-game-review-back' }}
@@ -99,7 +106,7 @@ function StepForward(props: StepProps): JSX.Element {
     <IconButton
       label={t`Next move`}
       size={props.size ?? STEP_SIZE}
-      background={STEP_PLATE}
+      background={stepPlate(props.record)}
       disabled={props.record.displayedPly >= props.record.moves.length}
       onClick={() => props.onSeek(props.record.displayedPly + 1)}
       dataSet={{ testid: 'custom-game-review-forward' }}
@@ -114,7 +121,7 @@ function ReturnLive(props: StepProps): JSX.Element {
     <IconButton
       label={t`Return to current position`}
       size={props.size ?? STEP_SIZE}
-      background={STEP_PLATE}
+      background={stepPlate(props.record)}
       onClick={() => props.onReturnLive()}
       dataSet={{ testid: 'custom-game-review-live' }}
     >
