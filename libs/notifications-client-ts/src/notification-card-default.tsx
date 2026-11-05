@@ -468,6 +468,13 @@ export function NotificationCardDefault(
       dataSet={idOnWords() ? state() : undefined}
     />
   );
+  const menu = (): JSX.Element => (
+    <CardMenu
+      interaction={props.interaction}
+      actions={props.actions}
+      cardTestID={props.testID}
+    />
+  );
   const answers = (beside: boolean): JSX.Element => (
     <CardActionsRow
       interaction={props.interaction}
@@ -511,12 +518,17 @@ export function NotificationCardDefault(
       </StackVertical>
       {props.leading ?? <DefaultLeading interaction={shown()} />}
       {/* A desktop's feed is short and wide enough for the answers beside
-          the words; a phone stacks them under the words. */}
+          the words, the "…" after them; a phone stacks the answers under
+          the words and the "…" beside the title, so the answers' row (with
+          when the card came) runs under both. */}
       <Show
         when={mode() === 'wide'}
         fallback={
-          <StackVertical grow gap="sm">
-            {headline()}
+          <StackVertical grow shrink gap="sm">
+            <StackHorizontal align="start" gap="md">
+              {headline()}
+              {menu()}
+            </StackHorizontal>
             {answers(false)}
           </StackVertical>
         }
@@ -525,12 +537,8 @@ export function NotificationCardDefault(
           {headline()}
         </StackVertical>
         {answers(true)}
+        {menu()}
       </Show>
-      <CardMenu
-        interaction={props.interaction}
-        actions={props.actions}
-        cardTestID={props.testID}
-      />
     </StackHorizontal>
   );
 }

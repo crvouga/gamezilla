@@ -10,6 +10,7 @@ import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-ru
 import { NotificationCardDefault } from '@libs/notifications-client-ts/notification-card-default';
 import { NotificationsScreenView } from '@libs/notifications-client-ts/notifications-screen-view';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import type { AppRouter } from '@pkgs/ui-root-client-ts/app-router';
@@ -174,6 +175,13 @@ test('on a phone a card with answers says when it came on their row', () => {
   expect(row?.contains(meta)).toBe(true);
   // The words keep only the title.
   expect(screen.getByTestId(`${CARD}-open`).contains(meta)).toBe(false);
+  // The "…" shares the title's row, so the answers' row runs under both
+  // instead of beside the menu's column (Accept, Decline and the time fit).
+  const menu = screen.getByTestId(Handles.notificationsCardMenu(CARD));
+  const titleRow = screen.getByTestId(`${CARD}-open`).parentElement;
+  expect(titleRow?.contains(menu)).toBe(true);
+  expect(titleRow?.contains(accept)).toBe(false);
+  expect(row?.parentElement?.contains(menu)).toBe(true);
 });
 
 test('a desktop card and a phone card with no answers keep the time under the title', () => {
