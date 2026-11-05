@@ -42,7 +42,7 @@ export const turnSoundsOff = scenarioAction({
   },
 });
 
-/** Whether the Settings Offline mode switch is on, or `null` off Settings. */
+/** Whether the Settings Work offline switch is on, or `null` off Settings. */
 async function offlineSwitchOn(
   s: ProductHarness,
   actorId: string
@@ -56,7 +56,7 @@ async function offlineSwitchOn(
   return checked === null ? null : checked === 'true';
 }
 
-/** Settings → Offline mode switch. */
+/** Settings → Work offline switch. */
 export const setWorkOfflineInSettings = scenarioAction({
   name: 'setWorkOfflineInSettings',
   act: async (s, actorId: string, offline: boolean) => {
@@ -121,7 +121,7 @@ export async function soundShownInSettings(
 }
 
 /**
- * What the Settings Offline mode row shows (`Offline` while its switch is
+ * What the Settings Work offline row shows (`Offline` while its switch is
  * on, `Online` while it is off), or `null` off Settings.
  */
 export async function workOfflineShownInSettings(

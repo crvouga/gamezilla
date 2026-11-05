@@ -113,10 +113,10 @@ function useAccountGroup(
 }
 
 /**
- * The Offline mode row's caption, short: what the switch pauses while it is
- * off, and that it is paused while it is on. Multiplayer is named either
- * way, and so is what it means for a game with others (it disconnects), so
- * turning it on never silently stops playing with others.
+ * The Work offline row's caption, short: what turning it on does, and what
+ * is stopped while it is on. Multiplayer leads either way, and so does what
+ * it means for a game with others (it disconnects), so turning it on never
+ * reads like an ordinary preference.
  */
 function useWorkOfflineCaption(
   props: SettingsScreenViewProps
@@ -124,8 +124,8 @@ function useWorkOfflineCaption(
   const { t } = useLingui();
   return () =>
     props.offline
-      ? t`Syncing and multiplayer are paused; games with others are disconnected`
-      : t`Pause syncing and multiplayer; a game with others disconnects`;
+      ? t`Multiplayer is disconnected and syncing is paused`
+      : t`Disconnects multiplayer and pauses syncing`;
 }
 
 function usePreferencesGroup(
@@ -133,11 +133,10 @@ function usePreferencesGroup(
 ): Accessor<SettingsGroup> {
   const { t } = useLingui();
   const themeValue = useThemeValue(props);
-  const offlineCaption = useWorkOfflineCaption(props);
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
-    description: t`Look, sound and connection`,
+    description: t`Look and sound`,
     rows: [
       {
         title: t`Appearance`,
@@ -153,14 +152,33 @@ function usePreferencesGroup(
         href: '/more/sound',
         testid: Handles.settingsSound,
       },
+    ],
+  });
+}
+
+/**
+ * Working offline on its own, apart from look and sound: it is not a
+ * preference but a choice that ends every game with others, so its group
+ * says so under the switch.
+ */
+function useConnectionGroup(
+  props: SettingsScreenViewProps
+): Accessor<SettingsGroup> {
+  const { t } = useLingui();
+  const offlineCaption = useWorkOfflineCaption(props);
+  return () => ({
+    key: 'connection',
+    title: t`Connection`,
+    footer: t`While you work offline, nobody can play with you: a game with others disconnects, and what you do waits on this device until you go back online.`,
+    rows: [
       {
-        title: t`Offline mode`,
+        title: t`Work offline`,
         caption: offlineCaption(),
         icon: props.offline ? WifiOffIcon : WifiIcon,
         toggle: {
           value: props.offline,
           onChange: props.onOfflineChange,
-          label: t`Offline mode`,
+          label: t`Work offline`,
         },
         testid: Handles.settingsWorkOffline,
       },
@@ -174,7 +192,8 @@ function useSettingsGroups(props: SettingsScreenViewProps): {
 } {
   const account = useAccountGroup(props);
   const preferences = usePreferencesGroup(props);
-  return { everyday: () => [account(), preferences()] };
+  const connection = useConnectionGroup(props);
+  return { everyday: () => [account(), preferences(), connection()] };
 }
 
 function SettingsGroupView(props: {

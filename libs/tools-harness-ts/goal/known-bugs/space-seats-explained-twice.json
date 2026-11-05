@@ -1,0 +1,4 @@
+{
+  "summary": "A space's list of games explained seats twice: a header sentence (\"A game seats the players it needs; everyone else here watches.\") above games whose own tags already said \"2 play, others watch\", crowding the list. The header now says only who is here and who hosts.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-games-header.test.tsx"
+}

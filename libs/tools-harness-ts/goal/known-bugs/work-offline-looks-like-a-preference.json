@@ -1,0 +1,4 @@
+{
+  "summary": "Settings listed \"Offline mode\" among Appearance and Sound as an ordinary preference toggle, although turning it on disconnects every game with others. The switch is now \"Work offline\" (the specs' own term), in its own Connection group whose footer says nobody can play with you while it is on.",
+  "regressionTest": "libs/app-root-client-ts/tests/work-offline-caption.test.tsx"
+}

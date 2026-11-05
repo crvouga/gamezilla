@@ -103,11 +103,15 @@ export function RemoveMethodControl(props: {
     <Show
       when={props.removable}
       fallback={
-        <Badge
-          label={t`Only sign-in`}
-          intent="neutral"
-          dataSet={{ testid: Handles.accountUnlinkProvider(props.method) }}
-        />
+        // A tag sits at the top of whatever holds it; its own box lets the
+        // row centre it on the row's middle, as it centres a button.
+        <StackVertical justify="center">
+          <Badge
+            label={t`Only sign-in`}
+            intent="neutral"
+            dataSet={{ testid: Handles.accountUnlinkProvider(props.method) }}
+          />
+        </StackVertical>
       }
     >
       <Button

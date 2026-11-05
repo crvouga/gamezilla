@@ -11,7 +11,7 @@ export function WorkOfflineStatus(): JSX.Element {
   return (
     <Show when={offline()}>
       <Badge
-        label={<Trans>Offline mode</Trans>}
+        label={<Trans>Working offline</Trans>}
         intent="neutral"
         size="sm"
         dataSet={{ testid: Handles.statusWorkOffline }}

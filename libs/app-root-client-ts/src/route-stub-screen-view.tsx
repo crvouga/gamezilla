@@ -1,12 +1,13 @@
 /** @jsxImportSource solid-js */
 
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { CompassIcon, InfoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { InfoIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+import { NotFoundScreenView } from './not-found-screen-view';
 
 export type RouteStubScreenViewProps = {
   /** Stable DOM `data-screen` id, e.g. `more-theme`. */
@@ -21,6 +22,9 @@ export type RouteStubScreenViewProps = {
   readonly notFound?: boolean | undefined;
   /** Leave for Spaces, the app's home. */
   readonly onGoToSpaces: () => void;
+  /** Not found: the other places worth going instead. */
+  readonly onGoToSearch: () => void;
+  readonly onGoToProfile: () => void;
   /**
    * Return to the screen the person came from; set only when the app has
    * one to return to. Offered beside Go to Spaces.
@@ -51,37 +55,36 @@ export function RouteStubScreenView(
       : { label: <Trans>Go back</Trans>, onClick: () => back() };
   };
   return (
-    <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
-      {/* On the page title's edge, so the title and the state line up. */}
-      <EmptyState
-        align="start"
-        icon={props.notFound === true ? CompassIcon : InfoIcon}
-        title={
-          props.notFound === true ? (
-            <Trans>There's nothing at this address</Trans>
-          ) : (
-            props.title
-          )
-        }
-        body={
-          props.notFound === true ? (
-            <Trans>
-              The link may be old or mistyped. Your spaces are still here.
-            </Trans>
-          ) : (
+    <Show
+      when={props.notFound !== true}
+      fallback={
+        <NotFoundScreenView
+          screenId={props.screenId}
+          title={props.title}
+          onGoToSpaces={props.onGoToSpaces}
+          onGoToSearch={props.onGoToSearch}
+          onGoToProfile={props.onGoToProfile}
+          onGoBack={props.onGoBack}
+        />
+      }
+    >
+      <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
+        {/* On the page title's edge, so the title and the state line up. */}
+        <EmptyState
+          align="start"
+          icon={InfoIcon}
+          title={props.title}
+          body={
             <Trans>This screen has not been ported to the web app yet.</Trans>
-          )
-        }
-        action={{
-          label: <Trans>Go to Spaces</Trans>,
-          onClick: () => props.onGoToSpaces(),
-        }}
-        secondaryAction={goBack()}
-        dataSet={{
-          testid:
-            props.notFound === true ? Handles.routeNotFound : 'route-stub',
-        }}
-      />
-    </ContentScreen>
+          }
+          action={{
+            label: <Trans>Go to Spaces</Trans>,
+            onClick: () => props.onGoToSpaces(),
+          }}
+          secondaryAction={goBack()}
+          dataSet={{ testid: 'route-stub' }}
+        />
+      </ContentScreen>
+    </Show>
   );
 }

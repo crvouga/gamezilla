@@ -1,0 +1,4 @@
+{
+  "summary": "Beside the sidebar, the not-found screen sat in the top-left corner under a \"Not found\" title and a second \"There's nothing at this address\" heading, with nothing pointing anywhere but Spaces. It now says it once (the page title), centred in the content area, and offers Spaces, Search and Profile (and Go back when there is somewhere to go back to).",
+  "regressionTest": "libs/app-root-client-ts/tests/not-found-screen.test.tsx"
+}
