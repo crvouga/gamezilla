@@ -68,9 +68,9 @@
     "bottom bottom bottom";
   align-items: center;
   justify-items: center;
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-2) var(--ui-space-1);
   width: 100%;
-  padding: var(--ui-space-3);
+  padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
   border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
@@ -97,11 +97,11 @@
 }
 /* A narrow seat (beside a phone's table) lists its facts one under another. */
 @container (max-width: 7.5rem) {
-  .facts {
+  .seat[data-player="true"] .facts {
     flex-direction: column;
     align-items: center;
   }
-  .fact + .fact::before {
+  .seat[data-player="true"] .fact + .fact::before {
     content: none;
   }
 }
