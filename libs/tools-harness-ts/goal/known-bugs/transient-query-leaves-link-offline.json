@@ -1,0 +1,4 @@
+{
+  "summary": "Release 41795577333 attempt 2 failed its custom-game join after net::ERR_FAILED on the link query left the device offline until the 30-second reconciliation tick, despite later healthy HTTP responses. Failed query reads now retry with bounded exponential backoff and stop scheduling after a successful sweep or disconnect.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/transient-query-recovery.test.ts"
+}

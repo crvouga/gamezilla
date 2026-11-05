@@ -3263,6 +3263,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@libs/infra-server-ts#unlock:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@libs/infra-server-ts#plan:repository-policy": {
       "cache": false,
       "passThroughEnv": ["*"]

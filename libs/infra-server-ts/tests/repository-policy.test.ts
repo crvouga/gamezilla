@@ -260,3 +260,23 @@ test('the real required-check registry expression evaluates under OpenTofu', () 
     removeTree(fixture, { whenLocked: 'leave' });
   }
 });
+
+// regression: tofu-plan-abandoned-lock
+test('abandoned-lock recovery shares the policy lock and requires an explicit rehearsal input', () => {
+  const preview = workflow('deploy.yml')['deploy-rehearsal'];
+  expect(preview?.if).toContain('inputs.rehearsal');
+  expect(preview?.concurrency?.group).toBe('repository-policy');
+  const text = readFileSync(
+    join(TOFU, '../../../.github/workflows/deploy.yml'),
+    'utf8'
+  );
+  expect(text).toContain("if: ${{ inputs.abandoned-bootstrap-lock != '' }}");
+  expect(text).toContain(
+    'TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-bootstrap-lock }}'
+  );
+  expect(
+    preview?.steps?.some((step) =>
+      step.run?.includes('#unlock:repository-policy')
+    )
+  ).toBe(true);
+});

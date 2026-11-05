@@ -13,6 +13,7 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/v2';
 import type { MergeApplierDeps } from './merge';
 import { detachScope } from './merge';
+import { createQueryNetworkRetry } from './query-network-retry';
 import { raceUntilAborted } from './race-until-aborted';
 import {
   QUERY_COALESCE_MS,
@@ -135,6 +136,7 @@ export class SubscriptionRuntime {
   private afterSweep: ((scopes: readonly string[]) => void) | null = null;
   private readonly lifecycle: AppLifecycle;
   private readonly timers: Timers;
+  private readonly queryRetry: ReturnType<typeof createQueryNetworkRetry>;
   private readonly coalesceMs: number;
   private readonly reconcileIntervalMs: number;
   private running = false;
@@ -162,6 +164,9 @@ export class SubscriptionRuntime {
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
     this.timers = options.timers;
+    this.queryRetry = createQueryNetworkRetry(this.timers, () =>
+      this.wakeAll()
+    );
     this.coalesceMs = options.coalesceMs ?? QUERY_COALESCE_MS;
     this.reconcileIntervalMs =
       options.reconcileIntervalMs ?? QUERY_RECONCILE_INTERVAL_MS;
@@ -228,6 +233,7 @@ export class SubscriptionRuntime {
     this.running = false;
     this.requestAbort.abort();
     this.clearCoalesceTimer();
+    this.queryRetry.reset();
     this.clearReconcileTick();
     this.pending = null;
     this.cleanScopes.clear();
@@ -461,10 +467,15 @@ export class SubscriptionRuntime {
       this.options.onSweepStarted?.(active.map((entry) => entry.scope));
       await runSubscriptionSweep(ctx, active);
       if (ctx.isRunning()) {
+        // An unrelated scope answering must not cancel recovery of a failed link.
+        if (pending === 'all') this.queryRetry.reset();
         this.afterSweep?.(active.map((e) => e.scope));
       }
     } catch (error) {
-      if (error !== STOPPED_QUERY) this.options.onError(error);
+      if (error !== STOPPED_QUERY) {
+        if (ctx.isRunning()) this.queryRetry.failed(error);
+        this.options.onError(error);
+      }
     } finally {
       this.inFlight = false;
       this.inFlightScopes = [];
