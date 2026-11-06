@@ -308,3 +308,37 @@ test('completed snapshots retain compressed evidence and release only their own 
     removeTree(container, { whenLocked: 'leave' });
   }
 });
+
+// regression: verify-snapshot-file-list-buffer
+test('snapshots repository file lists larger than one MiB', async () => {
+  const source = mkdtempSync(join(tmpdir(), 'verify-large-list-'));
+  let snapshot: string | undefined;
+  try {
+    execFileSync('git', ['init', '-q'], { cwd: source });
+    const paths = Array.from(
+      { length: 5500 },
+      (_, index) => `${String(index).padStart(4, '0')}-${'x'.repeat(200)}.txt`
+    );
+    for (const path of paths) writeFileSync(join(source, path), 'input');
+    execFileSync('git', ['add', '.'], { cwd: source });
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Fixture',
+        '-c',
+        'user.email=fixture@example.com',
+        'commit',
+        '-qm',
+        'fixture',
+      ],
+      { cwd: source }
+    );
+    snapshot = await createVerifySnapshot(source);
+    for (const path of paths)
+      expect(readFileSync(join(snapshot, path), 'utf8')).toBe('input');
+  } finally {
+    if (snapshot) removeTree(dirname(snapshot));
+    removeTree(source);
+  }
+});
