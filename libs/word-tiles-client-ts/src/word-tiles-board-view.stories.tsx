@@ -24,7 +24,7 @@ import {
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
-import { checkEnlargedCoordinates } from './word-tiles-coordinate.checks';
+import { checkEnlargedCoordinates } from './word-tiles-coordinate.example';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
 import { matchJourney } from './word-tiles-match-journey.example';

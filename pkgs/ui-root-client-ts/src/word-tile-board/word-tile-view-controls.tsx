@@ -4,6 +4,7 @@ import { Button } from '../button/index';
 import { StackHorizontal } from '../stack/index';
 import { P } from '../text/index';
 
+/** Switch between the whole board and precise scrollable cells, keeping navigation guidance visible. */
 export function WordTileViewControls(props: {
   enlarged: boolean;
   onChange: (enlarged: boolean) => void;

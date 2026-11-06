@@ -209,7 +209,7 @@ function interactiveRender(
 
 // regression: light-cycles-desktop-steer-up
 export const SteerUp: Story = {
-  render: interactiveRender(3, ['white']),
+  render: (args, context) => interactiveRender(3, ['white'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const arena = canvas.getByTestId('custom-game-board-arena');
@@ -224,15 +224,16 @@ export const SteerUp: Story = {
 
 export const DuelSteering: Story = {
   ...SteerUp,
-  render: interactiveRender(2, ['white']),
+  render: (args, context) => interactiveRender(2, ['white'])(args, context),
 };
 export const QuadSteering: Story = {
   ...SteerUp,
-  render: interactiveRender(4, ['white']),
+  render: (args, context) => interactiveRender(4, ['white'])(args, context),
 };
 
 export const SharedKeyboard: Story = {
-  render: interactiveRender(3, ['white', 'black']),
+  render: (args, context) =>
+    interactiveRender(3, ['white', 'black'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-arena'));
@@ -358,7 +359,8 @@ export const ResumedSteering = recoveryJourney();
 
 // regression: light-cycles-shared-device-guidance
 export const SharedSwipe: Story = {
-  render: interactiveRender(3, ['white', 'black']),
+  render: (args, context) =>
+    interactiveRender(3, ['white', 'black'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const left = canvas.queryByTestId('custom-game-board-black-pad');

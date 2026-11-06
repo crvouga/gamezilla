@@ -1,43 +1,65 @@
 import { expect, userEvent, within } from 'storybook/test';
 
-/** Assert before any input can scroll a clipped square into view. */
+type Boundary = readonly [
+  edge: string,
+  actual: number,
+  limit: number,
+  minimum: boolean,
+];
+
+function cellBoundaries(cell: HTMLElement): Boundary[] {
+  const bounds = cell.getBoundingClientRect();
+  const result: Boundary[] = [
+    ['width', bounds.width, 32, true],
+    ['height', bounds.height, 32, true],
+  ];
+  for (let parent = cell.parentElement; parent; parent = parent.parentElement) {
+    const style = getComputedStyle(parent);
+    const clip = parent.getBoundingClientRect();
+    if (/hidden|clip|auto|scroll/.test(style.overflowY))
+      result.push(
+        ['top', bounds.top, clip.top, true],
+        ['bottom', bounds.bottom, clip.bottom, false]
+      );
+    if (/hidden|clip|auto|scroll/.test(style.overflowX))
+      result.push(
+        ['left', bounds.left, clip.left, true],
+        ['right', bounds.right, clip.right, false]
+      );
+  }
+  return result;
+}
+
+/** Assert every boundary before input, reporting all violations in one instrumented call. */
 export async function assertPuzzleBounds(canvasElement: HTMLElement) {
   const cells = canvasElement.querySelectorAll<HTMLElement>(
     'button[data-square]'
   );
   await expect(cells.length).toBe(64);
+  const violations = [];
   for (const cell of cells) {
-    const bounds = cell.getBoundingClientRect();
-    await expect(bounds.width).toBeGreaterThanOrEqual(32);
-    await expect(bounds.height).toBeGreaterThanOrEqual(32);
-    for (
-      let parent = cell.parentElement;
-      parent;
-      parent = parent.parentElement
-    ) {
-      const style = getComputedStyle(parent);
-      const clip = parent.getBoundingClientRect();
-      if (/hidden|clip|auto|scroll/.test(style.overflowY)) {
-        await expect(bounds.top).toBeGreaterThanOrEqual(clip.top);
-        await expect(bounds.bottom).toBeLessThanOrEqual(clip.bottom);
-      }
-      if (/hidden|clip|auto|scroll/.test(style.overflowX)) {
-        await expect(bounds.left).toBeGreaterThanOrEqual(clip.left);
-        await expect(bounds.right).toBeLessThanOrEqual(clip.right);
-      }
+    for (const [edge, actual, limit, minimum] of cellBoundaries(cell)) {
+      if (!(minimum ? actual >= limit : actual <= limit))
+        violations.push({
+          square: cell.dataset['square'],
+          edge,
+          actual,
+          limit,
+          minimum,
+        });
     }
   }
+  await expect(violations).toEqual([]);
   const frame = canvasElement.querySelector(
     '[data-component="ChessBoardFrame"]'
   );
   const layout = canvasElement.querySelector(
     '[data-component="ChessBoardLayout"]'
   );
-  if (frame && layout) {
+  if (frame && layout)
     await expect(frame.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       layout.getBoundingClientRect().bottom
     );
-  }
 }
 
 // regression: chess-puzzle-guidance-clips-first-rank

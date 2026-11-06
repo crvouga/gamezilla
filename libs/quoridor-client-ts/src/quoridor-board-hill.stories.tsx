@@ -16,7 +16,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
-import { expectHillPassVisible } from './quoridor-hill-visibility.checks';
+import { expectHillPassVisible } from './quoridor-hill-visibility.example';
 
 function sideAt(index: number) {
   const side = QUORIDOR_SIDES[index];

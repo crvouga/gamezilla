@@ -1,6 +1,6 @@
 // @io-wall-ok — browser verification adapter; all requests stay on the static server
 import { readFileSync } from 'node:fs';
-import { type Page, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { visualScenarios } from '../../storybook/scenarios';
 import { verifySharedSwipeCapture } from './light-cycles-pointer';
 import { verifyStoryScenario } from './verify-story-scenario';
@@ -326,4 +326,23 @@ test('screens-puzzles-chess-play--solving regression chess-puzzle-story-pointer-
   page,
 }) => {
   await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+});
+
+// regression: chess-puzzle-instrumented-bounds-overload
+test('storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(
+    '/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true'
+  );
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  await expect(
+    page.getByText('Checkmate. Puzzle solved.', { exact: true })
+  ).toBeVisible();
+  expect(errors).toEqual([]);
 });

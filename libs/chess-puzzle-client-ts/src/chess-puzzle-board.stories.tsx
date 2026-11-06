@@ -11,7 +11,7 @@ import { ChessPuzzleBoard } from './chess-puzzle-board';
 import {
   assertPuzzleBounds,
   checkPuzzleFirstRank,
-} from './chess-puzzle-bounds.checks';
+} from './chess-puzzle-bounds.example';
 import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
 import {
   completeChessPuzzle,

@@ -225,28 +225,28 @@ function shotJourney(
 }
 
 /** A miss stays visible and the player can no longer fire on Red's turn. */
-export const FireAShot: Story = shotJourney(
-  VOLLEYS,
-  'e5',
-  'E5: miss, latest shot'
-);
+export const FireAShot: Story = {
+  ...shotJourney(VOLLEYS, 'e5', 'E5: miss, latest shot'),
+};
 
-export const HitAShip: Story = shotJourney([], 'f10', 'F10: hit, latest shot');
+export const HitAShip: Story = {
+  ...shotJourney([], 'f10', 'F10: hit, latest shot'),
+};
 
 /** The second hit reveals the destroyer as sunk using the real shot resolver. */
-export const SinkAShip: Story = shotJourney(
-  ['f10', 'a2'],
-  'g10',
-  'G10: hit, sunk Destroyer, latest shot'
-);
+export const SinkAShip: Story = {
+  ...shotJourney(['f10', 'a2'], 'g10', 'G10: hit, sunk Destroyer, latest shot'),
+};
 
 /** The final shot reaches the result through the same resolver as all other shots. */
-export const SinkTheFleet: Story = shotJourney(
-  BLUE_VICTORY.slice(0, -1),
-  'g10',
-  'G10: hit, sunk Destroyer, latest shot',
-  true
-);
+export const SinkTheFleet: Story = {
+  ...shotJourney(
+    BLUE_VICTORY.slice(0, -1),
+    'g10',
+    'G10: hit, sunk Destroyer, latest shot',
+    true
+  ),
+};
 
 export const CorrectTargetBeforeFiring: Story = {
   ...shotJourney([], 'j10', 'J10: miss, latest shot'),

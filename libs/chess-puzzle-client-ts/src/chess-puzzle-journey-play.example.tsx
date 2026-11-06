@@ -2,7 +2,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import {
   assertPuzzleBounds,
   checkPuzzleFirstRank,
-} from './chess-puzzle-bounds.checks';
+} from './chess-puzzle-bounds.example';
 
 /** Keyboard moves exercise the board's real selection and action emission. */
 export async function completeChessPuzzle(canvasElement: HTMLElement) {

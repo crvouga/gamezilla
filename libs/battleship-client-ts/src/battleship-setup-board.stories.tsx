@@ -2,7 +2,7 @@ import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
-import { checkSetupPlacementBounds } from './battleship-setup-placement.checks';
+import { checkSetupPlacementBounds } from './battleship-setup-placement.example';
 
 const FULL_FLEET =
   'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v';
