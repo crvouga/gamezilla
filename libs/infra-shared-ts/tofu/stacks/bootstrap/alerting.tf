@@ -96,7 +96,9 @@ resource "grafana_cloud_stack_service_account" "alerting" {
   provider   = grafana.alerting_management
   stack_slug = var.grafana.stack_slug
   name       = "${var.project}-alerting"
-  role       = "Editor"
+  # Provisioning creates IRM integrations/chains and manages another user's
+  # notification rules. Grafana's Editor role explicitly forbids those actions.
+  role = "Admin"
 }
 
 resource "grafana_cloud_stack_service_account_token" "alerting" {

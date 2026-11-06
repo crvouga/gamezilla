@@ -69,6 +69,15 @@ test('merge-commit-only history and disposable heads remain compatible with main
   expect(repository).toMatch(/branch\s*=\s*"main"/);
 });
 
+// regression: disabled-squash-settings-drift
+test('disabled squash metadata matches the values GitHub retains', () => {
+  // GitHub retains PR_TITLE / PR_BODY while squash is disabled. Provider
+  // defaults COMMIT_OR_PR_TITLE / COMMIT_MESSAGES otherwise drift forever.
+  expect(repository).toMatch(/squash_merge_commit_title\s*=\s*"PR_TITLE"/);
+  expect(repository).toMatch(/squash_merge_commit_message\s*=\s*"PR_BODY"/);
+  expect(repository).toMatch(/allow_squash_merge\s*=\s*false/);
+});
+
 // regression: repository-policy-refuses-auto-merge
 test('the declared merge settings pass the bootstrap repository policy', () => {
   // Literal failing input: main.tf set allow_auto_merge = true while

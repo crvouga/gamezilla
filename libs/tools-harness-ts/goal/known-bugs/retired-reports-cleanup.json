@@ -1,0 +1,4 @@
+{
+  "summary": "Health cleanup still required REPORTS_BUCKET after the reports store was retired. Branch maintenance must continue and report retention is applicable only when an external store is configured; partial configuration still fails.",
+  "regressionTest": "libs/harness-ts/tests/report-store-configuration.test.ts"
+}

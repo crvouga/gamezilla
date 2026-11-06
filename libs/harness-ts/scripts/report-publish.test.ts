@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { existsSync } from 'node:fs';
+import { reportsStoreUnconfigured } from '@libs/harness-ts/report-store-configuration';
 import { tailwindCli } from '@libs/harness-ts/wall-frame-css';
-import { REPO_ROOT, reportsStoreUnconfigured } from './report-publish';
+import { REPO_ROOT } from './report-publish';
 
 describe('report-publish', () => {
   // regression: report-publish-wrangler-not-found

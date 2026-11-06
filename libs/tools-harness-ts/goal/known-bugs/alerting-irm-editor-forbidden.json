@@ -1,0 +1,4 @@
+{
+  "summary": "Release's Grafana Editor service account cannot create IRM integrations or escalation chains or manage the responder's notification rules, so alert provisioning fails with HTTP 403.",
+  "regressionTest": "libs/infra-server-ts/tests/alerting-management.test.ts"
+}
