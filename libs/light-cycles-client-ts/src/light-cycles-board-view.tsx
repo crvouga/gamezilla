@@ -11,6 +11,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import {
   TrailArena,
   type TrailHeading,
@@ -100,9 +101,7 @@ function SteeringHint(props: {
             }
           >
             <Trans>
-              Swipe the right half for {riderName(props.sides[0]!)}, the left
-              half for {riderName(props.sides[1]!)}. Or use each rider's named
-              pad. Avoid the edge and every trail.
+              Swipe your half or use your pad. Avoid edges and trails.
             </Trans>
           </Show>
         }
@@ -197,26 +196,34 @@ function Arena(props: {
         dataSet={{ steering: ownSteering() }}
       >
         <Show
-          when={controlled().length > 1}
-          fallback={steeringText(ownSteering(), primary())}
+          when={
+            props.state.phase === 'round-over' ||
+            props.state.phase === 'completed'
+          }
+          fallback={
+            controlled().length > 1
+              ? controlled()
+                  .map((side) => steeringText(steering(side), side))
+                  .join(' ')
+              : steeringText(ownSteering(), primary())
+          }
         >
-          {controlled()
-            .map((side) => steeringText(steering(side), side))
-            .join(' ')}
+          <Text variant="bodyBold" testId={`${props.board.testId}-result`}>
+            {arenaOverlay(props.state)?.title}
+          </Text>{' '}
+          <Text variant="caption">{arenaOverlay(props.state)?.detail}</Text>
         </Show>
       </P>
-      <Show
-        when={
-          props.state.phase === 'round-over' ||
-          props.state.phase === 'completed'
-        }
-      >
-        <P role="status" testId={`${props.board.testId}-result`}>
-          {arenaOverlay(props.state)?.title}
-        </P>
-      </Show>
       <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
       <TrailArena
+        touchRegions={
+          controlled().length === 2 && controlled().some(steerable)
+            ? [
+                t`Left: ${riderName(controlled()[1]!)}`,
+                t`Right: ${riderName(controlled()[0]!)}`,
+              ]
+            : undefined
+        }
         width={props.state.width}
         height={props.state.height}
         cells={props.state.trails}
@@ -280,12 +287,21 @@ export function LightCyclesBoardView(props: GameBoardProps): JSX.Element {
     <Show
       when={state()}
       fallback={
-        <P role="alert">
-          <Trans>
-            Light Cycles could not be opened. Return to the game choices and
-            open it again.
-          </Trans>
-        </P>
+        <StackVertical gap="sm">
+          <P role="alert">
+            <Trans>
+              This game cannot be shown by this app. Check your app version,
+              install an available update, then reopen this game.
+            </Trans>
+          </P>
+          <TextLink
+            href="/more/about"
+            variant="standalone"
+            testId={`${props.testId}-app-info`}
+          >
+            <Trans>Check app version</Trans>
+          </TextLink>
+        </StackVertical>
       }
     >
       {(game) => <Arena state={game()} board={props} />}

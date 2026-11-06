@@ -6,6 +6,8 @@ import styles from './battleship-placement-layout.module.css';
 export function BattleshipPlacementLayout(props: {
   controls: JSX.Element;
   working: JSX.Element;
+  /** Reserved inline guidance/refusal space keeps the bow targets stationary. */
+  feedback?: JSX.Element;
   overview: JSX.Element;
   overviewLabel: string;
 }): JSX.Element {
@@ -14,10 +16,9 @@ export function BattleshipPlacementLayout(props: {
       class={styles['layout']}
       {...dataAttrs({ component: 'BattleshipPlacementLayout' })}
     >
-      <div class={styles['working']}>
-        {props.controls}
-        {props.working}
-      </div>
+      <div class={styles['controls']}>{props.controls}</div>
+      <div class={styles['feedback']}>{props.feedback}</div>
+      <div class={styles['working']}>{props.working}</div>
       <div class={styles['overview']}>
         <span class="text textLabel">{props.overviewLabel}</span>
         <div inert>{props.overview}</div>

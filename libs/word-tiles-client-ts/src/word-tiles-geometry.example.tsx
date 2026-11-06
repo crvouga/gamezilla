@@ -1,7 +1,10 @@
 import { expect, within } from 'storybook/test';
 
 /** Full box visibility, including corner hit testing; toBeVisible alone misses sticky overlap. */
-async function assertClear(element: HTMLElement): Promise<void> {
+export async function assertClear(
+  element: HTMLElement,
+  contentFits = true
+): Promise<void> {
   const rect = element.getBoundingClientRect();
   const doc = element.ownerDocument;
   await expect(rect.width).toBeGreaterThan(0);
@@ -11,7 +14,8 @@ async function assertClear(element: HTMLElement): Promise<void> {
   );
   await expect(rect.left).toBeGreaterThanOrEqual(0);
   await expect(rect.right).toBeLessThanOrEqual(doc.documentElement.clientWidth);
-  await expect(element.scrollWidth).toBeLessThanOrEqual(element.clientWidth);
+  if (contentFits)
+    await expect(element.scrollWidth).toBeLessThanOrEqual(element.clientWidth);
   for (const x of [rect.left + 2, rect.right - 2]) {
     for (const y of [rect.top + 2, rect.bottom - 2]) {
       const hit = doc.elementFromPoint(x, y);
@@ -50,4 +54,30 @@ export async function checkCatStatusGeometry(
   await assertClear(status);
   status.scrollIntoView({ block: 'start', behavior: 'instant' });
   await assertClear(status);
+}
+
+/** Native initial layout, before any input can scroll the task into view. */
+export async function checkInitialWordWorkspace(
+  canvasElement: HTMLElement
+): Promise<void> {
+  // regression: word-tiles-phone-action-overload
+  const canvas = within(canvasElement);
+  const primary = canvas.getByTestId('custom-game-board-submit');
+  const more = canvas.getByRole('button', { name: 'More actions' });
+  await expect(more).toHaveAttribute('aria-expanded', 'false');
+  await expect(
+    canvas.queryByTestId('custom-game-board-recall')
+  ).not.toBeInTheDocument();
+  await assertClear(primary);
+  await assertClear(more);
+  await assertClear(canvas.getByTestId('custom-game-board-rack'));
+  const viewport = canvas.getByRole('region', {
+    name: 'Scrollable word board',
+  });
+  await assertClear(viewport, false);
+  const board = viewport.getBoundingClientRect();
+  const rack = canvas
+    .getByTestId('custom-game-board-rack')
+    .getBoundingClientRect();
+  await expect(board.top - rack.bottom).toBeLessThanOrEqual(160);
 }

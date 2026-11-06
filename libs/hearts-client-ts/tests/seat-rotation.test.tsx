@@ -26,7 +26,10 @@ test('every rotation keeps each literal player and score in its own seat', () =>
   const [orientation, setOrientation] = createSignal<GameSide>('white');
   renderBoard(() => (
     <GameTableSeats
-      seat={(side) => <GameTableSeat name={names[side as GameSide]} />}
+      seat={(side) => ({
+        name: names[side as GameSide],
+        content: <GameTableSeat name={names[side as GameSide]} />,
+      })}
     >
       <HeartsBoard
         position={heartsRules.initial()}

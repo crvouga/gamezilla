@@ -1,4 +1,8 @@
 import { expect, userEvent, within } from 'storybook/test';
+import {
+  assertClear,
+  checkInitialWordWorkspace,
+} from './word-tiles-geometry.example';
 
 async function assertFocusedCoordinates(
   canvasElement: HTMLElement,
@@ -41,6 +45,7 @@ async function assertFocusedCoordinates(
 
 /** Keyboard navigation must reveal its cell without concealing either coordinate. */
 export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
+  await checkInitialWordWorkspace(canvasElement);
   await userEvent.click(
     within(canvasElement).getByRole('button', { name: 'Enlarge board' })
   );
@@ -54,6 +59,7 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   await expect(
     canvas.getByRole('button', { name: 'Enlarge board' })
   ).toHaveAttribute('aria-pressed', 'true');
+  await checkPrecisionWorkspace(canvasElement);
   await assertFocusedCoordinates(canvasElement, 'h8');
   for (const [keys, cell] of [
     ['{Control>}{Home}{/Control}', 'a1'],
@@ -65,4 +71,28 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
     await userEvent.keyboard(keys);
     await assertFocusedCoordinates(canvasElement, cell);
   }
+}
+
+/** Literal 390×844 and 1440×900 placements must use the native available area. */
+async function checkPrecisionWorkspace(
+  canvasElement: HTMLElement
+): Promise<void> {
+  // regression: word-tiles-cramped-precision-window
+  const canvas = within(canvasElement);
+  const viewport = canvas.getByRole('region', {
+    name: 'Scrollable word board',
+  });
+  const overview = canvas.getByTestId('custom-game-board-overview');
+  const rect = viewport.getBoundingClientRect();
+  const context = overview.getBoundingClientRect();
+  const available = viewport.parentElement?.getBoundingClientRect();
+  if (!available) throw new Error('Missing precision area');
+  await expect(rect.width).toBeGreaterThanOrEqual(308);
+  await expect(rect.width / available.width).toBeGreaterThanOrEqual(0.8);
+  await expect(rect.height).toBeGreaterThanOrEqual(308);
+  await expect(context.width / available.width).toBeLessThanOrEqual(0.2);
+  await assertClear(viewport, false);
+  await assertClear(overview);
+  await assertClear(canvas.getByTestId('custom-game-board-rack'));
+  await assertClear(canvas.getByTestId('custom-game-board-submit'));
 }

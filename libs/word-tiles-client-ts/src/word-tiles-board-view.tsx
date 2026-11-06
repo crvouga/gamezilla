@@ -4,13 +4,15 @@ import { t } from '@lingui/core/macro';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
-import { WordTileWorkbench } from '@pkgs/ui-root-client-ts/word-tile-workbench';
+import {
+  WordTileActions,
+  WordTileWorkbench,
+} from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import { wordTilesActions } from './word-tiles-actions';
@@ -65,6 +67,7 @@ function SeatBoard(props: {
         </WordTileWorkbench>
       </Show>
       <WordTileBoard
+        measure="compact"
         label={t`Word board, fifteen columns and fifteen rows`}
         testId={props.draft.props.testId}
         columnLabels={COLUMN_LABELS}
@@ -212,8 +215,10 @@ function LocalActions(props: {
   random: () => number;
 }): JSX.Element {
   return (
-    <GameActionBar
-      aria-label={t`Word actions`}
+    <WordTileActions
+      label={t`Word actions`}
+      moreLabel={t`More actions`}
+      testId={props.draft.props.testId}
       items={wordTilesActions(props.draft, props.random)
         .filter(
           (action) =>

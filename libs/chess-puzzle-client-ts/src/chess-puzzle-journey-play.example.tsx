@@ -4,8 +4,14 @@ import {
   checkPuzzleFirstRank,
 } from './chess-puzzle-bounds.example';
 
+import {
+  assertStablePuzzleRectangle,
+  puzzleRectangle,
+} from './chess-puzzle-geometry.example';
+
 /** Keyboard moves exercise the board's real selection and action emission. */
 export async function completeChessPuzzle(canvasElement: HTMLElement) {
+  const initial = puzzleRectangle(canvasElement);
   await checkPuzzleFirstRank(canvasElement);
   const canvas = within(canvasElement);
   const move = async (name: RegExp, keys: string) => {
@@ -24,6 +30,7 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: /^e7, Black king/ })
   ).toBeVisible();
   await move(/^c3, White knight/, '{ArrowUp}{ArrowUp}{ArrowRight}');
+  await assertStablePuzzleRectangle(canvasElement, initial);
   await expect(canvas.getByText('Checkmate. Puzzle solved.')).toBeVisible();
   await expect(
     canvas.getByRole('button', { name: /^d5, White knight/ })
@@ -31,10 +38,12 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
 }
 
 export async function recoverChessPuzzle(canvasElement: HTMLElement) {
+  const initial = puzzleRectangle(canvasElement);
   await checkPuzzleFirstRank(canvasElement);
   const canvas = within(canvasElement);
   canvas.getByRole('button', { name: /^c3, White knight/ }).focus();
   await userEvent.keyboard('{Enter}{ArrowUp}{ArrowUp}{ArrowRight}{Enter}');
+  await assertStablePuzzleRectangle(canvasElement, initial);
   await expect(
     canvas.getByText(
       'That knight move misses the tactic. Retry from the same position.'
@@ -44,6 +53,7 @@ export async function recoverChessPuzzle(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: /^d5, White knight/ })
   ).toBeVisible();
   await userEvent.click(canvas.getByRole('button', { name: /Retry/i }));
+  await assertStablePuzzleRectangle(canvasElement, initial);
   await expect(
     canvas.getByRole('button', { name: /^c3, White knight/ })
   ).toBeVisible();

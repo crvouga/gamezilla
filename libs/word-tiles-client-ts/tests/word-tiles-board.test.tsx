@@ -83,7 +83,9 @@ test('a watcher sees the board but no rack, actions or preview', () => {
 
 test('the frame shows the turn, the bag, each score and each rack', () => {
   const frame = wordTilesFrame(2);
-  expect(frame.turnStatus(START, null, [])).toContain('86 tiles in the bag');
+  expect(frame.turnStatus(START, null, [], () => null)).toContain(
+    '86 tiles in the bag'
+  );
   expect(frame.seats.stat(START, 'black')).toEqual({
     label: 'Score',
     value: '0',
@@ -123,6 +125,7 @@ test('the board, its actions and its controls share one draft', () => {
       </IdProvider>
     </ClockProvider>
   ));
+  fireEvent.click(view.getByTestId('custom-game-board-more'));
   expect(
     view.getByTestId('custom-game-board-recall').hasAttribute('disabled')
   ).toBe(true);
@@ -136,6 +139,7 @@ test('the board, its actions and its controls share one draft', () => {
   expect(
     view.getByTestId('custom-game-board-cell-h8').getAttribute('data-state')
   ).not.toBe('tentative');
+  fireEvent.click(view.getByTestId('custom-game-board-more'));
   fireEvent.click(view.getByTestId('custom-game-board-exchange'));
   expect(view.getByTestId('custom-game-board-exchange-cancel')).not.toBeNull();
   fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
@@ -144,8 +148,9 @@ test('the board, its actions and its controls share one draft', () => {
   expect(actions).toEqual(['swap:11']);
 });
 
-test('passing is one tap', () => {
+test('passing is available through more actions', () => {
   const { view, actions } = board('11,0,82,98,25,77,69');
+  fireEvent.click(view.getByTestId('wt-more'));
   fireEvent.click(view.getByTestId('wt-pass'));
   expect(actions).toEqual(['pass']);
 });
@@ -156,6 +161,7 @@ test('CAT editing and exchange share the rack work area before the grid', () => 
   const work = view
     .getByTestId('wt-submit')
     .closest('[data-component="WordTileWorkbench"]');
+  fireEvent.click(view.getByTestId('wt-more'));
   for (const action of [
     'recall',
     'undo',
@@ -175,4 +181,32 @@ test('wt2 unreadable input links to the public app version screen', () => {
   const reload = view.getByRole('link', { name: 'Check app version' });
   expect(reload.getAttribute('href')).toBe('/more/about');
   expect(view.queryByTestId('wt-rack')).toBeNull();
+});
+
+// regression: word-tiles-phone-action-overload
+test('literal CAT rack keeps primary exposed and secondary tools discoverable with focus recovery', () => {
+  const { view } = board('11,0,82,98,25,77,69');
+  const more = view.getByRole('button', { name: 'More actions' });
+  expect(more.getAttribute('aria-expanded')).toBe('false');
+  expect(view.queryByTestId('wt-recall')).toBeNull();
+  expect(view.getByTestId('wt-submit')).not.toBeNull();
+  fireEvent.click(view.getByTestId('wt-rack-11'));
+  fireEvent.click(view.getByTestId('wt-cell-h8'));
+  fireEvent.click(more);
+  expect(more.getAttribute('aria-expanded')).toBe('true');
+  fireEvent.click(view.getByTestId('wt-recall'));
+  expect(view.getByTestId('wt-cell-h8').getAttribute('data-state')).toBe(
+    'empty'
+  );
+  expect(more.getAttribute('aria-expanded')).toBe('false');
+  expect(document.activeElement).toBe(more);
+  fireEvent.click(more);
+  fireEvent.click(view.getByTestId('wt-undo'));
+  expect(view.getByTestId('wt-cell-h8').getAttribute('data-state')).toBe(
+    'tentative'
+  );
+  fireEvent.click(more);
+  fireEvent.keyDown(view.getByTestId('wt-redo'), { key: 'Escape' });
+  expect(more.getAttribute('aria-expanded')).toBe('false');
+  expect(document.activeElement).toBe(more);
 });

@@ -1,0 +1,4 @@
+{
+  "summary": "Three drawn paths on the 390px five-pair board wrapped removal buttons into a growing stack above Undo. One stable path chooser retains all removal actions.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-recovery.test.tsx"
+}

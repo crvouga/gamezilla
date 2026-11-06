@@ -1,4 +1,5 @@
 import { expect, userEvent, within } from 'storybook/test';
+import { assertPuzzleTouchSize } from './chess-puzzle-geometry.example';
 
 type Boundary = readonly [
   edge: string,
@@ -36,6 +37,7 @@ export async function assertPuzzleBounds(canvasElement: HTMLElement) {
     'button[data-square]'
   );
   await expect(cells.length).toBe(64);
+  await assertPuzzleTouchSize(canvasElement);
   const violations = [];
   for (const cell of cells) {
     for (const [edge, actual, limit, minimum] of cellBoundaries(cell)) {

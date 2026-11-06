@@ -29,6 +29,7 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
   return (
     <ChessBoardLayout
       fitSquare={props.fitSquare}
+      guidancePlacement={props.guidancePlacement}
       guidance={
         <Show when={props.showGuidance}>
           <ChessBoardGuidance props={props} ctrl={ctrl} />

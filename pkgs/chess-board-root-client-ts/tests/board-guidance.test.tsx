@@ -19,3 +19,14 @@ test('a checked black king has visible check, orientation and keyboard guidance'
     'Black is in check.'
   );
 });
+
+// regression: chess-phone-keyboard-paragraph
+test('touch guidance keeps keyboard grammar behind a discoverable disclosure', () => {
+  const board = mountBoard({ showGuidance: true, interactive: true });
+  expect(screen.getByText('Tap a piece, then a square.')).toBeTruthy();
+  const summary = screen.getByText('Keyboard controls');
+  const disclosure = summary.closest('details');
+  expect(disclosure?.open).toBe(false);
+  expect(disclosure?.textContent).toContain('Escape to cancel.');
+  board.unmount();
+});

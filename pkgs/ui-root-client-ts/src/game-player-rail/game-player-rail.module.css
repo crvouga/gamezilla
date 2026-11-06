@@ -50,5 +50,6 @@
   overflow: visible;
 }
 .chipFacts {
+  row-gap: var(--game-player-facts-row-gap, var(--ui-space-1));
   max-width: 100%;
 }

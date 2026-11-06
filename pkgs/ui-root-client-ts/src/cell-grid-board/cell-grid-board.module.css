@@ -75,16 +75,16 @@
 }
 /* Keep the whole Quoridor board above its precise picker and confirmation. */
 .board[data-fill="true"][data-board-theme="quoridor"] {
-  max-width: calc(var(--ui-control-size-lg) * 8);
+  max-width: calc(var(--ui-control-size-lg) * 9);
 }
 /* On a phone a Battleship grid's ten targets are as large as its frame
    allows: a narrow label column, hairline gaps and slim padding give the
    room to the targets, each about 32px instead of 30px. */
 @container game-column (max-width: 879px) {
-  /* Four seats and an accepted-move record still leave room for confirmation.
-     The adjacent coordinate picker keeps every precise target at 44px. */
+  /* Use the phone column for the spatial task. Concise controls preserve
+     room for confirmation; the precise picker retains 44px alternatives. */
   .board[data-fill="true"][data-board-theme="quoridor"] {
-    max-width: calc(var(--ui-control-size-lg) * 6);
+    max-width: calc(var(--ui-control-size-lg) * 7);
   }
   .board[data-fill="true"][data-board-theme="battleship"] {
     grid-template-columns:
@@ -514,4 +514,19 @@
   .cell[data-goal="true"][data-tone="open"]
   .glyph {
   font-size: 72cqw;
+}
+
+/* A proposed wall is a continuous accent bar, distinct from committed ink.
+   Its location persists while the player reaches the confirmation controls. */
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-top="true"] {
+  border-top-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-right="true"] {
+  border-right-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-bottom="true"] {
+  border-bottom-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-left="true"] {
+  border-left-style: solid;
 }

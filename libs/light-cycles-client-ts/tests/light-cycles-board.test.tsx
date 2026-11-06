@@ -109,6 +109,14 @@ test('a crashed rider, a round result and a lost connection each refuse steering
     'round-over'
   );
   expect(view.getByTestId('arena-arena-overlay').dataset['open']).toBe('false');
+  // regression: light-cycles-round-result-fragmented
+  expect(
+    view.getByTestId('arena-status').contains(view.getByTestId('arena-result'))
+  ).toBe(true);
+  expect(view.getByTestId('arena-status').textContent).toContain(
+    'Next round soon.'
+  );
+  expect(view.queryByText(/The round result is showing/)).toBeNull();
   expect(view.getByTestId('arena-result').textContent).toContain(
     'wins the round'
   );
@@ -215,13 +223,20 @@ test('both local riders and their swipe halves are named', () => {
     'You ride Ember.'
   );
   expect(
-    view.getByText(/Swipe the right half for Comet, the left half for Ember/)
+    view.getByText('Swipe your half or use your pad. Avoid edges and trails.')
   ).toBeDefined();
 });
 
 // regression: light-cycles-pad-swipe-spatial-mismatch
 test('shared pads follow the left Ember and right Comet swipe regions', () => {
   const view = board(['white', 'black'], running(lightCyclesStart(3, 3)));
+  // regression: light-cycles-unmarked-touch-halves
+  expect(view.getByTestId('arena-arena-touch-0').textContent).toBe(
+    'Left: Ember'
+  );
+  expect(view.getByTestId('arena-arena-touch-1').textContent).toBe(
+    'Right: Comet'
+  );
   const pads = view.container.querySelectorAll(
     '[data-component="DirectionPad"]'
   );
@@ -247,8 +262,12 @@ test('seat statistics name riders while round context does not repeat the outcom
   const frame = lightCyclesFrame(3);
   expect(frame.seats.stat(position, 'white')?.label).toContain('Comet');
   expect(frame.seats.stat(position, 'black')?.label).toContain('Ember');
-  expect(frame.turnStatus(position, 'white', [])).toContain('Round 1');
-  expect(frame.turnStatus(position, 'white', [])).not.toContain('wins');
+  expect(frame.turnStatus(position, 'white', [], () => null)).toContain(
+    'Round 1'
+  );
+  expect(frame.turnStatus(position, 'white', [], () => null)).not.toContain(
+    'wins'
+  );
   expect(
     board(['white'], state).getByTestId('arena-result').textContent
   ).toBeTruthy();

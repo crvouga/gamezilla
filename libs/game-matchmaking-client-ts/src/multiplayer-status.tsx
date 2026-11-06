@@ -5,6 +5,8 @@ import {
 } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
 import {
+  MULTIPLAYER_SIDES,
+  multiplayerOwner,
   multiplayerSideOf,
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
@@ -47,12 +49,22 @@ const ownSide = (props: StatusProps) =>
 /** Game-specific live words; setup and match results keep their own headline. */
 function useFrameTurnStatus(props: StatusProps): () => string | null {
   const presentation = useGamePresentation();
+  const names = new Map(
+    MULTIPLAYER_SIDES.map((side) => [
+      side,
+      useShownName(() => multiplayerOwner(props.game, side)),
+    ])
+  );
   return () =>
     props.game.outcome === 'ongoing' && !awaitingSetups(props.game)
       ? presentation(props.game.fen).frame.turnStatus(
           props.game.fen,
           multiplayerSideOf(props.game, props.viewer.myId),
-          []
+          [],
+          (side) =>
+            multiplayerOwner(props.game, side)
+              ? (names.get(side)?.() ?? null)
+              : null
         )
       : null;
 }

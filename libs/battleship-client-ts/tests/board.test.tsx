@@ -153,7 +153,7 @@ test('read-only boards refuse every target, and the switch keeps both grids moun
 test("the frame's turn line announces the latest shot and whose turn it is", () => {
   board({ setup: FLEET });
   expect(document.querySelector('[data-testid="board-status"]')).toBeNull();
-  expect(battleshipFrame.turnStatus(POSITION, 'white', [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, 'white', [], () => null)).toBe(
     'Red fleet fired at C3 and hit. Your turn to fire.'
   );
 });
@@ -170,7 +170,7 @@ test('the other side sees its own fleet and shots from its orientation', () => {
   expect(own('a3').getAttribute('aria-label')).toBe('A3: your Carrier');
   expect(target('c3').getAttribute('data-tone')).toBe('alert');
   expect(target('e5').getAttribute('data-tone')).toBe('quiet');
-  expect(battleshipFrame.turnStatus(POSITION, 'black', [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, 'black', [], () => null)).toBe(
     'You fired at C3 and hit. Blue fleet is firing.'
   );
 });
@@ -186,7 +186,7 @@ test('a watcher sees two public shot boards named by side, with no ships', () =>
   expect(document.querySelectorAll('[data-tone="occupied"]')).toHaveLength(0);
   expect(own('c3').getAttribute('aria-label')).toBe('C3: hit, latest shot');
   expect(own('d3').getAttribute('data-tone')).toBe('open');
-  expect(battleshipFrame.turnStatus(POSITION, null, [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, null, [], () => null)).toBe(
     'Red fleet fired at C3 and hit. Blue fleet to fire.'
   );
 });

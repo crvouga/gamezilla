@@ -5,7 +5,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import {
-  GAME_PLAYER_AVATAR_SIZE,
+  GAME_PLAYER_COMPACT_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import type { GameSeatStat } from '@pkgs/ui-root-client-ts/game-player-parts';
@@ -14,6 +14,11 @@ import {
   GamePlayerChip,
   GamePlayerRail,
 } from '@pkgs/ui-root-client-ts/game-player-rail';
+import {
+  GameSessionIdentity,
+  GameSessionParticipant,
+  GameSessionParticipants,
+} from '@pkgs/ui-root-client-ts/game-session-layout';
 import {
   GAME_TABLE_SEAT_AVATAR_SIZE,
   GameTableSeat,
@@ -119,24 +124,27 @@ function SeatTurnLabel(props: {
 export function FrameSeatStripView(props: SeatProps): JSX.Element {
   return (
     <GamePlayerBar
+      density="compact"
       dataSet={{ testid: `custom-game-${props.seat.side}` }}
       name={
         <Text
           variant="inherit"
           testId={`custom-game-${props.seat.side}-person`}
         >
-          <FrameHolderName
-            holder={props.seat.holder}
-            plainName={props.seat.plainName}
-            people={props.people}
-          />
+          <GameSessionIdentity name={props.seat.plainName}>
+            <FrameHolderName
+              holder={props.seat.holder}
+              plainName={props.seat.plainName}
+              people={props.people}
+            />
+          </GameSessionIdentity>
         </Text>
       }
       avatar={
         <FrameHolderAvatar
           holder={props.seat.holder}
           plainName={props.seat.plainName}
-          size={GAME_PLAYER_AVATAR_SIZE}
+          size={GAME_PLAYER_COMPACT_AVATAR_SIZE}
           people={props.people}
         />
       }
@@ -198,32 +206,34 @@ export function FrameSeatChipView(
   props: Omit<SeatProps, 'onChoose'> & { readonly own?: boolean | undefined }
 ): JSX.Element {
   return (
-    <GamePlayerChip
-      dataSet={{ testid: `custom-game-${props.seat.side}` }}
-      placeTestId={props.own === true ? 'custom-game-seat-near' : undefined}
-      name={props.seat.plainName}
-      avatar={
-        <FrameHolderAvatar
-          holder={props.seat.holder}
-          plainName={props.seat.plainName}
-          size={GAME_PLAYER_CHIP_AVATAR_SIZE}
-          people={props.people}
-        />
-      }
-      swatch={props.seat.swatch}
-      tags={
-        <>
-          <Show when={props.own === true}>
-            <Badge intent="info" label={<Trans>You</Trans>} />
-          </Show>
-          <PlaySeatTags seat={props.seat} />
-        </>
-      }
-      stat={chipStat(props.seat)}
-      state={props.seat.state}
-      active={props.seat.deciding}
-      onPress={props.seat.onPress}
-    />
+    <GameSessionParticipant name={props.seat.plainName}>
+      <GamePlayerChip
+        dataSet={{ testid: `custom-game-${props.seat.side}` }}
+        placeTestId={props.own === true ? 'custom-game-seat-near' : undefined}
+        name={props.seat.plainName}
+        avatar={
+          <FrameHolderAvatar
+            holder={props.seat.holder}
+            plainName={props.seat.plainName}
+            size={GAME_PLAYER_CHIP_AVATAR_SIZE}
+            people={props.people}
+          />
+        }
+        swatch={props.seat.swatch}
+        tags={
+          <>
+            <Show when={props.own === true}>
+              <Badge intent="info" label={<Trans>You</Trans>} />
+            </Show>
+            <PlaySeatTags seat={props.seat} />
+          </>
+        }
+        stat={chipStat(props.seat)}
+        state={props.seat.state}
+        active={props.seat.deciding}
+        onPress={props.seat.onPress}
+      />
+    </GameSessionParticipant>
   );
 }
 
@@ -307,22 +317,24 @@ export function FrameOthersView(props: TableProps): JSX.Element {
         )}
       </Match>
       <Match when={props.table.shape === 'rail'}>
-        <GamePlayerRail
-          aria-label={
-            nearInRail(props) === null ? t`Other players` : t`Players`
-          }
-        >
-          <Show when={nearInRail(props)}>
-            {(near) => (
-              <FrameSeatChipView seat={near()} people={props.people} own />
-            )}
-          </Show>
-          <Index each={props.table.others}>
-            {(seat) => (
-              <FrameSeatChipView seat={seat()} people={props.people} />
-            )}
-          </Index>
-        </GamePlayerRail>
+        <GameSessionParticipants>
+          <GamePlayerRail
+            aria-label={
+              nearInRail(props) === null ? t`Other players` : t`Players`
+            }
+          >
+            <Show when={nearInRail(props)}>
+              {(near) => (
+                <FrameSeatChipView seat={near()} people={props.people} own />
+              )}
+            </Show>
+            <Index each={props.table.others}>
+              {(seat) => (
+                <FrameSeatChipView seat={seat()} people={props.people} />
+              )}
+            </Index>
+          </GamePlayerRail>
+        </GameSessionParticipants>
       </Match>
     </Switch>
   );

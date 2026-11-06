@@ -37,6 +37,8 @@ export type ChessBoardProps = {
   showGuidance?: boolean | undefined;
   /** Fit guidance and coordinates inside a square host, rather than adding height. */
   fitSquare?: boolean | undefined;
+  /** Put expandable help after a width-driven puzzle board. Matches default to before. */
+  guidancePlacement?: 'before' | 'after' | undefined;
   /**
    * Coordinate placement: `inside` (default) uses square corners;
    * `outside-start` / `outside-end` adds the responsive frame with ranks

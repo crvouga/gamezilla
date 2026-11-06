@@ -41,7 +41,7 @@ const meta = {
     appRouter: true,
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
-  args: PUZZLE_PLAY_STORY_ARGS,
+  args: { ...PUZZLE_PLAY_STORY_ARGS, boardSizing: 'width' },
 } satisfies Meta<typeof StoryChessPuzzlePlayScreen>;
 export default meta;
 type Story = StoryObj<typeof meta>;

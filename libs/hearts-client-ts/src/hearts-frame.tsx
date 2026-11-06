@@ -62,15 +62,20 @@ export const heartsFrame: GameFrame<JSX.Element> = {
   outline: heartsOutline,
   // The table's own sentence. Whether the viewer has passed is public:
   // they are among the sides that have committed.
-  turnStatus: (position, viewer, committed) => {
+  turnStatus: (position, viewer, committed, nameOf) => {
     const decoded = decodeHearts(position);
     return decoded?.phase === 'pass'
       ? passHeading(passDirection(decoded.deal), false)
-      : tableCenter({
-          position,
-          committed,
-          commitment: viewer !== null && committed.includes(viewer) ? '' : null,
-        }) || null;
+      : tableCenter(
+          {
+            position,
+            committed,
+            commitment:
+              viewer !== null && committed.includes(viewer) ? '' : null,
+          },
+          viewer,
+          nameOf
+        ) || null;
   },
   // The lowest score wins; a draw (on time) goes to every seat.
   result: (position, winner) => {

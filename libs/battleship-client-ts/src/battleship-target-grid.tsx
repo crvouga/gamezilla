@@ -4,9 +4,9 @@ import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import { Select } from '@pkgs/ui-root-client-ts/select';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
 
 /** Four bounded five-by-five areas keep every coordinate reachable at a larger size. */
@@ -15,6 +15,8 @@ export function BattleshipTargetGrid(props: {
   testId: string;
   cells: readonly CellGridCell[];
   onAim: (cell: string) => void;
+  confirmation?: JSX.Element;
+  selected: string | null;
 }): JSX.Element {
   const [large, setLarge] = createSignal(false);
   const [area, setArea] = createSignal(0);
@@ -35,6 +37,16 @@ export function BattleshipTargetGrid(props: {
         columns().includes(cell.id[0]?.toUpperCase() ?? '') &&
         rows().includes(cell.id.slice(1))
     );
+  const regions = ['A1–E5', 'F1–J5', 'A6–E10', 'F6–J10'];
+  const toggleSize = () => {
+    const selected = props.selected;
+    if (!large() && selected) {
+      const right = selected.charAt(0).toLowerCase() >= 'f';
+      const bottom = Number(selected.slice(1)) >= 6;
+      setArea(Number(right) + Number(bottom) * 2);
+    }
+    setLarge(!large());
+  };
   return (
     <StackVertical gap="sm" width="full">
       <CellGridBoard
@@ -47,25 +59,37 @@ export function BattleshipTargetGrid(props: {
         cells={cells()}
         onActivate={props.onAim}
       />
-      <Button
-        title={large() ? t`Show whole board` : t`Larger targets`}
-        onClick={() => setLarge(!large())}
-        dataSet={{ testid: `${props.testId}-large-targets` }}
-      />
-      <Show when={large()}>
-        <Grid columns={2} gap="xs">
-          <For each={['A1–E5', 'F1–J5', 'A6–E10', 'F6–J10']}>
-            {(label, index) => (
-              <Button
-                title={label}
-                variant={area() === index() ? 'solid' : 'outline'}
-                onClick={() => setArea(index())}
-                dataSet={{ testid: `${props.testId}-area-${index()}` }}
-              />
-            )}
-          </For>
-        </Grid>
-      </Show>
+      {props.confirmation}
+      <StackHorizontal
+        gap="sm"
+        align="center"
+        justify="between"
+        testId={`${props.testId}-target-tools`}
+      >
+        <Button
+          title={large() ? t`Show whole board` : t`Larger targets`}
+          intent="neutral"
+          variant="outline"
+          onClick={toggleSize}
+          dataSet={{ testid: `${props.testId}-large-targets` }}
+        />
+        <Show when={large()}>
+          <StackVertical grow>
+            <Select
+              aria-label={t`Target region: ${regions[area()]}`}
+              surfaceTitle={t`Target region`}
+              value={area()}
+              onValueChange={setArea}
+              triggerDataSet={{ testid: `${props.testId}-region` }}
+              options={regions.map((label, value) => ({
+                label,
+                value,
+                dataSet: { testid: `${props.testId}-area-${value}` },
+              }))}
+            />
+          </StackVertical>
+        </Show>
+      </StackHorizontal>
     </StackVertical>
   );
 }

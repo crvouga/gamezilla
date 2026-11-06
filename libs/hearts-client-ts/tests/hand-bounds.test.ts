@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
+  assertHeartsContextBounds,
   assertHeartsHandBounds,
   assertHeartsPassingBounds,
   assertHeartsSeatRow,
@@ -45,9 +46,9 @@ test('390x844 initial passing checks the action and table as well as all 13 card
     left: 16,
     right: 374,
     top: 165,
-    bottom: 600,
+    bottom: 405,
     width: 358,
-    height: 435,
+    height: 240,
   };
   const action = {
     left: 270,
@@ -98,5 +99,21 @@ test('a phone trick card belongs beside its player, not a separate compass', () 
       top: 180,
       bottom: 236,
     })
+  ).not.toThrow();
+});
+
+// regression: hearts-phone-player-stack-crowds-hand
+test('the literal round-4 390px passing context cannot consume 342px above the hand', () => {
+  const context = {
+    left: 16,
+    right: 374,
+    top: 165,
+    bottom: 507,
+    width: 358,
+    height: 342,
+  };
+  expect(() => assertHeartsContextBounds(context)).toThrow('crowds the hand');
+  expect(() =>
+    assertHeartsContextBounds({ ...context, bottom: 421, height: 256 })
   ).not.toThrow();
 });

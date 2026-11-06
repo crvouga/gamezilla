@@ -1,7 +1,8 @@
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { Button } from '../button/index';
 import { P } from '../text/index';
-import { WordTileWorkbench } from './index';
+import { WordTileActions, WordTileWorkbench } from './index';
 
 const meta = {
   id: 'product-wordtileworkbench',
@@ -22,4 +23,74 @@ export const Recovery: StoryObj = {
       </P>
     </WordTileWorkbench>
   ),
+};
+
+/** The primary stays visible while secondary commands disclose in normal flow. */
+export const SecondaryTools: StoryObj = {
+  render: () => (
+    <WordTileWorkbench>
+      <WordTileActions
+        label="Word actions"
+        moreLabel="More actions"
+        testId="word-tools"
+        items={[
+          {
+            id: 'submit',
+            label: 'Play word',
+            testId: 'word-tools-submit',
+            emphasis: 'primary',
+            onPress: fn(),
+          },
+          {
+            id: 'recall',
+            label: 'Recall tiles',
+            testId: 'word-tools-recall',
+            onPress: fn(),
+          },
+          {
+            id: 'undo',
+            label: 'Undo',
+            testId: 'word-tools-undo',
+            disabled: true,
+            onPress: fn(),
+          },
+          {
+            id: 'redo',
+            label: 'Redo',
+            testId: 'word-tools-redo',
+            disabled: true,
+            onPress: fn(),
+          },
+          {
+            id: 'shuffle',
+            label: 'Shuffle rack',
+            testId: 'word-tools-shuffle',
+            onPress: fn(),
+          },
+          {
+            id: 'pass',
+            label: 'Pass',
+            testId: 'word-tools-pass',
+            onPress: fn(),
+          },
+          {
+            id: 'exchange',
+            label: 'Exchange tiles',
+            testId: 'word-tools-exchange',
+            onPress: fn(),
+          },
+        ]}
+      />
+    </WordTileWorkbench>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const more = canvas.getByRole('button', { name: 'More actions' });
+    await expect(more).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(more);
+    await expect(
+      canvas.getByRole('button', { name: 'Recall tiles' })
+    ).toBeVisible();
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+  },
 };

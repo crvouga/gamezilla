@@ -4,6 +4,7 @@ import styles from './layout.module.css';
 
 /** Default match sizing stays intrinsic; square wells reserve guidance first. */
 export function ChessBoardLayout(props: {
+  readonly guidancePlacement?: 'before' | 'after' | undefined;
   readonly fitSquare?: boolean | undefined;
   readonly guidance: JSX.Element;
   readonly children: JSX.Element;
@@ -13,8 +14,13 @@ export function ChessBoardLayout(props: {
       when={props.fitSquare}
       fallback={
         <StackVertical gap="xs">
-          {props.guidance}
+          <Show when={props.guidancePlacement !== 'after'}>
+            {props.guidance}
+          </Show>
           {props.children}
+          <Show when={props.guidancePlacement === 'after'}>
+            {props.guidance}
+          </Show>
         </StackVertical>
       }
     >

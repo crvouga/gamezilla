@@ -23,7 +23,7 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <ChessBoard
-      fitSquare
+      guidancePlacement="after"
       theme={BOARD_THEME}
       sound={!sounds.muted()}
       dataSet={{ testid: props.testId }}

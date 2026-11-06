@@ -152,7 +152,8 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
-  max-height: calc(var(--ui-control-size-lg) * 5);
+  height: calc(var(--ui-control-size-lg) * 6);
+  max-height: 48dvh;
 }
 .board[data-enlarged="true"] {
   width: max-content;
@@ -188,6 +189,7 @@
 }
 
 .precision {
+  container-type: inline-size;
   display: flex;
   align-items: flex-start;
   gap: var(--ui-space-2);
@@ -198,4 +200,17 @@
 }
 .precision > svg {
   flex-shrink: 0;
+}
+
+@container (min-width: 32rem) {
+  .viewport[data-enlarged="true"] {
+    height: calc(var(--ui-control-size-lg) * 8);
+    max-height: 56dvh;
+  }
+}
+
+/* A complete fitted puzzle board alongside its rack and target at desktop height. */
+.board[data-measure="compact"][data-enlarged="false"] {
+  max-width: calc(var(--ui-control-size-lg) * 9);
+  margin-inline: auto;
 }

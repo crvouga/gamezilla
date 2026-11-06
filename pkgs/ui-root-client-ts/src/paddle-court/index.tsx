@@ -11,6 +11,10 @@ import styles from './paddle-court.module.css';
 export type { CourtSide } from '../paddle-court-input';
 
 export type PaddleCourtProps = CourtControls & {
+  /** A non-playing state placed where the player watches, without taking input. */
+  readonly status?: string | undefined;
+  /** Translated touch verb; explicit edge cues avoid unexplained lane shading. */
+  readonly touchHint?: string | undefined;
   readonly width: number;
   readonly height: number;
   readonly paddles: readonly {
@@ -172,6 +176,37 @@ function HalfControls(props: PaddleCourtProps): JSX.Element {
   );
 }
 
+/** Visible state and explicit gestures keep the drawing and input unchanged. */
+function CourtFeedback(props: PaddleCourtProps): JSX.Element {
+  return (
+    <>
+      <Show when={props.status}>
+        <div
+          class={styles['status']}
+          role="status"
+          data-testid={`${props.testId}-status`}
+        >
+          {props.status}
+        </div>
+      </Show>
+      <Show when={props.enabled && props.touchHint}>
+        <For each={props.controlled}>
+          {(side) => (
+            <span
+              class={styles['gesture']}
+              data-side={side}
+              aria-hidden="true"
+              data-testid={`${props.testId}-${side}-gesture`}
+            >
+              ↕ {props.touchHint}
+            </span>
+          )}
+        </For>
+      </Show>
+    </>
+  );
+}
+
 /**
  * Geometric play surface under its scoreboard (each side's points large
  * at its own end, `score`, with who plays it beside them, `sideLabels`):
@@ -249,6 +284,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
               r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
             />
           </svg>
+          <CourtFeedback {...props} />
         </div>
         <HalfControls {...props} />
       </div>

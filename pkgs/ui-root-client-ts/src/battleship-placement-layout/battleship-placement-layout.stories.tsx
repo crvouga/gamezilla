@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { Button } from '../button';
 import { CellGridBoard } from '../cell-grid-board';
 import { Select } from '../select';
+import { P } from '../text';
 import { BattleshipPlacementLayout } from './index';
 
 const columns = 'ABCDEFGHIJ'.split('');
@@ -20,7 +22,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A bounded working quadrant stays beside a smaller fleet overview, wrapping on phones. */
+/** Ship and rotation controls share a compact fleet context above a stable working quadrant. */
 export const Enlarged: Story = {
   args: {
     overviewLabel: 'Fleet overview',
@@ -31,6 +33,11 @@ export const Enlarged: Story = {
   render: (args) => (
     <BattleshipPlacementLayout
       {...args}
+      feedback={
+        <P variant="caption">
+          Carrier: 5 cells across. Choose its first cell to place it.
+        </P>
+      }
       controls={
         <>
           <Select
@@ -39,6 +46,7 @@ export const Enlarged: Story = {
             onValueChange={() => undefined}
             options={[{ value: 'carrier', label: 'Carrier · 5' }]}
           />
+          <Button title="Rotate down" variant="outline" intent="neutral" />
           <Select
             label="Region"
             value="nw"

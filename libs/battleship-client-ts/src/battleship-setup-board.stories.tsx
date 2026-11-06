@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
 import {
   checkSetupPlacementBounds,
+  checkSetupRecovery,
   checkSetupWorkspace,
   repositionEnlargedShip,
 } from './battleship-setup-placement.example';
@@ -149,7 +150,11 @@ export const EnlargedPlacement: Story = {
       await canvas.findByTestId('custom-game-setup-cell-e1')
     ).toHaveAccessibleName('E1: Carrier');
     await checkSetupPlacementBounds(bow);
+    const previousTop = canvas
+      .getByTestId('custom-game-setup-precision')
+      .getBoundingClientRect().top;
     await userEvent.click(bow);
+    await checkSetupRecovery(canvasElement, previousTop);
     await expect(
       await canvas.findByTestId('custom-game-setup-refusal')
     ).toBeVisible();

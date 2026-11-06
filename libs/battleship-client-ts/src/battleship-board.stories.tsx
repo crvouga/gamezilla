@@ -18,6 +18,10 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipBoard } from './battleship-board';
 import { battleshipPresentation } from './battleship-presentation';
+import {
+  assertTargetViewport,
+  assertTargetWorkbench,
+} from './battleship-targeting.example';
 
 /** Blue's fleet along rows 1, 3, 5, 7 and 9 from column A. */
 const BLUE_FLEET =
@@ -253,10 +257,21 @@ export const CorrectTargetBeforeFiring: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // regression: battleship-touch-spends-mistarget
+    await assertTargetViewport(canvasElement, [
+      canvas.getByTestId('custom-game-board-target-j10'),
+      canvas.getByTestId('custom-game-board-fire'),
+      canvas.getByTestId('custom-game-board-large-targets'),
+    ]);
     await userEvent.click(
       canvas.getByTestId('custom-game-board-large-targets')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-area-3'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-region'));
+    await userEvent.click(
+      within(canvasElement.ownerDocument.body).getByTestId(
+        'custom-game-board-area-3'
+      )
+    );
+    await assertTargetWorkbench(canvasElement);
     const targetBounds = canvas
       .getByTestId('custom-game-board-target-j10')
       .getBoundingClientRect();
@@ -281,6 +296,7 @@ export const CorrectTargetBeforeFiring: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-fire')
     ).toHaveTextContent('Fire at J10');
+    await assertTargetWorkbench(canvasElement, true);
     await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
     await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
     await userEvent.click(canvas.getByTestId('custom-game-board-target-j10'));

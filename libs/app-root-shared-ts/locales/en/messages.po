@@ -18,6 +18,14 @@ msgid "— of {total}"
 msgstr "— of {total}"
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid ", center goal"
+msgstr ", center goal"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid ", goal edge"
+msgstr ", goal edge"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid ", legal move"
 msgstr ", legal move"
 
@@ -273,6 +281,18 @@ msgstr "{0}'s space"
 msgid "{0}'s turn."
 msgstr "{0}'s turn."
 
+#. placeholder {0}: props.state.paths.reduce( (count, path) => count + path.cells.length, 0 )
+#. placeholder {1}: props.definition.width * props.definition.height
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "{0}/{1} cells covered"
+msgstr "{0}/{1} cells covered"
+
+#. placeholder {0}: connectedPairs(props.definition, props.state).length
+#. placeholder {1}: props.definition.pairs.length
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "{0}/{1} pairs connected"
+msgstr "{0}/{1} pairs connected"
+
 #. placeholder {0}: parts.days
 #: libs/game-matchmaking-client-ts/src/multiplayer-clocks.tsx
 msgid "{0}d"
@@ -500,8 +520,8 @@ msgid "{name} to move, heading for row {row}."
 msgstr "{name} to move, heading for row {row}."
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
-msgid "{name} to move. First to e5 wins."
-msgstr "{name} to move. First to e5 wins."
+msgid "{name} to move. First to the center hill (e5) wins."
+msgstr "{name} to move. First to the center hill (e5) wins."
 
 #: libs/game-session-client-ts/src/game-frame-headline.tsx
 msgid "{name} wins"
@@ -684,10 +704,6 @@ msgstr "<0>Return to the </0>Current<1> position</1>"
 msgid "chess.puzzleStatus.solvedMark"
 msgstr "★"
 
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
-msgid "✕"
-msgstr "✕"
-
 #. js-lingui-explicit-id
 #: libs/game-puzzle-client-ts/src/puzzle-status-icons.tsx
 msgid "chess.puzzleStatus.failedMark"
@@ -738,9 +754,21 @@ msgstr "2 · Puzzles"
 msgid "2L"
 msgstr "2L"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "2L doubles this letter."
+msgstr "2L doubles this letter."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "2L/3L: double/triple letter. 2W/3W: double/triple word."
+msgstr "2L/3L: double/triple letter. 2W/3W: double/triple word."
+
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "2W"
 msgstr "2W"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "2W doubles the word."
+msgstr "2W doubles the word."
 
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "3 · Check and publish"
@@ -750,9 +778,17 @@ msgstr "3 · Check and publish"
 msgid "3L"
 msgstr "3L"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "3L triples this letter."
+msgstr "3L triples this letter."
+
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "3W"
 msgstr "3W"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "3W triples the word."
+msgstr "3W triples the word."
 
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "A board has at least 1 column and 1 row."
@@ -878,6 +914,10 @@ msgstr "About"
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 msgid "About you"
 msgstr "About you"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Above {anchor}"
+msgstr "Above {anchor}"
 
 #: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
@@ -1083,6 +1123,10 @@ msgstr "Agree draw"
 msgid "All"
 msgstr "All"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "All crates are on goals"
+msgstr "All crates are on goals"
+
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "All five ships placed. Your fleet is ready."
 msgstr "All five ships placed. Your fleet is ready."
@@ -1184,9 +1228,13 @@ msgstr "Archive"
 msgid "Archived"
 msgstr "Archived"
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Arrows"
 msgstr "Arrows"
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Arrows to move, Enter to choose, Escape to cancel."
+msgstr "Arrows to move, Enter to choose, Escape to cancel."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Ask for a new export"
@@ -1255,6 +1303,10 @@ msgstr "Back"
 msgid "Back to live"
 msgstr "Back to live"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Back to spaces"
+msgstr "Back to spaces"
+
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
@@ -1290,14 +1342,6 @@ msgstr "Behavior Statechart"
 msgid "Best streak"
 msgstr "Best streak"
 
-#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
-msgid "Between {column}{row}–{column}{above} and {right}{row}–{right}{above}."
-msgstr "Between {column}{row}–{column}{above} and {right}{row}–{right}{above}."
-
-#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
-msgid "Between {column}{row}–{right}{row} and {column}{above}–{right}{above}."
-msgstr "Between {column}{row}–{right}{row} and {column}{above}–{right}{above}."
-
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
@@ -1332,6 +1376,10 @@ msgstr "Blank as {letter}"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "blank played as {letter}"
 msgstr "blank played as {letter}"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "Blank tiles score 0."
+msgstr "Blank tiles score 0."
 
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Blitz"
@@ -1372,10 +1420,6 @@ msgstr "Board tiles must join up through the centre square {0} and spell words f
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Boards"
 msgstr "Boards"
-
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
-msgid "Bonus squares: 2L doubles a letter, 3L triples a letter, 2W doubles the word, 3W triples the word."
-msgstr "Bonus squares: 2L doubles a letter, 3L triples a letter, 2W doubles the word, 3W triples the word."
 
 #: libs/game-session-client-ts/src/custom-game-bot-name.tsx
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
@@ -1475,7 +1519,7 @@ msgstr "By the fifty-move rule."
 msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "cancel"
 msgstr "cancel"
 
@@ -1483,6 +1527,7 @@ msgstr "cancel"
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Cancel"
@@ -1574,6 +1619,7 @@ msgstr "Changes waiting to send"
 msgid "Check again"
 msgstr "Check again"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "Check app version"
 msgstr "Check app version"
@@ -1647,13 +1693,13 @@ msgstr "Choose a game with a puzzle editor."
 msgid "Choose a game, then its players; everyone else here can watch."
 msgstr "Choose a game, then its players; everyone else here can watch."
 
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Choose a marked square to move your pawn."
-msgstr "Choose a marked square to move your pawn."
-
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
 msgstr "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
+
+#: libs/numberlink-client-ts/src/numberlink-recovery.tsx
+msgid "Choose a path to remove"
+msgstr "Choose a path to remove"
 
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Choose a person"
@@ -1700,8 +1746,12 @@ msgid "Choose a username"
 msgstr "Choose a username"
 
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
-msgid "Choose another bow cell or rotate the ship, then try again."
-msgstr "Choose another bow cell or rotate the ship, then try again."
+msgid "Choose another bow cell or rotate, then try again."
+msgstr "Choose another bow cell or rotate, then try again."
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Choose another puzzle"
+msgstr "Choose another puzzle"
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
 msgid "Choose another puzzle from the library. This attempt is kept."
@@ -1920,6 +1970,10 @@ msgstr "Complete the required puzzle details before previewing or playtesting."
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Completed"
 msgstr "Completed"
+
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Completion saved"
+msgstr "Completion saved"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "Configuration"
@@ -2549,6 +2603,10 @@ msgstr "Draft copies"
 msgid "Draft created"
 msgstr "Draft created"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Drag"
+msgstr "Drag"
+
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "Drag from a number to its match."
 msgstr "Drag from a number to its match."
@@ -2562,7 +2620,7 @@ msgid "Draining"
 msgstr "Draining"
 
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "draw"
 msgstr "draw"
 
@@ -2577,6 +2635,10 @@ msgstr "Draw agreement is available between two people."
 #: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
 msgid "Draw the path again."
 msgstr "Draw the path again."
+
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
+msgid "Drawing and keyboard help"
+msgstr "Drawing and keyboard help"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "Drawing is unavailable. You can still inspect the board."
@@ -2746,7 +2808,7 @@ msgstr "Enlarge placement"
 msgid "Enlarged bow placement"
 msgstr "Enlarged bow placement"
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Enter"
 msgstr "Enter"
 
@@ -2915,6 +2977,10 @@ msgstr "Filter by puzzles you have never seen, already seen, or failed."
 msgid "Filter fruits…"
 msgstr "Filter fruits…"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Final"
+msgstr "Final"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-record.tsx
 msgid "Final position"
 msgstr "Final position"
@@ -3082,10 +3148,6 @@ msgstr "Four players each get thirteen cards. Before each deal's play, everyone 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Four racks, one board, the highest score wins."
 msgstr "Four racks, one board, the highest score wins."
-
-#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
-msgid "Four sides. One hill. First to e5 wins immediately."
-msgstr "Four sides. One hill. First to e5 wins immediately."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "fps"
@@ -3365,17 +3427,9 @@ msgstr "History and stats"
 msgid "Hit"
 msgstr "Hit"
 
-#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
-msgid "Horizontal"
-msgstr "Horizontal"
-
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Horizontal wall: choose a square to preview its upper boundary."
-msgstr "Horizontal wall: choose a square to preview its upper boundary."
 
 #: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Host"
@@ -3663,6 +3717,10 @@ msgstr "Just you here"
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Keep playing or choose another puzzle."
+msgstr "Keep playing or choose another puzzle."
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Keep the ball in play."
 msgstr "Keep the ball in play."
@@ -3698,6 +3756,10 @@ msgstr "Kept"
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Key"
 msgstr "Key"
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Keyboard controls"
+msgstr "Keyboard controls"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "King"
@@ -3824,6 +3886,11 @@ msgstr "Left player: drag the left half. Right player: drag the right half."
 msgid "Left wins."
 msgstr "Left wins."
 
+#. placeholder {0}: riderName(controlled()[1]!)
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+msgid "Left: {0}"
+msgstr "Left: {0}"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
 msgstr "Lichess file uploaded"
@@ -3849,10 +3916,6 @@ msgstr "Light"
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Light Cycles arena"
 msgstr "Light Cycles arena"
-
-#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Light Cycles could not be opened. Return to the game choices and open it again."
-msgstr "Light Cycles could not be opened. Return to the game choices and open it again."
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Light Cycles Duel"
@@ -4139,6 +4202,10 @@ msgstr "Monthly"
 msgid "More"
 msgstr "More"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "More actions"
+msgstr "More actions"
+
 #. placeholder {0}: props.title
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 msgid "More for {0}"
@@ -4147,6 +4214,10 @@ msgstr "More for {0}"
 #: libs/game-puzzle-client-ts/src/content-library-picks.tsx
 msgid "More to play"
 msgstr "More to play"
+
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Move"
+msgstr "Move"
 
 #. placeholder {0}: props.ply
 #. placeholder {1}: props.moves
@@ -4213,6 +4284,10 @@ msgstr "Move the worker up, down, left or right. Walk onto empty floor or push o
 msgid "Move to a coordinate"
 msgstr "Move to a coordinate"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Move to a marked square."
+msgstr "Move to a marked square."
+
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move up"
@@ -4225,6 +4300,10 @@ msgstr "Move with the arrow keys or W A S D, or click a square beside the worker
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Move your pawn to the center hill (e5) first to win."
+msgstr "Move your pawn to the center hill (e5) first to win."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-move-history.tsx
@@ -4426,6 +4505,10 @@ msgstr "No"
 #: libs/auth-client-ts/src/account-device-session-caption-text.tsx
 msgid "No active session"
 msgstr "No active session"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+msgid "No bonus on this square."
+msgstr "No bonus on this square."
 
 #: pkgs/ui-root-client-ts/src/catalog-detail/index.tsx
 msgid "No catalog entry for \"{id}\"."
@@ -5282,8 +5365,8 @@ msgid "Pong"
 msgstr "Pong"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Pong could not be opened. Return to the game choices and open it again."
-msgstr "Pong could not be opened. Return to the game choices and open it again."
+msgid "Pong could not be opened"
+msgstr "Pong could not be opened"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Pong court"
@@ -5309,9 +5392,9 @@ msgstr "Preparing…"
 msgid "Preview"
 msgstr "Preview"
 
-#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
-msgid "Preview a wall at a coordinate"
-msgstr "Preview a wall at a coordinate"
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Preview only. Place wall to confirm."
+msgstr "Preview only. Place wall to confirm."
 
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
@@ -5385,9 +5468,9 @@ msgstr "Progress saved on this device."
 msgid "Progress saved on this device. Changes share when connected."
 msgstr "Progress saved on this device. Changes share when connected."
 
-#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
-msgid "Proposed wall. Choose Place wall to confirm, or Cancel."
-msgstr "Proposed wall. Choose Place wall to confirm, or Cancel."
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
+msgid "Promote pawn"
+msgstr "Promote pawn"
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Prove the account again to continue"
@@ -5493,7 +5576,6 @@ msgid "Puzzle builder"
 msgstr "Puzzle builder"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
-#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Puzzle completed"
 msgstr "Puzzle completed"
 
@@ -5837,7 +5919,7 @@ msgstr "Reload app"
 msgid "Rematch"
 msgstr "Rematch"
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "remove"
 msgstr "remove"
 
@@ -5863,6 +5945,10 @@ msgstr "Remove {0} sign-in?"
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
+
+#: libs/numberlink-client-ts/src/numberlink-recovery.tsx
+msgid "Remove a path"
+msgstr "Remove a path"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Remove endpoints"
@@ -6070,6 +6156,7 @@ msgstr "Return to editing to add a published puzzle or create a new draft."
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Return to puzzles"
 msgstr "Return to puzzles"
 
@@ -6089,6 +6176,10 @@ msgstr "Return to the builder to validate and publish this puzzle."
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Return to your library, reconnect and open it again. Your saved work stays kept."
 msgstr "Return to your library, reconnect and open it again. Your saved work stays kept."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Return to your spaces to choose a game."
+msgstr "Return to your spaces to choose a game."
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Reveal and end attempt"
@@ -6144,6 +6235,10 @@ msgstr "Right"
 msgid "Right {0}"
 msgstr "Right {0}"
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Right of {anchor}"
+msgstr "Right of {anchor}"
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right paddle"
 msgstr "Right paddle"
@@ -6155,6 +6250,11 @@ msgstr "Right player"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right wins."
 msgstr "Right wins."
+
+#. placeholder {0}: riderName(controlled()[0]!)
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+msgid "Right: {0}"
+msgstr "Right: {0}"
 
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "Rook"
@@ -6769,6 +6869,10 @@ msgstr "Sokoban board preview"
 msgid "Solo"
 msgstr "Solo"
 
+#: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
+msgid "Solution shown"
+msgstr "Solution shown"
+
 #: libs/game-puzzle-client-ts/src/puzzle-result-announcement.tsx
 msgid "Solution shown."
 msgstr "Solution shown."
@@ -6919,9 +7023,9 @@ msgstr "Start a space"
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
-#: libs/numberlink-client-ts/src/numberlink-recovery.tsx
-msgid "Start again at a number to redraw its path. Drag back along your path to shorten it. Remove a drawn path below to start fresh."
-msgstr "Start again at a number to redraw its path. Drag back along your path to shorten it. Remove a drawn path below to start fresh."
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
+msgid "Start again at a number to redraw its path. Drag back along your path to shorten it."
+msgstr "Start again at a number to redraw its path. Drag back along your path to shorten it."
 
 #: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
 msgid "Start at a matching endpoint or an existing path."
@@ -6935,7 +7039,7 @@ msgstr "Start game"
 msgid "Start loading"
 msgstr "Start loading"
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "start or end"
 msgstr "start or end"
 
@@ -7083,11 +7187,9 @@ msgstr "Swap sides"
 msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
 
-#. placeholder {0}: riderName(props.sides[0]!)
-#. placeholder {1}: riderName(props.sides[1]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Swipe the right half for {0}, the left half for {1}. Or use each rider's named pad. Avoid the edge and every trail."
-msgstr "Swipe the right half for {0}, the left half for {1}. Or use each rider's named pad. Avoid the edge and every trail."
+msgid "Swipe your half or use your pad. Avoid edges and trails."
+msgstr "Swipe your half or use your pad. Avoid edges and trails."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Swipe, tap beside the worker, or use the pad."
@@ -7182,8 +7284,16 @@ msgid "Tap a device for details."
 msgstr "Tap a device for details."
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
-msgid "Tap a piece, then its destination. Keyboard: arrows to move, Enter to choose, Escape to cancel."
-msgstr "Tap a piece, then its destination. Keyboard: arrows to move, Enter to choose, Escape to cancel."
+msgid "Tap a piece, then a square."
+msgstr "Tap a piece, then a square."
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Tap a square: preview a wall above it."
+msgstr "Tap a square: preview a wall above it."
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Tap a square: preview a wall to its right."
+msgstr "Tap a square: preview a wall to its right."
 
 #: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
@@ -7218,6 +7328,15 @@ msgstr "Target rating: {0}"
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-status.tsx
 msgid "Target reached. Puzzle solved!"
 msgstr "Target reached. Puzzle solved!"
+
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Target region"
+msgstr "Target region"
+
+#. placeholder {0}: regions[area()]
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Target region: {0}"
+msgstr "Target region: {0}"
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "target score"
@@ -7795,6 +7914,7 @@ msgstr "This finishes the current game. Its record remains available."
 msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
 
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "This game cannot be shown by this app. Check your app version, install an available update, then reopen this game."
 msgstr "This game cannot be shown by this app. Check your app version, install an available update, then reopen this game."
@@ -7824,8 +7944,8 @@ msgid "This game is unavailable."
 msgstr "This game is unavailable."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
-msgid "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to e5 open. Reaching e5 wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
-msgstr "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to e5 open. Reaching e5 wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
+msgid "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to the center hill (e5) open. Reaching the hill wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
+msgstr "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to the center hill (e5) open. Reaching the hill wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
 msgid "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
@@ -7880,8 +8000,11 @@ msgstr "This puzzle"
 msgid "This puzzle cannot be opened."
 msgstr "This puzzle cannot be opened."
 
-#: libs/numberlink-client-ts/src/numberlink-player.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "This puzzle cannot be opened. Choose a saved puzzle from your library."
+msgstr "This puzzle cannot be opened. Choose a saved puzzle from your library."
+
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
@@ -8354,17 +8477,9 @@ msgstr "Version accepting new assignments"
 msgid "Version and diagnostics"
 msgstr "Version and diagnostics"
 
-#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
-msgid "Vertical"
-msgstr "Vertical"
-
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Vertical wall"
 msgstr "Vertical wall"
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Vertical wall: choose a square to preview its right boundary."
-msgstr "Vertical wall: choose a square to preview its right boundary."
 
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "View profile"
@@ -8418,6 +8533,10 @@ msgstr "wall"
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Wall"
 msgstr "Wall"
+
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Wall anchor"
+msgstr "Wall anchor"
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Walls"
@@ -8787,6 +8906,10 @@ msgstr "You ride {name}."
 msgid "You sank the whole fleet. You win."
 msgstr "You sank the whole fleet. You win."
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "You took the trick with the {card} and lead."
+msgstr "You took the trick with the {card} and lead."
+
 #: libs/auth-client-ts/src/signed-out-notice-banner.tsx
 msgid "You were signed out on this device"
 msgstr "You were signed out on this device"
@@ -9155,12 +9278,9 @@ msgid "Your turn to fire."
 msgstr "Your turn to fire."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Your turn."
 msgstr "Your turn."
-
-#: libs/quoridor-client-ts/src/quoridor-frame.tsx
-msgid "Your turn. First to e5 wins."
-msgstr "Your turn. First to e5 wins."
 
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Your turn. Play a card without ×."
@@ -9169,6 +9289,10 @@ msgstr "Your turn. Play a card without ×."
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Your turn. Reach row {row}."
 msgstr "Your turn. Reach row {row}."
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "Your turn. Reach the center hill (e5) first."
+msgstr "Your turn. Reach the center hill (e5) first."
 
 #: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "Your username change will be shared when the connection returns."

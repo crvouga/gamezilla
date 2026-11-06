@@ -118,3 +118,38 @@ test('compact wall labels remain within their spoken control names', () => {
   }
   view.unmount();
 });
+
+// regression: quoridor-wall-coordinate-decoding
+test('d4 search names only its anchor and rotation keeps a persistent wall preview', async () => {
+  const { view, actions } = mountBoard();
+  const horizontal = view.getByRole('button', { name: 'Horizontal wall' });
+  expect(horizontal.textContent?.trim()).toBe('Horizontal wall');
+  fireEvent.click(horizontal);
+  fireEvent.click(view.getByTestId('precision-precise-target'));
+  fireEvent.input(view.getByRole('searchbox'), { target: { value: 'd4' } });
+  expect(view.getAllByRole('option')).toHaveLength(1);
+  const option = view.getByTestId('precision-precise-d4');
+  expect(option.textContent).toContain('Above d4');
+  fireEvent.click(option);
+  fireEvent.pointerLeave(view.getByTestId('precision-action-d4h'));
+  for (const cell of ['d4', 'e4'])
+    expect(
+      view
+        .getByTestId(`precision-action-${cell}h`)
+        .getAttribute('data-preview-edge-top')
+    ).toBe('true');
+  fireEvent.click(view.getByRole('button', { name: 'Vertical wall' }));
+  for (const cell of ['d4', 'd5'])
+    expect(
+      view
+        .getByTestId(`precision-action-${cell}v`)
+        .getAttribute('data-preview-edge-right')
+    ).toBe('true');
+  expect(view.getByTestId('precision-wall-status').textContent).toBe(
+    'Right of d4. Preview only. Place wall to confirm.'
+  );
+  expect(actions).toEqual([]);
+  fireEvent.click(view.getByTestId('precision-wall-commit'));
+  expect(actions).toEqual(['d4v']);
+  view.unmount();
+});

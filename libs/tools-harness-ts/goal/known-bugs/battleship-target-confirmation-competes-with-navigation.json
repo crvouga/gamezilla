@@ -1,0 +1,4 @@
+{
+  "summary": "J10 targeting gave Cancel, region and view controls the same filled emphasis as Fire, separated by tall controls.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

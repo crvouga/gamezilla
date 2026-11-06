@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal } from 'solid-js';
@@ -9,22 +10,24 @@ import { byTestId, renderBoard } from './render';
 const fleet =
   'fleet:carrier@a1h;battleship@a3h;cruiser@a5h;submarine@a7h;destroyer@a9h';
 
-function mount() {
+function mount(position = encodeBattleshipPosition([])) {
   const actions: string[] = [];
   renderBoard(() => (
-    <BattleshipBoard
-      position={encodeBattleshipPosition([])}
-      orientation="white"
-      interactive
-      sound={false}
-      syncKey={0}
-      setup={fleet}
-      hand={null}
-      committed={[]}
-      commitment={null}
-      testId="precision"
-      onAction={(cell) => actions.push(cell)}
-    />
+    <SurfaceStackProvider>
+      <BattleshipBoard
+        position={position}
+        orientation="white"
+        interactive
+        sound={false}
+        syncKey={0}
+        setup={fleet}
+        hand={null}
+        committed={[]}
+        commitment={null}
+        testId="precision"
+        onAction={(cell) => actions.push(cell)}
+      />
+    </SurfaceStackProvider>
   ));
   return actions;
 }
@@ -98,6 +101,7 @@ test('large targeting areas partition all 100 cells and allow correction and can
   fireEvent.click(byTestId('precision-large-targets'));
   const seen = new Set<string>();
   for (let area = 0; area < 4; area += 1) {
+    fireEvent.click(byTestId('precision-region'));
     fireEvent.click(byTestId(`precision-area-${area}`));
     const cells = byTestId('precision-target-grid').querySelectorAll('button');
     expect(cells.length).toBe(25);
@@ -112,4 +116,45 @@ test('large targeting areas partition all 100 cells and allow correction and can
   fireEvent.click(byTestId('precision-target-j10'));
   fireEvent.click(byTestId('precision-fire'));
   expect(actions).toEqual(['j10']);
+});
+
+// regression: battleship-target-confirmation-competes-with-navigation
+test('J10 confirmation is the only primary action and stays beside Cancel', () => {
+  mount();
+  fireEvent.click(byTestId('precision-target-j10'));
+  const fire = byTestId('precision-fire');
+  const cancel = byTestId('precision-cancel-aim');
+  expect(fire.getAttribute('data-face')).toBe('primary');
+  expect(cancel.getAttribute('data-face')).toBe('neutral-ghost');
+  expect(cancel.parentElement).toBe(fire.parentElement);
+  expect(byTestId('precision-large-targets').getAttribute('data-face')).toBe(
+    'neutral-outline'
+  );
+});
+
+// regression: battleship-enlargement-loses-aim-context
+test('enlarging J10 opens its region and returning to all waters preserves the aim', () => {
+  const actions = mount(
+    encodeBattleshipPosition([
+      'a1:hit',
+      'e5:miss',
+      'b1:sunk:destroyer',
+      'c3:hit',
+    ])
+  );
+  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-large-targets'));
+  expect(byTestId('precision-region').textContent).toContain('F6–J10');
+  expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
+    'recent'
+  );
+  fireEvent.click(byTestId('precision-large-targets'));
+  expect(
+    byTestId('precision-target-grid').querySelectorAll('button').length
+  ).toBe(100);
+  expect(byTestId('precision-fire').textContent).toContain('Fire at J10');
+  expect(byTestId('precision-target-b1').getAttribute('aria-label')).toBe(
+    'B1: hit, sunk Destroyer, latest shot'
+  );
+  expect(actions).toEqual([]);
 });

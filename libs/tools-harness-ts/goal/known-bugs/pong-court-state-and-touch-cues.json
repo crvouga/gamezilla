@@ -1,0 +1,4 @@
+{
+  "summary": "Serve and pause feedback was outside the court and shared-device edges had no visible gesture cue.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board.test.tsx"
+}

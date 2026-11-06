@@ -32,11 +32,30 @@ test('following a spade puts the legal spade before a refused diamond', () => {
 
 // regression: hearts-pending-pass-instruction-conflicts
 test('the phase heading never asks to pass again while acknowledgement is pending', () => {
-  const text = heartsFrame.turnStatus?.(
+  const text = heartsFrame.turnStatus(
     encodeHearts(INITIAL_HEARTS),
     'white',
-    []
+    [],
+    () => null
   );
   expect(text).toBe('Passing to the left');
   expect(text).not.toContain('Nobody has passed');
+});
+
+// regression: hearts-local-turn-compass-decoding
+test('North looking at their turn hears Your turn', () => {
+  const position = encodeHearts({
+    deal: 4,
+    phase: 'play',
+    scores: [12, 30, 8, 28],
+    lead: 0,
+    plays: ['2C', '3C'],
+    last: null,
+  });
+  expect(heartsFrame.turnStatus(position, 'red', [], () => null)).toBe(
+    'Your turn.'
+  );
+  expect(heartsFrame.turnStatus(position, null, [], () => null)).toBe(
+    'North to play.'
+  );
 });

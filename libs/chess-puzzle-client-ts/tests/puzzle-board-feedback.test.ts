@@ -35,3 +35,36 @@ test('the f3-e5 solution uses a narrow translucent arrow while watcher suggestio
     color: 'primary',
   });
 });
+
+// regression: chess-puzzle-solution-move-indistinct
+test('the revealed f3-e5 move frames both pieces without covering their centers', () => {
+  const marks = puzzleBoardFeedback({
+    wrong: null,
+    hint: null,
+    solution: { from: 'f3', to: 'e5' },
+  });
+  expect(marks).toEqual({
+    f3: {
+      kind: 'dot',
+      shape: 'outline',
+      label: 'Solution: move from f3 to e5',
+    },
+    e5: { kind: 'dot', shape: 'outline', label: 'Solution destination: e5' },
+  });
+});
+
+test('nullable solution endpoints do not invent a marked square', () => {
+  for (const solution of [
+    { from: null, to: 'e5' },
+    { from: 'f3', to: null },
+  ]) {
+    expect(puzzleBoardFeedback({ wrong: null, hint: 'f3', solution })).toEqual({
+      f3: {
+        kind: 'dot',
+        corner: 'center',
+        shape: 'outline',
+        label: 'Hint: move this piece',
+      },
+    });
+  }
+});

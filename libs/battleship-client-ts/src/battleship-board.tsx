@@ -16,7 +16,7 @@ import {
   type CellGridLegendItem,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   createEffect,
@@ -159,18 +159,21 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             : cell
         )}
         onAim={setSelected}
+        selected={selected()}
+        confirmation={
+          <Show when={interactive() && view() === 'target'}>
+            <ShotConfirmation
+              selected={selected()}
+              pending={aim.aiming() !== null}
+              testId={props.testId}
+              onCancel={() => setSelected(null)}
+              onFire={(cell) => {
+                if (interactive() && aim.aiming() === null) aim.fire(cell);
+              }}
+            />
+          </Show>
+        }
       />
-      <Show when={interactive() && view() === 'target'}>
-        <ShotConfirmation
-          selected={selected()}
-          pending={aim.aiming() !== null}
-          testId={props.testId}
-          onCancel={() => setSelected(null)}
-          onFire={(cell) => {
-            if (interactive() && aim.aiming() === null) aim.fire(cell);
-          }}
-        />
-      </Show>
       <CellGridLegend
         label={t`Key`}
         items={marks(viewer() !== null)}
@@ -188,16 +191,22 @@ function ShotConfirmation(props: {
   onCancel: () => void;
 }): JSX.Element {
   return (
-    <>
+    <StackHorizontal
+      gap="sm"
+      align="center"
+      testId={`${props.testId}-confirmation`}
+    >
       <Show when={props.selected !== null && !props.pending}>
         <Button
           title={t`Cancel aim`}
+          intent="neutral"
+          variant="ghost"
           onClick={props.onCancel}
           dataSet={{ testid: `${props.testId}-cancel-aim` }}
         />
       </Show>
       <Button
-        fullWidth
+        flex={1}
         disabled={props.selected === null || props.pending}
         onClick={() => {
           if (props.selected !== null && !props.pending)
@@ -210,7 +219,7 @@ function ShotConfirmation(props: {
             : t`Fire at ${props.selected.toUpperCase()}`
         }
       />
-    </>
+    </StackHorizontal>
   );
 }
 
@@ -222,6 +231,8 @@ function BattlePanels(props: {
   own: readonly CellGridCell[];
   target: readonly CellGridCell[];
   onAim: (cell: string) => void;
+  confirmation: JSX.Element;
+  selected: string | null;
 }): JSX.Element {
   return (
     <PairedPanels
@@ -247,6 +258,8 @@ function BattlePanels(props: {
           testId={props.testId}
           cells={props.target}
           onAim={props.onAim}
+          selected={props.selected}
+          confirmation={props.confirmation}
         />
       }
     />

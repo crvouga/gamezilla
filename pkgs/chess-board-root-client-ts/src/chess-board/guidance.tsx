@@ -28,12 +28,19 @@ export function ChessBoardGuidance(props: {
         </Show>
       </P>
       <Show when={props.props.interactive !== false}>
-        <P variant="caption" tone="secondary">
-          <Trans>
-            Tap a piece, then its destination. Keyboard: arrows to move, Enter
-            to choose, Escape to cancel.
-          </Trans>
-        </P>
+        <div class="box flex-row flex-wrap items-baseline gap-2">
+          <P variant="caption" tone="secondary">
+            <Trans>Tap a piece, then a square.</Trans>
+          </P>
+          <details>
+            <summary class="text textCaption list-item cursor-pointer">
+              <Trans>Keyboard controls</Trans>
+            </summary>
+            <P variant="caption" tone="secondary">
+              <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
+            </P>
+          </details>
+        </div>
       </Show>
     </>
   );

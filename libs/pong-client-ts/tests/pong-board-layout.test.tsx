@@ -108,12 +108,15 @@ test("each paddle takes its seat's color and each half names who plays it", () =
   ]);
 });
 
-test('the scores and a plain status are said to a listener only', () => {
+test('scores have spoken labels and the serve is visible on the court', () => {
   mount(1440);
-  for (const id of ['pong-score-left', 'pong-score-right', 'pong-status'])
+  for (const id of ['pong-score-left', 'pong-score-right'])
     expect(
       screen.getByTestId(id).closest('[data-component="VisuallyHidden"]')
     ).not.toBeNull();
+  expect(
+    screen.getByTestId('pong').contains(screen.getByTestId('pong-status'))
+  ).toBe(true);
 });
 
 // regression: pong-score-off-court — the score sat only in the players'

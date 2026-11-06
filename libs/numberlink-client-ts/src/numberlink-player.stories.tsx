@@ -6,6 +6,7 @@ import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-p
 import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { numberlinkGeometry } from './numberlink-geometry.example';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
   FIVE_BY_FIVE,
@@ -64,10 +65,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A fresh attempt: only the numbered endpoints, every cell to fill. */
-export const Fresh: Story = {};
+export const Fresh: Story = {
+  play: async ({ canvasElement }) => {
+    // regression: numberlink-progress-detached-from-board
+    await numberlinkGeometry(canvasElement);
+  },
+};
 
 /** Two pairs joined and a third begun: joined pairs read as connected. */
 export const InProgress: Story = {
+  play: async ({ canvasElement }) => {
+    // regression: numberlink-recovery-displaces-undo
+    await numberlinkGeometry(canvasElement);
+  },
   args: {
     state: progress([
       PATH_1,
@@ -172,4 +182,37 @@ export const CompleteWithKeyboard: Story = {
 export const RecoverWithPointer: Story = {
   ...CompleteWithKeyboard,
   play: async ({ canvasElement }) => recoverWithPointer(canvasElement),
+};
+
+/** Keyboard and backtracking help is discoverable without crowding first use. */
+export const DrawingHelp: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await numberlinkGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
+    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
+    await expect(
+      canvas.getByText(/Start again at a number to redraw/)
+    ).toBeVisible();
+  },
+};
+
+/** Three removable paths share a bounded chooser rather than pushing Undo down. */
+export const ChoosePathToRemove: Story = {
+  ...InProgress,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await numberlinkGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Remove a path' })
+    );
+    const surface = within(document.body);
+    for (const label of ['1', '3', '4']) {
+      await expect(
+        surface.getByRole('option', { name: `Remove path ${label}` })
+      ).toBeVisible();
+    }
+  },
 };

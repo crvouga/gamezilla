@@ -398,6 +398,20 @@ button.card[aria-disabled="true"] {
    its way) keeps full contrast. */
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
   border-style: dashed;
+  box-shadow: none;
+}
+/* A hatched foot and inverse × distinguish unavailable faces at a glance.
+   Rank and suit ink stay fully opaque; legal cards never wear selection rings. */
+button.card[data-refused="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--ui-space-1);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--ui-color-board-card-face) 0 var(--ui-space-1),
+    var(--ui-color-board-card-ink) var(--ui-space-1) var(--ui-space-2)
+  );
 }
 /* Chosen: lifted 8px out of its row and ringed 3px in the app's selection
    accent (the hand sits on the page, not the felt), so it reads at a
@@ -446,52 +460,59 @@ button.card:focus-visible {
   }
 }
 
-/* On phones each named player and their trick card share one row.
-   The hand keeps its full card targets; passive seating yields the height. */
+/* Two named player/card pairs per row: every trick place stays directly
+   beside its owner, never in a separate compass that needs decoding. */
 @container card-table not (min-width: 30rem) {
   .table {
-    grid-template-columns: minmax(0, 1fr) var(--card-w);
+    grid-template-columns: minmax(0, 1fr) var(--card-w) var(--ui-space-2) minmax(
+        0,
+        1fr
+      ) var(--card-w);
     grid-template-areas: none;
     gap: var(--ui-space-1);
   }
   .seat[data-position] {
-    grid-column: 1 / -1;
+    grid-column: 1 / 3;
     width: 100%;
     max-width: none;
+    align-self: stretch;
+    justify-content: center;
+    padding: var(--ui-space-1);
+  }
+  .seat[data-position="right"],
+  .seat[data-position="bottom"] {
+    grid-column: 4 / 6;
   }
   .seat[data-trick="true"] {
     grid-column: 1;
   }
+  .seat[data-trick="true"][data-position="right"],
+  .seat[data-trick="true"][data-position="bottom"] {
+    grid-column: 4;
+  }
   .seat[data-position="top"],
-  .slot[data-position="top"] {
+  .slot[data-position="top"],
+  .seat[data-position="right"],
+  .slot[data-position="right"] {
     grid-row: 1;
   }
   .seat[data-position="left"],
-  .slot[data-position="left"] {
-    grid-row: 2;
-  }
-  .seat[data-position="right"],
-  .slot[data-position="right"] {
-    grid-row: 3;
-  }
+  .slot[data-position="left"],
   .seat[data-position="bottom"],
   .slot[data-position="bottom"] {
-    grid-row: 4;
+    grid-row: 2;
   }
   .seat[data-player="true"][data-position] {
     max-width: none;
-    flex-direction: row;
-    gap: var(--ui-space-2);
-    padding: var(--ui-space-1);
+    gap: var(--ui-space-1);
   }
   .seat[data-player="true"] > :first-child {
-    flex: 1 1 0;
+    width: 100%;
     min-width: 0;
   }
   .seat[data-player="true"] .facts {
-    flex: 0 0 auto;
-    flex-direction: column;
-    align-items: flex-end;
+    flex-direction: row;
+    align-items: center;
   }
   .trick[data-trick="true"] {
     display: contents;
@@ -499,10 +520,14 @@ button.card:focus-visible {
   .slot[data-position] {
     grid-column: 2;
   }
+  .slot[data-position="right"],
+  .slot[data-position="bottom"] {
+    grid-column: 5;
+  }
   .pass,
   .center {
     grid-column: 1 / -1;
-    grid-row: 5;
+    grid-row: 3;
   }
   .pass {
     flex-direction: row;
@@ -513,6 +538,7 @@ button.card:focus-visible {
     overflow-wrap: anywhere;
   }
 }
+
 .guidance {
   margin: 0;
   color: var(--ui-color-text);
@@ -520,7 +546,13 @@ button.card:focus-visible {
   text-align: center;
 }
 .unavailable {
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-board-card-face);
+  background: var(--ui-color-board-card-ink);
+  border-radius: var(--ui-radius-full);
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-4);
+  height: var(--ui-space-4);
   position: absolute;
   top: var(--ui-space-1);
   right: var(--ui-space-1);

@@ -21,8 +21,11 @@ import {
   chooseQuoridorCoordinate,
   expectQuoridorGoalMarker,
   expectQuoridorTargetVisible,
-  expectQuoridorWorkingArea,
 } from './quoridor-precision.example';
+import {
+  expectQuoridorSpatialArea,
+  expectQuoridorWallPreview,
+} from './quoridor-wall-preview.example';
 
 /** The classic position after `actions`, South first. */
 function classic(actions: string): string {
@@ -59,8 +62,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** The start: South moves first, ten walls each, the move tool chosen. */
+// regression: quoridor-spatial-task-too-small
 export const Opening: Story = {
-  play: async ({ canvasElement }) => expectQuoridorActionsFit(canvasElement),
+  play: async ({ canvasElement }) => {
+    await expectQuoridorActionsFit(canvasElement);
+    await expectQuoridorSpatialArea(canvasElement);
+  },
 };
 
 /** Mid-game on South's turn: walls on the board, fewer left to place. */
@@ -128,10 +135,12 @@ export const PlaceAWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-h')
     );
     await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
+    await expectQuoridorWallPreview(canvasElement);
     await expect(
       canvas.getByTestId('custom-game-board-action-d4h')
     ).toHaveAttribute('data-preview-edge-top', 'true');
@@ -251,14 +260,14 @@ export const PreciseCoordinates: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expectQuoridorWorkingArea(canvasElement);
+    await expectQuoridorSpatialArea(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'a9');
     await chooseQuoridorCoordinate(canvasElement, 'e2');
     await expect(
       canvas.getByTestId('custom-game-board-action-e2')
     ).toHaveAccessibleName(/South red circle/);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
-    await expectQuoridorWorkingArea(canvasElement);
+    await expectQuoridorSpatialArea(canvasElement);
     await chooseQuoridorCoordinate(canvasElement, 'd4');
     const anchor = canvas.getByTestId('custom-game-board-action-d4h');
     await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
@@ -272,5 +281,25 @@ export const PreciseCoordinates: Story = {
     await chooseQuoridorCoordinate(canvasElement, 'd4');
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(anchor).toHaveAttribute('data-edge-top', 'true');
+  },
+};
+
+// regression: quoridor-wall-coordinate-decoding
+export const RotateWallPreview: Story = {
+  render: renderClassicJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expectQuoridorSpatialArea(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
+    await expectQuoridorWallPreview(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
+    await expectQuoridorWallPreview(canvasElement);
+    await expect(
+      canvas.getByTestId('custom-game-board-action-d4v')
+    ).toHaveAttribute('data-preview-edge-right', 'true');
+    await expect(
+      canvas.getByTestId('custom-game-board-action-d4v')
+    ).toHaveAttribute('data-edge-right', 'false');
   },
 };

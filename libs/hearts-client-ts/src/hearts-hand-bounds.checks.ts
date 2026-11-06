@@ -46,6 +46,7 @@ export function assertHeartsPassingBounds(
     throw new Error('Expected the complete 13-card deal');
   assertHeartsHandBounds(cards, viewport);
   assertHeartsHandBounds([context], viewport);
+  assertHeartsContextBounds(context);
   assertHeartsHandBounds([action], viewport);
 }
 
@@ -95,6 +96,7 @@ export async function checkInitialHeartsDeal(canvas: HTMLElement) {
 export function assertHeartsSeatRow(seat: Bounds, slot: Bounds) {
   if (
     slot.left < seat.right ||
+    slot.left - seat.right > 8 ||
     slot.top >= seat.bottom ||
     slot.bottom <= seat.top
   )
@@ -106,6 +108,9 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
     '[data-component="CardTable"]'
   );
   if (!board || board.clientWidth >= 480) return;
+  const context = board.querySelector('[role="group"]');
+  if (!context) throw new Error('Missing Hearts table');
+  assertHeartsContextBounds(context.getBoundingClientRect());
   for (const seat of board.querySelectorAll('section[data-position]')) {
     const slot = board.querySelector(
       `span[data-position="${seat.getAttribute('data-position')}"]`
@@ -116,4 +121,10 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
       slot.getBoundingClientRect()
     );
   }
+}
+
+/** The phone table must leave space for the full hand and its pass action. */
+export function assertHeartsContextBounds(context: Bounds) {
+  if (context.width < 480 && context.height > 256)
+    throw new Error('Hearts phone context crowds the hand');
 }

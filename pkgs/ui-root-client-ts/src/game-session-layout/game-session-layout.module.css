@@ -10,3 +10,57 @@
   padding-block-end: var(--ui-space-1);
   background: var(--ui-color-background);
 }
+
+/* Outcome precedes the final position, never the standings and player stack. */
+.outcome {
+  padding: var(--ui-space-3);
+  background: var(--ui-color-surface);
+  border-radius: var(--ui-radius-card);
+}
+
+.identity {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Four identities share one band. Full names remain in the accessible text;
+   the board keeps the vertical room previously spent on a second player row. */
+.participants {
+  --game-player-facts-row-gap: 0;
+}
+.participants > [role="list"] {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--ui-space-1);
+}
+.participants [data-active] :global(.textLabel) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@container game-column (max-width: 879px) {
+  .participants [data-active] > :is(div, button) {
+    padding-inline: var(--ui-space-1);
+  }
+  .participants [data-active] > :is(div, button) > span[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* The active frame may use the host's available width. Setup keeps its own
+   arrangement. No viewport-height subtraction shrinks the board for metadata. */
+@container game-column (min-width: 880px) {
+  .session[data-board-focus="true"]
+    > [data-has-stage="true"][data-has-aside="true"] {
+    --game-board-measure: var(--ui-max-width-prose);
+    grid-template-columns: minmax(0, 1fr) var(--game-arena-rail-measure);
+  }
+}
+
+.session[data-board-focus="true"] {
+  gap: var(--ui-space-3);
+}

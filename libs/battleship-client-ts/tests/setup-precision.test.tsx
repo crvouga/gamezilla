@@ -39,3 +39,41 @@ test('a ready fleet can be repositioned in another enlarged region', async () =>
     'I8: Destroyer'
   );
 });
+
+test('overlap recovery stays in the placement workspace with ship, direction and region', async () => {
+  // regression: battleship-placement-recovery-travel
+  const [fleet, setFleet] = createSignal('fleet:carrier@a1h');
+  renderBoard(() => (
+    <SurfaceStackProvider>
+      <BattleshipSetupBoard
+        setup={fleet()}
+        side="white"
+        locked={false}
+        testId="setup"
+        onChange={setFleet}
+      />
+    </SurfaceStackProvider>
+  ));
+  const user = userEvent.setup();
+  await user.click(byTestId('setup-enlarge'));
+  await user.click(byTestId('setup-precision-cell-a1'));
+  expect(fleet()).toBe('fleet:carrier@a1h');
+  const workspace = byTestId('setup-precision').closest(
+    '[data-component="BattleshipPlacementLayout"]'
+  );
+  const refusal = byTestId('setup-refusal');
+  expect(workspace?.contains(refusal)).toBe(true);
+  expect(workspace?.contains(byTestId('setup-rotate'))).toBe(true);
+  expect(
+    workspace?.contains(screen.getByRole('button', { name: 'Ship to place' }))
+  ).toBe(true);
+  expect(
+    workspace?.contains(screen.getByRole('button', { name: 'Placement area' }))
+  ).toBe(true);
+  expect(refusal.getAttribute('role')).toBe('alert');
+  expect(refusal.textContent).toContain('overlap the Carrier');
+  await user.click(byTestId('setup-rotate'));
+  await user.click(byTestId('setup-precision-cell-a3'));
+  expect(fleet()).toBe('fleet:carrier@a1h;battleship@a3v');
+  expect(screen.queryByTestId('setup-refusal')).toBeNull();
+});

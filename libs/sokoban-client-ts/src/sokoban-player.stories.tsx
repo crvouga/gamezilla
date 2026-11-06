@@ -9,14 +9,20 @@ import {
   TWO_CRATES,
 } from './sokoban-player.example';
 
+const openLibrary = fn();
+
 const meta = {
   id: 'screens-games-sokoban-puzzle',
   title: 'Screens/Games/Sokoban/Puzzle',
   component: SokobanPlayer,
   tags: ['autodocs'],
   // The player inside the screen a pack puzzle is played on.
-  render: (args) => <SokobanHistory {...args} />,
-  parameters: { appRouter: true, controls: { exclude: ['onAction'] } },
+  render: (args) => <SokobanHistory {...args} onOpenLibrary={openLibrary} />,
+  parameters: {
+    appRouter: true,
+    test: { restoreMocks: false },
+    controls: { exclude: ['onAction'] },
+  },
   args: {
     definition: TWO_CRATES,
     state: playedTwoCrates([]),
@@ -33,18 +39,64 @@ export const Fresh: Story = {};
 /** One crate pushed onto its goal; moves and pushes counted. */
 export const InProgress: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES.slice(0, 2)) },
+  play: async ({ canvasElement }) => {
+    // regression: sokoban-story-restart-primary
+    const restart = within(canvasElement).getByRole('button', {
+      name: 'Restart',
+    });
+    await expect(restart).toHaveAttribute('data-intent', 'neutral');
+    await expect(restart).toHaveAttribute('data-variant', 'outline');
+  },
 };
 
 /** Every crate on a goal. */
 export const Solved: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES), disabled: false },
+  play: async ({ canvasElement }) => {
+    // regression: sokoban-solved-below-controls
+    // Geometry is measured before a click can scroll the destination into view.
+    const canvas = within(canvasElement);
+    const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
+    const counts = canvas.getByTestId('sokoban-counts').getBoundingClientRect();
+    await expect(notice.height).toBeGreaterThan(0);
+    await expect(notice.top).toBeGreaterThanOrEqual(0);
+    await expect(notice.bottom).toBeLessThanOrEqual(window.innerHeight);
+    await expect(notice.bottom).toBeLessThanOrEqual(counts.top);
+    // regression: sokoban-solved-library-action
+    openLibrary.mockClear();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Choose another puzzle' })
+    );
+    await expect(openLibrary).toHaveBeenCalledTimes(1);
+    // Completion must not disable the board or its movement controls.
+    canvas.getByTestId('sokoban-board').focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '8'
+    );
+  },
 };
 
 /** While the shared player is not taking moves, the board stays still. */
 export const Disabled: Story = { args: { disabled: true } };
 
 /** A puzzle this app cannot open points back to its overview. */
-export const Unreadable: Story = { args: { definition: '{}' } };
+export const Unreadable: Story = {
+  args: { definition: '{}' },
+  play: async ({ canvasElement }) => {
+    // regression: sokoban-unreadable-library-action
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Return to puzzles' });
+    const rect = button.getBoundingClientRect();
+    await expect(rect.height).toBeGreaterThanOrEqual(44);
+    await expect(rect.top).toBeGreaterThanOrEqual(0);
+    await expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
+    openLibrary.mockClear();
+    await userEvent.click(button);
+    await expect(openLibrary).toHaveBeenCalledTimes(1);
+  },
+};
 
 /** Walking into the wall is refused, with the reason, and sends nothing. */
 export const BlockedMove: Story = {
@@ -90,8 +142,8 @@ export const SolveWithKeyboard: Story = {
       'data-pushes',
       '4'
     );
-    await expect(canvas.getByText('Puzzle completed')).toHaveTextContent(
-      'Puzzle completed'
+    await expect(canvas.getByTestId('sokoban-solved')).toHaveTextContent(
+      'All crates are on goals'
     );
     await expect(
       canvas.queryByTestId('sokoban-refusal')
@@ -125,7 +177,14 @@ export const CornerRecovery: Story = {
       'data-moves',
       '0'
     );
+    // regression: sokoban-history-stale-refusal
+    await expect(
+      canvas.queryByTestId('sokoban-refusal')
+    ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole('button', { name: 'Redo' }));
+    await expect(
+      canvas.queryByTestId('sokoban-refusal')
+    ).not.toBeInTheDocument();
     await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
       'data-pushes',
       '1'
@@ -135,7 +194,7 @@ export const CornerRecovery: Story = {
     await userEvent.keyboard(
       '{ArrowDown}{ArrowLeft}{ArrowLeft}{ArrowUp}{ArrowRight}{ArrowRight}'
     );
-    await expect(canvas.getByText('Puzzle completed')).toBeVisible();
+    await expect(canvas.getByTestId('sokoban-solved')).toBeVisible();
     await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
       'data-pushes',
       '2'
@@ -146,7 +205,8 @@ export const CornerRecovery: Story = {
       '0'
     );
     await expect(
-      canvas.queryByText('Puzzle completed')
+      canvas.queryByTestId('sokoban-solved')
     ).not.toBeInTheDocument();
+    await expect(canvas.getByText('Completion saved')).toBeInTheDocument();
   },
 };

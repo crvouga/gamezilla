@@ -15,6 +15,39 @@ async function swipe(arena: HTMLElement, fraction: number) {
   ]);
 }
 
+/** Native bounds are read before pointer helpers can focus or scroll the arena. */
+export async function sharedTouchBounds(canvasElement: HTMLElement) {
+  // regression: light-cycles-unmarked-touch-halves
+  const canvas = within(canvasElement);
+  const arena = canvas.getByTestId('custom-game-board-arena');
+  const left = canvas.getByTestId('custom-game-board-arena-touch-0');
+  const right = canvas.getByTestId('custom-game-board-arena-touch-1');
+  const wall = arena.querySelector('svg > rect:last-of-type')!;
+  const bounds = arena.getBoundingClientRect();
+  const a = left.getBoundingClientRect();
+  const b = right.getBoundingClientRect();
+  await expect(left).toHaveTextContent('Left: Ember');
+  await expect(right).toHaveTextContent('Right: Comet');
+  await expect(a.width).toBeGreaterThan(0);
+  await expect(a.left).toBeGreaterThanOrEqual(bounds.left);
+  await expect(b.right).toBeLessThanOrEqual(bounds.right + 1);
+  await expect(
+    Math.abs(a.right - (bounds.left + bounds.width / 2))
+  ).toBeLessThanOrEqual(1);
+  await expect(a.right).toBeLessThanOrEqual(b.left + 1);
+  await expect(a.top).toBeGreaterThanOrEqual(
+    wall.getBoundingClientRect().bottom - 1
+  );
+  const pads = canvas.queryAllByTestId(/custom-game-board-(white|black)-pad$/);
+  for (const pad of pads) {
+    const box = pad.getBoundingClientRect();
+    await expect(box.top).toBeGreaterThanOrEqual(a.bottom);
+    await expect(box.bottom).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.defaultView!.innerHeight
+    );
+  }
+}
+
 /** Synthetic story input has no native active pointer; the browser regression separately verifies real capture. */
 export async function sharedSwipe(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);

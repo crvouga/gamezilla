@@ -4,6 +4,7 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { decodeNumberlinkDefinition } from '@libs/numberlink-shared-ts/numberlink-definition';
 import {
+  connectedPairs,
   decodeNumberlinkState,
   numberlinkComplete,
 } from '@libs/numberlink-shared-ts/numberlink-state';
@@ -11,15 +12,14 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
+import { Trans } from '@lingui/solid/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
+import { NumberlinkDrawingHelp } from './numberlink-drawing-help';
 import { NumberlinkRecovery } from './numberlink-recovery';
 
 function Drawing(props: {
@@ -28,8 +28,6 @@ function Drawing(props: {
   disabled: boolean;
   onAction: (action: string) => void;
 }): JSX.Element {
-  const { t } = useLingui();
-  const mode = useLayoutMode();
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -40,7 +38,7 @@ function Drawing(props: {
     numberlinkComplete(props.definition, props.state)
   );
   return (
-    <StackVertical gap="md">
+    <StackVertical gap="sm">
       <Show when={solved()}>
         <Notice tone="success" dataSet={{ testid: 'numberlink-solved' }}>
           <P variant="bodyBold">
@@ -65,6 +63,24 @@ function Drawing(props: {
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
       />
+      <P
+        variant="caption"
+        aria-live="polite"
+        dataSet={{ testid: 'numberlink-progress' }}
+      >
+        <Trans>
+          {connectedPairs(props.definition, props.state).length}/
+          {props.definition.pairs.length} pairs connected
+        </Trans>
+        {' — '}
+        <Trans>
+          {props.state.paths.reduce(
+            (count, path) => count + path.cells.length,
+            0
+          )}
+          /{props.definition.width * props.definition.height} cells covered
+        </Trans>
+      </P>
       <Show when={props.disabled && !solved()}>
         <Notice>
           <Trans>
@@ -73,30 +89,15 @@ function Drawing(props: {
         </Notice>
       </Show>
       <Show when={!solved() && !props.disabled}>
-        <Show
-          when={mode() === 'wide'}
-          fallback={
-            <P variant="caption" tone="secondary">
-              <Trans>Drag from a number to its match.</Trans>
-            </P>
-          }
-        >
-          <KeyHints
-            testId="numberlink-key-hints"
-            lead={t`Drag from a number to its match.`}
-            hints={[
-              { keys: [t`Enter`], label: t`start or end` },
-              { keys: [t`Arrows`], label: t`draw` },
-              { keys: ['Esc'], label: t`cancel` },
-              { keys: ['Del'], label: t`remove` },
-            ]}
-          />
-        </Show>
+        <P variant="caption" tone="secondary">
+          <Trans>Drag from a number to its match.</Trans>
+        </P>
         <NumberlinkRecovery
           definition={props.definition}
           state={props.state}
           onAction={props.onAction}
         />
+        <NumberlinkDrawingHelp />
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}

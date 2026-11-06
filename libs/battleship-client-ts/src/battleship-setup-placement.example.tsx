@@ -44,7 +44,8 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
     await expect(overview.left).toBeGreaterThan(working.right);
     await expect(overview.bottom).toBe(working.bottom);
   } else {
-    await expect(overview.top - working.bottom).toBeLessThanOrEqual(48);
+    await expect(overview.bottom).toBeLessThanOrEqual(working.top);
+    await expect(overview.width).toBeGreaterThanOrEqual(112);
   }
 }
 
@@ -77,4 +78,28 @@ export async function repositionEnlargedShip(
   await expect(
     canvas.getByTestId('custom-game-setup-progress')
   ).toHaveTextContent('All five ships placed');
+}
+
+/** Check the literal overlap recovery before any click can scroll the controls. */
+export async function checkSetupRecovery(
+  root: HTMLElement,
+  previousTop: number
+): Promise<void> {
+  // regression: battleship-placement-recovery-travel
+  const canvas = within(root);
+  const refusal = canvas
+    .getByTestId('custom-game-setup-refusal')
+    .getBoundingClientRect();
+  const rotate = canvas
+    .getByTestId('custom-game-setup-rotate')
+    .getBoundingClientRect();
+  const grid = canvas
+    .getByTestId('custom-game-setup-precision')
+    .getBoundingClientRect();
+  await expect(refusal.top).toBeGreaterThanOrEqual(0);
+  await expect(refusal.bottom).toBeLessThanOrEqual(grid.top);
+  await expect(rotate.bottom).toBeLessThanOrEqual(refusal.top);
+  await expect(grid.top).toBe(previousTop);
+  await expect(grid.bottom).toBeLessThanOrEqual(window.innerHeight);
+  await checkSetupWorkspace(root);
 }

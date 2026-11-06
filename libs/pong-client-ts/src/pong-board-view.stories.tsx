@@ -86,7 +86,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** Before the first serve: the court counts down. */
-export const Countdown: Story = { args: { position: court(0) } };
+export const Countdown: Story = {
+  args: { position: court(0) },
+  play: courtFeedbackGeometry,
+};
 
 /** A rally under way: the person moves the left paddle by keys, drag or slider. */
 export const Rally: Story = {};
@@ -100,16 +103,19 @@ export const MatchPoint: Story = { args: { position: court(440) } };
 /** A player is away: play pauses and the controls wait. */
 export const Paused: Story = {
   args: { simulation: playing(['white'], { paused: true }) },
+  play: courtFeedbackGeometry,
 };
 
 /** The connection dropped: the controls resume when the game returns. */
 export const Reconnecting: Story = {
   args: { simulation: playing(['white'], { stale: true }) },
+  play: courtFeedbackGeometry,
 };
 
 /** Two people on one device: a slider for each paddle. */
 export const TwoPlayersOnOneDevice: Story = {
   args: { simulation: playing(['white', 'black']) },
+  play: courtFeedbackGeometry,
 };
 
 /** A watcher sees the court and no controls. */
@@ -131,6 +137,16 @@ export const Finished: Story = {
 /** A position this app cannot read says so, with the way back. */
 export const Unreadable: Story = {
   args: { position: 'pong:not-a-position', simulation: undefined },
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole('link', {
+      name: 'Back to spaces',
+    });
+    const bounds = link.getBoundingClientRect();
+    await expect(bounds.top).toBeGreaterThanOrEqual(0);
+    await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+    await expect(bounds.height).toBeGreaterThanOrEqual(44);
+    await expect(link).toHaveAttribute('href', '/');
+  },
 };
 
 /** Keyboard input advances the real fixed-step mechanics and repaints the paddle. */
@@ -257,3 +273,26 @@ export const ReturnScoreAndReconnect: Story = {
     ).toBeInTheDocument();
   },
 };
+
+/** Read native geometry before any interaction can scroll a target into view. */
+async function courtFeedbackGeometry({
+  canvasElement,
+}: {
+  canvasElement: HTMLElement;
+}) {
+  const court = within(canvasElement).getByRole('application');
+  const bounds = court.getBoundingClientRect();
+  await expect(bounds.top).toBeGreaterThanOrEqual(0);
+  await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+  const cues = court.querySelectorAll(
+    '[role="status"], [data-testid$="-gesture"]'
+  );
+  for (const cue of cues) {
+    const rect = cue.getBoundingClientRect();
+    await expect(rect.width).toBeGreaterThan(0);
+    await expect(rect.left).toBeGreaterThanOrEqual(bounds.left);
+    await expect(rect.right).toBeLessThanOrEqual(bounds.right);
+    await expect(rect.top).toBeGreaterThanOrEqual(bounds.top);
+    await expect(rect.bottom).toBeLessThanOrEqual(bounds.bottom);
+  }
+}

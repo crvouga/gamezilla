@@ -21,13 +21,7 @@ export function QuoridorBoardTools(props: {
       <For each={props.actions}>
         {(action) => (
           <Button
-            title={
-              action.id === 'mode-h'
-                ? t`Horizontal`
-                : action.id === 'mode-v'
-                  ? t`Vertical`
-                  : action.label
-            }
+            title={action.id === 'mode-move' ? t`Move` : action.label}
             aria-label={action.label}
             disabled={!action.enabled}
             aria-pressed={action.pressed}
@@ -55,11 +49,7 @@ export function QuoridorTargetPicker(props: {
 }): JSX.Element {
   return (
     <Select
-      label={
-        props.tool === 'move'
-          ? t`Move to a coordinate`
-          : t`Preview a wall at a coordinate`
-      }
+      label={props.tool === 'move' ? t`Move to a coordinate` : t`Wall anchor`}
       value={props.selected ?? ''}
       searchable={props.tool !== 'move'}
       triggerDataSet={{ testid: `${props.testId}-precise-target` }}
@@ -70,7 +60,7 @@ export function QuoridorTargetPicker(props: {
           label:
             props.tool === 'move'
               ? cell.label
-              : `${cell.id}: ${quoridorBoundary(`${cell.id}${props.tool}`)}`,
+              : quoridorBoundary(`${cell.id}${props.tool}`),
           dataSet: { testid: `${props.testId}-precise-${cell.id}` },
         }))}
       onValueChange={props.onActivate}

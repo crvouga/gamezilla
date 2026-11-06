@@ -7,7 +7,7 @@ export async function expectHillPassVisible(canvasElement: HTMLElement) {
   const guidance = await canvas.findByTestId('custom-game-board-wall-status');
   await expect(guidance).toHaveTextContent(/pass/i);
   await expect(guidance).not.toHaveTextContent(
-    /choose a marked square|tap a square/i
+    /choose a marked square|move to a marked square|tap a square/i
   );
   for (const mode of ['move', 'h', 'v']) {
     await expect(
@@ -39,4 +39,21 @@ export async function expectHillPassVisible(canvasElement: HTMLElement) {
     }
   }
   return pass;
+}
+
+/** The destination stays named and inside the native viewport before input. */
+export async function expectHillDestinationVisible(canvasElement: HTMLElement) {
+  const goal = within(canvasElement).getByTestId('custom-game-board-action-e5');
+  await expect(goal).toHaveAccessibleName(/Central hill/i);
+  await expect(goal).toHaveTextContent('★');
+  await expect(goal).toHaveAttribute('data-goal', 'true');
+  const view = goal.ownerDocument.defaultView;
+  if (!view) throw new Error('Hill story has no browser window');
+  const bounds = goal.getBoundingClientRect();
+  await expect(bounds.width).toBeGreaterThan(0);
+  await expect(bounds.height).toBeGreaterThan(0);
+  await expect(bounds.left).toBeGreaterThanOrEqual(0);
+  await expect(bounds.top).toBeGreaterThanOrEqual(0);
+  await expect(bounds.right).toBeLessThanOrEqual(view.innerWidth);
+  await expect(bounds.bottom).toBeLessThanOrEqual(view.innerHeight);
 }

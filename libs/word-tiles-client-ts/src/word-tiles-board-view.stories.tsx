@@ -30,6 +30,7 @@ import { wordTilesGameClient } from './word-tiles-game-client';
 import {
   checkCatStatusGeometry,
   checkExchangeGeometry,
+  checkInitialWordWorkspace,
 } from './word-tiles-geometry.example';
 import { matchJourney } from './word-tiles-match-journey.example';
 
@@ -109,11 +110,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A new game: the first word must cover the centre star. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
+};
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
 export const YourTurn: Story = {
   args: { position: MID_GAME, hand: LATER_RACK },
+  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
 };
 
 /** Teal is playing: the rack shows, but nothing can be sent. */
@@ -261,12 +265,15 @@ export const RecallAndRestore: Story = {
     await userEvent.click(cell);
     await expect(cell).toHaveAttribute('data-state', 'tentative');
     await expect(cell).toHaveAccessibleName('C 3, h8, your tentative tile');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-recall')
     );
     await expect(cell).toHaveAttribute('data-state', 'empty');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await userEvent.click(await canvas.findByTestId('custom-game-board-undo'));
     await expect(cell).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await userEvent.click(await canvas.findByTestId('custom-game-board-redo'));
     await expect(cell).toHaveAttribute('data-state', 'empty');
   },
@@ -364,8 +371,11 @@ export const AcceptedPass: Story = {
   render: (args, context) => renderTable(matchJourney(args), context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await expect(
       canvas.getByTestId('custom-game-board-cell-h8')
     ).toHaveAttribute('data-state', 'empty');
@@ -379,6 +389,7 @@ export const AcceptedExchange: Story = {
   render: (args, context) => renderTable(matchJourney(args), context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await userEvent.click(canvas.getByTestId('custom-game-board-exchange'));
     await userEvent.click(canvas.getByTestId('custom-game-board-rack-11'));
     await expect(
@@ -391,7 +402,9 @@ export const AcceptedExchange: Story = {
     await expect(
       canvas.queryByTestId('custom-game-board-rack-11')
     ).not.toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
     await expect(
       canvas.queryByTestId('custom-game-board-exchange-confirm')
     ).not.toBeInTheDocument();

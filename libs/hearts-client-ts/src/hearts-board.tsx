@@ -4,6 +4,7 @@ import {
   passDirection,
 } from '@libs/hearts-shared-ts/hearts-position';
 import { t } from '@lingui/core/macro';
+import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   GAME_SIDES,
@@ -28,13 +29,18 @@ import {
  * The person in each seat, when the screen around the board lends them:
  * drawn once each, so the table moves them, never redraws them.
  */
-function useSeatPlayers(): ((side: GameSide) => JSX.Element) | undefined {
+function useSeatPlayers():
+  | { content: (side: GameSide) => JSX.Element; nameOf: GamePlayerName }
+  | undefined {
   const lend = useGameTableSeat();
   if (lend === undefined) return undefined;
   const players = new Map(
     GAME_SIDES.map((side) => [side, lend(side)] as const)
   );
-  return (side) => players.get(side);
+  return {
+    content: (side) => players.get(side)?.content,
+    nameOf: (side) => players.get(side)?.name ?? null,
+  };
 }
 
 function directionOf(position: string) {
@@ -129,13 +135,17 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
     <CardTable
       label={t`Hearts table`}
       testId={props.testId}
-      seats={tableSeats(props, players)}
+      seats={tableSeats(props, players?.content)}
       center={
         sending()
           ? t`Passing your cards…`
           : awaitingHand()
             ? t`Your cards are on their way.`
-            : tableCenter(props)
+            : tableCenter(
+                props,
+                props.hand === null ? null : props.orientation,
+                (side) => players?.nameOf(side) ?? null
+              )
       }
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}

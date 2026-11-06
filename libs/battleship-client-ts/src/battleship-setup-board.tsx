@@ -109,17 +109,48 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           {t`Your fleet is locked in and can no longer change.`}
         </Notice>
       </Show>
-      <SetupCommands
-        setup={setup}
-        locked={props.locked}
-        testId={props.testId}
-      />
+      <Show when={!enlarged()}>
+        <GameChoiceGrid
+          label={t`Ships`}
+          choices={shipChoices(setup.draft(), props.testId)}
+          value={setup.selected() ?? ''}
+          onChange={(value) => {
+            if (isShipId(value)) setup.choose(value);
+          }}
+          disabled={props.locked}
+        />
+      </Show>
       <SetupPrecision
         setup={setup}
         locked={props.locked}
         testId={props.testId}
         open={enlarged()}
         onOpenChange={setEnlarged}
+        commands={
+          <SetupCommands
+            setup={setup}
+            locked={props.locked}
+            testId={props.testId}
+          />
+        }
+        feedback={
+          <Show
+            when={setup.refusal()}
+            fallback={<P variant="caption">{setup.instruction()}</P>}
+          >
+            {(reason) => (
+              <P
+                variant="caption"
+                tone="destructive"
+                role="alert"
+                testId={`${props.testId}-refusal`}
+              >
+                {reason()}{' '}
+                {t`Choose another bow cell or rotate, then try again.`}
+              </P>
+            )}
+          </Show>
+        }
         overview={
           <CellGridBoard
             label={t`Your waters`}
@@ -141,28 +172,6 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           />
         }
       />
-      <Show when={setup.refusal()}>
-        {(reason) => (
-          <Notice tone="error" dataSet={{ testid: `${props.testId}-refusal` }}>
-            {reason()}{' '}
-            {t`Choose another bow cell or rotate the ship, then try again.`}
-          </Notice>
-        )}
-      </Show>
-      <Show when={!enlarged()}>
-        <GameChoiceGrid
-          label={t`Ships`}
-          choices={shipChoices(setup.draft(), props.testId)}
-          value={setup.selected() ?? ''}
-          onChange={(value) => {
-            if (isShipId(value)) setup.choose(value);
-          }}
-          disabled={props.locked}
-        />
-      </Show>
-      <Show when={!props.locked}>
-        <P variant="caption">{setup.instruction()}</P>
-      </Show>
     </StackVertical>
   );
 }

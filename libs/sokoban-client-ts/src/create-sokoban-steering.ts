@@ -48,6 +48,7 @@ export function createSokobanSteering(args: {
       waiting.length >= QUEUE_LIMIT ? waiting : [...waiting, direction]
     );
   };
+  createEffect(on(args.position, () => setRefusal(null), { defer: true }));
   createEffect(
     on([args.disabled, args.position], ([disabled]) => {
       const [next, ...rest] = queued();

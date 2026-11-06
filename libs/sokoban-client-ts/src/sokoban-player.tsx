@@ -1,6 +1,7 @@
-import type {
-  PuzzlePlayerProps,
-  PuzzlePreviewProps,
+import {
+  type PuzzlePlayerProps,
+  type PuzzlePreviewProps,
+  usePuzzleLibraryNavigation,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import {
@@ -12,6 +13,7 @@ import type {
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -32,6 +34,7 @@ function Steering(props: {
   position: SokobanPosition;
   disabled: boolean;
   onAction: (action: string) => void;
+  onReturnToLibrary: () => void;
 }): JSX.Element {
   const { t } = useLingui();
   const words = useSokobanWords();
@@ -59,6 +62,20 @@ function Steering(props: {
         onDirection={steering.steer}
         onTile={steering.tap}
       />
+      <Show when={complete()}>
+        <Notice tone="success" dataSet={{ testid: 'sokoban-solved' }}>
+          <P role="status" variant="bodyBold">
+            <Trans>All crates are on goals</Trans>
+          </P>
+          <P variant="caption">
+            <Trans>Keep playing or choose another puzzle.</Trans>
+          </P>
+          <Button
+            title={t`Choose another puzzle`}
+            onClick={props.onReturnToLibrary}
+          />
+        </Notice>
+      </Show>
       {/* How to move and how far, beside the movement pad on a phone, so
           the board, the pad and the attempt's undo stay on one screen. */}
       <StackHorizontal gap="md" align="center" justify="between">
@@ -129,6 +146,17 @@ function Steering(props: {
 
 /** Push every crate onto a goal, with keyboard and on-screen movement controls. */
 export function SokobanPlayer(props: PuzzlePlayerProps): JSX.Element {
+  const openLibrary = usePuzzleLibraryNavigation();
+  return <SokobanPlayerView {...props} onReturnToLibrary={openLibrary} />;
+}
+
+/** Board presentation; navigation is supplied by the production player container. */
+export function SokobanPlayerView(
+  props: PuzzlePlayerProps & {
+    readonly onReturnToLibrary: () => void;
+  }
+): JSX.Element {
+  const { t } = useLingui();
   // Primitive inputs: a re-delivered row with the same text keeps the board.
   const definition = createMemo(() => props.definition);
   const state = createMemo(() => props.state);
@@ -146,9 +174,13 @@ export function SokobanPlayer(props: PuzzlePlayerProps): JSX.Element {
       fallback={
         <Notice tone="error">
           <Trans>
-            This puzzle cannot be opened. Return to its overview and choose a
-            saved edition.
+            This puzzle cannot be opened. Choose a saved puzzle from your
+            library.
           </Trans>
+          <Button
+            title={t`Return to puzzles`}
+            onClick={props.onReturnToLibrary}
+          />
         </Notice>
       }
     >
@@ -158,6 +190,7 @@ export function SokobanPlayer(props: PuzzlePlayerProps): JSX.Element {
           position={value().position}
           disabled={props.disabled}
           onAction={props.onAction}
+          onReturnToLibrary={props.onReturnToLibrary}
         />
       )}
     </Show>

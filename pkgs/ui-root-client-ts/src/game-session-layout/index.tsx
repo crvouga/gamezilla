@@ -9,6 +9,10 @@ import styles from './game-session-layout.module.css';
 export type GameSessionLayoutProps = {
   /** The title row: a `GameSessionHeader` (watchers, change game). */
   header?: JSX.Element | undefined;
+  /** Active board composition: use available desktop space without fitting it to metadata. */
+  boardFocus?: boolean | undefined;
+  /** Completed game's headline and existing next actions, before the final board. */
+  outcome?: JSX.Element | undefined;
   notices?: JSX.Element | undefined;
   /**
    * Held at the top of the body as it scrolls, right under the host's top
@@ -89,12 +93,22 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   const header = createScreenSlot(() => props.header);
   const footer = createScreenSlot(() => props.footer);
   const pinned = createScreenSlot(() => props.pinned);
+  const outcome = createScreenSlot(() => props.outcome);
   return (
     <div
-      class="box gap-4 min-w-0 pb-6"
+      class={`box gap-4 min-w-0 pb-6 ${styles['session']}`}
+      data-board-focus={props.boardFocus === true}
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>
+      <Show when={outcome.present()}>
+        <div
+          class={styles['outcome']}
+          {...dataAttrs({ component: 'GameSessionOutcome' })}
+        >
+          {outcome.content()}
+        </div>
+      </Show>
       <Show when={pinned.present()}>
         <div
           class={styles['pinned']}
@@ -155,5 +169,51 @@ export function GameSessionHeader(props: {
         </Show>
       </div>
     </Show>
+  );
+}
+
+/** A full accessible identity with a single visual line in a constrained seat. */
+export function GameSessionIdentity(props: {
+  name: string;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <span
+      class={styles['identity']}
+      title={props.name}
+      {...dataAttrs({ component: 'GameSessionIdentity' })}
+    >
+      {props.children}
+    </span>
+  );
+}
+
+/** A compact band of participant chips; seat details remain in their own chips. */
+export function GameSessionParticipants(props: {
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class={styles['participants']}
+      {...dataAttrs({ component: 'GameSessionParticipants' })}
+    >
+      {props.children}
+    </div>
+  );
+}
+
+/** Keeps the complete name available on a condensed participant chip. */
+export function GameSessionParticipant(props: {
+  name: string;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class="box min-w-0"
+      title={props.name}
+      {...dataAttrs({ component: 'GameSessionParticipant' })}
+    >
+      {props.children}
+    </div>
   );
 }

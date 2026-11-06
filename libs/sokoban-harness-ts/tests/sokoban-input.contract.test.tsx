@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { SokobanEditor } from '@libs/sokoban-client-ts/sokoban-editor';
-import { SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
+import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -36,6 +36,9 @@ function player() {
   const actions: string[] = [];
   const view = render(() => (
     <SokobanPlayer
+      onReturnToLibrary={() => {
+        throw new Error('Unexpected navigation');
+      }}
       definition={CORRIDOR}
       state={state()}
       disabled={disabled()}

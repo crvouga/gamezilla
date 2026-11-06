@@ -103,7 +103,7 @@ test('a finished hill game never announces the next player to move', () => {
   const position = encodeQuoridor(game);
   const frame = quoridorFrame(true);
   for (const viewer of [null, 'white', 'black', 'red', 'blue'] as const)
-    expect(frame.turnStatus(position, viewer, [])).toBeNull();
+    expect(frame.turnStatus(position, viewer, [], () => null)).toBeNull();
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
@@ -134,23 +134,24 @@ test('a finished hill game never announces the next player to move', () => {
 test('the turn line names the pawn to move and where it is heading', () => {
   const classic = encodeQuoridor(newQuoridor('classic'));
   const frame = quoridorFrame(false);
-  expect(frame.turnStatus(classic, 'white', [])).toBe(
+  expect(frame.turnStatus(classic, 'white', [], () => null)).toBe(
     'Your turn. Reach row 9.'
   );
-  expect(frame.turnStatus(classic, 'black', [])).toBe(
+  expect(frame.turnStatus(classic, 'black', [], () => null)).toBe(
     'South red circle to move, heading for row 9.'
   );
   const north = encodeQuoridor(playQuoridor(newQuoridor('classic'), 'e2')!);
-  expect(frame.turnStatus(north, null, [])).toBe(
+  expect(frame.turnStatus(north, null, [], () => null)).toBe(
     'North gold diamond to move, heading for row 1.'
   );
   expect(
     quoridorFrame(true).turnStatus(
       encodeQuoridor(newQuoridor('hill')),
       null,
-      []
+      [],
+      () => null
     )
-  ).toBe('South red circle to move. First to e5 wins.');
+  ).toBe('South red circle to move. First to the center hill (e5) wins.');
 });
 
 test('the tools are the board’s actions, one pressed, and choosing one keeps the board', () => {

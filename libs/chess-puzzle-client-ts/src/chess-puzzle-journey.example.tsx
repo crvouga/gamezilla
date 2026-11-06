@@ -35,6 +35,7 @@ export function ChessPuzzleJourney() {
   return (
     <PuzzlePlayScreenView
       {...PUZZLE_PLAY_STORY_ARGS}
+      boardSizing="width"
       status={wrong() ? 'wrong' : solved() ? 'solved' : 'solving'}
       statusKind={wrong() ? 'failed' : solved() ? 'solved' : 'started'}
       hintStage={hint() ? 'highlight' : 'none'}

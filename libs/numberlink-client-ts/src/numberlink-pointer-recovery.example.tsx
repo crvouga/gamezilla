@@ -1,8 +1,11 @@
 import { expect, fireEvent, userEvent, within } from 'storybook/test';
+import { numberlinkGeometry } from './numberlink-geometry.example';
 
 /** Synthetic touch events exercise production hit testing; capture itself needs a trusted browser pointer. */
 export async function recoverWithPointer(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
+  // regression: numberlink-recovery-displaces-undo
+  const undoTop = await numberlinkGeometry(canvasElement);
   const board = canvas.getByTestId('numberlink-board');
   const capture = board.setPointerCapture;
   const release = board.releasePointerCapture;
@@ -32,9 +35,15 @@ export async function recoverWithPointer(canvasElement: HTMLElement) {
   };
   try {
     // regression: numberlink-phone-path-recovery-undiscoverable
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
     await expect(
       canvas.getByText(/Start again at a number to redraw/)
     ).toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
     await draw([0, 1, 2], true);
     await expect(
       canvas.getByRole('button', { name: 'B1: empty' })
@@ -50,8 +59,12 @@ export async function recoverWithPointer(canvasElement: HTMLElement) {
     await expect(
       canvas.getByRole('button', { name: 'A1: endpoint 1, connected' })
     ).toBeInTheDocument();
+    await expect(await numberlinkGeometry(canvasElement)).toBe(undoTop);
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Remove path 1' })
+      canvas.getByRole('button', { name: 'Remove a path' })
+    );
+    await userEvent.click(
+      within(document.body).getByRole('option', { name: 'Remove path 1' })
     );
     await expect(
       canvas.getByRole('button', { name: 'B1: empty' })

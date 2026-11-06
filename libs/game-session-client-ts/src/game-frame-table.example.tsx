@@ -140,7 +140,8 @@ function tableStatus(props: TableProps): FrameStatus {
   const own = props.presentation.frame.turnStatus(
     props.board.position,
     viewer,
-    props.board.committed
+    props.board.committed,
+    (side) => HOLDERS[side].name
   );
   const turn = props.turn ?? null;
   const ending = props.ending;

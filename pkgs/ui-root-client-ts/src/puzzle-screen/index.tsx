@@ -8,6 +8,8 @@ import { createScreenSlot } from '../screen-slot';
 
 export type PuzzleScreenProps = {
   screenId: string;
+  /** Width-driven boards precede coaching on phones and scroll rather than shrink. */
+  boardSizing?: 'fit' | 'width' | undefined;
   /**
    * The screen's title, as every game screen opens (`ScreenIntro`): above
    * the board and its panel when wide, at the top of a phone's column, so
@@ -88,6 +90,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         class={styles['puzzle']}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
         data-square={ratio() === 1}
+        data-board-sizing={props.boardSizing ?? 'fit'}
         {...dataAttrs({
           component: 'PuzzleScreen',
           ...props.dataSet,

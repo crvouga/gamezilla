@@ -29,8 +29,7 @@ export function quoridorPlayerName(game: Quoridor, player: number): string {
 export function quoridorWallMessage(
   reason: QuoridorWallRefusal | null
 ): string {
-  if (reason === null)
-    return t`Proposed wall. Choose Place wall to confirm, or Cancel.`;
+  if (reason === null) return t`Preview only. Place wall to confirm.`;
   const messages: Readonly<Record<QuoridorWallRefusal, string>> = {
     outside: t`Walls must fit between four squares. Choose an anchor from a1 to h8.`,
     overlap: t`This wall overlaps another wall. Choose a different anchor.`,
@@ -82,7 +81,7 @@ function cellIdentity(
       outlined: false,
     };
   return {
-    glyph: hill ? '◎' : legal ? '·' : '',
+    glyph: hill ? '★' : legal ? '·' : '',
     tone: 'open',
     label: hill ? t`Central hill` : t`Empty`,
     outlined: false,
@@ -97,6 +96,12 @@ function anchorEnabled(
   return tool === 'move' ? legalMove : cell % 9 < 8 && Math.floor(cell / 9) < 8;
 }
 
+function isGoal(game: Quoridor, cell: number): boolean {
+  return game.mode === 'hill'
+    ? cell === 40
+    : Math.floor(cell / 9) === (game.turn === 0 ? 8 : 0);
+}
+
 export function quoridorBoardCells(
   game: Quoridor,
   tool: QuoridorTool,
@@ -104,6 +109,7 @@ export function quoridorBoardCells(
   preview: string | null
 ): readonly CellGridCell[] {
   const legal = pawnMoves(game);
+  const goalName = game.mode === 'hill' ? t`, center goal` : t`, goal edge`;
   const previewWall =
     preview !== null && quoridorWall(preview) !== null ? preview : null;
   const refused =
@@ -114,6 +120,7 @@ export function quoridorBoardCells(
     const move = legal.includes(cell);
     const moving = move && tool === 'move';
     const identity = cellIdentity(game, cell, moving);
+    const goal = isGoal(game, cell);
     const edges = edgesAt(game.walls, cell);
     const previewEdges =
       previewWall === null || tool === 'move'
@@ -122,11 +129,8 @@ export function quoridorBoardCells(
     return {
       ...identity,
       id,
-      goal:
-        game.mode === 'hill'
-          ? cell === 40
-          : Math.floor(cell / 9) === (game.turn === 0 ? 8 : 0),
-      label: `${id}: ${identity.label}${moving ? t`, legal move` : ''}${edges.length > 0 ? t`, wall boundaries: ${edges.join(', ')}` : ''}`,
+      goal,
+      label: `${id}: ${identity.label}${goal ? goalName : ''}${moving ? t`, legal move` : ''}${edges.length > 0 ? t`, wall boundaries: ${edges.join(', ')}` : ''}`,
       emphasis:
         previewEdges.length > 0 && refused
           ? 'refused'
@@ -141,13 +145,8 @@ export function quoridorBoardCells(
   });
 }
 
-/** Name the two boundaries a wall will occupy, in board coordinates. */
+/** Name the anchor edge; the board previews the complete two-square wall. */
 export function quoridorBoundary(action: string): string {
-  const column = action.charAt(0);
-  const right = String.fromCharCode(column.charCodeAt(0) + 1);
-  const row = Number(action[1]);
-  const above = row + 1;
-  return action[2] === 'h'
-    ? t`Between ${column}${row}–${column}${above} and ${right}${row}–${right}${above}.`
-    : t`Between ${column}${row}–${right}${row} and ${column}${above}–${right}${above}.`;
+  const anchor = action.slice(0, 2);
+  return action[2] === 'h' ? t`Above ${anchor}` : t`Right of ${anchor}`;
 }

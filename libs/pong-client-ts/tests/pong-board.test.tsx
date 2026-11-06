@@ -75,7 +75,7 @@ test('a spectator sees the score without either input control and a malformed po
   expect(view.getByText('Right 0')).toBeDefined();
   view.setPosition('pong:broken');
   expect(view.getByRole('alert').textContent).toContain(
-    'Return to the game choices'
+    'Return to your spaces'
   );
 });
 
@@ -88,4 +88,42 @@ test('leaving the board releases held normalized paddle input', () => {
     ['white', { kind: 'direction', direction: -1 }],
     ['white', { kind: 'direction', direction: 0 }],
   ]);
+});
+
+// regression: pong-court-state-and-touch-cues
+// Literal round-4 shared phone state: first serve, both paddles controlled.
+test('serve and pause remain on court with explicit cues for both touch edges', () => {
+  const view = board(['white', 'black']);
+  const court = view.getByRole('application');
+  expect(court.contains(view.getByRole('status'))).toBe(true);
+  expect(view.getByRole('status').textContent).toBe('Serve in 3.');
+  for (const side of ['first', 'second'])
+    expect(view.getByTestId(`pong-${side}-gesture`).textContent).toContain(
+      'Drag'
+    );
+  view.setPaused(true);
+  expect(court.contains(view.getByRole('status'))).toBe(true);
+  expect(view.queryByTestId('pong-first-gesture')).toBeNull();
+  view.setPaused(false);
+  expect(view.getByTestId('pong-first-gesture')).toBeDefined();
+  const state = initialPongState(pongConfig(), () => 0);
+  view.setPosition(
+    pongPositionCodec.encode({
+      ...state,
+      phase: 'playing',
+      countdown: 0,
+      ball: { ...state.ball, vx: pongConfig().ballSpeed },
+    })
+  );
+  expect(view.queryByRole('status')).toBeNull();
+});
+
+// regression: pong-unreadable-recovery-destination
+test('literal unreadable story offers the existing Spaces destination', () => {
+  const view = board([]);
+  view.setPosition('pong:not-a-position');
+  const recovery = view.getByRole('link', { name: 'Back to spaces' });
+  expect(recovery.getAttribute('href')).toBe('/');
+  expect(view.getByRole('alert').contains(recovery)).toBe(true);
+  expect(view.queryByRole('application')).toBeNull();
 });

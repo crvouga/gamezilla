@@ -217,7 +217,7 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
         <SuccessState
           variant="compact"
           dataSet={{ testid: 'content-attempt-complete' }}
-          title={props.playtest ? t`Playtest solved` : t`Puzzle completed`}
+          title={props.playtest ? t`Playtest solved` : t`Completion saved`}
           body={
             props.playtest
               ? t`Return to the builder to validate and publish this puzzle.`

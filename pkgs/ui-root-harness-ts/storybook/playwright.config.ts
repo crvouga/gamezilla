@@ -20,6 +20,8 @@ export default defineConfig({
   testMatch: [
     '**/stories.checks.ts',
     '**/board-round-four.checks.ts',
+    '**/board-round-five.checks.ts',
+    '**/word-tiles-round-five.checks.ts',
     '**/integration.checks.ts',
     '**/font-readiness.checks.ts',
     '**/essentials.checks.ts',

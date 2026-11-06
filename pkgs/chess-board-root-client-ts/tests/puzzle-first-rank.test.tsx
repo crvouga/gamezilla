@@ -30,3 +30,33 @@ test('the puzzle king can move from e1 to f1 with guidance and square fitting en
     board.unmount();
   }
 });
+
+// regression: chess-puzzle-board-shifts-on-outcome
+test('puzzle guidance follows the board, and expanding it retains the same board node', () => {
+  const board = mountBoard({
+    fen: 'rn1qkbnr/ppp2p1p/3p2p1/4p3/2B1P1b1/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 5',
+    showGuidance: true,
+    showCoordinates: true,
+    coordinatePlacement: 'outside-start',
+    guidancePlacement: 'after',
+  });
+  try {
+    const frame = board.host.closest('[data-component="ChessBoardFrame"]');
+    const help = frame?.parentElement?.querySelector('details');
+    if (!frame || !help)
+      throw new Error('Missing puzzle frame or keyboard help');
+    expect(
+      frame.compareDocumentPosition(help) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
+    help.open = true;
+    expect(board.host.closest('[data-component="ChessBoardFrame"]')).toBe(
+      frame
+    );
+    expect(help.textContent).toContain(
+      'Arrows to move, Enter to choose, Escape to cancel.'
+    );
+    expect(board.host.querySelectorAll('button[data-square]').length).toBe(64);
+  } finally {
+    board.unmount();
+  }
+});

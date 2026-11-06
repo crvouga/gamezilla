@@ -1,5 +1,5 @@
 .overview {
-  width: calc(var(--ui-control-size-lg) * 2);
+  width: var(--ui-space-10);
   max-width: 100%;
   aspect-ratio: 1;
   border-radius: var(--ui-radius-sm);
@@ -32,4 +32,10 @@
   stroke-width: 0.4;
   paint-order: stroke;
   filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
+}
+
+@container (min-width: 40rem) {
+  .overview {
+    width: calc(var(--ui-control-size-lg) * 2);
+  }
 }

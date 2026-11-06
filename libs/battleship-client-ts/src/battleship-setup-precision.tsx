@@ -14,6 +14,19 @@ import {
 } from './battleship-copy';
 import type { SetupController } from './battleship-setup-controller';
 
+function shipOptions(setup: SetupController) {
+  return SHIPS.map(({ id, length }) => {
+    const placed = setup.draft().get(id);
+    return {
+      value: id,
+      label:
+        placed === undefined
+          ? `${shipName(id)} · ${length}`
+          : `${shipName(id)} · ${placed.bow.toUpperCase()}, ${orientationName(placed.orientation)}`,
+    };
+  });
+}
+
 /** A magnified bow picker; placement still validates against the full fleet. */
 export function SetupPrecision(props: {
   setup: SetupController;
@@ -22,6 +35,8 @@ export function SetupPrecision(props: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   overview: JSX.Element;
+  commands: JSX.Element;
+  feedback: JSX.Element;
 }): JSX.Element {
   const [area, setArea] = createSignal('nw');
   const left = () => (area().endsWith('w') ? 0 : 5);
@@ -46,10 +61,20 @@ export function SetupPrecision(props: {
         onClick={() => props.onOpenChange(!props.open)}
         dataSet={{ testid: `${props.testId}-enlarge` }}
       />
-      <Show when={props.open} fallback={props.overview}>
+      <Show
+        when={props.open}
+        fallback={
+          <StackVertical gap="sm" align="center">
+            {props.commands}
+            {props.feedback}
+            {props.overview}
+          </StackVertical>
+        }
+      >
         <BattleshipPlacementLayout
           overviewLabel={t`Fleet overview`}
           overview={props.overview}
+          feedback={props.feedback}
           controls={
             <>
               <Select
@@ -61,17 +86,9 @@ export function SetupPrecision(props: {
                   if (isShipId(value)) props.setup.choose(value);
                 }}
                 disabled={props.locked}
-                options={SHIPS.map(({ id, length }) => {
-                  const placed = props.setup.draft().get(id);
-                  return {
-                    value: id,
-                    label:
-                      placed === undefined
-                        ? `${shipName(id)} · ${length}`
-                        : `${shipName(id)} · ${placed.bow.toUpperCase()}, ${orientationName(placed.orientation)}`,
-                  };
-                })}
+                options={shipOptions(props.setup)}
               />
+              {props.commands}
               <Select
                 label={t`Region`}
                 aria-label={t`Placement area`}

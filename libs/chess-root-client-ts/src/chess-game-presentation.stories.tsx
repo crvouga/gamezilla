@@ -115,6 +115,7 @@ export const InCheck: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/Black pieces nearest you/)).toBeVisible();
     await expect(canvas.getByText(/Black is in check/)).toBeVisible();
+    await userEvent.click(canvas.getByText('Keyboard controls'));
     await expect(canvas.getByText(/Escape to cancel/)).toBeVisible();
   },
 };
@@ -165,7 +166,22 @@ export const PromotionChoice: Story = {
     const canvas = within(canvasElement);
     canvas.getByRole('button', { name: 'a7, White pawn' }).focus();
     await userEvent.keyboard('{Enter}{ArrowUp}{Enter}');
-    await expect(canvas.getByRole('button', { name: 'Queen' })).toBeVisible();
+    await expect(
+      canvas.getByRole('heading', { name: 'Promote pawn' })
+    ).toBeVisible();
+    // regression: chess-promotion-silhouette-only
+    // Measure before userEvent.click can scroll a hidden choice into view.
+    for (const name of ['Queen', 'Rook', 'Bishop', 'Knight']) {
+      const choice = canvas.getByRole('button', { name });
+      await expect(choice).toHaveTextContent(name);
+      const rect = choice.getBoundingClientRect();
+      await expect(rect.width).toBeGreaterThanOrEqual(44);
+      await expect(rect.height).toBeGreaterThanOrEqual(44);
+      await expect(rect.left).toBeGreaterThanOrEqual(0);
+      await expect(rect.right).toBeLessThanOrEqual(window.innerWidth);
+      await expect(rect.top).toBeGreaterThanOrEqual(0);
+      await expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
+    }
     await userEvent.click(canvas.getByRole('button', { name: 'Knight' }));
     await expect(
       canvas.getByRole('button', { name: 'a8, White knight' })

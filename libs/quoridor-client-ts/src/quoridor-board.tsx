@@ -16,6 +16,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   type Accessor,
+  createEffect,
   createMemo,
   createSignal,
   type JSX,
@@ -55,12 +56,14 @@ function createBoardSelection(props: BoardViewProps) {
   const [preview, setPreview] = createSignal<string | null>(null);
   const [chosen, setChosen] = createSignal<{
     cell: string;
-    tool: QuoridorTool;
     position: string;
   } | null>(null);
+  createEffect(() => {
+    if (tool() === 'move') setChosen(null);
+  });
   const selected = () => {
     const value = chosen();
-    return value?.tool === tool() && value.position === props.position
+    return tool() !== 'move' && value?.position === props.position
       ? value.cell
       : null;
   };
@@ -85,12 +88,12 @@ function createBoardSelection(props: BoardViewProps) {
     const action = previewAction();
     return action === null
       ? props.state.refusal()
-      : `${quoridorBoundary(action)} ${quoridorWallMessage(wallRefusal(game(), action))}`;
+      : `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action))}`;
   };
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
     if (tool() !== 'move') {
-      setChosen({ cell, tool: tool(), position: props.position });
+      setChosen({ cell, position: props.position });
       return;
     }
     props.state.setRefusal('');
@@ -236,8 +239,8 @@ function WallConfirmation(props: {
 }
 
 function toolGuidance(tool: QuoridorTool): string {
-  if (tool === 'move') return t`Choose a marked square to move your pawn.`;
+  if (tool === 'move') return t`Move to a marked square.`;
   return tool === 'h'
-    ? t`Horizontal wall: choose a square to preview its upper boundary.`
-    : t`Vertical wall: choose a square to preview its right boundary.`;
+    ? t`Tap a square: preview a wall above it.`
+    : t`Tap a square: preview a wall to its right.`;
 }

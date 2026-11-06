@@ -215,3 +215,30 @@
   line-height: var(--ui-leading-sm);
   color: var(--ui-color-text-secondary);
 }
+
+/* The split sits behind trails; its labels occupy their own strip outside play. */
+.touchDivider {
+  fill: none;
+  stroke: var(--ui-color-outline);
+  stroke-width: 0.1;
+  stroke-dasharray: 0.5 0.5;
+  pointer-events: none;
+}
+.touchRegions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-leading-sm);
+  font-weight: var(--ui-font-weight-bold);
+  text-align: center;
+  pointer-events: none;
+}
+.touchRegions > span {
+  padding: var(--ui-space-2);
+  border-top: var(--ui-space-hairline) solid var(--ui-color-outline);
+}
+.touchRegions > span + span {
+  border-left: var(--ui-space-hairline) solid var(--ui-color-outline);
+}

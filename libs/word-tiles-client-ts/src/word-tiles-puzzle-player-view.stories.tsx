@@ -15,6 +15,7 @@ import {
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
 
 const PUZZLE: WordTilesPuzzle = {
@@ -211,9 +212,12 @@ export const ReachTarget: Story = {
 export const EnlargedBlank: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // Check initial controls before userEvent can scroll to its first target.
+    await expectPuzzlePlacementContext(canvasElement);
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enlarge board' })
     );
+    await expectPuzzlePlacementContext(canvasElement);
     await userEvent.click(
       canvas.getByTestId(
         `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[4]}`
@@ -225,5 +229,9 @@ export const EnlargedBlank: Story = {
       canvas.getByTestId('word-tiles-puzzle-cell-j8')
     ).toHaveAccessibleName(/blank as S/);
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-bonus')
+    ).toHaveTextContent('j8: 3L triples this letter. Blank tiles score 0.');
+    await expectPuzzlePlacementContext(canvasElement);
   },
 };

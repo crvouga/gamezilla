@@ -32,6 +32,8 @@ export type WordTileBoardCell = {
 };
 
 export type WordTileBoardProps = {
+  /** Compact fitted board leaves room for rack and puzzle actions; enlarged cells stay full size. */
+  readonly measure?: 'full' | 'compact';
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -162,6 +164,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           <div
             ref={root}
             class={styles['board']}
+            data-measure={props.measure ?? 'full'}
             data-enlarged={enlarged()}
             {...dataAttrs({ component: 'WordTileBoard' })}
             role="group"

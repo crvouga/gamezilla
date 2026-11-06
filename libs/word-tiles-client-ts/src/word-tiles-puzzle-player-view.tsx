@@ -15,7 +15,6 @@ import {
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
 import {
@@ -46,6 +45,7 @@ import {
 } from './word-tiles-cells';
 import { WordTilesBlankChooser } from './word-tiles-panels';
 import { previewCandidate } from './word-tiles-preview';
+import { PuzzleBonusContext } from './word-tiles-puzzle-bonus-context';
 import {
   PuzzlePlacementFeedback,
   UnreadablePuzzle,
@@ -162,14 +162,6 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
         onRetryLexicon={props.onRetryLexicon}
       />
       <Show when={!complete()}>
-        <TileRack
-          label={t`Your rack`}
-          testId="word-tiles-puzzle-rack"
-          tiles={tiles()}
-          onActivate={(id) => {
-            if (editable()) setCandidate((c) => pressTile(c, Number(id)));
-          }}
-        />
         <Show when={editable() && candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId="word-tiles-puzzle"
@@ -209,8 +201,22 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
             onClick={() => setCandidate(recallAll)}
           />
         </StackHorizontal>
+        <TileRack
+          label={t`Your rack`}
+          testId="word-tiles-puzzle-rack"
+          tiles={tiles()}
+          onActivate={(id) => {
+            if (editable()) setCandidate((c) => pressTile(c, Number(id)));
+          }}
+        />
       </Show>
+      <PuzzleBonusContext
+        cell={cells().find(
+          (cell) => parseCell(cell.id) === candidate().placed.at(-1)?.cell
+        )}
+      />
       <WordTileBoard
+        measure="compact"
         label={t`Puzzle board, fifteen columns and fifteen rows`}
         testId="word-tiles-puzzle"
         columnLabels={COLUMN_LABELS}
@@ -223,9 +229,6 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
             setCandidate((c) => pressCell(c, cell));
         }}
       />
-      <P variant="caption">
-        {t`Bonus squares: 2L doubles a letter, 3L triples a letter, 2W doubles the word, 3W triples the word.`}
-      </P>
     </StackVertical>
   );
 }

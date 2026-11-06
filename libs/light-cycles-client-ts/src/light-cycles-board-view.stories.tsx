@@ -29,7 +29,7 @@ import {
   createLightCyclesJourney,
   type LightCyclesJourney,
 } from './light-cycles-journey.example';
-import { sharedSwipe } from './light-cycles-swipe.example';
+import { sharedSwipe, sharedTouchBounds } from './light-cycles-swipe.example';
 
 const TRIO = LIGHT_CYCLES_SEATS[3];
 const codec = lightCyclesPositionCodec(3);
@@ -155,11 +155,25 @@ export const Watching: Story = {
 /** Two riders on one device: one pad each. */
 export const TwoRidersOnOneDevice: Story = {
   args: { simulation: riding(['white', 'black']) },
+  play: async ({ canvasElement }) => sharedTouchBounds(canvasElement),
 };
 
 /** A position this app cannot read says so, with the way back. */
 export const Unreadable: Story = {
   args: { position: 'light-cycles-3:not-a-position', simulation: undefined },
+  play: async ({ canvasElement }) => {
+    // regression: light-cycles-unreadable-no-recovery
+    const link = within(canvasElement).getByRole('link', {
+      name: 'Check app version',
+    });
+    const bounds = link.getBoundingClientRect();
+    await expect(bounds.top).toBeGreaterThanOrEqual(0);
+    await expect(bounds.bottom).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.defaultView!.innerHeight
+    );
+    await expect(link).toHaveAttribute('href', '/more/about');
+    await expect(link).toBeVisible();
+  },
 };
 
 /** Inputs advance the real deterministic simulation and repaint the production board. */
@@ -371,6 +385,7 @@ export const SharedSwipe: Story = {
         right.getBoundingClientRect().left
       );
     }
+    await sharedTouchBounds(canvasElement);
     await sharedSwipe(canvasElement);
   },
 };

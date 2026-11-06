@@ -295,41 +295,61 @@ test("a narrow seat's name is set smaller and wraps, never cut", () => {
   expect(name).not.toMatch(/white-space:\s*nowrap|text-overflow/);
 });
 
-// regression: hearts-phone-table-crowds-hand — on a 390px phone the table's
-// four plates stood about 360px tall (the seats above and below each a
-// stack of person over facts), squeezing the hand and its Pass button to
-// the screen's bottom edge. A phone's table sets the seats above and below
-// as one strip each, the person beside their facts, and every plate a step
-// shallower; a wide table keeps its plates as they were.
+// regression: hearts-phone-table-crowds-hand
+// regression: hearts-phone-player-stack-crowds-hand
+// The literal 390px table used four tall rows. Two adjacent owner/card pairs
+// per row save height without sending the reader to a separate compass.
 test("a phone's table pairs compact named seat rows with their trick cards", () => {
   const sheet = css('card-table/card-table.module.css');
-  // The table's own width decides, never a seat's (a seat is a container
-  // too, and every seat is narrower than 30rem, even on a wide table).
   expect(rule(sheet, '.root {')).toMatch(
     /container:\s*card-table \/ inline-size;/
   );
   const start = sheet.indexOf('@container card-table not (min-width: 30rem) {');
   expect(start).toBeGreaterThan(-1);
   const phone = sheet.slice(start, sheet.indexOf('\n}\n', start));
-  const strip = rule(phone, '.seat[data-player="true"][data-position] {');
-  expect(strip).toMatch(/padding:\s*var\(--ui-space-1\);/);
-  expect(strip).toMatch(/flex-direction:\s*row;/);
-  expect(rule(phone, '.seat[data-position] {')).toMatch(/max-width:\s*none;/);
-  // The facts stack beside the person, never under it.
+  const seat = rule(phone, '.seat[data-position] {');
+  expect(seat).toMatch(/padding:\s*var\(--ui-space-1\);/);
+  expect(seat).toMatch(/max-width:\s*none;/);
+  // Names stay above their own wrapping facts, making room for the adjacent card.
   expect(rule(phone, '.seat[data-player="true"] .facts {')).toMatch(
-    /flex: 0 0 auto;\s*flex-direction: column;/
+    /flex-direction:\s*row;/
   );
-  for (const [index, position] of [
-    'top',
-    'left',
-    'right',
-    'bottom',
+  for (const [index, positions] of [
+    ['top', 'right'],
+    ['left', 'bottom'],
   ].entries()) {
-    const paired = rule(
+    const selectors = positions
+      .flatMap((position) => [
+        `.seat[data-position="${position}"]`,
+        `.slot[data-position="${position}"]`,
+      ])
+      .join(',\n  ');
+    expect(rule(phone, `${selectors} {`)).toContain(`grid-row: ${index + 1};`);
+  }
+  // Both pairs preserve immediate name-to-card adjacency, separated by a gutter.
+  expect(rule(phone, '.seat[data-trick="true"] {')).toContain(
+    'grid-column: 1;'
+  );
+  expect(rule(phone, '.slot[data-position] {')).toContain('grid-column: 2;');
+  expect(
+    rule(phone, '.seat[data-trick="true"][data-position="right"],')
+  ).toContain('grid-column: 4;');
+  expect(
+    rule(
       phone,
-      `.seat[data-position="${position}"],\n  .slot[data-position="${position}"] {`
+      '.slot[data-position="right"],\n  .slot[data-position="bottom"] {'
+    )
+  ).toContain('grid-column: 5;');
+  example();
+  for (const position of ['top', 'left', 'right', 'bottom']) {
+    const owner = at(`example-seat-${position}`);
+    const slot = at('example-card-table').querySelector(
+      `[role="group"][data-position="${position}"]`
     );
-    expect(paired).toContain(`grid-row: ${index + 1};`);
+    expect(slot?.getAttribute('aria-label')).toBe(
+      owner.getAttribute('aria-label')
+    );
+    expect(owner.getAttribute('data-position')).toBe(position);
   }
   // The hand keeps its cards side by side and whole.
   expect(rule(sheet, '.hand > .card {')).not.toMatch(/rotate|--fan/);

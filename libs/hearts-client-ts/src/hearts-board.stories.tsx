@@ -154,6 +154,12 @@ export const YourTurnToPlay: Story = {
         '[role="toolbar"] button'
       ),
     ];
+    const view = canvasElement.ownerDocument.defaultView;
+    if (!view) throw new Error('Missing Hearts viewport');
+    assertHeartsHandBounds(
+      cards.map((card) => card.getBoundingClientRect()),
+      { width: view.innerWidth, height: view.innerHeight }
+    );
     const legal = cards.find(
       (card) => card.getAttribute('aria-disabled') === 'false'
     );
@@ -161,8 +167,17 @@ export const YourTurnToPlay: Story = {
       (card) => card.getAttribute('data-refused') === 'true'
     );
     if (!legal || !refused) throw new Error('Expected legal and refused cards');
-    await expect(getComputedStyle(legal).boxShadow).toBe(
-      getComputedStyle(refused).boxShadow
+    // regression: hearts-unavailable-cards-subtle
+    await expect(getComputedStyle(refused).boxShadow).toBe('none');
+    await expect(getComputedStyle(legal).boxShadow).not.toBe('none');
+    await expect(legal).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      getComputedStyle(refused, '::after').backgroundImage
+    ).toContain('repeating-linear-gradient');
+    const marker = refused.querySelector('[aria-hidden="true"]:last-child');
+    if (!marker) throw new Error('Missing unavailable marker');
+    await expect(marker.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      16
     );
     await expect(getComputedStyle(legal).borderStyle).toBe('solid');
     await expect(getComputedStyle(refused).borderStyle).toBe('dashed');

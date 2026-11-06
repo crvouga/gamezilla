@@ -18,11 +18,11 @@ const POSITION = lightCyclesPositionCodec(3).encode(
   initialLightCyclesState(lightCyclesConfig(), ['white', 'black', 'red'])
 );
 
-function mount(width: number): void {
+function mount(width: number, position = POSITION): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
       <LightCyclesBoardView
-        position={POSITION}
+        position={position}
         orientation="white"
         interactive={false}
         sound={false}
@@ -191,4 +191,16 @@ test("a trail paint's swatch matches its rider's trail token", () => {
       `bg-game-light-cycles-${token ?? ''}`
     );
   });
+});
+
+// regression: light-cycles-unreadable-no-recovery
+test('the literal unreadable trio position offers existing app version recovery', () => {
+  mount(390, 'light-cycles-3:not-a-position');
+  expect(
+    screen.getByRole('link', { name: 'Check app version' }).getAttribute('href')
+  ).toBe('/more/about');
+  expect(screen.getByRole('alert').textContent).toContain(
+    'then reopen this game'
+  );
+  expect(screen.queryByRole('application')).toBeNull();
 });
