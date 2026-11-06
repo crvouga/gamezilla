@@ -291,3 +291,21 @@ test('screens-puzzles-chess-play--solving regression chess-puzzle-guidance-clips
 }) => {
   await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
 });
+
+// regression: battleship-bounded-targets-under-touch-size
+test('screens-games-battleship-setup--enlarged-placement regression battleship-bounded-targets-under-touch-size', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    390
+  );
+});
+
+// regression: chess-puzzle-bounds-includes-square-layout
+test('screens-puzzles-chess-play--solving regression chess-puzzle-bounds-includes-square-layout', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+});

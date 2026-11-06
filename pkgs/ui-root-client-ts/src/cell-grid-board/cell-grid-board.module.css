@@ -57,6 +57,18 @@
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
+/* Include the coordinate gutter, gaps and padding in the bounded target size. */
+.board[data-fill="false"][data-board-theme="battleship"] {
+  grid-template-columns:
+    var(--ui-space-6)
+    repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  max-width: calc(
+    var(--cell-grid-columns) *
+    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+    var(--ui-space-6) +
+    var(--ui-space-4)
+  );
+}
 /* A game's board fills its column, edge to edge with its seats. */
 .board[data-fill="true"] {
   max-width: none;

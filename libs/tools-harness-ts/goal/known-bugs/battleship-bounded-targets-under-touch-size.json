@@ -1,0 +1,4 @@
+{
+  "summary": "The bounded five-column Battleship grid omitted its coordinate gutter, gaps and padding from its width budget, producing 40.359375px targets instead of 44px. The literal enlarged setup browser story asserts bounds and completes all five ships.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

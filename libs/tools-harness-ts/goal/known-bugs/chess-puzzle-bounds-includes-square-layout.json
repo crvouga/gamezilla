@@ -1,0 +1,4 @@
+{
+  "summary": "The literal chess puzzle bounds verification counted the square layout marker as a 65th playing cell. Scope the selector to square buttons while preserving all 64 cell, clipping, target and first-rank interaction assertions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

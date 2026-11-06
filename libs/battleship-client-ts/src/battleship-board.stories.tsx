@@ -261,6 +261,7 @@ export const CorrectTargetBeforeFiring: Story = {
       .getByTestId('custom-game-board-target-j10')
       .getBoundingClientRect();
     await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
+    await expect(targetBounds.width).toBeLessThanOrEqual(64);
     await expect(targetBounds.height).toBeGreaterThanOrEqual(44);
     await userEvent.pointer([
       {

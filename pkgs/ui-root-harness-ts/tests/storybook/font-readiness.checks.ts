@@ -5,15 +5,18 @@ import { expect, test } from '@playwright/test';
 import { captureFontSchedule } from './font-capture';
 
 const cases = [
-  ['board--recall-and-restore', 'light'],
-  ['board--recover-and-submit', 'dark'],
-  ['puzzle--enlarged-blank', 'light'],
-  ['puzzle--enlarged-blank', 'dark'],
+  ['board--recall-and-restore', 'light', 1440],
+  ['board--recover-and-submit', 'dark', 1440],
+  ['puzzle--enlarged-blank', 'light', 1440],
+  ['puzzle--enlarged-blank', 'dark', 1440],
+  ['board--accepted-exchange', 'dark', 390],
+  ['board--accepted-exchange', 'light', 390],
+  ['board--accepted-pass', 'light', 390],
 ] as const;
 
 // regression: storybook-word-tiles-font-focus-scroll-race
-for (const [story, theme] of cases) {
-  test(`storybook integration: font readiness ${story} ${theme} 1440x844`, async ({
+for (const [story, theme, width] of cases) {
+  test(`storybook integration: font readiness ${story} ${theme} ${width}x844`, async ({
     context,
   }, info) => {
     const results = [];
@@ -21,7 +24,7 @@ for (const [story, theme] of cases) {
       results.push(
         await captureFontSchedule(
           await context.newPage(),
-          { story, theme, held },
+          { story, theme, held, width },
           info
         )
       );
@@ -49,7 +52,7 @@ for (const [story, theme] of cases) {
       'ui-root-harness-ts',
       '.cache',
       'font-readiness',
-      `${story}-${theme}.png`,
+      `${story}-${theme}-${width}.png`,
     ];
     await mkdir(dirname(info.snapshotPath(...name)), { recursive: true });
     await writeFile(info.snapshotPath(...name), ready.png);

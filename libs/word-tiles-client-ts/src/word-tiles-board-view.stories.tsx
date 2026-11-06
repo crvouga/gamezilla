@@ -24,6 +24,7 @@ import {
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { checkEnlargedCoordinates } from './word-tiles-coordinate.checks';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
 import { matchJourney } from './word-tiles-match-journey.example';
@@ -385,4 +386,9 @@ export const AcceptedExchange: Story = {
     ).not.toBeInTheDocument();
     await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
   },
+};
+
+/** Sticky coordinates and the focused target remain clear at centre and all edges. */
+export const EnlargedCoordinates: Story = {
+  play: async ({ canvasElement }) => checkEnlargedCoordinates(canvasElement),
 };

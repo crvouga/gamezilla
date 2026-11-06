@@ -2,7 +2,9 @@ import { expect, userEvent, within } from 'storybook/test';
 
 /** Assert before any input can scroll a clipped square into view. */
 export async function assertPuzzleBounds(canvasElement: HTMLElement) {
-  const cells = canvasElement.querySelectorAll<HTMLElement>('[data-square]');
+  const cells = canvasElement.querySelectorAll<HTMLElement>(
+    'button[data-square]'
+  );
   await expect(cells.length).toBe(64);
   for (const cell of cells) {
     const bounds = cell.getBoundingClientRect();

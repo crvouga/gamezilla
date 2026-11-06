@@ -38,7 +38,7 @@ export function BattleshipTargetGrid(props: {
   return (
     <StackVertical gap="sm">
       <CellGridBoard
-        fill
+        fill={!large()}
         label={props.label}
         testId={`${props.testId}-target-grid`}
         cellTestId={(cell) => `${props.testId}-target-${cell}`}
