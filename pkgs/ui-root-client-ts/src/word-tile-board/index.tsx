@@ -111,6 +111,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           ref={setViewport}
           class={styles['viewport']}
           data-enlarged={enlarged()}
+          data-measure={props.measure ?? 'full'}
           role="region"
           aria-label={t`Scrollable word board`}
         >

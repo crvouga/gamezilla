@@ -24,6 +24,12 @@
   gap: var(--ui-space-1);
 }
 .letters button {
+  padding-inline: var(--ui-space-1);
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
+}
+
+/* The letter face already supplies the complete, disjoint 44px target. */
+.letters button::before {
+  inset: 0;
 }

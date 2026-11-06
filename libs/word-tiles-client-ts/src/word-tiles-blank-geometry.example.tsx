@@ -6,6 +6,7 @@ export async function expectBlankTargets(
   canvasElement: HTMLElement,
   testId: string
 ) {
+  // regression: word-tiles-blank-letter-content-overflow
   // regression: word-tiles-blank-small-targets
   const canvas = within(canvasElement);
   const boxes: DOMRect[] = [];

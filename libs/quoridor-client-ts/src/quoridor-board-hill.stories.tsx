@@ -270,6 +270,7 @@ export const FourPlayerRound: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/Preview only. Place wall to confirm/);
+    // regression: quoridor-hill-four-seat-confirm-below-fold
     await expectQuoridorWallPreview(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
     await expect(
@@ -287,14 +288,17 @@ export const FourPlayerRound: Story = {
       await canvas.findByTestId('custom-game-board-action-a3')
     ).toBeEnabled();
     const moves = canvasElement.querySelectorAll<HTMLElement>(
-      '[data-component="GameMoveList"][data-layout="table"] button'
+      '[data-component="GameMoveList"] button'
     );
     await expect(moves.length).toBeGreaterThan(0);
     for (const move of moves) {
       const view = move.ownerDocument.defaultView;
       if (!view) throw new Error('Missing record window');
-      await expect(move.getBoundingClientRect().height).toBeLessThanOrEqual(
-        Number.parseFloat(view.getComputedStyle(move).lineHeight) + 8
+      const text = move.ownerDocument.createRange();
+      text.selectNodeContents(move);
+      await expect(text.getClientRects()).toHaveLength(1);
+      await expect(text.getBoundingClientRect().width).toBeLessThanOrEqual(
+        move.clientWidth
       );
       await expect(move.scrollWidth).toBeLessThanOrEqual(move.clientWidth);
     }

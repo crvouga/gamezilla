@@ -204,6 +204,10 @@
     height: calc(var(--ui-control-size-lg) * 8);
     max-height: 56dvh;
   }
+  /* Compact workbenches retain space for the complete blank chooser. */
+  .viewport[data-enlarged="true"][data-measure="compact"] {
+    height: calc(var(--ui-control-size-lg) * 7);
+  }
 }
 
 /* A complete fitted puzzle board alongside its rack and target at desktop height. */

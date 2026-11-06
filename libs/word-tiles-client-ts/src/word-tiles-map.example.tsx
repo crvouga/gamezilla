@@ -18,7 +18,9 @@ export async function expectBoardMap(
   const page = within(canvasElement.ownerDocument.body);
   const map = page.getByTestId(`${testId}-map`);
   // Native bounds before clicking can scroll the map or its enclosing dialog.
-  await assertClear(map);
+  const viewport = map.parentElement;
+  if (!viewport) throw new Error('Missing map viewport');
+  await assertClear(viewport);
   await expect(map.getBoundingClientRect().width).toBeGreaterThanOrEqual(280);
   await expect(map.querySelectorAll('[data-cell]')).toHaveLength(225);
   const intersection = page.getByTestId(`${testId}-map-cell-h8`);

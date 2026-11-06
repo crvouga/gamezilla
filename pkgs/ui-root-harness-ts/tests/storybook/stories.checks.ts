@@ -368,3 +368,36 @@ test('screens-games-light-cycles-arena--quad-steering regression light-cycles-qu
     390
   );
 });
+
+// regression: quoridor-hill-four-seat-confirm-below-fold
+test('screens-games-quoridor-hill--four-player-round regression quoridor-hill-four-seat-confirm-below-fold', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--four-player-round',
+    390
+  );
+});
+
+// regression: word-tiles-blank-letter-content-overflow
+test('screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-letter-content-overflow', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--assign-a-blank',
+    390
+  );
+});
+
+// regression: word-tiles-blank-chooser-pushes-precision-below-fold
+test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blank-chooser-pushes-precision-below-fold', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    1440
+  );
+});

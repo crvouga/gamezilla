@@ -35,15 +35,13 @@
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: var(--ui-space-1);
 }
-.participants [data-active] :global(.textLabel) {
+.participants [data-active] :global(.textLabel),
+.participants [data-component="GameSeatStat"] {
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
 @container game-column (max-width: 879px) {
-  .participants > [role="list"]:has(> :nth-child(4):last-child) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .participants [data-active] > :is(div, button) {
     padding-inline: var(--ui-space-1);
   }
