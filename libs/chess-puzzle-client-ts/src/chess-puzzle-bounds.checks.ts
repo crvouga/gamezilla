@@ -45,7 +45,15 @@ export async function checkPuzzleFirstRank(canvasElement: HTMLElement) {
   await assertPuzzleBounds(canvasElement);
   const canvas = within(canvasElement);
   const king = canvas.getByRole('button', { name: /^e1, White king/ });
-  await userEvent.click(king);
+  const bounds = king.getBoundingClientRect();
+  await userEvent.pointer({
+    target: canvas.getByRole('application', { name: /Chess board/ }),
+    coords: {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    },
+    keys: '[MouseLeft]',
+  });
   await expect(king).toHaveAttribute('aria-pressed', 'true');
   await expect(
     canvas.getByRole('button', { name: /^f1, empty, Legal destination/ })

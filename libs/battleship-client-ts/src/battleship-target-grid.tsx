@@ -36,7 +36,7 @@ export function BattleshipTargetGrid(props: {
         rows().includes(cell.id.slice(1))
     );
   return (
-    <StackVertical gap="sm">
+    <StackVertical gap="sm" width="full">
       <CellGridBoard
         fill={!large()}
         label={props.label}

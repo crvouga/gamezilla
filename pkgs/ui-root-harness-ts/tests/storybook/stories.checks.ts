@@ -309,3 +309,21 @@ test('screens-puzzles-chess-play--solving regression chess-puzzle-bounds-include
 }) => {
   await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
 });
+
+// regression: battleship-enlarged-targets-shrink-to-toolbar
+test('screens-games-battleship-board--correct-target-before-firing regression battleship-enlarged-targets-shrink-to-toolbar', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-board--correct-target-before-firing',
+    390
+  );
+});
+
+// regression: chess-puzzle-story-pointer-target
+test('screens-puzzles-chess-play--solving regression chess-puzzle-story-pointer-target', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+});
