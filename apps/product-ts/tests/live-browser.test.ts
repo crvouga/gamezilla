@@ -11,7 +11,16 @@ import {
   openDevice,
   waitForCachedShell,
 } from '@apps/product-ts/live-browser';
+import {
+  createJourneyStepRecorder,
+  type JourneyStepView,
+} from '@apps/product-ts/live-journey-step-evidence';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import {
+  readObjectBytes,
+  readUtf8,
+} from '@pkgs/object-store-root-shared-ts/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 
 test('transport evidence keeps protocol failures without copying credentials or query strings', () => {
   const listeners = new Map<string, (event: { data: unknown }) => void>();
@@ -186,4 +195,89 @@ test('an unavailable offline shell fails the readiness check', async () => {
   await expect(waitForCachedShell(view)).rejects.toThrow(
     'no service worker support'
   );
+});
+
+const SUCCESS_STEP = { keyword: 'When ', text: 'the person opens a space' };
+
+function successfulStepView(): JourneyStepView {
+  return {
+    evaluate: async () => 'https://example.test/space/one?token=secret#secret',
+    screenshot: async () => new Uint8Array([137, 80, 78, 71]),
+  };
+}
+
+test('successful journey step evidence follows completed actions and preserves ordered screenshots', async () => {
+  const store = new ObjectStoreImplInMemory();
+  let shown: JourneyStepView | null = null;
+  const record = createJourneyStepRecorder('space.open', store, () => shown);
+  expect(await record(SUCCESS_STEP, async () => 'before browser')).toBe(
+    'before browser'
+  );
+  const result = await record(SUCCESS_STEP, async () => {
+    shown = successfulStepView();
+    return 'completed';
+  });
+  expect(result).toBe('completed');
+  expect(JSON.parse((await readUtf8(store, 'space.open/steps/0001.json'))!))
+    .toEqual({
+      scenarioId: 'space.open',
+      index: 1,
+      action: 'When the person opens a space',
+      status: 'passed',
+      url: null,
+      screenshot: null,
+    });
+  expect(JSON.parse((await readUtf8(store, 'space.open/steps/0002.json'))!))
+    .toEqual({
+      scenarioId: 'space.open',
+      index: 2,
+      action: 'When the person opens a space',
+      status: 'passed',
+      url: 'https://example.test/space/one',
+      screenshot: 'space.open/steps/0002.png',
+    });
+  expect(await readObjectBytes(store, 'space.open/steps/0002.png')).toEqual(
+    new Uint8Array([137, 80, 78, 71])
+  );
+  const other = createJourneyStepRecorder('space.leave', store, () => shown);
+  await other(SUCCESS_STEP, async () => undefined);
+  expect(await readUtf8(store, 'space.leave/steps/0001.json')).not.toBeNull();
+});
+
+test('successful journey step evidence is inert when disabled and never captures a failed step', async () => {
+  const cause = new Error('step failed');
+  const unexpectedView = () => {
+    throw new Error('must not read browser');
+  };
+  const disabled = createJourneyStepRecorder('disabled', null, unexpectedView);
+  expect(await disabled(SUCCESS_STEP, async () => 42)).toBe(42);
+  await expect(
+    disabled(SUCCESS_STEP, async () => {
+      throw cause;
+    })
+  ).rejects.toBe(cause);
+  const store = new ObjectStoreImplInMemory();
+  const enabled = createJourneyStepRecorder('failed', store, unexpectedView);
+  await expect(
+    enabled(SUCCESS_STEP, async () => {
+      throw cause;
+    })
+  ).rejects.toBe(cause);
+  expect(await readUtf8(store, 'failed/steps/0001.json')).toBeNull();
+  expect(await readObjectBytes(store, 'failed/steps/0001.png')).toBeNull();
+});
+
+test('successful journey step evidence cannot claim a screenshot when capture fails', async () => {
+  const store = new ObjectStoreImplInMemory();
+  const captureFailure = new Error('browser capture unavailable');
+  const record = createJourneyStepRecorder('capture', store, () => ({
+    ...successfulStepView(),
+    screenshot: async () => {
+      throw captureFailure;
+    },
+  }));
+  await expect(record(SUCCESS_STEP, async () => undefined)).rejects.toBe(
+    captureFailure
+  );
+  expect(await readUtf8(store, 'capture/steps/0001.json')).toBeNull();
 });

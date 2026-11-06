@@ -3326,7 +3326,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3338,7 +3338,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3350,7 +3350,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3362,7 +3362,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
