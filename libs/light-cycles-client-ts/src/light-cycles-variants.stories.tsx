@@ -57,7 +57,7 @@ const meta = {
   title: 'Screens/Games/Light Cycles/Duel and Quad',
   component: LightCyclesBoardView,
   tags: ['autodocs'],
-  render: renderMode(2),
+  render: (args, context) => renderMode(2)(args, context),
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
@@ -90,19 +90,19 @@ export const DuelWatching: Story = {
 
 /** Four riders wait at distinct starting cells, with all four seats visible. */
 export const QuadCountdown: Story = {
-  render: renderMode(4),
+  render: (args, context) => renderMode(4)(args, context),
   args: { position: position(4, 0) },
 };
 
 /** The four-rider game retains the whole arena and all seat labels. */
 export const QuadRiding: Story = {
-  render: renderMode(4),
+  render: (args, context) => renderMode(4)(args, context),
   args: { position: position(4, 120) },
 };
 
 /** A watcher follows all four riders without being offered a steering pad. */
 export const QuadWatching: Story = {
-  render: renderMode(4),
+  render: (args, context) => renderMode(4)(args, context),
   args: { position: position(4, 120), simulation: undefined },
   parameters: { table: { viewer: null } },
 };

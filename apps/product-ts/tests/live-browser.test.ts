@@ -218,24 +218,26 @@ test('successful journey step evidence follows completed actions and preserves o
     return 'completed';
   });
   expect(result).toBe('completed');
-  expect(JSON.parse((await readUtf8(store, 'space.open/steps/0001.json'))!))
-    .toEqual({
-      scenarioId: 'space.open',
-      index: 1,
-      action: 'When the person opens a space',
-      status: 'passed',
-      url: null,
-      screenshot: null,
-    });
-  expect(JSON.parse((await readUtf8(store, 'space.open/steps/0002.json'))!))
-    .toEqual({
-      scenarioId: 'space.open',
-      index: 2,
-      action: 'When the person opens a space',
-      status: 'passed',
-      url: 'https://example.test/space/one',
-      screenshot: 'space.open/steps/0002.png',
-    });
+  expect(
+    JSON.parse((await readUtf8(store, 'space.open/steps/0001.json'))!)
+  ).toEqual({
+    scenarioId: 'space.open',
+    index: 1,
+    action: 'When the person opens a space',
+    status: 'passed',
+    url: null,
+    screenshot: null,
+  });
+  expect(
+    JSON.parse((await readUtf8(store, 'space.open/steps/0002.json'))!)
+  ).toEqual({
+    scenarioId: 'space.open',
+    index: 2,
+    action: 'When the person opens a space',
+    status: 'passed',
+    url: 'https://example.test/space/one',
+    screenshot: 'space.open/steps/0002.png',
+  });
   expect(await readObjectBytes(store, 'space.open/steps/0002.png')).toEqual(
     new Uint8Array([137, 80, 78, 71])
   );

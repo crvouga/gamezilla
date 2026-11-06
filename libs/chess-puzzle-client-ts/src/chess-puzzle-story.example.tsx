@@ -3,11 +3,7 @@
  * from the app around it, and the platform's puzzle positions drawn on
  * chess's own puzzle board. Production never imports this module.
  */
-import {
-  PuzzlePlayScreenView,
-  type PuzzlePlayScreenViewProps,
-  type StoryPuzzleBoardProps,
-} from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
+import type { StoryPuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import {
   AudioPlaybackProvider,
@@ -68,16 +64,4 @@ export function StoryChessPuzzleBoard(
       lastAction={props.lastAction ?? null}
     />
   );
-}
-
-/**
- * Puzzle play, as chess's puzzle feed shows it: the platform's play screen
- * (the feed strip, the coach with whose move it is, the board well, the
- * move list and the actions, beside the board in one panel when wide) with
- * chess's own puzzle board in its well.
- */
-export function StoryChessPuzzlePlayScreen(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
-  return <PuzzlePlayScreenView {...props} />;
 }
