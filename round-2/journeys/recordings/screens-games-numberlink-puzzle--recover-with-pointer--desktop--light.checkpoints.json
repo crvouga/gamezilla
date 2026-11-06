@@ -1,0 +1,297 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [4] toBeInTheDocument"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [5] pointerDown"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [6] pointerMove"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [7] pointerMove"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [8] pointerCancel"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [11] toBeInTheDocument"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--005.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [12] pointerDown"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--006.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [13] pointerMove"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--007.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [14] pointerMove"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--008.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [15] pointerMove"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--009.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [16] pointerUp"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--010.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [19] toBeInTheDocument"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--011.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [22] toBeInTheDocument"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--012.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [23] pointerDown"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--013.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [24] pointerMove"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--014.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [25] pointerMove"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--015.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [26] pointerMove"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--016.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [27] pointerMove"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--017.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [28] pointerMove"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--018.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [29] pointerUp"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--019.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [32] toBeInTheDocument"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--020.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [34] click"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--021.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [37] toBeInTheDocument"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--022.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [40] toBeInTheDocument"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--023.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [41] pointerDown"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--024.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [42] pointerMove"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--025.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [43] pointerMove"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--026.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [44] pointerMove"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--027.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [45] pointerMove"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--028.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [46] pointerMove"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--029.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [47] pointerUp"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--030.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [50] toBeInTheDocument"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--031.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--032.png"
+  }
+]

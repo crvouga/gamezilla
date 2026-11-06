@@ -1,0 +1,67 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/light-cycles-client-ts, @libs/word-tiles-client-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 5 packages
+   • Remote caching disabled, using shared worktree cache
+
+@libs/light-cycles-client-ts:lint: cache miss, executing 8dab714f7255c1ee
+@libs/light-cycles-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@libs/light-cycles-client-ts:lint: libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+@libs/light-cycles-client-ts:lint: 
+@libs/light-cycles-client-ts:lint:   × Sort these imports.
+@libs/light-cycles-client-ts:lint:   
+@libs/light-cycles-client-ts:lint:    > 1 │ import {
+@libs/light-cycles-client-ts:lint:        │ ^^^^^^^^
+@libs/light-cycles-client-ts:lint:    > 2 │   BOARD_CONTROLS_EXCLUDE,
+@libs/light-cycles-client-ts:lint:    > 3 │   boardArgs,
+@libs/light-cycles-client-ts:lint:    > 4 │   type GameTableStory,
+@libs/light-cycles-client-ts:lint:         ...
+@libs/light-cycles-client-ts:lint:   > 31 │   type LightCyclesJourney,
+@libs/light-cycles-client-ts:lint:   > 32 │ } from './light-cycles-journey.example';
+@libs/light-cycles-client-ts:lint:        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/light-cycles-client-ts:lint:     33 │ 
+@libs/light-cycles-client-ts:lint:     34 │ const TRIO = LIGHT_CYCLES_SEATS[3];
+@libs/light-cycles-client-ts:lint:   
+@libs/light-cycles-client-ts:lint:   i Safe fix: Organize imports and exports (Biome)
+@libs/light-cycles-client-ts:lint:   
+@libs/light-cycles-client-ts:lint:      21  21 │   import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+@libs/light-cycles-client-ts:lint:      22  22 │   import { LightCyclesBoardView } from './light-cycles-board-view';
+@libs/light-cycles-client-ts:lint:      23     │ - import·{·sharedSwipe·}·from·'./light-cycles-swipe.example';
+@libs/light-cycles-client-ts:lint:          23 │ + import·{
+@libs/light-cycles-client-ts:lint:          24 │ + ··lightCyclesDuelClient,
+@libs/light-cycles-client-ts:lint:          25 │ + ··lightCyclesQuadClient,
+@libs/light-cycles-client-ts:lint:          26 │ + ··lightCyclesTrioClient,
+@libs/light-cycles-client-ts:lint:          27 │ + }·from·'./light-cycles-game-client';
+@libs/light-cycles-client-ts:lint:      24  28 │   import {
+@libs/light-cycles-client-ts:lint:      25     │ - ··lightCyclesDuelClient,
+@libs/light-cycles-client-ts:lint:      26     │ - ··lightCyclesQuadClient,
+@libs/light-cycles-client-ts:lint:      27     │ - ··lightCyclesTrioClient,
+@libs/light-cycles-client-ts:lint:      28     │ - }·from·'./light-cycles-game-client';
+@libs/light-cycles-client-ts:lint:      29     │ - import·{
+@libs/light-cycles-client-ts:lint:      30     │ - ··createLightCyclesJourney,
+@libs/light-cycles-client-ts:lint:      31     │ - ··type·LightCyclesJourney,
+@libs/light-cycles-client-ts:lint:      32     │ - }·from·'./light-cycles-journey.example';
+@libs/light-cycles-client-ts:lint:          29 │ + ··createLightCyclesJourney,
+@libs/light-cycles-client-ts:lint:          30 │ + ··type·LightCyclesJourney,
+@libs/light-cycles-client-ts:lint:          31 │ + }·from·'./light-cycles-journey.example';
+@libs/light-cycles-client-ts:lint:          32 │ + import·{·sharedSwipe·}·from·'./light-cycles-swipe.example';
+@libs/light-cycles-client-ts:lint:      33  33 │   
+@libs/light-cycles-client-ts:lint:      34  34 │   const TRIO = LIGHT_CYCLES_SEATS[3];
+@libs/light-cycles-client-ts:lint:   
+@libs/light-cycles-client-ts:lint: 
+@libs/light-cycles-client-ts:lint: Checked 14 files in 972ms. No fixes applied.
+@libs/light-cycles-client-ts:lint: Found 1 error.
+@libs/light-cycles-client-ts:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@libs/light-cycles-client-ts:lint: 
+@libs/light-cycles-client-ts:lint:   × Some errors were emitted while running checks.
+@libs/light-cycles-client-ts:lint:   
+@libs/light-cycles-client-ts:lint: 
+@libs/light-cycles-client-ts:lint: error: script "lint" exited with code 1
+@libs/light-cycles-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    2 successful, 15 total
+Cached:    0 cached, 15 total
+  Time:    2.226s 
+Failed:    @libs/light-cycles-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

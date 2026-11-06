@@ -1,0 +1,87 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/battleship-client-ts:test: cache miss, executing 15541e8a12a1a26b
+@libs/battleship-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/battleship-client-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/automation.test.tsx:
+@libs/battleship-client-ts:test: (pass) the game automation fires a shot through the targeting grid [47.42ms]
+@libs/battleship-client-ts:test: (pass) the presentation names the game, its sides and its ending [0.08ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/targeting-precision.test.tsx:
+@libs/battleship-client-ts:test: (pass) a mistaken edge target can be corrected before spending the shot [20.40ms]
+@libs/battleship-client-ts:test: (pass) keyboard selection previews a shot before confirmation [19.72ms]
+@libs/battleship-client-ts:test: 84 |     />
+@libs/battleship-client-ts:test: 85 |   ));
+@libs/battleship-client-ts:test: 86 |   fireEvent.click(byTestId('refresh-target-f10'));
+@libs/battleship-client-ts:test: 87 |   setRecord({ position, syncKey: 0 });
+@libs/battleship-client-ts:test: 88 |   expect(byTestId('refresh-fire').textContent).toContain('Fire at F10');
+@libs/battleship-client-ts:test: 89 |   fireEvent.click(byTestId('refresh-fire'));
+@libs/battleship-client-ts:test:                                                     ^
+@libs/battleship-client-ts:test: error: expect(received).toContain(expected)
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: Expected to contain: "Fire at F10"
+@libs/battleship-client-ts:test: Received: "Choose a target"
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts/tests/targeting-precision.test.tsx:89:48)
+@libs/battleship-client-ts:test: (fail) a refreshed game record preserves the selected target when its position is unchanged [11.86ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/panel-titles.test.tsx:
+@libs/battleship-client-ts:test: (pass) a board shown behind the switch is not titled again under it [8.15ms]
+@libs/battleship-client-ts:test: (pass) the board fills its column, edge to edge with the seats [10.48ms]
+@libs/battleship-client-ts:test: (pass) a key under the boards names every mark the grids draw [15.20ms]
+@libs/battleship-client-ts:test: (pass) on a phone the switch to the other fleet follows the grid [10.98ms]
+@libs/battleship-client-ts:test: (pass) on a phone the switch under the grid is a compact control, centred [0.08ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/setup-board.test.tsx:
+@libs/battleship-client-ts:test: (pass) pressing a cell places the selected ship with its bow there, across by default [6.25ms]
+@libs/battleship-client-ts:test: (pass) rotate turns the next placement down, and the five ships make the canonical fleet [7.75ms]
+@libs/battleship-client-ts:test: (pass) an overlapping placement is refused with its reason and leaves the fleet unchanged [4.44ms]
+@libs/battleship-client-ts:test: (pass) an out-of-bounds placement is refused and leaves the fleet unchanged [5.83ms]
+@libs/battleship-client-ts:test: (pass) the preview marks the cells a placement would cover, and which it cannot [8.49ms]
+@libs/battleship-client-ts:test: (pass) placing a placed ship again moves it; rotating it in place is refused off the board [7.46ms]
+@libs/battleship-client-ts:test: (pass) the keyboard selects a cell with arrows, rotates with R and places with Enter [22.34ms]
+@libs/battleship-client-ts:test: (pass) a locked setup disables every control and says why [4.16ms]
+@libs/battleship-client-ts:test: (pass) the placing progress has its own id, leaving `<testId>-status` to the screen's private-setup status [3.13ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/hit-mark.test.ts:
+@libs/battleship-client-ts:test: (pass) a Battleship hit is a solid mark in both themes [0.17ms]
+@libs/battleship-client-ts:test: (pass) wide, the Battleship board leaves only the room its switch and key take [0.04ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/board.test.tsx:
+@libs/battleship-client-ts:test: (pass) the own grid shows the viewer’s fleet from its setup and the shots fired at it [8.36ms]
+@libs/battleship-client-ts:test: (pass) the targeting grid shows only the public shots, never a ship that was not hit [14.49ms]
+@libs/battleship-client-ts:test: (pass) interactive targets fire through onAction and wait, aiming, for the outcome [20.41ms]
+@libs/battleship-client-ts:test: (pass) read-only boards refuse every target, and the switch keeps both grids mounted [9.29ms]
+@libs/battleship-client-ts:test: (pass) the frame's turn line announces the latest shot and whose turn it is [8.08ms]
+@libs/battleship-client-ts:test: (pass) the other side sees its own fleet and shots from its orientation [13.42ms]
+@libs/battleship-client-ts:test: (pass) a watcher sees two public shot boards named by side, with no ships [6.33ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/battleship-frame-commands.test.ts:
+@libs/battleship-client-ts:test: (pass) Battleship offers no draw by agreement among its commands
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/automation-rearrange.test.tsx:
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over an empty board [31.84ms]
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over another whole fleet [34.85ms]
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over a fleet in the way of the new one [35.84ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: 1 tests failed:
+@libs/battleship-client-ts:test: (fail) a refreshed game record preserves the selected target when its position is unchanged [11.86ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test:  31 pass
+@libs/battleship-client-ts:test:  1 fail
+@libs/battleship-client-ts:test:  460 expect() calls
+@libs/battleship-client-ts:test: Ran 32 tests across 8 files. [1138.00ms]
+@libs/battleship-client-ts:test: error: script "test" exited with code 1
+@libs/battleship-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.372s 
+Failed:    @libs/battleship-client-ts#test
+
+ ERROR  run failed: command  exited (1)

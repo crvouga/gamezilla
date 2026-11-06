@@ -1,0 +1,54 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [6] click"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [9] toBeInTheDocument"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [12] toBeDisabled"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--004.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--005.png"
+  }
+]

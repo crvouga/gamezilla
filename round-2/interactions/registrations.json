@@ -1,0 +1,186 @@
+[
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/arena-empty-status-pill.json",
+    "regressionTest": "libs/game-session-client-ts/tests/game-frame-empty-status.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-aim-cleared-by-unchanged-position.json",
+    "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-confirmation-label-empty.json",
+    "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-dark-grid-boundaries.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-preview-overrides-pending-shot.json",
+    "regressionTest": "libs/battleship-client-ts/tests/board.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-touch-spends-mistarget.json",
+    "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/battleship-victory-hides-enemy-fleet.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/chess-check-and-side-guidance.json",
+    "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/chess-puzzle-hint-obscures-knight.json",
+    "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/chess-puzzle-outline-covers-piece.json",
+    "regressionTest": "pkgs/chess-board-root-client-ts/tests/puzzle-hint-outline.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/chess-puzzle-public-board-composition.json",
+    "regressionTest": "pkgs/chess-board-root-harness-ts/tests/public-coordinates.contract.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/chess-puzzle-solution-covers-pieces.json",
+    "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/connect-four-final-position-dimmed.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-final-position-regression.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/game-board-selected-tool-invisible.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/game-frame.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/git-hooks-file-list-buffer.json",
+    "regressionTest": "libs/tools-harness-ts/scripts/git-hooks.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/hearts-legal-spades-below-refused-diamonds.json",
+    "regressionTest": "libs/hearts-client-ts/tests/turn-guidance.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/hearts-pending-pass-instruction-conflicts.json",
+    "regressionTest": "libs/hearts-client-ts/tests/turn-guidance.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/hearts-phone-side-name-fragments.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/hearts-rotating-seats-nest-identities.json",
+    "regressionTest": "libs/hearts-client-ts/tests/seat-rotation.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/hearts-unavailable-card-color-only.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table-availability.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-crash-pad-and-obscured-result.json",
+    "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-desktop-steer-up.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-inactive-steering-guidance.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-player-facts-overflow.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-shared-device-guidance.json",
+    "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/light-cycles-synthetic-swipe-native-capture.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/numberlink-phone-path-recovery-undiscoverable.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/numberlink-solved-keeps-drawing-hints.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/paired-panels-duplicate-view-identifier.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/cell-grid-board.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/pong-phone-marker-legibility.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/pong-phone-marker-legibility.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/pong-spectator-control-guidance.json",
+    "regressionTest": "libs/pong-client-ts/tests/pong-board.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/puzzle-solution-label-hides-consequence.json",
+    "regressionTest": "libs/game-puzzle-client-ts/tests/reveal-label.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/quoridor-hill-forced-pass-clipped.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/quoridor-intrinsic-action-clipping.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/quoridor-pawn-prominence-and-identity.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/sokoban-desktop-blocked-move-pad.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/sokoban-history-corner-recovery.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/sokoban-zero-moves-undo-guidance.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/storybook-baseline-patch-omits-game-boards.json",
+    "regressionTest": "libs/tools-harness-ts/scripts/storybook-baseline-patch.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/verify-snapshot-file-list-buffer.json",
+    "regressionTest": "libs/tools-harness-ts/scripts/verify-snapshot.test.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-enlarged-coordinate-retention.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board-enlarged.test.tsx"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-local-lexicon-retry-misstates-play.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-puzzle-completion-remains-editable.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-puzzle-retry-keeps-draft.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-retry-retained-accepted-draft.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  },
+  {
+    "registration": "libs/tools-harness-ts/goal/known-bugs/word-tiles-score-assertion-matches-coordinates.json",
+    "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  }
+]

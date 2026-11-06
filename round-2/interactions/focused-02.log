@@ -1,0 +1,39 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/light-cycles-client-ts, @libs/word-tiles-client-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 5 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:lint: cache miss, executing d0bee60acf9c3ac1
+@pkgs/ui-root-harness-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   x typescript(no-unnecessary-condition): Unnecessary optional chain on a non-nullish value.
+@pkgs/ui-root-harness-ts:lint:      ,-[pkgs/ui-root-harness-ts/tests/cell-grid-board.test.tsx:221:10]
+@pkgs/ui-root-harness-ts:lint:  220 |   const pair = view.getByTestId('example-grids-panels');
+@pkgs/ui-root-harness-ts:lint:  221 |   expect(pair?.getAttribute('data-selected')).toBe('left');
+@pkgs/ui-root-harness-ts:lint:      :          ^^^^^^^^^^^^^^^^^^
+@pkgs/ui-root-harness-ts:lint:  222 |   const second = at('example-second');
+@pkgs/ui-root-harness-ts:lint:      `----
+@pkgs/ui-root-harness-ts:lint:   help: The checked value has type `HTMLElement`. Remove the optional chain; the value cannot be `null` or `undefined`.
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   x typescript(no-unnecessary-condition): Unnecessary optional chain on a non-nullish value.
+@pkgs/ui-root-harness-ts:lint:      ,-[pkgs/ui-root-harness-ts/tests/cell-grid-board.test.tsx:228:10]
+@pkgs/ui-root-harness-ts:lint:  227 |   fireEvent.click(view.getByRole('radio', { name: 'Second grid' }));
+@pkgs/ui-root-harness-ts:lint:  228 |   expect(pair?.getAttribute('data-selected')).toBe('right');
+@pkgs/ui-root-harness-ts:lint:      :          ^^^^^^^^^^^^^^^^^^
+@pkgs/ui-root-harness-ts:lint:  229 |   expect(at('example-second')).toBe(second);
+@pkgs/ui-root-harness-ts:lint:      `----
+@pkgs/ui-root-harness-ts:lint:   help: The checked value has type `HTMLElement`. Remove the optional chain; the value cannot be `null` or `undefined`.
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint: Found 0 warnings and 2 errors.
+@pkgs/ui-root-harness-ts:lint: Finished in 978ms on 106 files with 147 rules using 10 threads.
+@pkgs/ui-root-harness-ts:lint: Checked 128 files in 1036ms. No fixes applied.
+@pkgs/ui-root-harness-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-harness-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    2 successful, 15 total
+Cached:    1 cached, 15 total
+  Time:    1.671s 
+Failed:    @pkgs/ui-root-harness-ts#lint
+
+ ERROR  run failed: command  exited (1)

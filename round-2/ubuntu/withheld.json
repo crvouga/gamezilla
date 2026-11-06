@@ -1,0 +1,20 @@
+[
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light-1440.png",
+    "sha256": "100887ad53b5fdd85229ad8b29974aeb9dedd74e1c0abac405308d51a43b1ec7",
+    "beforeSha256": null,
+    "reason": "Previous run 42207319704: 43547-pixel mismatch. Current comparison passed, but prior cause remains unexplained."
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-1440.png",
+    "sha256": "a4a098ffd808f60724e8122658869bcbd088d20924be06fd7158862e18792924",
+    "beforeSha256": null,
+    "reason": "Run 42219355180: 8403-pixel mismatch after authoring; cause unproven."
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-1440.png",
+    "sha256": "35c983a823c5bcc96aa98037f4c3fc14853816502dc8e7a3b3083c3443056b95",
+    "beforeSha256": null,
+    "reason": "Run 42219355180: public log reports ***2353 differing pixels (ratio 0.02); exact count is secret-masked and cause unproven."
+  }
+]

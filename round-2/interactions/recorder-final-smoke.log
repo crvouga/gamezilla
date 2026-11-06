@@ -1,0 +1,3 @@
+$ bun run libs/tools-harness-ts/scripts/owned-command.ts sh ".overhaul-evidence/ui-ux-overhaul/round-2/recorder-smoke.sh"
+captured screens-games-word-tiles-board--recover-and-submit
+1 screenshots in /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-2/interactions/recorder-final-smoke

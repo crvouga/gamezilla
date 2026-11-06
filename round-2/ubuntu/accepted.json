@@ -1,0 +1,2937 @@
+[
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-dark-1440.png",
+    "sha256": "d7ab18d58d0822f593164d2a148933a048a47a1b1a945dca04303c989e05feab",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-dark.png",
+    "sha256": "933f3a8d683938092721d76bb6fde58108116c9db50849210c3e0663c86dc375",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-light-1440.png",
+    "sha256": "880991bb360f47ab9a2421148f34aff02d6103d8f442e61da5cb231130039126",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-light.png",
+    "sha256": "a24afc6eba339d0684570aab93d628021ee1a51c5b1aa76ac33a5c1aa240f7d3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-dark-1440.png",
+    "sha256": "f4a2a278834afcafa4fa12a9277e6d6de0d080db22f8a10774ce45e96df55595",
+    "beforeSha256": "2d17660132f19795ced9a59a80405ea27b71f3258fb3fe1a06f2c1743824b017"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-dark.png",
+    "sha256": "337abe8014985983a75b68640fd74c9ce2b46873b3e89c85bf78e571484de149",
+    "beforeSha256": "6969c902eaaaf12476f7f4e1f7bcc606e6148ddedc5a264d8f7bc2b488ccf2a4"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-light-1440.png",
+    "sha256": "1f51603598c27f374967142a1594026039bd591d3774c0238f07d66910c5086b",
+    "beforeSha256": "8b94d8ecb7caf5d4bd95f3edc32b6d5f2bd35b7e266e5f55c58ecd11c90c599b"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-light.png",
+    "sha256": "cce8c8b25ff40f4aefe209dc1d516dcc1d061b1bf18bfbdcbb6972a821442be4",
+    "beforeSha256": "b39281053329290cd16b535b4d9f1854d19cc83d91dc6536d8bb89692858d1f0"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-dark-1440.png",
+    "sha256": "858f56419ff10ba7d06ad1c0bcc4a67e41d633fae924a6a6f3aafdc9b3b69690",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-dark.png",
+    "sha256": "eadc0d970345b14de1be482ca6890292c04d97732c6d22638bbab0669da94640",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-light-1440.png",
+    "sha256": "88b52debcec1e04789be5e832be4dfd17496b43790f85d7e662e23a9cc86aa59",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-light.png",
+    "sha256": "edb4d76bcdbe513e1282bfd1b42353457aaf2f0360c456064efd26ebc76e2c5a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-dark-1440.png",
+    "sha256": "b67da3c3b91447c13ceb02c4c330a1f23f8bb29c70d1a5b79c4b3bf406ab88f2",
+    "beforeSha256": "8b927eb8f7194f28795e7cb77181e5e78cf1a7793533fb6873a77d0df555d9f4"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-dark.png",
+    "sha256": "b2dcf10e35335dc545119532067f64f32e6a16fa7714be433f50116cf240b376",
+    "beforeSha256": "95e39d2e3604ba14af53e545b2afee71fcefdcf543614bb54553f08c800f8efe"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-light-1440.png",
+    "sha256": "3b24badcfeabc15448679edc677564bb0ff7d6ef3d0d502d47520ca990e35b8b",
+    "beforeSha256": "c3ad18d9c13dcd5da882c27cb2c3c626b910a3ddae1e5fce7cbe900ef42b55ed"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-light.png",
+    "sha256": "9043b779b6f7df7c1d538b07cd483ce55b0c7b9fc06bbc52be5374bd07c55a47",
+    "beforeSha256": "0a7aa1f8fbb6b8c24124c8efc0b2c2240c37f7fb4b543fd075679ce670736ac6"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-dark-1440.png",
+    "sha256": "7b057de7eb1950ca3e97f1202351acc812cd3316d7c37acf1ce8404f0806aa0d",
+    "beforeSha256": "ee574c67dacd733e2b5a1cc86219ff52f2dc357fa0ef5c08b93605eddffedd08"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-dark.png",
+    "sha256": "b6b628653e16806b3386a3927bb01a3d79e517e54532e2b5604662550c95b215",
+    "beforeSha256": "ad01b1c5ef244aafacbbbb1cfd026d502afe6db4adfdcee93c6c0abbdb4fc1e5"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-light-1440.png",
+    "sha256": "eebf899bf829f103fe9abf6f1d83c8cf71be1064c48326542c4696244234d916",
+    "beforeSha256": "e54b703b5095228a77fdc4a28153de605a3f06133843781aae47740cb0f5e372"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-light.png",
+    "sha256": "4c3d8b8549c120feae6fb2a5314b726917154d9ee973a9d461d1c27c4ba79af0",
+    "beforeSha256": "23ec6bd4894db4e5b8dcfc4a108168191b41b0940fa57ed8de8b125c5d142eb4"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-dark-1440.png",
+    "sha256": "9f4d9934b7aa7058ccd44a059f5c542aa3069ab55498b511a0c9066c1e6393a3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-dark.png",
+    "sha256": "bac057776b724805e4ab2d47b610ce69f41959bfec65aae08ed55d9c194c99ac",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-light-1440.png",
+    "sha256": "5e42258fdf27cfdfefeeeb5f673b343c91615dd8c14f2415b7b82d494f9ae7fc",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-light.png",
+    "sha256": "d80b5ae2ef2476dbd8d6b9e1d933994e036b08909bdc0d4e6396ba8122936c00",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-dark-1440.png",
+    "sha256": "a5ed4eb495d5bfec72ba780bf238170401b3a2232bd89c7d69870c65377d77c2",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-dark.png",
+    "sha256": "9320f929f1791251e7bc92e546fad78a4ef3b643cb1ba160fe2cc98c68cd1167",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-light-1440.png",
+    "sha256": "5594e4546bfdfb9d0c1122e62739b90562f4b438f282801b9641c76dba0d163c",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-light.png",
+    "sha256": "4900b1ac9d0754856b180445b7f2f9d0e5c5bfe1a707669e32f51189af05f434",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/waiting-for-opponent-dark-1440.png",
+    "sha256": "ac245e4d7b069d707fa9989e621082d04e544b91494eceef9347c3228c124e8c",
+    "beforeSha256": "4e08e1856fd69016c56d53a6fbba14722c03e13559b6b4f36118a6b8e8d4f814"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/waiting-for-opponent-dark.png",
+    "sha256": "601ee63ff09b2e3034ef4319803037ca11fc9f8c48b3a6d5c397da980d217813",
+    "beforeSha256": "4bc6d89c7dfcdd85f92865c2a41f462b9b0b0920111ef45ca3dea7134f2fddb1"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/waiting-for-opponent-light-1440.png",
+    "sha256": "0a95f059a2e1b1c787637e84b4186428ee1cf2c6ce29a0262e0f259c0d403c2a",
+    "beforeSha256": "e681c03de67e8920d96cee51ae3c8af3cccce92a26f6f11ced9c8da967d5f3ca"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/waiting-for-opponent-light.png",
+    "sha256": "9a56df6889c8e4722abadaaf86d0734043bc77453d4fd094ade8f331477b6bed",
+    "beforeSha256": "1720eae811fafd763668c7626cae23f13ec45137f0338af9d59fbfc64bff8e08"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/watching-dark-1440.png",
+    "sha256": "2301d920443121b96c21cade8e495b3185a25b47d6c2efc47218fafb34997f5a",
+    "beforeSha256": "ec7286aa8784d49aec01a08b8ae386d08c08abb12108d4e4b2b552425ca86e33"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/watching-dark.png",
+    "sha256": "ca786bd1e1d5d635db9ae09268cb37156af8ddb4f2b74acf9cb20ae654f1260d",
+    "beforeSha256": "4ee5b6459574d743b08d7a3f23ca20660e7903e4f0666dc558c58b6f6703e01f"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/watching-light-1440.png",
+    "sha256": "c4f56e3556848c78a3134963e5fc190c765ebcecf54947412838fca2c2c9f71d",
+    "beforeSha256": "78fb0123b31888384c851e24812f30c1f7d5dd3792a05fbb56fdee3df44a59a4"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/watching-light.png",
+    "sha256": "c9aa501c58e9bd534327b29aef246c8cafc3ee7341fe2da215b966eaa1700b44",
+    "beforeSha256": "e8b0eba195f24640e1b176168afb113329a18c0d7b42bebcaa58b5851185b0a6"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-dark-1440.png",
+    "sha256": "a5ed4eb495d5bfec72ba780bf238170401b3a2232bd89c7d69870c65377d77c2",
+    "beforeSha256": "e0381db81337dfd2718bbc302b2a4a1075b159d6039b5d685d96733f643ba59a"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-dark.png",
+    "sha256": "92c0e39fdae932609d2d2670b301b745c6399ac01c179ac12279ebd6e827d572",
+    "beforeSha256": "160d58dd70c4fa67d8b49eb20983881a0319db522510e1091ed60dee86a4abbd"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-light-1440.png",
+    "sha256": "5594e4546bfdfb9d0c1122e62739b90562f4b438f282801b9641c76dba0d163c",
+    "beforeSha256": "0451694c4f3e38bc487732fb27b83639b770ccaa0695fd82f5d7783ff500df16"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-light.png",
+    "sha256": "e9715c00e7f72af174376930079c17429d2523218635679a30a652af39c87922",
+    "beforeSha256": "4472e5f4bac5eacba8cdb7a737cf1c5f33514102818ae8d234dfcb4c856a43eb"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-dark-1440.png",
+    "sha256": "16356d5685f3b321783d75473db8dccf1aa2e3acb725272a5ff948c1ad3db20d",
+    "beforeSha256": "10b689ce6d4bdacdd2b4b56f4274c753902cdda399b716de72e8eb3a7cd88a96"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-dark.png",
+    "sha256": "46c6262986f7abfb05b749c2660839332955c4821e72dfa65eddc70c5c87eab3",
+    "beforeSha256": "02a5f54e84830d0f138fef088984eba2a980d2d23d9b911b95f1c9a11ad6c2bd"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-light-1440.png",
+    "sha256": "c665ab41c891c3ff73f7326b3cfc7a94c6615ab98e381ca01de86311a72edf1b",
+    "beforeSha256": "1b0d7024535e8f5096064e33c1ebf711ea8618900065d96b3ab1ed8f6fc02a6a"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-light.png",
+    "sha256": "08525781e0b8f57bf7c51a3c89e570283a57f4f2d93b632a838841cfc2c24e0c",
+    "beforeSha256": "a559e6887a89d0d4d3b2611cb438dd18225e428c9af355210cdafbfdd9540e61"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-dark-1440.png",
+    "sha256": "fe36091d9727c6fe6d60373fd41055d981255a96e5c84826b2d6696054978b64",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-dark.png",
+    "sha256": "6ec7c3067833d844eec9c3a80cfde223b174739d542f26455c343b1c0fe5bfa6",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-light-1440.png",
+    "sha256": "af0bf0ba34dc2c134f324d22d235cb276a266a4e15d9fe69eeeaea5324a588c9",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-light.png",
+    "sha256": "7ddffc8a30dbe8ce641427c91366060614b83237712b74b3110ea67f78dd1f5e",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-dark-1440.png",
+    "sha256": "95a2e0d90fff8d5ae0776c38953e806104d723b9d27a60bbfb74a6bb42c0feaa",
+    "beforeSha256": "9b7b0ab11d93b786ee488e2f3817bc51c9f1350c9ce89ba3c0d3e2dcc3b5d15b"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-dark.png",
+    "sha256": "a3b4b1580a9dbe7c8c546d99f4233a6272dd705a69846278b431db4194464002",
+    "beforeSha256": "7e92ec708d4da21ccf09dfb1a6a5ea4c1e6174cb4708925f261369fdd4cc391d"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-light-1440.png",
+    "sha256": "17563e99715b5bf6f19a1f6729e1880187af00a41f8d1537183db9c55c851ee0",
+    "beforeSha256": "849cbf07eae70c902fdc36110f54d1122845e14473e2f78c9baca3bcf55745ce"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-light.png",
+    "sha256": "d0b89dc5e5c5f89b63896be7b3097ce08fb93d2bf3cedff6c5506fcd4c6f203a",
+    "beforeSha256": "29d915a46a8d94180dda2ac7cd738a4a3fd51cf41d80497744fd70ce362cff1d"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-dark-1440.png",
+    "sha256": "b0aa9d69b841570794c1c8a8b43e2feea4764d615b923cead1fa88a5111158fa",
+    "beforeSha256": "a49b53e2f377f60dc36ac2d8c00c35c89c7280696dfe578d409f8847f243cca1"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-dark.png",
+    "sha256": "8e5729cc9e0091af2c8bb9a4630039aa1a5ddc859d77fc5474ee3afb46a1c632",
+    "beforeSha256": "23ffd24bee5c6bfb3845a0d78cfee2fb08a9cb95956b170fd108c70c2fa60095"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-light-1440.png",
+    "sha256": "4851cf810d38774d74d4310638fedf55641a42380255ef01a8365ec1c1b4c2f5",
+    "beforeSha256": "48cb27cabe3d3309196c5f854f67127fca680e3dd8cf1c9970e8118d305e26ae"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-light.png",
+    "sha256": "0c1c654dc0c330c4f4179fc4baec455982ecb74dde2caf9e8ac9d1bdf9b0ef4c",
+    "beforeSha256": "479a80a10af544f334351319a11f5dedd5cab0a8e87854ab73767ce78d160d39"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-dark-1440.png",
+    "sha256": "002b6c8d274e0214b11c011d47e2bc46f96192d3fac51cf7124e3bfcc1be61dd",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-dark.png",
+    "sha256": "ecfe75efc19fff6c496552cbc72cb40bbaa596eb62c3149018024b0f2dc29181",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-light-1440.png",
+    "sha256": "d5e7a941ae2ddc4bed3b4d7f11eae3c95803750c15c7329ce44752f82e66a4e2",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-light.png",
+    "sha256": "81be2e8aa40e455e88d5cf43526bd665983831daea97d674455fbc5788eebf5d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-dark-1440.png",
+    "sha256": "2daade79eb837da5f279bcf711239671b35483ce95221a4dffec9f5dbb529f25",
+    "beforeSha256": "a186913dd6d44d87c8166cd8f18b812ca8ae8751b717d7b5e77e376792991ba1"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-dark.png",
+    "sha256": "09c000c00de859aa126188899b11e3f904f412608de4c371e5be3cbebdf2f9b4",
+    "beforeSha256": "1dc79d8f231b256007f38fcb3540554c0226658d7b4d83f5147e28b566d7cba3"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-light-1440.png",
+    "sha256": "e72296e1d7e9cd8a0bc314967779e939bf120ca52ede76de06bbdf64028f16c9",
+    "beforeSha256": "359505c5c3b888b44ac4330b01051623713ff1c10edcff3d7da85f06908b1f44"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-light.png",
+    "sha256": "b2cd49f0f6f187ff1b8e1a2d67ebddccb6f18d25f6ce71f4c23bca17ed21dd1c",
+    "beforeSha256": "73c03e8a9e9d17fd0d2d084d0a264962a1ec6b853b268c562dc4c3a0e4ae3511"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-dark-1440.png",
+    "sha256": "b975e347c92f5ccf4080de77d745a1301ead8bae60bbb2d022ab5d0cae6178f2",
+    "beforeSha256": "4e93ddb0147112fb10daea2937dd63b1129a8f15792a388969180d5db30e1902"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-dark.png",
+    "sha256": "fae61b384c1ebd371f3c894477e2bf08c16f5bfd65239b6748a039dc4cfe480d",
+    "beforeSha256": "8ccdc095b77249f66b34f9ca56a30c53e7c83dd8266201586d96b3614cc40cbc"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-light-1440.png",
+    "sha256": "d79a08b64fa03a7479dea4a627b046836ba37a6665a9656a40a981c1a618f257",
+    "beforeSha256": "a8c23cc9052f040fec913605e451f75a218bcfe65a0e0d673eda016d76bfd753"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-light.png",
+    "sha256": "20e21d86199267f47a73579fef939df91b189112df9c203280a3510bc6fb56ef",
+    "beforeSha256": "b2eb8a420bda8e486e5e778d7ad2e99951e1bb4b85330b05b99d4c215795214f"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-dark-1440.png",
+    "sha256": "30c06489e7db9718c83536eaa613a560ec04a9a486f08769b9504ec80e5059ae",
+    "beforeSha256": "6b24343c3e9967e6e7ea989ef5b9aa1c1ae1bb671ecd46454917ba08b505e044"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-dark.png",
+    "sha256": "e85cc07dd3c10d8380e2dd511d293aafc6f389e3b8b6ceee3ccdd4676c7d25d3",
+    "beforeSha256": "bab8cfaf46fd67144983a8d44315dfa8a40ff05f14c6e6e53f640de664b7b49b"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-light-1440.png",
+    "sha256": "78bbef76e1b09b65e1b7953fc1aa7282c606671c97bad9a0b22912a95eaa9b2c",
+    "beforeSha256": "4a7e0daed14627f81e601a9c4c469558182065c49d342ff2f72d7dd2d15b0899"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-light.png",
+    "sha256": "961b8098ef7a7f75c23390ab540ac2a0a5efe33d6fd1721c8dd89e9064241177",
+    "beforeSha256": "26158dccbb92792f5cf0e96fde705a6c51f02e92e66342001e8822502df35fbf"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-dark-1440.png",
+    "sha256": "60047d9b0645c92a8f1bd003b2d20c9387457941708c807da5be6c7f1ce2c495",
+    "beforeSha256": "a43d57245bc32374f0e19001752cc5191dd247be829f90eadb46c3b2c9d4593e"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-dark.png",
+    "sha256": "74d48608fcb9e753111a649938b744fc52124fc89cf75e8029bc77d819cecfb1",
+    "beforeSha256": "7b7105ff4d9365ed5bc5c37036075a5f48add5a8b4c7ee9c48c22f2fe582bd3d"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-light-1440.png",
+    "sha256": "5d6b2081788914c67052bba0a5fced9f5373bbead7c398b75031fd465736d4da",
+    "beforeSha256": "fe08b89792a0bd830139f1f71638cfd886afb53cebb6654e13c2147e3c37f37d"
+  },
+  {
+    "path": "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-light.png",
+    "sha256": "1232e8084cd12f945bf8633d9b6622901358b662f7a890d5e500b52ad19f4937",
+    "beforeSha256": "7e309593aebf778efbd4ea1b203edb87e6eb64e8eee343c19e69cf7c619df9ed"
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-dark-1440.png",
+    "sha256": "5fb1f50b2a2cb665d0ed75f745a0384d4dcf9bf2c588653ae3f104f3fa665421",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-dark.png",
+    "sha256": "2b0c72975efb2b55287981983c11168aeb0e7455333e1e69c5da1f72504830cd",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-light-1440.png",
+    "sha256": "74ecfe704815d18645b539ee65cf94f101d53950e4f47eea2ec5ca2d66f25bce",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-light.png",
+    "sha256": "d3445b0edcd089bb0181ef0e0ba1a28ac33e498bec1107b740b57655c2b82d12",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-dark-1440.png",
+    "sha256": "fc25fcfbcfdf2118758a4a580ada9449e5c1e0886507d1fd2be74f9bbfdb0ec0",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-dark.png",
+    "sha256": "057dae7319e7ecdb2fe1670746ff8c50f4957fd1f0fa7ca221b5cbe90bdff072",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-light-1440.png",
+    "sha256": "12625d5db268c5769abbe1814dc9912c794df73d3124bbab0031451b4551ee7e",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-light.png",
+    "sha256": "49344bebb84d6cab492e7c5f371b3002f4ada9585269bdf3d874468bf1cf1125",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-dark-1440.png",
+    "sha256": "e77a1d50b8a6b38bada68d2bceb6c18d2ebe34342ff43f75894784fd1c8f1e0a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-dark.png",
+    "sha256": "985c687fceac0f7c9784751aa04605194334c892f33bba387822a4f4bd608e1e",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-light-1440.png",
+    "sha256": "7e5781312ad8c256e157b63eff713e29f2095fd2dd0c47624b4e521d009a4c0b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-light.png",
+    "sha256": "0c00834bed3cf5e94e02789d3b4a9440900c09cc819e87fc3015d69df697a3f4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-dark-1440.png",
+    "sha256": "093337eb9bef812b2f72a5f1988329b96d3e0ecdbe6b592543e6fab3b3f33189",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-dark.png",
+    "sha256": "b2a467747b6c7f30626af99d348e42cd67e81063ed1cea763c7364d75e78e9cc",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-light-1440.png",
+    "sha256": "2082eb8b74db3849231e6a90175170b37ebab61488c1057671bfb828b2c1feef",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-light.png",
+    "sha256": "dbcd8778344f616b850fecf677e3bee6da2d3acb1d3ed098122e559a53615018",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-dark-1440.png",
+    "sha256": "e77a1d50b8a6b38bada68d2bceb6c18d2ebe34342ff43f75894784fd1c8f1e0a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-dark.png",
+    "sha256": "985c687fceac0f7c9784751aa04605194334c892f33bba387822a4f4bd608e1e",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light-1440.png",
+    "sha256": "7e5781312ad8c256e157b63eff713e29f2095fd2dd0c47624b4e521d009a4c0b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light.png",
+    "sha256": "0c00834bed3cf5e94e02789d3b4a9440900c09cc819e87fc3015d69df697a3f4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/checkmated-dark-1440.png",
+    "sha256": "a56d4940b68f58e41d2f184076d07614e8907b1cdfffa0497187c3a789b81363",
+    "beforeSha256": "655f358964ad8627d37ce3bfc2340ab38bf165130c78d0ac8ca125f9eb6cf439"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/checkmated-dark.png",
+    "sha256": "eacc232f56107f6443d9d594fdbc000874096685d7f881d876ff390da7b83567",
+    "beforeSha256": "87266d829541d95c812303f0ba8a30c7c5c82ae47a6c6a9d98df6c9e4b39c703"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/checkmated-light-1440.png",
+    "sha256": "3ccfe6a6948b981d8a56aff245a553eb3def5a321d97c6f7d5b67424238714cc",
+    "beforeSha256": "7311d1d7e38bcf9d0615cb81b33a89b051aaaa0dc006a358c60c864710e009bd"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/checkmated-light.png",
+    "sha256": "764e06b6053e55a085d02a2b8d2360a24ebc50fa2b75b723d79a4fec2bbea2fb",
+    "beforeSha256": "46e1fed3bdffed1bdf1e1c114270ca77038019797c1eacc81bbc893233669a12"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/early-game-dark-1440.png",
+    "sha256": "9879f009fb032d2a06849bfadc2918c4826f3a7c2a1b3d22f7b99315b9946090",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/early-game-dark.png",
+    "sha256": "7e20652c4b23a5112f8e55726eabfeac4157a529faac91fcd6c46074022a48b8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/early-game-light-1440.png",
+    "sha256": "8bde832afce39a3686508399aafe5f800465657a06b53d0cde0a1bb50e37e6c8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/early-game-light.png",
+    "sha256": "205be4c9b3a5a72ae289ab24cd00e334704ac30d07b499245a94869f15ee7dcf",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/in-check-dark-1440.png",
+    "sha256": "ddcd49f0231d4381e5365fcb90c6c81a0570f5dc7f4b2e2b36840a5d5540e0c1",
+    "beforeSha256": "ec68a3773b15f043d49965ed45927af996c0ca25589c2f30dd8e714242a6c7f2"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/in-check-dark.png",
+    "sha256": "6401d7aaf69a815be07f3c5d866bcbea8d41dd5336bf10dcd9a4666e2a225fea",
+    "beforeSha256": "0d817577716be8192b349e739c62214fb969babd2d0c2c0b62924c34f184ceb1"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/in-check-light-1440.png",
+    "sha256": "ecd414096ed4fa9721cece94a5bfebde794677e8fabcb2d3b39fdf2c244e6957",
+    "beforeSha256": "1fe2446aefdf046baf990c9c961b278b5a3cfc3ce9f746ff3ce7b47e4b02a6c0"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/in-check-light.png",
+    "sha256": "83167f82996d8448d2a7fadc3b2f8ab073cfc69c1aecf2763d4764ae200f7078",
+    "beforeSha256": "991eedc7279216f8c71ed0b89d46893816cac2fe50e910baf30a6cae69ba48fc"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/insufficient-material-dark-1440.png",
+    "sha256": "f789c926858aa97940abc35d374e823127e6131cb91bfa5bcd14d2a101a3854b",
+    "beforeSha256": "e547bf831fc97b2e9157a97f1ed503d0d094d99044a6b3d4aea84c4a4ef35bb0"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/insufficient-material-dark.png",
+    "sha256": "dd6e0a15da31cb2fdc530ec0266aa4a7356c6cb048188d1cfb5341181410872e",
+    "beforeSha256": "d5411d1ff4697c8c1389df64e09cb136cde7c9fc750c265e7a73cb72392d2d8f"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/insufficient-material-light-1440.png",
+    "sha256": "3a4d1c58ed80d242af4eb99e928c3b31b872d93a489f5a4134c9173815759867",
+    "beforeSha256": "5ca9f0c99dff54e7f7f1459e285b2676ff991fa4635db06f660d6603984d905f"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/insufficient-material-light.png",
+    "sha256": "ebde57022eecfd91d795404d6fa5737e90939c08ca18a81a14172a3d8f69bf84",
+    "beforeSha256": "19b51f5a06ea21b8e7048c9f89084cd7c716251d78c3b554887c47c0a8e306ad"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/opening-dark-1440.png",
+    "sha256": "f79079824549c4d42c010df0fd49b9420f90a001a43c5556003600ab87e2580f",
+    "beforeSha256": "ef19b798ed4db24e41bf976b708a26d22b8a2d5ffd85dd62459e2119e9430038"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/opening-dark.png",
+    "sha256": "cc0194394563b93e83a2e6216262301a72194c3c8b45f84ff8fcad74b42d2732",
+    "beforeSha256": "80280d8af2605cd1f05c303bc9210d2e23d1327a2028800079557de3791fcc29"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/opening-light-1440.png",
+    "sha256": "3c9af22d3b423723ef8cbca062f969e69e2d78c58add1d4f45e2fac1a2b6a10f",
+    "beforeSha256": "53053c8ab6bad3eac3029a4d892d0a347686e107cde6795a71965892d3866328"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/opening-light.png",
+    "sha256": "56ba6d59ed50a5015d5ee66e0c7819b5cd79914d6e5ec9a191c07f53fa5268ba",
+    "beforeSha256": "7949e189b99ce2644416ab98022d25afcd840bccd21a9e90db4b91b7c361a0c3"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/promotion-choice-dark-1440.png",
+    "sha256": "89834d49354af722bdf90eb8650917c5d8e75d936b97184b1c817047744ae1bf",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/promotion-choice-dark.png",
+    "sha256": "14ef970eeea0cd85b79e9e93f48a39b4ece0d0bd03dfa32eaaf2cd04de0f4435",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/promotion-choice-light-1440.png",
+    "sha256": "867accc5588e7c3bf23ae6791d1e526a11b1ceccbc6f5a3486d1ea2cf07e3d7a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/promotion-choice-light.png",
+    "sha256": "8346597e9ab199334a329ba1b9feea43d5664b9f36ca990bdd55c75df91e32e1",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/stalemate-dark-1440.png",
+    "sha256": "a6c7f6a99df4953110a37ca6dda3de308dd3181a8e4e8455a10b0c64f8f65ccb",
+    "beforeSha256": "c0bd506dde1f1bb4c79a75af64f6c4e6dc5a22d31695607bac32148f39c1497b"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/stalemate-dark.png",
+    "sha256": "10cf97d2d048c37dd21ee1b5b522b723255d9d625b67668a0f5567ac4902a1f4",
+    "beforeSha256": "a1f865943b411305b14669936b8a8f78d637213f6aa24c65b2629d5ca18d7e8c"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/stalemate-light-1440.png",
+    "sha256": "cf836f2141eb4c517dc8202961471ce17f26edbea839fade3f5e659e1ea2f435",
+    "beforeSha256": "dce95b5f2016e04ba2fef6e224215fb600d2fa04b602570c7153a71e7afcc4ec"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/stalemate-light.png",
+    "sha256": "175ac7ea2483a03b6f2b4ec158bfd2a79426d262e5cd0aa08da212edd204a734",
+    "beforeSha256": "b578a0b97912164afb444175c17a838797f85d666f40e8a8c7c98cd693693773"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/waiting-for-opponent-dark-1440.png",
+    "sha256": "31c46427535a85c736209e0bb33584b069a2cd49b0d09e5fd884a764a105f4e1",
+    "beforeSha256": "f034c4d5aeee3be630db31385aa790211c7d8c30a44fb5285e1cef35a8b79f6e"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/waiting-for-opponent-dark.png",
+    "sha256": "9c5d5b410b09c839f2885a8729d63d4c377da149859ab7bd6267064fb9b8e16c",
+    "beforeSha256": "1a38cd57b37ac39dbd0edf95b3018e368680180b05feb62ce6619e185a22dc08"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/waiting-for-opponent-light-1440.png",
+    "sha256": "706fa10f9c5ef42b97910afa5aa8b7fe28abf957225ebc9db1b9a30ac11f4a36",
+    "beforeSha256": "a6cc6631233f7b397e21a43975e8178caf33dda7883ff2957f37962911bdd515"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/waiting-for-opponent-light.png",
+    "sha256": "813543082707f71f649fcdd40dce65943189a4f8816dbfd7a25a02f14eeae75c",
+    "beforeSha256": "35508fd71743e51ab70c8418551c67843ae4604c1d3ee74a1227c2003aadb3a4"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/watching-dark-1440.png",
+    "sha256": "b56c38fcf7eeaf80db3c838ee54ff0b25501f0e92f0e9a32a84c9d6402e43e02",
+    "beforeSha256": "dfbe6ab3c5b261cd046add1080f1c1cc773835780390286d0a8068f5dfae9db7"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/watching-dark.png",
+    "sha256": "cb5d95941d4dd41624e7428ebbda0cfd67c4c87a5f58790a021c39fa26e53779",
+    "beforeSha256": "b19997174756ed8724aae207a31abde1813dc3970d0360e08da9138f1ea08d2d"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/watching-light-1440.png",
+    "sha256": "10d02bb2b9ff3e09c3059abcd1bde7c357e5d8bd0e6b1cd809202b68318068db",
+    "beforeSha256": "88db32f4cd87fdb2beeffa9b9aea7da30522478b80e13359c78414e26e3126a1"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/watching-light.png",
+    "sha256": "5b2dc741854e3fcc07f90b6306ed31c85eeef9e7c8a4f37dc2c4da3f4736d597",
+    "beforeSha256": "1ff5793f69d9244067ba05bb4b439da9e6bfa67ccedc652dafd8035f717d3ef1"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/your-turn-dark-1440.png",
+    "sha256": "416d28ad8339d49e9cc72d4bc9c9c93d34870190c767fb323f7c9763dc498f73",
+    "beforeSha256": "9191fdd7ddb13aa48076b9c720780e4b29377e0713b8ca7c5b1a1e75e0e74b6f"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/your-turn-dark.png",
+    "sha256": "f77b45ba50d8ae9e16179fcc7aa8c0aa9d08aa3b787f216c12f007dafcaf7e9e",
+    "beforeSha256": "0bb1aa77cd4f3d3eed74ad45369731d02b45ffe926a918bbd13bdcd1f1f682eb"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/your-turn-light-1440.png",
+    "sha256": "bb456f251d7c5edc470c500490f14536c25921501d30aa0dce496f585536ab75",
+    "beforeSha256": "bbfc089df5085fd0a8dde8125c1bd8441524c41a0536e1a593d9234ecdc09130"
+  },
+  {
+    "path": "libs/chess-root-client-ts/src/baselines/chromium/screens-games-chess-board/your-turn-light.png",
+    "sha256": "79b0618adfdeeab5d686fd20744c07f5609e0ae73473a2c7a2d0202032f90463",
+    "beforeSha256": "d13a39f72e2be85ca5137768fbdffc7a5c78ae3bd804bdbccee1aa3787b9431c"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/connect-four-to-win-dark-1440.png",
+    "sha256": "097a9484c8a3979c3bdbecbdcf3f6c6d9746be8e4d03c7e332bd8d8de54bf46d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/connect-four-to-win-dark.png",
+    "sha256": "9840043f29db90e4543f820fc0f9f3f1e6bfa28ac4c87982ecca3acbc25745e1",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/connect-four-to-win-light-1440.png",
+    "sha256": "6c52b6d0341789c42037d79c21f404265af90d351643b14d27fcaf10995c2f8b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/connect-four-to-win-light.png",
+    "sha256": "c1c72cfacc6679d9c4e28969960ce5e5e78973fb722e4819e7469664f42fefb8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/drop-a-disc-dark-1440.png",
+    "sha256": "58d476e6752204febfdcd7585e5caccf6e3c48678d887132280e7d3875adf56a",
+    "beforeSha256": "10f34dd68df9cc3280e384dcfa30a04acd9dac282b035555d18029d6961e1e6b"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/drop-a-disc-dark.png",
+    "sha256": "817ac232f95c73d1334f5f5a23986729f120361dece3efffa82c694b7b3410a7",
+    "beforeSha256": "0dd467d74f6ad6ce338b2115d2d9874e3b27bddb6992eba7df4a2d8158ac2c55"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/drop-a-disc-light-1440.png",
+    "sha256": "529d56a07dabb75f034d4f6f3e4a750a277a3e31be57246f51130fe99c2fd585",
+    "beforeSha256": "68ad21e2528e9e0ae31d7fb9e55910976c825b4f38ea802a11842133082565c0"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/drop-a-disc-light.png",
+    "sha256": "8cfde967c3e1f7b2bbdad08a2699b483e9d8219ac4906c6f6263222d79445e0f",
+    "beforeSha256": "fb8d8e50dff9e57d41cdbe8d8a6485935a81e8d9396439ff062322fd8da4af55"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-board-draw-dark-1440.png",
+    "sha256": "323034726004a07eab272db60390aa3cd74b82a2e9f563669109ecb54f2c6d69",
+    "beforeSha256": "6352e3908baa44ff15346385ec72fe421e0529179e4078ae41966a058f0ee2f8"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-board-draw-dark.png",
+    "sha256": "7430735d03de0470e2454dd7994ce95d6b577ccbf007ad82c20e1900d2e2d7a1",
+    "beforeSha256": "9e39968bd40598d3fd4657a70f3036743cbb8a09e4c752ed6962b2eae803c478"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-board-draw-light-1440.png",
+    "sha256": "430c01c9a83ea7a31323efd7ed57d7b518ceff50db75e8822ef707d9207d4b74",
+    "beforeSha256": "d4c9a620c7aec5238acb7e63910d241e762a521974dbf12649d4d536314eab36"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-board-draw-light.png",
+    "sha256": "52cf5b16184fab4b6c6e249c28d82ae9ac36fe03a14ed5dd06160dbbeb7a0807",
+    "beforeSha256": "568c85ec7d41807695ca4627a9a05bd0b318f00d7a7bbedb0a4fdbe3474f963d"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-column-dark-1440.png",
+    "sha256": "4cc211b85b4b83553160fcc469d4a8d10aacb50409946e9de5c77c3a2e0d0091",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-column-dark.png",
+    "sha256": "5a066a6785bd1d41bf9c330c2202f7665adeb975dc96ccf2eb99f230069c9efa",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-column-light-1440.png",
+    "sha256": "ee2b3a8041e70bfe87656b97b1f44aa01d59ed2611f7ce9701be9433e6170be6",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/full-column-light.png",
+    "sha256": "9fa734ab7a3f5fbd9151e1cba2173be3bc84b0f67babd4d560e22e345e7c2b4f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/lost-dark-1440.png",
+    "sha256": "4fb6cc291baef4e75369a10fd6921b6947ea87d4cf483dc312ac087eb7709fec",
+    "beforeSha256": "84145ef94dff55767fe618f044570ae5ba2c69b06865739cde27abcf636b8adf"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/lost-dark.png",
+    "sha256": "b898d41699be66cf582bc4dfaaa7b8fa931e445d5145dd4d0e320950ea3c2561",
+    "beforeSha256": "f52937536b656679227a88efe370f7751712c38e96d7583b19af47033c8c254e"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/lost-light-1440.png",
+    "sha256": "c45d9e92eb337d0ee5ce537241afa6ec1482afc7c5f01365b7b6675fe5e72490",
+    "beforeSha256": "2fa0fe22fa29d5755c05fe180029b2a854373e4339e2fd170253d6d7428303f1"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/lost-light.png",
+    "sha256": "808f6b71a0ccbe7a89580efc47fad3be5d36bdecc7925b9d40a576d2f814fa36",
+    "beforeSha256": "13265b15469477d7d060c70f904af53dec2c3c3891ed3787fb695da9030aec0c"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/opening-dark-1440.png",
+    "sha256": "0d6ead96700ac68a82e1d66809df1bed0ff960556ecc41dc73d3678c23595c6b",
+    "beforeSha256": "8b46571dd224287afdf8471c77fbee5843b0c55d2e427b89b3c04505d2d21e4f"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/opening-dark.png",
+    "sha256": "62a3729a9ec67ed0cc40e424195da38026d79c7dfb6169b22eec07dd4131ab9d",
+    "beforeSha256": "7a82041b029f1f4287fea767f675e003515cb0e249c9ea216e9fa4766bae29f3"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/opening-light-1440.png",
+    "sha256": "2538b7e426a63df14676dfe02f23d875cefa33f39214e5841be16c9989fcc375",
+    "beforeSha256": "f43e688aaeece8ca66cc6cb2ea547cbd382023f465b922005ec37290fa479275"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/opening-light.png",
+    "sha256": "c2c1382554be202b168bb1a775cf5475e2370be98071fe7f36ba017df30acc49",
+    "beforeSha256": "7f9fe88ba953fe524043ec243f0f3ca4623ae188a249fb54a647cd0518af44b4"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/waiting-for-opponent-dark-1440.png",
+    "sha256": "e53e2d8e061168cb573758cbf0204b1a65952ffe5cb92ed346827a2b03b1b213",
+    "beforeSha256": "49e842bb99f9767351eb694d68f4402e49bb6581cdff8f05cb760c6f88929af8"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/waiting-for-opponent-dark.png",
+    "sha256": "683c6fdc6ec1bd8c7804686ece302048e92d76927d40319080415ab0eb22ebba",
+    "beforeSha256": "487b017c680cb3741642cd245faf3df73aba4c0ba74879a4fbfeac67b140dfbd"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/waiting-for-opponent-light-1440.png",
+    "sha256": "09db40b90bb56d2b66050d24c363630b3a4c7a5524d906c059bbb3d5a356dcea",
+    "beforeSha256": "4cd1c013be6ed5599351c070a78f422e7580bab7bcacb45f6c8a335eae1b3190"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/waiting-for-opponent-light.png",
+    "sha256": "dd24398acd1cdb0d3f16a9c2b054881c33e662b42c2a7451d5b79d50f244f3ed",
+    "beforeSha256": "f5136c77c8631fb42f9ba599e1aa3be454f274d44cd8a120def68ff42bf4acfa"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/watching-dark-1440.png",
+    "sha256": "b44f336ab48a4c66d76141fd10201db98e448182fad36c148978ae0fa207aacd",
+    "beforeSha256": "f4688ee9ef194ba40155a4a4db5ea5d1a66d2fee689d2ef0f5238db6fe456648"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/watching-dark.png",
+    "sha256": "fc43e868bcc3bac5229f4564e89d510cb72354ee8b2baae23fdaabc2e3b37dcf",
+    "beforeSha256": "fd970be7b4e55e6a60b130bd8ec64e105206dff3f317c49a6b15e2560fd28cf5"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/watching-light-1440.png",
+    "sha256": "64eb55bc2b106838a807d971270b4f27ad2318dffcb1218ebd90b206e8802ea6",
+    "beforeSha256": "102c2bc93d444d21a916ccba0e2a53b9555005664910ea9f8b685415a7bc639c"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/watching-light.png",
+    "sha256": "43bb68c0dc2e36ea23f6f434ebf7bc95618221ef97d240e682ded7d6ccfc4d0e",
+    "beforeSha256": "4daee08c78c9320a7b0d08b1d661fc9c75c69966674a2e50193464faee2d2117"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/won-dark-1440.png",
+    "sha256": "0a98c4e603fd7bd2e5aae1140056244af4eb2c81b2c546433d218657e64a7d67",
+    "beforeSha256": "40cc186aeecee11669dd8dffccd02908101eb60050aaaa61766c1560926ab473"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/won-dark.png",
+    "sha256": "9f742d81962181cfb2a5dec2f156e742e310c80b30c867f2df23b449d81113c6",
+    "beforeSha256": "61b9a83caf24557cb0a31271849583d8d0955881f7e7704cbfc1440eb3697662"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/won-light-1440.png",
+    "sha256": "71f074d26ada4fee4c44b2aa0f5dafde55ff46dabc12078b1677f09867aed029",
+    "beforeSha256": "d53fc0cee3ecf1fb9b6dc79250c27c2e76ef9b573c7345c3d643fcff60574592"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/won-light.png",
+    "sha256": "d07ab5db962453d59152408b3b9d3c4554e210ddc7e69a88a1c22b9320701984",
+    "beforeSha256": "f6c764efa6ee2176dc113b90040b34c9f720bbfd398cc2609823216f165595cf"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/your-turn-dark-1440.png",
+    "sha256": "cb5933d680577ac734c6e5c611cb0ea5cb673b0670eaf9e315aa09c1f5ce5a61",
+    "beforeSha256": "d20eaf6a2a48114dcd772311c933cdfa90c024fc5a8996ee30babf4e37b5a19e"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/your-turn-dark.png",
+    "sha256": "3934ea680079f192190059e89d823b0025f8af42afdaef6d7fb3243da47c4bbd",
+    "beforeSha256": "9557accc949aa490e8bf59afc67e6246b991ced73761aa745a07c9a9fea13a4c"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/your-turn-light-1440.png",
+    "sha256": "b46d3c829de771a705969a3de19055fd2a6e1d2eac1d7dcbf8faf4142b16ca60",
+    "beforeSha256": "1e4de1ea4b574c670a77e89731ae3602c9d81d86be0dfb4bdf8ad0a8e5f7e402"
+  },
+  {
+    "path": "libs/connect-four-client-ts/src/baselines/chromium/screens-games-connect-four-board/your-turn-light.png",
+    "sha256": "54e9055f2e8bc6ca174f713e669374f80b945587f27f61ebe70658b7f1bb3ef0",
+    "beforeSha256": "2b61c2bf8598ba5a71610406699de494ca25de78c0071d3390f56d2a6f928e4e"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-dark-1440.png",
+    "sha256": "8266ba6cf4ec24eb3e541395a27cc806f19e952d96526e826fe373a95127e08f",
+    "beforeSha256": "3c4d6acd4795c2bfced604f3007996363c699c8a40fe5eaa4b2f39cc11cdb2eb"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-dark.png",
+    "sha256": "c9736e059741c028a498a05d77b4d6bc1f38a92091f2f125c82784bef06ba143",
+    "beforeSha256": "040dceb12ee061c6da4022dc784fdf33375b4f51b3faa1ad756daff7a0bd45ba"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-light-1440.png",
+    "sha256": "4b1708b8a20b45196ae9441d27ebe3f84ec3bbecd2373fac837d010f27dba8bd",
+    "beforeSha256": "007ec7e7b188714a622c67e5f0d0272da54a3d361e0fbb1cd8a4d9fe1d7ef005"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-light.png",
+    "sha256": "47f897753ed530eb8f6412a0acbc91f61dd7079ad5163c85de608b13e6abc897",
+    "beforeSha256": "3bc4e357d70d0e4b1b1aad6200ff69ac3b7549daf0eb8dd9fed93193beefcd2e"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-dark-1440.png",
+    "sha256": "ac8b38425843451efe3dbdfac4ec66f19d154a150636bb1831f2681946236274",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-dark.png",
+    "sha256": "33e0b9b000165cac196fa0d9c6a2891171dc5915310338821ecb934bd9bfe904",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-light-1440.png",
+    "sha256": "230d9a902473b59dd6d8afcc3a67676af9b105c0b926ca6e68bfc72270054b57",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-light.png",
+    "sha256": "0f445a75256dc89dbbd9d40f38b36908180e4baac778c19c057630d9643f84bf",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-dark-1440.png",
+    "sha256": "473293ab380a71b595e442c11776ca8475926da6f03c9225768ff4516cf775ff",
+    "beforeSha256": "e0cd63cd16ce9af70b34705b06864dee6940927c8aea4e7ed288a0bcb09c5498"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-dark.png",
+    "sha256": "57cf25463eda14a481fc97d0e8b37ae8e8ec4f5770d6195d3e1e18b1a513479d",
+    "beforeSha256": "99ff48c41fe6bdb5ef705e2f96b383213c168f6d9846ad8716b1918f2535adad"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-light-1440.png",
+    "sha256": "2dfd7e6d159668c1c6daec85e9548dbf4eedf3d67c088340960ca2c1c0173321",
+    "beforeSha256": "c29f894ad3283ac7b1e8aeaa93f498f9bdddaf30c9f9d96719ef013b920377f3"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-light.png",
+    "sha256": "b76c4c2b43e76b7e400924397d6c7a24c82929386d64915c712595ac1d042778",
+    "beforeSha256": "147a81ad71eef752403fe207f47a536e667d33b775edf3f1ccd0449aa7f4e220"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-dark-1440.png",
+    "sha256": "c692ea5a1366b5eb9feda1b6626d7194835295200f0b0868f29d8460d271e3fb",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-dark.png",
+    "sha256": "76dad37d8814a2bd0f771dbf9b71bdd689931d5f4b56b77046a21258db4f1697",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-light-1440.png",
+    "sha256": "94c254d6a9e31b39bbbb5be61f9e9a739427f352b33c325ebe17ec6be7f72981",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-light.png",
+    "sha256": "566f22da3bab7db8411d63f5ef9c9b072ff9987ea3a93f607cf66dc82c8921f4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-dark-1440.png",
+    "sha256": "1bdc04b4bbb344932e16d5c2c6e17610995972ebef6ed340735599119b5746f6",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-dark.png",
+    "sha256": "94bbf89488c5d5699882fbd041a52ec22cb04f52dfc26ec1195c6e808bd2637b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-light-1440.png",
+    "sha256": "59992aa5e8c68e739e5cb9ce3653fbac4aade31d26f418193f2038927a8547d0",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-light.png",
+    "sha256": "ef1a528c51e5e3c2b035f9e2eaa1fb3f02fc18deb09208eb6ff1541425cdc93b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-dark-1440.png",
+    "sha256": "c3d839bacfe3c07a578f4e8091764328c443d5a064f296d25b12e673ceb872ee",
+    "beforeSha256": "a738a5a816596f0656bbb52f8a0721235fba7371aa0b71396031e2e2ab6626a7"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-dark.png",
+    "sha256": "e1aefe5a6c28e9226016aa079100c123938ae164e3a1b20d6d7bb2d961046442",
+    "beforeSha256": "aa3c365cd63988a2e2f8de0b5f58603b81ff011ce3ada7b122866b13de3b8615"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-light-1440.png",
+    "sha256": "b29fd4079d93fd1341d8489dc304d37e6e1d10a8f5755723285533a99144a587",
+    "beforeSha256": "8640a4d31d919a89c32d7b994a64aa7b40252b8b41912a562d613bf93077dd50"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-light.png",
+    "sha256": "753a4c938a6f03a3ac19aeb6431ae8028f8dfb11a1466cf96bbd8daa7c5fbdc0",
+    "beforeSha256": "92c4bd30ca4646eff70b41894a5c8c0293e536123eec86a4db51152e1738cd4c"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-dark-1440.png",
+    "sha256": "c305a9e25753838259a85e8b8bae5c19cb4786f50651bab4320d19dcd2e071fd",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-dark.png",
+    "sha256": "c21803c0765ba7f739ca4206967da557bbbcd6f2d7e1e9de9abd6a9fbbb0b0ba",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-light-1440.png",
+    "sha256": "edfefd24cce7e9c7c785d1876893524a9abb35e50c05f4072b7991c65c673e9f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-light.png",
+    "sha256": "46ec5043180f9c6ffc4070ab53e2098505e4676d87d91d9fb96439bb13547d9c",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-dark-1440.png",
+    "sha256": "b175624d5d15acb1cb6fda3a364e74b410eb0832dbcc22d19bd621519cb6c9e8",
+    "beforeSha256": "fbeb1cba3e2f7f3f53ab0f096281c99301df17b69aa77ca10a320dc9416ea4eb"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-dark.png",
+    "sha256": "0b6d0cb678bbe17116aeb4ee1b9f4ddb614e81ad07ef54797da1852a2e137a6a",
+    "beforeSha256": "e164efec38bde6cf8c769c7297f5772c66334e6d5dee8a2bffb70f5d02d87576"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-light-1440.png",
+    "sha256": "176b4bdf351b349c220ceb16262e93029257106f83ea30f7ce4b4846d68d8778",
+    "beforeSha256": "9ead44991b3404ae321e3980edc4e189b91ee17c612fd6f30e3a53167c5025f2"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-light.png",
+    "sha256": "29883cb736342896519aba5817f2f94d0078db0743832390da0f63bdf1bd64ac",
+    "beforeSha256": "08ee6ae0c835edec6eea6c1d989cfa19e107e6940d0aa8723dd7060da0f3b191"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-dark-1440.png",
+    "sha256": "3e14e85a581d98bcf21bd709129dc79b780c979b736a694950c398ed198adb7a",
+    "beforeSha256": "be83ad0342e7c1b792f4f1273507a22dd8408a12e7d278ccb74b41a36d6b2e46"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-dark.png",
+    "sha256": "76579afd0ac3223f2af2ea8e4a618eebe2ea5e438db1c9237efd6c3c46acfcfa",
+    "beforeSha256": "424c25c4bcfbfd7757b5ed8fda8addc3418f47f2a70095df2a25c4be471f65da"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-light-1440.png",
+    "sha256": "2ec4da3a266dc91f2db61f6e716fb6a4c27c9269f55f932be6800ccaba58a971",
+    "beforeSha256": "dfbc71b5f2869384830cf929efbe693c8c2372b96104d036c4caed2371099b5c"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-light.png",
+    "sha256": "6f329efbc992912f14b924cf7cc230358b756d04b8a367d05e18fbb2dfd79894",
+    "beforeSha256": "5fadb2dc3a5d58bb6f8965bf65ed92dad01be57a857e58187f4454607a6bd6a4"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-dark-1440.png",
+    "sha256": "b9d35cb405654400ab31155b5a8aff99c50f8274902a77c89932eca85133f602",
+    "beforeSha256": "3b5fb4d5666dca4d8bbb967883ca8e2f7d73e36e6a8bddd4699a6a554158e067"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-dark.png",
+    "sha256": "d72155a4c7e00e95ec4a44f879ad735e330533ad17bbd0851b16b9a56aabd9bf",
+    "beforeSha256": "71e1454c58ed8eb6ca10b268d861e7b8aa3ed9048ca9581d2dfc357dd5a9b676"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-light-1440.png",
+    "sha256": "6dae5f123a8acc0848c4e2289ebcf3747b452afc4429d37bb263d8c758197aef",
+    "beforeSha256": "60f20f58abed96d599bc7bb6bcc6eda817f10e7276da130ee938b36524f26520"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-light.png",
+    "sha256": "b9bcaf985f8ad05acec1665ab5ddf3e959515bae11bfd100281cacabe52fe8ab",
+    "beforeSha256": "805ec3cb8c5fc4ccc53a20068c0c964358d5dce46e5a8699427970d76faf80f4"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-dark-1440.png",
+    "sha256": "c205edc3dd17cc551f3b46c91476d4d0eae83e57d3e9191d27ace33e5063af4b",
+    "beforeSha256": "ea4e35fe6d5775b3400c1578bceacd286926468ad88525eefb9b0c889ced0b80"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-dark.png",
+    "sha256": "0c3405c283bb77999bf38a80bd301904c563bfc303baf1816907a9800d511c9b",
+    "beforeSha256": "596e90ddf0c93c6c16fd275855f003e3766d5e8a5660a49be01f555ee61ee63d"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-light-1440.png",
+    "sha256": "e118f8385f3fbc352110ba0333ce85cfc281e3e05a262604aa18f851938c746b",
+    "beforeSha256": "606c4a95785b6eb298ae289ca14379daf503094d944c8efc24890ed6702eff13"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-light.png",
+    "sha256": "c59b84a0399d16cc7b61939bc0ca443e3e1c65dea92a8236a541ef0075f6edf0",
+    "beforeSha256": "554d8a3f17f73433264d54344e12023c583453eace7533280388685638860f5e"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-dark-1440.png",
+    "sha256": "97ff0f3deb9d12a72014fc144ec34a1944ce6d2a1c186c0d807a6fc082bed063",
+    "beforeSha256": "6215c9586fc5226e987a71dd29676c04a6901380486d8c062a960d46df8a2197"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-dark.png",
+    "sha256": "da72245ba8637838d28408ed675e620aef8ea51c3f22c60886d87ef5fa4d0e74",
+    "beforeSha256": "26f841c75b3304621c70930386efec19c0871639ed71cedb631d9b213da0d298"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-light-1440.png",
+    "sha256": "d9e6a5acab8394a1c6fbce8c2018cea732aea83309fb916feaa23ad4b1d6690d",
+    "beforeSha256": "ec83a8c6ba30d23263142c09d32a34b257b856e3ec95a0995b75f3ea96d824d0"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-light.png",
+    "sha256": "9a75ad06515036dbc80003eedca1c4de0cb060e994722c7d39a0dde009881de8",
+    "beforeSha256": "f3e582a78462ce3b424107710bb7df21d26497f1bacf8b670e34e3beb0a698f7"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-dark-1440.png",
+    "sha256": "f3f31292ad16a2c38b061b3e7fd62163ae71eb6538b63334838b2778ec89190e",
+    "beforeSha256": "61084a6aa9d99f23c1ccee225b9cecd8cf84663b5d09921bb912759c90ce21c0"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-dark.png",
+    "sha256": "157c1c2f7f88f9521cb5782e0adea2fbc838bd78c9e4c7e4dab24974aa64b622",
+    "beforeSha256": "2220463016fc4fa7636c670a79e2a09708e4bf85cef00bb5f1c5cfaf9c53a100"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light-1440.png",
+    "sha256": "fdf425f520edac9c0d682d3385f7c46eb844a80547932f30e3e0697cdf4cd115",
+    "beforeSha256": "5b4540b8d9d81f76c6c1b68e20924d3bdcbd1988f228c09863782a3286508d29"
+  },
+  {
+    "path": "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light.png",
+    "sha256": "87a3f55cc424a8082db1208fbce726dec4842c9bcf6f0444d5f8e14a68d89bcd",
+    "beforeSha256": "ea437d887d319a32159b9e10e6bfbe4fabdd41304d873663735bff377f289f32"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-dark-1440.png",
+    "sha256": "3e73607584020ae2cae147a9bb94ba57ae98a2945c07f3ffbb3c7f37422ce5a1",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-dark.png",
+    "sha256": "8af560afc5cb07b6b0406b21361995792a725f5cd9a53ccaaa9f1bacae447ff9",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-light-1440.png",
+    "sha256": "88109c70ca865183b08f5c921e9fbceef45bbd36adb56ea8427fd3af8cd49c7f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-light.png",
+    "sha256": "c598b6387867f293404446ca6a73a07caacd30884fefd147fb76989d539525ab",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-dark-1440.png",
+    "sha256": "116b4d2f5bf716a77bef142dffce7e8979096a262543e18b8165f22545a08554",
+    "beforeSha256": "ab51c35c4976faf40c90aa86a1443c3d2a57757118932fba0ec25ff8881a6033"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-dark.png",
+    "sha256": "0539fccf24547640268af73e07fc5fcf4d57736c06f651627114c59288a7653d",
+    "beforeSha256": "b9cf1416b25ef3b4812a87c08a52e9a5942b8149ecfcc0fa6c9adccef24a3c5b"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-light-1440.png",
+    "sha256": "3a5a1910d38f9694503cf70f1eb62f549e5cb8a128955f0cef18c46a422e6c2b",
+    "beforeSha256": "91f6be05e17709bdd318563f62d7b7ad792982aa52fa1de61224d54110fca619"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-light.png",
+    "sha256": "e5761f057de5576afe3a444067419ac93c9b5fc3212a91a893942710fe83275a",
+    "beforeSha256": "14e7f6157aea5664b705ecb82cdf3820933c483cd99c59bbcb312d248023453e"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-dark-1440.png",
+    "sha256": "5744d12b896232932fce814473483546b57bc22e57b1519d10459d3a4c5b3e89",
+    "beforeSha256": "1e281ee8d72e5b3d6ad1088b5a2f4f9156a02ad0ea6f94eeaa11e4293c4db909"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-dark.png",
+    "sha256": "0491e22030b26ef181b007042e87b133e14b5828d16b34683d7f786d7e4c8c1d",
+    "beforeSha256": "6e2fe0ee1f10c216cdfe5d30f576623d70daf26b25219154c0c9c526cc20fd94"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-light-1440.png",
+    "sha256": "21462f917e8c693ffaa33488c83e32ea3078b2af394d855c7c7c6481d92939d8",
+    "beforeSha256": "3ac150e2114fcf80dbf4e0a94f2c7a4b38e1821d98862fc4230dce38b126b81c"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-light.png",
+    "sha256": "49c8bac4900f1b6ce3d4f365f78d850110b05f6fcda1d2b314f36bf54c6f657e",
+    "beforeSha256": "c32c6d1f1a1851be224e3ac86032f211b203e7cfb4907499cd5484245e7e58fc"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-dark-1440.png",
+    "sha256": "10f455ff32c624d7affc25a24490729d0412914eed31255d46b1d96106656d2a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-dark.png",
+    "sha256": "00e8c595e9fbfc2e42ca7603a5048e6dffc2dea8bd4b619ba8a72746f493f11f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-light-1440.png",
+    "sha256": "7a10da788055e095abcce3e341c01a4b2ecd7b1f2c61828b80e3db04cea35205",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-light.png",
+    "sha256": "c3b2a44a5086304764d465932b21ec1e7110389675923b584f2ee26934870b1b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-dark-1440.png",
+    "sha256": "f391b9c654b7d42d9ede9b37612c4842cd9e1a0403df4b2a18884aaa44903e12",
+    "beforeSha256": "8bd837d4c21ca1388af8610ffb324060e7e001f60305e0cca649b959647d0aaf"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-dark.png",
+    "sha256": "68ea74f0718e1315c1a7b195c355dfe4eb1da2037f2b7dd4ea955034028fefb4",
+    "beforeSha256": "e2cc7f1ca1238222f8f4e532b7d5f5aadeaebab9488d3fc5f47d15f477b547be"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-light-1440.png",
+    "sha256": "3b7eab27ba460fb0590bf6ffe76f4664d145ef92f04c0d5a400cfb5c5f726316",
+    "beforeSha256": "f4386cef1a7c08f1174fa2831da66f67f2598af29f91f2218063fe1513bcac8c"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-light.png",
+    "sha256": "ff55ea346e2e01ca896b573c1467b92e7a30003bb0d56af1250952ffb034a178",
+    "beforeSha256": "39283ad754ac67068f6811bb2f2b276a1fe080d274f829b6dd6cf03e5021d5cb"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png",
+    "sha256": "8c226a0de8fad77af79eef682cd7bc9376812884b465ec517b596a5d052bd977",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png",
+    "sha256": "fbe7c1e064ca9b9f4e044c92ea3998432485d578120468ea32489839b4631145",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png",
+    "sha256": "ba099e84ff959feb59b0f465d6db45fd087f4a82af98290cd682175b544ade20",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png",
+    "sha256": "f30906da54587fae38bb14bfc6c4408ad26c232e444acf45005b2ea1f90253bc",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-dark-1440.png",
+    "sha256": "385e15cbffa9e429d4ab2cd67c8bd40db073ae5698ff8ec3acad96309df6b056",
+    "beforeSha256": "e3ca0592698dbbfd6988f751d4a7b46aed6f65185e3eee7d09f0df6996d5ecff"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-dark.png",
+    "sha256": "0f211531259d3db4ebfca1b7141388e84065cdd7230ab0921bc1ee495572857a",
+    "beforeSha256": "378ee711b5a10309df9f5ced4e122c11c0572ced97e5df815e3dfc6c57f1c3b7"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-light-1440.png",
+    "sha256": "b531c42dee7fa61115f140924011d448055f8716dbdba073a20504afa179c389",
+    "beforeSha256": "861eeec5c5cb0fed3e1879928f40bad7ac9d5f7d74339161ab813cb3987439c3"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-light.png",
+    "sha256": "a323257b5f6152861e46d1003f9219b64b8acda495c27b042ec88fcd85d8922f",
+    "beforeSha256": "e88bc70db7d40d8534bd730f811d89e9ce86c5a0c5f5c0ba76867d2f18570394"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-dark-1440.png",
+    "sha256": "7d586be9465080846028aa62652bfece03696d50ecf0d1a3180d2303efdcc333",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-dark.png",
+    "sha256": "31e07af7de1bfe9017440fb9b6243f9054a880e8ae1cdefb502b3e0cbf358685",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-light-1440.png",
+    "sha256": "889723adec1c6f555b83cd31b7d4f8178caf18a2d46793783ecaccc5d9c8e396",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-light.png",
+    "sha256": "3f1a52e6a6d68136557305e7405098c7ad7dbf4e164ea56b8c3146ae829914a8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-dark-1440.png",
+    "sha256": "04e9e949ea4d63e8eaddc830954b05d60a51736c46f8a2c999a3b3b7ddc28785",
+    "beforeSha256": "150b44f9ee18978ea3d9bc0f185ed14147bbd98adb93e9a4adc139a8e9aa5111"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-dark.png",
+    "sha256": "0338711ca12039e40212147f2c9e88e40e2176f9335366ea541354527ca33b24",
+    "beforeSha256": "fd66aabdb04db3cfdc2ed9a66be193ce5f52a25918372daf796578da1b7bfa36"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-dark-1440.png",
+    "sha256": "0912742f93637f1685d6e69a94d0c01af6b4dcc8b2a8d164e0909d28f73f4bc1",
+    "beforeSha256": "039b3416c7a6648867a250b9bee0a1f77e95f6519210f1c1b82f5d1135c3faaf"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-dark.png",
+    "sha256": "14e30914a973730a07e7e9088ec4267172f58cb1076266423d0ab81edb85f15a",
+    "beforeSha256": "0274fa07a42ec5e284cc51f10f1877c0807e03ffdf0157d20039c9f1accdbc86"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-light-1440.png",
+    "sha256": "8729b4c5b2c48ae64a30f27b8a867306d95b06ef85c4963c54e256f472ff298b",
+    "beforeSha256": "e3e52c63d201b69eacae847fc8c128b9f6435d55b67c8ccb7f54784dff66ec61"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-light.png",
+    "sha256": "e79f06a3e6b3e2df8164b7e3a486d4ce50a51ae4c8406516da4c32245339e3ae",
+    "beforeSha256": "8f0a1896cc3357729a7bef6ef48f90a7e2de664ce67ea877087607ad688df169"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-light-1440.png",
+    "sha256": "73df529935792d454d99377ef1a4dd77f18acc8e5e6a592d8ff5d46092c3b238",
+    "beforeSha256": "133007e2e68b35a9cfb6c48fe52832f52c1fe939f9ef9d43da71edf8e754db79"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-light.png",
+    "sha256": "32dbbb5cbed9b92ffd64cf96f74a0ce2971ccc80af708764dfd36cbf08acea28",
+    "beforeSha256": "3e4938a41cedd1427e3ab47a2e2f59c51af5c561ef045ae4b03322e8e7fe600e"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-dark-1440.png",
+    "sha256": "a438ee1c03bf7c3e1c7c2d3a2761d92efa27ec787af8fe00ad40051ee59a8cea",
+    "beforeSha256": "67012cd8978e00cfdb4b6a2680536f1cec86165c76086a8be58071d6956ba942"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-dark.png",
+    "sha256": "f7ca7a57334ee92a5afd16d1be7b5bbfb480700af0138a66d221fc581546e4b8",
+    "beforeSha256": "8cb11426dde0e11eb14768824bfa39626090ea6dbb8b5e2140de095cbc321e1e"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-light-1440.png",
+    "sha256": "638e720817dae604c880e86e6ec30b25069be77f4a6856da755dbbdcf03dfed5",
+    "beforeSha256": "83b184ea87072a409530ffc0856e94b5c122e6cd9eeb6215f7e49f655dfadccb"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-light.png",
+    "sha256": "93c226336e43b9f1a39ab2d53379c3205dc73954b004da1fb4a32e144ff3716d",
+    "beforeSha256": "e08aac71713cba57ccca7fc40e97f89a77b8044bea1229907bcdc82c78bdb0bc"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-dark-1440.png",
+    "sha256": "65b8cc9b2091fd4ea6840c3d69f169bf9181fe947dd42d5182f1429eb3967a74",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-dark.png",
+    "sha256": "a2dc831e8a9c2687d3991985c99993f8da52d07ba4c2f5d52af81a8170ef355d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-light-1440.png",
+    "sha256": "ff83a394add2a4865b81e9984b72d524abfd2ebb791f22e54319bc0042416ec2",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-light.png",
+    "sha256": "afe9730b140d27666580e1c123b23875ef0fb37552b26dfd2be4228f74ad6c26",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-dark-1440.png",
+    "sha256": "65b8cc9b2091fd4ea6840c3d69f169bf9181fe947dd42d5182f1429eb3967a74",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-dark.png",
+    "sha256": "a2dc831e8a9c2687d3991985c99993f8da52d07ba4c2f5d52af81a8170ef355d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-light-1440.png",
+    "sha256": "ff83a394add2a4865b81e9984b72d524abfd2ebb791f22e54319bc0042416ec2",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-light.png",
+    "sha256": "afe9730b140d27666580e1c123b23875ef0fb37552b26dfd2be4228f74ad6c26",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-dark-1440.png",
+    "sha256": "7d586be9465080846028aa62652bfece03696d50ecf0d1a3180d2303efdcc333",
+    "beforeSha256": "773215cede787bd01eabe7e1cd1ed952965095f2863c0860b191bca67a7f57a1"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-dark.png",
+    "sha256": "31e07af7de1bfe9017440fb9b6243f9054a880e8ae1cdefb502b3e0cbf358685",
+    "beforeSha256": "a3fee046097a5a2f18b5b030b2b1b9ba64c36a79de0c9245bd7971bd964c18ae"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-light-1440.png",
+    "sha256": "889723adec1c6f555b83cd31b7d4f8178caf18a2d46793783ecaccc5d9c8e396",
+    "beforeSha256": "399d48b114f59345420b28adc94fb7d00861710e1086bf38059848b70aa6df21"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-light.png",
+    "sha256": "3f1a52e6a6d68136557305e7405098c7ad7dbf4e164ea56b8c3146ae829914a8",
+    "beforeSha256": "7765bae7143f1237dfdaffb1bce33eb8fc9b648c45f3ef6a8a4102a4d9d9a65d"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-dark-1440.png",
+    "sha256": "50ff2de4b38e82b712db5ba1fc9ddcb25ecd829b94cb5272af0bab705ecabfb4",
+    "beforeSha256": "840294638f399cd27d9fd1e2a139fa8b9dc4cce8ad885bf2a95da46bd616a170"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-dark.png",
+    "sha256": "a8bd3a4b75fecc0616e2ad464c0c0255a12a8ca532ecac981a16ceb866168136",
+    "beforeSha256": "6967f008faca3f6a3b26803c2df4df97eb2e9ce39ca34d543d966a67c2ae4c9b"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-light-1440.png",
+    "sha256": "2c01b2dbeb0836c4fc6f3e1957a474b72f8a41ff1a5b67fb00fd7ec80a8dcb50",
+    "beforeSha256": "d7fdc28f7e6a503eaf078a14c799b2160e4b69b77fd7274d838baa8b546ebd11"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-light.png",
+    "sha256": "7531889c3d95a6b59e23a687a91ff80f6744dbc8dfeefdfa110daabf7de6c1f3",
+    "beforeSha256": "d901269d3b90557158ac6263d66a3f0034f9481b4629af8c8a5823a49f1c44c3"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-dark-1440.png",
+    "sha256": "0d1c227558bffe3bfcc5ea3df480d47667141eb7166d6fc64b47ef68c3cb717c",
+    "beforeSha256": "e4b212645cf21722541762baff59956b78d5bb167134e83c0cff83fb254e6d7a"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-dark.png",
+    "sha256": "99d42eceaae2e7245f8f7e30cc9ef50718165f8b53f616a6e5bcf16443a07562",
+    "beforeSha256": "a2fc7cadfa49361fcd0a368f1da576e465202f495130ac6246835bc8fd78e071"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-light-1440.png",
+    "sha256": "66004180350b275958c2f9d0b49ce8ada739ed2a23e1ba192e94fd4378ca7dba",
+    "beforeSha256": "a2e623cfe7b56b7309eee2d13fcf29022254e3c6fc775560435eb42307926455"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-light.png",
+    "sha256": "336595477551350e6ef77891397b1f99d072a28a4705509857d4683d1edea5da",
+    "beforeSha256": "863edac6147c9099baaa0004dd1cb3311390facd42bccdf6befd4e49cc756a4d"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-dark-1440.png",
+    "sha256": "0e3420862a8a9526789ecf8da77f9fe6cc0532bded951aa2a5b12058fdbc2224",
+    "beforeSha256": "a8f5dd9dddc04204926fb2c1e9f23f60eb2b046a773b6555bff4121dca346898"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-dark.png",
+    "sha256": "c5d79a8c29d55a8fff3aee8e52926594529ab53a847026ba378cdd054ecd72c4",
+    "beforeSha256": "8d6946cd21585fb2be546051050e9cc20922b039fe8e66d8ac9aa313e1694dad"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-light-1440.png",
+    "sha256": "6d137db8cae394785509ec0704ca9c6bc984c73731045d475ca07394370385ad",
+    "beforeSha256": "53c90d87d0939cc55036509b2a63e1bee22bf7a78f01a5a394c8efa790642e69"
+  },
+  {
+    "path": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-light.png",
+    "sha256": "5a86cea227aa65a446e4cf66545741255e25b01c1677704794123a5a029b591e",
+    "beforeSha256": "93c84898f6726f0fa65ea3c1827f24442e362bc47df4f1ff5ca227c66b4bfc12"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/complete-with-keyboard-dark-1440.png",
+    "sha256": "99518fb3d2184645b3ab8e3e91b58478878472ca757c9fcab9015c7c94b1bd6b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/complete-with-keyboard-dark.png",
+    "sha256": "151470c37466f1a252e4c7f542710b1a1e470731111d374b605ab78772fde611",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/complete-with-keyboard-light-1440.png",
+    "sha256": "21c449a1203f59d999ecb38de3754868caa21fb85a06c398977d88fef08471ec",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/complete-with-keyboard-light.png",
+    "sha256": "a270eee1e6ec84949aef624734d3a801b196e5bee1cb40c0516e91479fc89802",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/disabled-dark-1440.png",
+    "sha256": "33175862e12c9aee70196cb7072e911c851ba9647062ef24ada04caa01eabb71",
+    "beforeSha256": "e97ab4220a43e63fd7a133af9d81d8e54356ec4cec8943f86d077dafb3162c66"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/disabled-dark.png",
+    "sha256": "d841391ec1cb59a5c11e2f1ec230bfd0b05079a88dcf2ae78d68732f0abbe2d6",
+    "beforeSha256": "bccb1e5809dfcb9319f1eb080b3f01d4e792abf76d79a70652a1404b66efa7be"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/disabled-light-1440.png",
+    "sha256": "48f36e35ada8bf8a082a6322b959e079edf7344de68bf563d7a0ae27a6dcc108",
+    "beforeSha256": "671ce0912b133134708b1b4aa820f82ea6dea506b33ec430e8d4c666b938b324"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/disabled-light.png",
+    "sha256": "17c7e0cdfe615e8567f2b58bea9ccdf3fef7027d7dcde985b3e16b02ffc38797",
+    "beforeSha256": "120d603e6facdaeff5d71cf30301658da73d7bef6b51b38928f737f38840ecfc"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/fresh-dark-1440.png",
+    "sha256": "228dbecf55fc2ac14e994105f5410db68b2ebdeefc837c1b49cf3558ae3aff9b",
+    "beforeSha256": "e97ab4220a43e63fd7a133af9d81d8e54356ec4cec8943f86d077dafb3162c66"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/fresh-dark.png",
+    "sha256": "1f18beed05fbceb372d117554737daeaa69c8663ef3ff3410d53084fc2a96ecf",
+    "beforeSha256": "bccb1e5809dfcb9319f1eb080b3f01d4e792abf76d79a70652a1404b66efa7be"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/fresh-light-1440.png",
+    "sha256": "4c0cd0cb956607119205a8fcaaefde809361137dc50f70ea39d725c047250f69",
+    "beforeSha256": "671ce0912b133134708b1b4aa820f82ea6dea506b33ec430e8d4c666b938b324"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/fresh-light.png",
+    "sha256": "30da9becbe4eaa6918fb6344da17ede9f177c6e820d67c1da408992579536721",
+    "beforeSha256": "120d603e6facdaeff5d71cf30301658da73d7bef6b51b38928f737f38840ecfc"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/in-progress-dark-1440.png",
+    "sha256": "eafdb152fd621326a6106d2a321a7c35fc90872280e36676dd3fa831e15dba11",
+    "beforeSha256": "509a56e436a64df8612732606a2bd270163c87d04cdb66a0ba83526bd374872a"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/in-progress-dark.png",
+    "sha256": "890cacabec65a1278a34855db0d0ed7b06449aaff5cbb7c271a9c4fa300c1372",
+    "beforeSha256": "04757aa77ef157537687d850193a264e1096a817a206a6af55aac38916e428bb"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/in-progress-light-1440.png",
+    "sha256": "5aed3a5d5927c28dd695a513f57c2edf4a9f7edd1e04949a9bddf9abf189bb31",
+    "beforeSha256": "d64a5ed1d5a07626a58fa0ee4bad99032a1d49afb3ad20f06eeca1d22fb03f57"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/in-progress-light.png",
+    "sha256": "f26f2f7c8e544e0ba0e791d3c987fbc2ae5dcf4e8ce342f1ba58a4fe04c10dfc",
+    "beforeSha256": "a4a1b2a51215ebaca0f6cab34264321c4f7a24516b28e7fea7473e3ece1fba3f"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/recover-with-pointer-dark-1440.png",
+    "sha256": "49adbaf4bc9344d49ac3aa2edfc3e3db9d245eb741387a185582888be39fbbc1",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/recover-with-pointer-dark.png",
+    "sha256": "c545f9deda7af2b6b4080fe362e198db6d8bc2cd6069db1143d6993d7fc346c8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/recover-with-pointer-light-1440.png",
+    "sha256": "7a855ca0541cd484fb5a44e5f824b3fc2a097f7786235f3bb0ce9814056033f3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/recover-with-pointer-light.png",
+    "sha256": "93cd7528a5d1b09b0895c3552b6604eaa86b7a284e3ed1077568b606e48f2e6f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/solved-dark-1440.png",
+    "sha256": "16162400ba0aacc9576dc92d8737ab8da9afc40d2d168dff3b957e825bd351c2",
+    "beforeSha256": "7891584e0e2cc151d901b2c6c88f1b873e6d2a182a34fbd8d315a975eb9d812a"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/solved-dark.png",
+    "sha256": "3c74e09466db4a9454a66ffa23cddc9d9ba3f6d062b8c134af252d0cdc481ef0",
+    "beforeSha256": "e2af9b8609d810dfa30549b545a85963a37325866ab7a07e4286495000c7a554"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/solved-light-1440.png",
+    "sha256": "9527fcff5767478bb84584401619fcd3a415a5263b015a88fa4d947495649b1e",
+    "beforeSha256": "98a5f10489708ba367ed9fa2b6906e377ae9cb03341c0074e44ed790d016ecea"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/solved-light.png",
+    "sha256": "2f39e427c40f2fdb9d1d2f2cf966ef3b03e6bb2a9c70af5da3703fd6c6ec08dd",
+    "beforeSha256": "afb7bbbba868131d22781962b997cbdeab4a6b5380357a4fe5ecb9a5c875e66e"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/unreadable-dark-1440.png",
+    "sha256": "27735c5c5e215df4e69155b1a405c1feab190bed57ca3ae957192883ede5de0c",
+    "beforeSha256": "3901db504e96fefcb06300d2ee10b17ba3cfd8d113e26ab6ed59720ed1c7c4d5"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/unreadable-dark.png",
+    "sha256": "1c2a56d9e33556a5e3b3aa8befa4bab4a03c2c810e49030106537248f45ba29f",
+    "beforeSha256": "f47dded2fe5af1b028aa7afd46055db65e55cc12ee5c0d1f08a8afb568857204"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/unreadable-light-1440.png",
+    "sha256": "9d3264df58feba6507a8e8005a4902267f4661f67e9502ddd72f5457a0eef8c7",
+    "beforeSha256": "0db1f17936a8659a50da263876abd3207e894fc1adabc764dfa903541429c512"
+  },
+  {
+    "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/unreadable-light.png",
+    "sha256": "855f63eef3d1ee5b7facc29ff7c57a0a64dfe0d2f2edc3171bcaa837cf5d656c",
+    "beforeSha256": "6b0373f3f64b048462e0318a7f885b1a434983b58e2ff56315e823af40f1409d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/countdown-dark-1440.png",
+    "sha256": "bf3b973defeb61f8502aed2a75acad10f8934d38e3e289e6ef14acaa587473c6",
+    "beforeSha256": "23634b54b612d498c3f78919edd1a1f59bba6aa929abb0f47931d56445be7785"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/countdown-dark.png",
+    "sha256": "60d84486d7fe5c6ae4d90e0f3d0f5087ff64c07c6dedb138651ef44f77ee0413",
+    "beforeSha256": "0327a40a5da779fbabc38b4ba84adda0560b8fe1edfbc5db1248f345a2f22b4a"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/countdown-light-1440.png",
+    "sha256": "d0a9e1676c4abbcc1550e3a28c49b9b9d5b23b4f289db95e2cd23e40bf419aa0",
+    "beforeSha256": "99af3cf3d32c9b6d89fa0f74f53f7180c36cf380cbe825787131d8b1204c9577"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/countdown-light.png",
+    "sha256": "df4e50ea804a4cc36fd56c995035df2a17ba2dedf5838b838ce190ab853b194b",
+    "beforeSha256": "ce1f1f34f403ca9b8decd746d43b51f36336b2e9b0e47f2ffc0b3d8b00b84527"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/finished-dark-1440.png",
+    "sha256": "2d3ead227c5efe1ee9ded142228d3973f7e44f106553a2339e9afa74984639f9",
+    "beforeSha256": "420aa15d5abc6877d2b240bb18642731da25f8040c468817352985b163417403"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/finished-dark.png",
+    "sha256": "5e12a044c96a62b4ae6396dbaba8fedfad3ecd49260e3fb4e75ca2d8050610f9",
+    "beforeSha256": "efed143fe0739682fccab0f76dbe23d0abf7aff96dadfcb53fea5b7327d49a7c"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/finished-light-1440.png",
+    "sha256": "3d60c233b27c50ecbe840d2b13c688de4e927deda0bcb3c29eace8c0ea36a0fd",
+    "beforeSha256": "be0d21eac151bd8afaf0d83a36f8568f94692505c608857e512cb8c6e44424a1"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/finished-light.png",
+    "sha256": "256d046f2299045f9293d6f47e8db9bdee52032f8798a2a18d04c7bc0781691d",
+    "beforeSha256": "67a6d1244035872f7d05116ed8e5061a99b530ad8fafb6b454132d626fe9856e"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/match-point-dark-1440.png",
+    "sha256": "7c3f722b1f7078273f208420b48103049d59323708a6b2b1af39d541dfd85d76",
+    "beforeSha256": "6fedfcf6f868a509b88949fc0c4842c1fcbe40306005f47a18e4614953b4f76f"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/match-point-dark.png",
+    "sha256": "25f3a636a7e1e4f03c09851a0b6ccd0bc8fa99cb6f4438b370d43cf25f00b953",
+    "beforeSha256": "4ccc834a3fcaa6872825ac7af05a7f7186a424dda5c91faba3077cc584c4f2a1"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/match-point-light-1440.png",
+    "sha256": "d8685935240f64973c89220f08639a8d07c1260f4defe9ccc8173a4f57dbb60d",
+    "beforeSha256": "36feeb0be41142d6d06c1c14d72e7188310142a4abfb1a40cab01a32b7b581e8"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/match-point-light.png",
+    "sha256": "881d2d0977620fbd099d7f0830c6fa2d7250eaaf6f9992cb2cd3f80d727db3fd",
+    "beforeSha256": "30eede6d454eaf07d7d220a357b908212bf12af0f42126f900022a75356a9e9d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paddle-movement-dark-1440.png",
+    "sha256": "140b2eb4b461817ea7fefe21a24d68d0631a0332310df67efeeea80e8f32b61f",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paddle-movement-dark.png",
+    "sha256": "6a57c5e06a7a067df05266a9f693a8b0274648953f9a7f009723b793c98c1dd0",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paddle-movement-light-1440.png",
+    "sha256": "a470f400352e0a6af7ca02fe14b1e4e99223018222e4512a31466d75d97975b3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paddle-movement-light.png",
+    "sha256": "85c61e770f3746e3c41d72e119f13844ed7b81babe811ea99a06fd65db426235",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paused-dark-1440.png",
+    "sha256": "03c721540186b12d92a672b8630770efb98763386222c1b82903938a0657306c",
+    "beforeSha256": "497ad9385e2cfadc0b3694e07fd460ba4a8107cb2923bd9dbee40f2f85cf1456"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paused-dark.png",
+    "sha256": "48a97f642c5ab8b18d8265016a622ad5d31fe543c85dfb0602ba35fb0a059537",
+    "beforeSha256": "cc3571a5a623d2fad989f73497e401ded275c8b05c36f70990becbd4fd051e85"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paused-light-1440.png",
+    "sha256": "c2cbee4e6366cf82968bd174ea3e633ce254c20e5e2fa30754bb8da74dceccdd",
+    "beforeSha256": "47d6b4f08b4fe408e01214a697fc2de75c26c8c3b9cc95b4593f71cb66e24560"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/paused-light.png",
+    "sha256": "f8c637ca90f92d533887b63f2fa3f7582bb09adcbd9f20a36dd830c41684b685",
+    "beforeSha256": "d804340220f36691612c7a91b71ee4e334648cfb7cef3cfeb62549f250b0dd1b"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/rally-dark-1440.png",
+    "sha256": "6df457371d0d8e2675d55e961c0dc7c7dd67c3d44e08747e96a15808f4bddddf",
+    "beforeSha256": "95650ea8f19a51b87490164309c581728c21744dcee8cc22542f8b169ba1687d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/rally-dark.png",
+    "sha256": "c71365919db6627b7edf223b9d56fa2ae0a129c5f965d37de9b8ddc9beda1600",
+    "beforeSha256": "ed51be64c974968e1dd4df238532c5cb32dc363a9a75e4f2394dc0be3cf7b4f3"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/rally-light-1440.png",
+    "sha256": "6bd86dedb7c3b6011172933561e82a9c3c21daa68c4d7857437376b8424f5e81",
+    "beforeSha256": "e1357938fdc5699267b2107f62f063ccff5c5bf5383d2dd005b78e84aa9e1f13"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/rally-light.png",
+    "sha256": "f2a851352f935b95568ed39eb41f67baa9f20300b2574f4140f4562fb5fde4ba",
+    "beforeSha256": "0db01b7653ef7c9555951a4eff782aa401e8e6a603d6a2d5bffc9eaff11a771d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/reconnecting-dark-1440.png",
+    "sha256": "304c46c944e43ba72e486ed5e0b076757b2119c6a52efc0d8fce8ff7fb7562cd",
+    "beforeSha256": "2a0dac685d1f63f35ae17d415b59700742de8871fcb3e6bc36b8fbf22b62383e"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/reconnecting-dark.png",
+    "sha256": "1e7ccaaa6710805dacff87d35998f5ffdd9246933eb2f7f69603bd6453724c9d",
+    "beforeSha256": "b2d2664854eba6486a62da52b293dde2e9363256554dcc939acd88ac5ef415c2"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/reconnecting-light-1440.png",
+    "sha256": "63ca4bdf84d240560c8234d822ba81f43ab07ef47cc909cabf381388bfbf338f",
+    "beforeSha256": "d4403bb88c0f141ace445eb8756573327357a4f5497a466a2cb751fec4dfa04f"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/reconnecting-light.png",
+    "sha256": "bf17e2cfbb0fc460f55be0a75d437943ffaa5e3c7ceaccb502c9c1f493c5271b",
+    "beforeSha256": "815c9ac8d76e7b2d35eb35f9d3558e9305a14cfffacbb7ed7e3da45f3a5b33c8"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/return-score-and-reconnect-dark-1440.png",
+    "sha256": "a75e356afbf0999efd497280d065d3c979b6097492cceb3ae5ef7ab1ebba08ab",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/return-score-and-reconnect-dark.png",
+    "sha256": "336a236bed2422f917ee51c18d23c02418b8d047a710d43be58bf92330b57e9c",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/return-score-and-reconnect-light-1440.png",
+    "sha256": "20d7ac7e38a24d5b9f2bf81ba69562c455331d5f8aae7d180b88dc08bbc4c421",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/return-score-and-reconnect-light.png",
+    "sha256": "e812b27c3ac2d51eb523fcdc12e0515314983ac9207f1d51d8d4c6aba7577e04",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/serve-after-point-dark-1440.png",
+    "sha256": "4ab260976bc1985327db73f7d3e4500d7ca881957c9c8bf05d597729851dc3eb",
+    "beforeSha256": "49a59a11bfc14aa9fad6aceaf3a7c13b94d92c1a201a6559ee389094b5e8c40d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/serve-after-point-dark.png",
+    "sha256": "a3529824fea0f9f15adf49ebe1de4e5e88ccbc6a2bba59e7b6c43b4f0728026e",
+    "beforeSha256": "40f7d109d4efe80f1e280e959b1bf0fb21a47226e27bf5e378a9c27f424456a5"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/serve-after-point-light-1440.png",
+    "sha256": "f6a9190b443583cec0024dddcd0eaf40fc2b50c0ac3574ac420495acf6151b6a",
+    "beforeSha256": "71bbd655d88c1c0bbd3f4fc8834431a4e52c2ed9885e4740cdb567b14e6c9565"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/serve-after-point-light.png",
+    "sha256": "e0131987c298f799dfcd179b0621cb6101426a49e26e6d091f06ee495fd0bd55",
+    "beforeSha256": "fc83271de92ce34bf85bd1fc57efe4eb3f8b41c2436bf5fc761703bce9f1b2ac"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/two-players-on-one-device-dark-1440.png",
+    "sha256": "69648513273412e07f8ade38ebf4d9e2ee2110cb2460b142153c8ec73fba8757",
+    "beforeSha256": "315ca1f6f845fd1fab24914ba15e68ce0369022438e28650816101385c1cc346"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/two-players-on-one-device-dark.png",
+    "sha256": "77f1c94326ff27b16ec0624d60ee7e814b48098de9a864e00d908424fbd2cb0c",
+    "beforeSha256": "641acfdf4f3c2930293c698c863120655008ca3d350d4cb1bd51ba14fd1a0db9"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/two-players-on-one-device-light-1440.png",
+    "sha256": "ce5463821327e3ccd702ecc5934adae3d9e1a20fd9d52c9a5851b908de49719f",
+    "beforeSha256": "f4e68c9c5ba6d46596d4551cb17ccb744307346c3235a44e0e1a2089d202c441"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/two-players-on-one-device-light.png",
+    "sha256": "701f094b3614de32ccd14c0c29c9305ab3fdea6a0f45ce59f6e04a76866674f3",
+    "beforeSha256": "e14b105661d8558dfee5fd3546c3bc62321719eee2ef857ff13e6d1980474b1d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/unreadable-dark-1440.png",
+    "sha256": "6ff043977abe42e00c234c7439c43b6ee8d3f26fc12b773b51dbfbaf5a8187a2",
+    "beforeSha256": "6af2ad8a6d81b9aadc35035a1c74f53cf17ccacc546a9f0e6fc03efd12ff0298"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/unreadable-dark.png",
+    "sha256": "babffeafb46809b5aa4c0911cdd58d1e113afbf62edb0a2d0df3f71daaf80145",
+    "beforeSha256": "896398d07fff263dcb2cdbdf54e8b2b7383867194827ddcabea94f149237f089"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/unreadable-light-1440.png",
+    "sha256": "b252711ca0743f8a61b95c859050e701979e0b3bcc4ff6eff7d3dde068bd5bfd",
+    "beforeSha256": "9f427bd447e54df272967f7dc491ea6edd76612b62ed9bc0c35204ecb3ec9200"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/unreadable-light.png",
+    "sha256": "702d48fae8429456ee0dfa2e824bc419fc78a928dcfcfb4566d9565212d9072f",
+    "beforeSha256": "2fb46717a290a96aa8419214a8a798536862e8949c3bcd8bd038c1b22b913d34"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/watching-dark-1440.png",
+    "sha256": "25fb82687728085f346d0532be1bc9a18761e18238958dca2481b2504bc6858e",
+    "beforeSha256": "023b4fcd308f4a782d2d2688c69f902a3ab513689d80166a2ca5bed00572f3c2"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/watching-dark.png",
+    "sha256": "353ca258af8376c8c205239b810eb3a7665f93cfb6a937190ec37b737cca2b9b",
+    "beforeSha256": "6cfa792943521408907fc01a165fc657328c5a9d0c12813c46cdd94b09a55a8d"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/watching-light-1440.png",
+    "sha256": "eaad29f75ad2b8b4f22ff4a5a37ea144230023e197b11ea7c1ea103d4757f925",
+    "beforeSha256": "43f2de098def2a626b55cbae65895231b0329b47c143a9902b723855c4f64b48"
+  },
+  {
+    "path": "libs/pong-client-ts/src/baselines/chromium/screens-games-pong-court/watching-light.png",
+    "sha256": "31f4caa86be6800886f8ba3a59bb893cc3144493f9b392055dcfd5307bc712d5",
+    "beforeSha256": "9292f3846a58f23c31df1baa65dd84fad0c2585dcb0414fd1fcd93f170f458a5"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-dark-1440.png",
+    "sha256": "37377cac1222c67497306c8684b4424406cc6f842c9a0b5cd7c30132f5961be3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-dark.png",
+    "sha256": "61ac4ba118831f557ba6a0f4e880dcc0f3fcf589193ada2c162b745976a17dce",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-light-1440.png",
+    "sha256": "0db92cd8e6b861e6d3436e09125620ffa9bd307c70a34e8854873d39c51ad667",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-light.png",
+    "sha256": "def4f23b5a52550585930bf2523d82a98c5c27c6be2467342dde2d11a7d61737",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-dark-1440.png",
+    "sha256": "b3ed1b4833328e96dd73097d975b5aa26eaa6250477fd6e200e8350dc34c03f3",
+    "beforeSha256": "83a3c8c9299c654b0e067c882581199d2afb525ca25d5e59eac99d88d8524b57"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-dark.png",
+    "sha256": "cfea988788d6a4a2447ff2dc6e4a4898eb41a068d2f15c06a3c878b2806672f3",
+    "beforeSha256": "7ec1145de87a3115665432c23326cb5a48025b40d8a316cc5dc4100502e2b490"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-light-1440.png",
+    "sha256": "af754b79b750dd98204253f1fb69173c5a748388c3e1791d1a6d122412e17c0e",
+    "beforeSha256": "4879b315fc0ad03736d824202818ce75c676a70194595eeabe379c789d44e7fb"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-light.png",
+    "sha256": "9bd7a8fb89bfd4d6017354b9b05765af5b6fc32522778479bfa049140ccb06a4",
+    "beforeSha256": "1651368f576e518aa460ed2d4ebfeebea8ce8da8f163f3d2f67018735169cfd3"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-1440.png",
+    "sha256": "4c62bb0eed9341a98bb9f1ad0596f2335dbfc040ac2833688de1a0e3be835e3a",
+    "beforeSha256": "be9fe331a1aa08a3f31f169ee28337cc697fe41125bd12e872330257148990f3"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark.png",
+    "sha256": "334b53802939c90bde8d05ec194d9fbf7aba0cae47a3a23bcb12ee90c50120f7",
+    "beforeSha256": "09a9722b14c1219154f14c6cf14f0375d7a32cf1809353800347d9b2cfda2af3"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-1440.png",
+    "sha256": "99d783d1c951ae9bd6f3eff5676a6fe3899f1a3d83b370252217dc26229a0876",
+    "beforeSha256": "b810b13a2407b79a0f7d21a8cd94fb4cd201b8ef1ebd118513ec54fb0b240753"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light.png",
+    "sha256": "f59b8406e826ea27bfbe4b15a16eb894644cd85a81270469ae643365fba51366",
+    "beforeSha256": "0c390eef2f206340a3b6f5a16f0a4b0a9c03c780446805edc16a1fb48756d03e"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-dark-1440.png",
+    "sha256": "103c6009488da39384b81ea2f6b5f95772b36d6f59435e5c6768eda4eb0e60fb",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-dark.png",
+    "sha256": "323d34c254270c7e9752d7d69db67846b6517bdc44070d302957766efb8367b8",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-light-1440.png",
+    "sha256": "da34b15b13cef82d3450b20e57482b69418691850ae4a2c9e7eef3e2185cd73a",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-light.png",
+    "sha256": "4a93b917215af3b1d5b3cc472eb47333a61d7395f2df851eaa64984bcd67c317",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-dark-1440.png",
+    "sha256": "789b7e2bfedc1f8f0e05544a13ea66292c17a4e414ab095b1e5a7f4eaeed2564",
+    "beforeSha256": "aa162074da9bc3fa9fdc38a79e2a4f1d4419841aa03306473cb7d7a33cf963d4"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-dark.png",
+    "sha256": "fa86e88c0d73ef328d48e48bcf3f7de5b4982a21ee3a051e7058cf4bc60fcdf7",
+    "beforeSha256": "a3b7a37f9e366f37f2d008b4dd029170aa0415851dd4d60260ca5e82e3bf8ad4"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-light-1440.png",
+    "sha256": "62e6b3f5ccd947805271ce27998d4065f4391d4f30f6d2c935aecbb77101a81a",
+    "beforeSha256": "4f391cc6dbff41fd8d5c3441fe3c8d0954ed4a7d32574b6ff6d1b4667940901e"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-light.png",
+    "sha256": "a453d0fff7d64e7017f4c019f9a423e7bcca49f6975dd3886a585fe421ba103a",
+    "beforeSha256": "32aac6167793b8276a5d794f4d5860f0461f2dd8025ceeafceea70d9b32237f7"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-dark-1440.png",
+    "sha256": "a246ec797c2295384f39662830dabcbc6e63c1ca9678d764fd9ef3595dfde827",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-dark.png",
+    "sha256": "5cbef954a4d594b0eae57cdeb6fd4321b4885bc3eb5a42a9728b641fe40db303",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-light-1440.png",
+    "sha256": "0d10d60d13dc0cac9b7f298b2d94527b9bcb2a3b972575fb828c097758943cbb",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-light.png",
+    "sha256": "c169f08b07a472f8d311428063cb0fb530f12d70d9cb6a64238ea755540563c4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark-1440.png",
+    "sha256": "61918ae25dd0f16954a1de1fa5c9e7377fb84925a679453b9aa43ad5ff336324",
+    "beforeSha256": "6510a6cdc57386fe25ae4955fd01ffc4e3fe99fa2f4f6b33dea00ab26135ab61"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark.png",
+    "sha256": "09c324d434151dc54427a8570c74de0943aef640d68c16be4e40eec25cccdad6",
+    "beforeSha256": "b0b77ba17e9c7f2d20804877818676d42d7bdfa4e79f50eaede6339b7f847996"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-light-1440.png",
+    "sha256": "0d52885afba3e2f0eed629566ec8cb01f367cdaab0cef2adc80875c62aa854a5",
+    "beforeSha256": "5429ba1f783d7075d2dfb0c9d6f963fbf71cfef4b66d11ad1c535364f4fa1d62"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-light.png",
+    "sha256": "ce6260ff34227258d795497e1afc8ab42850a7c424c64e622b12cee9501c1e9c",
+    "beforeSha256": "fa3e2af115b1d0937456cbc3c2f8ad3a392ca338c335bc3da3ff645d23ad0699"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-dark-1440.png",
+    "sha256": "97820485a02dbc79ed0dd04a0f2d509db4507ec5f77de2deee11105138a1a008",
+    "beforeSha256": "1c8bc99b6aea12ab0bb3326f82f80efefec30753e352d8b54e0c7da17437943a"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-dark.png",
+    "sha256": "3c6f0b9dc350bbd0c5b2319377bbf85a9f6e030993aad04d06b63895d9f8ceff",
+    "beforeSha256": "b75e2d7a607f7d6e220fa903ef5782ef3985e27850d2aa0e507f476718385ee2"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-light-1440.png",
+    "sha256": "80725da31f5b3e995e7d96f60c7af30ec2a6ee214ef9fbeb74b1fcb3720426a7",
+    "beforeSha256": "e3ab97b0fbf7a95c19ac303bef5a19c6b09103d883ef4bbd73f7b46c43052cad"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-light.png",
+    "sha256": "8753ec6c12eceeb366459dd91c4c8b4484dc7d916c9fb755204c9b360cda7c8c",
+    "beforeSha256": "44f840534cb4f9f4eb9f1d03991ad890a33b6f07d4a8de34b5e42249d2b11675"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-dark-1440.png",
+    "sha256": "57b6a6a8d80dec46216a59e79d8215d8d37826c56e4477a0d0aaa5fc6ea8c567",
+    "beforeSha256": "722b85b826cd0e1bf455316ec9906496a796d0261a3f04ba622efdbd1b4db191"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-dark.png",
+    "sha256": "fa9283ab0ddf87267ab230e116f3b2a4ac71d417ba952d7eb572f3fa5e886f84",
+    "beforeSha256": "5106f9f1421434c12300fefc91dc09df7d1f7421480ee0b6a9dd4e8571e93227"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-light-1440.png",
+    "sha256": "facda4bfa5cbeffdde61db7b08ddf3e3ee9bc5a2bd99217070fd435da12dd735",
+    "beforeSha256": "ce3a596a24bf77e3142f4f8d9194487413882d4cde437f9b0a14c8aa61d139a2"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-light.png",
+    "sha256": "663d04372712bd5938ff70cb1baaece79f95da07e804e00f66a6dad0e4dc1a06",
+    "beforeSha256": "afaf3dd89e40cfa643a52dcbfce672e657dbae458fe246a4dc7d3ef27bf60f53"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-dark-1440.png",
+    "sha256": "b176039a52f929f3dd0a05fcb1a05951893d5eaec364e51ff9a4b45a4c173542",
+    "beforeSha256": "e75a8f7cd5b83ba8354c999c6b3aa31f1d6b88f7a603dce4835da0a7ec631ba4"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-dark.png",
+    "sha256": "4c3073bee6e54ab9a115267a573c41a082c697d00a75c8707df596b52d15cf6d",
+    "beforeSha256": "57ea6b56ca7382020969307dc8447b7b0763a9161229455337c07f31e48c940c"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-light-1440.png",
+    "sha256": "c51e16e6eeda0d96555831609b3454cb6ce0a44301486aaeff1b077f5d77bfd2",
+    "beforeSha256": "6c94bccbabca488aaa52efbeb82d094002b3eb10ed911d5e533fb95596dd93cc"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-light.png",
+    "sha256": "166e7982da2dcc287890d7f97bbdd87fee7d9c20a6092025d62a612e02c4afb9",
+    "beforeSha256": "ef6554f3afd9abcd276131b9ac47b28dc5ccc2f9b2a5f5828ebaca83deeb235a"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440.png",
+    "sha256": "057a9bacaa3ab8444fa47212dca9119f05542e84367a5da5adc5023482fa98c5",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark.png",
+    "sha256": "b73107e95c2e6afafeef98729e5db5402e674168848bcfaec42b54948f12e7fb",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png",
+    "sha256": "2a80881408d6c325420765a637f5a360f31dda2e806b252c00d7d38e0d2d54c6",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png",
+    "sha256": "69c78cfb3f0a368c3a33ac5e461eb1643b4ebe25be28639f48e9c9b554f7b05d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-dark-1440.png",
+    "sha256": "b64fa226bbcf78d045fe20425149a02e42f2b64d2d393e626b1dfe88841666d9",
+    "beforeSha256": "c0e6422f94be9e38dbe9839eb41a955bf777d697d5465c7bb3de37de62e2e9f0"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-dark.png",
+    "sha256": "1db8ec39e5a08ffd9f4de3959871d37da5fedc6e829d297468618339b1627660",
+    "beforeSha256": "ff7cfd9d73076eacb094e066293672455028603da242645ff24ac529e2844d63"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-light-1440.png",
+    "sha256": "8d22bc321a2d4edb56f6c47d33f0e90b192c940b1e572a42238568ff22260b97",
+    "beforeSha256": "7ab3935f5bb534666ebb81a170abc29ca27d28a89e752c863bbbff2d7bc9b585"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-light.png",
+    "sha256": "6225acd4f7848894e1c89deec484d42f02aa51015db38f92acc46a620343f481",
+    "beforeSha256": "644f59fab22bb1a113bbeeb1e8238824a764080b0471f9184028485605cae1fd"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-dark-1440.png",
+    "sha256": "146cc512618e0c4f3f9635a7d1f7711d6a8a964539c624d7c57ad5829d0bc5ad",
+    "beforeSha256": "ad8dade3fc9ad7c63c3dcb89547a63fd72d35ce4861718bcaac7100fa48e64eb"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-dark.png",
+    "sha256": "64422ec9719de1200c5078440910bd1e45cfa204997f8f3fda2a1d19d512b4ed",
+    "beforeSha256": "f0e9ce75015712b32258d64d7f70fa31005f07f041f700304b529a1eadb641ff"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-light-1440.png",
+    "sha256": "ab0553f2b7ba1530115370c5d4688fe10df7adeaf8d547b42eada9c8d45cc082",
+    "beforeSha256": "10ff383e528977e68afa0b52e86fe1b2c29440af3eb72b723635c9acceeebf64"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-light.png",
+    "sha256": "8f1165ded28ea78e8f7bd3ab5955d473efea9a8eb8d22abc23ecb3eb93fee018",
+    "beforeSha256": "8fce0310376945a7663e82ecb98b200055c05dfe9449d1287e8d361cbebd9863"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-1440.png",
+    "sha256": "c314b21aaf4c2672c5d6ffdc28f5303516d03f39d4e716a4735b04ea2981e989",
+    "beforeSha256": "2125beace17db093059a5cc49c2535d0c93d00c4c779bd6939a39fe81d529504"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark.png",
+    "sha256": "e668afd3dd0f71204e5a61f3949abb52158a7887ca0e59aa289bab597165188c",
+    "beforeSha256": "2af53d09522a6ec528093c53fcabc3536c2b57e3a72ef4b36811c76cad6ea367"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-1440.png",
+    "sha256": "8e331a58cb48060f4b59f32611003e99f20e9c4fd063a1518e9bab1cf26d6d3c",
+    "beforeSha256": "7380bda26aea75ec6436c4b273fcde7fce8923feddd8c54f28a739dc22cf3b6e"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light.png",
+    "sha256": "f51c49481b049a7e279da5aac2b675d357b6b3adcee45f684a7e6837cd03beaa",
+    "beforeSha256": "1a791bbde23c48b1f8c40557eb24b6fd75355c76838d319b784d6c322580c959"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-dark-1440.png",
+    "sha256": "41dcc74dd90836d02e6d8d0e5cae8b9f17b128eafc8d45f69fcd6b0009cd1cbd",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-dark.png",
+    "sha256": "1b5057fc42dc59fffd6509429bebabba992c62ef9dda1b53731b0d9d2f54aa78",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-light-1440.png",
+    "sha256": "0e4ff4942c6160c4cbf0390a4eb8870e9b77c8e44bab53e5c1c78329a28ddb9d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-light.png",
+    "sha256": "ada238d47a96081b78dafdf0975d0936596e94a608194ea222b9ab9743cbfda4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-dark-1440.png",
+    "sha256": "c6b8b67d238204ba74b715d234a62f8c846cae6b37355984af30e4c3b0ec78de",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-dark.png",
+    "sha256": "0a7f4188fe6ec0b4bd394e29e61a3b243313349d0587de3ab04fc4e330836146",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-light-1440.png",
+    "sha256": "21fd18c200eb39d5c0317f6d88f7d9a707b102791be69a82203ff4c06d1c3cae",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-light.png",
+    "sha256": "595f769fb9205f925d017ab1e17b8798457d5cc832163b5641eb9bda066e38cd",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-dark-1440.png",
+    "sha256": "4d82672f339e114e3ed6879e916ec85760b6e8e7e65be3de27ddc11bc7df853d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-dark.png",
+    "sha256": "56920f5f534e9c589a865467a3b2d48573f56a39cdc8d4aa0a2910d3c81ede63",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-light-1440.png",
+    "sha256": "f74a82b578f0ed5c27301e442d1469e4fb111d9a3c8349ddd17424bbd7c01898",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-light.png",
+    "sha256": "f2be07fe0817dd58c463b55152af839ea0d3617faa7c95ad59ed794b50b249ea",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-dark-1440.png",
+    "sha256": "c818849af640d2786d7fb480b0862a59c904afbb94e19e66e69bb66ac9b82d6a",
+    "beforeSha256": "7d4eacc28105fda6c68804ee2697d2fc0c7bc220d21931b02234703610413895"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-dark.png",
+    "sha256": "cfd4d41662e069cc514f9402426016854eea7ae7dd73d8c4d33bdf1376747b28",
+    "beforeSha256": "f5e734ecced8be8d86ec84a15df8e63d5bb800b5f55b70e78a19290764bc0f4a"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-light-1440.png",
+    "sha256": "34001d2bf382018ddf493441f0b1edac5cf1c1531e9893196482dbd71c02cc68",
+    "beforeSha256": "48e6d43b428d6e6f429c81c71e6faa9254b7997afbdf46a4c28374ce79d6cef8"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-light.png",
+    "sha256": "7de4ffe887fae6a6022d5eec654a31b8f3e27d6ff9f043224ba89f767d98e147",
+    "beforeSha256": "cc5486492f9bde4e4be1fcf31eae8137f5708cd8ee81e9347b7225ea669aabc5"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-dark-1440.png",
+    "sha256": "0e515f37778e32c0261e1b54ed036a2038ea9f1a120e98324c00ef16549255df",
+    "beforeSha256": "26971556170cb02f8c1ea2539aa96eee366ed20fe9c9dea34757bdd7816385e8"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-dark.png",
+    "sha256": "3594ee6c4bb0020f16e4befea1964b12e17f3f0be9443c8f870adc8e4226d3db",
+    "beforeSha256": "762519095cb7f20041014a8a5155ceed4f95006cf608ccfe69b6edcd2790991e"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-light-1440.png",
+    "sha256": "352f6c069dcd3c7d88f0351aeee992350d23f9c286719d5f4be515fe5f525b58",
+    "beforeSha256": "633c4991f9e2f9989cb1065bda4e7488573445b1149c417a747fa96e11fd335f"
+  },
+  {
+    "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-light.png",
+    "sha256": "9173cb72e4b563566c393884f2530c5cfa4ec5d5b13fbab4cd0122932103b7b1",
+    "beforeSha256": "393795068684250e795fc786d883d5ae9eee5fcc7991d792cd2e8ecb6cddcc9c"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/blocked-move-dark-1440.png",
+    "sha256": "d562fe337fa2a804d3d47776de50dc5c97a867d47875b01917d2dbece594ad45",
+    "beforeSha256": "18a1141e345928d02d6efc81dc735fad1271c339dc67548859340ca6be791ed8"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/blocked-move-dark.png",
+    "sha256": "d60a305e74d2bba747d2549603f249f3535a4034847a80c1dd9ea8e2b33c20fa",
+    "beforeSha256": "775b37ba4810715cc2c254174f8a2f142dd290ffdaec5a043a6c350597ee76b3"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/blocked-move-light-1440.png",
+    "sha256": "0b82e8008c4093ab0a214c7f78cc2c0441ee8e3fb68e266c112d07aeca1d358b",
+    "beforeSha256": "529aa142756d3bf0e8dcb55a97e8b35111408c54285da3ed553976cc3f3307e0"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/blocked-move-light.png",
+    "sha256": "d926f9f3b2327bf8bad0b6ac3e4a07934b3dd9945fc964c1cf1d6ad904bb045f",
+    "beforeSha256": "31e14c2056fdbb0e1213f0456e2e47c9b103365c13f9b8efe051499a7135ba34"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/corner-recovery-dark-1440.png",
+    "sha256": "4f9ebec17386b02d030430ac7883dde63581ff45380a41eebef2b5447361b134",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/corner-recovery-dark.png",
+    "sha256": "12eed9c5ce7dabaf1b7f6ff24f972170290aa4ebc97a8c65f19e38056dd101eb",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/corner-recovery-light-1440.png",
+    "sha256": "b77846f6a73efedd30a4337a34d1acb45c03660b5b28752dd6605589521dc5b3",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/corner-recovery-light.png",
+    "sha256": "57821a7ee9df1c4f5905754f3a0d7861171c538ccddfb6db30aa38623dcb9b24",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/disabled-dark-1440.png",
+    "sha256": "55f28c558d20dba162d4999485b600ce30f29da462a93380f51046585ca83a6b",
+    "beforeSha256": "39f189089388dd9f5e6a5f7ad6a8ff5a9d472f9dbab191193467c2410772f1a2"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/disabled-dark.png",
+    "sha256": "cb0ec76a99e6f4682b238a16054126bc5e6e5809e4a4fc6ad5414ced7bf8f765",
+    "beforeSha256": "79dadded5ea237e6f5640b02b95ec60cbd437e11f9ae92d13729be2ba3acf24d"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/disabled-light-1440.png",
+    "sha256": "a6969126d60e173aeac66b9c33524bc6488ba0cac461b2daab37b09c2eb3ae6e",
+    "beforeSha256": "22e4b67f1cb1ca40192b37d50ab1494258bfc85f5a3aefc21b4d2a3904e3d059"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/disabled-light.png",
+    "sha256": "f9cea975ff0ac90bffccc93339bc3d31722bad398ec24d69ba30ee9ff9e58436",
+    "beforeSha256": "d78bb0efc2bb709a136478ed3561dfc3c58872199d576e4222fc7a485030500a"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/fresh-dark-1440.png",
+    "sha256": "bd649c3470ca978dfb82076f1c14d8587bae7446b4a518fdcd27f284b03da682",
+    "beforeSha256": "39f189089388dd9f5e6a5f7ad6a8ff5a9d472f9dbab191193467c2410772f1a2"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/fresh-dark.png",
+    "sha256": "c41e43bc2cc302d16353895026e9b970cf984b873ced0be3dba8bac9f7324235",
+    "beforeSha256": "79dadded5ea237e6f5640b02b95ec60cbd437e11f9ae92d13729be2ba3acf24d"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/fresh-light-1440.png",
+    "sha256": "bcc3d27e3c26320119cc9ce3ec2b874691ad5aba696c018dc5572299e62ed8e8",
+    "beforeSha256": "22e4b67f1cb1ca40192b37d50ab1494258bfc85f5a3aefc21b4d2a3904e3d059"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/fresh-light.png",
+    "sha256": "b00a7a4bfbe0efe5b18d45f960441cfefec12f967b459e59a947bdeae3cbdc3d",
+    "beforeSha256": "d78bb0efc2bb709a136478ed3561dfc3c58872199d576e4222fc7a485030500a"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/in-progress-dark-1440.png",
+    "sha256": "f484e19528f26732f29284100a31eb4a130ecc8e58810b466a29f2ec2f8f90b7",
+    "beforeSha256": "1bf0e3b31dc7aeb6af8613fa43bc057e4f70c8c9cd0b6b6dd8c23f441a3b5068"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/in-progress-dark.png",
+    "sha256": "8bd8f7efdcf1c23a29f75583e116f3fdc43a1d2bd50a2269b45b99f3ac92aeeb",
+    "beforeSha256": "f12f8ae78a2fd9d04f74e5a6168b03822ec8c1309e8ab51d11bb4e05c120c3a1"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/in-progress-light-1440.png",
+    "sha256": "7e19795e23b5108734e64121a3b532108a78c57b2ef2d91b716f5eff1fb0ca9c",
+    "beforeSha256": "3ed94bd7844b520efd3401fedac937a4b4ee73d0819ea3d9de9abce7ecc6bf82"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/in-progress-light.png",
+    "sha256": "974a9896c587b5510d9afe47ce8bd4c9cd30da0b22847b243e0b8902faf1828f",
+    "beforeSha256": "346eb7202c8d18ccc80b5012091ad3b4aa80b497045a4a7c1faec19c13c92ce9"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solve-with-keyboard-dark-1440.png",
+    "sha256": "d97665c69f8573e1f7cf15af0b4736f112f915185cce09e26583b411a4267f37",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solve-with-keyboard-dark.png",
+    "sha256": "272bc864576b933e3846aafacc8a92641bc806a7529e672dc0ff81786eeeef55",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solve-with-keyboard-light-1440.png",
+    "sha256": "e45a15bd07b79279ef87958d8e977bee028298ef6c261b0304ab837e2d552aaa",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solve-with-keyboard-light.png",
+    "sha256": "5b83df405b6624b8b5c7504942b726a89bc78fa07c8542ae3169a1907f98a7b2",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-1440.png",
+    "sha256": "7ee1392d20cc3196542a6fe7505a15908c44a28dac4f5f63e95b7d2b25da62fa",
+    "beforeSha256": "4370da66b1c39d8b4b407f9c0eea40318c6f68fa48c5ac14f046ff941f08d6dc"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark.png",
+    "sha256": "d9777026e852471ddeac95127f841208b003f031aa7e63118ef88fbbcabeb2c9",
+    "beforeSha256": "aef4188e662db5f160ce4f1508bf182da531bd728a85600d975fd5f3c7005a5e"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-1440.png",
+    "sha256": "93d0ccbb5acdd1ef3e65ba3f8232d8a0924ccd807c04790f3ebe27bb8f2e337c",
+    "beforeSha256": "2a20591b2e5120f7ebc17f9adc8f8e85fa1f78d1ce1e2225c1f2b0b7d3142c93"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light.png",
+    "sha256": "6c530b44ad6de3f619220d762402bb118738596210acbc951992b683da10ddc1",
+    "beforeSha256": "e56a65ae3fbee33e3dd7ac10b0736348214e10bc9cd8d6673c160ec9b54a067f"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/unreadable-dark-1440.png",
+    "sha256": "d53f7e3c9874b1c859cb164eab5feeb4a8e99508eab8ec683a5a4aee5f90d514",
+    "beforeSha256": "3901db504e96fefcb06300d2ee10b17ba3cfd8d113e26ab6ed59720ed1c7c4d5"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/unreadable-dark.png",
+    "sha256": "dbf926deaabae0c5f4f6c6c8361cb6b5ca392cb917368cf4a8a012c9521e2623",
+    "beforeSha256": "f47dded2fe5af1b028aa7afd46055db65e55cc12ee5c0d1f08a8afb568857204"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/unreadable-light-1440.png",
+    "sha256": "eff6c01dd7f3a693fa68710f732eb6e599dd865482653fee664d48442b669c34",
+    "beforeSha256": "0db1f17936a8659a50da263876abd3207e894fc1adabc764dfa903541429c512"
+  },
+  {
+    "path": "libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/unreadable-light.png",
+    "sha256": "48bb802dca5f12e35ffffa39e9fdf08411fe52dc5b9684b76be62b2e7b1df27a",
+    "beforeSha256": "6b0373f3f64b048462e0318a7f885b1a434983b58e2ff56315e823af40f1409d"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-dark-1440.png",
+    "sha256": "283f7094c30720de7e7bf7e14684343e9bd3d53f1b492574d58a40dc406bf19d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-dark.png",
+    "sha256": "f5a2f97823a314c37306424523814c41dc71fab54ef53919d1ca8a72bbdde626",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-light-1440.png",
+    "sha256": "1f309af6af6d838570e480df6e19620527cd214b601c5de058446f9a5b056e81",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-light.png",
+    "sha256": "89aa54a434e65c7119235d075b4dcb1a31a14ba8312571c36b2faf0bd46bc388",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-dark-1440.png",
+    "sha256": "3c205b054a85d8396ae5f93f1c2fc31303139461bd3c5c3056075028fdc1a035",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-dark.png",
+    "sha256": "4abfc786742d01e907428ca37e126ebc9466612278e5fad8babe1da13fd48b81",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-light-1440.png",
+    "sha256": "9da69b8ac8022bcb35ce2ecbfcc464372692209aa7bfaf413515c33a48307a36",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-light.png",
+    "sha256": "aae99f7dee9be3b764e2a592fa93329670d5ffbe006b361cfcecc311cf180e17",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440.png",
+    "sha256": "d054c53abffce876ec7202787bd0fe9a719c0c97c12073aa4ac9bfe3ea7a5eb4",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark.png",
+    "sha256": "726ee01ad9a408e67058b62d83889d797de0d71a6a39384e14e6045c8871dd2b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440.png",
+    "sha256": "f263d384b4b43f7ae2e4185faa42e007e6eb5b58e83b146c811d5106db86c8d7",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png",
+    "sha256": "6dc30b4fbadef1639a2fd2cb8d850eecf63a31a012daa462e146c9fbd1fd8cd5",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-dark-1440.png",
+    "sha256": "82bd6b8000f2f6c083460cc9f3a94cf943353c5886d900741d6ab12e306dc095",
+    "beforeSha256": "b8eb0010c568f94cd90140ecf15ceaa3b06d5a4d8da57359de3f61cb247d2e27"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-dark.png",
+    "sha256": "b80823ae8bedc0586e04fac219a6e1eeadecd859e78748de31b1cec2e36b100b",
+    "beforeSha256": "946cadc843b82287c863fdb67d2b809577c840e806b51b1b94d2d70638a96ce4"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-light-1440.png",
+    "sha256": "35211045dbc2abe30fa78ac11f017bfe2cd87bac864eabaf9dcb921edfc9914c",
+    "beforeSha256": "f02dbb2207b453a2a64efe96bf6fb60c5483641362bd4c3fe0b8e0e8e144a707"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-light.png",
+    "sha256": "e2f0132c84f791cefe221e11bf8775de85498bd27d3363b62b3ed3f1ab72ab0c",
+    "beforeSha256": "a3fa712e860d5632ce825b805c24872f59b9abfb82730b875f5c9fb5c3453aae"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-dark-1440.png",
+    "sha256": "c7abe6443c54ab461b50cbc1bcf8afd39b056227434af542dda2307549ab804c",
+    "beforeSha256": "bdfdd7f5faa0b5b4783ddd516081c8f1301d0f200c184cb48045de175ffd859c"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-dark.png",
+    "sha256": "e2c7fa47dbd09e887790f9af8c3228ab90769a81830747ea5653147c10773168",
+    "beforeSha256": "6c7535e3b3a31a5eac26fc0204f0fb4dba988ef020ed6a7c2cb689f51280f9a6"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-light-1440.png",
+    "sha256": "6d66e61a41188f7c7eed9ef29048f3e784b1fe104c2b8f88f137e4eee814bbde",
+    "beforeSha256": "a8570c7979cb3317951f07643a1253abaed001b41f174304124ed49e47f7b932"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-light.png",
+    "sha256": "61a9724d1f6dc46f7448be3ac5835b512fdc86c2f97a1ce039f43b3286121b00",
+    "beforeSha256": "6f1538406c28f54cd12f5b0e4778ac6bcc115fad3c3a8879ed0aee13330ca22c"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-dark-1440.png",
+    "sha256": "b124f0c28e27ce8769f8d9bc1c64d91373162f2c847496d1c5127c818977f1a3",
+    "beforeSha256": "c225bd5fad64eabf24eadfd1ae3d69c080b4cd4d126a966eeb1612c4243d69a5"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-dark.png",
+    "sha256": "7feef8a221943b44a8d96c7995a04cab24105cb0039af6888d83bb7c1e741726",
+    "beforeSha256": "ed7865be3fbd34645e9db5499c9decaf2987659001cb4b2692546d3583449efc"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-light-1440.png",
+    "sha256": "73bf9e5be4ae3a1c29ad2c2afb896d296f98e14f93e76c76796f321efd55f6ff",
+    "beforeSha256": "2f5347ee4bc3ad548c7da8380ec9f84de28d9291144582fb2a9651fefb7fcb12"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-light.png",
+    "sha256": "9aadc57d06e140060fe4d66bcc12b571f2fca125abd6d7e1f68b0b725061e97d",
+    "beforeSha256": "b5dd85bfb695be5cc24e47bd995230de59c8273e0bbe13691f39a75a639792ed"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark-1440.png",
+    "sha256": "bcc065ee5301c2e6d81d02c210e6599c55ee06c60e2cb9628acc014b029b08b2",
+    "beforeSha256": "d76b47f6320ed544558f4506185366d3404250e9b11124c248a120792ceaa629"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark.png",
+    "sha256": "17af789b649641c37dd1168e4db71287731a387631fd21d38886d947b4bf5821",
+    "beforeSha256": "c979c855534d0a9991bf95a1cf52d2cff22d30cc610bb10e253870417b352236"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light-1440.png",
+    "sha256": "82f242ab4c1d0947fb8bca7b26d3ca57ee7459d7d2d4adf77e26c9a729d88271",
+    "beforeSha256": "c5fcd1dde4da5c9162fb53a25590eed03f836e0089a23b03332c899b3edbf83c"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light.png",
+    "sha256": "4e67cc219cba033c7b28630f76ba421db34e56527be02b652d9debad6536037a",
+    "beforeSha256": "56fd52f4b35d3fdd51a048471abf4c8a8327f852135da1b661ad01e560d1d8db"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-dark-1440.png",
+    "sha256": "82bd6b8000f2f6c083460cc9f3a94cf943353c5886d900741d6ab12e306dc095",
+    "beforeSha256": "10c9854fb6e5fa12386ce78e992f012b19182fca3b7777f870956529375651c6"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-dark.png",
+    "sha256": "f966606e3e2232e796723e94e0de64d00ea78bedb7c77c2785f3f1c2992687d3",
+    "beforeSha256": "63f63e24f06c8064b000d06cf9855e5d89c4587ec7c2ab510673eeab8e130571"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-light-1440.png",
+    "sha256": "35211045dbc2abe30fa78ac11f017bfe2cd87bac864eabaf9dcb921edfc9914c",
+    "beforeSha256": "ef04816950d68748bf3c3d0368393b0dd8926a501e9530172a0bbc4f7d9b0495"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-light.png",
+    "sha256": "40e6b176d9e4f2c0563e690c4ab8dc8a5eeb2cd2e26416e956a772cc5e943c31",
+    "beforeSha256": "ff05cdb0872deb68a531bb5f7267c632c399598bfc3a1075783293391fff93f6"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-dark-1440.png",
+    "sha256": "d373c02b1e6e4d8b8d4dd06afafdfdecdc0ed20cacbd4a94b3c8c29526b9f985",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-dark.png",
+    "sha256": "716a27df00c0b01ff9ace3a4878b938ac7992d0e4a090917da1e4159ceb85e60",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light.png",
+    "sha256": "94531301da05d8d24c6e27cd945b8645d7ac6ae1b1925ed91649c611d1a357e9",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark.png",
+    "sha256": "2e63289b51e2a3bffa73e0f7b488aa0f5401771d5232d1066983078b4a72e1df",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-light-1440.png",
+    "sha256": "9db4e08ce35872a94dca1c97523e08fd6334b79b253e7a219fe0f99faf237110",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-light.png",
+    "sha256": "a75179844dfbf46adc268c8b502f2526736962479a900ad522e8f81de5ddca6d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-dark-1440.png",
+    "sha256": "0cfc00fe08d21da49337e40621002c0be8f0b709269ae110b42b3cd3b59aa596",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-dark.png",
+    "sha256": "ae2d97379ad3cab26dad454783b990caacf4762019e230b8d5fd7c3cb8fb2556",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-light-1440.png",
+    "sha256": "87d46efe1f810435aba0ea19bc2c81c5d4cdcc4e3b05893444ed17374b5c3f3e",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-light.png",
+    "sha256": "24d504631d31e6bc54e8cf6487ee2d0390c26616b43d2ddf76e68ea379cff821",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/unreadable-dark-1440.png",
+    "sha256": "88d02732fefc7e6974cf32555e50b8e641795668128cb3ddf9b8009f8bb1ceb4",
+    "beforeSha256": "8958968d54cdd2284578f39008a487475a55e3d498379a81409d7921b77b1286"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/unreadable-dark.png",
+    "sha256": "d2589929007215ab1ff2b1882ccdb4734373495f7bc47191e5688770a64120ee",
+    "beforeSha256": "c2947636bf3c1832ef4d4c6f74dadadd5e64abd3d783c1c55cf87bce448dfebc"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/unreadable-light-1440.png",
+    "sha256": "a63d4458d41d9da5a44abc72e425c17b0df71290b12cbeb01acd938d428c87e7",
+    "beforeSha256": "d6b5a9e6da017d87c0a596f38c75bd6c21a78693a992374767a2e6414908900e"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/unreadable-light.png",
+    "sha256": "e7b714319b7916cdd12e1066a190236998ee2693f05d0f5690e2feb58bd6df9d",
+    "beforeSha256": "1074cdb68e2148c3370e20b6242a760aba152c0c64207d33e92b008cf4473ef1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-dark-1440.png",
+    "sha256": "2283d9cb981a5c0a5d1e8f30882fa687570c78ed71b6f49d06b5487448cafa5d",
+    "beforeSha256": "52d68d95172941262cd7aed556aff028293031ef1a81e4f78ca7194b68fc5f8d"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-dark.png",
+    "sha256": "801d5b840841bde66571075f86812bcf95c8cd5cec9fbe055971c1ade63fb5cd",
+    "beforeSha256": "f1ee586274973a54638b804a0859fce897a3a8c30b8b609c8fe366e7b3663d16"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-light-1440.png",
+    "sha256": "272d4b2b25be1cfe30515f8a7a732c5bc51333c6f6531742a04a2d1afd4de345",
+    "beforeSha256": "847e1815545525edf201b45fd357f405f58a29745aab2b9b19e6f880ce2e2715"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-light.png",
+    "sha256": "e326ced5a4093a98eb28319f02c353ee4ce8947e6dbbf9852f66107e3e3d824f",
+    "beforeSha256": "791c8ac50fc0e08dae50ce077fc930ca9adaf2f782d7579be4be8b3fc30bd721"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-dark-1440.png",
+    "sha256": "bedca86d3a8ff55838f0ec62b7affc5fc59beaa0c7657aff00a9a739b74c5d94",
+    "beforeSha256": "6a31c5010997b41f67da79c94b050df355db36c676c492e436298fda94bc50da"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-dark.png",
+    "sha256": "e502cd42e793b6d2c7e66f1c4d88d4176909c578d5932c3d2b28d086dc7394cb",
+    "beforeSha256": "3a5d4ad35fbb404d10ba180ceb05bebaf3af03462f78bde74ec8389868152bb1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-light-1440.png",
+    "sha256": "832831f6f63b9f91f2b4e0c565cb2fe387e15a9931588312e972e92379dbbe6f",
+    "beforeSha256": "7134169a36bd8250c5df7a9b8320ec79d2a4b185c6405dbfb6a2ddf8b60b3ea1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-light.png",
+    "sha256": "b8c8ea12e8bec4d8612e2eec543052471038598ef9e91d94df576dc1c62e375c",
+    "beforeSha256": "b060369c1977d007df6de4cf8edcb5dcbf17cf3fa828ba48454be26ec677c074"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-dark-1440.png",
+    "sha256": "d4e9bbea6be9782067943f11f6ccc23745c730ed9076acd67051769dca7fa4ba",
+    "beforeSha256": "f8133b04e6438522e1d9266778b74eef5960e04ba2871060d639bde41d39df9b"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-dark.png",
+    "sha256": "e6a9394ff815f5093b6f6290afde437f51ec1a7c58f6839bddb8e5f4a1f3130a",
+    "beforeSha256": "f2c58d8edffa9d683a9040f92b90318dbc07342fac3a44bba13d8d70b41a2cb5"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-light-1440.png",
+    "sha256": "afcbd1b766eafd063bf1e590f3015a930f8d6c1d409823bf3bc9fdccfddec71f",
+    "beforeSha256": "266c5068e25eeb4a470974ee6fbed2c9f7fdb0ea079e26361cb808d736043506"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-light.png",
+    "sha256": "add7be0ce87303fdfd1cfb2902f2f695544e8dcfb564af2986dc4148744ffb77",
+    "beforeSha256": "8b3fc784540f25058cdca37f8c4505f39360227f1e07bfb5606adc018b6b9195"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440.png",
+    "sha256": "bab8877e94d081d7c8a8f3c95b6baf21ca1a61b95513455fb6dba73d8ef29084",
+    "beforeSha256": "2bfbb7b67cf80aa851b24a23cae773697959375ca01333b2e0eeccdd1d56101c"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark.png",
+    "sha256": "b9f4f8e8ce3fb7e5fd13a2ad87f9e787a693f1aceffdfb092766611606d1e975",
+    "beforeSha256": "608b0f41967bffade5ced1358cfa34f4a4420492823a4c1ec253b1732e73d323"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440.png",
+    "sha256": "c9265085a1bde40c03ce9dc62b9e03be1e37306c9430ac29c8fd36c3e59e76bd",
+    "beforeSha256": "05ff1bf444e355fa0d44233f7a6b743ed0a974829d5f99060dcda846e173e574"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light.png",
+    "sha256": "8a38b8f15a697ef06e83fe8eb74ef523ed3c8b42e49d18f092256860af9fbfc2",
+    "beforeSha256": "7977dbb31577d49f9d6dd0ea7b514279ddf3c1d5b6b701ea7a8a3872fbfcae61"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-dark-1440.png",
+    "sha256": "60cc766fd98537c8225caeb6e21bcdb8227cd5d65a01eda17def7a3d11b249a3",
+    "beforeSha256": "508349ee700d2d12be429719ec4ad01c937094d6274132f0a0f7a8ef42b7bb28"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-dark.png",
+    "sha256": "f3ae61684da1177a54851a3107c34fb01979c29af1d9b2ab5e10ebb44b3633fd",
+    "beforeSha256": "69d449defb75183043cbaf06a4f60f74f4e28d068087730cf53c4267efb66895"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-light-1440.png",
+    "sha256": "c3d9884e3eb1963874755bbb15f524e920806faea1c6c1823f288ea47ccce8fa",
+    "beforeSha256": "41437de3a8262ecdf710885b19ea66bdb47a963d458e2e01e1dc34e4efbeebce"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-light.png",
+    "sha256": "868467229adda0844296fc13c5389832d16c784afca61d6b5fe1b3d4810f9ef7",
+    "beforeSha256": "ce845b3571523477d8949ec88e43e6d5c3072ee219c47dfbe3feacaccd0032d1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-dark-1440.png",
+    "sha256": "92cf79f474cee48cbf022ff6d715341a615343343a998849dae3281beca069ef",
+    "beforeSha256": "d95eb5e39e77b0ed68d3825435dbc96c881a24e5791a804aaae35b1152e213aa"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-dark.png",
+    "sha256": "771737498f30122a3b33f0286ae7165b6169418814af05eedb08e1754d46cb9f",
+    "beforeSha256": "cb9789ceeb158272d70f572ae4f373b62d192f878662555d4e1e5a454bfc0da1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-light-1440.png",
+    "sha256": "e057b2c505d98dc3f7a50de060ba54443bb4981b0e8f520be74880abee2a6c51",
+    "beforeSha256": "be385ab58be5b96eb019b4ae87da165e17d930353c93806c89007ddd622de745"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-light.png",
+    "sha256": "ad431958344a818d69223f371870fd807144fedb3c9a65cfac797cd809bafcc5",
+    "beforeSha256": "0fee43f00d5a55774ae416937bed2e93aab65e011f83ec722da610642c88df19"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-1440.png",
+    "sha256": "8cdf25cee888c3b34f86bc074daca69144aa97fd636b812420ad7e70b37bc13d",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png",
+    "sha256": "2d5c62860b250585ded5f50eae01014c37b0a2b99317752d18d684c9835b6566",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png",
+    "sha256": "34f829d0f4c50739c0a1565c4f2065fe456b42dea6ccae6f984140d43fc0dd84",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-dark-1440.png",
+    "sha256": "9e6bcd0e0eeb870eecdead757f132e858cfdeb3cb4976e488240bd08c478c12a",
+    "beforeSha256": "5ed82c83e8c1de2442ed8832b423921443fd72dae3cad74d62c06ceb3cd9c66c"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-dark.png",
+    "sha256": "43e7d6f5dc9bb32b9e344e5487d4084578ad44366724452ad95ed3a453f80aa7",
+    "beforeSha256": "6a8c41df28fd037c17a1ea552ad4ba488b639e61bb17cbc526c707c2bd3424d2"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-light-1440.png",
+    "sha256": "9d3bafb87f4ee56d733d3b9b8f3b5ebb6333ad2009660df1431adee496515a55",
+    "beforeSha256": "1b83c53fa1aaae40910d97aef087910a016d9e558e2b76fe1d4f38645decbb17"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-light.png",
+    "sha256": "777ad8b869b64880bfc603f7480514bd3ca0d094ccf971ffd3a6c5a84d1f68dc",
+    "beforeSha256": "52f9076ae2246bafdfa7a9533ed1d3c880ea11b67cdbda8cc7ad9c5684fb8650"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark-1440.png",
+    "sha256": "68839e505917851302a4b6ab559470fb1ee34b56eb0c4536a9ba2450ad8bab06",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark.png",
+    "sha256": "f388d8f29cbd5654d1da67fdc89e092927165108ce32154c1a116c0941978d9c",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440.png",
+    "sha256": "6f5832825f80a9be736018f62f224264e84cb6607160bd24e3fa54b6ce43d486",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light.png",
+    "sha256": "e05ac7ae9fff3abd2bbf5bdd53e6997237994af0acadc99960dd18d876671d3b",
+    "beforeSha256": null
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-dark-1440.png",
+    "sha256": "c186e1dda7bf71ff3aca81c15a3a71d8dcdfc358fc0a613ca66d1a643d9712cd",
+    "beforeSha256": "d95eb5e39e77b0ed68d3825435dbc96c881a24e5791a804aaae35b1152e213aa"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-dark.png",
+    "sha256": "bb86067eee69110450d05e7b4ccd7da0ca12c037e50017094eb0ed153494d041",
+    "beforeSha256": "cb9789ceeb158272d70f572ae4f373b62d192f878662555d4e1e5a454bfc0da1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-light-1440.png",
+    "sha256": "7439cac8294f09e0f1a9d15351e9e7277683c842bf4a0cfd0af692cbda7bfd98",
+    "beforeSha256": "be385ab58be5b96eb019b4ae87da165e17d930353c93806c89007ddd622de745"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-light.png",
+    "sha256": "ef21983df8e67d71f945280fc8216ca4ba2cd6aad9a168ad3c565dc291db8845",
+    "beforeSha256": "0fee43f00d5a55774ae416937bed2e93aab65e011f83ec722da610642c88df19"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/unreadable-dark-1440.png",
+    "sha256": "5f7d4151f9854d3592deb3814c7184cb5ccdd33c728ecc54f7996eddc21996d5",
+    "beforeSha256": "760ca248e4c686f9145f77accc68980c819c7ea9bd1bdd07437a66ba5aac9162"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/unreadable-dark.png",
+    "sha256": "a3bd376357bc653f3ea7c3ab70728c055226f7bbfe29d502d1829bc4ff45a01b",
+    "beforeSha256": "7912e4e00b3d278685b1d88b028b65db896292c04e8a356a6f401e6dd11b7eec"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/unreadable-light-1440.png",
+    "sha256": "9a05576223f3022bcc410000509eb8d0d040daa560021af827d1b8792e330e39",
+    "beforeSha256": "f2b63af9614104f150340ce1d4a9e9a8efbf790ca571b236fd79764ed1e1e5bc"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/unreadable-light.png",
+    "sha256": "710f35c578f4fe7b9c83e5419ce5b7bf6c86942103bf7ffe78902baa49be841d",
+    "beforeSha256": "f608613cdd008ec4184741ffc9321a00611bb82ed4ecb73926c4281b295e49f1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-dark-1440.png",
+    "sha256": "6696b287a226b523182b045dea52005b8a75d81a9ed16a1839df9a686962af2d",
+    "beforeSha256": "d95eb5e39e77b0ed68d3825435dbc96c881a24e5791a804aaae35b1152e213aa"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-dark.png",
+    "sha256": "66b868eda9832f8e33c0909a974fa286436d2a89b3af5fd77b04dfff436c4bd0",
+    "beforeSha256": "cb9789ceeb158272d70f572ae4f373b62d192f878662555d4e1e5a454bfc0da1"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-light-1440.png",
+    "sha256": "c5b6b59ab31f2a7d002e945e13fe8ab25a134dcf2e98873d03cfdf2657ec8f07",
+    "beforeSha256": "be385ab58be5b96eb019b4ae87da165e17d930353c93806c89007ddd622de745"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-light.png",
+    "sha256": "1e63a18a8905c3356dce10479fbda82f481a7bdd7b6780217491a9854a83c201",
+    "beforeSha256": "0fee43f00d5a55774ae416937bed2e93aab65e011f83ec722da610642c88df19"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/card-table/baselines/chromium/product-cardtable/states-dark.png",
+    "sha256": "6a68cf179a860bc6d08b3b10e7afaedeca5cf97d4d6478a437a4da5d224863b4",
+    "beforeSha256": "3be4227b9efab4d0050008dcd39d580be4c68c16cbe87e091a31518576015aff"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/card-table/baselines/chromium/product-cardtable/states-light.png",
+    "sha256": "bdb8bc0adb4740ed490b75d89e767a3f37315091e88c740fadf3456594d51b92",
+    "beforeSha256": "f4b8a19bef7749f2d8a9bc7bd5d4fd5d0eb78945920d78a9e2d6cc93de153c5d"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/games-cellgridboard-boundary-contrast/open-water-dark.png",
+    "sha256": "4021954f8a40ce2b005b3943c96a4b773cc882e52e4ee6bdbd112e535242da2a",
+    "beforeSha256": null
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/games-cellgridboard-boundary-contrast/open-water-light.png",
+    "sha256": "d236e46d4b276232cabc60f4b653f9a7860112f8cf3ba2447951b61691ccac84",
+    "beforeSha256": null
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/product-cellgridboard/states-dark.png",
+    "sha256": "62d116aa48b577c744841d70d0b012f49d76f23bb3f0a4a2d894b0fc98686173",
+    "beforeSha256": "4679a92c16356be1225e1180f80f1ea75ba1e916dd08674a4413e390a7977c62"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/product-cellgridboard/states-light.png",
+    "sha256": "90618217fb4b4cc59739f2f099cc773651e971b4f320f8af35af0af92415ca6e",
+    "beforeSha256": "7a54cbbdb4e8a3a475a9c9a4cc63fb54c89fe0dd77b7a7bf5738798a8ae5c05f"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/game-session-layout/baselines/chromium/templates-game-frame/states-dark-1440.png",
+    "sha256": "b106ed1678fa848ed62b35caa8403ea8ece00f111fb0715a489d7fd427341a0a",
+    "beforeSha256": "9ca0d08f4b00fc3bbd732fee1d2d6560c82332bcf69ec61f84e19289791eff38"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/game-session-layout/baselines/chromium/templates-game-frame/states-dark.png",
+    "sha256": "9befc5d683d3017cf3cfb3e4ba9a23ccfbbf4719e81a52cebc9c9be476cf391e",
+    "beforeSha256": "d78011307554d407d899c87cf3f5ba6b22d372b7b8584ce20a985e6a2beb3cca"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/game-session-layout/baselines/chromium/templates-game-frame/states-light-1440.png",
+    "sha256": "76a0a1bda1fd8ffad85e3c1daca77d16e65efda595c9cf12f313f379ca51bbdc",
+    "beforeSha256": "ddca6df4c0a8acea5713b070d45e482c7368a72d9e1dad49885755c855729c8f"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/game-session-layout/baselines/chromium/templates-game-frame/states-light.png",
+    "sha256": "329d251203a271c81c0c3fce474f648534438308cc69f4d48e9d4860ab2b1029",
+    "beforeSha256": "e4ef05d35ac8c4caaa67d139b0f039e6bb088bd30004ce2fc05d49488f172057"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/enlarged-placement-dark.png",
+    "sha256": "1f77e16b9031d645519403be3031b4649244086b35405f8b1bc5532b1e6253ab",
+    "beforeSha256": null
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/enlarged-placement-light.png",
+    "sha256": "b9809e79db73922f53d46addca7ab037dba7f0e9abf9a99fd2f69a9279413e60",
+    "beforeSha256": null
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/states-dark.png",
+    "sha256": "eb437e681d19cf2c1e16cd88fc5c636cf88be323ecc65008a6b0d660b7409a6f",
+    "beforeSha256": "b8349c407524252b9efa40c0bd7f08a1fb13ae03f77668199b1f1add4a193211"
+  },
+  {
+    "path": "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/states-light.png",
+    "sha256": "375ced7e3046a24b46aae392490e3c4e1f94a6bf01f9516eb8c290caec404c53",
+    "beforeSha256": "c4bde9dda93f5dd614db70b26205100b7afb8ecdcf6fe9e77f3db2fd45442986"
+  }
+]

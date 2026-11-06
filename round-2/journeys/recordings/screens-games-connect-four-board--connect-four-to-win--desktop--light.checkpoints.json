@@ -1,0 +1,63 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [5] toHaveAttribute"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [11] toHaveAttribute"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [14] toHaveAttribute"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-connect-four-board--connect-four-to-win [17] toHaveAttribute"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--005.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light--006.png"
+  }
+]

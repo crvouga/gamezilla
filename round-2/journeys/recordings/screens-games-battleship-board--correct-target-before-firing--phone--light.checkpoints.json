@@ -1,0 +1,63 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [2] pointer"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [5] toHaveAccessibleName"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [7] pointer"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [10] toHaveTextContent"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [12] click"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [15] toHaveAccessibleName"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--005.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--006.png"
+  }
+]

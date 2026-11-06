@@ -1,0 +1,267 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @pkgs/chess-board-root-harness-ts
+   • Running lint, tc, test in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/chess-board-root-harness-ts:test: cache miss, executing 7324d0ee36951f8e
+@pkgs/chess-board-root-harness-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @pkgs/chess-board-root-client-ts/board-style-preload --path-ignore-patterns='**/browser/**' tests
+@pkgs/chess-board-root-harness-ts:test: bun test v1.4.3 (c6da4a4d3)
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/public-coordinates.contract.test.ts:
+@pkgs/chess-board-root-harness-ts:test: (pass) public coordinates preserve the puzzle frame and still motion across wide layout and orientation changes [79.39ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) only enabled outside coordinates add a frame: {"showCoordinates":true} [20.64ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) only enabled outside coordinates add a frame: {"showCoordinates":true,"coordinatePlacement":"inside"} [20.42ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) only enabled outside coordinates add a frame: {"showCoordinates":false,"coordinatePlacement":"outside-end"} [19.82ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/board-blur-event.test.ts:
+@pkgs/chess-board-root-harness-ts:test: (pass) switching away can blur the worker window [0.06ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/move-emission-supplied.contract.test.tsx:
+@pkgs/chess-board-root-harness-ts:test: (pass) a supplied c7c5 reply preserves callback isolation and canonical metadata [37.38ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) literal unusable parent input retains a playable canonical board and recovers [36.71ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) literal truncated initial FEN falls back to the complete playable opening [23.38ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) ordered canonical premove callbacks use the real reply via selection [61.68ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) ordered canonical premove callbacks use the real reply via dragging [57.16ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a blocked f1a6 premove contributes no extra callback after b7b5 [39.11ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) the literal rapid capture sequence emits each complete canonical payload once [66.78ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/motion-adapter.contract.test.tsx:
+@pkgs/chess-board-root-harness-ts:test: (pass) compositor receives the actual released e2 piece as its origin [13.93ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) compositor receives the actual released f1 piece as its origin [15.56ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) an outside release requests only a settle back to its source [21.43ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) the supplied reply forwards one ordinary transform and duration [24.66ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) idle orientation changes do not create compositor requests [16.22ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) mid-arrival refusal settles the knight without requesting a reverse slide [24.42ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) public duration %s forwards to the compositor without a fallback [25.05ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) public duration %s forwards to the compositor without a fallback [34.84ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a low-end environment preserves compositor movement [26.06ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a non-sliding public board never leaves compositor work or victim nodes [39.28ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a non-sliding public board never leaves compositor work or victim nodes [36.18ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a non-sliding public board never leaves compositor work or victim nodes [31.80ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) reduced motion cancels the actual first handle and permits a fresh later request [40.21ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/last-move-supplied.contract.test.ts:
+@pkgs/chess-board-root-harness-ts:test: (pass) a board opened part-way through marks the move its parent names [14.97ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a supplied last move stays unmarked when last moves are hidden [14.61ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) the board's own move replaces the supplied one [26.22ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) a replaced position with no known move clears the supplied mark [21.61ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/move-emission.contract.test.tsx:
+@pkgs/chess-board-root-harness-ts:test: (pass) opening knight via selection emits exactly the complete public move payload and canonical FEN [40.14ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) opening knight via drag emits exactly the complete public move payload and canonical FEN [53.86ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) opening knight via keyboard emits exactly the complete public move payload and canonical FEN [30.96ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) opening pawn via selection emits exactly the complete public move payload and canonical FEN [49.08ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) opening pawn via drag emits exactly the complete public move payload and canonical FEN [58.32ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) opening pawn via keyboard emits exactly the complete public move payload and canonical FEN [41.65ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pawn capture via selection emits exactly the complete public move payload and canonical FEN [32.57ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pawn capture via drag emits exactly the complete public move payload and canonical FEN [28.28ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pawn capture via keyboard emits exactly the complete public move payload and canonical FEN [41.66ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) passed pawn capture via selection emits exactly the complete public move payload and canonical FEN [49.08ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) passed pawn capture via drag emits exactly the complete public move payload and canonical FEN [37.25ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) passed pawn capture via keyboard emits exactly the complete public move payload and canonical FEN [32.79ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) checking queen via selection emits exactly the complete public move payload and canonical FEN [57.73ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) checking queen via drag emits exactly the complete public move payload and canonical FEN [37.07ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) checking queen via keyboard emits exactly the complete public move payload and canonical FEN [35.53ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) mating capture via selection emits exactly the complete public move payload and canonical FEN [48.44ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) mating capture via drag emits exactly the complete public move payload and canonical FEN [43.67ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) mating capture via keyboard emits exactly the complete public move payload and canonical FEN [32.13ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) stalemating queen via selection emits exactly the complete public move payload and canonical FEN [29.98ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) stalemating queen via drag emits exactly the complete public move payload and canonical FEN [25.95ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) stalemating queen via keyboard emits exactly the complete public move payload and canonical FEN [35.46ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) permitted check response via selection emits exactly the complete public move payload and canonical FEN [28.50ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) permitted check response via drag emits exactly the complete public move payload and canonical FEN [26.29ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) permitted check response via keyboard emits exactly the complete public move payload and canonical FEN [25.71ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White kingside castle via selection emits exactly the complete public move payload and canonical FEN [23.71ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White kingside castle via drag emits exactly the complete public move payload and canonical FEN [25.33ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White kingside castle via keyboard emits exactly the complete public move payload and canonical FEN [25.64ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White queenside castle via selection emits exactly the complete public move payload and canonical FEN [30.16ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White queenside castle via drag emits exactly the complete public move payload and canonical FEN [23.22ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White queenside castle via keyboard emits exactly the complete public move payload and canonical FEN [25.33ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black kingside castle via selection emits exactly the complete public move payload and canonical FEN [27.09ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black kingside castle via drag emits exactly the complete public move payload and canonical FEN [26.05ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black kingside castle via keyboard emits exactly the complete public move payload and canonical FEN [27.89ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black queenside castle via selection emits exactly the complete public move payload and canonical FEN [27.73ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black queenside castle via drag emits exactly the complete public move payload and canonical FEN [30.44ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black queenside castle via keyboard emits exactly the complete public move payload and canonical FEN [35.58ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White king onto kingside rook via drag emits exactly the complete public move payload and canonical FEN [36.25ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White king onto queenside rook via drag emits exactly the complete public move payload and canonical FEN [35.75ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black king onto kingside rook via drag emits exactly the complete public move payload and canonical FEN [32.23ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black king onto queenside rook via drag emits exactly the complete public move payload and canonical FEN [26.91ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing white via selection emits exactly the complete public move payload and canonical FEN [40.12ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing white via drag emits exactly the complete public move payload and canonical FEN [31.68ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing white via keyboard emits exactly the complete public move payload and canonical FEN [34.63ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing white via selection emits exactly the complete public move payload and canonical FEN [38.36ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing white via drag emits exactly the complete public move payload and canonical FEN [34.60ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing white via keyboard emits exactly the complete public move payload and canonical FEN [32.79ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing white via selection emits exactly the complete public move payload and canonical FEN [33.35ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing white via drag emits exactly the complete public move payload and canonical FEN [32.13ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing white via keyboard emits exactly the complete public move payload and canonical FEN [35.76ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing white via selection emits exactly the complete public move payload and canonical FEN [34.13ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing white via drag emits exactly the complete public move payload and canonical FEN [32.31ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing white via keyboard emits exactly the complete public move payload and canonical FEN [31.48ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing white via selection emits exactly the complete public move payload and canonical FEN [34.01ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing white via drag emits exactly the complete public move payload and canonical FEN [43.11ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing white via keyboard emits exactly the complete public move payload and canonical FEN [34.65ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing white via selection emits exactly the complete public move payload and canonical FEN [35.19ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing white via drag emits exactly the complete public move payload and canonical FEN [32.22ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing white via keyboard emits exactly the complete public move payload and canonical FEN [34.56ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing white via selection emits exactly the complete public move payload and canonical FEN [37.92ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing white via drag emits exactly the complete public move payload and canonical FEN [33.10ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing white via keyboard emits exactly the complete public move payload and canonical FEN [29.90ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing white via selection emits exactly the complete public move payload and canonical FEN [31.73ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing white via drag emits exactly the complete public move payload and canonical FEN [29.34ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing white via keyboard emits exactly the complete public move payload and canonical FEN [30.33ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing black via selection emits exactly the complete public move payload and canonical FEN [29.78ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing black via drag emits exactly the complete public move payload and canonical FEN [29.44ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to q facing black via keyboard emits exactly the complete public move payload and canonical FEN [30.29ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing black via selection emits exactly the complete public move payload and canonical FEN [30.02ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing black via drag emits exactly the complete public move payload and canonical FEN [28.95ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to q facing black via keyboard emits exactly the complete public move payload and canonical FEN [27.95ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing black via selection emits exactly the complete public move payload and canonical FEN [29.58ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing black via drag emits exactly the complete public move payload and canonical FEN [28.74ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to r facing black via keyboard emits exactly the complete public move payload and canonical FEN [29.31ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing black via selection emits exactly the complete public move payload and canonical FEN [27.68ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing black via drag emits exactly the complete public move payload and canonical FEN [27.71ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to r facing black via keyboard emits exactly the complete public move payload and canonical FEN [28.84ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing black via selection emits exactly the complete public move payload and canonical FEN [41.08ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing black via drag emits exactly the complete public move payload and canonical FEN [29.06ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to b facing black via keyboard emits exactly the complete public move payload and canonical FEN [34.37ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing black via selection emits exactly the complete public move payload and canonical FEN [33.62ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing black via drag emits exactly the complete public move payload and canonical FEN [33.24ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to b facing black via keyboard emits exactly the complete public move payload and canonical FEN [26.47ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing black via selection emits exactly the complete public move payload and canonical FEN [27.68ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing black via drag emits exactly the complete public move payload and canonical FEN [28.12ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White quiet promotion to n facing black via keyboard emits exactly the complete public move payload and canonical FEN [27.45ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing black via selection emits exactly the complete public move payload and canonical FEN [26.20ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing black via drag emits exactly the complete public move payload and canonical FEN [26.72ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White capture promotion to n facing black via keyboard emits exactly the complete public move payload and canonical FEN [28.40ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing white via selection emits exactly the complete public move payload and canonical FEN [26.74ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing white via drag emits exactly the complete public move payload and canonical FEN [38.54ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing white via keyboard emits exactly the complete public move payload and canonical FEN [36.84ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing white via selection emits exactly the complete public move payload and canonical FEN [34.06ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing white via drag emits exactly the complete public move payload and canonical FEN [32.64ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing white via keyboard emits exactly the complete public move payload and canonical FEN [35.35ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing white via selection emits exactly the complete public move payload and canonical FEN [32.69ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing white via drag emits exactly the complete public move payload and canonical FEN [28.28ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing white via keyboard emits exactly the complete public move payload and canonical FEN [30.91ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing white via selection emits exactly the complete public move payload and canonical FEN [30.53ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing white via drag emits exactly the complete public move payload and canonical FEN [29.59ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing white via keyboard emits exactly the complete public move payload and canonical FEN [28.99ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing white via selection emits exactly the complete public move payload and canonical FEN [29.90ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing white via drag emits exactly the complete public move payload and canonical FEN [30.12ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing white via keyboard emits exactly the complete public move payload and canonical FEN [28.52ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing white via selection emits exactly the complete public move payload and canonical FEN [31.86ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing white via drag emits exactly the complete public move payload and canonical FEN [27.84ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing white via keyboard emits exactly the complete public move payload and canonical FEN [27.06ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing white via selection emits exactly the complete public move payload and canonical FEN [30.58ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing white via drag emits exactly the complete public move payload and canonical FEN [30.36ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing white via keyboard emits exactly the complete public move payload and canonical FEN [28.74ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing white via selection emits exactly the complete public move payload and canonical FEN [29.91ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing white via drag emits exactly the complete public move payload and canonical FEN [29.19ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing white via keyboard emits exactly the complete public move payload and canonical FEN [27.73ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing black via selection emits exactly the complete public move payload and canonical FEN [30.42ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing black via drag emits exactly the complete public move payload and canonical FEN [30.05ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to q facing black via keyboard emits exactly the complete public move payload and canonical FEN [34.55ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing black via selection emits exactly the complete public move payload and canonical FEN [29.97ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing black via drag emits exactly the complete public move payload and canonical FEN [30.26ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to q facing black via keyboard emits exactly the complete public move payload and canonical FEN [30.92ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing black via selection emits exactly the complete public move payload and canonical FEN [30.25ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing black via drag emits exactly the complete public move payload and canonical FEN [31.04ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to r facing black via keyboard emits exactly the complete public move payload and canonical FEN [30.93ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing black via selection emits exactly the complete public move payload and canonical FEN [30.51ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing black via drag emits exactly the complete public move payload and canonical FEN [30.86ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to r facing black via keyboard emits exactly the complete public move payload and canonical FEN [31.80ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing black via selection emits exactly the complete public move payload and canonical FEN [30.47ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing black via drag emits exactly the complete public move payload and canonical FEN [30.07ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to b facing black via keyboard emits exactly the complete public move payload and canonical FEN [33.70ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing black via selection emits exactly the complete public move payload and canonical FEN [28.16ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing black via drag emits exactly the complete public move payload and canonical FEN [29.11ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to b facing black via keyboard emits exactly the complete public move payload and canonical FEN [28.01ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing black via selection emits exactly the complete public move payload and canonical FEN [26.90ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing black via drag emits exactly the complete public move payload and canonical FEN [29.16ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black quiet promotion to n facing black via keyboard emits exactly the complete public move payload and canonical FEN [29.50ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing black via selection emits exactly the complete public move payload and canonical FEN [27.02ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing black via drag emits exactly the complete public move payload and canonical FEN [28.29ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black capture promotion to n facing black via keyboard emits exactly the complete public move payload and canonical FEN [29.71ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) the declared six-ply opening emits one isolated canonical callback per ply [58.20ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 5 [199.02ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 5 [203.13ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for r3k2r/pppqbppp/2n1bn2/3pp3/3PP3/2N1BN2/PPPQBPPP/R3K2R w KQkq - 0 1 [194.08ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for r3k2r/pppqbppp/2n1bn2/3pp3/3PP3/2N1BN2/PPPQBPPP/R3K2R b KQkq - 0 1 [186.84ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for k3r3/8/8/8/8/8/R7/4K3 w - - 0 1 [33.53ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for rnb1kbnr/pppp1ppp/8/4p3/4P2q/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3 [167.77ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3 [174.83ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) complete destination sets equal the independent rules for rnbqkbnr/ppppp1pp/8/5p1Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2 [179.03ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) cancelling an earlier promotion (Escape=%s) permits one later capture-promotion callback [37.25ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) cancelling an earlier promotion (Escape=%s) permits one later capture-promotion callback [35.08ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) automatic queen promotion emits one canonical callback without a pending choice [20.65ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) switching between each own middlegame piece only changes selection and never emits feedback [103.07ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) White turn opposing and empty squares have no event, position or sound effect [336.63ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black turn off-turn and empty squares have no event, position or sound effect [336.82ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) Black reply off-turn and empty squares have no event, position or sound effect [320.93ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) checkmate all 64 sources have no event, position or sound effect [379.46ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) stalemate all 64 sources have no event, position or sound effect [386.14ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) draw all 64 sources have no event, position or sound effect [383.95ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) disabled all 64 sources have no event, position or sound effect [429.27ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) all terminal response frames preserve the previously emitted mating payload and sound sequence [444.42ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) illegal pawn advance via selection has no callback payload and retains the entire canonical position [20.42ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) illegal pawn advance via drag has no callback payload and retains the entire canonical position [20.82ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) illegal pawn advance via keyboard has no callback payload and retains the entire canonical position [19.72ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) blocked bishop move via selection has no callback payload and retains the entire canonical position [22.17ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) blocked bishop move via drag has no callback payload and retains the entire canonical position [18.79ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) blocked bishop move via keyboard has no callback payload and retains the entire canonical position [21.48ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance one square via selection has no callback payload and retains the entire canonical position [19.27ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance one square via drag has no callback payload and retains the entire canonical position [23.14ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance one square via keyboard has no callback payload and retains the entire canonical position [19.15ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance two squares via selection has no callback payload and retains the entire canonical position [20.74ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance two squares via drag has no callback payload and retains the entire canonical position [19.27ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) pinned pawn advance two squares via keyboard has no callback payload and retains the entire canonical position [19.23ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) non-answer to check via selection has no callback payload and retains the entire canonical position [20.18ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) non-answer to check via drag has no callback payload and retains the entire canonical position [18.25ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) non-answer to check via keyboard has no callback payload and retains the entire canonical position [20.43ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) own-piece capture via drag has no callback payload and retains the entire canonical position [18.58ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) abandoning the own square frame has no callback or canonical position effect [25.45ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) abandoning the legacy right edge frame has no callback or canonical position effect [25.90ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) abandoning the legacy top edge frame has no callback or canonical position effect [24.59ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) abandoning the left edge frame has no callback or canonical position effect [25.31ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) abandoning the bottom edge frame has no callback or canonical position effect [24.09ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/chess-board-frame.test.tsx:
+@pkgs/chess-board-root-harness-ts:test: (pass) the frame labels ranks down its edge and files along its foot, from the viewer side [1.81ms]
+@pkgs/chess-board-root-harness-ts:test: 46 | // regression: chess-coordinates-inconsistent — a desktop board wrote its
+@pkgs/chess-board-root-harness-ts:test: 47 | // coordinates in the squares' corners while a phone's wrote them outside,
+@pkgs/chess-board-root-harness-ts:test: 48 | // and a puzzle's phone board inside again: every playing board now labels
+@pkgs/chess-board-root-harness-ts:test: 49 | // its edges outside, and only a thumbnail keeps corner labels.
+@pkgs/chess-board-root-harness-ts:test: 50 | test('every playing board shows the outside labels, and its corner labels step aside', () => {
+@pkgs/chess-board-root-harness-ts:test: 51 |   const frame = readFileSync(
+@pkgs/chess-board-root-harness-ts:test:                      ^
+@pkgs/chess-board-root-harness-ts:test: error: expect(received).toMatch(expected)
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: Expected substring or pattern: /font-size:\s*12px;/
+@pkgs/chess-board-root-harness-ts:test: Received: "/* A chess board's outside coordinates: a slim frame on every playing\n   board (280px and wider), phone or desktop, so the coordinates read the\n   same way everywhere; only a thumbnail keeps its corner labels. */\n.host {\n  container: chess-frame / inline-size;\n  width: 100%;\n  min-width: 0;\n}\n.frame {\n  display: grid;\n  grid-template-columns: 0 minmax(0, 1fr);\n  grid-template-rows: auto 0;\n  min-width: 0;\n}\n.board {\n  grid-column: 2;\n  grid-row: 1;\n  min-width: 0;\n}\n.ranks,\n.files {\n  display: none;\n}\n.label {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  color: var(--ui-color-text);\n  font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1;\n  font-variant-numeric: tabular-nums;\n}\n@container chess-frame (min-width: 280px) {\n  .frame {\n    grid-template-columns: 16px minmax(0, 1fr);\n    grid-template-rows: auto 20px;\n    column-gap: 4px;\n  }\n  .ranks {\n    display: flex;\n    flex-direction: column;\n    grid-column: 1;\n    grid-row: 1;\n  }\n  .files {\n    display: flex;\n    flex-direction: row;\n    grid-column: 2;\n    grid-row: 2;\n  }\n  /* Ranks at the end edge: the squares start at the frame's start edge,\n     under the screen's title, the labels standing past their end. */\n  .frame[data-ranks=\"end\"] {\n    grid-template-columns: minmax(0, 1fr) 16px;\n  }\n  .frame[data-ranks=\"end\"] .ranks {\n    grid-column: 2;\n  }\n  .frame[data-ranks=\"end\"] .board,\n  .frame[data-ranks=\"end\"] .files {\n    grid-column: 1;\n  }\n}\n"
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx:51:17)
+@pkgs/chess-board-root-harness-ts:test: (fail) every playing board shows the outside labels, and its corner labels step aside [0.23ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) the frame marks its labels gutter, and the stage starts its seats past it [0.20ms]
+@pkgs/chess-board-root-harness-ts:test: (pass) wide, the ranks stand at the end, the squares under the title [0.19ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: tests/storybook-mount.test.tsx:
+@pkgs/chess-board-root-harness-ts:test: (pass) the initial chess story mounts once inside its real injected providers [1.68ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test: 1 tests failed:
+@pkgs/chess-board-root-harness-ts:test: (fail) every playing board shows the outside labels, and its corner labels step aside [0.23ms]
+@pkgs/chess-board-root-harness-ts:test: 
+@pkgs/chess-board-root-harness-ts:test:  211 pass
+@pkgs/chess-board-root-harness-ts:test:  1 fail
+@pkgs/chess-board-root-harness-ts:test:  4219 expect() calls
+@pkgs/chess-board-root-harness-ts:test: Ran 212 tests across 8 files. [10.52s]
+@pkgs/chess-board-root-harness-ts:test: error: script "test" exited with code 1
+@pkgs/chess-board-root-harness-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/chess-board-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 3 total
+Cached:    0 cached, 3 total
+  Time:    10.777s 
+Failed:    @pkgs/chess-board-root-harness-ts#test
+
+ ERROR  run failed: command  exited (1)

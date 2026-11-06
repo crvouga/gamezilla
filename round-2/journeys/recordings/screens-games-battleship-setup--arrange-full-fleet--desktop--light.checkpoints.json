@@ -1,0 +1,342 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [3] click"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [5] toHaveTextContent"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [6] findByTestId"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--005.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [8] findByTestId"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--006.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [10] toBeVisible"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--007.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [12] toHaveTextContent"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--008.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [13] findByTestId"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--009.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [15] toHaveAccessibleName"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--010.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [16] findByTestId"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--011.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--012.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [18] findByTestId"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--013.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [19] click"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--014.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [22] toBeInTheDocument"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--015.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [23] findByTestId"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--016.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [24] click"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--017.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [25] findByTestId"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--018.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [26] click"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--019.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [27] findByTestId"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--020.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [28] click"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--021.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [30] toHaveTextContent"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--022.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [31] findByTestId"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--023.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [33] toHaveAccessibleName"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--024.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [34] findByTestId"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--025.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [35] click"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--026.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [36] findByTestId"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--027.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [37] click"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--028.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [39] toHaveTextContent"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--029.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [40] findByTestId"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--030.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [42] toHaveAccessibleName"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--031.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [43] findByTestId"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--032.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [44] click"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--033.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [46] toHaveTextContent"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--034.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [47] findByTestId"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--035.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--arrange-full-fleet [49] toHaveAccessibleName"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--036.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light--037.png"
+  }
+]

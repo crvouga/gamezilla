@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+NODE_OPTIONS=--max-old-space-size=8192 PLAYWRIGHT_JSON_OUTPUT_NAME="$PWD/.overhaul-evidence/ui-ux-overhaul/round-2/interactions/final-head/browser-results.json" bunx turbo run storybook:test --filter=@pkgs/ui-root-harness-ts --concurrency=1 --only -- --workers=2 --reporter=line,json --grep 'screens-games-(battleship-board|battleship-setup|chess-board|connect-four-board|hearts-board|light-cycles-arena|numberlink-puzzle|pong-court|quoridor-classic|quoridor-hill|sokoban-puzzle|word-tiles-board|word-tiles-puzzle)--|screens-puzzles-chess-play--|games-cellgridboard|product-(wordtileboard|cellgridboard|cardtable)|templates-game-frame'

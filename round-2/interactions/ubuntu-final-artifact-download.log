@@ -1,0 +1,97 @@
+secrets-run: projectId=26137c60-8dea-4d95-a8a3-30901615b026 env=dev endpoint=https://app.infisical.com
+secrets-run: Infisical unavailable and no local cache; falling back to local/injected env. Run `bun run secrets:pull` when online.
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/tools-harness-ts
+   • Running @libs/tools-harness-ts#configure:brand in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/tools-harness-ts:configure:identity: cache bypass, force executing 13ee34ed0261d072
+@libs/tools-harness-ts:configure:identity: $ bun run scripts/materialize-product-identity.ts
+@libs/tools-harness-ts:configure:identity: identity: materialized configured configuration (values omitted)
+@libs/observability-server-ts:configure:slo: cache bypass, force executing 6aad563c3e16a9cb
+@libs/tools-harness-ts:configure:brand-policy: cache bypass, force executing 7f60ad9f302f46b8
+@libs/tools-harness-ts:configure:identity-agents: cache bypass, force executing 9dee3f95607aad35
+@libs/tools-harness-ts:configure:brand-policy: $ bun run scripts/verify-brand-policy.ts
+@libs/tools-harness-ts:configure:identity-agents: $ bun run scripts/sync-agent-mcp.ts
+@libs/observability-server-ts:configure:slo: $ bun run scripts/slo-generate.ts
+@libs/observability-server-ts:configure:slo: wrote libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json, libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json and libs/observability-server-ts/slo-alert-policies.openslo.yaml
+@libs/tools-harness-ts:configure:brand-policy: brand policy: 16934 files, none spells the brand outside @libs/product-identity (8 verified generated artifacts)
+@libs/tools-harness-ts:configure:brand: cache bypass, force executing 0e93aba6f23d4894
+@libs/tools-harness-ts:configure:brand: $ bun run scripts/generate-brand-artifacts.ts
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/mark.svg
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/manifest.webmanifest
+@libs/tools-harness-ts:configure:brand: wrote apps/product-ts/public/.well-known/security.txt
+@libs/tools-harness-ts:configure:brand: wrote apps/client-swift/src/product-identity.generated.swift
+@libs/tools-harness-ts:configure:brand: wrote apps/client-swift/config/product-identity.generated.xcconfig
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-icon-180.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1125-2436.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1136-640.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1170-2532.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1179-2556.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1206-2622.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1242-2208.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1242-2688.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1260-2736.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1284-2778.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1290-2796.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1320-2868.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1334-750.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1488-2266.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1536-2048.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1620-2160.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1640-2360.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1668-2224.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1668-2388.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-1792-828.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2048-1536.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2048-2732.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2160-1620.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2208-1242.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2224-1668.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2266-1488.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2360-1640.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2388-1668.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2436-1125.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2532-1170.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2556-1179.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2622-1206.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2688-1242.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2732-2048.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2736-1260.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2778-1284.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2796-1290.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-2868-1320.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-640-1136.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-750-1334.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/apple-splash-dark-828-1792.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/favicon.ico
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/favicon-196.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/manifest-icon-192.maskable.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/public/pwa/manifest-icon-512.maskable.png
+@libs/tools-harness-ts:configure:brand: wrote apps/product-ts/public/favicon.ico
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/android-icon-background.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/android-icon-foreground.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/android-icon-monochrome.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/favicon.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/icon.png
+@libs/tools-harness-ts:configure:brand: wrote apps/client-ts/src/splash-icon.png
+
+ Tasks:    5 successful, 5 total
+Cached:    0 cached, 5 total
+  Time:    1.656s 
+
+35 |   env: Readonly<Record<string, string | undefined>>
+36 | ): ObjectStore {
+37 |   const required = (name: string): string => {
+38 |     const value = env[name]?.trim();
+39 |     if (!value)
+40 |       throw new Error(
+                     ^
+error: CI_ARTIFACTS_BUCKET is not set: authenticate with secrets-auth in CI, or run under secrets-run
+      at required (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/tools-harness-ts/scripts/ci-artifacts.ts:40:17)
+      at ciArtifactsStore (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/tools-harness-ts/scripts/ci-artifacts.ts:46:13)
+      at main (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/tools-harness-ts/scripts/ci-artifacts.ts:244:17)
+      at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/tools-harness-ts/scripts/ci-artifacts.ts:290:29
+
+Bun v1.4.3 (macOS arm64)

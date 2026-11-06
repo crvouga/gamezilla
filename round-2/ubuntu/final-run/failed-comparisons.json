@@ -1,0 +1,32 @@
+[
+  {
+    "story": "screens-games-word-tiles-board--recall-and-restore",
+    "theme": "light",
+    "width": 1440,
+    "pixels": "46084"
+  },
+  {
+    "story": "screens-games-word-tiles-board--recover-and-submit",
+    "theme": "dark",
+    "width": 1440,
+    "pixels": "8403"
+  },
+  {
+    "story": "screens-games-word-tiles-board--accepted-exchange",
+    "theme": "dark",
+    "width": 390,
+    "pixels": "39758"
+  },
+  {
+    "story": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "theme": "light",
+    "width": 1440,
+    "pixels": "***2353 (masked)"
+  },
+  {
+    "story": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "theme": "dark",
+    "width": 1440,
+    "pixels": "***2369 (masked)"
+  }
+]

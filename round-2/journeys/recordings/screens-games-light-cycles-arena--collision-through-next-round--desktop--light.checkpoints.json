@@ -1,0 +1,126 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [3] toHaveAttribute"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [5] click"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [6] keyboard"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [11] toHaveAttribute"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [14] toHaveAttribute"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--005.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [17] toBeInTheDocument"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--006.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [20] toHaveAttribute"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--007.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [23] toHaveTextContent"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--008.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [26] toHaveAttribute"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--009.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [29] toHaveAttribute"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--010.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [32] toHaveAttribute"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--011.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--collision-through-next-round [35] toHaveAttribute"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--012.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light--013.png"
+  }
+]

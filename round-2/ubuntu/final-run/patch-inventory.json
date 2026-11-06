@@ -1,0 +1,32 @@
+[
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-light.png",
+    "beforeSha256": "89aa54a434e65c7119235d075b4dcb1a31a14ba8312571c36b2faf0bd46bc388",
+    "sha256": "c864f762cbd3a2989916fc651598eddb01858d35ade0d9994113a8df5f507179",
+    "image": "images/1-accepted-exchange-light.png"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-light.png",
+    "beforeSha256": "aae99f7dee9be3b764e2a592fa93329670d5ffbe006b361cfcecc311cf180e17",
+    "sha256": "0db57eebf440ac46008dc67463474e83ab6417bfcc428bbb038eec6b00590722",
+    "image": "images/2-accepted-pass-light.png"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light-1440.png",
+    "beforeSha256": null,
+    "sha256": "84d42da28223bdbea213e85a56e6a3d72a9d46e186f2dc7e1ed7d733b89dc9c9",
+    "image": "images/3-recall-and-restore-light-1440.png"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-1440.png",
+    "beforeSha256": null,
+    "sha256": "891a5983ab89d039a1e0040d8281876a03af5bc1286db593c38bd101f36891d3",
+    "image": "images/4-recover-and-submit-dark-1440.png"
+  },
+  {
+    "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-1440.png",
+    "beforeSha256": null,
+    "sha256": "35c983a823c5bcc96aa98037f4c3fc14853816502dc8e7a3b3083c3443056b95",
+    "image": "images/5-enlarged-blank-light-1440.png"
+  }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [2] keyboard"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [5] toBeVisible"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [10] click"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [13] toHaveAttribute"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [15] click"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--005.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [18] toHaveAttribute"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--006.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [20] click"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--007.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [21] keyboard"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--008.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [24] toBeVisible"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--009.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [27] toHaveAttribute"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--010.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [29] click"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--011.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [32] toHaveAttribute"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--012.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [35] toBeInTheDocument"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--013.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light--014.png"
+  }
+]

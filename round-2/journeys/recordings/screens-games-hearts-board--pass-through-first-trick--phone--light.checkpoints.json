@@ -1,0 +1,909 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [3] click"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [4] findByTestId"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [5] click"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--003.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [6] findByTestId"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--004.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--005.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [9] click"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--006.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [12] toBeVisible"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--007.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [15] toBeVisible"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--008.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [18] toBeVisible"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--009.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [21] toBeVisible"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--010.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [24] toBeVisible"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--011.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [27] toBeVisible"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--012.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [30] toBeVisible"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--013.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [33] toBeVisible"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--014.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [36] toBeVisible"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--015.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [39] toBeVisible"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--016.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [42] toBeVisible"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--017.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [45] toBeVisible"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--018.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [48] toBeVisible"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--019.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [50] click"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--020.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [53] toHaveAttribute"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--021.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [56] toHaveTextContent"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--022.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [58] toHaveLength"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--023.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [61] toHaveTextContent"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--024.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [63] toHaveLength"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--025.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [66] toHaveTextContent"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--026.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [68] toHaveLength"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--027.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [71] toHaveTextContent"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--028.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [73] toHaveLength"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--029.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [76] toBeVisible"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--030.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [79] toBeVisible"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--031.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [82] toBeVisible"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--032.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [85] toBeVisible"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--033.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [88] toBeVisible"
+    ],
+    "cursor": 89,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--034.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [91] toBeVisible"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--035.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [94] toBeVisible"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--036.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [97] toBeVisible"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--037.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [100] toBeVisible"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--038.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [103] toBeVisible"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--039.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [106] toBeVisible"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--040.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [109] toBeVisible"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--041.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [112] toBeVisible"
+    ],
+    "cursor": 113,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--042.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [114] click"
+    ],
+    "cursor": 115,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--043.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [117] toHaveAttribute"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--044.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [120] toHaveTextContent"
+    ],
+    "cursor": 121,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--045.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [122] toHaveLength"
+    ],
+    "cursor": 123,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--046.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [125] toHaveTextContent"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--047.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [127] toHaveLength"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--048.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [130] toHaveTextContent"
+    ],
+    "cursor": 131,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--049.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [132] toHaveLength"
+    ],
+    "cursor": 133,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--050.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [135] toHaveTextContent"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--051.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [137] toHaveLength"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--052.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [140] toBeVisible"
+    ],
+    "cursor": 141,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--053.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [143] toBeVisible"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--054.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [146] toBeVisible"
+    ],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--055.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [149] toBeVisible"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--056.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [152] toBeVisible"
+    ],
+    "cursor": 153,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--057.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [155] toBeVisible"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--058.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [158] toBeVisible"
+    ],
+    "cursor": 159,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--059.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [161] toBeVisible"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--060.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [164] toBeVisible"
+    ],
+    "cursor": 165,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--061.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [167] toBeVisible"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--062.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [170] toBeVisible"
+    ],
+    "cursor": 171,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--063.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [173] toBeVisible"
+    ],
+    "cursor": 174,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--064.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [176] toBeVisible"
+    ],
+    "cursor": 177,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--065.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [178] click"
+    ],
+    "cursor": 179,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--066.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [181] toHaveAttribute"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--067.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [184] toHaveTextContent"
+    ],
+    "cursor": 185,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--068.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [186] toHaveLength"
+    ],
+    "cursor": 187,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--069.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [189] toHaveTextContent"
+    ],
+    "cursor": 190,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--070.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [191] toHaveLength"
+    ],
+    "cursor": 192,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--071.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [194] toHaveTextContent"
+    ],
+    "cursor": 195,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--072.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [196] toHaveLength"
+    ],
+    "cursor": 197,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--073.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [199] toHaveTextContent"
+    ],
+    "cursor": 200,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--074.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [201] toHaveLength"
+    ],
+    "cursor": 202,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--075.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [204] toBeVisible"
+    ],
+    "cursor": 205,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--076.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [207] toBeVisible"
+    ],
+    "cursor": 208,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--077.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [210] toBeVisible"
+    ],
+    "cursor": 211,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--078.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [213] toBeVisible"
+    ],
+    "cursor": 214,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--079.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [216] toBeVisible"
+    ],
+    "cursor": 217,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--080.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [219] toBeVisible"
+    ],
+    "cursor": 220,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--081.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [222] toBeVisible"
+    ],
+    "cursor": 223,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--082.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [225] toBeVisible"
+    ],
+    "cursor": 226,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--083.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [228] toBeVisible"
+    ],
+    "cursor": 229,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--084.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [231] toBeVisible"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--085.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [234] toBeVisible"
+    ],
+    "cursor": 235,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--086.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [237] toBeVisible"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--087.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [240] toBeVisible"
+    ],
+    "cursor": 241,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--088.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [242] click"
+    ],
+    "cursor": 243,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--089.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [245] toHaveAttribute"
+    ],
+    "cursor": 246,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--090.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [248] toHaveTextContent"
+    ],
+    "cursor": 249,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--091.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [250] toHaveLength"
+    ],
+    "cursor": 251,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--092.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [253] toHaveTextContent"
+    ],
+    "cursor": 254,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--093.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [255] toHaveLength"
+    ],
+    "cursor": 256,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--094.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [258] toHaveTextContent"
+    ],
+    "cursor": 259,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--095.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [260] toHaveLength"
+    ],
+    "cursor": 261,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--096.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [263] toHaveTextContent"
+    ],
+    "cursor": 264,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--097.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [265] toHaveLength"
+    ],
+    "cursor": 266,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--098.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-hearts-board--pass-through-first-trick [268] toHaveTextContent"
+    ],
+    "cursor": 269,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--099.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 269,
+    "failures": [],
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light--100.png"
+  }
+]

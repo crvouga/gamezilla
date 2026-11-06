@@ -1,0 +1,2 @@
+$ bun run libs/tools-harness-ts/scripts/owned-command.ts sh ".overhaul-evidence/ui-ux-overhaul/round-2/final-media.sh"
+error: script "own" exited with code 1

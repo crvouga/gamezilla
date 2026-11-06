@@ -1,0 +1,7 @@
+$ bun run libs/tools-harness-ts/scripts/owned-command.ts node ".overhaul-evidence/ui-ux-overhaul/round-2/capture-videos.mjs" capture --storybook pkgs/ui-root-harness-ts/.cache/storybook --stories screens-games-light-cycles-arena--shared-swipe --out ".overhaul-evidence/ui-ux-overhaul/round-2/interactions/swipe-diagnostic" --viewports "phone=390x844" --themes light --resolve-from pkgs/ui-root-harness-ts --browser-path "/Users/chrisvouga/.local/share/mise/installs/http-chrome-for-testing/154.0.8037.92/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing" --ready-selector "#storybook-root[data-story-ready=\"true\"]" --wait-ms "0"
+captured screens-games-light-cycles-arena--shared-swipe
+capture-stories: some stories did not render:
+  screens-games-light-cycles-arena--shared-swipe @ phone/light: page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#storybook-root[data-story-ready="true"]') to be visible[22m
+

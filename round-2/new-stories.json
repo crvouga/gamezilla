@@ -1,0 +1,74 @@
+[
+  {
+    "id": "screens-games-battleship-board--correct-target-before-firing",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-battleship-setup--enlarged-placement",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-hearts-board--pass-through-first-trick",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-light-cycles-arena--collision-through-next-round",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-light-cycles-arena--resumed-steering",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-light-cycles-arena--shared-swipe",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-numberlink-puzzle--recover-with-pointer",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-sokoban-puzzle--corner-recovery",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-word-tiles-board--recover-and-submit",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-word-tiles-board--accepted-pass",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-word-tiles-board--accepted-exchange",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "templates-game-frame--states",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "product-cardtable--states",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "games-cellgridboard-boundary-contrast--open-water",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "product-cellgridboard--states",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "product-wordtileboard--states",
+    "before": "absent in round-1 capture"
+  },
+  {
+    "id": "product-wordtileboard--enlarged-placement",
+    "before": "absent in round-1 capture"
+  }
+]

@@ -1,0 +1,45 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light--000.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [5] toBeDisabled"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light--001.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light--002.png"
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [11] toBeInTheDocument"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light--003.png"
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light--004.png"
+  }
+]

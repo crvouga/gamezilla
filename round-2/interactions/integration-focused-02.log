@@ -1,0 +1,53 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @pkgs/chess-board-root-harness-ts
+   • Running lint, tc, test in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@libs/battleship-client-ts:lint: cache miss, executing 258555a6a3ec0231
+@libs/battleship-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   x solid(reactivity): For proper analysis, a variable should be used to capture the result of this function call.
+@libs/battleship-client-ts:lint:     ,-[libs/battleship-client-ts/src/battleship-board.tsx:79:8]
+@libs/battleship-client-ts:lint:  78 |     on(
+@libs/battleship-client-ts:lint:  79 |       [createMemo(() => props.position), createMemo(() => props.syncKey)],
+@libs/battleship-client-ts:lint:     :        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/battleship-client-ts:lint:  80 |       () => setAiming(null),
+@libs/battleship-client-ts:lint:     `----
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   x solid(reactivity): For proper analysis, a variable should be used to capture the result of this function call.
+@libs/battleship-client-ts:lint:     ,-[libs/battleship-client-ts/src/battleship-board.tsx:79:42]
+@libs/battleship-client-ts:lint:  78 |     on(
+@libs/battleship-client-ts:lint:  79 |       [createMemo(() => props.position), createMemo(() => props.syncKey)],
+@libs/battleship-client-ts:lint:     :                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/battleship-client-ts:lint:  80 |       () => setAiming(null),
+@libs/battleship-client-ts:lint:     `----
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   x solid(reactivity): For proper analysis, a variable should be used to capture the result of this function call.
+@libs/battleship-client-ts:lint:      ,-[libs/battleship-client-ts/src/battleship-board.tsx:116:8]
+@libs/battleship-client-ts:lint:  115 |     on(
+@libs/battleship-client-ts:lint:  116 |       [createMemo(() => props.position), createMemo(() => props.syncKey)],
+@libs/battleship-client-ts:lint:      :        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/battleship-client-ts:lint:  117 |       () => setSelected(null)
+@libs/battleship-client-ts:lint:      `----
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   x solid(reactivity): For proper analysis, a variable should be used to capture the result of this function call.
+@libs/battleship-client-ts:lint:      ,-[libs/battleship-client-ts/src/battleship-board.tsx:116:42]
+@libs/battleship-client-ts:lint:  115 |     on(
+@libs/battleship-client-ts:lint:  116 |       [createMemo(() => props.position), createMemo(() => props.syncKey)],
+@libs/battleship-client-ts:lint:      :                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/battleship-client-ts:lint:  117 |       () => setSelected(null)
+@libs/battleship-client-ts:lint:      `----
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint: Found 0 warnings and 4 errors.
+@libs/battleship-client-ts:lint: Finished in 411ms on 39 files with 147 rules using 10 threads.
+@libs/battleship-client-ts:lint: Checked 25 files in 1079ms. No fixes applied.
+@libs/battleship-client-ts:lint: error: script "lint" exited with code 1
+@libs/battleship-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    3 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    12.421s 
+Failed:    @libs/battleship-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

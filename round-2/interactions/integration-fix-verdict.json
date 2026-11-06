@@ -1,0 +1,32 @@
+{
+  "revision": "7580af910457dd99962c231b75ced6da14e681b1",
+  "focusedTasks": {
+    "passed": 6,
+    "total": 6,
+    "log": "integration-focused-03.log"
+  },
+  "literalRegression": {
+    "id": "battleship-aim-cleared-by-unchanged-position",
+    "before": "31 pass, 1 fail",
+    "after": "covered by passing package test",
+    "redLog": "aim-refresh-red.log"
+  },
+  "releaseJourneyReproduction": {
+    "revision": "3ec6d124e0ad5487a06f0a3334aa09be0c7ce5dc",
+    "passed": 3,
+    "total": 3,
+    "log": "journey-reproduction.log",
+    "note": "Hosted failure did not reproduce locally; unchanged-record reset bug is independently reproduced, not yet proven to explain both hosted failures."
+  },
+  "chessHarness": [
+    "Added showGuidance traceability to existing executable regression",
+    "Updated exact coordinate font assertion from 12px to reviewed 14px"
+  ],
+  "pending": "Final Storybook matrix, Ubuntu comparison and refreshed media",
+  "hostedFinalCi": {
+    "runId": 42227842833,
+    "verifyEnd": "SUCCESS",
+    "shards": "4/4 passed",
+    "source": "pr-final-status.json"
+  }
+}

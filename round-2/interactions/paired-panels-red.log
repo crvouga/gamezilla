@@ -1,0 +1,234 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:test: cache miss, executing 4080656ec63223de
+@pkgs/ui-root-harness-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests "--test-name-pattern=paired panels keep"
+@pkgs/ui-root-harness-ts:test: bun test v1.4.3 (c6da4a4d3)
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/button.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/hosts.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-fixtures.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-thumbnail-stack.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/catalog.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/editor-workbench.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-menu-identity.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tile-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/navigation.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disc-drop-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/profile-identity-card.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-screen-phone-title.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-layout-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/paddle-court-ball.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-frame.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/card-table.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/overlay-infra.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disc-drop-final-position-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-intro-actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/app-sidebar.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/breadcrumb-navigation-handle.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/card-table-availability.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/profile-rail-layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-base.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/code-editor.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-ui-contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/modal.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-heading-keep-title.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/avatar-identity.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-tooltip.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/examples-mount.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/board-measure-consistency.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/popover.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/data-display.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-action-clearance.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/step-track.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-board-enlarged.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/path-grid-input.contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-grid.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-manifests.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disclosure.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-focus.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/key-hints.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/select.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-title-edge.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-menu-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-item-emphasis.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-surfaces-balance.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/nav-selection-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/responsive-surface.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/form-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/choice-controls.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/combobox.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/wide-layout-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/battleship-day-palette.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-menu.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/app-header-island.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/speaking-avatar-accessibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/layout-additions.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tabs.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/story-readiness.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-editor.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/cell-grid-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: 216 | test('paired panels keep both panels mounted and switch which one shows', () => {
+@pkgs/ui-root-harness-ts:test: 217 |   const view = example();
+@pkgs/ui-root-harness-ts:test: 218 |   // regression: paired-panels-duplicate-view-identifier
+@pkgs/ui-root-harness-ts:test: 219 |   expect(view.getAllByTestId('example-grids')).toHaveLength(1);
+@pkgs/ui-root-harness-ts:test: 220 |   const pair = view.getByTestId('example-grids-panels');
+@pkgs/ui-root-harness-ts:test: 221 |   expect(pair?.getAttribute('data-selected')).toBe('left');
+@pkgs/ui-root-harness-ts:test:                                                      ^
+@pkgs/ui-root-harness-ts:test: error: expect(received).toHaveLength(expected)
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: Expected length: 1
+@pkgs/ui-root-harness-ts:test: Received length: 2
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/cell-grid-board.test.tsx:221:48)
+@pkgs/ui-root-harness-ts:test: (fail) paired panels keep both panels mounted and switch which one shows [13.48ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/pending-navigation.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/feedback.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/text-link.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/monogram-tile.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/form-field.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-index.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-board-legibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-seat-card-layout.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/mutation-modal.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/text.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-move-list.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-layout-contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/command-palette.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/icons.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tab-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/progress-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-content.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/action-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-screen-actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/identity-and-counts.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/state-blocks.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-editor.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/table.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-card-board-fill.test.ts:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-chrome.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/cell-grid-palette.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-card-grid.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/radio-group.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/notice.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/pong-phone-marker-legibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test:  0 pass
+@pkgs/ui-root-harness-ts:test:  760 filtered out
+@pkgs/ui-root-harness-ts:test:  1 fail
+@pkgs/ui-root-harness-ts:test:  1 expect() calls
+@pkgs/ui-root-harness-ts:test: Ran 1 test across 98 files. [782.00ms]
+@pkgs/ui-root-harness-ts:test: error: script "test" exited with code 1
+@pkgs/ui-root-harness-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test --test-name-pattern=paired panels keep exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    905ms 
+Failed:    @pkgs/ui-root-harness-ts#test
+
+ ERROR  run failed: command  exited (1)

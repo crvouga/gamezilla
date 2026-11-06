@@ -1,0 +1,57 @@
+{
+  "candidateSha": "7580af910457dd99962c231b75ced6da14e681b1",
+  "cases": 610,
+  "stories": 150,
+  "literalRegressionWrappers": 10,
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1440,
+      "height": 844
+    }
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "stages": {
+    "readinessAndStoryPlay": {
+      "passed": 610
+    },
+    "browserErrors": {
+      "passed": 610
+    },
+    "axeSeriousCritical": {
+      "passed": 610
+    },
+    "pixels": {
+      "passed": 1,
+      "mismatched": 606,
+      "missingReferences": 3
+    }
+  },
+  "overall": "failed at pixels; no local references accepted",
+  "classification": "final-head/browser-classification.json",
+  "fullVerification": {
+    "status": "blocked",
+    "gate": "ci:statecharts",
+    "error": "/more/troubleshooting has no chart owner",
+    "provenance": "preexisting-statechart-proof.json",
+    "log": "verify-integration-final.log",
+    "successfulGateTasks": 18,
+    "gateTasks": 19,
+    "setupTasksPassed": 13
+  },
+  "focused": {
+    "lintTypecheckTest": "15/15 passed",
+    "finalWordTilesLintTypecheck": "2/2 passed",
+    "ciGoals": "passed",
+    "finalIntegrationLintTypecheckTest": "6/6 passed"
+  },
+  "finalCandidateSha": "7580af910457dd99962c231b75ced6da14e681b1",
+  "priorRevision": "69d07c220beb5c0d1d985e0e142b66a52a7843e8",
+  "buildSha256": "f60895dc5060db627511fb6fece2ed11647cd5ed8a7c5fb55fdd163199506f70"
+}

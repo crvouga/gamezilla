@@ -1,0 +1,18 @@
+2026-11-06T12:40:04.3052242Z mise WARN  [opentofu/opentofu] failed to fetch version tags, URL may be incorrect: error decoding response body for url (https://api.github.com/repos/opentofu/opentofu/releases?per_page=100)
+2026-11-06T12:40:26.3184476Z [27***5:2722:***06/***24026.3***7253:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -***, SSL error code ***, net_error -3
+2026-11-06T12:57:46.9684495Z   6***0 passed (8.6m)
+2026-11-06T13:09:35.2365063Z     Error: expect(locator).toHaveScreenshot(expected) failed
+2026-11-06T13:09:35.2366029Z       8403 pixels (ratio 0.0*** of all image pixels) are different.
+2026-11-06T13:09:35.2371982Z       - 8403 pixels (ratio 0.0*** of all image pixels) are different.
+2026-11-06T13:09:35.2375362Z       - 8403 pixels (ratio 0.0*** of all image pixels) are different.
+2026-11-06T13:09:35.2382742Z     Expected: ../../libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-***440.png
+2026-11-06T13:09:35.2383586Z     Received: .cache/storybook-test-results/stories.checks.ts-screens--***a750-ecover-and-submit-dark-***440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-***440-actual.png
+2026-11-06T13:09:35.2505212Z     Error: expect(locator).toHaveScreenshot(expected) failed
+2026-11-06T13:09:35.2505877Z       ***2353 pixels (ratio 0.02 of all image pixels) are different.
+2026-11-06T13:09:35.2510947Z       - ***2353 pixels (ratio 0.02 of all image pixels) are different.
+2026-11-06T13:09:35.2514329Z       - ***2353 pixels (ratio 0.02 of all image pixels) are different.
+2026-11-06T13:09:35.2519090Z     Expected: ../../libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-***440.png
+2026-11-06T13:09:35.2520209Z     Received: .cache/storybook-test-results/stories.checks.ts-screens--6***53***---enlarged-blank-light-***440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-***440-actual.png
+2026-11-06T13:09:35.2522957Z   2 failed
+2026-11-06T13:09:35.2524401Z   608 passed (7.2m)
+2026-11-06T13:09:35.4381272Z  ERROR  run failed: command  exited (***)

@@ -1,0 +1,25 @@
+$ turbo run //#fmt:biome //#fmt:empty-dirs //#fmt:package-json --continue --env-mode=loose
+
+   • turbo 2.11.10
+   • Packages in scope: //
+   • Running //#fmt:biome, //#fmt:empty-dirs, //#fmt:package-json in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+//:fmt:package-json: cache bypass, force executing 9ea1f182a80d9feb
+//:fmt:package-json: $ sort-package-json "**/package.json" -i "**/node_modules/**"
+//:fmt:package-json: libs/infra-server-ts/package.json is sorted!
+//:fmt:package-json: libs/observability-server-ts/package.json is sorted!
+//:fmt:package-json: 
+//:fmt:package-json: Found 364 files.
+//:fmt:package-json: 2 files successfully sorted.
+//:fmt:package-json: 362 files were already sorted.
+//:fmt:empty-dirs: cache bypass, force executing f81d95422dd7c524
+//:fmt:empty-dirs: $ bun run libs/tools-harness-ts/scripts/remove-empty-dirs.ts
+//:fmt:biome: cache bypass, force executing 4f6d820102698604
+//:fmt:biome: $ biome format --write .
+//:fmt:biome: Formatted 12207 files in 10s. Fixed 4 files.
+
+ Tasks:    3 successful, 3 total
+Cached:    0 cached, 3 total
+  Time:    11.57s 
+

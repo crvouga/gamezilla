@@ -1,0 +1,1 @@
+screens-games-(battleship-board|battleship-setup|chess-board|connect-four-board|hearts-board|light-cycles-arena|numberlink-puzzle|pong-court|quoridor-classic|quoridor-hill|sokoban-puzzle|word-tiles-board|word-tiles-puzzle)--|screens-puzzles-chess-play--|games-cellgridboard|product-(wordtileboard|cellgridboard|cardtable)|templates-game-frame
