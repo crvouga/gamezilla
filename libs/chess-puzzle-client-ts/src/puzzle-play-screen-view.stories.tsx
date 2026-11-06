@@ -1,4 +1,3 @@
-import { PuzzlePlayScreenView } from '../../game-puzzle-client-ts/src/puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
@@ -12,6 +11,7 @@ import {
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { PuzzlePlayScreenView } from '../../game-puzzle-client-ts/src/puzzle-play-screen-view';
 import {
   StoryChessPuzzleBoard,
   withChessPuzzleBoardContext,

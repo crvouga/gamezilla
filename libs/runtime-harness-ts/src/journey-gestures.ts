@@ -229,5 +229,5 @@ export async function hostSpace(ui: Driver): Promise<void> {
   await releaseLeftoverHostedSpaces(ui);
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
-  await expectVisible(ui, Handles.spaceClose);
+  await expectVisible(ui, Handles.spaceTitle);
 }

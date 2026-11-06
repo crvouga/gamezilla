@@ -75,7 +75,8 @@ function visible(world: World, id: string): boolean {
   if (id === Handles.spaceEndConfirm) return world.confirm;
   if (id === Handles.spaceMutationDismiss) return world.dismiss;
   if (id === Handles.spaceEnded) return world.screen === 'ended';
-  if (id === Handles.spaceClose) return world.created;
+  if (id === Handles.spaceTitle) return world.created;
+  if (id === Handles.spaceClose) return world.created && world.overflow;
   if (id === Handles.navBack) {
     return (
       world.screen === 'join' ||
@@ -272,7 +273,8 @@ describe('hostSpace', () => {
     expect(world.created).toBe(true);
   });
 
-  test('opens a space directly when the person hosts none', async () => {
+  // regression: journey-host-readiness-close-in-overflow
+  test('opens a space directly when Close is inside the unopened overflow', async () => {
     const { ui, world } = driver(0);
     await hostSpace(ui);
     expect(world.taps).toContain(Handles.spaceCreate);
