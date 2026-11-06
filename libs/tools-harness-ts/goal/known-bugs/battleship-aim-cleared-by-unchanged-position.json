@@ -1,0 +1,4 @@
+{
+  "summary": "Refreshing a game record with the same position and sync key cleared the aimed Battleship target before confirmation.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

@@ -3,6 +3,7 @@ import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
+import { createSignal } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const fleet =
@@ -60,4 +61,33 @@ test('keyboard selection previews a shot before confirmation', async () => {
   expect(document.activeElement).toBe(byTestId('precision-fire'));
   await user.keyboard('{Enter}');
   expect(actions).toEqual(['a1']);
+});
+
+// regression: battleship-aim-cleared-by-unchanged-position
+test('a refreshed game record preserves the selected target when its position is unchanged', () => {
+  const position = encodeBattleshipPosition([]);
+  const [record, setRecord] = createSignal({ position, syncKey: 0 });
+  const actions: string[] = [];
+  renderBoard(() => (
+    <BattleshipBoard
+      position={record().position}
+      orientation="white"
+      interactive
+      sound={false}
+      syncKey={record().syncKey}
+      setup={fleet}
+      hand={null}
+      committed={[]}
+      commitment={null}
+      testId="refresh"
+      onAction={(cell) => actions.push(cell)}
+    />
+  ));
+  fireEvent.click(byTestId('refresh-target-f10'));
+  setRecord({ position, syncKey: 0 });
+  expect(byTestId('refresh-fire').textContent).toContain('Fire at F10');
+  fireEvent.click(byTestId('refresh-fire'));
+  expect(actions).toEqual(['f10']);
+  setRecord({ position, syncKey: 1 });
+  expect(byTestId('refresh-fire').textContent).toContain('Choose a target');
 });

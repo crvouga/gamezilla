@@ -74,8 +74,10 @@ function marks(ships: boolean): readonly CellGridLegendItem[] {
 /** The cell just fired at, until the position (or a resync) answers it. */
 function createAim(props: GameBoardProps) {
   const [aiming, setAiming] = createSignal<string | null>(null);
+  const position = createMemo(() => props.position);
+  const syncKey = createMemo(() => props.syncKey);
   createEffect(
-    on([() => props.position, () => props.syncKey], () => setAiming(null), {
+    on([position, syncKey], () => setAiming(null), {
       defer: true,
     })
   );
@@ -107,9 +109,9 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const interactive = () => props.interactive && battle().winner === null;
   const aim = createAim(props);
   const [selected, setSelected] = createSignal<string | null>(null);
-  createEffect(
-    on([() => props.position, () => props.syncKey], () => setSelected(null))
-  );
+  const position = createMemo(() => props.position);
+  const syncKey = createMemo(() => props.syncKey);
+  createEffect(on([position, syncKey], () => setSelected(null)));
   const [view, setView] = createSignal<BoardView>('own');
   createEffect(
     on([interactive, () => battle().winner], ([now, winner]) => {

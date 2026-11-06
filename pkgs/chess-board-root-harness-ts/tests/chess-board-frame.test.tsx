@@ -58,7 +58,7 @@ test('every playing board shows the outside labels, and its corner labels step a
   );
   expect(frame).toContain(PLAYING_QUERY);
   expect(frame).not.toContain('max-width: 479px');
-  expect(frame).toMatch(/font-size:\s*12px;/);
+  expect(frame).toMatch(/font-size:\s*14px;/);
   const corner = board.slice(board.indexOf(PLAYING_QUERY));
   expect(board.indexOf(PLAYING_QUERY)).toBeGreaterThan(-1);
   expect(corner).toMatch(/\.coords\s*\{\s*display:\s*none;/);
