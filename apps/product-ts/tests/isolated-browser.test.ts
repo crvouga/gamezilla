@@ -7,9 +7,9 @@ import {
   openGuestDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
-import type { BrowserCall } from '@apps/product-ts/remote-browser-driver';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import type { BrowserCall } from '@pkgs/ui-testing-bun-webview-server-ts/remote-browser-driver';
 import fc from 'fast-check';
 
 // regression: live-guest-clears-host-storage

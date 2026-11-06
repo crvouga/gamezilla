@@ -93,7 +93,7 @@
         "@pkgs/sync-engine-shared-ts#src",
         "@pkgs/tts-root-server-ts#src",
         "@pkgs/ui-root-client-ts#src",
-        "@pkgs/ui-testing-bun-webview-shared-ts#src",
+        "@pkgs/ui-testing-bun-webview-server-ts#src",
         "@pkgs/ui-testing-root-shared-ts#src",
         "@pkgs/ui-testing-solid-dom-client-ts#src",
         "@pkgs/uuid-shared-ts#src"

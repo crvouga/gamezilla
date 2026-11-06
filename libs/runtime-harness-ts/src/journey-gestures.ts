@@ -182,11 +182,7 @@ const LEFTOVER_HOST_LIMIT = 20;
 async function showSpaces(ui: Driver): Promise<void> {
   await atTabShell(ui);
   if (!(await ui.get(Handles.spaceCreate).isVisible())) {
-    if (await ui.get(Handles.tabSpaces).isVisible()) {
-      await tap(ui, Handles.tabSpaces);
-    } else {
-      await pressBackUntilVisible(ui, Handles.spaceCreate, JOURNEY_WAIT_MS);
-    }
+    await openTab(ui, Handles.tabSpaces);
   }
   await expectVisible(ui, Handles.spacesListReady);
 }

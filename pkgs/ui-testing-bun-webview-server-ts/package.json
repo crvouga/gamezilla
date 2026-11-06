@@ -14,7 +14,12 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
