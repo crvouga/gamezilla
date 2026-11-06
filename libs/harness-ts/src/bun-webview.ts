@@ -103,7 +103,11 @@ async function openStackExtra(
     serverEvents,
     checkpointSqlFormat: 'logical',
     sql: postgresHandle(await bootHarnessPostgres(addresses.databaseUrl)),
-    ui: { kind: 'bun-webview' as const, webOrigin: addresses.webOrigin },
+    ui: {
+      kind: 'bun-webview' as const,
+      webOrigin: addresses.webOrigin,
+      captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
+    },
     http: {
       kind: 'stack' as const,
       origin: addresses.apiOrigin,
@@ -144,7 +148,11 @@ export function bunWebviewRuntime(
     return {
       sql,
       ...(mode === 'real' ? { checkpointSqlFormat: 'logical' as const } : {}),
-      ui: { kind: 'bun-webview' as const, webOrigin },
+      ui: {
+        kind: 'bun-webview' as const,
+        webOrigin,
+        captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
+      },
       http: { kind: 'localhost' as const, origin: apiOrigin },
       drainServerHttp: { current: () => Promise.resolve() },
     };

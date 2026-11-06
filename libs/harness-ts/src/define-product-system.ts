@@ -14,6 +14,7 @@ import {
   spawnActor,
   uiOp,
 } from './actions';
+import { captureActorScreenshots } from './actor-screenshots';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
 import { type CreateHarnessOptions, createHarness } from './create-harness';
@@ -146,6 +147,12 @@ export function defineProductSystem(
       ...(composition.actions ?? []),
     ],
     snapshots: [
+      defineSnapshot({
+        name: 'screen',
+        media: 'png',
+        capture: (s) =>
+          captureActorScreenshots(s.actors, extraOf(s.session).ui),
+      }),
       defineSnapshot({
         name: 'html',
         media: 'html',

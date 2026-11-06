@@ -178,6 +178,7 @@ async function launchWebview(
   return {
     raw,
     localSql,
+    screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
     closeResources,

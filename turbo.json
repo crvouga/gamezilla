@@ -3316,6 +3316,7 @@
     },
     "@apps/product-ts#test:stack": {
       "cache": false,
+      "env": ["JOURNEY_CAPTURE_STEPS"],
       "passThroughEnv": ["*"]
     },
     "@apps/product-ts#test:release-journeys": {
