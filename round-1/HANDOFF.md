@@ -1,0 +1,17 @@
+# Verification handoff — INCOMPLETE
+
+Candidate: `90bfe38de0eb0853b9d98e2aec00e88cb8384606` (clean, pushed).
+
+Repairs committed: snapshot Git-list buffer (053ba26fa); seven named Playwright regression entrypoints replacing invalid story-file registrations (57a4c2145); no-hooks Git-list buffer (90bfe38de). Snapshot suite 6 pass, no-hooks regression 1 pass, targeted repair tc/lint/ci:goals 5 pass. No assertions weakened, references accepted, ratings, merges or watches.
+
+Final build passed. Final automated capture: 132 stories × phone390x844/desktop1440x900 × light/dark = 528 PNGs. Baseline before contains 408 PNGs; 528 pairs include explicit absent-before states. Four baseline captures were missing and 29 candidate stories are new. 28 named WebM recordings cover 14 representative plays on phone and desktop in light theme; these are fixture plays, not complete production proof. `journeys/mapping.json` and `journeys/STATUS.md` name per-board remaining gaps. No invented journey strips or ratings.
+
+Initial candidate board suite: 528 failures, all at screenshot assertion (392 mismatches, 136 missing references); readiness/play, browser-error and serious/critical axe assertions preceding screenshots passed. This was before named regression adapters were committed; no product/story rendering source changed afterward. Browser diagnostics: interactions/initial-browser-results and browser-failures.json. Do not claim the browser suite green.
+
+Full `TURBO_CONCURRENCY=1 NODE_OPTIONS=--max-old-space-size=8192 bun verify` on final candidate failed after 15 successful tasks at @libs/chess-puzzle-client-ts#verify:board-contract. It rejects existing imports @pkgs/chess-board-root-client-ts/chess-board-frame in chess-puzzle-board.tsx and @pkgs/chess-board-root-client-ts/board-motion-context in chess-puzzle-story.example.tsx. Both imports exist at baseline 480cca3. The gate explicitly permits only chess-board, chess-board-types and chess-board-sounds. Broadening it solely to pass would loosen the contract; no such change made. Reproduction and complete log: interactions/verify-final.log; baseline proof: interactions/preexisting-board-contract.json. Snapshot diagnostics archived at /var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/verify-run-2OlsHU/diagnostics.tar.gz.
+
+Ubuntu diagnostic 42202432688 failed invalid regression records; 42206289167 failed no-hooks Git buffer. Both repaired. Final Ubuntu authoring/comparison https://github.com/crvouga/gamezilla/actions/runs/42207319704 remains in progress. No patch applied. Retrieve retained images/patch per Storybook README, review actual images, then selectively apply intended references; never bulk-accept macOS mismatches. This external run and the unresolved baseline import contract prevent a green handoff.
+
+Media published separately at evidence commit 40b34146d50454f12bf290d19611e6884a4c65de. PR galleries/videos: https://github.com/crvouga/gamezilla/pull/280#issuecomment-6683482491 and https://github.com/crvouga/gamezilla/pull/280#issuecomment-6683482949 . Video links are direct pinned WebM links with thumbnails, not embedded players. Product branch contains no bulky media. PR description updated. All local test/build/capture commands finished and owned servers closed. No subagents used.
+
+Parent must resolve the contract gate, await/review Ubuntu evidence, complete missing primary journey coverage, and bind any independent reviews to final immutable evidence. This is NOT review-ready acceptance evidence.

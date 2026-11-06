@@ -160,10 +160,11 @@
   },
   "checks": {
     "build": "pass",
-    "fullVerify": "pending final run; previous run failed preexisting chess board import contract",
+    "fullVerify": "FAIL on final candidate: @libs/chess-puzzle-client-ts#verify:board-contract rejects preexisting chess-board-frame and board-motion-context imports; 15 tasks successful, 182 total planned before stop",
     "browser": "528 failed: 392 pixel mismatches and 136 missing references; all reached comparison after preceding assertions",
     "repairChecks": "5 pass",
-    "gitHooksRegression": "1 pass"
+    "gitHooksRegression": "1 pass",
+    "ubuntu": "Reference authoring/comparison run 42207319704 in progress; no patch applied"
   },
   "artifacts": {
     "after/screens-games-word-tiles-board--your-turn--desktop--dark.png": "eb202a5523fdff90069ebe6bb79d6f9eec8350cc401fb4eaed24c164aadd101d",
@@ -1159,5 +1160,11 @@
     "journeys/recordings/videos/screens-games-light-cycles-arena--shared-keyboard--phone--light.webm": "6f9ec222b61ebd051ba02abe330d9a19bd5a446a3a4f8a570ac025bb58eb1d7d",
     "journeys/recordings/videos/screens-games-battleship-board--sink-the-fleet--desktop--light.webm": "ffb33ff5f152db6df29e539b08aeb231ff0ab36cebd41ffc903f5bc4ded6209d"
   },
-  "evidenceCode": "587b3589d39e8724"
+  "limitations": [
+    "No complete-production-journey certification; see journeys/STATUS.md",
+    "No reviewer ratings",
+    "Named regression adapters type/lint/known-bug gate checked; full initial matrix ran before adapter registration commit",
+    "No before journey videos exist; final screenshots do not substitute for complete journey sequences"
+  ],
+  "evidenceCode": "9a3b63e67f28a17f"
 }
