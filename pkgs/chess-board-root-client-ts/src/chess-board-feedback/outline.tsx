@@ -19,8 +19,8 @@ export function FeedbackOutline(props: {
         width={props.size - 8}
         height={props.size - 8}
         fill="none"
-        stroke={props.theme.lightSquare}
-        stroke-width={8}
+        stroke={props.theme.border}
+        stroke-width={12}
       />
       <rect
         x={props.origin.x + 4}
@@ -32,7 +32,7 @@ export function FeedbackOutline(props: {
           props.badge.feedback.color ??
           props.theme.feedback[props.badge.feedback.kind]
         }
-        stroke-width={4}
+        stroke-width={6}
       />
     </g>
   );

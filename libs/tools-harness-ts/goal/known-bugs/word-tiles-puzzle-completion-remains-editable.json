@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle target attainment retained an editable tentative placement and enabled duplicate submission.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

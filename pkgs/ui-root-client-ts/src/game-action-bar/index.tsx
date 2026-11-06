@@ -5,6 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { createScreenSlot } from '../screen-slot';
+import styles from './game-action-bar.module.css';
 
 /** One game action. */
 export type GameActionItem = {
@@ -90,7 +91,7 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
-        class="box flex-row flex-wrap items-center gap-2 min-w-0"
+        class={styles['actions']}
         classList={{ 'w-full': props.width !== 'content' }}
         role="group"
         aria-label={props['aria-label']}

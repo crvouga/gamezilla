@@ -466,3 +466,13 @@
 .legendMark .glyph {
   font-size: var(--ui-font-size-sm);
 }
+
+/* Board boundaries must remain visible against dark water. */
+.board[data-board-theme="battleship"] .cell[data-tone="open"] {
+  border-color: var(--ui-color-game-battleship-muted);
+}
+/* Keep bright seat fills, with the board's dark ink defining every pawn. */
+.board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
+  -webkit-text-stroke: 0.08em var(--ui-color-game-quoridor-ink);
+  paint-order: stroke fill;
+}

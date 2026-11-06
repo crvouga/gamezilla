@@ -1,0 +1,4 @@
+{
+  "summary": "Phase heading instructed another pass while local pass was sending.",
+  "regressionTest": "libs/hearts-client-ts/tests/turn-guidance.test.ts"
+}

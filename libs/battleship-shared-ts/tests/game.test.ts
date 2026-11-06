@@ -66,7 +66,7 @@ describe('Battleship automation', () => {
         chooseBattleshipShot(position, 'medium', () => draw)
       );
   });
-  test('waits for the target cell to be enabled, then activates it', async () => {
+  test('selects an enabled target, then confirms the shot', async () => {
     const calls: string[] = [];
     const ui = {
       get: (id: string) => ({
@@ -82,6 +82,8 @@ describe('Battleship automation', () => {
     expect(calls).toEqual([
       'board-target-e5 wait enabled',
       'board-target-e5 key enter',
+      'board-fire wait enabled',
+      'board-fire key enter',
     ]);
     await expect(
       battleshipAutomation.perform(ui, 'board', 'e5:hit')

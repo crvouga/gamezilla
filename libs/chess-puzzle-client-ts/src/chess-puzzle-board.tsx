@@ -35,6 +35,7 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
       onMove={(move) => props.onAction(formatUci(move))}
       autoPromoteQueen={false}
       showCoordinates
+      showGuidance
       coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
       highlightLastMove
       lastMove={chessPuzzleLastMove(props.lastAction)}

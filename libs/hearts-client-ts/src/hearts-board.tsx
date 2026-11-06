@@ -131,7 +131,11 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       testId={props.testId}
       seats={tableSeats(props, players)}
       center={
-        awaitingHand() ? t`Your cards are on their way.` : tableCenter(props)
+        sending()
+          ? t`Passing your cards…`
+          : awaitingHand()
+            ? t`Your cards are on their way.`
+            : tableCenter(props)
       }
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}

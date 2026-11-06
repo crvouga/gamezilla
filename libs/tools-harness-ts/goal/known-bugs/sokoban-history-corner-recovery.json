@@ -1,0 +1,4 @@
+{
+  "summary": "Story history controls did not restore a cornered crate or restart the board",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

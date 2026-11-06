@@ -11,6 +11,9 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     const target = ui.get(`${board}-target-${action}`);
     await target.wait('enabled');
     await target.key('enter');
+    const fire = ui.get(`${board}-fire`);
+    await fire.wait('enabled');
+    await fire.key('enter');
   },
   /**
    * Take every placed ship off the board, so none stands where another

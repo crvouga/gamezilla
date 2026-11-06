@@ -8,6 +8,7 @@ import {
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
   type CellGridCell,
@@ -16,7 +17,15 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  on,
+  Show,
+} from 'solid-js';
 import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
 
@@ -53,7 +62,7 @@ function BoardPanel(props: {
  */
 function marks(ships: boolean): readonly CellGridLegendItem[] {
   const shots: readonly CellGridLegendItem[] = [
-    { glyph: GLYPHS.miss, tone: 'quiet', label: t`Miss` },
+    { glyph: '○', tone: 'quiet', label: t`Miss` },
     { glyph: GLYPHS.hit, tone: 'alert', label: t`Hit` },
     { glyph: GLYPHS.sunk, tone: 'critical', outlined: true, label: t`Sunk` },
   ];
@@ -97,10 +106,14 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const rival = () => otherSide(requireTwoPlayerSide(props.orientation));
   const interactive = () => props.interactive && battle().winner === null;
   const aim = createAim(props);
+  const [selected, setSelected] = createSignal<string | null>(null);
+  createEffect(
+    on([() => props.position, () => props.syncKey], () => setSelected(null))
+  );
   const [view, setView] = createSignal<BoardView>('own');
   createEffect(
-    on(interactive, (now) => {
-      if (now) setView('target');
+    on([interactive, () => battle().winner], ([now, winner]) => {
+      if (now || winner === props.orientation) setView('target');
     })
   );
   const incoming = () => battle().shots[rival()];
@@ -127,40 +140,101 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   );
   return (
     <StackVertical gap="md" testId={props.testId}>
-      <PairedPanels
-        label={t`Boards`}
-        testId={`${props.testId}-view`}
-        keys={['own', 'target']}
+      <BattlePanels
+        testId={props.testId}
         labels={labels()}
-        selected={view()}
-        onSelect={setView}
-        titled
-        // On a phone the grid leads, as high as the frame allows; the
-        // switch to the other fleet follows it.
-        switchPlacement="below"
-        first={
-          <BoardPanel
-            label={labels().own}
-            testId={props.testId}
-            view="own"
-            cells={ownCells()}
-          />
-        }
-        second={
-          <BoardPanel
-            label={labels().target}
-            testId={props.testId}
-            view="target"
-            cells={targetCells()}
-            onFire={aim.fire}
-          />
-        }
+        view={view()}
+        onView={setView}
+        own={ownCells()}
+        target={targetCells().map((cell) =>
+          cell.id === selected() && aim.aiming() === null
+            ? { ...cell, emphasis: 'recent' }
+            : cell
+        )}
+        onAim={setSelected}
       />
+      <Show when={interactive() && view() === 'target'}>
+        <ShotConfirmation
+          selected={selected()}
+          pending={aim.aiming() !== null}
+          testId={props.testId}
+          onFire={(cell) => {
+            if (interactive() && aim.aiming() === null) aim.fire(cell);
+          }}
+        />
+      </Show>
       <CellGridLegend
         label={t`Key`}
         items={marks(viewer() !== null)}
         testId={`${props.testId}-key`}
       />
     </StackVertical>
+  );
+}
+
+function ShotConfirmation(props: {
+  selected: string | null;
+  pending: boolean;
+  testId: string;
+  onFire: (cell: string) => void;
+}): JSX.Element {
+  return (
+    <>
+      <P variant="caption">{t`Choose a square, check its coordinate, then fire. You can change your aim before firing.`}</P>
+      <Button
+        fullWidth
+        disabled={props.selected === null || props.pending}
+        onClick={() => {
+          if (props.selected !== null && !props.pending)
+            props.onFire(props.selected);
+        }}
+        dataSet={{ testid: `${props.testId}-fire` }}
+        title={
+          props.selected === null
+            ? t`Choose a target`
+            : t`Fire at ${props.selected.toUpperCase()}`
+        }
+      />
+    </>
+  );
+}
+
+function BattlePanels(props: {
+  testId: string;
+  labels: Record<BoardView, string>;
+  view: BoardView;
+  onView: (view: BoardView) => void;
+  own: readonly CellGridCell[];
+  target: readonly CellGridCell[];
+  onAim: (cell: string) => void;
+}): JSX.Element {
+  return (
+    <PairedPanels
+      label={t`Boards`}
+      testId={`${props.testId}-view`}
+      keys={['own', 'target']}
+      labels={props.labels}
+      selected={props.view}
+      onSelect={props.onView}
+      titled
+      switchPlacement="below"
+      first={
+        <BoardPanel
+          label={props.labels.own}
+          testId={props.testId}
+          view="own"
+          cells={props.own}
+        />
+      }
+      second={
+        <BoardPanel
+          label={props.labels.target}
+          testId={props.testId}
+          view="target"
+          cells={props.target}
+          onFire={props.onAim}
+        />
+      }
+    />
   );
 }

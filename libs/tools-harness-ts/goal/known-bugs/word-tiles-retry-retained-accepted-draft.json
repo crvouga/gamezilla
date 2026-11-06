@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles retry and submission were separated from the visible draft, and accepted retained-draft recovery lacked stateful evidence.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -98,7 +98,7 @@ test('a key under the boards names every mark the grids draw', () => {
   board(FLEET);
   const key = byTestId('board-key');
   const named = [...key.querySelectorAll('li')].map((item) => item.textContent);
-  expect(named).toEqual(['■Ship', '•Miss', '✕Hit', '✖Sunk']);
+  expect(named).toEqual(['■Ship', '○Miss', '✕Hit', '✖Sunk']);
   expect(key.getAttribute('aria-label')).toBe('Key');
   cleanup();
   board(null);

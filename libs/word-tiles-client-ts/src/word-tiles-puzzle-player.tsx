@@ -46,7 +46,13 @@ export function WordTilesPuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
     const read = puzzle();
     return read.valid ? read.value.lexicon : '';
   });
-  return <WordTilesPuzzlePlayerView {...props} lexicon={lexicon.state()} />;
+  return (
+    <WordTilesPuzzlePlayerView
+      {...props}
+      lexicon={lexicon.state()}
+      onRetryLexicon={lexicon.retry}
+    />
+  );
 }
 
 /** The board, rack and target, without any moves. */

@@ -14,6 +14,7 @@ import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSignal, mergeProps } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { expectQuoridorActionsFit } from './quoridor-action-bounds.example';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
 
@@ -52,7 +53,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** The start: South moves first, ten walls each, the move tool chosen. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => expectQuoridorActionsFit(canvasElement),
+};
 
 /** Mid-game on South's turn: walls on the board, fewer left to place. */
 export const YourTurn: Story = { args: { position: classic(MID_GAME) } };

@@ -231,15 +231,20 @@ export function handCards(
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };
-  return held.map((card) => {
-    const reason = refusal(card);
-    return {
-      ...tableCard(card),
-      enabled: passing
-        ? board.interactive && board.commitment === null
-        : board.interactive && reason === undefined,
-      selected: passing ? chosen.includes(card) : null,
-      refusal: reason,
-    };
-  });
+  return [...held]
+    .sort(
+      (a, b) =>
+        Number(refusal(a) !== undefined) - Number(refusal(b) !== undefined)
+    )
+    .map((card) => {
+      const reason = refusal(card);
+      return {
+        ...tableCard(card),
+        enabled: passing
+          ? board.interactive && board.commitment === null
+          : board.interactive && reason === undefined,
+        selected: passing ? chosen.includes(card) : null,
+        refusal: reason,
+      };
+    });
 }

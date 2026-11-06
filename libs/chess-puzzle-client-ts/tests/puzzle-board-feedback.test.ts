@@ -26,7 +26,7 @@ test('the f3-e5 solution uses a narrow translucent arrow while watcher suggestio
     to: 'e5',
     id: 'puzzle-solution',
     thickness: 0.06,
-    opacity: 0.55,
+    opacity: 0.8,
   });
   expect(arrows[1]).toEqual({
     from: 'c3',

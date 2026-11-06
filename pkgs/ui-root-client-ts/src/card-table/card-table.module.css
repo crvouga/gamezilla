@@ -509,6 +509,7 @@ button.card:focus-visible {
   text-align: center;
 }
 .unavailable {
+  color: var(--ui-color-text-secondary);
   position: absolute;
   top: var(--ui-space-1);
   right: var(--ui-space-1);

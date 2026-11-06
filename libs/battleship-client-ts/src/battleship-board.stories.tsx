@@ -128,6 +128,12 @@ export const Watching: Story = {
 
 /** Blue sinks the whole Red fleet and is told so. */
 export const Won: Story = {
+  play: async ({ canvasElement }) => {
+    // regression: battleship-victory-hides-enemy-fleet
+    await expect(
+      within(canvasElement).getByTestId('custom-game-board-view')
+    ).toHaveAttribute('data-selected', 'target');
+  },
   args: { position: after(BLUE_VICTORY), interactive: false },
   parameters: {
     table: {
@@ -202,6 +208,7 @@ function shotJourney(
         `custom-game-board-target-${target}`
       );
       await userEvent.click(cell);
+      await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
       await expect(cell).toHaveAccessibleName(outcome);
       await expect(cell).toHaveAttribute('aria-disabled', 'true');
       await userEvent.click(cell);
@@ -240,3 +247,33 @@ export const SinkTheFleet: Story = shotJourney(
   'G10: hit, sunk Destroyer, latest shot',
   true
 );
+
+export const CorrectTargetBeforeFiring: Story = {
+  ...shotJourney([], 'j10', 'J10: miss, latest shot'),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // regression: battleship-touch-spends-mistarget
+    await userEvent.pointer([
+      {
+        keys: '[TouchA]',
+        target: canvas.getByTestId('custom-game-board-target-j9'),
+      },
+    ]);
+    await expect(
+      canvas.getByTestId('custom-game-board-target-j9')
+    ).toHaveAccessibleName('Fire at J9');
+    await userEvent.pointer([
+      {
+        keys: '[TouchA]',
+        target: canvas.getByTestId('custom-game-board-target-j10'),
+      },
+    ]);
+    await expect(
+      canvas.getByTestId('custom-game-board-fire')
+    ).toHaveTextContent('Fire at J10');
+    await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+    await expect(
+      canvas.getByTestId('custom-game-board-target-j10')
+    ).toHaveAccessibleName('J10: miss, latest shot');
+  },
+};

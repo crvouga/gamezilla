@@ -55,20 +55,10 @@ function Steering(props: {
         rows={props.board.height}
         tiles={sokobanTiles(props.board, positionPieces(props.position), words)}
         pieces={sokobanPieces(props.board, positionPieces(props.position))}
-        describedBy={complete() ? undefined : help}
+        describedBy={help}
         onDirection={steering.steer}
         onTile={steering.tap}
       />
-      <Show when={complete()}>
-        <Notice tone="success" dataSet={{ testid: 'sokoban-complete' }}>
-          <P role="status" variant="label">
-            <Trans>Puzzle solved. Every crate is on a goal.</Trans>
-          </P>
-          <P variant="caption">
-            <Trans>Return to the overview to choose another puzzle.</Trans>
-          </P>
-        </Notice>
-      </Show>
       {/* How to move and how far, beside the movement pad on a phone, so
           the board, the pad and the attempt's undo stay on one screen. */}
       <StackHorizontal gap="md" align="center" justify="between">
@@ -84,24 +74,22 @@ function Steering(props: {
           >
             {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
           </P>
-          <Show when={!complete()}>
-            <P id={help} variant="caption" tone="secondary">
-              <Show
-                when={wide()}
-                fallback={
-                  <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
-                }
-              >
-                <Trans>
-                  Move with the arrow keys or W A S D, or click a square beside
-                  the worker.
-                </Trans>
-              </Show>
-            </P>
-          </Show>
+          <P id={help} variant="caption" tone="secondary">
+            <Show
+              when={wide()}
+              fallback={
+                <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
+              }
+            >
+              <Trans>
+                Move with the arrow keys or W A S D, or click a square beside
+                the worker.
+              </Trans>
+            </Show>
+          </P>
         </StackVertical>
         {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
-        <Show when={!wide() && !complete()}>
+        <Show when={!wide()}>
           <DirectionPad
             size="sm"
             labels={{
@@ -130,9 +118,7 @@ function Steering(props: {
           >
             {words.refusal(refused().code, refused().message)}
             <P variant="caption">
-              <Trans>
-                Try another direction, or undo your last move to make room.
-              </Trans>
+              <Trans>Try another direction.</Trans>
             </P>
           </Notice>
         )}

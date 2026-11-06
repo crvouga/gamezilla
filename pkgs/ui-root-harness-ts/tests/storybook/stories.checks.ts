@@ -40,11 +40,16 @@ test('primitives-sparkline--states dark', async ({ page }) => {
   await verifyStoryScenario(page, 'primitives-sparkline--states', scenario);
 });
 
-async function verifyBoardRegression(page: Page, id: string, width: number) {
+async function verifyBoardRegression(
+  page: Page,
+  id: string,
+  width: number,
+  theme = 'light'
+) {
   const story = index.entries[id];
   if (!story) throw new Error(`Missing regression story: ${id}`);
   const scenario = visualScenarios(story).find(
-    (item) => item.theme === 'light' && item.width === width
+    (item) => item.theme === theme && item.width === width
   );
   if (!scenario) throw new Error(`Missing regression viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
@@ -124,5 +129,112 @@ test('screens-games-light-cycles-arena--steer-up regression desktop', async ({
     page,
     'screens-games-light-cycles-arena--steer-up',
     1440
+  );
+});
+
+// regression: battleship-dark-grid-boundaries
+test('games-cellgridboard-boundary-contrast--open-water regression battleship-dark-grid-boundaries', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'games-cellgridboard-boundary-contrast--open-water',
+    390,
+    'dark'
+  );
+});
+
+// regression: battleship-victory-hides-enemy-fleet
+test('screens-games-battleship-board--won regression battleship-victory-hides-enemy-fleet', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-games-battleship-board--won', 390);
+});
+
+// regression: quoridor-hill-forced-pass-clipped
+test('screens-games-quoridor-hill--pass-and-continue regression quoridor-hill-forced-pass-clipped', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--pass-and-continue',
+    390
+  );
+});
+
+// regression: quoridor-intrinsic-action-clipping
+test('screens-games-quoridor-classic--opening regression quoridor-intrinsic-action-clipping', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-classic--opening',
+    390
+  );
+});
+
+// regression: sokoban-history-corner-recovery
+test('screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-corner-recovery', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-sokoban-puzzle--corner-recovery',
+    390
+  );
+});
+
+// regression: sokoban-zero-moves-undo-guidance
+test('screens-games-sokoban-puzzle--blocked-move regression sokoban-zero-moves-undo-guidance', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-sokoban-puzzle--blocked-move',
+    390
+  );
+});
+
+// regression: word-tiles-puzzle-completion-remains-editable
+test('screens-games-word-tiles-puzzle--reach-target regression word-tiles-puzzle-completion-remains-editable', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--reach-target',
+    390
+  );
+});
+
+// regression: word-tiles-puzzle-retry-keeps-draft
+test('screens-games-word-tiles-puzzle--reach-target regression word-tiles-puzzle-retry-keeps-draft', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--reach-target',
+    390
+  );
+});
+
+// regression: word-tiles-retry-retained-accepted-draft
+test('screens-games-word-tiles-board--recover-and-submit regression word-tiles-retry-retained-accepted-draft', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--recover-and-submit',
+    390
+  );
+});
+
+// regression: numberlink-phone-path-recovery-undiscoverable
+test('screens-games-numberlink-puzzle--recover-with-pointer regression numberlink-phone-path-recovery-undiscoverable', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-numberlink-puzzle--recover-with-pointer',
+    390
   );
 });

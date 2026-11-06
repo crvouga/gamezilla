@@ -98,12 +98,18 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   const seat = crashed.crashes[0]!.seat;
   const view = board([seat], crashed);
   expect(view.getByTestId('arena-status').dataset['steering']).toBe('crashed');
-  fireEvent.pointerDown(view.getByTestId(`arena-${seat}-pad-up`));
+  // regression: light-cycles-crash-pad-and-obscured-result
+  expect(view.queryByTestId(`arena-${seat}-pad-up`)).toBeNull();
+  fireEvent.keyDown(view.getByTestId('arena-arena'), { key: 'ArrowUp' });
   expect(view.inputs).toEqual([]);
   const over = until(crashed, (state) => state.phase === 'round-over');
   view.set(over);
   expect(view.getByTestId('arena-status').dataset['steering']).toBe(
     'round-over'
+  );
+  expect(view.getByTestId('arena-arena-overlay').dataset['open']).toBe('false');
+  expect(view.getByTestId('arena-result').textContent).toContain(
+    'wins the round'
   );
   const winner = over.roundWinner;
   if (winner !== null && winner !== 'draw')
@@ -196,4 +202,18 @@ test("a person's other device says it does not steer their rider and offers to r
   expect(view.queryByTestId('arena-white-pad-up')).toBeNull();
   fireEvent.click(view.getByTestId('arena-ride-here'));
   expect(claims).toBe(1);
+});
+
+// regression: light-cycles-shared-device-guidance
+test('both local riders and their swipe halves are named', () => {
+  const view = board(['white', 'black'], running(lightCyclesStart(3, 3)));
+  expect(view.getByTestId('arena-status').textContent).toContain(
+    'You ride Comet.'
+  );
+  expect(view.getByTestId('arena-status').textContent).toContain(
+    'You ride Ember.'
+  );
+  expect(
+    view.getByText(/Swipe the right half for Comet, the left half for Ember/)
+  ).toBeDefined();
 });

@@ -9,6 +9,7 @@ import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import type { LexiconState } from './use-word-tiles-lexicon';
 import {
   CAT_AND_TOE,
   STORY_LEXICON,
@@ -96,10 +97,16 @@ export const ReachTarget: Story = {
   args: { definition: encodePuzzle({ ...PUZZLE, target: 6 }) },
   render: (args) => {
     const [state, setState] = createSignal(args.state);
+    const [lexicon, setLexicon] = createSignal<LexiconState>({
+      status: 'unavailable',
+      reason: 'offline',
+    });
     return (
       <WordTilesPuzzlePlayerView
         {...args}
         state={state()}
+        lexicon={lexicon()}
+        onRetryLexicon={() => setLexicon(STORY_LEXICON)}
         onAction={(action) => {
           const placed = placementOf(PUZZLE, action);
           if (placed === null) throw new Error('Invalid puzzle action');
@@ -126,10 +133,49 @@ export const ReachTarget: Story = {
       )
     );
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    // regression: word-tiles-puzzle-retry-keeps-draft
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Retry word list' })
+    );
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveTextContent('S');
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-submit'));
     await expect(
       canvas.getByTestId('word-tiles-puzzle-score')
     ).toHaveTextContent('8 of 6');
+    // regression: word-tiles-puzzle-completion-remains-editable
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-complete')
+    ).toHaveTextContent('Puzzle solved');
+    await expect(
+      canvas.queryByTestId('word-tiles-puzzle-submit')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveAccessibleName(/committed/);
+  },
+};
+
+/** Assign a blank through the enlarged board and retain its chosen letter. */
+export const EnlargedBlank: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enlarge board' })
+    );
+    await userEvent.click(
+      canvas.getByTestId(
+        `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[4]}`
+      )
+    );
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-blank-S'));
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveAccessibleName(/blank as S/);
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
   },
 };

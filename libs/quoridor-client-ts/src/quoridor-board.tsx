@@ -76,6 +76,7 @@ function QuoridorBoardView(
     <StackVertical gap="sm">
       <CellGridBoard
         boardTheme="quoridor"
+        fill
         label={t`Quoridor board, nine columns and nine rows`}
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
@@ -89,13 +90,11 @@ function QuoridorBoardView(
       />
       <P role="status" dataSet={{ testid: `${props.testId}-wall-status` }}>
         {message() ||
-          (game().mode === 'classic'
-            ? tool() === 'move'
-              ? t`Choose a marked square to move your pawn.`
-              : tool() === 'h'
-                ? t`Horizontal wall: tap a square to place it above that square and its right neighbor.`
-                : t`Vertical wall: tap a square to place it beside that square and its upper neighbor.`
-            : t`Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor.`)}
+          (tool() === 'move'
+            ? t`Choose a marked square to move your pawn.`
+            : tool() === 'h'
+              ? t`Horizontal wall: tap a square to place it above that square and its right neighbor.`
+              : t`Vertical wall: tap a square to place it beside that square and its upper neighbor.`)}
       </P>
     </StackVertical>
   );
@@ -120,7 +119,7 @@ export function createQuoridorBoard(
     TOOLS.map((each) => ({
       id: `mode-${each}`,
       label: toolLabel(each),
-      enabled: live(),
+      enabled: live() && !quoridorMustPass(game()),
       pressed: tool() === each,
       run: () => {
         setTool(each);
@@ -130,13 +129,14 @@ export function createQuoridorBoard(
   const pass = (): GameFrameAction => ({
     id: 'action-pass',
     label: t`No legal move or wall — pass turn`,
+    emphasis: 'primary',
     enabled: props.interactive,
     run: () => props.onAction('pass'),
   });
   return {
     Board: () => <QuoridorBoardView {...props} state={state} />,
     actions: () =>
-      quoridorMustPass(game()) ? [...toolActions(), pass()] : toolActions(),
+      quoridorMustPass(game()) ? [pass(), ...toolActions()] : toolActions(),
   };
 }
 

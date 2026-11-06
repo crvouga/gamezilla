@@ -120,3 +120,39 @@ export const ArrangeFullFleet: Story = {
     ).toHaveAccessibleName('I8: Destroyer');
   },
 };
+
+/** Enlarged cells place the real fleet and preserve it after a refused overlap. */
+export const EnlargedPlacement: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-setup-enlarge')
+    );
+    const bow = await canvas.findByTestId(
+      'custom-game-setup-precision-cell-a1'
+    );
+    await userEvent.click(bow);
+    await expect(
+      await canvas.findByTestId('custom-game-setup-progress')
+    ).toHaveTextContent('1 of 5 ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-e1')
+    ).toHaveAccessibleName('E1: Carrier');
+    await userEvent.click(bow);
+    await expect(
+      await canvas.findByTestId('custom-game-setup-refusal')
+    ).toBeVisible();
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-setup-rotate')
+    );
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-setup-precision-cell-a3')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-a6')
+    ).toHaveAccessibleName('A6: Battleship');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-progress')
+    ).toHaveTextContent('2 of 5 ships placed');
+  },
+};

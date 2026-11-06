@@ -26,6 +26,7 @@ import {
   createSetupController,
   type SetupController,
 } from './battleship-setup-controller';
+import { SetupPrecision } from './battleship-setup-precision';
 
 function shipChoices(draft: Draft, testId: string): readonly GameChoice[] {
   return SHIPS.map(({ id, length }) => {
@@ -60,7 +61,7 @@ function SetupCommands(props: {
         title={t`Rotate ${direction()}`}
         intent="neutral"
         variant="outline"
-        size="sm"
+        size="md"
         disabled={props.locked || selected() === null}
         onClick={props.setup.rotate}
         dataSet={{
@@ -72,7 +73,7 @@ function SetupCommands(props: {
         title={t`Remove`}
         intent="neutral"
         variant="ghost"
-        size="sm"
+        size="md"
         disabled={props.locked || !placed()}
         onClick={props.setup.remove}
         dataSet={{ testid: `${props.testId}-remove` }}
@@ -95,7 +96,7 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
       <P
         id={statusId}
-        variant="caption"
+        variant="label"
         role="status"
         aria-live="polite"
         testId={`${props.testId}-progress`}
@@ -116,6 +117,9 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
         }}
         disabled={props.locked}
       />
+      <Show when={!props.locked}>
+        <P variant="caption">{setup.instruction()}</P>
+      </Show>
       <SetupCommands
         setup={setup}
         locked={props.locked}
@@ -129,6 +133,11 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           </Notice>
         )}
       </Show>
+      <SetupPrecision
+        setup={setup}
+        locked={props.locked}
+        testId={props.testId}
+      />
       <CellGridBoard
         label={t`Your waters`}
         testId={`${props.testId}-grid`}

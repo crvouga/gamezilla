@@ -8,7 +8,6 @@ import {
   LIGHT_CYCLES_SEATS,
   lightCyclesConfig,
 } from '@libs/light-cycles-shared-ts/light-cycles-config';
-import { parseLightCyclesInput } from '@libs/light-cycles-shared-ts/light-cycles-input';
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import {
   initialLightCyclesState,
@@ -18,7 +17,6 @@ import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles
 import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LightCyclesBoardView } from './light-cycles-board-view';
@@ -27,6 +25,10 @@ import {
   lightCyclesQuadClient,
   lightCyclesTrioClient,
 } from './light-cycles-game-client';
+import {
+  createLightCyclesJourney,
+  type LightCyclesJourney,
+} from './light-cycles-journey.example';
 
 const TRIO = LIGHT_CYCLES_SEATS[3];
 const codec = lightCyclesPositionCodec(3);
@@ -160,44 +162,22 @@ export const Unreadable: Story = {
 };
 
 /** Inputs advance the real deterministic simulation and repaint the production board. */
-function interactiveRender(count: 2 | 3 | 4, sides: readonly GameSide[]) {
+function interactiveRender(
+  count: 2 | 3 | 4,
+  sides: readonly GameSide[],
+  ready?: (journey: LightCyclesJourney) => void
+) {
   return ((args, context) => {
-    const config = lightCyclesConfig();
-    const step = createLightCyclesStep(config);
+    const journey = createLightCyclesJourney(count);
+    ready?.(journey);
     const seats = LIGHT_CYCLES_SEATS[count];
-    let tick = 0;
-    let initial = initialLightCyclesState(config, seats);
-    for (; tick < 120; tick++)
-      initial = step(initial, [], {
-        tick: tick + 1,
-        deltaMs: 1000 / config.tickRate,
-        elapsedMs: ((tick + 1) * 1000) / config.tickRate,
-        random: () => 0,
-      });
-    const [state, setState] = createSignal(initial);
-    const simulation = riding(sides, {
-      onInput: (playerId, value) => {
-        const input = parseLightCyclesInput(value);
-        if (!input) return;
-        for (let frame = 0; frame < config.movementTicks; frame++) {
-          tick++;
-          setState((current) =>
-            step(
-              current,
-              frame === 0
-                ? [{ playerId, value: input, sequence: tick, tick }]
-                : [],
-              {
-                tick,
-                deltaMs: 1000 / config.tickRate,
-                elapsedMs: (tick * 1000) / config.tickRate,
-                random: () => 0,
-              }
-            )
-          );
-        }
+    const simulation: GameSimulationControls = {
+      ...riding(sides),
+      get stale() {
+        return journey.stale();
       },
-    });
+      onInput: journey.onInput,
+    };
     const client =
       count === 2
         ? lightCyclesDuelClient
@@ -217,7 +197,7 @@ function interactiveRender(count: 2 | 3 | 4, sides: readonly GameSide[]) {
       {
         ...args,
         get position() {
-          return lightCyclesPositionCodec(count).encode(state());
+          return lightCyclesPositionCodec(count).encode(journey.state());
         },
         simulation,
       },
@@ -297,3 +277,131 @@ async function unavailableGuidance({
     'false'
   );
 }
+
+function collisionJourney(): Story {
+  let journey: LightCyclesJourney;
+  return {
+    render: interactiveRender(3, ['red'], (value) => {
+      journey = value;
+    }),
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+      const rider = canvas.getByTestId('custom-game-board-arena-rider-2');
+      const before = Number(rider.getAttribute('data-y'));
+      await expect(rider).toHaveAttribute('data-alive', 'true');
+      await userEvent.click(canvas.getByTestId('custom-game-board-arena'));
+      await userEvent.keyboard('{ArrowDown}');
+      await expect(rider).toHaveAttribute('data-y', String(before + 1));
+      journey.advance(17);
+      await expect(
+        canvas.getByTestId('custom-game-board-status')
+      ).toHaveAttribute('data-steering', 'crashed');
+      await expect(
+        canvas.getByTestId('custom-game-board-arena-rider-2')
+      ).toHaveAttribute('data-alive', 'false');
+      await expect(
+        canvas.queryByTestId('custom-game-board-red-pad-up')
+      ).not.toBeInTheDocument();
+      journey.advance(13);
+      await expect(
+        canvas.getByTestId('custom-game-board-round')
+      ).toHaveAttribute('data-phase', 'round-over');
+      await expect(
+        canvas.getByTestId('custom-game-board-result')
+      ).toHaveTextContent('Ember wins the round');
+      await expect(
+        canvas.getByTestId('custom-game-board-arena-overlay')
+      ).toHaveAttribute('data-open', 'false');
+      journey.advance(60);
+      await expect(
+        canvas.getByTestId('custom-game-board-round')
+      ).toHaveAttribute('data-round', '2');
+      await expect(
+        canvas.getByTestId('custom-game-board-arena-rider-2')
+      ).toHaveAttribute('data-alive', 'true');
+      await expect(
+        canvas.getByTestId('custom-game-board-arena')
+      ).toHaveAttribute('data-interactive', 'true');
+    },
+  };
+}
+// regression: light-cycles-crash-pad-and-obscured-result
+export const CollisionThroughNextRound = collisionJourney();
+
+function recoveryJourney(): Story {
+  let journey: LightCyclesJourney;
+  return {
+    render: interactiveRender(3, ['white'], (value) => {
+      journey = value;
+      journey.setStale(true);
+    }),
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+      const arena = canvas.getByTestId('custom-game-board-arena');
+      const rider = canvas.getByTestId('custom-game-board-arena-rider-0');
+      const before = rider.getAttribute('data-y');
+      await userEvent.click(arena);
+      await userEvent.keyboard('{ArrowUp}');
+      await expect(rider).toHaveAttribute('data-y', before);
+      await expect(arena).toHaveAttribute('data-interactive', 'false');
+      journey.setStale(false);
+      await expect(arena).toHaveAttribute('data-interactive', 'true');
+      await userEvent.click(arena);
+      await userEvent.keyboard('{ArrowUp}');
+      await expect(rider).toHaveAttribute('data-heading', 'up');
+      await expect(rider).toHaveAttribute('data-y', String(Number(before) - 1));
+    },
+  };
+}
+export const ResumedSteering = recoveryJourney();
+
+// regression: light-cycles-shared-device-guidance
+export const SharedSwipe: Story = {
+  render: interactiveRender(3, ['white', 'black']),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const arena = canvas.getByTestId('custom-game-board-arena');
+    const bounds = arena.getBoundingClientRect();
+    const right = bounds.left + bounds.width * 0.75;
+    const left = bounds.left + bounds.width * 0.25;
+    const y = bounds.top + bounds.height * 0.5;
+    await userEvent.pointer([
+      {
+        target: arena,
+        keys: '[TouchA>]',
+        coords: { clientX: right, clientY: y },
+      },
+      {
+        target: arena,
+        pointerName: 'TouchA',
+        coords: { clientX: right, clientY: y - 30 },
+      },
+      { target: arena, keys: '[/TouchA]' },
+    ]);
+    await expect(
+      canvas.getByTestId('custom-game-board-arena-rider-0')
+    ).toHaveAttribute('data-heading', 'up');
+    await expect(
+      canvas.getByTestId('custom-game-board-arena-rider-1')
+    ).toHaveAttribute('data-heading', 'left');
+    await userEvent.pointer([
+      {
+        target: arena,
+        keys: '[TouchB>]',
+        coords: { clientX: left, clientY: y },
+      },
+      {
+        target: arena,
+        pointerName: 'TouchB',
+        coords: { clientX: left, clientY: y - 30 },
+      },
+      { target: arena, keys: '[/TouchB]' },
+    ]);
+    await expect(
+      canvas.getByTestId('custom-game-board-arena-rider-1')
+    ).toHaveAttribute('data-heading', 'up');
+    await expect(
+      canvas.getByTestId('custom-game-board-status')
+    ).toHaveTextContent('You ride Comet. You ride Ember.');
+  },
+};

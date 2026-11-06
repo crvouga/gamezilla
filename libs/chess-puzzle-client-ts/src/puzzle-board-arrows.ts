@@ -9,7 +9,7 @@ export function puzzleBoardArrows(
 ) {
   return chessPuzzleArrows(args).map((arrow) =>
     arrow.id === PUZZLE_SOLUTION_ARROW_ID
-      ? { ...arrow, thickness: 0.06, opacity: 0.55 }
+      ? { ...arrow, thickness: 0.06, opacity: 0.8 }
       : arrow
   );
 }

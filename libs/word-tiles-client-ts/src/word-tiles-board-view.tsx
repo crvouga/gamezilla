@@ -41,6 +41,7 @@ function SeatBoard(props: {
   );
   return (
     <StackVertical gap="sm">
+      <LexiconRecovery draft={props.draft} />
       <P variant="caption" tone="secondary">
         {t`2L: double letter · 3L: triple letter · 2W: double word · 3W: triple word · ★: start, double word`}
       </P>
@@ -62,11 +63,6 @@ function SeatBoard(props: {
           <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
         }
       >
-        <Show when={props.draft.candidate().placed.length > 0}>
-          <P variant="caption" role="status">
-            {t`Tap a placed tile to return it to your rack. Recall tiles returns the whole draft.`}
-          </P>
-        </Show>
         <TileRack
           label={t`Your rack`}
           testId={`${props.draft.props.testId}-rack`}
@@ -75,6 +71,8 @@ function SeatBoard(props: {
             props.draft.update((c) => pressTile(c, Number(id)))
           }
         />
+        <DraftControls draft={props.draft} />
+        <DraftSubmit draft={props.draft} />
       </Show>
     </StackVertical>
   );
@@ -108,9 +106,6 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
         <Show when={!props.draft.props.interactive && props.draft.editable()}>
           <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
         </Show>
-        <Show when={props.draft.lexicon.state().status === 'unavailable'}>
-          <P role="status">{t`The word list could not load. Your draft is kept, but words cannot be played until checking is available. Load the word list again to continue.`}</P>
-        </Show>
         <Show when={props.draft.candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId={testId()}
@@ -123,14 +118,6 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
           {(preview) => (
             <WordTilesPreviewPanel preview={preview()} testId={testId()} />
           )}
-        </Show>
-        <Show when={props.draft.lexicon.state().status === 'unavailable'}>
-          <Button
-            title={t`Load the word list again`}
-            variant="ghost"
-            dataSet={{ testid: `${testId()}-lexicon-retry` }}
-            onClick={props.draft.lexicon.retry}
-          />
         </Show>
       </StackVertical>
     </Show>
@@ -157,8 +144,11 @@ export function createWordTilesSession(
   const draft = createWordTilesDraft(props, inputs.lexicon);
   return {
     Board: () => <DraftBoard draft={draft} />,
-    actions: () => wordTilesActions(draft, inputs.random),
-    controls: () => <DraftControls draft={draft} />,
+    actions: () =>
+      wordTilesActions(draft, inputs.random).filter(
+        (action) => action.id !== 'submit'
+      ),
+    controls: () => null,
   };
 }
 
@@ -202,5 +192,36 @@ export function WordTilesBoardView(
         }))}
       />
     </StackVertical>
+  );
+}
+
+function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
+  return (
+    <Show when={props.draft.lexicon.state().status === 'unavailable'}>
+      <P role="status">{t`The word list could not load. Your draft is kept. Reload it to check and play your word.`}</P>
+      <Button
+        title={t`Load the word list again`}
+        variant="outline"
+        dataSet={{ testid: `${props.draft.props.testId}-lexicon-retry` }}
+        onClick={props.draft.lexicon.retry}
+      />
+    </Show>
+  );
+}
+
+function DraftSubmit(props: { draft: WordTilesDraft }): JSX.Element {
+  const action = () =>
+    wordTilesActions(props.draft, () => 0).find((item) => item.id === 'submit');
+  return (
+    <Show when={action()}>
+      {(submit) => (
+        <Button
+          title={submit().label}
+          disabled={!submit().enabled}
+          onClick={() => submit().run()}
+          dataSet={{ testid: `${props.draft.props.testId}-submit` }}
+        />
+      )}
+    </Show>
   );
 }

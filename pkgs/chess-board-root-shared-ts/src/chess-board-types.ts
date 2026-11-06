@@ -33,6 +33,8 @@ export type ChessBoardProps = {
   /** Parent-owned board audio (default on). Disabling cancels pending playback. */
   sound?: boolean | undefined;
   showCoordinates?: boolean | undefined;
+  /** Visible side, check and keyboard guidance beside a full playing board. */
+  showGuidance?: boolean | undefined;
   /**
    * Coordinate placement: `inside` (default) uses square corners;
    * `outside-start` / `outside-end` adds the responsive frame with ranks

@@ -68,6 +68,8 @@ export function StoryPackAttempt(props: {
   readonly complete?: boolean | undefined;
   readonly disabled?: boolean | undefined;
   readonly player: JSX.Element;
+  /** Stateful controls supplied by a game's rules-backed history fixture. */
+  readonly controls?: JSX.Element;
   /** The game's own figures for the attempt (`Connected pairs 2`). */
   readonly figures?: readonly AttemptFigure[] | undefined;
 }): JSX.Element {
@@ -95,10 +97,12 @@ export function StoryPackAttempt(props: {
       unopenable={false}
       player={props.player}
       controls={
-        <StoryPackAttemptControls
-          pack={props.puzzle.pack !== null}
-          disabled={props.disabled === true}
-        />
+        props.controls ?? (
+          <StoryPackAttemptControls
+            pack={props.puzzle.pack !== null}
+            disabled={props.disabled === true}
+          />
+        )
       }
       onRetryChange={fn()}
       onReturnToLibrary={fn()}

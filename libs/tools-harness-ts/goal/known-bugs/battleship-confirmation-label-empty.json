@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship shot confirmation used Button children instead of title, leaving its visible action label empty.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

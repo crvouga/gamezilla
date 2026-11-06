@@ -513,6 +513,10 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * ```
  */
 export function CardTable(props: CardTableProps): JSX.Element {
+  const seatIds = createMemo(() => props.seats.map((seat) => seat.testId));
+  const seatsById = createMemo(
+    () => new Map(props.seats.map((seat) => [seat.testId, seat]))
+  );
   // Why the last card pressed was refused, until the table moves on.
   const [refusal, setRefusal] = createSignal('');
   createEffect(
@@ -529,9 +533,18 @@ export function CardTable(props: CardTableProps): JSX.Element {
       data-testid={props.testId}
     >
       <div class={styles['table']} role="group" aria-label={props.label}>
-        <Index each={props.seats}>
-          {(seat) => <Seat seat={seat} trick={props.trick === true} />}
-        </Index>
+        <For each={seatIds()}>
+          {(id) => (
+            <Seat
+              seat={() => {
+                const seat = seatsById().get(id);
+                if (!seat) throw new Error('A rendered seat must exist');
+                return seat;
+              }}
+              trick={props.trick === true}
+            />
+          )}
+        </For>
         <Show when={props.seats.length > 0}>
           <Trick seats={props.seats} trick={props.trick === true} />
         </Show>

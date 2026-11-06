@@ -14,6 +14,7 @@ import {
   PATH_4,
   SOLUTION,
 } from './numberlink-player.example';
+import { recoverWithPointer } from './numberlink-pointer-recovery.example';
 
 /** Progress with `paths` drawn. */
 function progress(paths: typeof SOLUTION): string {
@@ -165,4 +166,10 @@ export const CompleteWithKeyboard: Story = {
       canvas.queryByText('Drag from a number to its match.')
     ).not.toBeInTheDocument();
   },
+};
+
+/** Cancel, shorten, redraw and remove a path through pointer input and real rules. */
+export const RecoverWithPointer: Story = {
+  ...CompleteWithKeyboard,
+  play: async ({ canvasElement }) => recoverWithPointer(canvasElement),
 };

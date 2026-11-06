@@ -2,11 +2,13 @@
 
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { type JSX, Show } from 'solid-js';
 import { createBoardController } from '../chess-board-controller';
 import { ChessBoardFrame } from '../chess-board-frame/index';
 import { ChessBoardView } from '../chess-board-view/index';
+import { ChessBoardGuidance } from './guidance';
 
 /**
  * Solid chess board. Owns the rules (chess.js via `ChessGame`) so a parent
@@ -25,19 +27,24 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
     timers,
   });
   return (
-    <Show
-      when={
-        props.showCoordinates &&
-        props.coordinatePlacement?.startsWith('outside-')
-      }
-      fallback={<ChessBoardView props={props} ctrl={ctrl} />}
-    >
-      <ChessBoardFrame
-        orientation={props.orientation ?? 'white'}
-        ranks={props.coordinatePlacement === 'outside-end' ? 'end' : 'start'}
+    <StackVertical gap="xs">
+      <Show when={props.showGuidance}>
+        <ChessBoardGuidance props={props} ctrl={ctrl} />
+      </Show>
+      <Show
+        when={
+          props.showCoordinates &&
+          props.coordinatePlacement?.startsWith('outside-')
+        }
+        fallback={<ChessBoardView props={props} ctrl={ctrl} />}
       >
-        <ChessBoardView props={props} ctrl={ctrl} />
-      </ChessBoardFrame>
-    </Show>
+        <ChessBoardFrame
+          orientation={props.orientation ?? 'white'}
+          ranks={props.coordinatePlacement === 'outside-end' ? 'end' : 'start'}
+        >
+          <ChessBoardView props={props} ctrl={ctrl} />
+        </ChessBoardFrame>
+      </Show>
+    </StackVertical>
   );
 }

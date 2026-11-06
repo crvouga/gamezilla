@@ -1,0 +1,4 @@
+{
+  "summary": "Ubuntu board-reference authoring produced an empty export because the patch included only pkgs baselines, excluding libs-owned game boards. Export added, changed and deleted references from both package roots.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-baseline-patch.test.ts"
+}

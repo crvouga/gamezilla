@@ -26,6 +26,7 @@ import {
 } from './word-tiles-board-view.example';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
+import { matchJourney } from './word-tiles-match-journey.example';
 
 /** A position from a new two-seat game, with `changes`. */
 function table(changes: Partial<WordTilesPosition> = {}): string {
@@ -66,7 +67,17 @@ function renderTable(
         }),
     },
   };
-  return renderGameTable(presentation, seatSides(seats), args, context);
+  return renderGameTable(presentation, seatSides(seats), args, {
+    parameters: {
+      ...context.parameters,
+      table: {
+        ...(context.parameters['table'] as GameTableStory),
+        get turn() {
+          return seatSides(seats)[decodePosition(args.position)?.turn ?? 0];
+        },
+      },
+    },
+  });
 }
 
 const meta = {
@@ -264,5 +275,84 @@ export const AssignABlank: Story = {
       'E 0, h8, your tentative blank as E'
     );
     await expect(cell).toHaveAttribute('data-state', 'tentative');
+  },
+};
+
+/** Real authority accepts the retained CAT draft after the word list recovers. */
+export const RecoverAndSubmit: Story = {
+  args: { lexicon: { status: 'unavailable', reason: 'offline' } },
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    // regression: word-tiles-retry-retained-accepted-draft
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId('custom-game-board-lexicon-retry')
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enlarge board' })
+    );
+    for (const [tile, cell] of [
+      ['11', 'g8'],
+      ['0', 'h8'],
+      ['82', 'i8'],
+    ]) {
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-rack-${tile}`)
+      );
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-cell-${cell}`)
+      );
+    }
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
+    await userEvent.click(
+      canvas.getByTestId('custom-game-board-lexicon-retry')
+    );
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(canvas.getByTestId('custom-game-board-submit'));
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'committed');
+    await expect(
+      canvas.queryByTestId('custom-game-board-rack-11')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
+    await expect(canvas.getByText('10', { exact: true })).toBeVisible();
+    await expect(canvas.getByText(/Teal — to play/)).toBeVisible();
+    await expect(
+      canvas.getByText(/You can plan a word while you wait/)
+    ).toBeVisible();
+  },
+};
+
+export const AcceptedPass: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'empty');
+    await expect(
+      canvas.getByTestId('custom-game-board-rack-11')
+    ).toBeInTheDocument();
+  },
+};
+
+export const AcceptedExchange: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-exchange'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-rack-11'));
+    await userEvent.click(
+      canvas.getByTestId('custom-game-board-exchange-confirm')
+    );
+    await expect(
+      canvas.queryByTestId('custom-game-board-rack-11')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
   },
 };

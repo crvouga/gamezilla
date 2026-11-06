@@ -20,6 +20,7 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
+import { NumberlinkRecovery } from './numberlink-recovery';
 
 function Drawing(props: {
   definition: NumberlinkDefinition;
@@ -91,6 +92,11 @@ function Drawing(props: {
             ]}
           />
         </Show>
+        <NumberlinkRecovery
+          definition={props.definition}
+          state={props.state}
+          onAction={props.onAction}
+        />
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}

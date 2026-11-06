@@ -257,6 +257,9 @@ export const shootBattleship = scenarioAction<
     ) {
       await playOnCustomGameBoard(s, actor, async () => {
         await press(target, keyboard);
+        const fire = (await actorUi(s, actor)).get(`${CUSTOM_GAME_BOARD}-fire`);
+        await fire.wait('enabled');
+        await press(fire, keyboard);
         return 'made';
       });
       return;

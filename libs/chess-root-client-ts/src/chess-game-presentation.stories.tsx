@@ -111,6 +111,12 @@ export const WaitingForOpponent: Story = {
 export const InCheck: Story = {
   args: { position: CHECK, lastAction: 'f1b5', orientation: 'black' },
   parameters: { table: { turn: 'black' } satisfies GameTableStory },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Black pieces nearest you/)).toBeVisible();
+    await expect(canvas.getByText(/Black is in check/)).toBeVisible();
+    await expect(canvas.getByText(/Escape to cancel/)).toBeVisible();
+  },
 };
 
 /** A watcher follows from White's side; nothing can be moved. */

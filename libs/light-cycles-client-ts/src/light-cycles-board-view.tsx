@@ -90,10 +90,21 @@ function SteeringHint(props: {
       <Show
         when={mode() === 'wide'}
         fallback={
-          <Trans>
-            Swipe the arena or use the pad to steer. Avoid the edge and every
-            trail.
-          </Trans>
+          <Show
+            when={props.sides.length > 1}
+            fallback={
+              <Trans>
+                Swipe the arena or use the pad to steer. Avoid the edge and
+                every trail.
+              </Trans>
+            }
+          >
+            <Trans>
+              Swipe the right half for {riderName(props.sides[0]!)}, the left
+              half for {riderName(props.sides[1]!)}. Or use each rider's named
+              pad. Avoid the edge and every trail.
+            </Trans>
+          </Show>
         }
       >
         <Show
@@ -125,7 +136,9 @@ function Pads(props: {
   return (
     <Show when={mode() !== 'wide'}>
       <StackHorizontal gap="lg" justify="center" wrap>
-        <For each={props.board.simulation?.sides ?? []}>
+        <For
+          each={(props.board.simulation?.sides ?? []).filter(props.steerable)}
+        >
           {(side) => (
             <StackVertical gap="xs" align="center">
               {/* One pad is the person's own rider, named above the arena;
@@ -181,8 +194,25 @@ function Arena(props: {
         testId={`${props.board.testId}-status`}
         dataSet={{ steering: ownSteering() }}
       >
-        {steeringText(ownSteering(), primary())}
+        <Show
+          when={controlled().length > 1}
+          fallback={steeringText(ownSteering(), primary())}
+        >
+          {controlled()
+            .map((side) => steeringText(steering(side), side))
+            .join(' ')}
+        </Show>
       </P>
+      <Show
+        when={
+          props.state.phase === 'round-over' ||
+          props.state.phase === 'completed'
+        }
+      >
+        <P role="status" testId={`${props.board.testId}-result`}>
+          {arenaOverlay(props.state)?.title}
+        </P>
+      </Show>
       <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
       <TrailArena
         width={props.state.width}
@@ -190,7 +220,11 @@ function Arena(props: {
         cells={props.state.trails}
         riders={trailRiders(props.state, controlled())}
         crashes={trailCrashes(props.state)}
-        overlay={arenaOverlay(props.state)}
+        overlay={
+          props.state.phase === 'countdown'
+            ? arenaOverlay(props.state)
+            : undefined
+        }
         enabled={controlled().some(steerable)}
         onDirection={(heading, slot) => {
           const side = controlled()[slot];

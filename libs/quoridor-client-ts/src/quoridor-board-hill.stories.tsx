@@ -16,6 +16,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
+import { expectHillPassVisible } from './quoridor-hill-visibility.example';
 
 function sideAt(index: number) {
   const side = QUORIDOR_SIDES[index];
@@ -97,7 +98,13 @@ type Story = StoryObj<typeof meta>;
 export const Opening: Story = {};
 
 /** No move or wall is legal: the pass is offered beside the tools. */
-export const MustPass: Story = { args: { position: hill(BLOCKED) } };
+export const MustPass: Story = {
+  args: { position: hill(BLOCKED) },
+  play: async ({ canvasElement }) => {
+    // regression: quoridor-hill-forced-pass-clipped
+    await expectHillPassVisible(canvasElement);
+  },
+};
 
 /** East is deciding while the others wait. */
 export const WaitingForOthers: Story = {
@@ -178,9 +185,11 @@ export const PassAndContinue: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-pass')
-    );
+    // regression: quoridor-hill-forced-pass-clipped
+    const pass = await expectHillPassVisible(canvasElement);
+    pass.focus({ preventScroll: true });
+    await expect(pass).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
     await expect(
       canvas.queryByTestId('custom-game-board-action-pass')
     ).not.toBeInTheDocument();

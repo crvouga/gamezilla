@@ -27,6 +27,11 @@ import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
+import {
+  journeyValue,
+  receivedHands,
+  renderPassJourney,
+} from './hearts-pass-journey.example';
 import { heartsPresentation } from './hearts-presentation';
 
 /** One fixed deal: every story sees the same thirteen cards per seat. */
@@ -350,5 +355,53 @@ export const PassAcknowledged: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-center')
     ).toHaveTextContent('Waiting for every player to pass');
+  },
+};
+
+/** One uninterrupted accepted exchange and first trick, using real legal-card rules. */
+export const PassThroughFirstTrick: Story = {
+  render: (_args, context) => renderPassJourney(context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await chooseThree(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    const hands = receivedHands(PASSED);
+    let position: HeartsPosition = {
+      ...INITIAL_HEARTS,
+      phase: 'play',
+      lead: twoOfClubsSeat({ ...DEAL, hands }),
+    };
+    for (let count = 0; count < 4; count++) {
+      const seat = journeyValue(seatToPlay(position));
+      for (const card of journeyValue(hands[seat]))
+        await expect(
+          canvas.getByTestId(`custom-game-board-card-${card}`)
+        ).toBeVisible();
+      const card = journeyValue(
+        legalCards(position, seat, journeyValue(hands[seat]))[0]
+      );
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      );
+      hands[seat] = journeyValue(hands[seat]).filter((held) => held !== card);
+      position = { ...position, plays: [...position.plays, card] };
+      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+        'data-position',
+        encodeHearts(position)
+      );
+      for (const [index, side] of GAME_SIDES.entries()) {
+        const identity = journeyValue(
+          ['avery', 'jordan_plays', 'morgan', 'robin_42'][index]
+        );
+        const plate = canvas.getByTestId(`custom-game-board-seat-${side}`);
+        await expect(plate).toHaveTextContent(identity);
+        await expect(
+          plate.querySelectorAll('[data-component="GameTableSeat"]')
+        ).toHaveLength(1);
+      }
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('took the trick');
   },
 };

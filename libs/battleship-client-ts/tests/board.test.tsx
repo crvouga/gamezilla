@@ -60,7 +60,7 @@ test('the own grid shows the viewer’s fleet from its setup and the shots fired
   expect(own('d3').getAttribute('data-tone')).toBe('occupied');
   expect(own('d3').getAttribute('aria-label')).toBe('D3: your Carrier');
   expect(own('e5').getAttribute('data-tone')).toBe('quiet');
-  expect(own('e5').textContent).toBe('•');
+  expect(own('e5').textContent).toBe('○');
   expect(own('e5').getAttribute('aria-label')).toBe('E5: open water, missed');
   expect(own('a1').getAttribute('data-tone')).toBe('open');
 });
@@ -98,6 +98,7 @@ test('the targeting grid shows only the public shots, never a ship that was not 
 });
 
 test('interactive targets fire through onAction and wait, aiming, for the outcome', () => {
+  // regression: battleship-preview-overrides-pending-shot
   const view = board({ setup: FLEET, interactive: true });
   expect(byTestId('board-view').getAttribute('data-selected')).toBe('target');
   expect(target('e5').getAttribute('aria-disabled')).toBe('false');
@@ -106,6 +107,9 @@ test('interactive targets fire through onAction and wait, aiming, for the outcom
   fireEvent.click(target('a1'));
   expect(view.actions).toEqual([]);
   fireEvent.click(target('e5'));
+  expect(view.actions).toEqual([]);
+  expect(byTestId('board-fire').textContent).toContain('Fire at E5');
+  fireEvent.click(byTestId('board-fire'));
   expect(view.actions).toEqual(['e5']);
   expect(target('e5').getAttribute('data-emphasis')).toBe('pending');
   expect(target('e5').getAttribute('aria-disabled')).toBe('true');
