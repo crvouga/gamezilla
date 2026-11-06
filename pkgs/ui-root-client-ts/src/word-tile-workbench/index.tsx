@@ -5,6 +5,7 @@ import {
   createSignal,
   type JSX,
   onCleanup,
+  onMount,
   Show,
 } from 'solid-js';
 import { Button } from '../button/index';
@@ -85,5 +86,38 @@ export function WordTileActions(props: {
         </Show>
       </div>
     </Show>
+  );
+}
+
+/** Disjoint full-sized blank-letter choices; keyboard entry starts at the first letter. */
+export function WordTileLetterChoices(props: {
+  label: string;
+  children: JSX.Element;
+}): JSX.Element {
+  let root: HTMLDivElement | undefined;
+  onMount(() => {
+    const previous = document.activeElement;
+    root
+      ?.querySelector<HTMLButtonElement>('button')
+      ?.focus({ preventScroll: true });
+    onCleanup(() => {
+      if (
+        root?.contains(document.activeElement) &&
+        previous instanceof HTMLElement &&
+        previous.isConnected
+      )
+        previous.focus({ preventScroll: true });
+    });
+  });
+  return (
+    <div
+      ref={root}
+      class={styles['letters']}
+      role="group"
+      aria-label={props.label}
+      {...dataAttrs({ component: 'WordTileLetterChoices' })}
+    >
+      {props.children}
+    </div>
   );
 }

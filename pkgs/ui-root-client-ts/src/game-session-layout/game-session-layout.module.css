@@ -27,8 +27,7 @@
   text-overflow: ellipsis;
 }
 
-/* Four identities share one band. Full names remain in the accessible text;
-   the board keeps the vertical room previously spent on a second player row. */
+/* Participant names and counters stay readable within each chip. */
 .participants {
   --game-player-facts-row-gap: 0;
 }
@@ -37,12 +36,14 @@
   gap: var(--ui-space-1);
 }
 .participants [data-active] :global(.textLabel) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 @container game-column (max-width: 879px) {
+  .participants > [role="list"]:has(> :nth-child(4):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .participants [data-active] > :is(div, button) {
     padding-inline: var(--ui-space-1);
   }

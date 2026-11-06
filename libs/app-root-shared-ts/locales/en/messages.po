@@ -1402,6 +1402,14 @@ msgstr "Blue"
 msgid "Blue fleet"
 msgstr "Blue fleet"
 
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+msgid "Board map"
+msgstr "Board map"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+msgid "Board map: locate a square"
+msgstr "Board map: locate a square"
+
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "Board preview"
 msgstr "Board preview"
@@ -1728,6 +1736,10 @@ msgstr "Choose a sign-in method"
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "Choose a square on the board."
 msgstr "Choose a square on the board."
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+msgid "Choose a square to view on the enlarged board. This does not place a tile."
+msgstr "Choose a square to view on the enlarged board. This does not place a tile."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Choose a target"
@@ -4111,6 +4123,10 @@ msgstr "Manage subscription"
 msgid "Manual next puzzle"
 msgstr "Manual next puzzle"
 
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+msgid "Map"
+msgstr "Map"
+
 #: libs/notifications-client-ts/src/notifications-screen-view.tsx
 msgid "Mark all read"
 msgstr "Mark all read"
@@ -4201,10 +4217,6 @@ msgstr "Monthly"
 #: pkgs/ui-root-client-ts/src/action-bar-parts/index.tsx
 msgid "More"
 msgstr "More"
-
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "More actions"
-msgstr "More actions"
 
 #. placeholder {0}: props.title
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
@@ -5084,6 +5096,10 @@ msgstr "Pass three cards to the left."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the right."
 msgstr "Pass three cards to the right."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "Pass, exchange & tools"
+msgstr "Pass, exchange & tools"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
@@ -6418,8 +6434,8 @@ msgid "Scores {total} points. The word list could not load here; the game checks
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
-msgid "Scroll to explore. Arrow keys move between squares; Enter places your selected tile."
-msgstr "Scroll to explore. Arrow keys move between squares; Enter places your selected tile."
+msgid "Scroll or use arrow keys. Map locates squares; Enter places a tile."
+msgstr "Scroll or use arrow keys. Map locates squares; Enter places a tile."
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
 msgid "Scrollable word board"
@@ -8608,6 +8624,10 @@ msgstr "White pieces nearest you."
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"
 msgstr "Who's here"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+msgid "Whole board locator"
+msgstr "Whole board locator"
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Whole board overview; outline shows the enlarged area"

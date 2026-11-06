@@ -217,7 +217,7 @@ function LocalActions(props: {
   return (
     <WordTileActions
       label={t`Word actions`}
-      moreLabel={t`More actions`}
+      moreLabel={t`Pass, exchange & tools`}
       testId={props.draft.props.testId}
       items={wordTilesActions(props.draft, props.random)
         .filter(

@@ -286,6 +286,18 @@ export const FourPlayerRound: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-action-a3')
     ).toBeEnabled();
+    const moves = canvasElement.querySelectorAll<HTMLElement>(
+      '[data-component="GameMoveList"][data-layout="table"] button'
+    );
+    await expect(moves.length).toBeGreaterThan(0);
+    for (const move of moves) {
+      const view = move.ownerDocument.defaultView;
+      if (!view) throw new Error('Missing record window');
+      await expect(move.getBoundingClientRect().height).toBeLessThanOrEqual(
+        Number.parseFloat(view.getComputedStyle(move).lineHeight) + 8
+      );
+      await expect(move.scrollWidth).toBeLessThanOrEqual(move.clientWidth);
+    }
   },
 };
 

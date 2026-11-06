@@ -3,6 +3,7 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import {
   WordTileBoard,
@@ -20,7 +21,9 @@ function example() {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <WordTileBoardExample />
+        <SurfaceStackProvider>
+          <WordTileBoardExample />
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -133,4 +136,26 @@ test('enlargement retains all squares in an overview and announces the chosen mo
   fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
   expect(view.queryByRole('img')).toBeNull();
   expect(enlarge.getAttribute('aria-pressed')).toBe('false');
+});
+
+// regression: word-tiles-overview-unreadable-context
+test('board map locates a committed intersection without placing the selected rack tile', () => {
+  const view = example();
+  fireEvent.click(view.getByRole('button', { name: 'S, 1 point' }));
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  fireEvent.click(
+    view.getByRole('button', { name: 'Board map: locate a square' })
+  );
+  const locator = view.getByRole('group', { name: 'Whole board locator' });
+  const cell = locator.querySelector<HTMLButtonElement>('[data-cell="c3"]');
+  expect(cell?.getAttribute('aria-disabled')).toBe('false');
+  expect(cell?.textContent).toContain('A');
+  if (!cell) throw new Error('Missing locator intersection');
+  fireEvent.click(cell);
+  expect(view.queryByRole('dialog')).toBeNull();
+  const original = view.getByRole('button', { name: 'A 1, c3' });
+  expect(document.activeElement).toBe(original);
+  expect(view.getByTestId('example-rack-0').getAttribute('data-placed')).toBe(
+    'false'
+  );
 });

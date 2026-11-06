@@ -10,11 +10,13 @@ import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import type { LexiconState } from './use-word-tiles-lexicon';
+import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
   CAT_AND_TOE,
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { expectBoardMap } from './word-tiles-map.example';
 import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
 
@@ -224,7 +226,13 @@ export const EnlargedBlank: Story = {
       )
     );
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
-    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-blank-S'));
+    await expectBlankTargets(canvasElement, 'word-tiles-puzzle');
+    await expectPuzzlePlacementContext(canvasElement);
+    await expect(canvas.getByTestId('word-tiles-puzzle-blank-A')).toHaveFocus();
+    for (let index = 0; index < 18; index += 1) await userEvent.tab();
+    await expect(canvas.getByTestId('word-tiles-puzzle-blank-S')).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect(canvas.getByTestId('word-tiles-puzzle-cell-j8')).toHaveFocus();
     await expect(
       canvas.getByTestId('word-tiles-puzzle-cell-j8')
     ).toHaveAccessibleName(/blank as S/);
@@ -233,5 +241,6 @@ export const EnlargedBlank: Story = {
       canvas.getByTestId('word-tiles-puzzle-bonus')
     ).toHaveTextContent('j8: 3L triples this letter. Blank tiles score 0.');
     await expectPuzzlePlacementContext(canvasElement);
+    await expectBoardMap(canvasElement, 'word-tiles-puzzle');
   },
 };

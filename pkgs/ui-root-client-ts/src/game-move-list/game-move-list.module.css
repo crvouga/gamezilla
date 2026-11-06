@@ -145,3 +145,13 @@
     transition: none;
   }
 }
+
+/* Four-seat records keep each coordinate whole below its seat marker. */
+.list[data-layout="table"][data-many-seats="true"] .move {
+  flex-direction: column;
+  align-items: center;
+}
+.list[data-layout="table"][data-many-seats="true"] .moveButton {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}

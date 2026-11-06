@@ -183,10 +183,11 @@ test('wt2 unreadable input links to the public app version screen', () => {
   expect(view.queryByTestId('wt-rack')).toBeNull();
 });
 
+// regression: word-tiles-hidden-turn-choices
 // regression: word-tiles-phone-action-overload
 test('literal CAT rack keeps primary exposed and secondary tools discoverable with focus recovery', () => {
   const { view } = board('11,0,82,98,25,77,69');
-  const more = view.getByRole('button', { name: 'More actions' });
+  const more = view.getByRole('button', { name: 'Pass, exchange & tools' });
   expect(more.getAttribute('aria-expanded')).toBe('false');
   expect(view.queryByTestId('wt-recall')).toBeNull();
   expect(view.getByTestId('wt-submit')).not.toBeNull();

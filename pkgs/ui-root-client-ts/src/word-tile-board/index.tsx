@@ -1,9 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { StackVertical } from '../stack/index';
+import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
+import { BoardRows } from './word-tile-cell';
 import { WordTileOverview } from './word-tile-overview';
 import { WordTileViewControls } from './word-tile-view-controls';
 
@@ -32,6 +34,8 @@ export type WordTileBoardCell = {
 };
 
 export type WordTileBoardProps = {
+  /** Locator mode shows the whole board; activation chooses a location, never a move. */
+  readonly purpose?: 'placement' | 'locator';
   /** Compact fitted board leaves room for rack and puzzle actions; enlarged cells stay full size. */
   readonly measure?: 'full' | 'compact';
   readonly label: string;
@@ -45,60 +49,6 @@ export type WordTileBoardProps = {
   readonly onActivate?: ((id: string) => void) | undefined;
   readonly describedBy?: string | undefined;
 };
-
-function BoardCell(props: {
-  board: WordTileBoardProps;
-  cells: () => readonly WordTileBoardCell[];
-  index: number;
-  focusable: boolean;
-  onFocusIndex: (index: number) => void;
-  onKey: (event: KeyboardEvent, index: number) => void;
-}): JSX.Element {
-  const cell = () => props.cells()[props.index];
-  return (
-    <button
-      type="button"
-      class={styles['cell']}
-      data-index={props.index}
-      data-cell={cell()?.id}
-      data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
-      data-state={cell()?.state ?? 'empty'}
-      data-square={cell()?.square ?? 'none'}
-      aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled !== true}
-      tabIndex={props.focusable ? 0 : -1}
-      onFocus={() => props.onFocusIndex(props.index)}
-      onKeyDown={(event) => props.onKey(event, props.index)}
-      onClick={() => {
-        const id = cell()?.id;
-        if (id !== undefined && cell()?.enabled === true)
-          props.board.onActivate?.(id);
-      }}
-    >
-      <Show
-        when={cell()?.letter}
-        fallback={
-          <span class={styles['square']} aria-hidden="true">
-            <Show when={cell()?.square}>
-              {(square) => props.board.squareText(square())}
-            </Show>
-          </span>
-        }
-      >
-        <span class={styles['letter']} aria-hidden="true">
-          {cell()?.letter}
-        </span>{' '}
-        <span class={styles['points']} aria-hidden="true">
-          {cell()?.points ?? ''}
-        </span>
-      </Show>
-    </button>
-  );
-}
-
-function range(count: number): readonly number[] {
-  return Array.from({ length: count }, (_, n) => n);
-}
 
 function focusCell(root: HTMLDivElement | undefined, index: number): void {
   const cell = root?.querySelector<HTMLButtonElement>(
@@ -132,8 +82,6 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   // Read once per change: every square reads the list, and a caller that
   // computes it inline would otherwise rebuild it once per square.
   const cells = createMemo(() => props.cells);
-  const rows = createMemo(() => range(props.rowLabels.length));
-  const columns = createMemo(() => range(props.columnLabels.length));
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
   const onKey = (event: KeyboardEvent, index: number): void => {
@@ -152,7 +100,12 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   };
   return (
     <StackVertical gap="xs">
-      <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+      <Show when={props.purpose !== 'locator'}>
+        <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+      </Show>
+      <Show when={props.purpose === 'locator'}>
+        <P role="status">{cells()[focusIndex()]?.label}</P>
+      </Show>
       <div class={styles['precision']}>
         <div
           ref={setViewport}
@@ -173,53 +126,36 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             data-testid={props.testId}
             style={{ '--word-tile-columns': props.columnLabels.length }}
           >
-            <span
-              class={styles['header']}
-              data-axis="corner"
-              aria-hidden="true"
+            <BoardRows
+              board={props}
+              cells={cells}
+              focusIndex={focusIndex}
+              onFocusIndex={setFocusIndex}
+              onKey={onKey}
             />
-            <For each={props.columnLabels}>
-              {(label) => (
-                <span
-                  class={styles['header']}
-                  data-axis="column"
-                  aria-hidden="true"
-                >
-                  {label}
-                </span>
-              )}
-            </For>
-            <For each={rows()}>
-              {(row) => (
-                <>
-                  <span
-                    class={styles['header']}
-                    data-axis="row"
-                    aria-hidden="true"
-                  >
-                    {props.rowLabels[row] ?? ''}
-                  </span>
-                  <For each={columns()}>
-                    {(column) => (
-                      <BoardCell
-                        board={props}
-                        cells={cells}
-                        index={row * columns().length + column}
-                        focusable={
-                          focusIndex() === row * columns().length + column
-                        }
-                        onFocusIndex={setFocusIndex}
-                        onKey={onKey}
-                      />
-                    )}
-                  </For>
-                </>
-              )}
-            </For>
           </div>
         </div>
         <Show when={enlarged()}>
-          <WordTileOverview board={props} viewport={viewport} />
+          <WordTileOverview
+            board={props}
+            viewport={viewport}
+            locator={(onChoose) => (
+              <WordTileBoard
+                {...props}
+                purpose="locator"
+                testId={`${props.testId}-map`}
+                label={t`Whole board locator`}
+                cells={cells().map((cell) => ({ ...cell, enabled: true }))}
+                onActivate={onChoose}
+              />
+            )}
+            onLocate={(id) => {
+              const index = cells().findIndex((cell) => cell.id === id);
+              if (index < 0) return;
+              setFocusIndex(index);
+              focusCell(root, index);
+            }}
+          />
         </Show>
       </div>
     </StackVertical>

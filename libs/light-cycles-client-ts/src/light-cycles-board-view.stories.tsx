@@ -242,6 +242,10 @@ export const DuelSteering: Story = {
 };
 export const QuadSteering: Story = {
   ...SteerUp,
+  play: async (context) => {
+    await playerBounds(context);
+    await SteerUp.play?.(context);
+  },
   render: (args, context) => interactiveRender(4, ['white'])(args, context),
 };
 
@@ -272,6 +276,17 @@ async function playerBounds({ canvasElement }: { canvasElement: HTMLElement }) {
     for (const child of card.querySelectorAll('span')) {
       const rect = child.getBoundingClientRect();
       if (rect.width === 0) continue;
+      const range = child.ownerDocument.createRange();
+      range.selectNodeContents(child);
+      for (const text of range.getClientRects()) {
+        await expect(text.left).toBeGreaterThanOrEqual(bounds.left - 1);
+        await expect(text.right).toBeLessThanOrEqual(bounds.right + 1);
+        await expect(text.top).toBeGreaterThanOrEqual(bounds.top - 1);
+        await expect(text.bottom).toBeLessThanOrEqual(bounds.bottom + 1);
+      }
+      await expect(child.scrollWidth).toBeLessThanOrEqual(
+        child.clientWidth + 1
+      );
       await expect(rect.left).toBeGreaterThanOrEqual(bounds.left - 1);
       await expect(rect.right).toBeLessThanOrEqual(bounds.right + 1);
     }

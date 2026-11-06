@@ -1,0 +1,4 @@
+{
+  "summary": "Four-seat Hill record splits e5h into single-character lines.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

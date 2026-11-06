@@ -29,7 +29,7 @@ export function WordTileViewControls(props: {
       </StackHorizontal>
       <Show when={props.enlarged}>
         <P variant="caption">
-          {t`Scroll to explore. Arrow keys move between squares; Enter places your selected tile.`}
+          {t`Scroll or use arrow keys. Map locates squares; Enter places a tile.`}
         </P>
       </Show>
     </>

@@ -38,8 +38,16 @@ test('AEST?RN at j8 explains the covered triple-letter square beside the rack', 
   const bonus = () => view.getByTestId('word-tiles-puzzle-bonus');
   expect(bonus().textContent).toContain('2L/3L');
   fireEvent.click(view.getByTestId('word-tiles-puzzle-rack-98'));
+  view.getByTestId('word-tiles-puzzle-cell-j8').focus();
   fireEvent.click(view.getByTestId('word-tiles-puzzle-cell-j8'));
+  // regression: word-tiles-blank-small-targets
+  expect(document.activeElement).toBe(
+    view.getByTestId('word-tiles-puzzle-blank-A')
+  );
   fireEvent.click(view.getByTestId('word-tiles-puzzle-blank-S'));
+  expect(document.activeElement).toBe(
+    view.getByTestId('word-tiles-puzzle-cell-j8')
+  );
   expect(bonus().textContent).toContain('j8: 3L triples this letter');
   expect(bonus().textContent).toContain('Blank tiles score 0');
   expect(view.getByTestId('word-tiles-puzzle-cell-j8').textContent).toContain(

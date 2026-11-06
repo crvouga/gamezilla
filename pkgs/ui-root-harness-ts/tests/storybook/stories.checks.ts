@@ -346,3 +346,25 @@ test('storybook integration: instrumented chess geometry screens-puzzles-chess-p
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// regression: quoridor-four-seat-record-split-notation
+test('screens-games-quoridor-hill--four-player-round regression quoridor-four-seat-record-split-notation', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--four-player-round',
+    1440
+  );
+});
+
+// regression: light-cycles-quad-clipped-identities
+test('screens-games-light-cycles-arena--quad-steering regression light-cycles-quad-clipped-identities', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-light-cycles-arena--quad-steering',
+    390
+  );
+});

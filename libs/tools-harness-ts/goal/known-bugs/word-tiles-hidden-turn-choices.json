@@ -1,0 +1,4 @@
+{
+  "summary": "CAT rack ordinary pass and exchange choices were hidden behind generic More actions. Name both in the compact disclosure.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx"
+}

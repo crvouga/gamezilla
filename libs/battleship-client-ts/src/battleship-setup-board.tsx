@@ -134,21 +134,23 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           />
         }
         feedback={
-          <Show
-            when={setup.refusal()}
-            fallback={<P variant="caption">{setup.instruction()}</P>}
-          >
-            {(reason) => (
-              <P
-                variant="caption"
-                tone="destructive"
-                role="alert"
-                testId={`${props.testId}-refusal`}
-              >
-                {reason()}{' '}
-                {t`Choose another bow cell or rotate, then try again.`}
-              </P>
-            )}
+          <Show when={!props.locked}>
+            <Show
+              when={setup.refusal()}
+              fallback={<P variant="caption">{setup.instruction()}</P>}
+            >
+              {(reason) => (
+                <P
+                  variant="caption"
+                  tone="destructive"
+                  role="alert"
+                  testId={`${props.testId}-refusal`}
+                >
+                  {reason()}{' '}
+                  {t`Choose another bow cell or rotate, then try again.`}
+                </P>
+              )}
+            </Show>
           </Show>
         }
         overview={

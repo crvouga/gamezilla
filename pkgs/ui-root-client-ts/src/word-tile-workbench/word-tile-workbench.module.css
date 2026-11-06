@@ -17,3 +17,13 @@
 .secondary {
   padding-block: var(--ui-space-2);
 }
+
+.letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-1);
+}
+.letters button {
+  min-width: var(--ui-control-size-md);
+  min-height: var(--ui-control-size-md);
+}

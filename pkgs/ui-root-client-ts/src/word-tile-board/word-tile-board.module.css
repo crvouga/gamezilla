@@ -192,14 +192,11 @@
   container-type: inline-size;
   display: flex;
   align-items: flex-start;
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-1);
   min-width: 0;
 }
 .precision > .viewport {
   flex: 1;
-}
-.precision > svg {
-  flex-shrink: 0;
 }
 
 @container (min-width: 32rem) {

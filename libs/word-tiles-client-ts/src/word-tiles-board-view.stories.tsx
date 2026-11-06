@@ -14,6 +14,7 @@ import { seatSides } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
   createWordTilesSession,
   WordTilesBoardView,
@@ -288,6 +289,7 @@ export const AssignABlank: Story = {
     );
     const cell = await canvas.findByTestId('custom-game-board-cell-h8');
     await userEvent.click(cell);
+    await expectBlankTargets(canvasElement, 'custom-game-board');
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-blank-E')
     );

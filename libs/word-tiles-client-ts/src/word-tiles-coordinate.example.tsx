@@ -3,6 +3,7 @@ import {
   assertClear,
   checkInitialWordWorkspace,
 } from './word-tiles-geometry.example';
+import { expectBoardMap } from './word-tiles-map.example';
 
 async function assertFocusedCoordinates(
   canvasElement: HTMLElement,
@@ -71,6 +72,7 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
     await userEvent.keyboard(keys);
     await assertFocusedCoordinates(canvasElement, cell);
   }
+  await expectBoardMap(canvasElement, 'custom-game-board');
 }
 
 /** Literal 390×844 and 1440×900 placements must use the native available area. */

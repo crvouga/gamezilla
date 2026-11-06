@@ -1,3 +1,21 @@
+.locator {
+  display: grid;
+  justify-items: center;
+  gap: var(--ui-space-1);
+  flex-shrink: 0;
+  width: var(--ui-control-size-md);
+  min-height: var(--ui-control-size-md);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-xs);
+  cursor: pointer;
+}
+.locator:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
 .overview {
   width: var(--ui-space-10);
   max-width: 100%;
@@ -32,10 +50,4 @@
   stroke-width: 0.4;
   paint-order: stroke;
   filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
-}
-
-@container (min-width: 40rem) {
-  .overview {
-    width: calc(var(--ui-control-size-lg) * 2);
-  }
 }

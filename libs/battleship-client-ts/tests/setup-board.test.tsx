@@ -146,9 +146,12 @@ test('the keyboard selects a cell with arrows, rotates with R and places with En
   expect(board.setup()).toBe('fleet:carrier@b2v;battleship@d2h');
 });
 
+// regression: battleship-locked-editing-guidance
 test('a locked setup disables every control and says why', () => {
   const board = setupBoard('fleet:carrier@a1h', true);
   expect(byTestId('setup-locked').textContent).toContain('locked in');
+  expect(document.body.textContent).not.toContain('Tap its first cell');
+  expect(document.body.textContent).not.toContain('Choose a placed ship');
   expect(cell('a5').getAttribute('aria-disabled')).toBe('true');
   expect(byTestId('setup-rotate').hasAttribute('disabled')).toBe(true);
   expect(

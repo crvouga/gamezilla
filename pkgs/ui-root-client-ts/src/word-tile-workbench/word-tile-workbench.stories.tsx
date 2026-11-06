@@ -31,7 +31,7 @@ export const SecondaryTools: StoryObj = {
     <WordTileWorkbench>
       <WordTileActions
         label="Word actions"
-        moreLabel="More actions"
+        moreLabel="Pass, exchange & tools"
         testId="word-tools"
         items={[
           {
@@ -85,7 +85,7 @@ export const SecondaryTools: StoryObj = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const more = canvas.getByRole('button', { name: 'More actions' });
+    const more = canvas.getByRole('button', { name: 'Pass, exchange & tools' });
     await expect(more).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(more);
     await expect(
