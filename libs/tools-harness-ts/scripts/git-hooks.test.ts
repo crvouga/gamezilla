@@ -29,11 +29,12 @@ const GIT_HOOK_NAMES = new Set([
   'sendemail-validate',
 ]);
 
+// regression: git-hooks-file-list-buffer
 test('the repository has no git hooks', () => {
   const listed = spawnSync(
     'git',
     ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
-    { cwd: REPO_ROOT, encoding: 'utf8' }
+    { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }
   );
   expect(listed.status).toBe(0);
   const hits = listed.stdout.split('\0').filter((path) => {
