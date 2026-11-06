@@ -1,9 +1,0 @@
-{
-  "agent": "claude",
-  "status": "ok",
-  "structured": true,
-  "response": "### Recommendation\nShip after the top fix.\n\n### Reasoning\n- Hierarchy is clear.\n\n### Assumptions\n- Fixtures are representative.\n\n### Trade-offs\nNone.\n\n### Confidence\nHigh.\n\n### What Would Change My Mind\nA broken state.\n\n### Dissent Points\nNone.\n\n```ui-council-rating\n{\n  \"member\": \"claude\",\n  \"revision\": \"3f2c9a1b7e4d5c6a8b9f0e1d2c3b4a5968778695\",\n  \"evidence_code\": \"5e1f0c2a9b7d3e64\",\n  \"design\": 10,\n  \"ux\": 10,\n  \"scope\": \"respected\",\n  \"scope_notes\": \"\",\n  \"design_deductions\": [],\n  \"ux_deductions\": [],\n  \"top_fix\": \"\",\n  \"journeys\": [\n    {\n      \"id\": \"J1\",\n      \"completable\": true,\n      \"steps_before\": 4,\n      \"steps_after\": 2,\n      \"notes\": \"two steps, down from four\"\n    }\n  ]\n}\n```\n",
-  "recommendation": "Ship after the top fix.",
-  "duration_ms": 91234,
-  "timestamp": "2026-11-05T10:00:00.000Z"
-}
