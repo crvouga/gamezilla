@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook plays could focus Word Tiles controls while Manrope was still loading. Font replacement then changed native scroll anchoring, leaving different desktop scroll offsets and pixels after fonts.ready. A global loader requires registered Manrope weights to load before render/play; controlled held-font and ready-font browser schedules compare the same OS without updating references.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/font-readiness.checks.ts"
+}

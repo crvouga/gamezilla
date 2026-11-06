@@ -24,6 +24,7 @@ import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
 import { STORY_ACCOUNT_FACE_SVG } from './account-face';
 import { backgrounds, chromaticModes, viewports } from './preview-options';
+import { loadStoryFonts } from './story-fonts';
 import { trackStoryReadiness } from './story-readiness';
 
 // Stories render source English from macro descriptors, without the product
@@ -192,6 +193,12 @@ const withProviders = createJSXDecorator((Story, context) => {
 
 export default {
   decorators: [withProviders],
+  loaders: [
+    async () => {
+      await loadStoryFonts(document.fonts);
+      return {};
+    },
+  ],
   initialGlobals: {
     theme: 'light',
     frame: 'app',

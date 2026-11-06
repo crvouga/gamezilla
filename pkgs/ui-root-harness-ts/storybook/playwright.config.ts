@@ -20,6 +20,7 @@ export default defineConfig({
   testMatch: [
     '**/stories.checks.ts',
     '**/integration.checks.ts',
+    '**/font-readiness.checks.ts',
     '**/essentials.checks.ts',
   ],
   outputDir: '../.cache/storybook-test-results',
