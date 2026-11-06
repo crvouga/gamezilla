@@ -1,0 +1,6 @@
+{
+  "roster": ["claude", "codex", "gemini"],
+  "minimum": 9,
+  "expectedVerdict": "PASS",
+  "why": "every member rates design and UX at least 9 on the candidate"
+}

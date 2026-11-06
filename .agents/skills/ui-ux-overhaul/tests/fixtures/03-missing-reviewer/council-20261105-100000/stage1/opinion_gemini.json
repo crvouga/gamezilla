@@ -1,9 +1,0 @@
-{
-  "agent": "gemini",
-  "status": "timeout",
-  "structured": false,
-  "response": "",
-  "error": "Skipped (quorum reached, grace period expired)",
-  "duration_ms": 0,
-  "timestamp": "2026-11-05T10:00:00.000Z"
-}
