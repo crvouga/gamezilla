@@ -19,6 +19,7 @@ test('the unavailable puzzle offers recovery and reports loading after retry', (
             ? { status: 'loading' }
             : { status: 'unavailable', reason: 'offline' }
         }
+        onReturnToLibrary={() => undefined}
         onRetryLexicon={() => setLoading(true)}
       />
     );

@@ -44,11 +44,12 @@ import {
   rackTiles,
   squareText,
 } from './word-tiles-cells';
-import {
-  WordTilesBlankChooser,
-  WordTilesPreviewPanel,
-} from './word-tiles-panels';
+import { WordTilesBlankChooser } from './word-tiles-panels';
 import { previewCandidate } from './word-tiles-preview';
+import {
+  PuzzlePlacementFeedback,
+  UnreadablePuzzle,
+} from './word-tiles-puzzle-feedback';
 import { WordTilesPuzzleStatus } from './word-tiles-puzzle-status';
 
 /** The frozen board as a position, so the game's own board pieces show it. */
@@ -82,6 +83,7 @@ type PuzzleBoardProps = {
   lexicon: LexiconState;
   onAction: (action: string) => void;
   onRetryLexicon: () => void;
+  onReturnToLibrary: () => void;
 };
 
 function createPuzzleBoard(props: PuzzleBoardProps) {
@@ -156,6 +158,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
         complete={complete()}
         disabled={props.disabled}
         lexicon={props.lexicon}
+        onReturnToLibrary={props.onReturnToLibrary}
         onRetryLexicon={props.onRetryLexicon}
       />
       <Show when={!complete()}>
@@ -174,9 +177,11 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
           />
         </Show>
         <Show when={editable() && props.lexicon.status === 'ready'}>
-          <WordTilesPreviewPanel
+          <PuzzlePlacementFeedback
             preview={preview()}
-            testId="word-tiles-puzzle"
+            hasPlacement={
+              candidate().placed.length > 0 && candidate().blankAt === null
+            }
           />
         </Show>
         <StackHorizontal gap="sm" wrap>
@@ -229,6 +234,8 @@ export type WordTilesPuzzlePlayerViewProps = PuzzlePlayerProps & {
   /** The word list the puzzle pins: loading, ready, or unavailable. */
   readonly lexicon: LexiconState;
   readonly onRetryLexicon: () => void;
+  /** Open the existing puzzle library without changing the attempt. */
+  readonly onReturnToLibrary: () => void;
 };
 
 /**
@@ -248,7 +255,7 @@ export function WordTilesPuzzlePlayerView(
         return read.valid ? read.value : null;
       })()}
       fallback={
-        <P>{t`This puzzle cannot be opened. Update the app to play it.`}</P>
+        <UnreadablePuzzle onReturnToLibrary={props.onReturnToLibrary} />
       }
     >
       {(read) => (
@@ -257,6 +264,7 @@ export function WordTilesPuzzlePlayerView(
           disabled={props.disabled}
           state={props.state}
           lexicon={props.lexicon}
+          onReturnToLibrary={props.onReturnToLibrary}
           onAction={props.onAction}
           onRetryLexicon={props.onRetryLexicon}
         />

@@ -31,13 +31,6 @@ const BOARD: Omit<
   commitment: null,
 };
 
-/** Runs the board's action `id`, as the frame's action bar does. */
-function run(session: GameFrameBoardSession<JSX.Element>, id: string): void {
-  const action = session.actions().find((each) => each.id === id);
-  if (action === undefined) throw new Error(`No action ${id}`);
-  action.run();
-}
-
 test('an accepted wall clears its preview instead of reporting an overlap', () => {
   // regression: quoridor-accepted-wall-preview
   const [game, setGame] = createSignal(newQuoridor('classic'));
@@ -64,7 +57,7 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
       </ThemeProvider>
     </ClockProvider>
   ));
-  run(session!, 'mode-h');
+  fireEvent.click(view.getByTestId('wall-preview-mode-h'));
   const anchor = view.getByTestId('wall-preview-action-a1h');
   fireEvent.focus(anchor);
   fireEvent.click(anchor);
@@ -125,13 +118,15 @@ test('a finished hill game never announces the next player to move', () => {
               throw new Error('Finished board must be inert');
             },
           });
-          for (const action of session.actions())
-            expect(action.enabled).toBe(false);
           return session.Board();
         })()}
       </ThemeProvider>
     </ClockProvider>
   ));
+  for (const mode of ['move', 'h', 'v'])
+    expect(
+      view.getByTestId(`finished-hill-mode-${mode}`).hasAttribute('disabled')
+    ).toBe(true);
   expect(view.container.textContent).not.toContain('to move');
   view.unmount();
 });
@@ -178,19 +173,16 @@ test('the tools are the board’s actions, one pressed, and choosing one keeps t
     </ClockProvider>
   ));
   const pressed = () =>
-    session!
-      .actions()
-      .filter((action) => action.pressed === true)
-      .map((action) => action.id);
-  expect(session!.actions().map((action) => action.id)).toEqual([
-    'mode-move',
-    'mode-h',
-    'mode-v',
-  ]);
-  expect(pressed()).toEqual(['mode-move']);
+    ['move', 'h', 'v'].filter(
+      (mode) =>
+        view.getByTestId(`tools-mode-${mode}`).getAttribute('aria-pressed') ===
+        'true'
+    );
+  expect(session!.actions()).toEqual([]);
+  expect(pressed()).toEqual(['move']);
   expect(view.queryByTestId('tools-action-a1v')).toBeNull();
-  run(session!, 'mode-v');
-  expect(pressed()).toEqual(['mode-v']);
+  fireEvent.click(view.getByTestId('tools-mode-v'));
+  expect(pressed()).toEqual(['v']);
   expect(view.getByTestId('tools-action-a1v')).toBeDefined();
   expect(view.container.textContent).not.toContain('walls');
   view.unmount();

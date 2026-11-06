@@ -27,6 +27,10 @@ import {
 import { checkEnlargedCoordinates } from './word-tiles-coordinate.example';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
+import {
+  checkCatStatusGeometry,
+  checkExchangeGeometry,
+} from './word-tiles-geometry.example';
 import { matchJourney } from './word-tiles-match-journey.example';
 
 /** A position from a new two-seat game, with `changes`. */
@@ -178,6 +182,14 @@ export const GameOver: Story = {
 /** A position this app cannot read says so. */
 export const Unreadable: Story = {
   args: { position: 'wt2|not-a-position', hand: null },
+  play: async ({ canvasElement }) => {
+    // regression: word-tiles-unreadable-no-recovery
+    const reload = within(canvasElement).getByRole('link', {
+      name: 'Check app version',
+    });
+    await expect(reload).toHaveAttribute('href', '/more/about');
+    await expect(reload).toBeVisible();
+  },
 };
 
 /** C, A and T placed across the star: the preview scores the word it checked. */
@@ -314,6 +326,7 @@ export const RecoverAndSubmit: Story = {
     await expect(
       canvas.getByText(/the game checks the words when you play/)
     ).toBeVisible();
+    await checkCatStatusGeometry(canvasElement);
     await userEvent.click(
       canvas.getByTestId('custom-game-board-lexicon-retry')
     );
@@ -371,6 +384,7 @@ export const AcceptedExchange: Story = {
     await expect(
       canvas.queryByTestId('custom-game-board-submit')
     ).not.toBeInTheDocument();
+    await checkExchangeGeometry(canvasElement);
     await userEvent.click(
       canvas.getByTestId('custom-game-board-exchange-confirm')
     );

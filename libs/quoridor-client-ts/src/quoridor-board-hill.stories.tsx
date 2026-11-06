@@ -16,7 +16,14 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
+import { playHillPreciseCoordinates } from './quoridor-hill-precision.example';
 import { expectHillPassVisible } from './quoridor-hill-visibility.example';
+import {
+  chooseQuoridorCoordinate,
+  expectQuoridorGoalMarker,
+  expectQuoridorTargetVisible,
+  expectQuoridorWorkingArea,
+} from './quoridor-precision.example';
 
 function sideAt(index: number) {
   const side = QUORIDOR_SIDES[index];
@@ -95,7 +102,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** Four pawns around the board, five walls each, all heading for e5. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => {
+    await expectQuoridorWorkingArea(canvasElement);
+    await expectQuoridorGoalMarker(canvasElement, 'e5');
+  },
+};
 
 /** No move or wall is legal: the pass is offered beside the tools. */
 export const MustPass: Story = {
@@ -179,6 +191,12 @@ const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
   return <>{view()}</>;
 };
 
+/** Coordinate choices advance the same four-player production-rule fixture. */
+export const PreciseCoordinates: Story = {
+  render: renderHillJourney,
+  play: ({ canvasElement }) => playHillPreciseCoordinates(canvasElement),
+};
+
 /** Passing changes the active pawn and removes the forced-pass action. */
 export const PassAndContinue: Story = {
   args: { position: hill(BLOCKED) },
@@ -210,6 +228,7 @@ export const FourPlayerRound: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expectQuoridorWorkingArea(canvasElement);
     for (const [square, pawn] of [
       ['e2', 'South red circle'],
       ['a4', 'West gold diamond'],
@@ -232,18 +251,20 @@ export const FourPlayerRound: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/Proposed wall/);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-wall-cancel')
+    await expectQuoridorTargetVisible(
+      canvas.getByTestId('custom-game-board-wall-cancel')
     );
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
     await expect(
       canvas.queryByTestId('custom-game-board-wall-cancel')
     ).not.toBeInTheDocument();
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-action-e5h')
     );
-    await userEvent.click(
-      await canvas.findByRole('button', { name: /^Place wall$/i })
+    await expectQuoridorTargetVisible(
+      canvas.getByTestId('custom-game-board-wall-commit')
     );
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       await canvas.findByTestId('custom-game-board-action-a3')
     ).toBeEnabled();
@@ -272,21 +293,19 @@ export const RecoverWallPlacement: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expectQuoridorWorkingArea(canvasElement);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-h')
     );
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5h')
-    );
+    await chooseQuoridorCoordinate(canvasElement, 'e5');
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/overlaps/);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-a1h')
+    await chooseQuoridorCoordinate(canvasElement, 'a1');
+    await expectQuoridorTargetVisible(
+      canvas.getByTestId('custom-game-board-wall-commit')
     );
-    await userEvent.click(
-      await canvas.findByRole('button', { name: /^Place wall$/i })
-    );
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       await canvas.findByTestId('custom-game-board-action-e8')
     ).toBeEnabled();

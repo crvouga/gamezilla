@@ -1,4 +1,11 @@
 import type { Component } from 'solid-js';
+import { useContentGame } from './content-game-context';
+
+/** Return from a game-owned board to its existing library, keeping its attempt. */
+export function usePuzzleLibraryNavigation(): () => void {
+  const game = useContentGame();
+  return () => game.open({ kind: 'library' });
+}
 
 /** The shared player owns persistence, history, completion and navigation. */
 export type PuzzlePlayerProps = {

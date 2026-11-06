@@ -149,8 +149,7 @@
   white-space: nowrap;
 }
 .fact + .fact::before {
-  content: "·";
-  margin-inline-end: var(--ui-space-2);
+  content: none;
 }
 /* Said to a listener and kept in the words, not drawn. */
 .spoken {
@@ -249,42 +248,6 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-/*
- * A phone's table: the seats above and below the middle are one strip
- * each, the person beside their facts, and every plate is a step
- * shallower, so the felt is about 280px tall, not 360px, and the hand
- * under it has room for larger cards.
- */
-@container card-table not (min-width: 30rem) {
-  .seat[data-player="true"] {
-    padding: var(--ui-space-1);
-  }
-  .seat[data-player="true"][data-position="top"],
-  .seat[data-player="true"][data-position="bottom"] {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: var(--ui-space-3);
-    max-width: none;
-    padding-inline: var(--ui-space-3);
-  }
-  /* The person takes the strip's room left of the facts (a seat sizes
-     itself by the room it is given, so it is never sized by its content). */
-  .seat[data-player="true"][data-position="top"] > :first-child,
-  .seat[data-player="true"][data-position="bottom"] > :first-child {
-    flex: 1 1 0;
-  }
-  .seat[data-player="true"][data-position="top"] .facts,
-  .seat[data-player="true"][data-position="bottom"] .facts {
-    flex: 0 0 auto;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: end;
-  }
-  .seat[data-player="true"][data-position="top"] .fact + .fact::before,
-  .seat[data-player="true"][data-position="bottom"] .fact + .fact::before {
-    content: none;
-  }
 }
 /* A wider table: larger cards in the trick, the side seats beside it. */
 @container (min-width: 30rem) {
@@ -431,8 +394,7 @@ button.card {
 button.card[aria-disabled="true"] {
   cursor: default;
 }
-/* Refused by the rules now: the face dims, still a card, never
-   see-through. A card that is only waiting (another seat's turn, a pass on
+/* Refused by the rules now: a dashed edge and an explicit marker. A card that is only waiting (another seat's turn, a pass on
    its way) keeps full contrast. */
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
   border-style: dashed;
@@ -484,31 +446,67 @@ button.card:focus-visible {
   }
 }
 
-/* Side seats get half the phone width; feedback gets its own full row. */
+/* On phones each named player and their trick card share one row.
+   The hand keeps its full card targets; passive seating yields the height. */
 @container card-table not (min-width: 30rem) {
   .table {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "top right"
-      "center center"
-      "left bottom";
+    grid-template-columns: minmax(0, 1fr) var(--card-w);
+    grid-template-areas: none;
+    gap: var(--ui-space-1);
   }
-  .seat {
+  .seat[data-position] {
+    grid-column: 1 / -1;
     width: 100%;
+    max-width: none;
+  }
+  .seat[data-trick="true"] {
+    grid-column: 1;
+  }
+  .seat[data-position="top"],
+  .slot[data-position="top"] {
+    grid-row: 1;
+  }
+  .seat[data-position="left"],
+  .slot[data-position="left"] {
+    grid-row: 2;
+  }
+  .seat[data-position="right"],
+  .slot[data-position="right"] {
+    grid-row: 3;
+  }
+  .seat[data-position="bottom"],
+  .slot[data-position="bottom"] {
+    grid-row: 4;
   }
   .seat[data-player="true"][data-position] {
-    flex-direction: column;
-    gap: var(--ui-space-1);
+    max-width: none;
+    flex-direction: row;
+    gap: var(--ui-space-2);
     padding: var(--ui-space-1);
   }
-  .seat[data-player="true"][data-position] > :first-child {
-    flex: none;
+  .seat[data-player="true"] > :first-child {
+    flex: 1 1 0;
+    min-width: 0;
   }
-  .seat[data-player="true"][data-position] .facts {
+  .seat[data-player="true"] .facts {
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .trick[data-trick="true"] {
+    display: contents;
+  }
+  .slot[data-position] {
+    grid-column: 2;
+  }
+  .pass,
+  .center {
+    grid-column: 1 / -1;
+    grid-row: 5;
+  }
+  .pass {
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    padding-top: var(--ui-space-1);
   }
   .center {
     max-width: 100%;
@@ -528,10 +526,4 @@ button.card:focus-visible {
   right: var(--ui-space-1);
   font-size: var(--ui-font-size-sm);
   font-weight: var(--ui-font-weight-semibold);
-}
-
-/* The actionable cards have a solid selection-colored edge; faces stay legible. */
-button.card[aria-disabled="false"]:not([aria-pressed]) {
-  border-color: var(--ui-color-tint);
-  box-shadow: 0 0 0 2px var(--ui-color-tint);
 }

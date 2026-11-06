@@ -73,10 +73,19 @@
 .board[data-fill="true"] {
   max-width: none;
 }
+/* Keep the whole Quoridor board above its precise picker and confirmation. */
+.board[data-fill="true"][data-board-theme="quoridor"] {
+  max-width: calc(var(--ui-control-size-lg) * 8);
+}
 /* On a phone a Battleship grid's ten targets are as large as its frame
    allows: a narrow label column, hairline gaps and slim padding give the
    room to the targets, each about 32px instead of 30px. */
 @container game-column (max-width: 879px) {
+  /* Four seats and an accepted-move record still leave room for confirmation.
+     The adjacent coordinate picker keeps every precise target at 44px. */
+  .board[data-fill="true"][data-board-theme="quoridor"] {
+    max-width: calc(var(--ui-control-size-lg) * 6);
+  }
   .board[data-fill="true"][data-board-theme="battleship"] {
     grid-template-columns:
       minmax(1rem, 0.5fr)
@@ -490,7 +499,16 @@
 }
 
 .board[data-board-theme="quoridor"] .cell[data-goal="true"] {
-  box-shadow: inset 0 0 0 2px var(--ui-color-game-quoridor-ink);
+  position: relative;
+}
+/* Inset dotted circles mark destinations; solid straight edges remain walls. */
+.board[data-board-theme="quoridor"] .cell[data-goal="true"]::before {
+  content: "";
+  position: absolute;
+  inset: var(--ui-space-1);
+  border: var(--ui-space-hairline) dotted var(--ui-color-game-quoridor-ink);
+  border-radius: var(--ui-radius-full);
+  pointer-events: none;
 }
 .board[data-board-theme="quoridor"]
   .cell[data-goal="true"][data-tone="open"]

@@ -167,3 +167,27 @@ test("the placing progress has its own id, leaving `<testId>-status` to the scre
   expect(document.querySelector('[data-testid="setup-status"]')).toBeNull();
   expect(byTestId('setup-progress').getAttribute('role')).toBe('status');
 });
+
+test('enlarged completed fleet names its fields and offers repositioning instead of Select', () => {
+  // regression: battleship-placement-unlabeled-complete-selection
+  setupBoard(
+    'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v'
+  );
+  fireEvent.click(byTestId('setup-enlarge'));
+  const board = byTestId('setup');
+  expect(board.textContent).toContain('Ship');
+  expect(board.textContent).toContain('Region');
+  expect(
+    board.querySelector('[aria-label="Ship to place"]')?.textContent
+  ).toContain('Choose a ship to reposition');
+  expect(board.textContent).not.toContain('Select...');
+  expect(
+    board.querySelectorAll('[data-component="CellGridBoard"]').length
+  ).toBe(2);
+  expect(byTestId('setup-grid').closest('[inert]')).not.toBeNull();
+  fireEvent.click(byTestId('setup-enlarge'));
+  expect(byTestId('setup-grid').closest('[inert]')).toBeNull();
+  fireEvent.click(byTestId('setup-ship-destroyer'));
+  fireEvent.click(byTestId('setup-remove'));
+  expect(byTestId('setup-progress').textContent).toContain('4 of 5');
+});

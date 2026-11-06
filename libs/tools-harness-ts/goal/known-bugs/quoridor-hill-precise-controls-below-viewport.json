@@ -1,0 +1,4 @@
+{
+  "summary": "The four-player Hill opening at 390x844 placed its precise coordinate trigger at y802.75..846.75 before scrolling; two rows of mode tools also pushed wall confirmation below the viewport. After e2,a4,e8,i6 and d4h preview, the recorded-move header put confirmation at y826.75..870.75 even with single-row tools.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

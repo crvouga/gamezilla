@@ -9,6 +9,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 
 const BLOCKED_HILL = [
@@ -76,20 +77,16 @@ test('an exhausted blocked player is directed straight to the sole pass action',
   ));
   const current = session;
   if (!current) throw new Error('Missing board session');
-  const action = (id: string) => {
-    const found = current.actions().find((each) => each.id === id);
-    if (found === undefined) throw new Error(`No action ${id}`);
-    return found;
-  };
-  expect(current.actions().map((item) => item.id)).toEqual(['action-pass']);
+  expect(session!.actions()).toEqual([]);
+  for (const mode of ['move', 'h', 'v'])
+    expect(view.queryByTestId(`blocked-hill-mode-${mode}`)).toBeNull();
+  expect(view.queryByTestId('blocked-hill-precise-target')).toBeNull();
   expect(view.getByTestId('blocked-hill-wall-status').textContent).toBe(
     'No legal move or wall. Pass to continue.'
   );
-  // The pass is the board's action `action-pass`: in a custom game, the
-  // frame's `custom-game-board-action-pass`.
-  const pass = action('action-pass');
-  expect(pass.enabled).toBe(true);
-  pass.run();
+  const pass = view.getByTestId('blocked-hill-action-pass');
+  expect(pass.hasAttribute('disabled')).toBe(false);
+  fireEvent.click(pass);
   expect(actions).toEqual(['pass']);
   view.unmount();
 });

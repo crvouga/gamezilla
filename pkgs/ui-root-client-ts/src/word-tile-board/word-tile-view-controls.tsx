@@ -15,14 +15,14 @@ export function WordTileViewControls(props: {
         <Button
           title={t`Fit board`}
           size="sm"
-          variant="outline"
+          variant={props.enlarged ? 'outline' : 'solid'}
           aria-pressed={!props.enlarged}
           onClick={() => props.onChange(false)}
         />
         <Button
           title={t`Enlarge board`}
           size="sm"
-          variant="outline"
+          variant={props.enlarged ? 'solid' : 'outline'}
           aria-pressed={props.enlarged}
           onClick={() => props.onChange(true)}
         />

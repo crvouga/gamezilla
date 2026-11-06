@@ -14,7 +14,7 @@ import {
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import { createSignal, createUniqueId, type JSX, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,
@@ -92,6 +92,7 @@ function SetupCommands(props: {
 export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
   const setup = createSetupController(props);
   const statusId = createUniqueId();
+  const [enlarged, setEnlarged] = createSignal(false);
   return (
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
       <P
@@ -117,22 +118,28 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
         setup={setup}
         locked={props.locked}
         testId={props.testId}
-      />
-      <CellGridBoard
-        label={t`Your waters`}
-        testId={`${props.testId}-grid`}
-        cellTestId={(cell) => `${props.testId}-cell-${cell}`}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={setup.cells()}
-        describedBy={statusId}
-        onActivate={setup.place}
-        onPreview={setup.preview}
-        onCellKey={(key) => {
-          if (key !== 'r' && key !== 'R') return false;
-          setup.rotate();
-          return true;
-        }}
+        open={enlarged()}
+        onOpenChange={setEnlarged}
+        overview={
+          <CellGridBoard
+            label={t`Your waters`}
+            testId={`${props.testId}-grid`}
+            cellTestId={(cell) => `${props.testId}-cell-${cell}`}
+            columnLabels={COLUMN_LABELS}
+            rowLabels={ROW_LABELS}
+            cells={setup.cells()}
+            describedBy={statusId}
+            onActivate={(cell) => {
+              if (!enlarged()) setup.place(cell);
+            }}
+            onPreview={setup.preview}
+            onCellKey={(key) => {
+              if (key !== 'r' && key !== 'R') return false;
+              setup.rotate();
+              return true;
+            }}
+          />
+        }
       />
       <Show when={setup.refusal()}>
         {(reason) => (
@@ -142,15 +149,17 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           </Notice>
         )}
       </Show>
-      <GameChoiceGrid
-        label={t`Ships`}
-        choices={shipChoices(setup.draft(), props.testId)}
-        value={setup.selected() ?? ''}
-        onChange={(value) => {
-          if (isShipId(value)) setup.choose(value);
-        }}
-        disabled={props.locked}
-      />
+      <Show when={!enlarged()}>
+        <GameChoiceGrid
+          label={t`Ships`}
+          choices={shipChoices(setup.draft(), props.testId)}
+          value={setup.selected() ?? ''}
+          onChange={(value) => {
+            if (isShipId(value)) setup.choose(value);
+          }}
+          disabled={props.locked}
+        />
+      </Show>
       <Show when={!props.locked}>
         <P variant="caption">{setup.instruction()}</P>
       </Show>

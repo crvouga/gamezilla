@@ -103,3 +103,34 @@ test('the board reads its squares once per change, however a caller computes the
     'B 1',
   ]);
 });
+
+// regression: word-tiles-enlarged-context-loss
+test('enlargement retains all squares in an overview and announces the chosen mode', () => {
+  const view = example();
+  const enlarge = view.getByRole('button', { name: 'Enlarge board' });
+  fireEvent.click(enlarge);
+  expect(enlarge.getAttribute('aria-pressed')).toBe('true');
+  const overview = view.getByRole('img', {
+    name: 'Whole board overview; outline shows the enlarged area',
+  });
+  expect(overview.querySelectorAll('[data-state]')).toHaveLength(25);
+  const indicator = overview.querySelector('[data-viewport-indicator]');
+  expect(indicator).not.toBeNull();
+  const viewport = view.getByRole('region', { name: 'Scrollable word board' });
+  Object.defineProperties(viewport, {
+    scrollWidth: { value: 800 },
+    scrollHeight: { value: 800 },
+    clientWidth: { value: 320 },
+    clientHeight: { value: 260 },
+    scrollLeft: { value: 240 },
+    scrollTop: { value: 320 },
+  });
+  fireEvent.scroll(viewport);
+  expect(indicator?.getAttribute('x')).toBe('1.5');
+  expect(indicator?.getAttribute('y')).toBe('2');
+  expect(indicator?.getAttribute('width')).toBe('2');
+  expect(indicator?.getAttribute('height')).toBe('1.625');
+  fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
+  expect(view.queryByRole('img')).toBeNull();
+  expect(enlarge.getAttribute('aria-pressed')).toBe('false');
+});

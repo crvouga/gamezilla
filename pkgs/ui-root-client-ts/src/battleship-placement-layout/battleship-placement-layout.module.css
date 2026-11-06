@@ -1,0 +1,26 @@
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--ui-space-4);
+  width: 100%;
+}
+.working {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-2);
+  width: 17rem;
+  max-width: 100%;
+}
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  width: 11rem;
+  max-width: 100%;
+}
+.overview [data-cell] span {
+  font-size: var(--ui-text-label-size);
+}

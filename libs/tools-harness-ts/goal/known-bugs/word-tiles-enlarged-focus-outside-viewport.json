@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844, enlarging the round-four Word Tiles board focused h8 at x231..283 while its narrowed viewport ended at x262. Native focus left 21px clipped beside the overview.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

@@ -79,13 +79,13 @@ function cellIdentity(
       tone: 'occupied',
       identity: IDENTITIES[player],
       label: quoridorPlayerName(game, player),
-      outlined: hill,
+      outlined: false,
     };
   return {
     glyph: hill ? '◎' : legal ? '·' : '',
     tone: 'open',
     label: hill ? t`Central hill` : t`Empty`,
-    outlined: hill,
+    outlined: false,
   };
 }
 

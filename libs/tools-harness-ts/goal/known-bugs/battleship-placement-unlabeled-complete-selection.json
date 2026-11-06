@@ -1,0 +1,4 @@
+{
+  "summary": "Enlarged placement had no visible Ship or Region labels and the completed fleet displayed Select... with no explanation.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-board.test.tsx"
+}

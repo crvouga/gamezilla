@@ -186,3 +186,16 @@
 .header[data-axis="column"] {
   min-height: var(--ui-space-6);
 }
+
+.precision {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.precision > .viewport {
+  flex: 1;
+}
+.precision > svg {
+  flex-shrink: 0;
+}

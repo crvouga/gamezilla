@@ -201,6 +201,8 @@ function Trick(props: {
         {(seat) => (
           <span
             class={styles['slot']}
+            role="group"
+            aria-label={seat().name}
             data-position={seat().position}
             data-filled={String(seat().played !== null)}
           >

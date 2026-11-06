@@ -1,0 +1,35 @@
+.overview {
+  width: calc(var(--ui-control-size-lg) * 2);
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--ui-radius-sm);
+  overflow: hidden;
+}
+.square {
+  fill: var(--ui-color-game-word-tiles-canvas);
+  stroke: var(--ui-color-game-word-tiles-muted);
+  stroke-width: 0.04;
+}
+.square[data-square="DL"],
+.square[data-square="TL"] {
+  fill: var(--ui-color-game-word-tiles-two);
+}
+.square[data-square="DW"],
+.square[data-square="start"] {
+  fill: var(--ui-color-game-word-tiles-accent);
+}
+.square[data-square="TW"] {
+  fill: var(--ui-color-game-word-tiles-one);
+}
+.square[data-state="committed"],
+.square[data-state="recent"],
+.square[data-state="tentative"] {
+  fill: var(--ui-color-board-card-face);
+}
+.window {
+  fill: none;
+  stroke: var(--ui-color-board-card-face);
+  stroke-width: 0.4;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
+}

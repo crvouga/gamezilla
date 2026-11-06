@@ -1,0 +1,4 @@
+{
+  "summary": "Unreadable Word Tiles puzzle supplied no usable destination.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-next-action.test.tsx"
+}

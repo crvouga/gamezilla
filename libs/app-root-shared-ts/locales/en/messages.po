@@ -1574,6 +1574,10 @@ msgstr "Changes waiting to send"
 msgid "Check again"
 msgstr "Check again"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "Check app version"
+msgstr "Check app version"
+
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Check finished"
 msgstr "Check finished"
@@ -1667,6 +1671,10 @@ msgstr "Choose a position from the moves actually played."
 msgid "Choose a saved position to continue. Your other positions stay kept."
 msgstr "Choose a saved position to continue. Your other positions stay kept."
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Choose a ship to reposition"
+msgstr "Choose a ship to reposition"
+
 #: libs/auth-client-ts/src/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
 msgstr "Choose a sign-in method"
@@ -1694,6 +1702,10 @@ msgstr "Choose a username"
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Choose another bow cell or rotate the ship, then try again."
 msgstr "Choose another bow cell or rotate the ship, then try again."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
+msgid "Choose another puzzle from the library. This attempt is kept."
+msgstr "Choose another puzzle from the library. This attempt is kept."
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Choose any puzzle"
@@ -3017,6 +3029,10 @@ msgstr "Fit board"
 msgid "Five"
 msgstr "Five"
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Fleet overview"
+msgstr "Fleet overview"
+
 #: libs/battleship-client-ts/src/battleship-presentation.tsx
 msgid "fleet sunk"
 msgstr "fleet sunk"
@@ -4189,6 +4205,10 @@ msgstr "Move second endpoint"
 msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 msgstr "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Move to a coordinate"
+msgstr "Move to a coordinate"
+
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move up"
@@ -5285,6 +5305,10 @@ msgstr "Preparing…"
 msgid "Preview"
 msgstr "Preview"
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Preview a wall at a coordinate"
+msgstr "Preview a wall at a coordinate"
+
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Previous"
@@ -5488,6 +5512,11 @@ msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes
 #: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 msgid "Puzzle import tools."
 msgstr "Puzzle import tools."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-status.tsx
+msgid "Puzzle library"
+msgstr "Puzzle library"
 
 #: libs/game-puzzle-client-ts/src/puzzle-share-link.tsx
 msgid "Puzzle link copied"
@@ -5695,6 +5724,10 @@ msgstr "Ready: publish to share it with everyone who plays."
 msgid "Recall tiles"
 msgstr "Recall tiles"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
+msgid "Recall tiles to try another word. Your rack is kept."
+msgstr "Recall tiles to try another word. Your rack is kept."
+
 #: libs/search-client-ts/src/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
@@ -5777,6 +5810,7 @@ msgstr "Refresh"
 msgid "Refresh to try again."
 msgstr "Refresh to try again."
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Region"
 msgstr "Region"
@@ -6496,6 +6530,7 @@ msgid "Sharing your username change…"
 msgstr "Sharing your username change…"
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Ship"
 msgstr "Ship"
 
@@ -7757,8 +7792,8 @@ msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
 
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "This game cannot be shown. Update the app to open it."
-msgstr "This game cannot be shown. Update the app to open it."
+msgid "This game cannot be shown by this app. Check your app version, install an available update, then reopen this game."
+msgstr "This game cannot be shown by this app. Check your app version, install an available update, then reopen this game."
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "This game has finished. Choose a rematch to play again."
@@ -7837,14 +7872,14 @@ msgstr "This publication is withdrawn. You can continue saved attempts from your
 msgid "This puzzle"
 msgstr "This puzzle"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
+msgid "This puzzle cannot be opened."
+msgstr "This puzzle cannot be opened."
+
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
-
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
-msgid "This puzzle cannot be opened. Update the app to play it."
-msgstr "This puzzle cannot be opened. Update the app to play it."
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "This puzzle cannot be shown."
@@ -8376,6 +8411,14 @@ msgstr "wall"
 msgid "Wall"
 msgstr "Wall"
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Wall across"
+msgstr "Wall across"
+
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Wall down"
+msgstr "Wall down"
+
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Walls"
 msgstr "Walls"
@@ -8446,6 +8489,10 @@ msgstr "White pieces nearest you."
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"
 msgstr "Who's here"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+msgid "Whole board overview; outline shows the enlarged area"
+msgstr "Whole board overview; outline shows the enlarged area"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-guide.tsx
 msgid "Win, lose or draw, your rating moves once."
@@ -9116,8 +9163,8 @@ msgid "Your turn. First to e5 wins."
 msgstr "Your turn. First to e5 wins."
 
 #: libs/hearts-client-ts/src/hearts-board.tsx
-msgid "Your turn. Play a highlighted card."
-msgstr "Your turn. Play a highlighted card."
+msgid "Your turn. Play a card without ×."
+msgstr "Your turn. Play a card without ×."
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Your turn. Reach row {row}."

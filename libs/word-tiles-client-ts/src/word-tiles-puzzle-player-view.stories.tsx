@@ -40,6 +40,7 @@ const meta = {
     disabled: false,
     lexicon: STORY_LEXICON,
     onAction: fn(),
+    onReturnToLibrary: fn(),
     onRetryLexicon: fn(),
   },
 } satisfies Meta<typeof WordTilesPuzzlePlayerView>;
@@ -59,7 +60,7 @@ export const AfterAMove: Story = {
 /** The attempt is over: the board shows, but no tile can be placed. */
 export const Disabled: Story = { args: { disabled: true } };
 
-/** The word list did not load: moves are scored, not checked. */
+/** The word list did not load: retry makes placement available again. */
 export const WordListUnavailable: Story = {
   render: (args) => {
     const [lexicon, setLexicon] = createSignal(args.lexicon);
@@ -79,8 +80,38 @@ export const WordListUnavailable: Story = {
   },
 };
 
-/** A definition this app cannot read says to update the app. */
-export const Unreadable: Story = { args: { definition: '{}' } };
+/** Retry resolves the unavailable word list without replacing the player. */
+export const RetryWordList: Story = {
+  ...WordListUnavailable,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Retry word list' })
+    );
+    await expect(
+      canvas.queryByRole('button', { name: 'Retry word list' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-status')
+    ).toHaveTextContent('Choose a tile');
+    await expect(canvas.getByTestId('word-tiles-puzzle-rack-0')).toBeEnabled();
+  },
+};
+
+/** A definition this app cannot read offers the real library destination. */
+export const Unreadable: Story = {
+  args: { definition: '{}' },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('alert')).toHaveTextContent(
+      'This puzzle cannot be opened.'
+    );
+    const recovery = canvas.getByRole('button', { name: 'Puzzle library' });
+    await expect(recovery).toBeVisible();
+    await userEvent.click(recovery);
+    await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
+  },
+};
 
 /** E and A placed under TOE spell a word the list lacks: the preview says so. */
 export const PlaceAWord: Story = {
@@ -100,6 +131,8 @@ export const PlaceAWord: Story = {
     await expect(
       await canvas.findByTestId('word-tiles-puzzle-status')
     ).toHaveTextContent('Not in the word list');
+    await expect(canvas.getByRole('alert')).toHaveTextContent('Recall tiles');
+    await expect(canvas.getByTestId('word-tiles-puzzle-recall')).toBeEnabled();
   },
 };
 
@@ -130,7 +163,7 @@ export const ReachTarget: Story = {
       />
     );
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     // Try a disconnected tile, then recover using the player's own recall action.
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-rack-0'));
@@ -167,6 +200,10 @@ export const ReachTarget: Story = {
     await expect(
       canvas.getByTestId('word-tiles-puzzle-cell-j8')
     ).toHaveAccessibleName(/committed/);
+    const next = canvas.getByRole('button', { name: 'Puzzle library' });
+    await expect(next).toBeVisible();
+    await userEvent.click(next);
+    await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
   },
 };
 

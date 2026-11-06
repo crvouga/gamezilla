@@ -1,0 +1,4 @@
+{
+  "summary": "The 390x844 wall journey separated modes from anchors and confirmation with player bars.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

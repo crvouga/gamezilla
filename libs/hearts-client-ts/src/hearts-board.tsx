@@ -148,7 +148,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       handLabel={t`Your hand`}
       handInstruction={
         !passing() && props.interactive && props.hand !== null
-          ? t`Your turn. Play a highlighted card.`
+          ? t`Your turn. Play a card without ×.`
           : undefined
       }
       cardTestId={(id) => `${props.testId}-card-${id}`}

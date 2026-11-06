@@ -17,6 +17,12 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { expectQuoridorActionsFit } from './quoridor-action-bounds.example';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
+import {
+  chooseQuoridorCoordinate,
+  expectQuoridorGoalMarker,
+  expectQuoridorTargetVisible,
+  expectQuoridorWorkingArea,
+} from './quoridor-precision.example';
 
 /** The classic position after `actions`, South first. */
 function classic(actions: string): string {
@@ -235,5 +241,36 @@ export const PawnIdentityAndKeyboard: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-action-e3')
     ).toHaveFocus();
+  },
+};
+
+// regression: quoridor-phone-precise-targets
+// regression: quoridor-detached-wall-controls
+// regression: quoridor-goal-resembles-wall
+export const PreciseCoordinates: Story = {
+  render: renderClassicJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expectQuoridorWorkingArea(canvasElement);
+    await expectQuoridorGoalMarker(canvasElement, 'a9');
+    await chooseQuoridorCoordinate(canvasElement, 'e2');
+    await expect(
+      canvas.getByTestId('custom-game-board-action-e2')
+    ).toHaveAccessibleName(/South red circle/);
+    await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+    await expectQuoridorWorkingArea(canvasElement);
+    await chooseQuoridorCoordinate(canvasElement, 'd4');
+    const anchor = canvas.getByTestId('custom-game-board-action-d4h');
+    await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
+    await expect(anchor).toHaveAttribute('data-edge-top', 'false');
+    for (const id of ['wall-commit', 'wall-cancel'])
+      await expectQuoridorTargetVisible(
+        canvas.getByTestId(`custom-game-board-${id}`)
+      );
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+    await expect(anchor).toHaveAttribute('data-preview-edge-top', 'false');
+    await chooseQuoridorCoordinate(canvasElement, 'd4');
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await expect(anchor).toHaveAttribute('data-edge-top', 'true');
   },
 };

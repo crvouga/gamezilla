@@ -2,7 +2,11 @@ import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
-import { checkSetupPlacementBounds } from './battleship-setup-placement.example';
+import {
+  checkSetupPlacementBounds,
+  checkSetupWorkspace,
+  repositionEnlargedShip,
+} from './battleship-setup-placement.example';
 
 const FULL_FLEET =
   'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v';
@@ -129,6 +133,10 @@ export const EnlargedPlacement: Story = {
     await userEvent.click(
       await canvas.findByTestId('custom-game-setup-enlarge')
     );
+    // regression: battleship-placement-unlabeled-complete-selection
+    await expect(canvas.getByText('Ship', { exact: true })).toBeVisible();
+    await expect(canvas.getByText('Region', { exact: true })).toBeVisible();
+    await checkSetupWorkspace(canvasElement);
     const bow = await canvas.findByTestId(
       'custom-game-setup-precision-cell-a1'
     );
@@ -178,5 +186,10 @@ export const EnlargedPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-setup-cell-c2')
     ).toHaveAccessibleName('C2: Destroyer');
+    await expect(
+      canvas.getByRole('button', { name: 'Ship to place' })
+    ).toHaveTextContent('Choose a ship to reposition');
+    await checkSetupWorkspace(canvasElement);
+    await repositionEnlargedShip(canvasElement);
   },
 };

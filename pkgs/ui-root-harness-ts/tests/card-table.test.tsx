@@ -301,7 +301,7 @@ test("a narrow seat's name is set smaller and wraps, never cut", () => {
 // the screen's bottom edge. A phone's table sets the seats above and below
 // as one strip each, the person beside their facts, and every plate a step
 // shallower; a wide table keeps its plates as they were.
-test("a phone's table sets the seats above and below as strips, the person beside the facts", () => {
+test("a phone's table pairs compact named seat rows with their trick cards", () => {
   const sheet = css('card-table/card-table.module.css');
   // The table's own width decides, never a seat's (a seat is a container
   // too, and every seat is narrower than 30rem, even on a wide table).
@@ -311,19 +311,26 @@ test("a phone's table sets the seats above and below as strips, the person besid
   const start = sheet.indexOf('@container card-table not (min-width: 30rem) {');
   expect(start).toBeGreaterThan(-1);
   const phone = sheet.slice(start, sheet.indexOf('\n}\n', start));
-  expect(phone).toMatch(
-    /\.seat\[data-player="true"\] \{\s*padding: var\(--ui-space-1\);/
-  );
-  const strip = rule(
-    phone,
-    '.seat[data-player="true"][data-position="top"],\n  .seat[data-player="true"][data-position="bottom"] {'
-  );
+  const strip = rule(phone, '.seat[data-player="true"][data-position] {');
+  expect(strip).toMatch(/padding:\s*var\(--ui-space-1\);/);
   expect(strip).toMatch(/flex-direction:\s*row;/);
-  expect(strip).toMatch(/max-width:\s*none;/);
+  expect(rule(phone, '.seat[data-position] {')).toMatch(/max-width:\s*none;/);
   // The facts stack beside the person, never under it.
-  expect(phone).toMatch(
-    /\[data-position="bottom"\] \.facts \{\s*flex: 0 0 auto;\s*flex-direction: column;/
+  expect(rule(phone, '.seat[data-player="true"] .facts {')).toMatch(
+    /flex: 0 0 auto;\s*flex-direction: column;/
   );
+  for (const [index, position] of [
+    'top',
+    'left',
+    'right',
+    'bottom',
+  ].entries()) {
+    const paired = rule(
+      phone,
+      `.seat[data-position="${position}"],\n  .slot[data-position="${position}"] {`
+    );
+    expect(paired).toContain(`grid-row: ${index + 1};`);
+  }
   // The hand keeps its cards side by side and whole.
   expect(rule(sheet, '.hand > .card {')).not.toMatch(/rotate|--fan/);
 });

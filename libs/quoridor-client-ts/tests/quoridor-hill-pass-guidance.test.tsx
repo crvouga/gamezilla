@@ -9,6 +9,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 
 const BLOCKED_HILL = [
@@ -74,20 +75,16 @@ test('a forced Hill pass has one action and no contradictory move guidance', () 
       </ThemeProvider>
     </ClockProvider>
   ));
-  const action = (id: string) => {
-    const found = session!.actions().find((each) => each.id === id);
-    if (found === undefined) throw new Error(`No action ${id}`);
-    return found;
-  };
-  expect(session!.actions().map((each) => each.id)).toEqual(['action-pass']);
+  expect(session!.actions()).toEqual([]);
+  for (const mode of ['move', 'h', 'v'])
+    expect(view.queryByTestId(`blocked-hill-mode-${mode}`)).toBeNull();
+  expect(view.queryByTestId('blocked-hill-precise-target')).toBeNull();
   const guidance = view.getByTestId('blocked-hill-wall-status').textContent;
   expect(guidance).toMatch(/pass/i);
   expect(guidance).not.toMatch(/choose a marked square|tap a square/i);
-  // The pass is the board's action `action-pass`: in a custom game, the
-  // frame's `custom-game-board-action-pass`.
-  const pass = action('action-pass');
-  expect(pass.enabled).toBe(true);
-  pass.run();
+  const pass = view.getByTestId('blocked-hill-action-pass');
+  expect(pass.hasAttribute('disabled')).toBe(false);
+  fireEvent.click(pass);
   expect(actions).toEqual(['pass']);
   view.unmount();
 });

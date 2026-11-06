@@ -30,6 +30,13 @@ async function assertFocusedCoordinates(
   await expect(bounds.right).toBeLessThanOrEqual(clip.right);
   await expect(top.left).toBe(bounds.left);
   await expect(left.top).toBe(bounds.top);
+  const overview = within(canvasElement).getByTestId(
+    'custom-game-board-overview'
+  );
+  const context = overview.getBoundingClientRect();
+  await expect(context.top).toBeGreaterThanOrEqual(clip.top);
+  await expect(context.bottom).toBeLessThanOrEqual(clip.bottom);
+  await expect(context.left).toBeGreaterThanOrEqual(clip.right);
 }
 
 /** Keyboard navigation must reveal its cell without concealing either coordinate. */
@@ -37,6 +44,16 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   await userEvent.click(
     within(canvasElement).getByRole('button', { name: 'Enlarge board' })
   );
+  // regression: word-tiles-enlarged-context-loss
+  const canvas = within(canvasElement);
+  const overview = canvas.getByTestId('custom-game-board-overview');
+  await expect(overview).toBeVisible();
+  await expect(overview.querySelectorAll('[data-state]')).toHaveLength(225);
+  const indicator = overview.querySelector('[data-viewport-indicator]');
+  await expect(indicator).not.toBeNull();
+  await expect(
+    canvas.getByRole('button', { name: 'Enlarge board' })
+  ).toHaveAttribute('aria-pressed', 'true');
   await assertFocusedCoordinates(canvasElement, 'h8');
   for (const [keys, cell] of [
     ['{Control>}{Home}{/Control}', 'a1'],

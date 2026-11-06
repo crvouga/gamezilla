@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
@@ -12,6 +13,7 @@ export function WordTilesPuzzleStatus(props: {
   readonly disabled: boolean;
   readonly lexicon: LexiconState;
   readonly onRetryLexicon: () => void;
+  readonly onReturnToLibrary: () => void;
 }) {
   return (
     <>
@@ -24,11 +26,14 @@ export function WordTilesPuzzleStatus(props: {
         </P>
       </Show>
       <Show when={props.complete}>
-        <P
-          variant="bodyBold"
-          role="status"
-          dataSet={{ testid: 'word-tiles-puzzle-complete' }}
-        >{t`Target reached. Puzzle solved!`}</P>
+        <Notice tone="success">
+          <P
+            variant="bodyBold"
+            role="status"
+            dataSet={{ testid: 'word-tiles-puzzle-complete' }}
+          >{t`Target reached. Puzzle solved!`}</P>
+          <Button title={t`Puzzle library`} onClick={props.onReturnToLibrary} />
+        </Notice>
       </Show>
       <Show when={props.disabled && !props.complete}>
         <P role="status">{t`This attempt is read-only. Placement is unavailable.`}</P>

@@ -4,6 +4,7 @@ import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { StackVertical } from '../stack/index';
 import styles from './word-tile-board.module.css';
+import { WordTileOverview } from './word-tile-overview';
 import { WordTileViewControls } from './word-tile-view-controls';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
@@ -97,6 +98,20 @@ function range(count: number): readonly number[] {
   return Array.from({ length: count }, (_, n) => n);
 }
 
+function focusCell(root: HTMLDivElement | undefined, index: number): void {
+  const cell = root?.querySelector<HTMLButtonElement>(
+    `[data-index="${index}"]`
+  );
+  cell?.focus();
+  // The overview narrows the viewport. Reveal the whole cell after layout,
+  // retaining the sticky coordinate clearance declared by the board.
+  cell?.scrollIntoView({
+    block: 'nearest',
+    inline: 'nearest',
+    behavior: 'instant',
+  });
+}
+
 /**
  * A word-game board: a labelled grid of square buttons under column and row
  * headers. Empty squares print their bonus; tiles show their letter and
@@ -118,6 +133,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const rows = createMemo(() => range(props.rowLabels.length));
   const columns = createMemo(() => range(props.columnLabels.length));
   let root: HTMLDivElement | undefined;
+  const [viewport, setViewport] = createSignal<HTMLDivElement>();
   const onKey = (event: KeyboardEvent, index: number): void => {
     const next = cellGridStep(event, index, {
       columns: props.columnLabels.length,
@@ -126,78 +142,82 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     if (next === null) return;
     event.preventDefault();
     setFocusIndex(next);
-    root?.querySelector<HTMLButtonElement>(`[data-index="${next}"]`)?.focus();
+    focusCell(root, next);
   };
   const resize = (value: boolean): void => {
     setEnlarged(value);
-    root
-      ?.querySelector<HTMLButtonElement>(`[data-index="${focusIndex()}"]`)
-      ?.focus();
+    focusCell(root, focusIndex());
   };
   return (
     <StackVertical gap="xs">
       <WordTileViewControls enlarged={enlarged()} onChange={resize} />
-      <div
-        class={styles['viewport']}
-        data-enlarged={enlarged()}
-        role="region"
-        aria-label={t`Scrollable word board`}
-      >
+      <div class={styles['precision']}>
         <div
-          ref={root}
-          class={styles['board']}
+          ref={setViewport}
+          class={styles['viewport']}
           data-enlarged={enlarged()}
-          {...dataAttrs({ component: 'WordTileBoard' })}
-          role="group"
-          aria-label={props.label}
-          aria-describedby={props.describedBy}
-          data-testid={props.testId}
-          style={{ '--word-tile-columns': props.columnLabels.length }}
+          role="region"
+          aria-label={t`Scrollable word board`}
         >
-          <span
-            class={styles['header']}
-            data-axis="corner"
-            aria-hidden="true"
-          />
-          <For each={props.columnLabels}>
-            {(label) => (
-              <span
-                class={styles['header']}
-                data-axis="column"
-                aria-hidden="true"
-              >
-                {label}
-              </span>
-            )}
-          </For>
-          <For each={rows()}>
-            {(row) => (
-              <>
+          <div
+            ref={root}
+            class={styles['board']}
+            data-enlarged={enlarged()}
+            {...dataAttrs({ component: 'WordTileBoard' })}
+            role="group"
+            aria-label={props.label}
+            aria-describedby={props.describedBy}
+            data-testid={props.testId}
+            style={{ '--word-tile-columns': props.columnLabels.length }}
+          >
+            <span
+              class={styles['header']}
+              data-axis="corner"
+              aria-hidden="true"
+            />
+            <For each={props.columnLabels}>
+              {(label) => (
                 <span
                   class={styles['header']}
-                  data-axis="row"
+                  data-axis="column"
                   aria-hidden="true"
                 >
-                  {props.rowLabels[row] ?? ''}
+                  {label}
                 </span>
-                <For each={columns()}>
-                  {(column) => (
-                    <BoardCell
-                      board={props}
-                      cells={cells}
-                      index={row * columns().length + column}
-                      focusable={
-                        focusIndex() === row * columns().length + column
-                      }
-                      onFocusIndex={setFocusIndex}
-                      onKey={onKey}
-                    />
-                  )}
-                </For>
-              </>
-            )}
-          </For>
+              )}
+            </For>
+            <For each={rows()}>
+              {(row) => (
+                <>
+                  <span
+                    class={styles['header']}
+                    data-axis="row"
+                    aria-hidden="true"
+                  >
+                    {props.rowLabels[row] ?? ''}
+                  </span>
+                  <For each={columns()}>
+                    {(column) => (
+                      <BoardCell
+                        board={props}
+                        cells={cells}
+                        index={row * columns().length + column}
+                        focusable={
+                          focusIndex() === row * columns().length + column
+                        }
+                        onFocusIndex={setFocusIndex}
+                        onKey={onKey}
+                      />
+                    )}
+                  </For>
+                </>
+              )}
+            </For>
+          </div>
         </div>
+        <Show when={enlarged()}>
+          <WordTileOverview board={props} viewport={viewport} />
+        </Show>
       </div>
     </StackVertical>
   );

@@ -1,0 +1,15 @@
+.workbench {
+  display: grid;
+  min-width: 0;
+  gap: var(--ui-space-2);
+}
+.workbench button,
+.workbench [role="status"] {
+  /* Native focus and scrollIntoView must clear the two-row sticky history. */
+  scroll-margin-block-start: calc(var(--ui-control-size-lg) * 2);
+  scroll-margin-block-end: var(--ui-space-4);
+}
+.workbench [role="status"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

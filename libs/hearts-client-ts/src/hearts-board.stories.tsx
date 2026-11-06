@@ -27,7 +27,11 @@ import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
-import { assertHeartsHandBounds } from './hearts-hand-bounds.checks';
+import {
+  assertHeartsHandBounds,
+  checkHeartsSeatRows,
+  checkInitialHeartsDeal,
+} from './hearts-hand-bounds.checks';
 import {
   journeyValue,
   receivedHands,
@@ -118,7 +122,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** The first deal opens with every seat choosing three cards to pass left. */
-export const Passing: Story = {};
+// regression: hearts-initial-deal-action-outside-viewport
+export const Passing: Story = {
+  play: async ({ canvasElement }) => checkInitialHeartsDeal(canvasElement),
+};
 
 /** The person has passed: their three cards stay marked while the others choose. */
 export const PassedWaitingForOthers: Story = {
@@ -137,6 +144,29 @@ export const YourTurnToPlay: Story = {
     hand: TO_MOVE.hand,
   },
   parameters: { table: { turn: TO_MOVE.side } satisfies GameTableStory },
+  // regression: hearts-phone-trick-seat-mismatch
+  // regression: hearts-legal-card-selection-emphasis
+  play: async ({ canvasElement }) => {
+    await canvasElement.ownerDocument.fonts.ready;
+    checkHeartsSeatRows(canvasElement);
+    const cards = [
+      ...canvasElement.querySelectorAll<HTMLButtonElement>(
+        '[role="toolbar"] button'
+      ),
+    ];
+    const legal = cards.find(
+      (card) => card.getAttribute('aria-disabled') === 'false'
+    );
+    const refused = cards.find(
+      (card) => card.getAttribute('data-refused') === 'true'
+    );
+    if (!legal || !refused) throw new Error('Expected legal and refused cards');
+    await expect(getComputedStyle(legal).boxShadow).toBe(
+      getComputedStyle(refused).boxShadow
+    );
+    await expect(getComputedStyle(legal).borderStyle).toBe('solid');
+    await expect(getComputedStyle(refused).borderStyle).toBe('dashed');
+  },
 };
 
 /** Another seat is playing: the hand is shown but nothing can be played. */
@@ -212,11 +242,13 @@ const PASSED = heldBy(DEAL.hands, 0).slice(0, 3);
 
 /** Chooses the three cards to pass, as a person taps them. */
 async function chooseThree(canvasElement: HTMLElement): Promise<void> {
+  await checkInitialHeartsDeal(canvasElement);
   const canvas = within(canvasElement);
   for (const card of PASSED)
     await userEvent.click(
       await canvas.findByTestId(`custom-game-board-card-${card}`)
     );
+  await checkInitialHeartsDeal(canvasElement);
 }
 
 /**
@@ -384,6 +416,7 @@ export const PassThroughFirstTrick: Story = {
       lead: twoOfClubsSeat({ ...DEAL, hands }),
     };
     for (let count = 0; count < 4; count++) {
+      checkHeartsSeatRows(canvasElement);
       const seat = journeyValue(seatToPlay(position));
       const tableBounds = canvas
         .getByRole('group', { name: 'Hearts table' })

@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles target completion supplied no next action beside the result.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-next-action.test.tsx"
+}

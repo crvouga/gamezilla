@@ -17,7 +17,7 @@ import { fireEvent } from '@solidjs/testing-library';
 
 const START = encodePosition(newPosition(2, 'enable1.90ef7a729517'));
 
-function board(hand: string | null, interactive = true) {
+function board(hand: string | null, interactive = true, position = START) {
   const actions: string[] = [];
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
@@ -25,7 +25,7 @@ function board(hand: string | null, interactive = true) {
       <IdProvider createId={() => 'id'} random={() => 0.5}>
         <ThemeProvider colorScheme="light">
           <WordTilesBoard
-            position={START}
+            position={position}
             orientation="white"
             interactive={interactive}
             sound={false}
@@ -94,8 +94,6 @@ test('the frame shows the turn, the bag, each score and each rack', () => {
 test('the board, its actions and its controls share one draft', () => {
   const actions: string[] = [];
   const { clock, timers } = createHarnessClock();
-  let ids: () => string[] = () => [];
-  let run: (id: string) => void = () => undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <IdProvider createId={() => 'id'} random={() => 0.5}>
@@ -114,17 +112,6 @@ test('the board, its actions and its controls share one draft', () => {
               commitment: null,
               onAction: (action) => actions.push(action),
             });
-            const enabled = () =>
-              session
-                .actions()
-                .filter((action) => action.enabled)
-                .map((action) => action.id);
-            ids = enabled;
-            run = (id) =>
-              session
-                .actions()
-                .find((action) => action.id === id)
-                ?.run();
             return (
               <>
                 <session.Board />
@@ -136,18 +123,21 @@ test('the board, its actions and its controls share one draft', () => {
       </IdProvider>
     </ClockProvider>
   ));
-  expect(ids()).not.toContain('submit');
-  expect(ids()).not.toContain('recall');
+  expect(
+    view.getByTestId('custom-game-board-recall').hasAttribute('disabled')
+  ).toBe(true);
   fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
   fireEvent.click(view.getByTestId('custom-game-board-cell-h8'));
-  expect(ids()).toContain('recall');
+  expect(
+    view.getByTestId('custom-game-board-recall').hasAttribute('disabled')
+  ).toBe(false);
   expect(view.getByTestId('custom-game-board-preview')).not.toBeNull();
-  run('recall');
+  fireEvent.click(view.getByTestId('custom-game-board-recall'));
   expect(
     view.getByTestId('custom-game-board-cell-h8').getAttribute('data-state')
   ).not.toBe('tentative');
-  run('exchange');
-  expect(ids()).toContain('exchange-cancel');
+  fireEvent.click(view.getByTestId('custom-game-board-exchange'));
+  expect(view.getByTestId('custom-game-board-exchange-cancel')).not.toBeNull();
   fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
   expect(view.queryByTestId('custom-game-board-submit')).toBeNull();
   fireEvent.click(view.getByTestId('custom-game-board-exchange-confirm'));
@@ -158,4 +148,31 @@ test('passing is one tap', () => {
   const { view, actions } = board('11,0,82,98,25,77,69');
   fireEvent.click(view.getByTestId('wt-pass'));
   expect(actions).toEqual(['pass']);
+});
+
+// regression: word-tiles-separated-turn-controls
+test('CAT editing and exchange share the rack work area before the grid', () => {
+  const { view } = board('11,0,82,98,25,77,69');
+  const work = view
+    .getByTestId('wt-submit')
+    .closest('[data-component="WordTileWorkbench"]');
+  for (const action of [
+    'recall',
+    'undo',
+    'redo',
+    'shuffle',
+    'pass',
+    'exchange',
+  ]) {
+    expect(work?.contains(view.getByTestId(`wt-${action}`))).toBe(true);
+  }
+  expect(work?.compareDocumentPosition(view.getByTestId('wt'))).toBe(4);
+});
+
+// regression: word-tiles-unreadable-no-recovery
+test('wt2 unreadable input links to the public app version screen', () => {
+  const { view } = board(null, false, 'wt2|not-a-position');
+  const reload = view.getByRole('link', { name: 'Check app version' });
+  expect(reload.getAttribute('href')).toBe('/more/about');
+  expect(view.queryByTestId('wt-rack')).toBeNull();
 });

@@ -5,10 +5,12 @@ import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
+import { WordTileWorkbench } from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import { wordTilesActions } from './word-tiles-actions';
@@ -30,6 +32,7 @@ import {
 function SeatBoard(props: {
   draft: WordTilesDraft;
   position: WordTilesPosition;
+  random: () => number;
 }): JSX.Element {
   // Memoized: each square reads the list, so computing it inline would
   // rebuild the whole board once per square on every change.
@@ -56,10 +59,10 @@ function SeatBoard(props: {
             props.draft.update((c) => pressTile(c, Number(id)))
           }
         />
-        <StackHorizontal gap="sm" align="center" wrap>
-          <DraftSubmit draft={props.draft} />
+        <WordTileWorkbench>
+          <LocalActions draft={props.draft} random={props.random} />
           <DraftControls draft={props.draft} />
-        </StackHorizontal>
+        </WordTileWorkbench>
       </Show>
       <WordTileBoard
         label={t`Word board, fifteen columns and fifteen rows`}
@@ -77,15 +80,31 @@ function SeatBoard(props: {
   );
 }
 
-function DraftBoard(props: { draft: WordTilesDraft }): JSX.Element {
+function DraftBoard(props: {
+  draft: WordTilesDraft;
+  random: () => number;
+}): JSX.Element {
   return (
     <Show
       when={props.draft.position()}
       fallback={
-        <P>{t`This game cannot be shown. Update the app to open it.`}</P>
+        <StackVertical gap="sm">
+          <P>{t`This game cannot be shown by this app. Check your app version, install an available update, then reopen this game.`}</P>
+          <TextLink
+            href="/more/about"
+            variant="standalone"
+            testId={`${props.draft.props.testId}-app-info`}
+          >{t`Check app version`}</TextLink>
+        </StackVertical>
       }
     >
-      {(position) => <SeatBoard draft={props.draft} position={position()} />}
+      {(position) => (
+        <SeatBoard
+          draft={props.draft}
+          position={position()}
+          random={props.random}
+        />
+      )}
     </Show>
   );
 }
@@ -132,9 +151,8 @@ export type WordTilesSessionInputs = {
 };
 
 /**
- * One seat's Word Tiles session: the board with its rack, the draft move
- * both share, the draft's actions (play, recall, pass, exchange…) for the
- * frame's action bar, and its preview and blank chooser as controls.
+ * One seat's Word Tiles session: rack, draft actions, preview and blank chooser
+ * stay together above the board. The frame receives no duplicate actions.
  */
 export function createWordTilesSession(
   props: GameBoardProps,
@@ -142,11 +160,8 @@ export function createWordTilesSession(
 ): WordTilesSession {
   const draft = createWordTilesDraft(props, inputs.lexicon);
   return {
-    Board: () => <DraftBoard draft={draft} />,
-    actions: () =>
-      wordTilesActions(draft, inputs.random).filter(
-        (action) => action.id !== 'submit' && action.id !== 'exchange-confirm'
-      ),
+    Board: () => <DraftBoard draft={draft} random={inputs.random} />,
+    actions: () => [],
     controls: () => null,
   };
 }
@@ -175,23 +190,7 @@ export function WordTilesBoardView(
     },
     random: () => props.random(),
   });
-  return (
-    <StackVertical gap="sm">
-      <session.Board />
-      <session.controls />
-      <GameActionBar
-        aria-label={t`Word actions`}
-        items={session.actions().map((action) => ({
-          id: action.id,
-          label: action.label,
-          testId: `${props.testId}-${action.id}`,
-          onPress: action.run,
-          disabled: !action.enabled,
-          emphasis: action.emphasis,
-        }))}
-      />
-    </StackVertical>
-  );
+  return <session.Board />;
 }
 
 function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
@@ -208,25 +207,30 @@ function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
   );
 }
 
-function DraftSubmit(props: { draft: WordTilesDraft }): JSX.Element {
-  const action = () =>
-    wordTilesActions(props.draft, () => 0).find(
-      (item) =>
-        item.id ===
-        (props.draft.candidate().exchange === null
-          ? 'submit'
-          : 'exchange-confirm')
-    );
+function LocalActions(props: {
+  draft: WordTilesDraft;
+  random: () => number;
+}): JSX.Element {
   return (
-    <Show when={action()}>
-      {(submit) => (
-        <Button
-          title={submit().label}
-          disabled={!submit().enabled}
-          onClick={() => submit().run()}
-          dataSet={{ testid: `${props.draft.props.testId}-${submit().id}` }}
-        />
-      )}
-    </Show>
+    <GameActionBar
+      aria-label={t`Word actions`}
+      items={wordTilesActions(props.draft, props.random)
+        .filter(
+          (action) =>
+            action.id !== 'submit' || props.draft.candidate().exchange === null
+        )
+        .toSorted(
+          (a, b) =>
+            Number(b.emphasis === 'primary') - Number(a.emphasis === 'primary')
+        )
+        .map((action) => ({
+          id: action.id,
+          label: action.label,
+          testId: `${props.draft.props.testId}-${action.id}`,
+          onPress: action.run,
+          disabled: !action.enabled,
+          emphasis: action.emphasis,
+        }))}
+    />
   );
 }
