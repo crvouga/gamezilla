@@ -87,6 +87,42 @@ describe('TopBar', () => {
 });
 
 describe('AppFrame', () => {
+  // regression: storybook-sidebar-compact-viewport
+  test.each([390, 768])(
+    'AppFrame rail is absent at compact width %d while content remains',
+    (width) => {
+      renderUi(
+        () => (
+          <AppFrameChromeProvider>
+            <AppFrame rail={<p class="text">{'sidebar account'}</p>}>
+              <p class="text">{'screen body'}</p>
+            </AppFrame>
+          </AppFrameChromeProvider>
+        ),
+        { width }
+      );
+      expect(screen.queryByText('sidebar account')).toBeNull();
+      expect(screen.getByText('screen body')).toBeInTheDocument();
+      expect(screen.getByRole('main')).toHaveAttribute('data-mode', 'compact');
+    }
+  );
+
+  test('AppFrame rail is present at the desktop capture width', () => {
+    renderUi(
+      () => (
+        <AppFrameChromeProvider>
+          <AppFrame rail={<p class="text">{'sidebar account'}</p>}>
+            <p class="text">{'screen body'}</p>
+          </AppFrame>
+        </AppFrameChromeProvider>
+      ),
+      { width: 1440 }
+    );
+    expect(screen.getByText('sidebar account')).toBeInTheDocument();
+    expect(screen.getByText('screen body')).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveAttribute('data-mode', 'wide');
+  });
+
   function Override() {
     useSetAppFrameHeader(<p class="text">{'override header'}</p>);
     return <p class="text">{'screen'}</p>;
