@@ -1,6 +1,7 @@
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
+  type PuzzlePlayStoryArgs,
   type PuzzleScene,
   renderPuzzlePlayScene,
   STORY_FEED_CONFIG,
@@ -11,7 +12,7 @@ import {
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PuzzlePlayScreenView } from '../../game-puzzle-client-ts/src/puzzle-play-screen-view';
+import { ChessPuzzleBoard } from './chess-puzzle-board';
 import {
   StoryChessPuzzleBoard,
   withChessPuzzleBoardContext,
@@ -32,7 +33,7 @@ const SOLVED = STORY_SOLVED;
 const meta = {
   id: 'screens-puzzles-play',
   title: 'Screens/Puzzles/Play',
-  component: PuzzlePlayScreenView,
+  component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],
   render: (args, context) =>
@@ -42,9 +43,10 @@ const meta = {
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
   args: PUZZLE_PLAY_STORY_ARGS,
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<PuzzlePlayStoryArgs>;
 export default meta;
-type Story = StoryObj<typeof meta>;
+// The render owns screen-fixture args; the production board owns this story slice.
+type Story = StoryObj<Omit<typeof meta, 'component'>>;
 
 /** The solver's turn after the setup move: find the best move for White. */
 export const Solving: Story = {};
