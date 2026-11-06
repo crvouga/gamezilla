@@ -2,6 +2,10 @@ import { spawnSync } from 'node:child_process';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { which } from '@pkgs/os-server-ts/command';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared-ts/defaults';
+import {
+  infisicalProjectArgs,
+  infisicalProjectEnv,
+} from '@pkgs/secret-provider-shared-ts/infisical-auth';
 import type {
   SecretsCacheEnv,
   SecretsEnvs,
@@ -32,24 +36,9 @@ function prepareChildEnv(): NodeJS.ProcessEnv {
 }
 
 function infisicalCliEnv(): NodeJS.ProcessEnv {
-  const env = prepareChildEnv();
+  const env = infisicalProjectEnv(prepareChildEnv());
   env['INFISICAL_DISABLE_MIGRATION_NOTICE'] = '1';
   return env;
-}
-
-function infisicalProjectArgs(args: {
-  readonly workspaceId: string;
-  readonly env: string;
-  readonly domain: string;
-}): string[] {
-  return [
-    '--projectId',
-    args.workspaceId,
-    '--env',
-    args.env,
-    '--domain',
-    args.domain,
-  ];
 }
 
 function runWithInfisicalCli(args: {
@@ -61,7 +50,12 @@ function runWithInfisicalCli(args: {
 }): number {
   const result = spawnSync(
     INFISICAL_CLI_BIN,
-    ['run', ...infisicalProjectArgs(args), '--', ...args.childArgs],
+    [
+      'run',
+      ...infisicalProjectArgs(args, process.env),
+      '--',
+      ...args.childArgs,
+    ],
     {
       cwd: args.repoRoot,
       env: infisicalCliEnv(),
@@ -278,7 +272,7 @@ function runInfisicalFirst(args: {
   if (!canFetchInfisicalSecrets(coords)) {
     console.error(
       'secrets-run: Infisical unavailable (login/network/project). ' +
-        'Run `infisical login` or use LOCAL_SECRETS=1 with injected env.'
+        'Run `bun run secrets:login` or use LOCAL_SECRETS=1 with injected env.'
     );
     return 1;
   }

@@ -76,6 +76,7 @@
         "@pkgs/quint-shared-ts#src",
         "@pkgs/room-adapter-memory-shared-ts#src",
         "@pkgs/room-root-shared-ts#src",
+        "@pkgs/secret-provider-shared-ts#src",
         "@pkgs/secret-store-shared-ts#src",
         "@pkgs/secure-storage-root-shared-ts#src",
         "@pkgs/secure-storage-web-client-ts#src",

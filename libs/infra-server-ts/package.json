@@ -41,7 +41,6 @@
     "@pkgs/emqx-shared-ts": "workspace:*",
     "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
-    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/secret-provider-server-ts": "workspace:*",
     "@types/bun": "catalog:",

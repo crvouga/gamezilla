@@ -24,8 +24,23 @@ export async function openGuestDevice(
 ): Promise<void> {
   devices.guest ??= await open(target);
   const guest = requireDevice(devices.guest, 'guest');
-  devices.shown = guest;
-  await guest.view.navigate(new URL(link, target.webOrigin).href);
+  await navigateLiveDevice(
+    devices,
+    guest,
+    new URL(link, target.webOrigin).href
+  );
+}
+
+/** Activate before starting a document, so startup never runs in a parked tab. */
+export async function navigateLiveDevice(
+  devices: LiveDevices,
+  device: Device,
+  url?: string
+): Promise<void> {
+  devices.shown = device;
+  await device.view.cdp('Page.bringToFront', {});
+  if (url === undefined) await device.driver.launch();
+  else await device.view.navigate(url);
 }
 
 /** Activate the person's tab before reading it or delivering native gestures. */

@@ -1,35 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  profileNameForDomain,
   reportsDevEnv,
   reportsSecretsFromRecord,
 } from './atlas-reports-credentials';
 
 describe('local reports dev', () => {
-  test('the profile is the one whose Infisical domain matches the repo', () => {
-    expect(
-      profileNameForDomain(
-        [
-          {
-            name: 'other@example.com',
-            domain: 'https://secrets.example.com/api',
-          },
-          {
-            name: 'acme@example.com',
-            domain: 'https://app.infisical.com/api',
-          },
-          {
-            name: 'acme@example.com--dead',
-            domain: 'https://app.infisical.com/api',
-          },
-        ],
-        'https://app.infisical.com'
-      )
-    ).toBe('acme@example.com');
-    expect(profileNameForDomain([], 'https://app.infisical.com')).toBeNull();
-  });
-
   test('only the reports read credential is kept', () => {
     expect(
       reportsSecretsFromRecord({

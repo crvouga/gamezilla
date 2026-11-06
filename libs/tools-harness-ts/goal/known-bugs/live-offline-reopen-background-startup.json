@@ -1,0 +1,4 @@
+{
+  "summary": "Offline journeys reopened the host after playing on the peer without activating its tab first. Database startup could run in a parked renderer before the first gesture activated it; navigation and reopen now activate the selected device before replacing its document.",
+  "regressionTest": "apps/product-ts/tests/isolated-browser.test.ts"
+}

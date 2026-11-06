@@ -8,7 +8,7 @@
 import { join } from 'node:path';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/repo-tree-store';
-import { capture } from '@pkgs/os-server-ts/command';
+import { localSessionToken } from '@pkgs/secret-provider-server-ts/local-session-token';
 import { resolveWriteAccessToken } from '@pkgs/secret-provider-server-ts/resolve-write-access-token';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -21,14 +21,8 @@ export async function resolveInfisicalToken(): Promise<string> {
   });
   if (token !== null) return token;
 
-  const session = capture('infisical', ['user', 'get', 'token', '--plain'], {
-    timeoutMs: 20_000,
-  });
-  const local = session.stdout?.trim() ?? '';
-  if (session.status === null)
-    throw new Error('Infisical CLI token export failed or exceeded 20000ms');
-  if (session.status === 0 && local.length > 0) return local;
-  throw new Error(
-    'No Infisical token: in CI export SECRETS_IDENTITY_ID (OIDC); locally run `infisical login`.'
+  return localSessionToken(
+    createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+    REPO_ROOT
   );
 }

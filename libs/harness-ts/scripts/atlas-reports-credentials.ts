@@ -1,16 +1,12 @@
 // @io-wall-ok — the standalone Atlas server reads the shared reports bucket
-/**
- * Reports read credentials for the standalone Atlas server and static export. This machine's current Infisical profile
- * may belong to a different instance than `.infisical.json`, so a bare
- * `infisical export` never sees `REPORTS_*`. Pick the logged-in profile
- * whose domain matches the repo, then read those four values. Nothing here
- * is sent to the browser. The values are the dev environment's read
- * credential for the one bucket OpenTofu provisions.
- */
+/** Reports credentials use the same project-scoped session as every secrets command. */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
+import {
+  infisicalProjectArgs,
+  infisicalProjectEnv,
+} from '@pkgs/secret-provider-shared-ts/infisical-auth';
 
 export const REPORTS_KEYS = [
   'REPORTS_BUCKET',
@@ -19,33 +15,11 @@ export const REPORTS_KEYS = [
   'REPORTS_SECRET_ACCESS_KEY',
 ] as const;
 
-export type InfisicalProfile = {
-  readonly name: string;
-  readonly domain: string;
-};
-
 type InfisicalProject = {
   readonly workspaceId: string;
   readonly domain: string;
   readonly defaultEnvironment: string;
 };
-
-export function profileNameForDomain(
-  profiles: readonly InfisicalProfile[],
-  domain: string
-): string | null {
-  let wanted = '';
-  try {
-    wanted = new URL(domain).origin;
-  } catch {
-    return null;
-  }
-  const matches = profiles.filter(
-    (profile) => originOf(profile.domain) === wanted
-  );
-  const plain = matches.find((profile) => !profile.name.includes('--'));
-  return (plain ?? matches[0])?.name ?? null;
-}
 
 export function reportsSecretsFromRecord(
   record: Readonly<Record<string, string>>
@@ -91,14 +65,6 @@ export function loadReportsDevSecrets(
   return { ...exported, ...fromEnv };
 }
 
-function originOf(value: string): string | null {
-  try {
-    return new URL(value).origin;
-  } catch {
-    return null;
-  }
-}
-
 function readProject(repoRoot: string): InfisicalProject | null {
   const parsed = readJson(join(repoRoot, '.infisical.json'));
   if (parsed === null) return null;
@@ -115,46 +81,26 @@ function exportInfisical(
   repoRoot: string,
   project: InfisicalProject
 ): Record<string, string> {
-  const profile = profileNameForDomain(readProfiles(), project.domain);
-  if (profile === null) return {};
   const result = spawnSync(
     'infisical',
     [
       'export',
-      '--profile',
-      profile,
-      '--projectId',
-      project.workspaceId,
-      '--env',
-      project.defaultEnvironment,
-      '--domain',
-      project.domain,
+      ...infisicalProjectArgs(
+        { ...project, env: project.defaultEnvironment },
+        process.env
+      ),
       '--format=json',
       '--silent',
     ],
     {
       cwd: repoRoot,
+      env: infisicalProjectEnv(process.env),
       encoding: 'utf8',
       maxBuffer: 10 * 1024 * 1024,
     }
   );
   if (result.status !== 0) return {};
   return reportsSecretsFromRecord(secretsRecord(result.stdout));
-}
-
-function readProfiles(): readonly InfisicalProfile[] {
-  const parsed = readJson(
-    join(homedir(), '.infisical', 'infisical-config.json')
-  );
-  if (parsed === null || !Array.isArray(parsed['profiles'])) return [];
-  const profiles: InfisicalProfile[] = [];
-  for (const entry of parsed['profiles']) {
-    if (entry === null || typeof entry !== 'object') continue;
-    const name = stringField(entry, 'name');
-    const domain = stringField(entry, 'domain');
-    if (name !== null && domain !== null) profiles.push({ name, domain });
-  }
-  return profiles;
 }
 
 function secretsRecord(stdout: string): Record<string, string> {

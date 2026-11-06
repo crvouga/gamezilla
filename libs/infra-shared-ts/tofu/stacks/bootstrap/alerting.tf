@@ -67,9 +67,33 @@ module "synthetic_monitoring" {
 # existing notification policy. In Grafana Cloud the provider reaches IRM
 # through the instance `url` and `auth`; no IRM address is needed.
 
+# Mint a stack-scoped credential with the Cloud service-account permission.
+# The bootstrap credential manages access policies, not stack service accounts.
+resource "grafana_cloud_access_policy" "alerting_management" {
+  region = var.grafana.region
+  name   = "${var.project}-alerting-management"
+  scopes = ["stacks:read", "stack-service-accounts:write"]
+  realm {
+    type       = "stack"
+    identifier = module.trace_stack.id
+  }
+}
+
+resource "grafana_cloud_access_policy_token" "alerting_management" {
+  region           = var.grafana.region
+  access_policy_id = grafana_cloud_access_policy.alerting_management.policy_id
+  name             = "${var.project}-alerting-management-token"
+}
+
+provider "grafana" {
+  alias                     = "alerting_management"
+  cloud_access_policy_token = grafana_cloud_access_policy_token.alerting_management.token
+}
+
 resource "grafana_cloud_stack_service_account" "alerting" {
   count = local.routing_ready ? 1 : 0
 
+  provider   = grafana.alerting_management
   stack_slug = var.grafana.stack_slug
   name       = "${var.project}-alerting"
   role       = "Editor"
@@ -78,6 +102,7 @@ resource "grafana_cloud_stack_service_account" "alerting" {
 resource "grafana_cloud_stack_service_account_token" "alerting" {
   count = local.routing_ready ? 1 : 0
 
+  provider           = grafana.alerting_management
   stack_slug         = var.grafana.stack_slug
   name               = "${var.project}-alerting"
   service_account_id = grafana_cloud_stack_service_account.alerting[0].id

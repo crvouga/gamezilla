@@ -5,6 +5,8 @@ import { planArgs, tofuCredentialEnvironment } from './tofu-command';
 const TARGET = { stack: 'bootstrap' as const, env: null };
 const RESOURCES = [
   'github_repository_webhook.ci_alerts',
+  'grafana_cloud_access_policy.alerting_management',
+  'grafana_cloud_access_policy_token.alerting_management',
   'grafana_cloud_access_policy.synthetic_monitoring',
   'grafana_cloud_access_policy_token.synthetic_monitoring',
   'grafana_synthetic_monitoring_installation.this',

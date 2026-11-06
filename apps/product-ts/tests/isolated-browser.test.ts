@@ -3,6 +3,7 @@ import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
 import {
   actOnLiveDevice,
   type LiveDevices,
+  navigateLiveDevice,
   openGuestDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
@@ -40,7 +41,11 @@ test('a link guest uses an isolated process and keeps it across navigations', as
     await openGuestDevice(target, devices, '/space/two', open);
     expect(opened).toBe(1);
     expect(devices.shown).toBe(devices.guest);
-    expect(worker.calls.map((call) => call.args)).toEqual([
+    expect(
+      worker.calls
+        .filter((call) => call.method === 'navigate')
+        .map((call) => call.args)
+    ).toEqual([
       ['https://web.example/space/one'],
       ['https://web.example/space/two'],
     ]);
@@ -305,5 +310,42 @@ test('cleanups after the peer acted last run on the activated host page', async 
   } finally {
     await host.close();
     await peer.close();
+  }
+});
+
+// regression: live-offline-reopen-background-startup
+test('offline reopening and space navigation activate the device before document startup', async () => {
+  const worker = controlled();
+  const device = await openIsolatedDevice(
+    { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
+    () => worker.process
+  );
+  const devices: LiveDevices = {
+    host: device,
+    guest: null,
+    shown: null,
+    previousPeers: [],
+  };
+  try {
+    const start = worker.calls.length;
+    await navigateLiveDevice(devices, device);
+    await navigateLiveDevice(
+      devices,
+      device,
+      'https://web.example/space/saved'
+    );
+    expect(
+      worker.calls
+        .slice(start)
+        .map(({ target, method, args }) => [target, method, args])
+    ).toEqual([
+      ['view', 'cdp', ['Page.bringToFront', {}]],
+      ['driver', 'launch', []],
+      ['view', 'cdp', ['Page.bringToFront', {}]],
+      ['view', 'navigate', ['https://web.example/space/saved']],
+    ]);
+    expect(devices.shown).toBe(device);
+  } finally {
+    await device.close();
   }
 });

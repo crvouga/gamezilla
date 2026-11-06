@@ -1,0 +1,4 @@
+{
+  "summary": "Infisical commands selected the machine-wide or inherited terminal profile, so one project tried another project's session. Every user-authenticated command now selects an endpoint-and-project profile, shared across that project's worktrees, with an explicit SECRETS_PROFILE override for a worktree's process.",
+  "regressionTest": "pkgs/secret-provider-shared-ts/tests/infisical-auth.test.ts"
+}

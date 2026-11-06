@@ -2,6 +2,10 @@ import { spawnSync } from 'node:child_process';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared-ts/defaults';
+import {
+  infisicalProjectArgs,
+  infisicalProjectEnv,
+} from '@pkgs/secret-provider-shared-ts/infisical-auth';
 import { parseInfisicalExportJson } from '@pkgs/secret-provider-shared-ts/local-secrets-cache';
 import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared-ts/resolve-endpoint';
 import type { SecretAdminStore } from '@pkgs/secret-store-shared-ts/admin-interface';
@@ -35,19 +39,8 @@ async function resolveSecretsCoords(
   };
 }
 
-function infisicalBaseArgs(coords: SecretsCoords): string[] {
-  return [
-    '--projectId',
-    coords.workspaceId,
-    '--env',
-    coords.env,
-    '--domain',
-    coords.domain,
-  ];
-}
-
 function infisicalEnv(): NodeJS.ProcessEnv {
-  return { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' };
+  return infisicalProjectEnv(process.env);
 }
 
 /**
@@ -104,7 +97,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
       'secrets',
       'get',
       name,
-      ...infisicalBaseArgs(coords),
+      ...infisicalProjectArgs(coords, process.env),
       '--plain',
     ]);
   }
@@ -128,7 +121,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
       'secrets',
       'set',
       `${name}=${value}`,
-      ...infisicalBaseArgs(coords),
+      ...infisicalProjectArgs(coords, process.env),
     ]);
   }
 
@@ -138,7 +131,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
       'secrets',
       'delete',
       name,
-      ...infisicalBaseArgs(coords),
+      ...infisicalProjectArgs(coords, process.env),
       '--type',
       'shared',
     ]);
@@ -150,7 +143,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
     const raw = await this.run([
       'export',
-      ...infisicalBaseArgs(coords),
+      ...infisicalProjectArgs(coords, process.env),
       '--format=json',
     ]);
     return parseInfisicalExportJson(raw);
@@ -162,7 +155,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
     const raw = await this.run([
       'export',
-      ...infisicalBaseArgs(coords),
+      ...infisicalProjectArgs(coords, process.env),
       '--format=json',
       '--include-imports=false',
     ]);

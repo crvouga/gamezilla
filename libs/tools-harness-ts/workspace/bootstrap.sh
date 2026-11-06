@@ -25,7 +25,7 @@ fi
 echo "==> Infisical: pulling secrets"
 if ! bun run secrets:pull </dev/null; then
   echo "==> Infisical: signing in"
-  if infisical login && bun run secrets:pull </dev/null; then
+  if bun run secrets:login && bun run secrets:pull </dev/null; then
     :
   else
     failed+=(Infisical)
