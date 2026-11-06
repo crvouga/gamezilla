@@ -52,7 +52,10 @@ workspace_activate_tools() {
   fi
   if command -v mise >/dev/null 2>&1; then
     local workspace_mise_env
-    workspace_mise_env="$(mise env --shell bash)" || return 1
+    # Activation only reads installed tools. Never resolve remote versions or
+    # wait for a trust prompt whose stdout is captured by this substitution.
+    echo "==> activating installed workspace tools" >&2
+    workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null)" || return 1
     eval "$workspace_mise_env"
   fi
 }

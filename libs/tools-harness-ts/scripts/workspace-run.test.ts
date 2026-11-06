@@ -333,3 +333,22 @@ test('an absent hook configuration permits setup while a configured hooks path i
   const allowed = setup();
   expect(allowed.status, allowed.stderr).toBe(0);
 });
+
+// regression: workspace-activation-hidden-prompt
+test('activation cannot wait for input or resolve tools over the network', () => {
+  const { dir, setup, run } = checkout();
+  expect(setup().status).toBe(0);
+  writeExecutable(
+    join(dir, '.bin/mise'),
+    '#!/usr/bin/env bash\n' +
+      'if [ "$1" = env ]; then\n' +
+      '  [ "${MISE_OFFLINE:-}" = 1 ] || exit 91\n' +
+      '  [ "${MISE_AUTO_INSTALL:-}" = 0 ] || exit 92\n' +
+      '  if read -r answer; then exit 93; fi\n' +
+      'fi\nexit 0\n'
+  );
+  const result = run();
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stderr).toContain('activating installed workspace tools');
+  expect(result.calls).toEqual([STOP, DEV]);
+});
