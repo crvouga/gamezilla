@@ -14,6 +14,12 @@ export type GameSimulationControls = {
 export type GameBoardProps = {
   readonly simulation?: GameSimulationControls | undefined;
   readonly position: string;
+  /**
+   * The action that reached `position`, as the game writes it, so a board
+   * can mark the last move even when it opens part-way through a game;
+   * `null` or absent before the first move or where it is not known.
+   */
+  readonly lastAction?: string | null | undefined;
   readonly orientation: GameSide;
   readonly interactive: boolean;
   readonly sound: boolean;
@@ -69,4 +75,11 @@ export type GamePresentation<View = unknown> = {
    * or `undefined` for a reason only the platform words.
    */
   readonly refusalDescription?: (reason: string) => string | undefined;
+  /**
+   * The word that names every move once in the record (`Column`), for a
+   * game whose notation alone is a bare number; absent when the notation
+   * reads on its own (`e4`). The moves themselves stay as the game writes
+   * them.
+   */
+  readonly moveHeading?: () => string;
 };

@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a puzzle library's cards took each row's own content height, and the Continue tab's two cards filled two of three columns with pictures tall enough to push Finished below the fold. Every row of cards is now as tall as the tallest, and a PreviewCardGrid with layout rows keeps compact rows wide, two columns of them.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/preview-card-board-fill.test.ts"
+}

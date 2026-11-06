@@ -1,10 +1,82 @@
 import { parseCards, writeCards } from '@libs/hearts-shared-ts/hearts-cards';
-import { decodeHearts } from '@libs/hearts-shared-ts/hearts-position';
+import {
+  decodeHearts,
+  passDirection,
+} from '@libs/hearts-shared-ts/hearts-position';
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { CardTable } from '@pkgs/ui-root-client-ts/card-table';
+import {
+  GAME_SIDES,
+  type GameSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  CardTable,
+  type CardTableAction,
+  type CardTablePass,
+} from '@pkgs/ui-root-client-ts/card-table';
+import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
-import { handCards, tableCenter, tableSeats } from './hearts-table-view';
+import { passAction, passHeading } from './hearts-copy';
+import {
+  handCards,
+  tableCard,
+  tableCenter,
+  tableSeats,
+} from './hearts-table-view';
+
+/**
+ * The person in each seat, when the screen around the board lends them:
+ * drawn once each, so the table moves them, never redraws them.
+ */
+function useSeatPlayers(): ((side: GameSide) => JSX.Element) | undefined {
+  const lend = useGameTableSeat();
+  if (lend === undefined) return undefined;
+  const players = new Map(
+    GAME_SIDES.map((side) => [side, lend(side)] as const)
+  );
+  return (side) => players.get(side);
+}
+
+function directionOf(position: string) {
+  return passDirection(decodeHearts(position)?.deal ?? 1);
+}
+
+/**
+ * The pass in the middle of the table, for a seated player: where it goes,
+ * and the cards passed once passed, else those being chosen.
+ */
+function passShown(
+  props: GameBoardProps,
+  chosen: readonly string[]
+): CardTablePass | undefined {
+  if (props.hand === null) return undefined;
+  const cards =
+    props.commitment === null ? chosen : (parseCards(props.commitment) ?? []);
+  return {
+    label: passHeading(directionOf(props.position), props.commitment !== null),
+    size: 3,
+    cards: cards.map((card) => tableCard(card as never)),
+  };
+}
+
+/** Pass, named by where the cards go, beside how many are chosen. */
+function passButton(
+  props: GameBoardProps,
+  chosen: readonly string[],
+  sending: boolean,
+  onActivate: () => void
+): CardTableAction {
+  return {
+    label: sending
+      ? t`Passing your cards…`
+      : passAction(directionOf(props.position)),
+    status: t`${chosen.length} of 3 chosen`,
+    enabled: chosen.length === 3,
+    pending: sending,
+    testId: `${props.testId}-pass`,
+    onActivate,
+  };
+}
 
 /**
  * The Hearts table: four seats around the trick, the viewer nearest, and
@@ -49,7 +121,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
           : now
     );
   };
-  const count = () => chosen().length;
+  const players = useSeatPlayers();
   // A seated player whose cards are still on their way, told so rather
   // than shown an empty hand.
   const awaitingHand = () => props.interactive && props.hand === null;
@@ -57,11 +129,18 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
     <CardTable
       label={t`Hearts table`}
       testId={props.testId}
-      seats={tableSeats(props)}
+      seats={tableSeats(props, players)}
       center={
         awaitingHand() ? t`Your cards are on their way.` : tableCenter(props)
       }
-      hand={handCards(props, chosen())}
+      // The game's turn line beside the table says the same sentence.
+      centerSpokenOnly={!awaitingHand()}
+      trick={decodeHearts(props.position)?.phase === 'play'}
+      pass={passing() ? passShown(props, chosen()) : undefined}
+      hand={handCards(props, chosen()).map((card) =>
+        // A pass on its way locks the hand: the chosen cards stay lifted.
+        sending() ? { ...card, enabled: false } : card
+      )}
       handLabel={t`Your hand`}
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}
@@ -70,18 +149,10 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
         props.hand !== null &&
         props.commitment === null &&
         (props.interactive || sending())
-          ? {
-              label: sending()
-                ? t`Passing your cards…`
-                : t`Pass ${count()} of 3 cards`,
-              enabled: count() === 3,
-              pending: sending(),
-              testId: `${props.testId}-pass`,
-              onActivate: () => {
-                setSending(true);
-                props.onAction(writeCards(chosen() as never));
-              },
-            }
+          ? passButton(props, chosen(), sending(), () => {
+              setSending(true);
+              props.onAction(writeCards(chosen() as never));
+            })
           : undefined
       }
       dataSet={{ position: props.position }}

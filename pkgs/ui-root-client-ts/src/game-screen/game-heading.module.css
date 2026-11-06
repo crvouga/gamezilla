@@ -1,0 +1,27 @@
+/* A game screen's heading: its title and the game's facts. */
+/* The title and the game's facts share one line; the facts wrap under the
+   title only when the line is too short for both. */
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--ui-space-3);
+  min-width: 0;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* On a phone the host's top bar names the space and the game; the body
+   keeps the game's name with its facts on one compact line, so the facts
+   never float alone under the bar, and the name in the display face never
+   pushes the board down. */
+@container game-column (max-width: 879px) {
+  .headingTitle h1 {
+    font-size: var(--ui-font-size-xl);
+    line-height: 1.25;
+  }
+}

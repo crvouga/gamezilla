@@ -46,11 +46,11 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
         readonly integration_id: number;
       }
   );
+  expect(checks).toHaveLength(2);
   expect(checks).toEqual(
     expect.arrayContaining([
       { context: 'verify:start', integration_id: 15368 },
       { context: 'verify:end', integration_id: 15368 },
-      { context: 'GitGuardian Security Checks', integration_id: 46505 },
     ])
   );
   expect(new Set(checks.map((check) => check.context)).size).toBe(

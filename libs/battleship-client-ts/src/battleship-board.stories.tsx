@@ -1,5 +1,14 @@
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
-import { resolveBattleshipShot } from '@libs/battleship-shared-ts/battleship-rules';
+import {
+  battleshipRules,
+  resolveBattleshipShot,
+} from '@libs/battleship-shared-ts/battleship-rules';
+import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
 import {
   type GameSetups,
   TWO_PLAYER_SIDES,
@@ -8,12 +17,6 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipBoard } from './battleship-board';
 import { battleshipPresentation } from './battleship-presentation';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 
 /** Blue's fleet along rows 1, 3, 5, 7 and 9 from column A. */
 const BLUE_FLEET =
@@ -36,6 +39,11 @@ function after(cells: readonly string[]): string {
     actions.push(action);
   }
   return encodeBattleshipPosition(actions);
+}
+
+/** The shots fired to reach `position`, as the game's record writes them. */
+function recorded(position: string): readonly string[] {
+  return battleshipRules.moves(position, '', []).map((move) => move.label);
 }
 
 /** Blue sinks Red's destroyer and hits its carrier; Red misses twice and hits once. */
@@ -87,18 +95,34 @@ type Story = StoryObj<typeof meta>;
 export const Opening: Story = {};
 
 /** Mid-game on Blue's turn: a sunk destroyer, hits and misses on both boards. */
-export const YourTurn: Story = { args: { position: after(VOLLEYS) } };
+export const YourTurn: Story = {
+  args: { position: after(VOLLEYS) },
+  parameters: {
+    table: { moves: recorded(after(VOLLEYS)) } satisfies GameTableStory,
+  },
+};
 
 /** Red is firing: Blue's own fleet shows, with the shots that hit it. */
 export const WaitingForOpponent: Story = {
   args: { position: after(VOLLEYS.slice(0, -1)), interactive: false },
-  parameters: { table: { turn: 'black' } satisfies GameTableStory },
+  parameters: {
+    table: {
+      turn: 'black',
+      moves: recorded(after(VOLLEYS.slice(0, -1))),
+    } satisfies GameTableStory,
+  },
 };
 
 /** A watcher sees both waters as public shots, named by fleet, and no ships. */
 export const Watching: Story = {
   args: { position: after(VOLLEYS), interactive: false, setup: null },
-  parameters: { table: { viewer: null, turn: 'white' } },
+  parameters: {
+    table: {
+      viewer: null,
+      turn: 'white',
+      moves: recorded(after(VOLLEYS)),
+    } satisfies GameTableStory,
+  },
 };
 
 /** Blue sinks the whole Red fleet and is told so. */
@@ -107,6 +131,7 @@ export const Won: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'fleet sunk' },
+      moves: recorded(after(BLUE_VICTORY)),
     } satisfies GameTableStory,
   },
 };
@@ -122,6 +147,7 @@ export const Lost: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'fleet sunk' },
+      moves: recorded(after(BLUE_VICTORY)),
     } satisfies GameTableStory,
   },
 };

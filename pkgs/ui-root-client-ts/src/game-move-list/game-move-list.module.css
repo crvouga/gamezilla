@@ -1,0 +1,147 @@
+/* A game's record as numbered turns. `turn` is the one shown turn, whole
+   and centred inside a MoveStrip; `table` gives each turn a line, its moves
+   in seat columns. */
+.list {
+  display: flex;
+  min-width: 0;
+}
+.list[data-layout="turn"] {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  /* Centred in the strip while it fits; a long turn starts at the edge. */
+  margin-inline: auto;
+}
+.list[data-layout="table"] {
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.turns {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.list[data-layout="turn"] .turns {
+  flex-direction: row;
+  align-items: center;
+}
+.list[data-layout="turn"] .turn {
+  gap: var(--ui-space-3);
+}
+/* A wrapping turn breaks between its moves, never inside one, and keeps
+   its lines centred in the strip's well. Slim side padding and a tighter
+   step between moves keep a two-move turn (`Move 5 Column ● 7 ◆ 4`) on
+   one line in a phone's well, so the record stays one short row. */
+.list[data-layout="turn"][data-wrap="true"] {
+  max-width: 100%;
+  padding: var(--ui-space-1);
+}
+.list[data-layout="turn"][data-wrap="true"] .turns,
+.list[data-layout="turn"][data-wrap="true"] .turn {
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.list[data-layout="turn"][data-wrap="true"] .turn {
+  column-gap: var(--ui-space-2);
+  row-gap: var(--ui-space-1);
+}
+/* The shown turn's number in words reads as a label, not a stray digit. */
+.list[data-layout="turn"] .number {
+  white-space: nowrap;
+}
+/* One grid for every turn (each line a subgrid of it), its seat columns
+   sized by their longest move: a move written in words
+   (`G10 sinks the destroyer`) takes the room the short ones leave, so every
+   line keeps one row and the columns still line up. */
+.list[data-layout="table"] .turns {
+  display: grid;
+  grid-template-columns: 32px repeat(var(--move-columns), auto);
+  column-gap: var(--ui-space-2);
+  row-gap: var(--ui-space-hairline);
+}
+.turn {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  flex-shrink: 0;
+}
+.list[data-layout="table"] .turn {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+.number {
+  min-width: 16px;
+  color: var(--ui-color-text-secondary);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: end;
+}
+.list[data-layout="table"] .number {
+  grid-column: 1;
+}
+.move {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.list[data-layout="table"] .move {
+  grid-column: var(--move-column);
+}
+/* The word naming every move once (`Column`), quiet: over the table's
+   move columns, clear of the turn numbers; after the strip's turn label. */
+.heading {
+  color: var(--ui-color-text-secondary);
+  white-space: nowrap;
+}
+.list[data-layout="table"] .heading {
+  padding-inline-start: calc(32px + var(--ui-space-2));
+}
+.moveButton {
+  display: inline-flex;
+  align-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding-inline: var(--ui-space-2);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-color-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+/* A move written in words wraps inside its column only when even the
+   widest column cannot hold it (a narrow rail), never cut off: every word
+   of the record stays readable. */
+.list[data-layout="table"] .moveButton {
+  min-width: 0;
+  padding-block: var(--ui-space-1);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+@media (hover: hover) and (pointer: fine) {
+  .moveButton:hover {
+    background: var(--ui-color-interactive-hover);
+  }
+}
+.moveButton[data-current="true"] {
+  background: var(--ui-color-tint-subtle);
+  color: var(--ui-color-on-primary-soft);
+}
+.moveButton:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .moveButton {
+    transition: none;
+  }
+}

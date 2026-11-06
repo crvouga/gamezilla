@@ -85,7 +85,8 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   const resolveClick = useBreadcrumbClick();
   const layout = createMemo(() => deriveHeaderLayout(props.breadcrumbs));
   const showTitle = (): boolean =>
-    props.largeTitle === true ? (titleCtx?.showInTopBar() ?? false) : true;
+    props.hideTitle !== true &&
+    (props.largeTitle === true ? (titleCtx?.showInTopBar() ?? false) : true);
   const hasTitle = (): boolean =>
     showTitle() && layout().title !== undefined && layout().title !== null;
   const hasTrailing = (): boolean =>
@@ -111,7 +112,14 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
       }
       center={
         <Show when={hasTitle()}>
-          <TopBarTitle label={layout().title} />
+          <TopBarTitle
+            label={layout().title}
+            size={
+              props.leading === undefined && !layout().showBack
+                ? 'large'
+                : 'regular'
+            }
+          />
         </Show>
       }
       trailing={

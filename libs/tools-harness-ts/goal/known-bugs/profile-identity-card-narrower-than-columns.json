@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop profile the identity card shrank to its content (about 495px) beside empty space, so its edges did not line up with the two columns below; it is now a band across the whole column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/profile-rail-layout.test.tsx"
+}

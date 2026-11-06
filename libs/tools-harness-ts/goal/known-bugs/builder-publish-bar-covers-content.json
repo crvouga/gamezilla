@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle and pack builders held Check and publish in a sticky card inside the scroll area, so on a phone and a desktop it covered the board's last row, the pack's puzzle list and the helper text under it. It is now the screen's footer (StepFooter in GameScreen's footer slot), a strip after the scroll area that nothing scrolls beneath.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

@@ -13,7 +13,7 @@ export async function spaceLinkView(s: ProductHarness, actorId: string) {
   if (await ui.get(Handles.spaceNotFound).isVisible())
     return { linkDestination: 'not found', joinOffered };
   if (joinOffered) return { linkDestination: 'open', joinOffered };
-  if (await ui.get(Handles.spaceClose).isVisible())
+  if (await ui.get(Handles.spaceChromeOverflow).isVisible())
     return { linkDestination: 'in space', joinOffered };
   return { linkDestination: 'none', joinOffered };
 }

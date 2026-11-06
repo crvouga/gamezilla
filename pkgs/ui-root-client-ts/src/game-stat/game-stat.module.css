@@ -1,0 +1,9 @@
+.statProgress {
+  /* As wide as the stat, so the bar spans the card it sits in. */
+  width: 100%;
+  padding-block: var(--ui-space-1);
+}
+/* A compact stat's number: a label's size, still in tabular figures. */
+.compactValue {
+  font-variant-numeric: tabular-nums lining-nums;
+}

@@ -58,6 +58,10 @@ export const NAMING_EXEMPT = {
     // A portable Agent Skills directory, kept identical to its copies in
     // other repositories (kebab-case reference names, Python modules).
     '.agents/skills/ci-green/',
+    // Portable overhaul skills, kept identical across repositories; their
+    // fixtures use Agent Council's own file names (`opinion_<agent>.json`).
+    '.agents/skills/ui-overhaul/',
+    '.agents/skills/ui-ux-overhaul/',
   ],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [

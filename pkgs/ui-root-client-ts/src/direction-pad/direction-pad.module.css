@@ -12,6 +12,37 @@
   user-select: none;
   -webkit-user-select: none;
 }
+/* A thumb's pad: 44px buttons, every one still a full touch target. */
+.pad[data-size="sm"] {
+  grid-template-columns: repeat(3, 2.75rem);
+  grid-template-rows: repeat(3, 2.75rem);
+  gap: var(--ui-space-1);
+}
+.pad[data-size="sm"] .glyph {
+  width: var(--ui-icon-size-md);
+  height: var(--ui-icon-size-md);
+}
+/* A step at a time beside other controls: the same pad at a 48px step. */
+.pad[data-size="md"] {
+  grid-template-columns: repeat(3, var(--ui-space-12));
+  grid-template-rows: repeat(3, var(--ui-space-12));
+  gap: var(--ui-space-1);
+}
+.pad[data-size="md"] .glyph {
+  width: var(--ui-icon-size-lg);
+  height: var(--ui-icon-size-lg);
+}
+/* The arrow keys: up over left, down and right, a row shorter than the
+   cross at every size, each button still a full touch target. */
+.pad[data-layout="arrows"] {
+  grid-template-rows: repeat(2, auto);
+  grid-template-areas:
+    ". up ."
+    "left down right";
+}
+.pad[data-layout="arrows"] > .button {
+  aspect-ratio: 1;
+}
 .button {
   display: grid;
   place-items: center;

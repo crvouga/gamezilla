@@ -23,3 +23,17 @@ test("a hidden puzzle rating inside a button says nothing the button's name leav
   expect(container.textContent ?? '').not.toMatch(/\b0\b/);
   expect(auditTree(container).map(formatFailure)).toEqual([]);
 });
+
+test('a hidden puzzle rating keeps its prefix out of the visible label', () => {
+  // regression: puzzle-feed-hidden-rating-prefix-in-label
+  const { container } = render(() => (
+    <Pressable>
+      <VisuallyHidden>Puzzle feed. Automatic target 1500.</VisuallyHidden>
+      <P variant="bodyBold">Puzzle</P>
+      <PuzzleRatingBadge rating={0} invisible prefix="Puzzle rating" />
+      <P variant="caption">Auto target 1500</P>
+    </Pressable>
+  ));
+  expect(container.textContent ?? '').not.toContain('Puzzle rating');
+  expect(auditTree(container).map(formatFailure)).toEqual([]);
+});

@@ -18,6 +18,20 @@ export type HighlightedTextProps = {
 
 export type HighlightedSegment = { text: string; bold: boolean };
 
+/**
+ * The run of `text` that the typed `query` matched (its first
+ * case-insensitive match), as a range to emphasise: the result shows what
+ * was typed in bold, where the search landed. Empty when `query` is blank
+ * or absent from `text`.
+ */
+export function rangesOfMatch(text: string, query: string): MatchRange[] {
+  const needle = query.trim().toLowerCase();
+  if (needle.length === 0) return [];
+  const at = text.toLowerCase().indexOf(needle);
+  if (at < 0) return [];
+  return [[at, at + needle.length - 1]];
+}
+
 /** Split `text` into plain / bold segments. Exported for tests. */
 export function highlightSegments(
   text: string,
@@ -40,6 +54,7 @@ export function highlightSegments(
 
 const ROLE_CLASS: Readonly<Record<TextRole, string>> = {
   body: 'textBody',
+  rowTitle: 'textBody textRowTitle',
   bodyBold: 'textBodyBold',
   label: 'textLabel',
   caption: 'textCaption',

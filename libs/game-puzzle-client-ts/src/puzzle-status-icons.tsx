@@ -3,7 +3,6 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import {
   ClockIcon,
-  PlayIcon,
   SearchIcon,
   WifiOffIcon,
 } from '@pkgs/ui-root-client-ts/icons';
@@ -55,7 +54,11 @@ function markKind(kind: PuzzleStatusKind): MarkKind | null {
     : null;
 }
 
-/** The glyph for one status, leading the status row. */
+/**
+ * The glyph for one status, leading the status row. The solver's own turn
+ * has none: its prompt says it in words, and a play-shaped mark beside it
+ * read as a button.
+ */
 export function PuzzleStatusIcon(props: {
   kind: PuzzleStatusKind;
 }): JSX.Element {
@@ -73,9 +76,6 @@ export function PuzzleStatusIcon(props: {
       </Match>
       <Match when={kind() === 'waiting'}>
         <ClockIcon size={ICON_SIZE} color="textSecondary" />
-      </Match>
-      <Match when={kind() === 'started'}>
-        <PlayIcon size={ICON_SIZE} color="textSecondary" />
       </Match>
       <Match when={markKind(kind())}>
         {(mark) => <StatusMark kind={mark()} />}

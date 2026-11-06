@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop the profile's identity was a 960px band with the face, name and friends count squeezed at its start, Edit profile at its far end and about 600px of nothing between. The identity is now a card of its own content (the picture over the name, its facts and Edit profile) in a narrow first column, level with Playing now and the Friends and Settings rail.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/profile-rail-layout.test.tsx"
+}

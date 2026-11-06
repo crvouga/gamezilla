@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game's menu showed two large tiles over one slim full-width \"History and stats\" row, an uneven block. The look back is now a compact row under the tiles that never spans the menu alone.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

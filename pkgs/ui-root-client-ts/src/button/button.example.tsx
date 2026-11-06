@@ -152,6 +152,29 @@ function SizesBlock(): JSX.Element {
   );
 }
 
+/** A step that waits on an earlier one: muted, locked, still pressable. */
+function LockedBlock(): JSX.Element {
+  const [pressed, setPressed] = createSignal(0);
+  return (
+    <>
+      <SectionLabel label="Locked (waits on an earlier step; still pressable)" />
+      <SchemePreview>
+        <div class="box flex-row flex-wrap items-center gap-2">
+          <Button title="Start playtest" />
+          <Button
+            title="Publish"
+            intent="neutral"
+            variant="ghost"
+            locked
+            onClick={() => setPressed((count) => count + 1)}
+          />
+          <p class="text textCaption">{`Pressed ${pressed()} times`}</p>
+        </div>
+      </SchemePreview>
+    </>
+  );
+}
+
 /** The design brief's four buttons, as `intent` × `variant`. */
 const BRIEF_VARIANTS: readonly {
   label: string;
@@ -202,6 +225,8 @@ export default function ButtonExample(): JSX.Element {
       <FeedbackBlock />
       <div class="divider" role="separator" />
       <SizesBlock />
+      <div class="divider" role="separator" />
+      <LockedBlock />
       <div class="divider" role="separator" />
       <For each={OTHER_VARIANTS}>
         {(entry) => (

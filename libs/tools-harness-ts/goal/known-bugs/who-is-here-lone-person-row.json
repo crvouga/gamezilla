@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop a space's Who's here card laid five people in a four-column grid, leaving \"sam\" alone on a second row of a mostly empty card. The number of columns now follows how many are here (five or six share one row), so no last row holds one person alone.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-who-is-here.test.tsx"
+}

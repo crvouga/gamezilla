@@ -28,6 +28,7 @@ export function DiscDropBoardExample(props: {
       interactive={props.interactive}
       lastCell={last()}
       label="Drop board"
+      prompt={props.interactive ? 'Choose a column' : ''}
       testId="arena-disc-board"
       columnTestId={(column) => `arena-column-${column + 1}`}
       cellLabel={(column, row, disc) =>

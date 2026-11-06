@@ -1,6 +1,10 @@
 /** @jsxImportSource solid-js */
 
-import { AVATAR_SEAT_COLORS, Avatar } from '@pkgs/ui-root-client-ts/avatar';
+import {
+  AVATAR_SEAT_COLORS,
+  Avatar,
+  avatarInitials,
+} from '@pkgs/ui-root-client-ts/avatar';
 import { sampleAvatarSvg } from '@pkgs/ui-root-client-ts/avatar-sample-svg';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -20,6 +24,16 @@ function Row(props: { title: string; children: JSX.Element }): JSX.Element {
   );
 }
 
+const TINTED_PEOPLE = [
+  'jordan',
+  'jordan_plays',
+  'jordy',
+  'avery',
+  'morgan',
+  'robin_42',
+  'Ada Lovelace',
+] as const;
+
 function Kinds(): JSX.Element {
   const tokens = useThemeTokens();
   const svg = (): string => sampleAvatarSvg(tokens.palette());
@@ -29,6 +43,18 @@ function Kinds(): JSX.Element {
         <Avatar svg={svg()} alt="Ada" size="lg" />
         <Avatar initials="JD" alt="Jane Doe" size="lg" />
         <Avatar alt="Someone" size="lg" />
+      </Row>
+      <Row title="tintKey: initials tinted by who they are">
+        <For each={TINTED_PEOPLE}>
+          {(name) => (
+            <Avatar
+              initials={avatarInitials(name)}
+              tintKey={name}
+              alt={name}
+              size="lg"
+            />
+          )}
+        </For>
       </Row>
       <Row title="bot: the bot glyph, never a person">
         <Avatar kind="bot" size="md" />

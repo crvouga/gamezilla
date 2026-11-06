@@ -4,6 +4,7 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { minimizeSpace, spaceBarShown } from '@libs/harness-ts/shell-actions';
 import {
   markSpaceQuiet,
   spaceClientIsQuiet,
@@ -71,7 +72,7 @@ export const startSpace = scenarioAction({
       s,
       actorId,
       [
-        Handles.spaceClose,
+        Handles.spaceChromeOverflow,
         Handles.spacesNeedConnection,
         Handles.spacesHostingLimit,
       ],
@@ -97,7 +98,7 @@ export const joinFromPrompt = scenarioAction({
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     // A host opening their own live space is taken in, so Join never shows.
-    if (await ui.get(Handles.spaceClose).isVisible()) {
+    if (await spaceBarShown(ui)) {
       await waitActiveSpace(s, actorId);
       return;
     }
@@ -126,7 +127,11 @@ export const joinFromLobby = scenarioAction({
     await waitForOneOf(
       s,
       actorId,
-      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
+      [
+        Handles.spaceChromeOverflow,
+        Handles.spaceEnded,
+        Handles.spacesNeedConnection,
+      ],
       `joined ${hostUsername}'s space, or why not`
     );
   },
@@ -231,10 +236,11 @@ export const reopenLiveSpace = scenarioAction({
   },
 });
 
+/** End sits in the space's ⋯ menu, set apart from everyday controls. */
 export const endSpace = scenarioAction({
   name: 'endSpace',
   act: async (s, actorId: string) => {
-    await tapChromeAction(s, actorId, Handles.spaceEnd);
+    await tapChromeOrOverflow(s, actorId, Handles.spaceEnd);
     await confirmSpaceMutation(s, actorId, Handles.spaceEndConfirm);
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceEnded).expect.visible({
@@ -255,8 +261,8 @@ export const openSpaceMembers = scenarioAction({
 });
 
 /**
- * Leave the space from its chrome (a host's Leave sits in the ⋯ menu, and
- * ends the space for everyone) and confirm.
+ * Leave the space from its ⋯ menu (a host's Leave ends the space for
+ * everyone) and confirm.
  */
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',
@@ -346,7 +352,11 @@ export const joinViaLink = scenarioAction({
     await waitForOneOf(
       s,
       actorId,
-      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
+      [
+        Handles.spaceChromeOverflow,
+        Handles.spaceEnded,
+        Handles.spacesNeedConnection,
+      ],
       `joined from ${link}, or why not`
     );
   },
@@ -363,14 +373,14 @@ export const closeSpaceMembers = scenarioAction({
   },
 });
 
-/** Step out of the space screen (the ✕), staying a member. */
+/** Step out of the space screen (Minimize), staying a member. */
 export const closeSpaceScreen = scenarioAction({
   name: 'closeSpaceScreen',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
+    await minimizeSpace(ui, SPACE_WAIT_MS);
     await ui
-      .get(Handles.spaceClose)
+      .get(Handles.spaceChromeOverflow)
       .expect.hidden({ timeoutMs: SPACE_WAIT_MS });
   },
 });

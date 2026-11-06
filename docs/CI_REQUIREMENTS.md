@@ -161,12 +161,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 362 |
-| Verify scripts | 1504 |
+| Packages | 363 |
+| Verify scripts | 1507 |
 | Measured scripts | 934 |
-| Estimated scripts | 570 |
+| Estimated scripts | 573 |
 | Stale cost keys | 574 |
-| Cold CPU | 19516 s |
+| Cold CPU | 19520 s |
 | Spec parts | 12130 s across 374 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -175,17 +175,17 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 374 | 12130 s |
-| lint | 360 | 1277 s |
+| lint | 361 | 1279 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 270 | 931 s |
+| test | 271 | 932 s |
 | verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 359 | 543 s |
+| tc | 360 | 544 s |
 
 ### Leaves
 
-49 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+50 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |
@@ -208,8 +208,8 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 294 | 19299 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 258 | 19173 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 295 | 19303 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 259 | 19177 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/assert-root-shared-ts | 253 | 19140 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner

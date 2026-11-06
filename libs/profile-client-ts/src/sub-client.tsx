@@ -37,6 +37,8 @@ export const PROFILE_CLIENT = defineSubClient({
       label: profileTabLabel,
       Icon: UserIcon,
       testID: Handles.tabProfile,
+      // Settings opens from Profile, so Profile stays the current tab there.
+      alsoActiveUnder: ['/more'],
     },
   ],
   session: SessionProvider,

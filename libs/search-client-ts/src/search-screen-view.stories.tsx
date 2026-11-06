@@ -2,12 +2,22 @@ import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SearchScreenView } from './search-screen-view';
-import { StoryUserRow, storyResult } from './search-screen-view.example';
+import {
+  StoryRequestsAside,
+  StoryRequestsEntry,
+  StoryUserRow,
+  storyResult,
+} from './search-screen-view.example';
 
+/** Everyone whose username starts with "jor", in the order search lists them. */
 const RESULTS = [
-  storyResult(1, 'jordan'),
-  storyResult(2, 'jordan_plays'),
-  storyResult(3, 'jordy'),
+  storyResult('10', 'jordan'),
+  storyResult('02', 'jordan_plays'),
+  storyResult('13', 'jordana'),
+  storyResult('11', 'jordy', { synced: false }),
+  storyResult('14', 'jorge_m'),
+  storyResult('15', 'jorn_k'),
+  storyResult('16', 'jory'),
 ];
 
 const IDLE = {
@@ -24,13 +34,13 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['search', 'denial', 'renderUserRow'] },
+    controls: { exclude: ['search', 'denial', 'renderUserRow', 'aside'] },
   },
   args: {
     query: '',
     recentQueries: [],
     search: IDLE,
-    renderUserRow: (user) => <StoryUserRow user={user} />,
+    renderUserRow: (user, query) => <StoryUserRow user={user} query={query} />,
     onQueryChange: fn(),
     onSelectRecent: fn(),
     onClearRecent: fn(),
@@ -52,9 +62,27 @@ export const Searching: Story = {
   args: { query: 'jor', search: { ...IDLE, searching: true } },
 };
 
-/** People whose username starts with the query. */
+/**
+ * People whose username starts with the query, in one panel: each face, and
+ * the typed "jor" emphasised where it matched in each handle
+ * (a profile not yet on this device shows its initials). Each row ends on
+ * one shared edge: a Friends tag, Accept / Decline for one who asked to be
+ * friends (an Asked you tag under the name), and Cancel request for
+ * one that is out (a Request sent tag) as the same small outlined pill as
+ * Add friend. The panel sits on the search field's inset. On a desktop a
+ * column beside it holds the friend requests waiting (filled by the friends
+ * sub) over how finding people works; a phone has them as a Friend requests
+ * entry with their count under the field.
+ */
 export const Results: Story = {
   args: { query: 'jor', search: { ...IDLE, results: RESULTS } },
+  render: (args) => (
+    <SearchScreenView
+      {...args}
+      aside={<StoryRequestsAside />}
+      requests={<StoryRequestsEntry />}
+    />
+  ),
 };
 
 /** Nobody matched: the query is repeated and a next step suggested. */

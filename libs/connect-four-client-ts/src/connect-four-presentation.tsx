@@ -30,12 +30,18 @@ export const connectFourPresentation: GameClientPresentation = {
   name: () => t`Connect Four`,
   Board: ConnectFourGameBoard,
   sideLabel: (side) => (side === 'white' ? t`Red circle` : t`Yellow diamond`),
+  // A move is its column's number: the record says so beside it.
+  moveHeading: () => t`Column`,
   frame: {
+    drawOffers: true,
     players: fixedPlayers(2),
     options: [],
-    // The disc each side drops: its color and its shape.
+    // The disc each side drops: the board's own disc paint, so the seat
+    // matches its discs in every theme, and its shape.
     seats: lookOnlySeats((side) =>
-      side === 'white' ? { color: 7, mark: '●' } : { color: 5, mark: '◆' }
+      side === 'white'
+        ? { color: 'disc-one', mark: '●' }
+        : { color: 'disc-two', mark: '◆' }
     ),
     createBoard: boardOnly(ConnectFourGameBoard),
     turnStatus: () => null,

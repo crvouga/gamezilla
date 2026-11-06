@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the thirteen-card Hearts hand sat in two staggered, overlapping rows, so the second row hid the corners of the first and chosen cards were hard to tell apart. A narrow hand of more than seven cards is now one row that scrolls sideways with at least 30px of every card in view, and a chosen card lifts 12px with a two-tone ring.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

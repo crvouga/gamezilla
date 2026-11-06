@@ -12,6 +12,7 @@ import MoreServerStatusScreen from './more-server-status';
 import MoreSoundScreen from './more-sound';
 import MoreSyncScreen from './more-sync';
 import MoreThemeScreen from './more-theme';
+import MoreTroubleshootingScreen from './more-troubleshooting';
 import SsoCallbackScreen from './sso-callback';
 /**
  * The shell's own routes — settings, account, the client inspector, the OAuth callback. Everything a *sub* owns is contributed by
@@ -33,6 +34,7 @@ export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
   { path: '/more/sound', component: MoreSoundScreen },
   { path: '/more/about', component: MoreAboutScreen },
   { path: '/more/sync', component: MoreSyncScreen },
+  { path: '/more/troubleshooting', component: MoreTroubleshootingScreen },
   {
     path: '/more/server-status',
     component: MoreServerStatusScreen,

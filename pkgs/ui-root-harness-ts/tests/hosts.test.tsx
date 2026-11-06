@@ -61,14 +61,14 @@ describe('Switch', () => {
     const el = screen.getByRole('switch', { name: 'Sound' });
     expect(el).toHaveAttribute('aria-checked', 'false');
     const track = el.querySelector('[class*="rounded"]');
-    expect(track?.className).toMatch(/bg-transparent/);
+    expect(track?.className).toMatch(/\bbg-outline\b/);
     expect(track).toHaveAttribute('data-on', 'false');
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
     expect(el.className).toMatch(/min-h-11/);
-    // On is the soft blue (`tint-subtle`), never the saturated button fill.
-    expect(track?.className).toMatch(/bg-tint-subtle/);
-    expect(track?.className).not.toMatch(/bg-tint-active/);
+    // On is the accent track, the same fill as a primary button.
+    expect(track?.className).toMatch(/\bbg-tint-active\b/);
+    expect(track?.className).not.toMatch(/\bbg-outline\b/);
     expect(track).toHaveAttribute('data-on', 'true');
   });
 
@@ -81,13 +81,13 @@ describe('Switch', () => {
     const el = screen.getByRole('switch', { name: 'Sound' });
     const track = el.querySelector('[class*="rounded"]');
     const thumb = track?.firstElementChild;
-    expect(thumb?.className).toMatch(/bg-text-secondary/);
+    // The thumb is the on-primary white on both tracks (3:1 or more against
+    // `outline` and `tint-active`), never a thumb in the track's own color.
+    expect(thumb?.className).toMatch(/\bbg-on-primary\b/);
+    expect(track?.className).not.toMatch(/\bbg-on-primary\b/);
     fireEvent.click(el);
-    // On is the soft blue track with a `primary-strong` thumb, never the
-    // text tint and never a thumb in the track's own color.
-    expect(track?.className).toMatch(/\bbg-tint-subtle\b/);
-    expect(track?.className).not.toMatch(/\bbg-tint\b(?!-)/);
-    expect(thumb?.className).toMatch(/\bbg-primary-strong\b/);
+    expect(track?.className).toMatch(/\bbg-tint-active\b/);
+    expect(thumb?.className).toMatch(/\bbg-on-primary\b/);
   });
 
   // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper

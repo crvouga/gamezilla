@@ -3,10 +3,14 @@ import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-clien
 import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  GameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
+import { useLingui } from '@lingui/solid/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -24,6 +28,7 @@ function GameChoices(props: {
   navigation: GameScreen;
   onBackToGames: () => void;
 }): JSX.Element {
+  const { t } = useLingui();
   const choices = createMemo(() =>
     gameChoices(props.game, props.offers).map((choice) => ({
       screen: choice.screen,
@@ -33,9 +38,11 @@ function GameChoices(props: {
   );
   return (
     <>
-      <DefineBackButton onPress={props.onBackToGames} />
+      {/* Back names where it goes: the space's list of games. */}
+      <DefineBackButton onPress={props.onBackToGames} label={t`Games`} />
       <GameMenuScreenView
         title={props.game.title}
+        tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
         instructions={
           props.game.instructions === undefined ? undefined : (
@@ -142,9 +149,12 @@ export function GameMenu(props: {
   return (
     <GameFrame game={props.game}>
       <StackVertical grow self="stretch">
-        <FadeSwitch stateKey={navigation.screen()}>
-          <Dynamic component={shown()} />
-        </FadeSwitch>
+        {/* A Back from a screen the choices open names them by the game. */}
+        <GameChoicesName name={props.game.title}>
+          <FadeSwitch stateKey={navigation.screen()}>
+            <Dynamic component={shown()} />
+          </FadeSwitch>
+        </GameChoicesName>
       </StackVertical>
     </GameFrame>
   );

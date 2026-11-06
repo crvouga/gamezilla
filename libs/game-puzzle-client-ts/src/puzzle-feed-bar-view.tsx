@@ -6,9 +6,10 @@ import { puzzleNamespaceOf } from '@libs/game-puzzle-shared-ts/puzzle-namespace'
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
@@ -44,9 +45,6 @@ export type PuzzleFeedBarViewProps = {
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
 const RATING_SLOT_DIGITS = 4;
-
-/** A short puzzle id's width in the mono face, held before the id is known. */
-const EMPTY_ID_SLOT = '\u2007'.repeat(5);
 
 function historyFilterLabel(filter: PuzzleFeedHistoryFilter): string {
   switch (filter) {
@@ -155,6 +153,7 @@ function FeedBarPuzzleFacts(props: {
       <PuzzleRatingBadge
         rating={shown() ? props.rating : 0}
         invisible={!shown()}
+        prefix={t`Puzzle rating`}
         testId="chess-puzzle-board-elo"
       />
       <Show when={props.over && props.themes.length > 0}>
@@ -168,50 +167,60 @@ function FeedBarPuzzleFacts(props: {
 }
 
 /**
- * Filter labels paint only after the saved config is in. Until then the
- * id and rating slots already hold their final width, so this block
- * appearing cannot move them or the board below.
+ * The feed's filters as one quiet line ("Auto target 1500 · Unseen · All
+ * themes"), then the rated puzzles left today. Filter words paint only
+ * after the saved config is in; until then the line keeps its height, so
+ * its appearing cannot move the board below. The settings hold the rest
+ * (how many puzzles match, every choice).
  */
-function FeedBarFilters(props: {
+function FeedBarSummary(props: {
   config: PuzzleFeedConfig;
+  configReady: boolean;
   effectiveRating: number;
-  matched: number;
-  total: number;
+  allowanceLabel: string;
   themeLabel: ThemeLabel;
 }): JSX.Element {
   const themeLabel = (theme: string): string => props.themeLabel(theme);
   const modeLabel = (): JSX.Element =>
     props.config.mode === 'auto' ? (
-      <Trans>Auto · {ratingSlot(props.effectiveRating)}</Trans>
+      <Trans>Auto target {ratingSlot(props.effectiveRating)}</Trans>
     ) : (
-      <Trans>Custom · {ratingSlot(props.effectiveRating)}</Trans>
+      <Trans>Custom target {ratingSlot(props.effectiveRating)}</Trans>
     );
   return (
-    <>
-      <FeedTag label={modeLabel()} testId="chess-puzzle-feed-target-label" />
-      <FeedTag
-        label={historyFilterLabel(props.config.historyFilter)}
-        testId="chess-puzzle-feed-history-label"
-      />
-      <FeedTag
-        label={themesSummary(props.config.themes, themeLabel)}
-        testId="chess-puzzle-feed-themes-label"
-      />
-      <FeedTag
-        label={
-          <Trans>
-            {props.matched} / {props.total}
-          </Trans>
-        }
-      />
-    </>
+    <P variant="caption" tone="secondary">
+      <Show when={props.configReady} fallback={'\u2007'}>
+        <Text variant="inherit" testId="chess-puzzle-feed-target-label">
+          {modeLabel()}
+        </Text>
+        {SEPARATOR}
+        <Text variant="inherit" testId="chess-puzzle-feed-history-label">
+          {historyFilterLabel(props.config.historyFilter)}
+        </Text>
+        {SEPARATOR}
+        <Text variant="inherit" testId="chess-puzzle-feed-themes-label">
+          {themesSummary(props.config.themes, themeLabel)}
+        </Text>
+      </Show>
+      <Show when={props.allowanceLabel.length > 0}>
+        <Show when={props.configReady}>{SEPARATOR}</Show>
+        <Text variant="inherit" testId="chess-puzzle-remaining-today">
+          {props.allowanceLabel}
+        </Text>
+      </Show>
+    </P>
   );
 }
 
+/** Between the facts of the summary line. */
+const SEPARATOR = ' · ';
+
 /**
- * The feed strip above the board, presentational: the puzzle's id, its own
- * rating and themes once over, the rating change it made, the feed's
- * filters and the rated allowance. Pressing it opens the feed settings.
+ * The feed strip above the board, presentational: the puzzle by name, its
+ * own rating and themes once over and the rating change it made; under
+ * them one quiet line of the feed's filters and the rated allowance. Its
+ * id and how many puzzles match are spoken, not shown. Pressing it opens
+ * the feed settings.
  */
 export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
   const themeLabel = (theme: string): string => props.themeLabel(theme);
@@ -230,47 +239,58 @@ export function PuzzleFeedBarView(props: PuzzleFeedBarViewProps): JSX.Element {
       {/* The whole feed in words; the visible labels follow it, so the
           button's name says everything the bar shows (WCAG 2.5.3). */}
       <VisuallyHidden testId="chess-puzzle-feed-description">
-        {`${feedAccessibleLabel(props.config, props.effectiveRating, themeLabel)} ${props.allowanceLabel}`.trim()}
+        {[
+          idLabel().length > 0 ? t`Puzzle ${idLabel()}.` : '',
+          feedAccessibleLabel(props.config, props.effectiveRating, themeLabel),
+          t`${props.matched} of ${props.total} puzzles match.`,
+          props.allowanceLabel,
+        ]
+          .filter((part) => part.length > 0)
+          .join(' ')}
       </VisuallyHidden>
-      <ScrollView
-        horizontal
-        flushEdge={false}
-        hideScrollbar
+      <StackVertical
         self="stretch"
-        align="center"
-        gap="sm"
+        gap="xs"
         paddingX="lg"
         paddingY="sm"
-        dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
+        testId="chess-puzzle-board-elo-bar"
       >
-        {/* A fixed slot keeps every short puzzle id the same width. */}
-        <P variant="mono" wrap="nowrap">
-          {idLabel().length > 0 ? idLabel() : EMPTY_ID_SLOT}
-        </P>
-        <FeedBarPuzzleFacts
-          rating={props.rating ?? 0}
-          themes={props.themes ?? []}
-          over={props.over === true}
+        {/* The puzzle first, by name; what it did once it is over. */}
+        <StackHorizontal self="stretch" align="center" gap="sm">
+          <StackHorizontal wrap grow align="center" gap="sm">
+            <P variant="bodyBold" wrap="nowrap">
+              <Trans>This puzzle</Trans>
+            </P>
+            <FeedBarPuzzleFacts
+              rating={props.rating ?? 0}
+              themes={props.themes ?? []}
+              over={props.over === true}
+              themeLabel={themeLabel}
+            />
+            {/* §9: a re-serve is played again but never re-rated (§8). */}
+            <FeedBarRatingChange change={props.ratingChange} />
+          </StackHorizontal>
+          {/* What pressing the bar does, said beside its icon. */}
+          <StackHorizontal
+            align="center"
+            gap="xs"
+            testId="chess-puzzle-feed-settings-label"
+          >
+            <SlidersHorizontalIcon size={18} color="tint" />
+            <Text variant="label" tone="tint" wrap="nowrap">
+              <Trans>Settings</Trans>
+            </Text>
+          </StackHorizontal>
+        </StackHorizontal>
+        {/* The feed in one line; the settings hold the rest. */}
+        <FeedBarSummary
+          config={props.config}
+          configReady={props.configReady}
+          effectiveRating={props.effectiveRating}
+          allowanceLabel={props.allowanceLabel}
           themeLabel={themeLabel}
         />
-        {/* §9: a re-serve is played again but never re-rated (§8). */}
-        <FeedBarRatingChange change={props.ratingChange} />
-        <Show when={props.configReady}>
-          <FeedBarFilters
-            config={props.config}
-            effectiveRating={props.effectiveRating}
-            matched={props.matched}
-            total={props.total}
-            themeLabel={themeLabel}
-          />
-        </Show>
-        <Show when={props.allowanceLabel.length > 0}>
-          <FeedTag
-            label={props.allowanceLabel}
-            testId="chess-puzzle-remaining-today"
-          />
-        </Show>
-      </ScrollView>
+      </StackVertical>
     </Pressable>
   );
 }

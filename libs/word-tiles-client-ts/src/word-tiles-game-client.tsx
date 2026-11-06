@@ -80,6 +80,7 @@ export const wordTilesGameClient = defineGameClient({
   shared: wordTilesGameShared,
   title: 'Word Tiles',
   caption: 'Two players. Build crossing words for points.',
+  tile: 'letters',
   subtitle: () => (
     <Trans>Place letter tiles, cross words, score squares.</Trans>
   ),
@@ -103,6 +104,7 @@ export const wordTiles3GameClient = defineGameClient({
   shared: wordTiles3GameShared,
   title: 'Word Tiles for three',
   caption: 'Three players. Build crossing words for points.',
+  tile: 'letters',
   subtitle: () => (
     <Trans>Three racks, one board, the highest score wins.</Trans>
   ),
@@ -114,6 +116,7 @@ export const wordTiles4GameClient = defineGameClient({
   shared: wordTiles4GameShared,
   title: 'Word Tiles for four',
   caption: 'Four players. Build crossing words for points.',
+  tile: 'letters',
   subtitle: () => <Trans>Four racks, one board, the highest score wins.</Trans>,
   instructions: () => <Instructions />,
   presentation: presentation(4),

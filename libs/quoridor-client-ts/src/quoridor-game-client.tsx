@@ -45,6 +45,7 @@ export const quoridorGameClient = defineGameClient({
   shared: quoridorGameShared,
   title: 'Classic Quoridor',
   caption: 'Two players. Reach the opposite home row.',
+  tile: 'walls',
   subtitle: () => (
     <Trans>Race your pawn across the board. Shape the path with walls.</Trans>
   ),
@@ -64,6 +65,7 @@ export const quoridorHillGameClient = defineGameClient({
   shared: quoridorHillGameShared,
   title: 'Quoridor: King of the Hill',
   caption: 'Four players. First to the central hill wins.',
+  tile: 'walls',
   subtitle: () => (
     <Trans>Four sides. One hill. First to e5 wins immediately.</Trans>
   ),

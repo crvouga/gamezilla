@@ -1,0 +1,4 @@
+{
+  "summary": "A turn reminder's card said its urgency twice: the title \"You're low on time in your daily game against @sam\" and then \"It's your turn. You have 3 hours left to move.\" The reminder's body now says only the time left (\"3 hours left to move.\"), shown once in the warning ink.",
+  "regressionTest": "libs/game-session-server-ts/tests/multiplayer-notice-text.test.ts"
+}

@@ -16,8 +16,23 @@ import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from 'solid-js';
 
 export type SearchResultSlots = {
-  /** One whole result row, including what pressing it does. */
-  readonly userRow?: (user: UserSearchResult) => JSX.Element;
+  /**
+   * One whole result row, including what pressing it does. `query` is what
+   * was typed, so the row can emphasise where it matched.
+   */
+  readonly userRow?: (user: UserSearchResult, query: string) => JSX.Element;
+  /**
+   * Context for the desktop column beside the search, such as the friend
+   * requests waiting on the person. Desktop only: everything in it must be
+   * reachable elsewhere too.
+   */
+  readonly aside?: () => JSX.Element;
+  /**
+   * A phone's way to what the desktop column holds about people (such as
+   * the friend requests waiting): an entry under the search field. Phone
+   * only, since the desktop column already shows it.
+   */
+  readonly requests?: () => JSX.Element;
 };
 
 const SearchResultSlotsContext =

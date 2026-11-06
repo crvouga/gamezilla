@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a Numberlink board the puzzle panel held only its pack's place, a bar and \"Progress saved on this device.\", though the game counts its connected pairs and covered cells. The panel now shows the game's own figures for the attempt under the pack's bar (Numberlink's pairs and cells, Sokoban's moves and pushes).",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

@@ -1,14 +1,17 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
-import { List } from '@pkgs/ui-root-client-ts/list';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
-import { Index, Show } from 'solid-js';
+import { createMemo, Index, Show } from 'solid-js';
+import { SpaceCardTileView } from './space-card-tile-view';
 import type { SpaceCardData } from './space-card-view';
 import { SpaceCardView } from './space-card-view';
 
@@ -18,7 +21,7 @@ export type SpacesLobbyStatus = 'loading' | 'ready';
 export type SpacesLobbyViewProps = {
   /** `ready` only once the hosted count and the list have both answered. */
   readonly status: SpacesLobbyStatus;
-  /** Live spaces the viewer hosts; shown as "Hosting N spaces" when any. */
+  /** Live spaces the viewer hosts; labels their group "Hosting N spaces". */
   readonly hostedCount: number;
   /** Spaces to show, open-on-this-device first. */
   readonly spaces: readonly SpaceCardData[];
@@ -46,27 +49,162 @@ function SpacesEmptyState(props: {
   );
 }
 
-/** "Hosting 2 spaces" while the viewer hosts any. */
+/** "Hosting 2 spaces": the title of the viewer's own group. */
 function SpacesHostingCount(props: { readonly count: number }): JSX.Element {
   return (
-    <Show when={props.count > 0}>
-      <P variant="caption" testId={Handles.spacesHostingCount}>
-        <Plural
-          value={props.count}
-          one="Hosting # space"
-          other="Hosting # spaces"
-        />
-      </P>
+    <Plural
+      value={props.count}
+      one="Hosting # space"
+      other="Hosting # spaces"
+    />
+  );
+}
+
+/**
+ * A group's title over its cards, on the page's own edge (the edge the
+ * screen's title starts on), at the size every page's section titles take
+ * ("Needs you", "Who's here"): never a faint eyebrow over the cards.
+ */
+function SpacesGroupHeading(props: {
+  readonly title: JSX.Element;
+  readonly testId?: string | undefined;
+}): JSX.Element {
+  return (
+    <H2 size="subtitle" lines={1} testId={props.testId}>
+      {props.title}
+    </H2>
+  );
+}
+
+/**
+ * A group's cards two by two. An odd count leads with its first card
+ * across the full width (the one open here, or the newest), so the grid
+ * never ends in an empty slot beside a lone card.
+ */
+function SpacesCardGrid(props: {
+  readonly spaces: readonly SpaceCardData[];
+  readonly onOpenSpace: (spaceId: string) => void;
+}): JSX.Element {
+  const lead = createMemo(() =>
+    props.spaces.length % 2 === 1 ? props.spaces[0] : undefined
+  );
+  const paired = createMemo(() =>
+    lead() === undefined ? props.spaces : props.spaces.slice(1)
+  );
+  return (
+    <StackVertical gap="md">
+      <Show when={lead()}>
+        {(space) => (
+          <SpaceCardTileView
+            space={space()}
+            onOpen={() => props.onOpenSpace(space().spaceId)}
+          />
+        )}
+      </Show>
+      <Show when={paired().length > 0}>
+        <Grid columns={2} gap="md">
+          <Index each={paired()}>
+            {(space) => (
+              <SpaceCardTileView
+                space={space()}
+                onOpen={() => props.onOpenSpace(space().spaceId)}
+              />
+            )}
+          </Index>
+        </Grid>
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
+ * One group of the lobby: its label above one panel of space rows, or on
+ * desktop above a two-column grid of cards, so the page uses its width for
+ * the faces of who is in each space instead of stretching rows.
+ */
+function SpacesGroup(props: {
+  readonly title: JSX.Element;
+  readonly titleTestId?: string | undefined;
+  readonly spaces: readonly SpaceCardData[];
+  readonly onOpenSpace: (spaceId: string) => void;
+}): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <StackVertical gap="sm">
+      <SpacesGroupHeading title={props.title} testId={props.titleTestId} />
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <MenuSection>
+            <Index each={props.spaces}>
+              {(space) => (
+                <SpaceCardView
+                  space={space()}
+                  onOpen={() => props.onOpenSpace(space().spaceId)}
+                />
+              )}
+            </Index>
+          </MenuSection>
+        }
+      >
+        <SpacesCardGrid spaces={props.spaces} onOpenSpace={props.onOpenSpace} />
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
+ * The spaces the viewer hosts, under "Hosting N spaces". While the count has
+ * answered but no hosted card has (a card waits on its host), the label
+ * still says how many the viewer hosts.
+ */
+function HostedSpaces(props: {
+  readonly count: number;
+  readonly spaces: readonly SpaceCardData[];
+  readonly onOpenSpace: (spaceId: string) => void;
+}): JSX.Element {
+  const title = (): JSX.Element =>
+    props.count > 0 ? (
+      <SpacesHostingCount count={props.count} />
+    ) : (
+      <Trans>Your spaces</Trans>
+    );
+  return (
+    <Show
+      when={props.spaces.length > 0}
+      fallback={
+        <Show when={props.count > 0}>
+          <SpacesGroupHeading
+            title={<SpacesHostingCount count={props.count} />}
+            testId={Handles.spacesHostingCount}
+          />
+        </Show>
+      }
+    >
+      <SpacesGroup
+        title={title()}
+        titleTestId={props.count > 0 ? Handles.spacesHostingCount : undefined}
+        spaces={props.spaces}
+        onOpenSpace={props.onOpenSpace}
+      />
     </Show>
   );
 }
 
 /**
- * The lobby body: what the viewer hosts, then the spaces they can join. It
- * is loading until it has answered — never "No spaces yet" before then,
- * because an empty lobby is an answer, not a guess.
+ * The lobby body: the spaces the viewer hosts in their own group, then the
+ * spaces shared with them (a friend's live space, one they were added to),
+ * each group its own panel. It is loading until it has answered — never
+ * "No spaces yet" before then, because an empty lobby is an answer, not a
+ * guess.
  */
 export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
+  const hosted = createMemo(() =>
+    props.spaces.filter((space) => space.hostedByViewer)
+  );
+  const shared = createMemo(() =>
+    props.spaces.filter((space) => !space.hostedByViewer)
+  );
   return (
     <Show
       when={props.status === 'ready'}
@@ -77,22 +215,34 @@ export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
       }
     >
       <StackVertical grow gap="md" testId={Handles.spacesListReady}>
-        <SpacesHostingCount count={props.hostedCount} />
         <Show
           when={props.spaces.length > 0}
-          fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
+          fallback={
+            <>
+              <HostedSpaces
+                count={props.hostedCount}
+                spaces={[]}
+                onOpenSpace={props.onOpenSpace}
+              />
+              <SpacesEmptyState onCreateSpace={props.onCreateSpace} />
+            </>
+          }
         >
           <ScreenBodyScrollView paddingBottom="xl">
-            <List>
-              <Index each={props.spaces}>
-                {(space) => (
-                  <SpaceCardView
-                    space={space()}
-                    onOpen={() => props.onOpenSpace(space().spaceId)}
-                  />
-                )}
-              </Index>
-            </List>
+            <StackVertical gap="xl">
+              <HostedSpaces
+                count={props.hostedCount}
+                spaces={hosted()}
+                onOpenSpace={props.onOpenSpace}
+              />
+              <Show when={shared().length > 0}>
+                <SpacesGroup
+                  title={<Trans>Shared with you</Trans>}
+                  spaces={shared()}
+                  onOpenSpace={props.onOpenSpace}
+                />
+              </Show>
+            </StackVertical>
           </ScreenBodyScrollView>
         </Show>
       </StackVertical>

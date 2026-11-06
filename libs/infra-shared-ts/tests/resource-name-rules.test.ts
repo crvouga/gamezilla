@@ -21,6 +21,10 @@ function declaredNames(): [ResourceKind, string][] {
     ...GLOBAL.auth_relay.hostname
       .split('.')
       .map((label): [ResourceKind, string] => ['dns-label', label]),
+    ['cloudflare-worker', GLOBAL.storybook.worker],
+    ...GLOBAL.storybook.hostname
+      .split('.')
+      .map((label): [ResourceKind, string] => ['dns-label', label]),
   ];
   for (const env of Object.values(ENV_FILES)) {
     const resources = envResourceNames(env);

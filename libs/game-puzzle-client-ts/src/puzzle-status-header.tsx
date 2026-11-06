@@ -1,5 +1,6 @@
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -31,9 +32,17 @@ function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
   }
 }
 
-/** §5 prompt once the setup move has played: the solver is to move. */
-function yourTurnLabel(side: string): JSX.Element {
-  return <Trans>Your turn — find the best move for {side}</Trans>;
+/**
+ * §5 prompt once the setup move has played: the solver's side is to move,
+ * in the board's own words; the coach beside it adds the one hint worth
+ * saying, so the two never repeat each other.
+ */
+function yourTurnLabel(side: string, correct: boolean): JSX.Element {
+  return correct ? (
+    <Trans>Correct · {side} to move</Trans>
+  ) : (
+    <Trans>{side} to move</Trans>
+  );
 }
 
 export type PuzzleStatusHeaderProps = {
@@ -43,6 +52,11 @@ export type PuzzleStatusHeaderProps = {
    * the §5 "your turn" prompt.
    */
   solverSide?: string | null;
+  /**
+   * The solver's last move was right and the line goes on: the turn pill
+   * says so in the success colour instead of the plain accent.
+   */
+  correct?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -50,8 +64,9 @@ export type PuzzleStatusHeaderProps = {
 export function PuzzleStatusHeader(
   props: PuzzleStatusHeaderProps
 ): JSX.Element {
-  // The row is as tall as its content: a prompt that wraps to two lines
-  // grows it rather than overlapping the coach's message below.
+  // The row is as tall as its content: a prompt that wraps grows it rather
+  // than overlapping the coach's message below. Three lines keep the whole
+  // prompt beside the clock in the narrow panel beside a wide board.
   return (
     <StackHorizontal
       align="center"
@@ -62,12 +77,24 @@ export function PuzzleStatusHeader(
     >
       <PuzzleStatusIcon kind={props.kind} />
       <StackVertical grow>
-        <P variant="label" lines={2} testId="chess-puzzle-status-label">
+        <P variant="label" lines={3} testId="chess-puzzle-status-label">
           <Show
             when={props.kind === 'started' ? props.solverSide : null}
             fallback={statusLabel(props.kind)}
           >
-            {(side) => yourTurnLabel(side())}
+            {/* The solver's turn in the accent pill the game screens put on
+                the seat to move, right above (or beside) the board. */}
+            {(side) => (
+              <Badge
+                intent={props.correct === true ? 'success' : 'brand'}
+                tone="solid"
+                label={yourTurnLabel(side(), props.correct === true)}
+                dataSet={{
+                  testid: 'chess-puzzle-your-move',
+                  correct: String(props.correct === true),
+                }}
+              />
+            )}
           </Show>
         </P>
       </StackVertical>

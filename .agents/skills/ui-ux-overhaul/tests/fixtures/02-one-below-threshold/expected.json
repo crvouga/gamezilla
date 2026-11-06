@@ -1,0 +1,6 @@
+{
+  "sessions": ["council-20261105-100000"],
+  "verdict": "ANOTHER_ROUND",
+  "may_finish": false,
+  "reason_contains": "codex: ux 8 is below the minimum 9"
+}

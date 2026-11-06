@@ -13,19 +13,27 @@ export type PuzzleRatingBadgeProps = {
   testId?: string;
   /** Hide the badge without dropping its box, so a later rating cannot reflow the row. */
   invisible?: boolean;
+  /** Names the number before it ("Puzzle rating 1702"). */
+  prefix?: string | undefined;
 };
 
 /** A puzzle rating as a badge, provisional marker included. */
 export function PuzzleRatingBadge(props: PuzzleRatingBadgeProps): JSX.Element {
   // A hidden badge keeps its width with figure spaces, so it says nothing
   // to anyone, on screen or listening.
-  const label = (): string =>
+  const value = (): string =>
     props.invisible === true
       ? HIDDEN_RATING
       : formatPuzzleRating({
           rating: props.rating,
           provisional: props.provisional === true,
         });
+  // A hidden badge says nothing, its prefix included: words a sighted
+  // reader cannot see would otherwise count as the button's visible label.
+  const label = (): string =>
+    props.prefix === undefined || props.invisible === true
+      ? value()
+      : `${props.prefix} ${value()}`;
   return (
     <Badge
       label={label()}

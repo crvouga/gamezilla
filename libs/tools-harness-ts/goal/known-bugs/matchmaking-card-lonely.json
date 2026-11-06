@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking search sat in a 720px card at the game column's start with about 70% of the canvas empty beside and under it, and how matchmaking works hid behind a disclosure. The card now fills the game column in three columns: the search, the person's ratings, then the guide's three short points, open. A phone keeps one column with the guide behind its disclosure.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

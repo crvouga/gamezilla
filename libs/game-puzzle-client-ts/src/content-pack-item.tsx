@@ -2,18 +2,10 @@ import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  Trash2Icon,
-} from '@pkgs/ui-root-client-ts/icons';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
+import { ContentPackItemRow } from './content-pack-editor-view';
 
 export function ContentPackItem(props: {
   id: string;
@@ -50,61 +42,27 @@ export function ContentPackItem(props: {
     }
   };
   return (
-    <MenuRow
-      title={
-        <Button
-          title={title()}
-          intent="neutral"
-          variant="ghost"
-          onClick={open}
-          disabled={!decision().allowed && revision() === undefined}
-        />
-      }
+    <ContentPackItemRow
+      id={props.id}
+      title={title()}
+      status={document()?.status === 'published' ? 'published' : 'draft'}
       caption={
         draft()?.validation_status === 'invalid'
           ? t`Needs corrections`
           : document()?.status === 'published'
-            ? t`Published`
-            : t`Draft: publish this puzzle before publishing the pack`
+            ? ''
+            : t`Publish it before the pack`
       }
-      trailing={
-        <StackHorizontal gap="xs">
-          <IconButton
-            size={32}
-            tooltip="none"
-            label={t`Move ${title()} up`}
-            aria-label={t`Move ${title()} up`}
-            disabled={props.disabled || props.first}
-            onClick={() => props.onUp()}
-            dataSet={{ testid: 'content-pack-up' }}
-          >
-            <ChevronUpIcon size={20} color="icon" />
-          </IconButton>
-          <IconButton
-            size={32}
-            tooltip="none"
-            label={t`Move ${title()} down`}
-            aria-label={t`Move ${title()} down`}
-            disabled={props.disabled || props.last}
-            onClick={() => props.onDown()}
-            dataSet={{ testid: 'content-pack-down' }}
-          >
-            <ChevronDownIcon size={20} color="icon" />
-          </IconButton>
-          <IconButton
-            size={32}
-            tooltip="none"
-            label={t`Remove ${title()} from pack`}
-            aria-label={t`Remove ${title()} from pack`}
-            disabled={props.disabled}
-            onClick={() => props.onRemove()}
-            dataSet={{ testid: 'content-pack-remove' }}
-          >
-            <Trash2Icon size={20} color="icon" />
-          </IconButton>
-        </StackHorizontal>
+      first={props.first}
+      last={props.last}
+      disabled={props.disabled}
+      open={
+        decision().allowed ? 'edit' : revision() === undefined ? null : 'view'
       }
-      dataSet={{ testid: `content-pack-item-${props.id}` }}
+      onOpen={open}
+      onUp={() => props.onUp()}
+      onDown={() => props.onDown()}
+      onRemove={() => props.onRemove()}
     />
   );
 }

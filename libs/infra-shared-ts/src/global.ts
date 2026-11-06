@@ -110,6 +110,18 @@ export const globalFileSchema = z
         worker: slug,
       })
       .strict(),
+    /**
+     * The static Storybook site at `hostname`: an assets-only Worker
+     * (`apps/storybook-ts`) serving the canonical Storybook build.
+     */
+    storybook: z
+      .object({
+        account_id: id,
+        zone_name: hostname,
+        hostname,
+        worker: slug,
+      })
+      .strict(),
     global_imports: z
       .object({
         infisical_environments: z.record(z.string(), id).optional(),

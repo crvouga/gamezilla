@@ -12,6 +12,7 @@ import {
   ContentLibraryScreenView,
   type ContentLibraryScreenViewProps,
 } from './content-library-screen-view';
+import { StoryCountingPreview } from './content-story.example';
 
 const BUNDLED: readonly ContentLibraryEdition[] = [
   {
@@ -21,6 +22,8 @@ const BUNDLED: readonly ContentLibraryEdition[] = [
     title: 'Counting starter pack',
     description: 'Five short counts to learn the rules.',
     difficulty: '',
+    preview: 'target:5',
+    progress: { completed: 2, total: 5 },
   },
 ];
 
@@ -31,6 +34,7 @@ const COUNT_TO_SEVEN: ContentLibraryEdition = {
   title: 'Count to seven',
   description: 'Reach seven exactly, one or two steps at a time.',
   difficulty: 'Easy',
+  preview: 'target:7',
 };
 
 const PUBLISHED: readonly ContentLibraryEdition[] = [
@@ -41,7 +45,8 @@ const PUBLISHED: readonly ContentLibraryEdition[] = [
     kind: 'puzzle',
     title: 'Thirteen without overshooting',
     description: '',
-    difficulty: '',
+    difficulty: 'Medium',
+    preview: 'target:13',
   },
   {
     id: '7c1e0a00-0000-4000-8000-000000000003',
@@ -50,6 +55,8 @@ const PUBLISHED: readonly ContentLibraryEdition[] = [
     title: 'Weekend counts',
     description: 'Three puzzles that get harder.',
     difficulty: '',
+    preview: 'target:5',
+    progress: { completed: 1, total: 3 },
   },
 ];
 
@@ -123,6 +130,7 @@ const meta = {
         'playtests',
         'published',
         'more',
+        'renderPreview',
       ],
     },
   },
@@ -131,19 +139,71 @@ const meta = {
     title: 'Counting',
     bundledPacks: BUNDLED,
     drafts: [
-      { id: 'doc-draft-1', title: 'Count to eleven', status: 'draft' },
-      { id: 'doc-draft-2', title: '', status: 'draft' },
-      { id: 'doc-draft-3', title: 'Count to seven', status: 'published' },
-      { id: 'doc-draft-4', title: 'Old count', status: 'withdrawn' },
+      {
+        id: 'doc-draft-1',
+        kind: 'puzzle',
+        title: 'Count to eleven',
+        status: 'draft',
+        preview: 'target:11',
+      },
+      {
+        id: 'doc-draft-2',
+        kind: 'puzzle',
+        title: 'Five in two steps',
+        status: 'draft',
+        preview: 'target:5',
+      },
+      {
+        id: 'doc-draft-3',
+        kind: 'puzzle',
+        title: 'Count to seven',
+        status: 'published',
+        preview: 'target:7',
+      },
+      {
+        id: 'doc-draft-4',
+        kind: 'pack',
+        title: 'Old count',
+        status: 'withdrawn',
+        preview: 'target:3',
+      },
     ],
     attempts: [
-      { id: 'attempt-1', title: 'Count to seven', completed: false },
-      { id: 'attempt-2', title: 'Weekend counts: Friday', completed: true },
-      { id: 'attempt-3', title: '', completed: false },
+      {
+        id: 'attempt-1',
+        title: 'Count to seven',
+        completed: false,
+        difficulty: 'Easy',
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
+        preview: 'target:7',
+      },
+      {
+        id: 'attempt-3',
+        title: 'Thirteen without overshooting',
+        completed: false,
+        difficulty: 'Medium',
+        preview: 'target:13',
+      },
+      {
+        id: 'attempt-2',
+        title: 'Count to five',
+        completed: true,
+        difficulty: 'Easy',
+        pack: { title: 'Weekend counts', completed: 1, total: 3 },
+        preview: 'target:5',
+      },
     ],
     playtests: [
-      { id: 'attempt-4', title: 'Count to eleven', completed: false },
+      {
+        id: 'attempt-4',
+        title: 'Count to eleven',
+        completed: false,
+        preview: 'target:11',
+      },
     ],
+    renderPreview: (definition: string) => (
+      <StoryCountingPreview definition={definition} />
+    ),
     published: PUBLISHED,
     more: { owned: false, attempts: false, published: true },
     onOpenEdition: fn(),

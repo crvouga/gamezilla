@@ -39,7 +39,7 @@
   --perspective-*: initial;
   --aspect-*: initial;
 
-  /* Two faces: Manrope for text, Unbounded for display and numbers. Mono is
+  /* One face: Manrope for text, headlines and numbers. Mono is
      for code only. */
   --font-sans: var(--ui-font-sans);
   --font-display: var(--ui-font-display);
@@ -122,6 +122,8 @@
   --container-ui-form: var(--ui-max-width-form);
   --container-ui-content: var(--ui-max-width-content);
   --container-ui-wide: var(--ui-max-width-wide);
+  --container-ui-space: var(--ui-max-width-space);
+  --container-ui-panel: var(--ui-max-width-panel);
   --opacity-muted: var(--ui-opacity-muted);
   --opacity-disabled: var(--ui-opacity-disabled);
   --z-index-harness-browser: var(--ui-layer-harness-browser);
@@ -181,6 +183,12 @@
   --color-player6: var(--ui-color-player6);
   --color-player7: var(--ui-color-player7);
   --color-player8: var(--ui-color-player8);
+  --color-monogram1: var(--ui-color-monogram1);
+  --color-monogram2: var(--ui-color-monogram2);
+  --color-monogram3: var(--ui-color-monogram3);
+  --color-monogram4: var(--ui-color-monogram4);
+  --color-monogram5: var(--ui-color-monogram5);
+  --color-monogram6: var(--ui-color-monogram6);
   --color-board-light: var(--ui-color-board-light);
   --color-board-dark: var(--ui-color-board-dark);
   --color-board-highlight: var(--ui-color-board-highlight);

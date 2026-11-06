@@ -1,0 +1,4 @@
+{
+  "summary": "Under All, the inbox's \"Needs you\" filter chip sat right above the \"Needs you\" group heading, the same words twice. The chip now says \"Action needed\", and no filter chip repeats a heading of the list under it.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-needs-you-first.test.tsx"
+}

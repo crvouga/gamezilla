@@ -44,12 +44,18 @@ test('the current move is highlighted by classes, not token names', () => {
   ));
   const chip = screen.getByTestId('chess-puzzle-move-ply-0');
   expect(chip.getAttribute('aria-pressed')).toBe('true');
-  const fill = chip.querySelector('.bg-success-surface');
+  // regression: puzzle-move-highlight-reads-as-correct — the current move
+  // was the success green, the same paint as the "Correct" pill over it,
+  // so the two read as one signal. The move on the board is what is
+  // chosen: the selection's blue, never the green of a correct answer.
+  expect(chip.querySelector('.bg-success-surface')).toBeNull();
+  const fill = chip.querySelector('.bg-tint-subtle');
   expect(fill).not.toBeNull();
-  expect(fill?.getAttribute('style') ?? '').not.toContain('success');
+  expect(fill?.getAttribute('style') ?? '').not.toContain('tint');
   const san = chip.querySelector('code');
-  expect(san?.className).toContain('text-success');
-  expect(san?.getAttribute('style') ?? '').not.toContain('success');
+  expect(san?.className).toContain('text-tint');
+  expect(san?.className).not.toContain('text-success');
+  expect(san?.getAttribute('style') ?? '').not.toContain('tint');
 });
 
 test('a two-line status prompt grows its row instead of overlapping the coach', () => {

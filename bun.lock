@@ -297,6 +297,17 @@
         "wrangler": "catalog:",
       },
     },
+    "apps/storybook-ts": {
+      "name": "@apps/storybook-ts",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@libs/infra-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "apps/synthetic-population-worker-ts": {
       "name": "@apps/synthetic-population-worker-ts",
       "version": "0.0.0",
@@ -616,6 +627,8 @@
         "workbox-window": "catalog:",
       },
       "devDependencies": {
+        "@dicebear/collection": "catalog:",
+        "@dicebear/core": "catalog:",
         "@opentelemetry/sdk-trace-base": "catalog:",
         "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
@@ -841,6 +854,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -1208,12 +1222,13 @@
         "@lingui/solid": "catalog:",
         "@pkgs/chess-board-root-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/sounds-client-ts": "workspace:*",
         "@pkgs/sounds-shared-ts": "workspace:*",
-        "@pkgs/ui-root-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1383,6 +1398,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1820,6 +1836,7 @@
         "@libs/billing-shared-ts": "workspace:*",
         "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
@@ -2346,6 +2363,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -2454,6 +2472,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -2557,6 +2576,8 @@
         "@libs/notifications-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/profile-client-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
         "@lingui/solid": "catalog:",
@@ -2573,6 +2594,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
         "storybook": "catalog:",
         "storybook-solidjs-vite": "catalog:",
@@ -2849,6 +2871,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -3070,6 +3093,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -3356,6 +3380,8 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/profile-client-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@typescript/native": "catalog:",
         "storybook": "catalog:",
         "storybook-solidjs-vite": "catalog:",
@@ -3910,6 +3936,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@libs/game-session-client-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -7400,7 +7427,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@fontsource/manrope": "catalog:",
-        "@fontsource/unbounded": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/a11y-shared-ts": "workspace:*",
@@ -7691,7 +7717,6 @@
     "@dicebear/collection": "^9.4.3",
     "@dicebear/core": "^9.4.3",
     "@fontsource/manrope": "^5.3.0",
-    "@fontsource/unbounded": "^5.3.0",
     "@happy-dom/global-registrator": "^21.0.4",
     "@hono/zod-validator": "^0.7.6",
     "@huggingface/jinja": "^0.5.11",
@@ -7817,6 +7842,8 @@
     "@apps/product-ts": ["@apps/product-ts@workspace:apps/product-ts"],
 
     "@apps/server-ts": ["@apps/server-ts@workspace:apps/server-ts"],
+
+    "@apps/storybook-ts": ["@apps/storybook-ts@workspace:apps/storybook-ts"],
 
     "@apps/synthetic-population-worker-ts": ["@apps/synthetic-population-worker-ts@workspace:apps/synthetic-population-worker-ts"],
 
@@ -8269,8 +8296,6 @@
     "@floating-ui/utils": ["@floating-ui/utils@0.2.12", "", {}, "sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww=="],
 
     "@fontsource/manrope": ["@fontsource/manrope@5.3.0", "", {}, "sha512-obJ1Dv3+uCA6HlHgW8u4BGYxJR9In2HW7gjJhlflEvkrj1X1iSEwu0fToL+JYGC/FEKFfIz1sBuPduvcL2gIAA=="],
-
-    "@fontsource/unbounded": ["@fontsource/unbounded@5.3.0", "", {}, "sha512-pPD6hsTnjoQRr6pCsqMHbHBfauB4LZygCNQEUJHu+CO2wzDFHqELEFSG7sTwo5Z5Gr4q3OK0fIILOXBJDv6lcw=="],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.14.6", "", { "dependencies": { "@grpc/proto-loader": "^0.8.0", "@js-sdsl/ordered-map": "^4.4.2" } }, "sha512-SgC/B3/VZ8lTyOZ4Cwk6f1skWhmkNAaVfiX90qd5u1rRXGKk1//8FTUEN9GvOUq7rfWIqAYkA3CoyumYVpOS6g=="],
 

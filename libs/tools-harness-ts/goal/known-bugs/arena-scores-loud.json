@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Light Cycles arena each player's round wins were large figures that competed with the arena. In the players' card each figure now sits on one quiet line with its label (\"Wins 0\").",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

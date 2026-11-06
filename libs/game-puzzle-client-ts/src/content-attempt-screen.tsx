@@ -1,12 +1,15 @@
 import { projectAttemptPosition } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
+import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
 import {
+  type AttemptFigure,
+  type ContentAttemptPack,
   ContentAttemptScreenView,
   type ContentAttemptStatus,
   type ContentAttemptSummary,
@@ -29,6 +32,27 @@ function summaryOf(
     difficulty: source?.difficulty ?? '',
     description: source?.description ?? '',
   };
+}
+
+/** Where the attempt's puzzle sits in the pack it is played from. */
+function packPlace(
+  attempt: Pick<ContentAttempt, 'source_id' | 'pack_revision_id'>,
+  data: ReturnType<typeof useContentLibraryState>
+): ContentAttemptPack | null {
+  const id = attempt.pack_revision_id;
+  if (id === null) return null;
+  const pack = data.content().revisions.find((entry) => entry.id === id);
+  const progress = packProgress({
+    content: data.content(),
+    play: data.play(),
+    packRevisionId: id,
+  });
+  const index =
+    progress?.items.findIndex(
+      (item) => item.revisionId === attempt.source_id
+    ) ?? -1;
+  if (pack === undefined || progress === null || index < 0) return null;
+  return { title: pack.title, position: index + 1, total: progress.total };
 }
 
 /** One attempt on its board, wired to its saved positions and changes. */
@@ -56,10 +80,25 @@ function AttemptBody(props: {
           game: game.content,
         });
   });
+  // The game's own figures for where the attempt stands, by its labels.
+  const figures = createMemo((): AttemptFigure[] => {
+    const state = progress()?.state;
+    if (state === undefined) return [];
+    const values =
+      game.content.statistics?.(props.source.definition, state) ?? {};
+    return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
+      const value = values[key];
+      return value === undefined
+        ? []
+        : [{ key, label: label(), value: String(value) }];
+    });
+  });
   return (
     <ContentAttemptScreenView
       status="ready"
+      figures={figures()}
       attempt={summaryOf(props.attempt, props.source)}
+      pack={packPlace(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}
       saving={writer.pending()}
       changeError={writer.change.error()?.message ?? null}

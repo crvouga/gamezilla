@@ -1,0 +1,29 @@
+{
+  "before_manifest_sha256": null,
+  "candidate_sha": "3f2c9a1b7e4d5c6a8b9f0e1d2c3b4a5968778695",
+  "checks": [
+    {
+      "detail": "",
+      "name": "storybook-interactions",
+      "status": "pass"
+    },
+    {
+      "detail": "",
+      "name": "lint",
+      "status": "pass"
+    }
+  ],
+  "evidence_code": "5e1f0c2a9b7d3e64",
+  "evidence_dir": "evidence/round-2",
+  "kind": "round",
+  "manifest_sha256": "9c1d000000000000000000000000000000000000000000000000000000000000",
+  "round": 2,
+  "schema": 1,
+  "scope_audit": {
+    "notes": "every primary journey completes in the journey suite",
+    "respected": true
+  },
+  "skill": "ui-ux-overhaul",
+  "start_sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+  "stories": ["screens-friends-list--populated"]
+}

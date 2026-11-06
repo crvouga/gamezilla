@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's drag lane drew a lighter violet band down the person's edge of the court at all times, on a phone and on a wide screen, which read as an unexplained fault in the court. The lane now shows only while a thumb is on the court or keys reach the paddle's slider.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

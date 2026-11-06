@@ -1,0 +1,4 @@
+{
+  "summary": "What a puzzle asks ('Join each pair of numbers and fill every square.') sat in the 'This puzzle' card at the foot of a phone's screen. It now sits right above the board at every size.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

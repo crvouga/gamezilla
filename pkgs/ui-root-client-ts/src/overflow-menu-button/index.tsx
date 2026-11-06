@@ -30,6 +30,8 @@ export type OverflowMenuAction = {
   disabled?: boolean | undefined;
   /** When true, inserts a divider row after this action. */
   endsGroup?: boolean | undefined;
+  /** `destructive` paints the row red (end, leave, delete). */
+  tone?: 'default' | 'destructive' | undefined;
   'aria-label'?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -53,6 +55,7 @@ export type OverflowMenuContentRow =
       leading?: JSX.Element | undefined;
       trailing?: JSX.Element | undefined;
       disabled?: boolean | undefined;
+      tone?: 'default' | 'destructive' | undefined;
       'aria-label'?: string | undefined;
       dataSet?: ComponentDataSet | undefined;
     }
@@ -77,8 +80,11 @@ export type OverflowMenuRenderProps = {
 export type OverflowMenuButtonProps = {
   /** Actions rendered inside the dropdown. */
   actions: readonly OverflowMenuAction[];
-  /** Panel header (title + optional subtitle). */
-  header: OverflowMenuHeader;
+  /**
+   * Panel header (title + optional subtitle). Omit for a small menu of a
+   * row or two whose trigger already says what it is for.
+   */
+  header?: OverflowMenuHeader | undefined;
   /** Trigger diameter in px. Defaults to 40. Ignored when `trigger` is set. */
   size?: number | undefined;
   /** Trigger icon. Defaults to the hamburger `MenuIcon`. Ignored when `trigger`. */
@@ -136,6 +142,7 @@ export function buildOverflowMenuContent(
       leading: a.leading,
       trailing: a.trailing,
       disabled: a.disabled,
+      tone: a.tone,
       'aria-label': a['aria-label'],
       dataSet: a.dataSet,
     });

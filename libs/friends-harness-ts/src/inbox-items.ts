@@ -52,13 +52,19 @@ export const markInboxRead = scenarioAction({
   },
 });
 
-/** Set the friend request aside, into the archived inbox. */
+/**
+ * Set the friend request aside, into the archived inbox: open the card's
+ * "…" menu and choose Archive.
+ */
 export const archiveInboxItem = scenarioAction({
   name: 'archiveInboxItem',
   act: async (s, actorId: string, fromUsername: string) => {
     await onInbox(s, actorId);
     const ui = await actorUi(s, actorId);
     const card = Handles.notificationsFriendRequestCard(fromUsername);
+    await ui
+      .get(Handles.notificationsCardMenu(card))
+      .tap({ timeoutMs: WAIT_MS });
     await ui
       .get(Handles.notificationsArchive(card))
       .tap({ timeoutMs: WAIT_MS });

@@ -16,6 +16,7 @@ import type {
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
 
 const NAV_ICON_SIZE = 24;
+const RAIL_ICON_SIZE = 20;
 const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
 
@@ -55,6 +56,68 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
         </span>
       </span>
     </button>
+  );
+}
+
+function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
+  return (
+    <button
+      class="clickable clickableTint flex-row items-center gap-3 px-3 h-11 w-full rounded-control transition-colors"
+      classList={{ 'bg-tint-subtle': props.item.active }}
+      {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
+      type="button"
+      aria-label={props.item.label}
+      aria-current={props.item.active ? 'page' : undefined}
+      onClick={() => props.item.onClick()}
+    >
+      <Dynamic
+        component={props.item.icon}
+        size={RAIL_ICON_SIZE}
+        strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
+        color={props.item.active ? 'tint' : 'textSecondary'}
+      />
+      <span
+        class="text line-clamp-1 min-w-0"
+        classList={{
+          'textBodyBold text-on-primary-soft': props.item.active,
+          'textBody text-text-secondary': !props.item.active,
+        }}
+      >
+        {props.item.label}
+      </span>
+    </button>
+  );
+}
+
+/** The wide sidebar: logo, one row per destination, global chrome at the foot. */
+function AppHeaderRail(
+  props: AppHeaderIslandProps & { trailing: JSX.Element }
+): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <header
+      class="box h-full w-60 shrink-0 gap-6 px-3 py-4 border-r border-border bg-transparent"
+      {...dataAttrs({
+        component: 'AppHeaderIsland',
+        orientation: 'vertical',
+        ...props.dataSet,
+      })}
+    >
+      <div class="box flex-row items-center h-11 px-3 min-w-0 overflow-hidden">
+        {props.leading}
+      </div>
+      <Show when={(props.items?.length ?? 0) > 0}>
+        <nav class="box gap-1" aria-label={t`Navigation`}>
+          <For each={props.items ?? []}>
+            {(item) => <RailNavItem item={item} />}
+          </For>
+        </nav>
+      </Show>
+      <div class="box flex-1" aria-hidden="true" />
+      <div class="box flex-row flex-wrap items-center gap-2 px-1">
+        {props.trailing}
+      </div>
+    </header>
   );
 }
 
@@ -98,6 +161,31 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
   const breadcrumbs = useAppFrameBreadcrumbs();
   const titleId = useAppFrameScreenTitleId();
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
+  return (
+    <Show
+      when={props.orientation !== 'vertical'}
+      fallback={<AppHeaderRail {...props} trailing={trailing()} />}
+    >
+      <AppHeaderRow
+        {...props}
+        trailing={trailing()}
+        breadcrumbs={breadcrumbs()}
+        titleId={titleId()}
+      />
+    </Show>
+  );
+}
+
+function AppHeaderRow(
+  props: AppHeaderIslandProps & {
+    trailing: JSX.Element;
+    breadcrumbs: ReturnType<ReturnType<typeof useAppFrameBreadcrumbs>>;
+    titleId: string | undefined;
+  }
+): JSX.Element {
+  const breadcrumbs = () => props.breadcrumbs;
+  const titleId = () => props.titleId;
+  const trailing = () => props.trailing;
   return (
     <header
       class="box shrink-0 bg-transparent"

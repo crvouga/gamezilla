@@ -25,10 +25,10 @@ export type SwitchProps = {
  *
  * `Switch` -- on/off toggle rendered as `<button role="switch">`.
  *
- * A 48x28 track with a 24px thumb (`skin.css` `.switchTrack`): on is the
- * soft tint (`tint-subtle` track, `primary-strong` edge and thumb), off is a
- * clear track inside the `outline` hairline with a secondary thumb, so the
- * thumb position, not only its color, says which. The thumb slides in
+ * A 48x28 track with a 24px white thumb (`skin.css` `.switchTrack`): on is
+ * the accent track (`tint-active`), off is the quiet `outline` track, so the
+ * thumb position, not only its color, says which; the thumb holds 3:1
+ * against both tracks. The thumb slides in
  * 200ms; reduced motion snaps it. The button keeps a 48x44 hit area around
  * the track, shows the focus ring on keyboard focus only, and fades to the
  * disabled opacity when disabled. `role="switch"` + `aria-checked`.
@@ -62,18 +62,15 @@ export function Switch(props: SwitchProps): JSX.Element {
         <span
           class="switchTrack flex flex-row items-center w-12 h-7 rounded-full shrink-0"
           classList={{
-            'bg-tint-subtle': props.value,
-            'bg-transparent': !props.value,
+            'bg-tint-active': props.value,
+            'bg-outline': !props.value,
           }}
           data-on={props.value ? 'true' : 'false'}
           aria-hidden="true"
         >
           <span
-            class="switchThumb block size-6 rounded-full shrink-0"
-            classList={{
-              'bg-primary-strong translate-x-5': props.value,
-              'bg-text-secondary': !props.value,
-            }}
+            class="switchThumb block size-6 rounded-full shrink-0 bg-on-primary"
+            classList={{ 'translate-x-5': props.value }}
           />
         </span>
       </button>

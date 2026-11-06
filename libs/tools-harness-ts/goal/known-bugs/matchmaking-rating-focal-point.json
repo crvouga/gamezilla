@@ -1,0 +1,4 @@
+{
+  "summary": "In the matchmaking search's card the provisional rating \"1512?\" was set in the large stat figures, the most prominent thing on a screen whose task is finding an opponent. Inside the card it is now a label-sized figure, so the search's title and command lead.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

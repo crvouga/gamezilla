@@ -174,10 +174,12 @@ describe('ActionBar in a box too narrow for its actions', () => {
 
   function SpaceLikeBar(props: {
     renderMenu: (menu: OverflowMenuRenderProps) => JSX.Element;
+    holdPinned?: boolean;
   }): JSX.Element {
     return (
       <ActionBar
         buttonSize={40}
+        holdPinned={props.holdPinned}
         renderMenu={props.renderMenu}
         overflowDataSet={{ testid: 'bar-more' }}
         items={[
@@ -235,6 +237,7 @@ describe('ActionBar in a box too narrow for its actions', () => {
     }
   );
 
+  // regression: ui-title-truncated-beside-collapsed-actions
   test('the bar asks for its full row but gives it up down to the More trigger', () => {
     layOutBarsAt(60);
     renderUi(() => <SpaceLikeBar renderMenu={() => null} />, { width: 320 });
@@ -243,7 +246,20 @@ describe('ActionBar in a box too narrow for its actions', () => {
     expect(css).toContain('width:148px');
     expect(css).toContain('max-width:100%');
     expect(css).toContain('min-width:44px');
-    expect(css).toContain('flex-shrink:1000');
+    // Decisive: a title beside it loses less than a layout unit.
+    expect(css).toContain('flex-shrink:1000000');
+  });
+
+  // regression: action-bar-pinned-item-collapses-before-title
+  test('a bar that holds its pinned items keeps their room beside More', () => {
+    layOutBarsAt(60);
+    renderUi(() => <SpaceLikeBar renderMenu={() => null} holdPinned />, {
+      width: 320,
+    });
+    const css = cssOf(mustQuery('[data-component="ActionBar"]'));
+    // members 44 + end 44 + More 44, 8px apart: nothing left to give up.
+    expect(css).toContain('width:148px');
+    expect(css).toContain('min-width:148px');
   });
 
   test('a box with room for everything shows every action inline', () => {

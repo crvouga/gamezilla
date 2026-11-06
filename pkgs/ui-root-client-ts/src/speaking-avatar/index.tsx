@@ -205,7 +205,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
 
   return (
     <div
-      class="box flex-row items-center px-2 gap-1 min-w-0"
+      class="box flex-row items-center px-4 gap-1 min-w-0"
       {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
       {...rest}
       data-muted={muted()}

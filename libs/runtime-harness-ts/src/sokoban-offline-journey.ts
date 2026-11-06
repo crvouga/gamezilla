@@ -2,6 +2,7 @@ import { createJourneyDraft } from '@libs/game-puzzle-harness-ts/content-journey
 import {
   contentAttribute,
   contentTap,
+  showLibraryTabOf,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import { startJourneyAttempt } from '@libs/game-puzzle-harness-ts/content-journey-playing';
@@ -77,6 +78,7 @@ export async function keepSokobanWorkOffline(
   });
   await host.actAsGuest('playSokobanStarterWithoutConnection', async (ui) => {
     await ui.get('content-offline').expect.visible(device(ui));
+    await showLibraryTabOf(device(ui), STARTER_PACK);
     await tap(ui, STARTER_PACK);
     await contentTap(device(ui), 'content-pack-next');
     await startJourneyAttempt(device(ui));

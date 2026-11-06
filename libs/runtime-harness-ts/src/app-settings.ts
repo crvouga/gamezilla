@@ -42,14 +42,27 @@ export const turnSoundsOff = scenarioAction({
   },
 });
 
+/** Whether the Settings Work offline switch is on, or `null` off Settings. */
+async function offlineSwitchOn(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean | null> {
+  if ((await nodeText(s, actorId, [Handles.settingsWorkOffline])) === null)
+    return null;
+  const ui = await actorUi(s, actorId);
+  const checked = await ui
+    .get(Handles.settingsWorkOfflineSwitch)
+    .attribute('aria-checked');
+  return checked === null ? null : checked === 'true';
+}
+
 /** Settings → Work offline switch. */
 export const setWorkOfflineInSettings = scenarioAction({
   name: 'setWorkOfflineInSettings',
   act: async (s, actorId: string, offline: boolean) => {
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
-    const shown = await nodeText(s, actorId, [Handles.settingsWorkOffline]);
-    const isOffline = shown?.includes('Offline') === true;
+    const isOffline = (await offlineSwitchOn(s, actorId)) === true;
     if (isOffline !== offline) {
       await ui
         .get(Handles.settingsWorkOfflineSwitch)
@@ -107,12 +120,17 @@ export async function soundShownInSettings(
   return nodeText(s, actorId, [Handles.settingsSound]);
 }
 
-/** What the Work offline row says (`Offline` / `Online`). */
+/**
+ * What the Settings Work offline row shows (`Offline` while its switch is
+ * on, `Online` while it is off), or `null` off Settings.
+ */
 export async function workOfflineShownInSettings(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
-  return nodeText(s, actorId, [Handles.settingsWorkOffline]);
+  const on = await offlineSwitchOn(s, actorId);
+  if (on === null) return null;
+  return on ? 'Offline' : 'Online';
 }
 
 /** The sign-in error shown after an online-only attempt. */
@@ -140,12 +158,17 @@ export async function versionShownInAbout(
   return nodeText(s, actorId, [Handles.aboutVersion]);
 }
 
-/** Settings → Connection: whether the app is connected and what works without it. */
+/**
+ * Settings → Troubleshooting → Connection: whether the app is connected and
+ * what works without it. Connection sits on the Troubleshooting page, so a
+ * person opens that first.
+ */
 export const openConnectionInSettings = scenarioAction({
   name: 'openConnectionInSettings',
   act: async (s, actorId: string) => {
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
+    await ui.get(Handles.settingsTroubleshooting).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.settingsConnection).tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
   },

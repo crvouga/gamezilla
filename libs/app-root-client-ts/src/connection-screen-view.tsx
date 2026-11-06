@@ -68,7 +68,7 @@ export function ConnectionScreenView(
     <MenuScreen
       screenId="connection"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Connection</Trans> },
       ]}

@@ -2,51 +2,62 @@
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LogOutIcon } from '@pkgs/ui-root-client-ts/icons';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from 'solid-js';
 
-const ICON_SIZE = 16;
+const ROW_ICON_SIZE = 20;
 
-export function SignOutEverywhereButton(props: {
+/**
+ * A destructive row in the account's danger zone at the foot of the screen,
+ * apart from Sign out (this device only): its title is in the destructive
+ * ink, its caption says what it ends, and {@link SignOutEverywhereConfirm}
+ * asks before anything happens.
+ */
+export function SignOutEverywhereRow(props: {
+  readonly onOpen: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <MenuRow
+      title={t`Sign out of all devices`}
+      leading={<LogOutIcon size={ROW_ICON_SIZE} color="icon" />}
+      onClick={() => props.onOpen()}
+      // It asks first, in place: no chevron, since it opens no screen.
+      hideChevron
+      dataSet={{ testid: Handles.accountSignOutEverywhere }}
+    />
+  );
+}
+
+/** The confirmation {@link SignOutEverywhereRow} opens. */
+export function SignOutEverywhereConfirm(props: {
   /** The confirmation is open. */
   readonly confirming: boolean;
-  readonly onOpen: () => void;
   readonly onClose: () => void;
   /** Ends every session; rejects with the message the dialog shows. */
   readonly onConfirm: () => Promise<void>;
 }): JSX.Element {
-  const { t } = useLingui();
   return (
-    <>
-      <Button
-        title={t`Sign out of all devices`}
-        intent="danger"
-        variant="ghost"
-        startIcon={<LogOutIcon size={ICON_SIZE} />}
-        onClick={() => props.onOpen()}
-        dataSet={{ testid: Handles.accountSignOutEverywhere }}
-      />
-      <MutationModal
-        visible={props.confirming}
-        onClose={() => props.onClose()}
-        title={<Trans>Sign out of all devices?</Trans>}
-        message={
-          <Trans>
-            Every device signed in to this account, including this one, will be
-            signed out.
-          </Trans>
-        }
-        submitLabel={<Trans>Sign out everywhere</Trans>}
-        variant="destructive"
-        operation={() => props.onConfirm()}
-        loadingLabel={<Trans>Signing out…</Trans>}
-        successTitle={<Trans>Signed out everywhere</Trans>}
-        errorTitle={<Trans>Couldn't sign out everywhere</Trans>}
-        submitDataSet={{ testid: Handles.accountSignOutEverywhereConfirm }}
-        dismissDataSet={{ testid: Handles.accountSignOutEverywhereDone }}
-      />
-    </>
+    <MutationModal
+      visible={props.confirming}
+      onClose={() => props.onClose()}
+      title={<Trans>Sign out of all devices?</Trans>}
+      message={
+        <Trans>
+          Every device signed in to this account, including this one, will be
+          signed out.
+        </Trans>
+      }
+      submitLabel={<Trans>Sign out everywhere</Trans>}
+      variant="destructive"
+      operation={() => props.onConfirm()}
+      loadingLabel={<Trans>Signing out…</Trans>}
+      successTitle={<Trans>Signed out everywhere</Trans>}
+      errorTitle={<Trans>Couldn't sign out everywhere</Trans>}
+      submitDataSet={{ testid: Handles.accountSignOutEverywhereConfirm }}
+      dismissDataSet={{ testid: Handles.accountSignOutEverywhereDone }}
+    />
   );
 }

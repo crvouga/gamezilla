@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Light Cycles direction pad sat beside the steering line, off to one side under the arena. It now sits right under the arena, centred where the thumb is, with how to steer after it.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

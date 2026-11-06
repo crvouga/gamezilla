@@ -33,6 +33,7 @@ export const chessGameClient = defineGameClient({
   shared: chessGameShared,
   title: 'Chess',
   caption: 'Puzzles, stats, and custom games',
+  tile: 'checkered',
   subtitle: () => <Trans>Choose how you want to play.</Trans>,
   presentation: chessPresentation,
   puzzles: chessPuzzlesClient,

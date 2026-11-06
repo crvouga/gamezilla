@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle-library card's 16:10 picture laid its board out in a square on the picture's shorter side, at the board's own 44px tile cap, so the board filled about a third of the picture and cards were mostly empty well; their height also pushed the Finished section below a desktop's fold. In a card's picture the board now spans the whole area, fits its height as well as its width with no tile cap, and the picture is 2:1. Phone rows are unchanged.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/preview-card-board-fill.test.ts"
+}

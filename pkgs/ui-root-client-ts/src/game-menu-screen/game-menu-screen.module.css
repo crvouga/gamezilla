@@ -1,0 +1,162 @@
+/* A game's menu on a wide screen: the hero block (the game's tile, name,
+   what it is and how to play), then its choices as large tiles. */
+.hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-6);
+  min-width: 0;
+  padding-block: var(--ui-space-4) var(--ui-space-2);
+}
+.heroWords {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.description {
+  max-width: var(--ui-max-width-prose);
+  margin-top: var(--ui-space-1);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--game-menu-columns, 3), minmax(0, 1fr));
+  gap: var(--ui-space-4);
+}
+.item {
+  display: flex;
+  min-width: 0;
+}
+/* One choice, read across: its picture, its words (the name with the lead's
+   tag beside it, what it opens under them), a chevron centred at the far
+   edge. As tall as its words, so no card is mostly empty room. */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-4);
+  width: 100%;
+  min-height: 120px;
+  padding: var(--ui-space-6);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  text-align: start;
+}
+.tile:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+/* The name, and the main way in's tag right beside it. */
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* A choice's picture on a neutral chip that stands off the card in both
+   themes: a shade darker on a light card, a step lighter on a dark one,
+   never the near-black well that vanished on a dark card. */
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-interactive-press);
+  --ui-on-icon: var(--ui-color-text);
+}
+.icon[data-size="row"] {
+  width: 36px;
+  height: 36px;
+}
+.words {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.title {
+  min-width: 0;
+}
+.caption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.chevron {
+  display: flex;
+  flex-shrink: 0;
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+/* The main way in leads by its picture on the accent, its tag and an
+   accent edge, on the plain surface like every other choice: a fill would
+   read as already chosen (or hovered). */
+.tile[data-emphasis="primary"] {
+  border-color: var(--ui-color-tint-active);
+  box-shadow: inset 0 0 0 1px var(--ui-color-tint-active);
+}
+.icon[data-emphasis="primary"] {
+  background: var(--ui-color-tint-active);
+  --ui-on-icon: var(--ui-color-on-primary);
+}
+.tile[data-emphasis="primary"] .chevron {
+  --ui-on-icon: var(--ui-color-tint);
+}
+/* A look back or a setting says less: a secondary picture. */
+.icon[data-emphasis="quiet"] {
+  --ui-on-icon: var(--ui-color-text-secondary);
+}
+/* The quiet choices under the tiles: compact rows sharing the tiles'
+   edges (one alone spans them), up to three across. */
+.links {
+  display: grid;
+  grid-template-columns: repeat(
+      var(--game-menu-link-columns, 3),
+      minmax(0, 1fr)
+    );
+  gap: var(--ui-space-3);
+  margin-top: var(--ui-space-2);
+}
+/* A quiet choice is a card of the tiles' own kind (their surface, edge,
+   radius and inner start edge, so its picture, words and chevron line up
+   with theirs), only shorter, with a smaller picture and title: one
+   family of cards, the look back the least of them. */
+.link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-4);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--ui-space-3) var(--ui-space-6);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  text-align: start;
+}
+.link:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.linkWords {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.linkCaption {
+  color: var(--ui-color-text-secondary);
+}
+.linkChevron {
+  display: flex;
+  flex-shrink: 0;
+  --ui-on-icon: var(--ui-color-text-secondary);
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Sokoban editor showed its step heading, then the palette's own \"Tool\" caption, then two rows of tool tiles before the board, so chrome and tools filled most of the screen. Narrow, the palette's name is for listeners only.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/cell-grid-palette.test.tsx"
+}

@@ -30,6 +30,7 @@ import type {
   CardTablePosition,
   CardTableSeat,
 } from '@pkgs/ui-root-client-ts/card-table';
+import type { JSX } from 'solid-js';
 import {
   cardName,
   heartsRefusal,
@@ -67,32 +68,30 @@ function shownTrick(position: HeartsPosition) {
 }
 
 /**
- * What a seat holds and has done this deal, without its score: its cards
- * left, then the points it has taken (playing) or whether it has passed.
+ * What a seat holds and has scored: its cards left, its score, and while
+ * tricks are played the points it has taken this deal.
  */
-export function seatProgress(
-  position: HeartsPosition,
-  seat: Seat,
-  committed: readonly string[]
-): readonly string[] {
+function seatFacts(position: HeartsPosition, seat: Seat): string[] {
   const held =
     position.phase === 'done' ? 0 : 13 - playedBy(position, seat).length;
+  const score = position.scores[seat] ?? 0;
   const taken = takenPoints(position)[seat] ?? 0;
-  const facts = [plural(held, { one: '# card', other: '# cards' })];
+  const facts = [
+    plural(held, { one: '# card', other: '# cards' }),
+    t`Score ${score}`,
+  ];
   if (position.phase === 'play') facts.push(t`Taken ${taken}`);
-  if (position.phase === 'pass')
-    facts.push(committed.includes(sideOfSeat(seat)) ? t`Passed` : t`Choosing`);
   return facts;
 }
 
-function seatFacts(
+/** While cards are passed, whether the seat has passed or still chooses. */
+function seatStatus(
   position: HeartsPosition,
   seat: Seat,
   committed: readonly string[]
-): string[] {
-  const score = position.scores[seat] ?? 0;
-  const [held = '', ...deal] = seatProgress(position, seat, committed);
-  return [held, t`Score ${score}`, ...deal];
+): string | undefined {
+  if (position.phase !== 'pass') return undefined;
+  return committed.includes(sideOfSeat(seat)) ? t`Passed` : t`Choosing`;
 }
 
 /** The four seats, the viewer's own nearest. */
@@ -100,7 +99,8 @@ export function tableSeats(
   board: Pick<
     GameBoardProps,
     'position' | 'orientation' | 'committed' | 'testId' | 'hand'
-  >
+  >,
+  player?: (side: GameSide) => JSX.Element | undefined
 ): readonly CardTableSeat[] {
   const position = decodeHearts(board.position);
   if (position === null) return [];
@@ -117,7 +117,9 @@ export function tableSeats(
       position: place,
       // A player's own seat says so; a watcher has no seat of their own.
       name: offset === 0 && board.hand !== null ? t`${name} (you)` : name,
-      facts: seatFacts(position, seat, board.committed),
+      facts: seatFacts(position, seat),
+      status: seatStatus(position, seat, board.committed),
+      player: player?.(side),
       active:
         position.phase === 'pass'
           ? !board.committed.includes(side)

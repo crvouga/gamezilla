@@ -126,22 +126,22 @@ describe('values derived from the tokens', () => {
     expect(spacing[4]).toBe(16);
   });
 
-  test('the type scale is 12, 13, 15, 18, 20, 26, 40 with its leading', () => {
-    expect(Object.values(fontSize)).toEqual([12, 13, 15, 18, 20, 26, 40]);
-    expect(Object.values(fontLeading)).toEqual([16, 18, 22, 24, 24, 30, 44]);
+  test('the type scale is 12, 14, 15, 18, 20, 26, 40 with its leading', () => {
+    expect(Object.values(fontSize)).toEqual([12, 14, 15, 18, 20, 26, 40]);
+    expect(Object.values(fontLeading)).toEqual([16, 20, 22, 24, 24, 30, 44]);
     expect(Object.values(fontWeight)).toEqual([400, 500, 600, 700]);
   });
 
   test('the text styles are the eight of the design', () => {
     expect(textStyles).toEqual({
       'display-xl': {
-        family: 'display',
+        family: 'sans',
         size: '3xl',
         weight: 'bold',
         leading: '3xl',
       },
       display: {
-        family: 'display',
+        family: 'sans',
         size: '2xl',
         weight: 'bold',
         leading: '2xl',
@@ -213,12 +213,12 @@ describe('values derived from the tokens', () => {
   });
 
   test('colors, fonts and motion render as the CSS of the design', () => {
-    expect(COLOR_PALETTE.dark.background).toBe('#111111');
-    expect(COLOR_PALETTE.dark.tintActive).toBe('#dedede');
-    expect(COLOR_PALETTE.light.tintSubtle).toBe('#e8e8e8');
-    expect(COLOR_PALETTE.dark.scrim).toBe('#000000aa');
+    expect(COLOR_PALETTE.dark.background).toBe('#0f1115');
+    expect(COLOR_PALETTE.dark.tintActive).toBe('#5c61f2');
+    expect(COLOR_PALETTE.light.tintSubtle).toBe('#eceefe');
+    expect(COLOR_PALETTE.dark.scrim).toBe('#00000099');
     expect(fonts.sans.startsWith('Manrope,')).toBe(true);
-    expect(fonts.display.startsWith('Unbounded,')).toBe(true);
+    expect(fonts.display.startsWith('Manrope,')).toBe(true);
     expect(duration.fast).toBe(150);
     expect(easing.standard).toBe('cubic-bezier(0.2, 0, 0, 1)');
   });

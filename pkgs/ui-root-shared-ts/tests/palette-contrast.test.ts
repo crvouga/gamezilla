@@ -86,6 +86,8 @@ const PAIRS: readonly Pair[] = [
   ['boardCardInk', 'boardCardFace', TEXT],
   ['boardCardInkRed', 'boardCardFace', TEXT],
   ['onPrimary', 'tintActive', TEXT],
+  // The switch thumb on its off track.
+  ['onPrimary', 'outline', GLYPH],
   ['onDestructive', 'destructiveActive', TEXT],
   ['onSuccess', 'success', TEXT],
   ['onWarning', 'warning', TEXT],
@@ -149,16 +151,93 @@ describe('palette contrast', () => {
   }
 });
 
+/** Chrome roles: quiet slate neutrals that carry no hue of their own. */
+const NEUTRALS = [
+  'background',
+  'surface',
+  'surfaceMuted',
+  'surfaceElevated',
+  'surfaceOverlay',
+  'text',
+  'textSecondary',
+  'icon',
+  'border',
+  'outline',
+  'disabled',
+] as const satisfies readonly ColorTokenName[];
+
+/** The one accent: links, the primary fill, selection and focus. */
+const ACCENT = [
+  'tint',
+  'tintHover',
+  'tintActive',
+  'tintSubtle',
+  'primaryStrong',
+  'onPrimarySoft',
+  'focusRing',
+] as const satisfies readonly ColorTokenName[];
+
+/** Neutrals may lean cool, never colorful: max channel spread out of 255. */
+const NEUTRAL_SPREAD = 32;
+/** Accent roles stay within this many degrees of one hue. */
+const ACCENT_HUE_SPAN = 12;
+
+function hue(color: string): number {
+  const rgb = parseColor(color);
+  if (rgb === null) throw new Error(`unparseable ${color}`);
+  const { r, g, b } = rgb;
+  const max = Math.max(r, g, b);
+  const d = max - Math.min(r, g, b);
+  if (d === 0) return Number.NaN;
+  const h =
+    max === r
+      ? ((g - b) / d) % 6
+      : max === g
+        ? (b - r) / d + 2
+        : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+}
+
 describe('application palette', () => {
   for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: application colors are achromatic`, () => {
-      for (const [name, value] of Object.entries(COLOR_PALETTE[scheme])) {
-        if (name.startsWith('game') || name.startsWith('path')) continue;
-        const rgb = parseColor(value);
-        expect(rgb, name).not.toBeNull();
-        expect(rgb?.r, name).toBe(rgb?.g);
-        expect(rgb?.g, name).toBe(rgb?.b);
-      }
+    test(`${scheme}: chrome neutrals stay quiet`, () => {
+      const loud = NEUTRALS.flatMap((name) => {
+        const rgb = parseColor(COLOR_PALETTE[scheme][name]);
+        if (rgb === null) return [`${name}: unparseable`];
+        const spread =
+          Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
+        return spread <= NEUTRAL_SPREAD ? [] : [`${name}: spread ${spread}`];
+      });
+      expect(loud).toEqual([]);
+    });
+
+    test(`${scheme}: chrome has exactly one accent hue`, () => {
+      const hues = ACCENT.map((name) => hue(COLOR_PALETTE[scheme][name]));
+      expect(hues.every(Number.isFinite)).toBe(true);
+      expect(Math.max(...hues) - Math.min(...hues)).toBeLessThanOrEqual(
+        ACCENT_HUE_SPAN
+      );
+    });
+  }
+});
+
+/** How far apart in L* the yellow and orange paths sit, in each scheme. */
+const YELLOW_ORANGE_STEP = 8;
+
+describe('path colors', () => {
+  // regression: numberlink-light-yellow-olive — the light scheme's yellow
+  // path was #8a6100, darker than its orange neighbour (L* 44 against 46),
+  // so a "3" pair read as a muddy olive beside the orange "2". Yellow now
+  // stays the lighter of the two by a clear step while it keeps 3:1 on the
+  // canvas, as every path colour must.
+  for (const scheme of ['light', 'dark'] as const) {
+    test(`${scheme}: yellow reads lighter than orange, not as olive`, () => {
+      const colors = COLOR_PALETTE[scheme];
+      const step = lightness(colors.pathYellow) - lightness(colors.pathOrange);
+      expect(step).toBeGreaterThanOrEqual(YELLOW_ORANGE_STEP);
+      expect(ratio(scheme, 'pathYellow', 'background')).toBeGreaterThanOrEqual(
+        GLYPH
+      );
     });
   }
 });

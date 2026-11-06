@@ -135,7 +135,7 @@ export function FloatingMenuItem(props: {
           <Dynamic
             component={props.row.icon}
             size={ROW_ICON_SIZE}
-            color="icon"
+            color={props.row.tone === 'destructive' ? 'destructive' : 'icon'}
           />
         }
       >
@@ -143,7 +143,10 @@ export function FloatingMenuItem(props: {
           {props.row.leading}
         </div>
       </Show>
-      <p class="text textBody line-clamp-1 flex-1 min-w-0">
+      <p
+        class="text textBody line-clamp-1 flex-1 min-w-0"
+        classList={{ 'text-destructive': props.row.tone === 'destructive' }}
+      >
         {resolveItemLabel(props.row)}
       </p>
       <Show when={props.row.subtitle !== undefined}>

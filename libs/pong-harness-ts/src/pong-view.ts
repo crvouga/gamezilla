@@ -42,8 +42,9 @@ export async function readPongCourt(ui: Driver, board: string) {
           : status.startsWith('Paused ')
             ? 'paused'
             : 'reconnecting';
+  // The ball as the game plays it (court units), not as it is drawn.
   const ball = ui.get(`${board}-ball`);
-  const radius = Number(await ball.attribute('width')) / 2;
+  const radius = Number(await ball.attribute('data-ball-size')) / 2;
   const bounds = (await ui.get(`${board}-drawing`).attribute('viewBox'))
     ?.split(' ')
     .map(Number);
@@ -58,10 +59,8 @@ export async function readPongCourt(ui: Driver, board: string) {
     stage,
     winner,
     ball: {
-      x: Number(await ball.attribute('x')) + radius,
-      y:
-        Number(await ball.attribute('y')) +
-        Number(await ball.attribute('height')) / 2,
+      x: Number(await ball.attribute('data-ball-x')),
+      y: Number(await ball.attribute('data-ball-y')),
     },
     height: bounds[3]!,
     radius,

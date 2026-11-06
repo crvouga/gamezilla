@@ -1,0 +1,85 @@
+/* A square picture of what a row opens. Its content is laid out at four
+   times the thumbnail's size, then zoomed down, so a board preview keeps
+   its proportions, its pieces and its type in step with each other. */
+.thumbnail {
+  --preview-thumbnail-size: 4rem;
+  position: relative;
+  display: inline-grid;
+  flex-shrink: 0;
+  width: var(--preview-thumbnail-size);
+  height: var(--preview-thumbnail-size);
+}
+.thumbnail[data-size="md"] {
+  --preview-thumbnail-size: 3rem;
+}
+.thumbnail[data-size="xl"] {
+  --preview-thumbnail-size: 5rem;
+}
+/* The host's picture area, whatever its shape: the picture is a square on
+   the area's shorter side, centred, its board filling more of it than a
+   small thumbnail's does. */
+.thumbnail[data-size="fill"] {
+  container-type: size;
+  --preview-thumbnail-size: min(100cqi, 100cqb);
+  width: 100%;
+  height: 100%;
+}
+/* A board caps its own cells, so at four times a large area it would stay
+   small: a filled area lays its picture out at twice its size instead. */
+.thumbnail[data-size="fill"] .content {
+  width: calc(var(--preview-thumbnail-size) * 2);
+  height: calc(var(--preview-thumbnail-size) * 2);
+  padding: calc(var(--preview-thumbnail-size) * 0.12);
+  zoom: 0.5;
+}
+/* A tall area (a card's picture) lays the board out across the whole
+   area at its own size: the board fits the area's height as well as its
+   width, with no cap on its tiles, so it fills its picture instead of
+   sitting small in the middle of it. */
+@container (min-height: 6rem) {
+  .thumbnail[data-size="fill"] .content {
+    --board-fit-block-size: calc(100cqb - var(--ui-space-3) * 2);
+    --board-fit-tile-max: 100cqi;
+    width: 100cqi;
+    height: 100cqb;
+    padding: var(--ui-space-3);
+    zoom: 1;
+  }
+}
+/* A collection: a second sheet behind the first, offset up and right,
+   inside the same square, so a pack's row starts its title where a
+   puzzle's does. */
+.thumbnail[data-stacked="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0.25rem 0.25rem;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+}
+.thumbnail[data-stacked="true"] > .frame {
+  margin: 0.25rem 0.25rem 0 0;
+}
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-icon);
+  pointer-events: none;
+}
+/* A preview is a picture, not a board waiting on play: never dimmed, so
+   its colours hold on a dark picture well as on a light one. */
+.content {
+  --board-still-opacity: 1;
+  display: grid;
+  place-items: center;
+  width: calc(var(--preview-thumbnail-size) * 4);
+  height: calc(var(--preview-thumbnail-size) * 4);
+  padding: calc(var(--preview-thumbnail-size) * 0.24);
+  box-sizing: border-box;
+  zoom: 0.25;
+}

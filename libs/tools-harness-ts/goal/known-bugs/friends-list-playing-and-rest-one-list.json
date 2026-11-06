@@ -1,0 +1,4 @@
+{
+  "summary": "On the friends list six Join rows and five chevron-only rows shared one panel with no heading between them, and friends in one room were spread apart (hosts first, then guests), so the repeated Joins hid that several led to the same room. While anyone plays the list is two titled panels, Playing now then Everyone else, with friends in one room side by side, its host first.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-playing-now.test.tsx"
+}

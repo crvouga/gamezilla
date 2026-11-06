@@ -8,10 +8,12 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
@@ -22,6 +24,8 @@ function Drawing(props: {
   disabled: boolean;
   onAction: (action: string) => void;
 }): JSX.Element {
+  const { t } = useLingui();
+  const mode = useLayoutMode();
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -42,13 +46,25 @@ function Drawing(props: {
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
       />
-      <P variant="caption" tone="secondary">
-        <Trans>
-          Draw from an endpoint to its match. With a keyboard, press Enter to
-          start, use arrow keys to draw, then Enter to finish. Escape cancels;
-          Delete removes a path.
-        </Trans>
-      </P>
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <P variant="caption" tone="secondary">
+            <Trans>Drag from a number to its match.</Trans>
+          </P>
+        }
+      >
+        <KeyHints
+          testId="numberlink-key-hints"
+          lead={t`Drag from a number to its match.`}
+          hints={[
+            { keys: [t`Enter`], label: t`start or end` },
+            { keys: [t`Arrows`], label: t`draw` },
+            { keys: ['Esc'], label: t`cancel` },
+            { keys: ['Del'], label: t`remove` },
+          ]}
+        />
+      </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}
       </Show>

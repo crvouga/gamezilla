@@ -1,0 +1,4 @@
+{
+  "summary": "A provisional matchmaking rating was explained three ways at once: the \"?\" beside the number, a \"Provisional\" tag and a footnote saying the \"?\" goes once the rating settles. The \"?\" the spec requires stays, and the footnote alone explains it; the tag is gone.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

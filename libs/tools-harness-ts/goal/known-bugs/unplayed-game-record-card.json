@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Hearts table, before any card was played (while hands were passed), the rail showed a \"Game record\" card holding nothing but History and stats, and later only a stray Resign and History. A game played by turns with no move yet keeps the record card every game's rail has, its caption the game's line about what happens now, so the card is never empty.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

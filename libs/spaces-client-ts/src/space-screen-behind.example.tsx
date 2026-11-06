@@ -16,8 +16,12 @@ export const withSpaceScreenBehind = createJSXDecorator((Story) => (
     hostOffline={false}
     canRename
     canEnd
-    presence={(size) => (
-      <SpacePresenceStripView faces={faces([AVERY, ...GUESTS])} size={size} />
+    presence={(size, compact) => (
+      <SpacePresenceStripView
+        faces={faces([AVERY, ...GUESTS])}
+        size={size}
+        compact={compact}
+      />
     )}
     overlays={<Story />}
     onPressHome={fn()}

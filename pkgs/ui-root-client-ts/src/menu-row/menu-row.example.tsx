@@ -4,12 +4,14 @@ import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import {
   BellIcon,
+  EllipsisIcon,
   SettingsIcon,
   UserIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import { createSignal, type JSX, Show } from 'solid-js';
@@ -88,7 +90,32 @@ function StatesSection(): JSX.Element {
         onClick={noop}
       />
       <MenuRow title="Static" caption="Not a destination, so no chevron" />
+      <MenuRow
+        title="Destructive"
+        caption="Ends or removes something; it asks first"
+        tone="destructive"
+        hideChevron
+        onClick={noop}
+      />
       <MenuRow title="Link" href="#menu-row" />
+    </MenuSection>
+  );
+}
+
+/** A disclosure row shows or hides the rows after it, in the same panel. */
+function DisclosureSection(): JSX.Element {
+  const [open, setOpen] = createSignal(false);
+  return (
+    <MenuSection title="Disclosure">
+      <MenuRow
+        title="Advanced"
+        caption="Rarely needed details"
+        expanded={open()}
+        onClick={() => setOpen((value) => !value)}
+      />
+      <Show when={open()}>
+        <MenuRow title="Diagnostics" onClick={noop} />
+      </Show>
     </MenuSection>
   );
 }
@@ -123,6 +150,49 @@ function PeopleSection(): JSX.Element {
   );
 }
 
+/**
+ * A row that opens something, with a "…" menu of its own beside it: two
+ * controls on one hairline, neither inside the other.
+ */
+function AccessorySection(): JSX.Element {
+  const [tapped, setTapped] = createSignal<string | null>(null);
+  const more = (title: string): JSX.Element => (
+    <OverflowMenuButton
+      aria-label={`More for ${title}`}
+      icon={EllipsisIcon}
+      size={32}
+      width={220}
+      actions={[
+        {
+          id: 'remove',
+          label: 'Remove',
+          onClick: () => setTapped(`Remove ${title}`),
+        },
+      ]}
+    />
+  );
+  return (
+    <>
+      <MenuSection title="Puzzles in this pack">
+        <MenuRow
+          title="Count to five"
+          trailing={<Badge label="Published" intent="success" size="sm" />}
+          accessory={more('Count to five')}
+          onClick={() => setTapped('Count to five')}
+        />
+        <MenuRow
+          title="Count to nine"
+          caption="Publish it before the pack"
+          trailing={<Badge label="Draft" intent="warning" size="sm" />}
+          accessory={more('Count to nine')}
+          onClick={() => setTapped('Count to nine')}
+        />
+      </MenuSection>
+      <LastTapped tapped={tapped()} />
+    </>
+  );
+}
+
 function LongTextSection(): JSX.Element {
   return (
     <MenuList>
@@ -151,7 +221,9 @@ export default function MenuRowExample(): JSX.Element {
         <SettingsSections />
       </SchemePreview>
       <StatesSection />
+      <DisclosureSection />
       <PeopleSection />
+      <AccessorySection />
       <LongTextSection />
     </ExampleRoot>
   );

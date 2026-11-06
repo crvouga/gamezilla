@@ -3,6 +3,7 @@ import type { EndpointPair } from '@libs/numberlink-shared-ts/numberlink-types';
 import { PAIR_COLORS } from '@libs/numberlink-shared-ts/numberlink-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
@@ -164,80 +165,91 @@ export function NumberlinkEditorView(
       }
     >
       {(board) => (
-        <StackVertical gap="lg">
-          <NumberStepper
-            label={t`Columns`}
-            dataSet={{ testid: 'numberlink-columns' }}
-            value={board().width}
-            min={2}
-            max={20}
-            disabled={props.disabled}
-            onChange={(n) => editor.resize('width', n)}
-          />
-          <NumberStepper
-            label={t`Rows`}
-            dataSet={{ testid: 'numberlink-rows' }}
-            value={board().height}
-            min={2}
-            max={20}
-            disabled={props.disabled}
-            onChange={(n) => editor.resize('height', n)}
-          />
-          <Select
-            label={t`Coverage`}
-            value={board().coverage}
-            disabled={props.disabled}
-            options={[
-              { value: 'all' as const, label: t`Cover every cell` },
-              { value: 'pairs' as const, label: t`Connect pairs only` },
-            ]}
-            onValueChange={(coverage) =>
-              editor.change({ ...board(), coverage }, '')
-            }
-          />
-          <NumberlinkBoard
-            definition={board()}
-            state={{ paths: [] }}
-            disabled={props.disabled}
-            onActivate={editor.place}
-          />
-          <P variant="caption" tone="secondary">
-            <Trans>
-              Choose a pair and which endpoint to move, then choose an empty
-              cell. Every pair has a label as well as a color.
-            </Trans>
-          </P>
-          <Show when={editor.error()}>
-            {(error) => <Notice tone="error">{error()}</Notice>}
-          </Show>
-          <Show when={board().pairs.length > 0}>
-            <Select
-              label={t`Pair`}
-              value={editor.selected()}
-              options={board().pairs.map((pair) => ({
-                value: pair.id,
-                label: pair.label,
-              }))}
-              disabled={props.disabled}
-              onValueChange={editor.setSelected}
-            />
-          </Show>
-          <Show when={editor.pair()}>
-            {(pair) => (
-              <PairTools
-                editor={editor}
-                pair={pair()}
+        // The board leads, its tools beside it when there is room; on a
+        // phone its size and coverage, changed rarely, follow it.
+        <EditorWorkbench
+          narrowOrder="canvas-first"
+          canvas={
+            <>
+              <NumberlinkBoard
+                definition={board()}
+                state={{ paths: [] }}
                 disabled={props.disabled}
+                onActivate={editor.place}
               />
-            )}
-          </Show>
-          <Button
-            title={t`Add pair`}
-            disabled={props.disabled}
-            onClick={editor.add}
-          />
-          <RemoveEndpoints editor={editor} disabled={props.disabled} />
-        </StackVertical>
+              <P variant="caption" tone="secondary">
+                <Trans>
+                  Choose a pair and which endpoint to move, then choose an empty
+                  cell. Every pair has a label as well as a color.
+                </Trans>
+              </P>
+              <Show when={editor.error()}>
+                {(error) => <Notice tone="error">{error()}</Notice>}
+              </Show>
+            </>
+          }
+          tools={
+            <>
+              <Show when={board().pairs.length > 0}>
+                <Select
+                  label={t`Pair`}
+                  value={editor.selected()}
+                  options={board().pairs.map((pair) => ({
+                    value: pair.id,
+                    label: pair.label,
+                  }))}
+                  disabled={props.disabled}
+                  onValueChange={editor.setSelected}
+                />
+              </Show>
+              <Show when={editor.pair()}>
+                {(pair) => (
+                  <PairTools
+                    editor={editor}
+                    pair={pair()}
+                    disabled={props.disabled}
+                  />
+                )}
+              </Show>
+              <Button
+                title={t`Add pair`}
+                disabled={props.disabled}
+                onClick={editor.add}
+              />
+              <RemoveEndpoints editor={editor} disabled={props.disabled} />
+              <NumberStepper
+                label={t`Columns`}
+                dataSet={{ testid: 'numberlink-columns' }}
+                value={board().width}
+                min={2}
+                max={20}
+                disabled={props.disabled}
+                onChange={(n) => editor.resize('width', n)}
+              />
+              <NumberStepper
+                label={t`Rows`}
+                dataSet={{ testid: 'numberlink-rows' }}
+                value={board().height}
+                min={2}
+                max={20}
+                disabled={props.disabled}
+                onChange={(n) => editor.resize('height', n)}
+              />
+              <Select
+                label={t`Coverage`}
+                value={board().coverage}
+                disabled={props.disabled}
+                options={[
+                  { value: 'all' as const, label: t`Cover every cell` },
+                  { value: 'pairs' as const, label: t`Connect pairs only` },
+                ]}
+                onValueChange={(coverage) =>
+                  editor.change({ ...board(), coverage }, '')
+                }
+              />
+            </>
+          }
+        />
       )}
     </Show>
   );

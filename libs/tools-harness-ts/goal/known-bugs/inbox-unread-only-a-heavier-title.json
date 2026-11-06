@@ -1,0 +1,4 @@
+{
+  "summary": "In the notifications inbox an unread item was told apart from a read one only by a heavier title weight, which is easy to miss at a glance and invisible to anyone who cannot compare weights. Unread items now lead with a named accent dot (\"Unread\"); read items stay plain.",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

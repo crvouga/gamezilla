@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink board's cell grid lines painted over its paths, so every path showed a seam at each cell border. The paths now paint above the grid lines, unbroken, and the endpoints above the paths.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/puzzle-board-legibility.test.tsx"
+}

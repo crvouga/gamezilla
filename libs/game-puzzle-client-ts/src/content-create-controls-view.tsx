@@ -4,6 +4,7 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
@@ -42,6 +43,10 @@ function CreateDraftButton(props: {
     <StackVertical gap="sm">
       <Button
         {...button.buttonProps}
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        startIcon={<PlusIcon size={16} />}
         dataSet={{
           testid:
             props.kind === 'pack'
@@ -89,7 +94,7 @@ export function ContentCreateControlsView(
     <Show
       when={props.denial}
       fallback={
-        <StackHorizontal gap="md" wrap>
+        <StackHorizontal gap="sm" wrap>
           <Show when={props.canCreatePuzzle}>
             <CreateDraftButton
               kind="puzzle"

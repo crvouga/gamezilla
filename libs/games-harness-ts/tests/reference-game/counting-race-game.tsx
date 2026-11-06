@@ -423,6 +423,7 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
   shared: COUNTING_RACE_SHARED,
   title: 'Counting race',
   caption: 'Count to seven first',
+  tile: 'paths',
   subtitle: () => 'Take turns counting on.',
   presentation: {
     canFlip: false,
@@ -430,6 +431,7 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
     Board,
     sideLabel,
     frame: {
+      drawOffers: true,
       players: fixedPlayers(2),
       options: [],
       seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),

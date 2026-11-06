@@ -41,12 +41,31 @@
   --color-on-info: var(--ui-color-on-info);
 }
 .board {
+  /* Figure over ground: dark solid walls, a light floor, and pieces drawn
+     as outlined tokens most of a tile wide, so what moves reads first. */
+  --tile-board-wall: var(--ui-color-game-sokoban-canvas);
+  --tile-board-wall-edge: var(--ui-color-game-sokoban-surface);
+  --tile-board-floor: var(--ui-color-game-sokoban-ink);
+  --tile-board-grout: var(--ui-color-game-sokoban-muted);
+  --tile-board-mark: var(--ui-color-game-sokoban-surface);
+  --tile-board-outline: var(--ui-color-game-sokoban-canvas);
+  --tile-board-actor: var(--ui-color-game-sokoban-accent);
+  --tile-board-object: var(--ui-color-game-sokoban-one);
+  --tile-board-settled: var(--ui-color-game-sokoban-two);
   /* A 2.75rem (44px) tile where it fits; a tall board also fits the viewport. */
+  container-type: inline-size;
   position: relative;
   width: min(
     100%,
-    calc(var(--tile-board-columns) * 2.75rem),
+    calc(var(--tile-board-columns) * var(--board-fit-tile-max, 2.75rem)),
     calc(65dvh * var(--tile-board-columns) / var(--tile-board-rows))
+  );
+  /* A host that bounds its height (a card's picture) says how tall the
+     board may be; elsewhere this is unset and so is the cap. */
+  max-width: calc(
+    var(--board-fit-block-size) *
+    var(--tile-board-columns) /
+    var(--tile-board-rows)
   );
   aspect-ratio: var(--tile-board-columns) / var(--tile-board-rows);
   margin-inline: auto;
@@ -56,12 +75,23 @@
   touch-action: none;
   user-select: none;
 }
+/* The hero board: as wide as its column, tiles up to 5rem (80px), never
+   taller than most of the viewport; its pieces scale with its tiles. */
+.board[data-size="fill"] {
+  width: min(
+    100%,
+    calc(var(--tile-board-columns) * 5rem),
+    calc(60dvh * var(--tile-board-columns) / var(--tile-board-rows))
+  );
+}
 .board:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
+/* A board waiting on something is dimmed; a picture of a board (a
+   preview's thumbnail) says it is still and is drawn at full strength. */
 .board[data-disabled="true"] {
-  opacity: 0.7;
+  opacity: var(--board-still-opacity, 0.7);
 }
 .tiles {
   position: absolute;
@@ -78,22 +108,33 @@
   border: 1px solid transparent;
 }
 .tile[data-terrain="open"] {
-  background: var(--color-background);
-  border-color: var(--color-border);
+  background: var(--tile-board-floor);
+  border-color: var(--tile-board-grout);
 }
 .tile[data-terrain="solid"] {
-  /* Solid by fill and by a heavy edge, not by colour alone. */
-  background: var(--color-text-secondary);
-  border: 2px solid var(--color-text);
+  /* A wall is one block to its square: a dark fill with its mortar on the
+     square's own edges, where the floor's grout runs, so every wall sits on
+     the board's grid and a run of walls reads as blocks laid side by side. */
+  background: var(--tile-board-wall);
+  border: max(1px, calc(2cqw / var(--tile-board-columns))) solid
+    var(--tile-board-wall-edge);
 }
 .tile[data-terrain="none"] {
   background: transparent;
 }
+/* A target: a ring around a dot, where an object belongs. */
 .mark {
-  width: 46%;
-  height: 46%;
-  border: 2px dashed var(--color-success);
+  width: 52%;
+  height: 52%;
+  box-sizing: border-box;
+  border: max(1px, calc(6cqw / var(--tile-board-columns))) solid
+    var(--tile-board-mark);
   border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--tile-board-mark) 0 24%,
+    transparent 26%
+  );
 }
 .pieces {
   position: absolute;
@@ -108,18 +149,31 @@
   place-items: center;
   width: calc(100% / var(--tile-board-columns));
   height: calc(100% / var(--tile-board-rows));
-  font-size: clamp(0.75rem, 3.5vw, 1.5rem);
-  line-height: 1;
   transition: transform 90ms ease-out;
 }
-.piece[data-tone="actor"] {
-  color: var(--color-tint);
+.token {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 72%;
+  height: 72%;
+  border: max(1px, calc(6cqw / var(--tile-board-columns))) solid
+    var(--tile-board-outline);
+  color: var(--tile-board-outline);
+  font-size: calc(48cqw / var(--tile-board-columns));
+  line-height: 1;
 }
-.piece[data-tone="object"] {
-  color: var(--color-text);
+.piece[data-tone="actor"] .token {
+  border-radius: 50%;
+  background: var(--tile-board-actor);
 }
-.piece[data-tone="settled"] {
-  color: var(--color-success);
+.piece[data-tone="object"] .token {
+  border-radius: 18%;
+  background: var(--tile-board-object);
+}
+.piece[data-tone="settled"] .token {
+  border-radius: 18%;
+  background: var(--tile-board-settled);
 }
 @media (prefers-reduced-motion: reduce) {
   .piece {

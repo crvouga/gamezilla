@@ -29,7 +29,7 @@ export function AppTabBarView(props: AppTabBarViewProps): JSX.Element {
       label: tab.label,
       icon: tab.Icon,
       get current() {
-        return isAppTabActive(tab.href, props.pathname);
+        return isAppTabActive(tab.href, props.pathname, tab.alsoActiveUnder);
       },
       onPress: () => props.onSelect(tab),
       dataSet: { component: 'AppTabButton', testid: tab.testID },

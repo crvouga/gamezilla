@@ -1,0 +1,4 @@
+{
+  "summary": "The Connect Four record repeated \"col\" before every move (\"● col 4 ◆ col 5\") in the wide table and the phone strip. The word now names the moves once (\"Column\"): the table's heading over its move columns and after the strip's turn name, and every move reads \"● 4\" in both, the disc a step clear of the number.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

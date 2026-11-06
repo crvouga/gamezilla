@@ -7,7 +7,7 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import type { JSX } from 'solid-js';
+import type { Accessor, JSX } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { ContentPublicationControlsView } from './content-publication-controls-view';
 import { useContentPublicationStatus } from './content-publication-status';
@@ -52,11 +52,16 @@ function useWithdraw(documentId: () => string): () => Promise<void> {
   };
 }
 
-/** Validation and publication wired to the draft, permissions and sync. */
+/**
+ * Validation and publication wired to the draft, permissions and sync, laid
+ * out for the builder's publish footer; `before` (a puzzle's playtest) comes
+ * first among its actions.
+ */
 export function ContentPublicationControls(props: {
   document: ContentDocument;
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
+  before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
 }): JSX.Element {
   const tools = useContentPublication(props);
   const game = useContentGame();
@@ -72,10 +77,13 @@ export function ContentPublicationControls(props: {
   });
   return (
     <ContentPublicationControlsView
+      layout="bar"
+      before={props.before}
       kind={props.document.kind}
       validation={tools.draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools.draft())}
       proven={tools.proven()}
+      waitingOn={tools.waitingOn()}
       pending={status.pending()}
       refusal={status.refusal()}
       publishDenial={publishDenial()}
@@ -89,6 +97,10 @@ export function ContentPublicationControls(props: {
           game.open({ kind: 'edition', revisionId, packRevisionId: null });
       }}
       onWithdraw={withdraw}
+      onOpenWaiting={() => {
+        const documentId = tools.firstWaiting();
+        if (documentId !== undefined) game.open({ kind: 'edit', documentId });
+      }}
     />
   );
 }

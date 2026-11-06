@@ -1,0 +1,4 @@
+{
+  "summary": "The Pong court wrote \"You\" low in the person's own half and nothing in the other, so the opponent's paddle was named only by colour. The frame now passes each seat's player name to the board, and the other half names the player there.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

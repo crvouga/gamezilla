@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Light Cycles direction pad (64px buttons, about 230px with its rider's name over it) ran past the bottom of the screen under the arena. One rider now steers from a compact 44px thumb pad beside the steering line, its rider already named above the arena.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

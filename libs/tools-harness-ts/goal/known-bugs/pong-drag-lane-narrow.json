@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Pong's drag lane went only as far in as the paddle, a sliver beside a narrow paddle. It is now thumb-wide (a sixth of the court), still invisible at rest and clear of most of the ball's path.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

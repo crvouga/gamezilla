@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { SegmentedControl } from '../segmented-control/index';
 import styles from './paired-panels.module.css';
 
@@ -15,12 +15,42 @@ export type PairedPanelsProps<K extends string> = {
   readonly onSelect: (key: K) => void;
   readonly first: JSX.Element;
   readonly second: JSX.Element;
+  /**
+   * Each panel is named by its label above it while both show side by
+   * side; behind the switch the switch alone names the panel shown, so a
+   * panel never repeats the segment chosen just above it.
+   */
+  readonly titled?: boolean | undefined;
+  /**
+   * Where the switch sits while one panel shows at a time: `above` the
+   * panel (the default), or `below` it, so a board that is the point of
+   * the screen (a game's grid) starts a row higher and the switch, a
+   * secondary view, follows it.
+   */
+  readonly switchPlacement?: 'above' | 'below' | undefined;
 };
 
+function PanelTitle(props: {
+  readonly titled: boolean | undefined;
+  readonly label: string;
+}): JSX.Element {
+  return (
+    <Show when={props.titled === true}>
+      <h3
+        class={`${styles['title']} text textLabel`}
+        {...dataAttrs({ component: 'PairedPanelsTitle' })}
+      >
+        {props.label}
+      </h3>
+    </Show>
+  );
+}
+
 /**
- * Two related panels: side by side where both fit, one at a time behind a
- * segmented switch where they do not. Both stay mounted either way, so
- * switching keeps each panel's state and focus.
+ * Two related panels: side by side where both fit, one at a time with a
+ * segmented switch (above the panel, or below it with `switchPlacement`)
+ * where they do not. Both stay mounted either way, so switching keeps each
+ * panel's state and focus.
  */
 export function PairedPanels<K extends string>(
   props: PairedPanelsProps<K>
@@ -32,8 +62,12 @@ export function PairedPanels<K extends string>(
       {...dataAttrs({ component: 'PairedPanels' })}
       data-testid={props.testId}
       data-selected={props.selected}
+      data-paired-panels="true"
     >
-      <div class={styles['pair']}>
+      <div
+        class={styles['pair']}
+        data-switch-placement={props.switchPlacement ?? 'above'}
+      >
         <div class={styles['switch']}>
           <SegmentedControl
             segments={props.keys.map((key) => ({
@@ -52,6 +86,10 @@ export function PairedPanels<K extends string>(
           data-panel={props.keys[0]}
           data-shown={String(shown(0))}
         >
+          <PanelTitle
+            titled={props.titled}
+            label={props.labels[props.keys[0]]}
+          />
           {props.first}
         </section>
         <section
@@ -60,6 +98,10 @@ export function PairedPanels<K extends string>(
           data-panel={props.keys[1]}
           data-shown={String(shown(1))}
         >
+          <PanelTitle
+            titled={props.titled}
+            label={props.labels[props.keys[1]]}
+          />
           {props.second}
         </section>
       </div>

@@ -8,7 +8,11 @@ const meta = {
   title: 'Screens/Shell/Tab bar',
   component: AppTabBarView,
   tags: ['autodocs'],
-  parameters: { appRouter: true, controls: { exclude: ['tabs'] } },
+  parameters: {
+    appRouter: true,
+    appFrame: false,
+    controls: { exclude: ['tabs'] },
+  },
   args: { tabs: STORY_APP_TABS, pathname: '/', onSelect: fn() },
 } satisfies Meta<typeof AppTabBarView>;
 export default meta;
@@ -17,11 +21,19 @@ type Story = StoryObj<typeof meta>;
 /** At home: Spaces is the current page. */
 export const SpacesCurrent: Story = {};
 
+/** On Search: its tab is the current page. */
+export const SearchCurrent: Story = { args: { pathname: '/search' } };
+
+/** On the inbox: Notifications is the current page. */
+export const NotificationsCurrent: Story = {
+  args: { pathname: '/notifications' },
+};
+
 /** A nested route keeps its tab current (a profile sub-screen → Profile). */
 export const ProfileCurrent: Story = { args: { pathname: '/profile/friends' } };
 
-/** A route outside every tab (Settings) marks no tab current. */
-export const NoTabCurrent: Story = { args: { pathname: '/more' } };
+/** A route outside every tab (an open space) marks no tab current. */
+export const NoTabCurrent: Story = { args: { pathname: '/space/abc' } };
 
 /** Long localized labels truncate within their tab. */
 export const LongLabels: Story = { args: { tabs: STORY_LONG_APP_TABS } };

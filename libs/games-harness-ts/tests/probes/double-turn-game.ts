@@ -48,6 +48,7 @@ function clientOf(shared: typeof SHARED) {
     shared,
     title: 'Double turn',
     caption: 'Two counts, then one',
+    tile: 'discs',
     subtitle: () => 'The first side counts twice in a row.',
     presentation: probePresentation(DOUBLE_TURN_RULES, {
       name: 'Double turn',

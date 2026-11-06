@@ -4,6 +4,7 @@ import { ScreenBase } from '../screen-base/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
+import { useLayoutMode } from '../use-layout-mode';
 
 export type CollectionScreenProps = Pick<
   ScreenBaseProps,
@@ -18,11 +19,26 @@ export type CollectionScreenProps = Pick<
   controls?: JSX.Element | undefined;
   /** A ScreenBodyVirtualList / ScreenBodyScrollView, or an empty/loading state. */
   children: JSX.Element;
+  /**
+   * Desktop context beside the list (a 320px column at the trailing edge):
+   * what helps a person act on the collection, such as who is playing now
+   * or what needs an answer. Desktop only; a phone shows the list alone, so
+   * nothing here may be the only way to reach something.
+   */
+  aside?: JSX.Element | undefined;
 };
 
-/** A viewport-sized collection; the list owns scrolling, filters stay visible. */
+/**
+ * A viewport-sized collection; the list owns scrolling, filters stay
+ * visible. On desktop every collection takes the whole content column from
+ * the breadcrumb's edge (the `list` measure), so no collection stops short
+ * of the others; an `aside` sits beside the list.
+ */
 export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
   const controls = createScreenSlot(() => props.controls);
+  const mode = useLayoutMode();
+  const aside = (): JSX.Element | undefined =>
+    mode() === 'wide' ? props.aside : undefined;
   return (
     <ScreenBase
       screenId={props.screenId}
@@ -30,23 +46,39 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       actions={props.actions}
       primaryAction={props.primaryAction}
       renderActionsMenu={props.renderActionsMenu}
+      measure="list"
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
-        <div class={styles['collection']}>
-          <Show when={controls.present()}>
+        <div
+          class={styles['collectionSplit']}
+          classList={{ [styles['collectionSplitAside'] ?? '']: !!aside() }}
+        >
+          <div class={styles['collection']}>
+            <Show when={controls.present()}>
+              <div
+                class={`${styles['fixed']} gap-2`}
+                {...dataAttrs({ component: 'CollectionControls' })}
+              >
+                {controls.content()}
+              </div>
+            </Show>
             <div
-              class={`${styles['fixed']} gap-2`}
-              {...dataAttrs({ component: 'CollectionControls' })}
+              class={styles['collection']}
+              {...dataAttrs({ component: 'CollectionBody' })}
             >
-              {controls.content()}
+              {props.children}
             </div>
-          </Show>
-          <div
-            class={styles['collection']}
-            {...dataAttrs({ component: 'CollectionBody' })}
-          >
-            {props.children}
           </div>
+          <Show when={aside()}>
+            {(node) => (
+              <aside
+                class={styles['collectionAside']}
+                {...dataAttrs({ component: 'CollectionAside' })}
+              >
+                {node()}
+              </aside>
+            )}
+          </Show>
         </div>
       )}
     />

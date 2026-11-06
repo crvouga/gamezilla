@@ -40,7 +40,8 @@
   },
   "category": "client",
   "gameApi": [
-    "game-client"
+    "game-client",
+    "game-table-people.example"
   ],
   "language": "typescript"
 }

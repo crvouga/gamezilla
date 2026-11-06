@@ -1,0 +1,4 @@
+{
+  "summary": "The profile identity showed \"Joined · November 2023\" as a stat at the numeral size beside the friends count, so the date outweighed the username; friends stays the one stat and the date is a quiet caption under it.",
+  "regressionTest": "libs/profile-client-ts/tests/profile-identity-facts.test.tsx"
+}

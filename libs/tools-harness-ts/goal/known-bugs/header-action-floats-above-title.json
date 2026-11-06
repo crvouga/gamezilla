@@ -1,0 +1,4 @@
+{
+  "summary": "On wide screens a header action (e.g. Find friends) was centered against the breadcrumb and the title together, so it floated between the two lines instead of sitting on the title's line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/wide-layout-regression.test.tsx"
+}

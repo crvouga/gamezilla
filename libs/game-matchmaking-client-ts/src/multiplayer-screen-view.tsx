@@ -7,8 +7,10 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { MultiplayerFindPanel } from './multiplayer-find-panel';
+import { MultiplayerGuide } from './multiplayer-guide';
 import { MultiplayerNotices } from './multiplayer-notices';
 import {
   MultiplayerRatings,
@@ -105,8 +107,26 @@ function ConfirmModal(props: Props): JSX.Element {
   );
 }
 
+/** Before any game, only the choice of a new search. */
+function finding(props: Props): boolean {
+  return props.stage !== 'game' && props.next.kind === 'find';
+}
+
+/**
+ * Before any game, the search and the person's ratings are one card on
+ * every size: the choice and its command, then what they bring (beside it
+ * when wide, under it on a phone), so no column stands taller than the
+ * other. Wide, how matchmaking works is three short lines across the
+ * card's foot, and the card and its title are one column at the search's
+ * measure, centred; a phone keeps the guide behind a disclosure.
+ */
+function ratingsInSearch(props: Props): boolean {
+  return finding(props);
+}
+
 /** The search under way, or the choice of a time control for a new one. */
 function NextGame(props: Props): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <Switch>
       <Match when={props.next.kind === 'searching' ? props.next : null}>
@@ -120,6 +140,13 @@ function NextGame(props: Props): JSX.Element {
             players={next().players}
             timed={next().timed}
             onFind={props.onFind}
+            aside={
+              <Show when={ratingsInSearch(props)}>
+                <MultiplayerRatings ratings={props.ratings} framed={false} />
+              </Show>
+            }
+            details={<MultiplayerGuide wide={mode() === 'wide'} />}
+            detailsAcross={mode() === 'wide'}
           />
         )}
       </Match>
@@ -127,7 +154,11 @@ function NextGame(props: Props): JSX.Element {
   );
 }
 
-/** The board when there is a game, then what the person can do next. */
+/**
+ * The board when there is a game, then what the person can do next. The
+ * game's own commands follow the board on a phone and head the rail beside
+ * it when wide (`actionsBeside`).
+ */
 function Stage(props: Props): JSX.Element {
   return (
     <>
@@ -153,7 +184,6 @@ function Stage(props: Props): JSX.Element {
           </Notice>
         </Show>
       </Show>
-      <Show when={props.stage === 'game'}>{props.gameActions}</Show>
       <NextGame {...props} />
       <ConfirmModal {...props} />
     </>
@@ -181,10 +211,18 @@ export function MultiplayerScreenView(props: Props): JSX.Element {
                 online={props.online}
               />
             }
+            actionsBeside
+            status={
+              <Show when={props.stage === 'game'}>{props.gameActions}</Show>
+            }
             aside={
               <>
                 <Show when={props.stage === 'game'}>{props.moves}</Show>
-                <MultiplayerRatings ratings={props.ratings} />
+                {/* Beside the board when wide; under it on a phone. Before
+                    a search the search's own card holds them. */}
+                <Show when={!ratingsInSearch(props)}>
+                  <MultiplayerRatings ratings={props.ratings} />
+                </Show>
               </>
             }
           >

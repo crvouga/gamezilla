@@ -13,6 +13,7 @@ import {
 } from './identity';
 import type { ProviderAnswers } from './provider-walk';
 import { completeProviderSignIn } from './provider-walk';
+import { spaceBarShown } from './shell-actions';
 
 const WAIT_MS = 15_000;
 
@@ -155,7 +156,7 @@ async function leaveAccountStack(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   for (let step = 0; step < 4; step += 1) {
-    if (await ui.get(Handles.spaceClose).isVisible()) return;
+    if (await spaceBarShown(ui)) return;
     for (const tab of HOME_TABS) {
       if (await ui.get(tab).isVisible()) return;
     }

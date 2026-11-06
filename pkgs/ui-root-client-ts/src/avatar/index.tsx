@@ -12,6 +12,19 @@ import { AvatarFace } from '../avatar-face/index';
 import type { IconComponent } from '../create-icon/index';
 import { UserIcon } from '../icons';
 import { useThemeTokens } from '../theme-context/index';
+import {
+  type AVATAR_TONES,
+  avatarTone,
+  YOUR_AVATAR_TONE,
+} from './avatar-identity';
+
+export {
+  AVATAR_TONES,
+  type AvatarTone,
+  avatarInitials,
+  avatarTone,
+  YOUR_AVATAR_TONE,
+} from './avatar-identity';
 
 /** The named avatar diameters, on the 4px grid. */
 export const AVATAR_SIZES = {
@@ -61,9 +74,21 @@ const SEAT_RING: Readonly<Record<AvatarSeatColor, string>> = {
 };
 
 const QUIET_PLATE = 'surfaceMuted';
-const YOUR_PLATE = 'tintSubtle';
-const YOUR_INK = 'onPrimarySoft';
+const QUIET_RING = 'outline';
 const BOT_INK = 'icon';
+
+type AvatarRing =
+  | (typeof AVATAR_TONES)[number]['ring']
+  | typeof YOUR_AVATAR_TONE.ring;
+
+/** The 3:1 ring an initials face wears, one class per ring token. */
+const INITIALS_RING: Readonly<Record<AvatarRing, string>> = {
+  outline: 'border border-outline',
+  info: 'border border-info',
+  success: 'border border-success',
+  warning: 'border border-warning',
+  tint: 'border border-tint',
+};
 
 export type AvatarProps = {
   /** Who holds the place. Defaults to `person`. */
@@ -74,7 +99,10 @@ export type AvatarProps = {
   seatColor?: AvatarSeatColor | undefined;
   /** Diameter: pixels or a named step. Defaults to `md` (40). */
   size?: number | AvatarSizeName | undefined;
-  /** Hairline `border` ring around the face. Defaults to `true`. */
+  /**
+   * The ring around the face: the hairline, or an initials face's 3:1 tone
+   * ring. Defaults to `true`.
+   */
   ring?: boolean | undefined;
   /**
    * Background color token. Defaults to the quiet `'surfaceMuted'` plate
@@ -99,8 +127,15 @@ export type AvatarProps = {
    * (and has a name without one); a person without `alt` is decorative.
    */
   alt?: string | undefined;
-  /** 1–2 character text fallback (truncated to 2 chars). */
+  /** 1–2 character text fallback (truncated to 2 chars); see `avatarInitials`. */
   initials?: string | undefined;
+  /**
+   * Stable identity (a profile id or handle) that tints an initials face
+   * with one of the `AVATAR_TONES`, so different people read apart at a
+   * glance. The same key always gives the same tone. Ignored for `you`,
+   * an explicit `background`, and faces that are not initials.
+   */
+  tintKey?: string | undefined;
   /** Icon glyph for a plate that is not a person (a game, a device). */
   icon?: IconComponent | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -111,9 +146,37 @@ function isNonEmpty(value: string | null | undefined): value is string {
   return typeof value === 'string' && value.length > 0;
 }
 
-/** The ring: the seat color, the empty seat's dashes, or the hairline. */
+/** Whether the face is initials that its `tintKey` should tint. */
+function tintedInitials(props: AvatarProps, kind: AvatarKind): boolean {
+  return (
+    isNonEmpty(props.tintKey) &&
+    isNonEmpty(props.initials) &&
+    props.you !== true &&
+    props.background === undefined &&
+    (kind === 'person' || kind === 'guest') &&
+    !isNonEmpty(props.svg) &&
+    !isNonEmpty(props.uri)
+  );
+}
+
+/** Whether the face is initials on one of the avatar's own plates. */
+function initialsFace(props: AvatarProps, kind: AvatarKind): boolean {
+  return (
+    isNonEmpty(props.initials) &&
+    props.background === undefined &&
+    (kind === 'person' || kind === 'guest') &&
+    !isNonEmpty(props.svg) &&
+    !isNonEmpty(props.uri)
+  );
+}
+
+/**
+ * The ring: the seat color, the empty seat's dashes, an initials face's
+ * tone ring, or the hairline.
+ */
 function ringClass(
-  avatar: Pick<AvatarProps, 'kind' | 'seatColor' | 'ring'>
+  avatar: Pick<AvatarProps, 'kind' | 'seatColor' | 'ring'>,
+  initialsRing: AvatarRing | undefined
 ): string {
   const dashed = avatar.kind === 'emptySeat' ? ' border-dashed' : '';
   if (avatar.seatColor !== undefined) {
@@ -122,7 +185,10 @@ function ringClass(
   if (avatar.kind === 'emptySeat') {
     return 'border-2 border-dashed border-outline';
   }
-  return avatar.ring === false ? '' : 'border border-border';
+  if (avatar.ring === false) return '';
+  return initialsRing === undefined
+    ? 'border border-border'
+    : INITIALS_RING[initialsRing];
 }
 
 /** The name the avatar is announced by, or `undefined` when decorative. */
@@ -172,6 +238,13 @@ function GuestMark(props: { size: number }): JSX.Element {
  * `Guest`, `Open seat`, or `alt` with the kind added); a person is named by
  * `alt` and is decorative without it.
  *
+ * `tintKey` gives an initials face one of the soft `AVATAR_TONES`, picked
+ * from a stable identity, so a list of people without pictures does not read
+ * as one repeated face. Pair it with `avatarInitials(name)`. An initials face
+ * wears its tone's ring (the `outline` ring untinted, the accent ring for
+ * `you`) instead of the hairline: a soft plate alone nearly vanishes into a
+ * dark card, and the ring holds 3:1 against it in both schemes.
+ *
  * `you` marks the person's own face: the `tintSubtle` plate with initials
  * (or the placeholder) in `onPrimarySoft`. `seatColor` draws the seat's
  * player color (`player1`..`player8`) as the ring, when a game supplies one.
@@ -187,6 +260,7 @@ function GuestMark(props: { size: number }): JSX.Element {
  * ```tsx
  * <Avatar uri={photo} alt="Jane" size="md" />
  * <Avatar initials="JD" you />
+ * <Avatar initials={avatarInitials('jordan_plays')} tintKey={userId} />
  * <Avatar kind="bot" alt="Stockfish" seatColor="player2" />
  * <Avatar kind="guest" />
  * <Avatar kind="emptySeat" />
@@ -203,11 +277,26 @@ export function Avatar(props: AvatarProps): JSX.Element {
     !isNonEmpty(props.uri) &&
     !isNonEmpty(props.initials) &&
     props.icon === undefined;
+  const tone = createMemo((): (typeof AVATAR_TONES)[number] | undefined =>
+    tintedInitials(props, kind()) ? avatarTone(props.tintKey ?? '') : undefined
+  );
   const background = (): string =>
-    props.background ?? (props.you === true ? YOUR_PLATE : QUIET_PLATE);
+    props.background ??
+    (props.you === true
+      ? YOUR_AVATAR_TONE.plate
+      : (tone()?.plate ?? QUIET_PLATE));
   const ink = (): string | undefined =>
     props.foreground ??
-    (props.you === true ? YOUR_INK : kind() === 'bot' ? BOT_INK : undefined);
+    (props.you === true
+      ? YOUR_AVATAR_TONE.ink
+      : kind() === 'bot'
+        ? BOT_INK
+        : tone()?.ink);
+  const initialsRing = (): AvatarRing | undefined => {
+    if (!initialsFace(props, kind())) return undefined;
+    if (props.you === true) return YOUR_AVATAR_TONE.ring;
+    return tone()?.ring ?? QUIET_RING;
+  };
   const foreground = createMemo((): string => {
     const chosen = ink();
     if (chosen !== undefined) {
@@ -218,11 +307,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
   });
   return (
     <span
-      class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring })}`}
+      class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring }, initialsRing())}`}
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
       data-seat-color={props.seatColor}
+      data-tone={tone()?.plate}
+      data-ring={initialsRing()}
       data-placeholder={isPlaceholder() ? 'true' : undefined}
       role={name() === undefined ? undefined : 'img'}
       aria-label={name()}

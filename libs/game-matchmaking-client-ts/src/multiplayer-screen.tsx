@@ -1,7 +1,10 @@
 import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { type JSX, Show } from 'solid-js';
@@ -188,9 +191,10 @@ export default function MultiplayerScreen(props: {
   const data = useMultiplayerData(() => props.gameId);
   const controls = useMultiplayerControls(data);
   const view = useOwnBoard(data.game);
+  const choices = useGameChoicesName();
   return (
     <>
-      <DefineBackButton onPress={props.onBack} />
+      <DefineBackButton onPress={props.onBack} label={choices()} />
       <MultiplayerContent
         title={props.title}
         data={data}

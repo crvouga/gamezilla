@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, Numberlink's keyboard instructions were a dense two-line paragraph under the board (\"…or press Enter on a number, draw with the arrow keys and press Enter again. Escape cancels; Delete removes a path.\"). They are now one compact KeyHints line: the drag in words, then each key cap beside what it does.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-key-hints.test.tsx"
+}

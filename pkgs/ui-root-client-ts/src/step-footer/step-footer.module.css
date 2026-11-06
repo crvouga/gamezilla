@@ -1,0 +1,11 @@
+/* The screen's last section: a hairline across the column, then the title
+   over the step's status and actions. It sits in the flow, so nothing
+   scrolls beneath it and the scroll ends with it in view. */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-sm);
+  min-width: 0;
+  padding-top: var(--ui-space-lg);
+  border-top: 1px solid var(--ui-color-border);
+}

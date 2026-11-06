@@ -1,0 +1,4 @@
+{
+  "summary": "\"History and stats\" moved around: at the record card's title beside a wide board, inside the record's disclosure under a phone's board for a turn game, and beside Resign for a real-time one. It now has one place on every screen: the end of the game's commands.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

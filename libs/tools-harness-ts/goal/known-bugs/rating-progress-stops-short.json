@@ -1,0 +1,4 @@
+{
+  "summary": "A provisional rating's progress bar stopped at 240px, short of the search card it sat in on a phone. It now spans the stat.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

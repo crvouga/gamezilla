@@ -4,12 +4,10 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
+  ActivityIcon,
   CreditCardIcon,
-  GaugeIcon,
   InfoIcon,
   PaintbrushIcon,
-  RefreshCwIcon,
-  SlidersHorizontalIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -43,7 +41,15 @@ type SettingsRow = {
 
 type SettingsGroup = {
   readonly key: string;
+  /**
+   * The group's label. Every settings group has one (the subs' sections
+   * too), so the eye finds each group the same way.
+   */
   readonly title: string;
+  /** What the group is for, beside its rows on a desktop. */
+  readonly description?: string | undefined;
+  /** A note under the group's rows. */
+  readonly footer?: string | undefined;
   readonly rows: readonly SettingsRow[];
 };
 
@@ -52,8 +58,6 @@ export type SettingsScreenViewProps = {
   readonly theme: ThemePreference;
   /** Whether in-app sound effects are muted. */
   readonly muted: boolean;
-  /** Whether the performance monitor is on. */
-  readonly perfEnabled: boolean;
   /** Whether the person chose to work offline. */
   readonly offline: boolean;
   /** Whether the Billing row is offered (a permission decision). */
@@ -83,7 +87,8 @@ function useAccountGroup(
   const { t } = useLingui();
   return () => ({
     key: 'account',
-    title: t`Account`,
+    title: t`Your account`,
+    description: t`Sign-in and devices`,
     rows: [
       {
         title: t`Account`,
@@ -107,6 +112,22 @@ function useAccountGroup(
   });
 }
 
+/**
+ * The Work offline row's one caption: what turning it on stops (multiplayer)
+ * and where the person's changes go meanwhile (they wait on this device), so
+ * the switch explains itself without a paragraph under it and never reads
+ * like an ordinary preference.
+ */
+function useWorkOfflineCaption(
+  props: SettingsScreenViewProps
+): Accessor<string> {
+  const { t } = useLingui();
+  return () =>
+    props.offline
+      ? t`Multiplayer is off; changes wait on this device`
+      : t`Disconnects multiplayer; changes wait on this device`;
+}
+
 function usePreferencesGroup(
   props: SettingsScreenViewProps
 ): Accessor<SettingsGroup> {
@@ -115,19 +136,8 @@ function usePreferencesGroup(
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
+    description: t`Look and sound`,
     rows: [
-      {
-        title: t`Work offline`,
-        caption: t`Stop every network connection until you work online`,
-        value: props.offline ? t`Offline` : t`Online`,
-        icon: props.offline ? WifiOffIcon : WifiIcon,
-        toggle: {
-          value: props.offline,
-          onChange: props.onOfflineChange,
-          label: t`Work offline`,
-        },
-        testid: Handles.settingsWorkOffline,
-      },
       {
         title: t`Appearance`,
         value: themeValue(),
@@ -142,75 +152,98 @@ function usePreferencesGroup(
         href: '/more/sound',
         testid: Handles.settingsSound,
       },
-      {
-        title: t`Performance`,
-        value: props.perfEnabled ? t`On` : t`Off`,
-        icon: GaugeIcon,
-        href: '/more/performance',
-        testid: 'settings-performance',
-      },
     ],
   });
 }
 
-function useStatusGroup(): Accessor<SettingsGroup> {
-  const { t } = useLingui();
-  return () => ({
-    key: 'status',
-    title: t`Status`,
-    rows: [
-      {
-        title: t`Connection`,
-        caption: t`Whether the app is connected, and what works without it`,
-        icon: WifiIcon,
-        href: '/more/server-status',
-        testid: Handles.settingsConnection,
-      },
-      {
-        title: t`Sync`,
-        caption: t`Local database and sync state`,
-        icon: RefreshCwIcon,
-        href: '/more/sync',
-        testid: 'settings-sync',
-      },
-      {
-        title: t`Client config`,
-        caption: t`Synced runtime configuration`,
-        icon: SlidersHorizontalIcon,
-        href: '/more/client-config',
-        testid: 'settings-client-config',
-      },
-    ],
-  });
-}
-
-function useAboutGroup(
+/**
+ * Working offline on its own, apart from look and sound: it is not a
+ * preference but a choice that ends every game with others, which the row's
+ * own caption says.
+ */
+function useConnectionGroup(
   props: SettingsScreenViewProps
 ): Accessor<SettingsGroup> {
   const { t } = useLingui();
+  const offlineCaption = useWorkOfflineCaption(props);
   return () => ({
-    key: 'about',
-    title: t`About`,
+    key: 'connection',
+    title: t`Connection`,
+    description: t`Online play and sync`,
     rows: [
       {
-        title: t`About`,
-        value: props.version,
-        icon: InfoIcon,
-        href: '/more/about',
-        testid: Handles.settingsAbout,
+        title: t`Work offline`,
+        caption: offlineCaption(),
+        icon: props.offline ? WifiOffIcon : WifiIcon,
+        toggle: {
+          value: props.offline,
+          onChange: props.onOfflineChange,
+          label: t`Work offline`,
+        },
+        testid: Handles.settingsWorkOffline,
       },
     ],
   });
 }
 
-function useSettingsGroups(
-  props: SettingsScreenViewProps
-): Accessor<readonly SettingsGroup[]> {
+/** Everyday groups lead; About and Troubleshooting follow the subs' sections. */
+function useSettingsGroups(props: SettingsScreenViewProps): {
+  readonly everyday: Accessor<readonly SettingsGroup[]>;
+} {
   const account = useAccountGroup(props);
   const preferences = usePreferencesGroup(props);
-  const status = useStatusGroup();
-  const about = useAboutGroup(props);
-  return () => [account(), preferences(), status(), about()];
+  const connection = useConnectionGroup(props);
+  return { everyday: () => [account(), preferences(), connection()] };
+}
+
+function SettingsGroupView(props: {
+  readonly group: SettingsGroup;
+  readonly onNavigate: (href: Href) => void;
+}): JSX.Element {
+  return (
+    <MenuSection
+      title={props.group.title}
+      description={props.group.description}
+      footer={props.group.footer}
+    >
+      <For each={props.group.rows}>
+        {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
+      </For>
+    </MenuSection>
+  );
+}
+
+/**
+ * The App group: About, then Troubleshooting, a page of diagnostics
+ * (connection, sync, client config, performance) for when something is not
+ * working. Both open a page, like every other row with a right chevron.
+ */
+function AboutSection(props: SettingsScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <MenuSection title={t`App`} description={t`Version and diagnostics`}>
+      <SettingsRowItem
+        row={{
+          title: t`About`,
+          value: props.version,
+          icon: InfoIcon,
+          href: '/more/about',
+          testid: Handles.settingsAbout,
+        }}
+        onNavigate={props.onNavigate}
+      />
+      <SettingsRowItem
+        row={{
+          title: t`Troubleshooting`,
+          caption: t`Connection, sync and diagnostics`,
+          icon: ActivityIcon,
+          href: '/more/troubleshooting',
+          testid: Handles.settingsTroubleshooting,
+        }}
+        onNavigate={props.onNavigate}
+      />
+    </MenuSection>
+  );
 }
 
 function SettingsRowItem(props: {
@@ -253,10 +286,11 @@ function SettingsRowItem(props: {
 }
 
 /**
- * `/more`, presentational: the settings index — account, preferences, status
- * and about groups of rows opening the sub-screens, then whatever settings the
- * composed subs contribute. `SettingsScreen` wires preferences, permissions
- * and navigation.
+ * `/more`, presentational: the settings index — everyday account and
+ * preference groups first, then whatever settings the composed subs
+ * contribute, then About and Troubleshooting (a page of diagnostics:
+ * connection, sync, client config and performance). `SettingsScreen` wires preferences, permissions and
+ * navigation.
  */
 export function SettingsScreenView(
   props: SettingsScreenViewProps
@@ -266,22 +300,17 @@ export function SettingsScreenView(
     <MenuScreen
       screenId="more"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans> },
       ]}
     >
-      <For each={groups()}>
+      <For each={groups.everyday()}>
         {(group) => (
-          <MenuSection title={group.title}>
-            <For each={group.rows}>
-              {(row) => (
-                <SettingsRowItem row={row} onNavigate={props.onNavigate} />
-              )}
-            </For>
-          </MenuSection>
+          <SettingsGroupView group={group} onNavigate={props.onNavigate} />
         )}
       </For>
       {props.subSettings}
+      <AboutSection {...props} />
     </MenuScreen>
   );
 }

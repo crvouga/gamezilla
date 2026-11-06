@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Sokoban builder's tool palette was one row of eight bare swatches with only the chosen tool named, so easily confused tools (Erase, Remove crate, Outside, Floor) were told apart by icon alone. Every tile now shows its name under its swatch at every width, four tiles to a row.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/cell-grid-palette.test.tsx"
+}

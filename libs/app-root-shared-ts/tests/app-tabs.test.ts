@@ -15,4 +15,11 @@ describe('isAppTabActive', () => {
     expect(isAppTabActive('/profile', '/profiles')).toBe(false);
     expect(isAppTabActive('/search', '/notifications')).toBe(false);
   });
+
+  test('a tab stays current under the other routes it stands for', () => {
+    expect(isAppTabActive('/profile', '/more', ['/more'])).toBe(true);
+    expect(isAppTabActive('/profile', '/more/account', ['/more'])).toBe(true);
+    expect(isAppTabActive('/profile', '/moreover', ['/more'])).toBe(false);
+    expect(isAppTabActive('/', '/more', [])).toBe(false);
+  });
 });

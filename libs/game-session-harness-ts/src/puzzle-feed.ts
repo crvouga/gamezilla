@@ -297,7 +297,7 @@ export async function readFeedModalPool(
   };
 }
 
-/** The feed bar's target: "Auto · 1500" / "Custom · 1550". */
+/** The feed bar's target: "Auto target 1500" / "Custom target 1550". */
 export async function readFeedTargetLabel(
   s: ProductHarness,
   actorId: string
@@ -306,7 +306,7 @@ export async function readFeedTargetLabel(
   const raw = stripProbe(
     await ui.get(Handles.chessPuzzleFeedTargetLabel).text()
   );
-  const match = /^(Auto|Custom)\s*·\s*(\d{3,4})$/.exec(raw);
+  const match = /^(Auto|Custom) target\s*(\d{3,4})$/.exec(raw);
   const rating = match?.[2];
   if (match === null || rating === undefined) return null;
   return {

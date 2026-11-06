@@ -77,7 +77,6 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                 <GlobalMenuIdentityRoot>
                   <subs.Chrome>
                     <AppFrameChromeProvider
-                      screenNavigation
                       globalTrailing={
                         <StackHorizontal align="center" gap="sm">
                           <WorkOfflineStatus />
@@ -86,7 +85,9 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                         </StackHorizontal>
                       }
                     >
-                      <AppFrame header={<AppHeaderIslandHost />}>
+                      <AppFrame
+                        rail={<AppHeaderIslandHost orientation="vertical" />}
+                      >
                         <AppProvidersSession>
                           {/* Lazy routes load their chunk behind one loading state. */}
                           <Suspense fallback={<LoadingState size="lg" />}>

@@ -1,0 +1,4 @@
+{
+  "summary": "A space's games list had no visible way to invite someone: Share was only in the header's ⋯ menu. A labelled \"Invite friends\" button now sits beside who is here and opens the same Share sheet (the space's link and Add people).",
+  "regressionTest": "libs/spaces-client-ts/tests/space-who-is-here-invite.test.tsx"
+}

@@ -1,0 +1,38 @@
+/* A seat's choices: a labelled pill, so it reads as "Change"
+   rather than an unexplained chevron. */
+.seatToggle {
+  display: inline-flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  height: 36px;
+  padding-inline: var(--ui-space-3) var(--ui-space-2);
+  border: 1px solid var(--ui-color-border);
+  color: var(--ui-color-text);
+  position: relative;
+  white-space: nowrap;
+}
+.seatToggleLabel {
+  color: var(--ui-color-text);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
+}
+/* A 44px hit area around the 36px button. */
+.seatToggle::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--ui-space-1) * -1);
+}
+.seatToggle:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.seatOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  padding: var(--ui-space-2) 0 var(--ui-space-3);
+  border-top: 1px solid var(--ui-color-border);
+}

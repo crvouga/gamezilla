@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Light Cycles or Pong arena the rail was a \"Game record\" card holding nothing but History and stats, since a game played in real time has no moves to list, with Offer draw and Resign in a separate card far below. A real-time game now has no record card: beside its arena the rail is one Players card (each player's strip under the game's line, History and stats at its title, the commands at its foot), and on a phone History and stats sits with the play actions.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

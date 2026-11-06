@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the library's Continue tab showed \"Continue playing\" as two columns of cards while \"Finished\" and the private playtests hung in one column under it, the right half empty. The Continue tab now holds that one list alone (two columns of rows wide); what is solved is under Browse and the playtests under My creations.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

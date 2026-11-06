@@ -67,13 +67,16 @@ export type TextElement =
 
 /**
  * The text roles, each one of the eight text styles: `body` (body 15/22),
- * `bodyBold` and `label` (body-strong 15/22 700), `caption` and `footnote`
+ * `rowTitle` (body 15/22 at medium weight: a list row's or card's title, as
+ * `MenuRow` sets it), `bodyBold` and `label` (body-strong 15/22 700),
+ * `caption` and `footnote`
  * (caption 13/18, muted), `sectionLabel` (label 12/16 700, muted: the label
  * above a group), `stat` (stat 20/24, numbers only), `mono` (code and
  * identifiers only).
  */
 export type TextRole =
   | 'body'
+  | 'rowTitle'
   | 'bodyBold'
   | 'label'
   | 'caption'
@@ -113,6 +116,7 @@ export type TimeProps = TextProps & {
 
 const ROLE: Readonly<Record<TextRole | 'inherit', string>> = {
   body: 'text textBody',
+  rowTitle: 'text textBody textRowTitle',
   bodyBold: 'text textBodyBold',
   label: 'text textLabel',
   caption: 'text textCaption',

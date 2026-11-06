@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle attempt's Undo, Redo and Restart sat at the foot of the 'This puzzle' card, so on a phone the pack place, description and save status stood between the board (and Sokoban's movement buttons) and the commands that recover a move. The commands now sit with the board (under it on a phone, heading the rail when wide) and the card is secondary.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

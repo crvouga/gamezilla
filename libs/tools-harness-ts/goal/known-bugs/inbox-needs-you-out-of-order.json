@@ -1,0 +1,4 @@
+{
+  "summary": "Needs you read 9h, 2h, 25m, 1d: the inbox story gave friend requests priority 0 while the friends sub publishes them at 10, so every turn came before every request whatever its age, and the section builder kept whatever order it was given. Needs you is now ordered by urgency, then newest, in the shared section builder (as the inbox query orders it), and the story builds its sections through it.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-sections.test.ts"
+}

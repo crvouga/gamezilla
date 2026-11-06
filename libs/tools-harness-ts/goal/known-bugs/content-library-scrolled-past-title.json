@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle library stacked every list in one column, so opening the last published puzzle scrolled its title out of view, and every saved attempt repeated \"Your progress is kept at this edition.\" Playing and building are now two columns on a wide screen, and the note is said once for the section.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

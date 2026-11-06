@@ -1,0 +1,4 @@
+{
+  "summary": "The builders' publish steps read as one run-on line (\"Publish its puzzles — Validate · After its puzzles — Publish · After validation\"): each waiting step said what it waited on, and its state was for assistive technology only. Each step now reads as one short line: its number, its name and its state in a word (\"2 Validate · Locked\").",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

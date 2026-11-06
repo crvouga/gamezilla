@@ -17,19 +17,31 @@ import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-t
 import { createMemo, type JSX } from 'solid-js';
 
 import { FriendRequestDecisionProvider } from './friend-request-decision-state';
+import { FriendRequestsAside } from './friend-requests-aside';
+import { FriendRequestsEntry } from './friend-requests-entry';
 import { createFriendsNotificationProvider } from './friends-notification-provider';
 import { ProfileFriendsActions } from './profile-friends-actions-view';
-import { ProfileFriendsStats } from './profile-friends-stats-view';
+import { ProfileFriendsPlaying } from './profile-friends-playing';
+import {
+  ProfileFriendsCount,
+  ProfileFriendsStats,
+} from './profile-friends-stats-view';
 import { SearchFriendResultRow } from './search-friend-result-row';
 import { useFriendsClientDeps } from './use-friends-client-deps';
 
 const PROFILE_SLOTS = {
   stats: () => <ProfileFriendsStats />,
+  count: () => <ProfileFriendsCount />,
   actions: () => <ProfileFriendsActions />,
+  playing: () => <ProfileFriendsPlaying />,
 };
 
 const SEARCH_SLOTS = {
-  userRow: (user: UserSearchResult) => <SearchFriendResultRow user={user} />,
+  userRow: (user: UserSearchResult, query: string) => (
+    <SearchFriendResultRow user={user} query={query} />
+  ),
+  aside: () => <FriendRequestsAside />,
+  requests: () => <FriendRequestsEntry />,
 };
 
 export default function FriendsSession(props: {

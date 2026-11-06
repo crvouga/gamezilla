@@ -14,6 +14,7 @@ export type AppTabSpec = {
   readonly label: string;
   readonly Icon: SubTab['Icon'];
   readonly testID: string;
+  readonly alsoActiveUnder?: readonly string[] | undefined;
 };
 
 /**
@@ -29,6 +30,7 @@ export function useAppTabs(): Accessor<readonly AppTabSpec[]> {
       label: tab.label(),
       Icon: tab.Icon,
       testID: tab.testID,
+      alsoActiveUnder: tab.alsoActiveUnder,
     }))
   );
 }

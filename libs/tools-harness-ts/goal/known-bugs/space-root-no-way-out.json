@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a space's list of games showed neither the global tabs nor a labelled way back to Spaces: only Minimize's picture-in-picture glyph at the bar's far edge. At the room's root the bar now leads with ‹ named Spaces, with 'Spaces' over the room's name.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+}

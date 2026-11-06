@@ -21,9 +21,9 @@ import {
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
 import { useScreenFocus } from '../screen-focus/index';
-import { SCREEN_MAX_WIDTH } from '../screen-measure';
 import { ScreenTitleProvider } from '../screen-title-context/index';
 import { ScrollView } from '../scroll-view/index';
+import { useScreenMeasure } from '../use-screen-measure';
 
 type BodyProps = Pick<
   ScreenBaseProps,
@@ -31,11 +31,6 @@ type BodyProps = Pick<
 > & {
   scroll: boolean;
 };
-
-/** The measure is a CSS width, not a token class: a dynamic value. */
-function measureWidth(measure: ScreenBaseProps['measure']): string | undefined {
-  return measure === undefined ? undefined : SCREEN_MAX_WIDTH[measure];
-}
 
 function WidePageHeader(
   props: ScreenBaseProps & {
@@ -47,34 +42,40 @@ function WidePageHeader(
   const partition = createMemo(() =>
     partitionScreenBaseActions(props.actions ?? [])
   );
-  const measure = (): string | undefined => measureWidth(props.measure);
+  const measure = useScreenMeasure(() => props.measure);
   return (
     <header
-      class="box flex-row items-center gap-3 shrink-0 min-h-13 py-2"
-      classList={{ 'w-full mx-auto': measure() !== undefined }}
-      style={{ 'max-width': measure() }}
+      class="box flex-row items-end gap-3 shrink-0 min-h-13 pt-2 pb-4"
+      classList={{ 'w-full': props.measure !== undefined }}
+      style={{ 'max-width': measure().maxWidth }}
       data-component="ScreenBaseHeader"
     >
       {props.leading}
-      <Show when={!props.shellNavigation}>
+      <Show when={!props.shellNavigation && props.titlePlacement !== 'content'}>
         <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
       </Show>
       <div class="box flex-1" aria-hidden="true" />
-      <Show when={hasScreenBaseActions(partition())}>
-        <ActionBar
-          items={partition().iconItems}
-          textActions={partition().textActions}
-          buttonSize={chrome().buttonSize}
-          gap={chrome().gap}
-          slotWidth={chrome().slotWidth}
-          showInlineLabels
-          renderMenu={props.renderActionsMenu}
-          overflowDataSet={{ testid: 'header-overflow-menu' }}
-        />
-      </Show>
-      <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
-        {(primary) => <ScreenBasePrimaryButton render={primary()} />}
-      </Show>
+      {/* Bottom-aligned with the title, so actions sit on its line. */}
+      <div
+        class="box flex-row items-center gap-3 self-end"
+        data-component="ScreenBaseHeaderActions"
+      >
+        <Show when={hasScreenBaseActions(partition())}>
+          <ActionBar
+            items={partition().iconItems}
+            textActions={partition().textActions}
+            buttonSize={chrome().buttonSize}
+            gap={chrome().gap}
+            slotWidth={chrome().slotWidth}
+            showInlineLabels
+            renderMenu={props.renderActionsMenu}
+            overflowDataSet={{ testid: 'header-overflow-menu' }}
+          />
+        </Show>
+        <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
+          {(primary) => <ScreenBasePrimaryButton render={primary()} />}
+        </Show>
+      </div>
     </header>
   );
 }
@@ -106,6 +107,7 @@ function WideBodyContent(props: BodyProps): JSX.Element {
 }
 
 function WideCanvasBody(props: BodyProps): JSX.Element {
+  const measure = useScreenMeasure(() => props.measure);
   const inner = (
     <ContentEdgePaddingProvider step={0}>
       <WideBodyContent {...props} />
@@ -117,8 +119,8 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       fallback={
         <div
           class="box flex-1 min-h-0 gap-2"
-          classList={{ 'w-full mx-auto': props.measure !== undefined }}
-          style={{ 'max-width': measureWidth(props.measure) }}
+          classList={{ 'w-full': props.measure !== undefined }}
+          style={{ 'max-width': measure().maxWidth }}
         >
           {inner}
         </div>
@@ -155,6 +157,7 @@ function WideShell(
     () => props.breadcrumbs,
     titleId
   );
+  const titleInContent = () => props.titlePlacement === 'content';
   const hasLocalActions = () =>
     (props.actions?.length ?? 0) > 0 ||
     props.leading !== undefined ||
@@ -168,7 +171,9 @@ function WideShell(
     <div
       ref={root}
       class="box flex-1 min-h-0 gap-2"
-      aria-labelledby={shellNavigation() ? titleId : undefined}
+      aria-labelledby={
+        shellNavigation() && !titleInContent() ? titleId : undefined
+      }
       {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',
@@ -176,12 +181,20 @@ function WideShell(
         screen: props.screenId,
       })}
     >
-      <Show when={shellNavigation() && props.breadcrumbs.length <= 1}>
+      <Show
+        when={
+          shellNavigation() &&
+          !titleInContent() &&
+          props.breadcrumbs.length <= 1
+        }
+      >
         <h1 id={titleId} class="text sr-only">
           {lastBreadcrumbTitle(props.breadcrumbs)}
         </h1>
       </Show>
-      <Show when={!shellNavigation() || hasLocalActions()}>
+      <Show
+        when={(!shellNavigation() && !titleInContent()) || hasLocalActions()}
+      >
         <WidePageHeader {...props} shellNavigation={shellNavigation()} />
       </Show>
       {body()}

@@ -1,0 +1,48 @@
+/* An editor's canvas and its tools: stacked when narrow, side by side when
+   the workbench itself is wide enough for both. */
+.workbench {
+  container: editor-workbench / inline-size;
+  min-width: 0;
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.canvas,
+.tools,
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+/* Wide, the canvas takes a board's measure, up to 520px but no more than
+   the window's height leaves once the screen's title, its first step and
+   the step after the canvas are counted, so a builder's last step (check
+   and publish) is in the first screen with the board. */
+@container editor-workbench (min-width: 720px) {
+  .grid {
+    display: grid;
+    grid-template-columns:
+      minmax(0, clamp(360px, calc(100dvh - 444px), 520px))
+      minmax(240px, 1fr);
+    column-gap: var(--ui-space-6);
+    grid-template-rows: auto 1fr;
+    row-gap: var(--ui-space-4);
+    align-items: start;
+  }
+  .canvas {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .tools {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .notes {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}

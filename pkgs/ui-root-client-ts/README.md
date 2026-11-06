@@ -3,12 +3,15 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: neutral chrome, expressive games
+## The look: calm chrome, one accent, expressive games
 
-Application chrome is achromatic in both schemes: charcoal and white
-surfaces, gray inks, neutral selection fills and visible focus rings. Feedback
-keeps its words, icons and semantic roles; it never depends on hue. Manrope
-and Unbounded retain the familiar type hierarchy.
+Application chrome is quiet slate in both schemes: ink-blue charcoal and soft
+paper surfaces with cool gray inks, so long sessions are easy on the eyes.
+One indigo accent marks what a person can act on or has chosen: links, the
+primary fill, selection and focus rings. Feedback keeps its words and icons
+and adds its named hue (red, green, amber, blue); it never depends on hue
+alone. Manrope sets every line of copy, headlines and numbers (tabular
+figures).
 
 Game-prefixed color tokens belong only to playing surfaces. Component-local
 variables scope them to the board, leaving the surrounding chrome neutral.
@@ -31,7 +34,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Scale | Steps |
 | --- | --- |
 | Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
-| Faces | Unbounded 600 / 700 for display and numbers, Manrope 400 / 500 / 700 for everything else; self-hosted, `font-display: swap` |
+| Face | Manrope 400 / 500 / 600 / 700 for copy, headlines and numbers (tabular figures); self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | 6 (`sm`: small details), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, chips, tags, header tabs, avatars, stat pills) |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
@@ -41,20 +44,27 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
 ## Rules
 
-1. **Neutral application.** Primary actions use a high-contrast neutral fill;
-   selection uses `tint-subtle` and `on-primary-soft`. Status is always named
-   or accompanied by an icon. Color belongs to playing surfaces, the intrinsic
-   emerald product monster mark and vendor-mandated identity artwork.
+1. **Calm chrome, one accent.** Neutrals are slate and never carry a hue of
+   their own. The indigo accent is the primary fill (`tint-active`), links
+   (`tint`), selection (`tint-subtle` and `on-primary-soft`) and focus; it is
+   never decoration. Status takes its named hue and is always named or
+   accompanied by an icon. Richer color belongs to playing surfaces, seat
+   colors, the product mark and vendor-mandated identity artwork
+   (`palette-contrast.test.ts` holds neutrals quiet and the accent to one
+   hue).
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
-   (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
-   `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
-   `heading`, `subtitle`, `navigationTitle`, `label`, `stat`). Each role wears
+   (`body`, `rowTitle`, `bodyBold`, `label`, `caption`, `footnote`,
+   `sectionLabel`, `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`,
+   `title`, `heading`, `subtitle`, `navigationTitle`, `label`, `stat`).
+   `rowTitle` is the title of a row or card a screen lays out itself (body at
+   medium weight, as `MenuRow` sets its own), so the thing never weighs less
+   than the action beside it. Each role wears
    one of the eight text styles; the mapping is in `hosts.css` and
-   `docs/ui-overhaul/DECISIONS.md`. `numeral` (Unbounded 600, tabular) for
+   `docs/ui-overhaul/DECISIONS.md`. `numeral` (Manrope 600, tabular) for
    ratings, clocks, prices and counts; counts from 1,000 are compact
    (`formatCompactNumber`: 12.4K). Nothing renders below 12px.
-3. **Two faces.** Manrope carries every label, button and line of copy;
-   Unbounded sets display headlines and numbers. Mono is for code and
+3. **One face.** Manrope carries every headline, label, button, line of copy
+   and number (tabular figures). Mono is for code and
    identifiers, never for numbers or labels. Google sign-in alone uses its
    mandated, self-hosted Google Sans Medium.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
@@ -71,16 +81,20 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
    `shadow-float`, is for what floats: sheets, dialogs, menus, popovers,
    tooltips and the FAB. No gradients, no glows.
-7. **One navigation bar.** Wide subscreens publish their existing breadcrumb
-   contracts to the header island as ancestor pills and a current-page pill;
-   root screens keep primary navigation. The redundant body header is omitted
-   while the pill supplies the single semantic, focusable subpage heading.
-   Root screens keep a visually hidden heading. Compact screens keep
-   their title/back bar. Standalone screens retain their own headers.
+7. **One navigation surface.** Wide layouts navigate from the sidebar
+   (`AppHeaderIsland orientation="vertical"` in `AppFrame` `rail`): logo,
+   one row per destination, the global chrome at its foot. Screens beside it
+   draw their own breadcrumb header, so every subpage keeps one semantic,
+   focusable heading. A screen that draws its own chrome (an open space)
+   draws it at the top of its column, beside the sidebar, which stays. Compact screens keep
+   their title/back bar and the tab bar. Standalone screens retain their own
+   headers.
    **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
 8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never
-   strings joined with `·`.
+   strings joined with `·`. Every tag is one shape, one type size and
+   sentence case; only the tone changes: a status is the `subtle` wash
+   (`Live`, `Current`, `Friends`, `Host`), a count the `solid` fill.
 9. **Motion answers a person.** Hover and press fade in 150ms, a control
    changes state in 200ms, a surface enters in 250ms. Press is a tone shift
    and a 0.97 scale; nothing bounces. `prefers-reduced-motion` (and the app's
@@ -145,18 +159,28 @@ protocol. Import each from its matching kebab-case module export.
 | `GameReviewScreen` | Review stage, timeline, actions and optional record rail | Puzzle review |
 | `FormScreen` | Scrolling editor, shared Save / Cancel footer | Username and avatar editors |
 | `MenuScreen` | Scrolling groups of `MenuSection` / `MenuList` | Settings, profile settings, account, devices, preferences |
-| `ProfileScreenLayout` | Identity, identity actions, supporting sections | Own profile; `ProfileIdentity` also groups another person's identity |
+| `ProfileScreenLayout` | Identity, identity actions, supporting sections; side by side once the column is wide enough | Own profile; `ProfileIdentity` also groups another person's identity |
 | `CollectionScreen` | Fixed search / filters / notices, independently scrolling content | Spaces, friends, search, inbox |
 | `ContentScreen` | Readable scrolling details, documents or state explanations | Privacy, billing, link outcomes, administration |
 
 Every page sits on one canvas, `background`, edge to edge at every width;
-only wells (inputs, tags, notices) take a `surface` tone. Each family has one
-measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
-`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `full` for
-`CollectionScreen` and game stages with a rail. At every width a capped
-column is centered in the frame and its title block (the wide page header,
-or `ScreenIntro`) sits in the same column, so the title lines up with the
-content. Narrow layouts retain the 16px page inset.
+only wells (inputs, tags, notices) take a `surface` tone. Every page column
+shares one 720px measure (`screen-measure.ts`), so the column never jumps
+between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`,
+`GameHistoryScreen` and Storybook; `prose` for `ContentScreen`; `list` for
+`CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
+sections); `full` for game stages with a rail. Compact hosts cap and center the
+column. On desktop every screen starts at the frame column's leading edge
+(the edge an open space's top bar uses), so content never jumps sideways
+between screens, and `menu` / `list` screens use the whole column on
+purpose: a `MenuScreen`'s sections put their label beside their rows (with
+an optional one-line `description` under the label there; a phone shows the
+label alone), and a `CollectionScreen` can add a 320px `aside` of context. A
+`ProfileScreenLayout` that wide sets its sections in two columns beside the
+identity card, the first (the most timely) down the left. Only `prose` keeps a
+720px reading measure (`useScreenMeasure`). The title block (the wide page
+header, or `ScreenIntro`) sits in the same column, so the title lines up
+with the content. Narrow layouts retain the 16px page inset.
 `ScreenColumn` gives routed reading bodies and form footers that measure and
 section rhythm. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide

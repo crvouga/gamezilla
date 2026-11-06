@@ -1,0 +1,4 @@
+{
+  "summary": "In Light Cycles the person's \"You\" tag took a line of its own: on a phone their rider chip stood taller than the other two, its name higher, and beside a wide arena their strip in the players' card was taller than the rest. Every chip of a row now shares the row's height with its lines from the top, and beside the arena \"You\" sits on the name's own line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

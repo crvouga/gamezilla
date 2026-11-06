@@ -1,15 +1,110 @@
+/* A game screen's one column, centered in the frame with its title block
+   at the start edge. Its width follows what it holds: the board and its
+   rail as one group, a game menu's measure when no board sits beside a
+   rail, the whole frame for a screen with no game layout. The game layout
+   inside answers to this column's width, not the window's, so a frame
+   narrowed by the host's own chrome never squeezes a rail beside the board. */
+.column,
+.layout {
+  /* A board's width: the stage column, and the seats around the board. */
+  --game-board-measure: 560px;
+  /* The rail beside the board on wide screens: with the board and the gap
+     between them, the 960px content width of a wide screen. */
+  --game-rail-measure: var(--ui-max-width-panel);
+  /* The game's own chrome a wide board leaves room for in the window. */
+  --game-board-chrome-block: 284px;
+  /* A search's card: one column, its command as wide as the card. */
+  --game-search-measure: 600px;
+  /* A search beside what the person brings (their ratings): two columns,
+     each a form's width, never stretched across the whole game column. */
+  --game-search-split-measure: 45rem;
+  /* Beside a real-time game's arena: room for a player's full strip. */
+  --game-arena-rail-measure: 304px;
+}
+.column {
+  container: game-column / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-lg);
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+.column:has(.layout) {
+  max-width: var(--ui-max-width-prose);
+}
+.column:has(.layout[data-workspace="true"]),
+.column:has(.layout[data-has-stage="true"][data-has-aside="true"]),
+.column:has(.layout[data-has-stage="true"][data-has-setup="true"]),
+.column:has([data-setup-split="true"]),
+.column:has([data-section-media="true"]) {
+  max-width: calc(
+    var(--game-board-measure) +
+    var(--ui-space-6) +
+    var(--game-rail-measure)
+  );
+}
+/* A wide search before any game: the column (title and card) takes the
+   content column every page has, from the breadcrumb's edge to its end,
+   never a narrower column centred apart from the space's bar. The card
+   splits it, the search leading (`GameSetupPanel`). As specific as the
+   board-and-rail rules above, and after them. */
+.column:has(.layout [data-setup-split="true"][data-details-across="true"]) {
+  max-width: calc(
+    var(--game-board-measure) +
+    var(--ui-space-6) +
+    var(--game-rail-measure)
+  );
+  margin-inline: 0 auto;
+}
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ui-space-4);
   align-items: start;
 }
+.setup,
 .stage,
+.controls,
 .rail {
   display: flex;
   flex-direction: column;
   min-width: 0;
   gap: var(--ui-space-4);
+}
+/* The board column: the board, the turn and the play actions under it share
+   one width, so the actions sit with the board, not at the page's edge. */
+.stage {
+  width: 100%;
+  max-width: var(--game-board-measure);
+  justify-self: start;
+}
+.layout:not([data-has-stage="true"]) > .stage {
+  display: none;
+}
+/* With no board yet, setup takes the board's column. */
+.layout:not([data-has-stage="true"]) > .setup {
+  width: 100%;
+  max-width: var(--game-board-measure);
+  justify-self: start;
+}
+/* An editor's workspace fills the column (the editor sets its own tools
+   beside its canvas); with nothing beside it, the one column fills the
+   game menu's measure. */
+.layout[data-workspace="true"] > .stage,
+.column .layout:not([data-has-stage="true"]) > .setup,
+.column .layout[data-has-aside="false"][data-has-setup="false"] > .stage {
+  max-width: none;
+}
+/* A search and what the person brings to it (their ratings) read as one
+   card at a form's measure, the way a phone shows it, at the column's
+   start edge: never stretched across a board's width with its command
+   stranded at one end. The column itself keeps the host's width, so the
+   title still lines up with the host's bar. */
+.column
+  .layout[data-has-aside][data-has-setup]
+  > .stage:has([data-setup-split="true"][data-details-across="false"]) {
+  max-width: var(--game-search-measure);
 }
 /* The seats hug the board: one column, the board the widest thing in it. */
 .boardStage {
@@ -17,7 +112,7 @@
   flex-direction: column;
   gap: var(--ui-space-3);
   width: 100%;
-  max-width: 560px;
+  max-width: var(--game-board-measure, 560px);
   align-self: center;
   min-width: 0;
 }
@@ -25,6 +120,33 @@
   width: 100%;
   border-radius: var(--ui-radius-sm);
   overflow: hidden;
+}
+/* A board that labels its rows outside its squares, in a 20px gutter at
+   its start (a chess board: 16px of ranks and a 4px gap), marks itself
+   `data-board-gutter="start"`: the seats and the turn above and below it
+   start past that gutter, so they line up with the squares, edge to edge,
+   and the labels stand out in the margin. */
+.boardStage:not([data-preview="true"]):has([data-board-gutter="start"])
+> :not(.board) {
+  margin-inline-start: 20px;
+}
+/* Ranks at the board's end (a wide screen's chess board): the seats end
+   short of that gutter instead, so the squares start under the title. */
+.boardStage:not([data-preview="true"]):has([data-board-gutter="end"])
+> :not(.board) {
+  margin-inline-end: 20px;
+}
+/* Before play: a small thumbnail in the board's own colours, its top level
+   with the setup beside it, over a quiet label that names it; its size and
+   the label say it is a preview, never where to play. */
+.boardStage[data-preview="true"] {
+  max-width: var(--game-board-preview-measure, 176px);
+  gap: var(--ui-space-2);
+}
+.previewLabel {
+  margin: 0;
+  color: var(--ui-color-text-secondary);
+  text-align: center;
 }
 .section {
   display: flex;
@@ -43,11 +165,37 @@
   align-items: center;
   gap: var(--ui-space-2);
 }
-.player {
+.actions[data-sizing="share"] > * {
+  flex: 1 1 0;
+  min-width: 144px;
+  max-width: 320px;
+}
+.player,
+.playerBelowControls {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-3);
   min-width: 0;
+}
+.player[data-active="true"] {
+  /* The seat to move: an accent edge on the leading side, beside the tint. */
+  box-shadow: inset 4px 0 0 var(--ui-color-tint-active);
+}
+.playerTurn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--ui-space-2);
+  min-height: 20px;
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+  white-space: nowrap;
+}
+.player[data-density="compact"] {
+  gap: var(--ui-space-2);
+}
+/* A compact seat row measures itself for its toggle (seat-options.module.css). */
+.player[data-density="compact"] .playerRow {
+  container: seat-row / inline-size;
 }
 .playerRow {
   display: flex;
@@ -82,6 +230,24 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-1);
+  min-width: 0;
+}
+/* A compact seat's facts line is a tag's height whether or not it holds a
+   tag (`Host`), so two seat cards side by side keep their rows level. */
+.player[data-density="compact"] .playerTags {
+  min-height: var(--ui-space-6);
+}
+/* A compact seat's controls on a line under its name, starting where the
+   name does (past the 32px avatar and the row's gap). */
+/* A seat's controls on a line of their own under its row, from the row's
+   start edge (the avatar's), on every size: a phone's narrow card keeps
+   them on one row, and a desktop's seat looks the same as a phone's. */
+.playerBelow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  padding-inline-start: 0;
   min-width: 0;
 }
 .playerTrailing {
@@ -154,7 +320,7 @@
   opacity: 0;
   cursor: inherit;
 }
-.disclosure {
+.disclosure[data-rule="true"] {
   border-top: 1px solid var(--ui-color-border);
 }
 .disclosureTrigger {
@@ -224,6 +390,12 @@
   min-height: 44px;
   padding: var(--ui-space-2) var(--ui-space-4);
 }
+/* A plain line: hint text with no well, set where the well's words start
+   being the line's own start edge. */
+.turn[data-look="plain"] .turnPill {
+  min-height: 0;
+  padding: 0;
+}
 .turnMark {
   flex-shrink: 0;
   width: 8px;
@@ -259,9 +431,145 @@
     background: var(--ui-color-surface-muted);
   }
 }
-@media (min-width: 960px) {
-  .layout[data-has-aside="true"] {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+/* Wide: the board column and one rail beside it (setup, then the
+   controls, then the record, top to bottom), as one group as wide as the
+   game column, which centers it. The rail has a row per slot it holds and
+   the stage spans them all, with one last row taking what the board leaves.
+   Measured on the game column, so it holds wherever the host's chrome
+   leaves room. */
+@container game-column (min-width: 880px) {
+  /* Beside a rail the board also fits the window's height: the window less
+     the game's own chrome around the board (its title, facts and the seats
+     above and below it) and whatever the host draws above the screen
+     (`--ui-host-chrome-block-size`), so the board and both seats show
+     without scrolling. Never smaller than a usable board. */
+  .layout[data-has-stage="true"][data-has-aside="true"],
+  .layout[data-has-stage="true"][data-has-setup="true"] {
+    --game-board-measure: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--game-board-chrome-block) -
+        var(--ui-host-chrome-block-size, 0px)
+      ),
+      560px
+    );
+  }
+  /* A board that brings its own switch between two panels (and the key to
+     its marks under it) leaves room for both, so the seat under the board
+     still shows without scrolling. */
+  .layout[data-has-stage="true"][data-has-aside="true"]:has(
+    .stage [data-paired-panels]
+  ) {
+    --game-board-chrome-block: calc(284px + var(--ui-space-12));
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"],
+  .layout[data-has-stage="true"][data-has-setup="true"] {
+    /* The rail takes what the board leaves of the column, so every game's
+       rail ends at the column's edge, under the header's own, however tall
+       the window lets its board be. */
+    grid-template-columns:
+      minmax(0, var(--game-board-measure))
+      minmax(280px, 1fr);
+    grid-template-rows: repeat(var(--game-rail-rows, 1), auto) 1fr;
+    justify-content: start;
+    column-gap: var(--ui-space-6);
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"] > .stage,
+  .layout[data-has-stage="true"][data-has-setup="true"] > .stage {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  /* A real-time game's arena is wider than it is tall, so it never meets
+     the window's height at this width: it takes the column's room, and
+     the rail beside it (the players) keeps a strip's width. The column
+     keeps the game column's width, so its edges match every game. */
+  .layout[data-arena="true"][data-has-stage="true"][data-has-aside="true"] {
+    --game-board-measure: 100%;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(280px, var(--game-arena-rail-measure));
+  }
+  /* While the game is set up the setup is the main column, running the
+     grid's height, with Start under its players; the board preview is a
+     thumbnail beside it, a glance at what the game is played on. */
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"] {
+    --game-board-preview-measure: 200px;
+    grid-template-columns:
+      minmax(0, 1fr)
+      var(--game-board-preview-measure);
+    grid-template-rows: auto 1fr;
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > .stage {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: var(--game-board-preview-measure);
+  }
+  /* A search that holds its own context (the person's ratings beside its
+     command) is one card of two form-width columns at the column's start
+     edge: never stretched across the whole game column for three items. */
+  .column
+    .layout[data-has-aside][data-has-setup]
+    > .stage:has([data-setup-split="true"][data-details-across="false"]) {
+    max-width: var(--game-search-split-measure);
+  }
+  /* In document order, each in the next free row of the rail. */
+  .layout[data-has-stage="true"][data-has-aside="true"]
+  > :is(.setup, .controls, .rail),
+  .layout[data-has-stage="true"][data-has-setup="true"]
+    > :is(.setup, .controls, .rail) {
+    grid-column: 2;
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > :is(.setup, .rail) {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"]
+    > .controls {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  /* The rail is as tall as what it holds: the last of its slots (the
+     record with its steps and the game's commands) runs from its own row
+     to the foot of the grid but keeps its own height at the top, so no
+     card is pinned to the board's foot with empty rail above it. A
+     filling section stretches to that foot instead; a move table in it
+     takes the room and scrolls inside, contributing only its floor to the
+     grid's height. */
+  .layout[data-has-stage="true"][data-has-aside="true"] > .rail {
+    grid-row: var(--game-rail-rows, 1) / -1;
+    align-self: start;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail:has(> .section[data-fill="true"]) {
+    align-self: stretch;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"] > .stage {
+    align-self: stretch;
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > :is(.stage, .rail)
+    > .section[data-fill="true"] {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* A long game's move table grows beside the board, to about the board's
+     own height, before it scrolls: the rail's room is the record's. */
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail
+    [data-layout="table"] {
+    max-height: max(320px, calc(var(--game-board-measure) - 120px));
+  }
+  .layout[data-has-stage="true"][data-has-aside="true"]
+    > .rail
+    > .section[data-fill="true"]
+    > [data-layout="table"] {
+    flex: 1 1 auto;
+    height: 0;
+    min-height: 160px;
+    max-height: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a horizontal slider under the Pong court moved a paddle that travels up and down. The slider now stands upright beside the court, on its paddle's side, moving top to bottom as the paddle does.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

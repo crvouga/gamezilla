@@ -16,6 +16,19 @@ export type DirectionPadProps = {
   readonly onDirection: (heading: DirectionPadHeading) => void;
   /** The group's `data-testid`; each button is `${testId}-<heading>`. */
   readonly testId: string;
+  /**
+   * `lg` (default): 64px buttons, for steering in real time. `md`: 48px
+   * buttons, for stepping a turn at a time beside other controls. `sm`:
+   * 44px buttons, a thumb's pad that fits under a phone's board with the
+   * board in view (still a full touch target).
+   */
+  readonly size?: 'sm' | 'md' | 'lg' | undefined;
+  /**
+   * `cross` (default): up over left and right beside an empty centre, down
+   * below. `arrows`: the keyboard's arrow keys, up over left, down and
+   * right, a row shorter, so a phone's board keeps more of the screen.
+   */
+  readonly layout?: 'cross' | 'arrows' | undefined;
 };
 
 /** Up on top, left and right beside an empty centre, down below. */
@@ -24,6 +37,14 @@ const HEADINGS: readonly DirectionPadHeading[] = [
   'left',
   'right',
   'down',
+];
+
+/** The arrow keys' order: up, then left, down and right in one row. */
+const ARROW_HEADINGS: readonly DirectionPadHeading[] = [
+  'up',
+  'left',
+  'down',
+  'right',
 ];
 
 const ROTATION: Readonly<Record<DirectionPadHeading, number>> = {
@@ -84,10 +105,12 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
     <div
       {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       class={styles['pad']}
+      data-size={props.size ?? 'lg'}
+      data-layout={props.layout ?? 'cross'}
       role="group"
       data-disabled={props.disabled}
     >
-      <For each={HEADINGS}>
+      <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>
         {(heading) => <PadButton heading={heading} pad={props} />}
       </For>
     </div>

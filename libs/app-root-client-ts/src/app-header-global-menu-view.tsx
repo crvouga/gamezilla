@@ -16,10 +16,12 @@ import type {
   OverflowMenuHeader,
 } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;
@@ -48,6 +50,12 @@ export type AppHeaderGlobalMenuViewProps = {
   readonly muted: boolean;
   /** Open the row's screen. */
   readonly onNavigate: (href: string) => void;
+  /**
+   * The wide sidebar's foot: the person's name beside their face, so the
+   * trigger reads as who is signed in rather than a second Profile row.
+   * The top bars keep the face alone.
+   */
+  readonly showName?: boolean | undefined;
 };
 
 function useThemeCaption(props: AppHeaderGlobalMenuViewProps): () => string {
@@ -163,9 +171,37 @@ function useGlobalMenuHeader(
   });
 }
 
+/** The name shown beside the face, when asked for and known. */
+function shownName(props: AppHeaderGlobalMenuViewProps): string | null {
+  const name = props.identity.usernameLabel;
+  return props.showName === true && name !== null && name.length > 0
+    ? name
+    : null;
+}
+
+/** The trigger: the face, with the person's name beside it when shown. */
+function MenuTrigger(props: {
+  readonly face: JSX.Element;
+  readonly name: string | null;
+}): JSX.Element {
+  return (
+    <Show when={props.name} keyed fallback={props.face}>
+      {(name) => (
+        <StackHorizontal align="center" gap="sm" shrink>
+          {props.face}
+          <Text variant="label" tone="secondary" lines={1}>
+            {name}
+          </Text>
+        </StackHorizontal>
+      )}
+    </Show>
+  );
+}
+
 /**
- * The global account menu, presentational: the account face as trigger, a
- * header naming the person, and rows for Settings, Connectivity (with its
+ * The global account menu, presentational: the account face as trigger
+ * (with the person's name beside it in the wide sidebar), a header naming
+ * the person, and rows for Settings, Connectivity (with its
  * status), Account, Theme and Sound. It shows identity only — never a sign-in
  * state or a tier. `AppHeaderGlobalMenu` supplies identity and preferences.
  */
@@ -175,9 +211,16 @@ export function AppHeaderGlobalMenuView(
   const { t } = useLingui();
   const actions = useGlobalMenuActions(props);
   const header = useGlobalMenuHeader(props);
-  const trigger = createMemo(() =>
+  const face = createMemo(() =>
     accountFace(props.identity, TRIGGER_AVATAR_SIZE)
   );
+  const name = (): string | null => shownName(props);
+  const trigger = createMemo(() => <MenuTrigger face={face()} name={name()} />);
+  // A shown name is part of what the trigger is called (WCAG 2.5.3).
+  const label = (): string => {
+    const shown = name();
+    return shown === null ? t`Account menu` : t`${shown}, account menu`;
+  };
   return (
     <OverflowMenuButton
       placement="bottom-end"
@@ -185,7 +228,7 @@ export function AppHeaderGlobalMenuView(
       actions={actions()}
       header={header()}
       trigger={trigger()}
-      aria-label={t`Account menu`}
+      aria-label={label()}
       dataSet={{ testid: Handles.statusCurrentUser }}
     />
   );

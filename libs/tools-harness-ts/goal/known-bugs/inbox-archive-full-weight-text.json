@@ -1,0 +1,4 @@
+{
+  "summary": "Every notifications inbox card repeated a full-weight \"Archive\" text button on its own action row, so the inbox read as a column of identical buttons and cards without answers grew a row just for it. Archive is now a quiet icon-only button at the card's top corner, named \"Archive\" for assistive technology and in its tooltip.",
+  "regressionTest": "libs/notifications-client-ts/tests/notification-card-default.test.tsx"
+}

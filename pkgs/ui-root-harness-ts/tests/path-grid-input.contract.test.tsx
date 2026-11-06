@@ -1,4 +1,6 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { PathGridBoard } from '@pkgs/ui-root-client-ts/path-grid-board';
@@ -207,4 +209,22 @@ test('the explorer renders every path color and its disabled state', () => {
     'true'
   );
   view.unmount();
+});
+
+// regression: numberlink-board-oversized — a 5 × 5 Numberlink grid filled
+// its whole 540px column, each square over 100px, a poster beside a nearly
+// empty panel. A square is now at most 80px, so a small grid is a
+// comfortable board (400px for 5 × 5); a large one still fills its column.
+test('a square is at most 80px, so a small grid never fills a wide column', () => {
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../ui-root-client-ts/src/path-grid-board/path-grid-board.module.css'
+    ),
+    'utf8'
+  );
+  const board = css.slice(css.indexOf('.board {'));
+  expect(board.slice(0, board.indexOf('aspect-ratio'))).toMatch(
+    /width: min\(100%, calc\(var\(--path-columns\) \* 80px\)\);/
+  );
 });

@@ -2,7 +2,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpaceGamesScreenView } from './space-games-screen-view';
 import { GameAreaExample } from './space-story-game-area.example';
-import { GAMES } from './spaces-story.example';
+import { GAMES, storyTile } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-games',
@@ -27,6 +27,9 @@ type Story = StoryObj<typeof meta>;
 
 /** The host picks what the space plays from the registered games. */
 export const HostChoosing: Story = {};
+
+/** Five people in the space: each game says who plays, and one line says the others watch. */
+export const FullRoom: Story = { args: { present: 5 } };
 
 /** A guest sees the same list, told the host picks; rows are not pressable. */
 export const GuestWaiting: Story = { args: { canSelectGame: false } };
@@ -53,6 +56,7 @@ export const LongContent: Story = {
         title: 'A game with a remarkably long localized title',
         caption:
           'A caption that keeps going to show how a long description wraps in the games list.',
+        Tile: storyTile('discs'),
       },
     ],
   },

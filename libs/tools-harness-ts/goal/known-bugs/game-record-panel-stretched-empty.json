@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board the game record stretched to the board's height: a few moves at its top, about 300px of empty card, then the steps and Offer draw / Resign at its foot. The record is now as tall as its moves, with the steps right under them and the game's commands closing the same card.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+}

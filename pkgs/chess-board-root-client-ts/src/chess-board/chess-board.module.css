@@ -82,7 +82,10 @@
   z-index: 2;
   /* A fixed-size leaf: its style, layout and paint never reach past it. */
   contain: strict;
-  background-size: 100% 100%;
+  /* The figure fills 84% of its square, centred, so the edge coordinates in
+     the squares' outer corners never touch a piece. */
+  background-size: 84% 84%;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
@@ -253,9 +256,29 @@
   background-color: var(--chess-legal-dot);
 }
 
+/* Labels read at a glance and never outshout a piece: semibold, in an ink
+   that contrasts with the square under it — a walnut deeper than the
+   border on a light square, a cream paler than the light square on a dark
+   one. */
 .coords {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-weight: 600;
+}
+
+.coords text[data-ink="on-light"] {
+  fill: var(--chess-coord-on-light);
+}
+
+.coords text[data-ink="on-dark"] {
+  fill: var(--chess-coord-on-dark);
+}
+
+/* Inside a `ChessBoardFrame` (any playing board) the labels sit outside
+   the squares, larger than a corner holds: the corner labels step aside. */
+@container chess-frame (min-width: 280px) {
+  .coords {
+    display: none;
+  }
 }
 
 /* -- hit grid ------------------------------------------------------------ */

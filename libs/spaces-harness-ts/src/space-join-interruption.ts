@@ -2,6 +2,7 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { deviceMemberIdOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { openSpaceLink } from './space-actions';
@@ -73,7 +74,7 @@ export async function lobbyShown(
   return (
     (await ui.get(Handles.spacesListReady).isVisible()) &&
     !(await ui.get(Handles.spaceJoinPrompt).isVisible()) &&
-    !(await ui.get(Handles.spaceClose).isVisible())
+    !(await spaceBarShown(ui))
   );
 }
 
@@ -92,6 +93,6 @@ export async function joinClaimShown(
     (await ui.get(Handles.spaceMiniplayerOpen(spaceId)).isVisible()) ||
     ((await join.isVisible()) && (await join.text()) === 'Joined') ||
     ((await s.actors.get(actorId)?.currentPath()) === link &&
-      (await ui.get(Handles.spaceClose).isVisible()))
+      (await spaceBarShown(ui)))
   );
 }

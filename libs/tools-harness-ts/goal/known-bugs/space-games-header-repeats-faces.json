@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop, a space's games list showed everyone's faces twice: in the header's members button and again in the line under the list's title. The line now says who is here and who hosts in words only on a desktop; a phone, whose header shows only a count, keeps the faces in the line.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-who-is-here-invite.test.tsx"
+}

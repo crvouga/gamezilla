@@ -16,6 +16,8 @@ export function GameActionButton(props: {
   disabled?: boolean;
   variant?: ButtonVariant;
   fullWidth?: boolean;
+  /** `sm` inside a compact seat row; defaults to the regular height. */
+  size?: 'sm' | undefined;
   successLabel?: JSX.Element;
   dataSet?: ComponentDataSet;
 }): JSX.Element {
@@ -45,6 +47,7 @@ export function GameActionButton(props: {
       variant={props.variant ?? 'outline'}
       intent={props.variant === 'solid' ? 'primary' : 'neutral'}
       fullWidth={props.fullWidth}
+      size={props.size}
       dataSet={props.dataSet}
     />
   );

@@ -69,7 +69,7 @@ export function AboutScreenView(props: AboutScreenViewProps): JSX.Element {
     <MenuScreen
       screenId="about"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>About</Trans> },
       ]}

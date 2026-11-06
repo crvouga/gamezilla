@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, a lobby card for a crowded space read \"Hosted by sam · avery, …   +5 more\": the guest list was cut mid-list and a separate count added after the ellipsis. The line is now one sentence (\"avery and 6 others\").",
+  "regressionTest": "libs/spaces-client-ts/tests/space-card-meta-line.test.tsx"
+}

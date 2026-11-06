@@ -1,8 +1,10 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared-ts/puzzle-swipe-handlers';
-import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
-import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
-import { createEffect, For, type JSX, Show } from 'solid-js';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import { For, type JSX, Show } from 'solid-js';
 import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import { PuzzleMoveNav } from './puzzle-move-history-nav';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
@@ -16,19 +18,15 @@ export type PuzzleMoveHistoryProps = {
   /** §7 jump-to-start / jump-to-end (and step controls on review). */
   nav: PuzzleMoveNavProps;
   writing: PuzzleMoveWriting;
+  /**
+   * The solver is to move at the end of the line: a dashed "Your move"
+   * slot follows the last move, so a line of one move reads as a line in
+   * progress.
+   */
+  awaiting?: boolean | undefined;
 };
 
 function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
-  // The selected move's cluster holds the target; keep it in view.
-  const selected = createScrollTarget();
-  createEffect(() => {
-    void props.selectedSolveIdx;
-    selected.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
-  });
   return (
     <For each={props.plies}>
       {(ply) => (
@@ -38,11 +36,6 @@ function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
           interactive={props.interactive}
           writing={props.writing}
           onSeek={props.onSeek}
-          scrollTarget={
-            ply.solveIdxAfter === props.selectedSolveIdx
-              ? selected.target
-              : undefined
-          }
         />
       )}
     </For>
@@ -50,31 +43,53 @@ function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
 }
 
 /**
- * Nav buttons, the scrubbable move list, and a horizontal swipe over both.
- * With no moves yet the row stays empty at its full height, so the board
- * above keeps its size when the first move lands.
+ * The line played so far. Its name ("Moves") heads it on a row of its
+ * own, with the jump and step buttons at that row's end; the moves take
+ * the whole width under it and wrap onto a further row rather than
+ * scroll, so every move shows whole: a name squeezed inline broke
+ * mid-word ("Mov / es") and a scrolling strip cut a chip at its edge
+ * ("ке5"). A horizontal swipe over the moves steps through them. With no
+ * moves yet the row stays empty at its full height, so nothing under the
+ * board jumps when the first move lands. While the solver is to move at
+ * the line's end, a dashed "Your move" slot follows the last move.
  */
 export function PuzzleMoveHistory(props: PuzzleMoveHistoryProps): JSX.Element {
+  const { t } = useLingui();
   const swipe = puzzleSwipeHandlers((intent) => props.nav.onNavigate(intent));
   const hasPlies = (): boolean => props.plies.length > 0;
   return (
-    <MoveStrip
-      testId="chess-puzzle-move-history"
-      pointer={hasPlies() ? swipe : undefined}
-      leading={
+    <StackVertical gap="xs" paddingX="lg" testId="chess-puzzle-moves">
+      <StackHorizontal align="center" justify="between" gap="sm">
+        <P
+          variant="caption"
+          tone="secondary"
+          wrap="nowrap"
+          testId="chess-puzzle-moves-label"
+        >
+          <Trans>Moves</Trans>
+        </P>
         <Show when={hasPlies()}>
-          <PuzzleMoveNav side="leading" nav={props.nav} />
+          <StackHorizontal align="center" gap="xs">
+            <PuzzleMoveNav side="leading" nav={props.nav} />
+            <PuzzleMoveNav side="trailing" nav={props.nav} />
+          </StackHorizontal>
         </Show>
-      }
-      trailing={
+      </StackHorizontal>
+      <MoveStrip
+        testId="chess-puzzle-move-history"
+        overflow="wrap"
+        pointer={hasPlies() ? swipe : undefined}
+      >
         <Show when={hasPlies()}>
-          <PuzzleMoveNav side="trailing" nav={props.nav} />
+          <MoveHistoryPlies {...props} />
+          <Show when={props.awaiting === true}>
+            <MoveStripSlot
+              label={t`Your move`}
+              testId="chess-puzzle-move-slot"
+            />
+          </Show>
         </Show>
-      }
-    >
-      <Show when={hasPlies()}>
-        <MoveHistoryPlies {...props} />
-      </Show>
-    </MoveStrip>
+      </MoveStrip>
+    </StackVertical>
   );
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The move just played in a chess puzzle (the setup move 4…g6, the opponent's reply Bxd1) was not marked on the board. The platform now passes the board the line's last action (PuzzleBoardProps.lastAction) and chess's puzzle board highlights its from and to squares.",
+  "regressionTest": "libs/chess-puzzle-shared-ts/tests/last-move.test.ts"
+}

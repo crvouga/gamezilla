@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Connect Four board every row of the game record read \"● col 4\": the seat's disc crowded the word \"col\", which the record's seat columns already make plain. The table layout of the move list now reads \"● 4\"; only the phone's single-turn strip keeps the word.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

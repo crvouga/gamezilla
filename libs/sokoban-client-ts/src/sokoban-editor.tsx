@@ -6,13 +6,17 @@ import {
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import {
+  CellGridPalette,
+  type CellGridPaletteItem,
+} from '@pkgs/ui-root-client-ts/cell-grid-palette';
+import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { cellOf, squareLabel } from './sokoban-board-view';
@@ -26,21 +30,42 @@ import { useSokobanWords } from './use-sokoban-words';
 
 type Editor = ReturnType<typeof useSokobanEditor>;
 
-function glyphOf(board: SokobanBoard, index: number): string {
+/** What a square shows: its piece's glyph and the token it is drawn as. */
+function pieceOf(
+  board: SokobanBoard,
+  index: number
+): Pick<CellGridCell, 'glyph' | 'identity'> {
   const cell = cellOf(board, index);
   const square = board.squares[index];
-  if (board.worker !== null && sameCell(board.worker, cell)) return '☻';
+  if (board.worker !== null && sameCell(board.worker, cell))
+    return { glyph: '☻', identity: 'three' };
   if (board.crates.some((crate) => sameCell(crate, cell)))
-    return square === 'goal' ? '▣' : '▢';
-  return square === 'wall'
-    ? '█'
-    : square === 'goal'
-      ? '○'
-      : square === 'outside'
-        ? '·'
-        : '';
+    return square === 'goal'
+      ? { glyph: '▣', identity: 'two' }
+      : { glyph: '▢', identity: 'one' };
+  // A wall is drawn by its fill (the board's `occupied` tone), not a glyph.
+  if (square === 'goal') return { glyph: '', identity: 'four' };
+  return { glyph: square === 'outside' ? '·' : '', identity: undefined };
 }
 
+/** What each tool lays down, drawn as the board draws that square. */
+const SWATCHES: Readonly<
+  Record<SokobanTool, Omit<CellGridPaletteItem<SokobanTool>, 'key' | 'label'>>
+> = {
+  wall: { tone: 'occupied' },
+  floor: { tone: 'open' },
+  goal: { tone: 'open', identity: 'four' },
+  outside: { tone: 'quiet', glyph: '·' },
+  worker: { tone: 'open', glyph: '☻', identity: 'three' },
+  crate: { tone: 'open', glyph: '▢', identity: 'one' },
+  'remove-crate': { tone: 'open', glyph: '−', identity: 'one' },
+  erase: { tone: 'open', glyph: '✕' },
+};
+
+/**
+ * One tool at a time, as one segmented picker: squares to lay down, then
+ * the pieces to place or take away, each a swatch of what it lays down.
+ */
 function ToolPalette(props: { editor: Editor; disabled: boolean }) {
   const { t } = useLingui();
   const names = (): Readonly<Record<SokobanTool, string>> => ({
@@ -50,25 +75,24 @@ function ToolPalette(props: { editor: Editor; disabled: boolean }) {
     outside: t`Outside`,
     worker: t`Worker`,
     crate: t`Crate`,
-    'remove-crate': t`Remove crate`,
+    'remove-crate': t`Lift crate`,
     erase: t`Erase`,
   });
   return (
-    <StackHorizontal gap="sm" wrap>
-      <For each={SOKOBAN_TOOLS}>
-        {(tool) => (
-          <Button
-            title={names()[tool]}
-            intent="neutral"
-            variant={props.editor.tool() === tool ? 'solid' : 'outline'}
-            aria-pressed={props.editor.tool() === tool}
-            disabled={props.disabled}
-            onClick={() => props.editor.setTool(tool)}
-            dataSet={{ testid: `sokoban-tool-${tool}` }}
-          />
-        )}
-      </For>
-    </StackHorizontal>
+    <CellGridPalette
+      label={t`Tool`}
+      boardTheme="sokoban"
+      items={SOKOBAN_TOOLS.map((tool) => ({
+        key: tool,
+        label: names()[tool],
+        testid: `sokoban-tool-${tool}`,
+        ...SWATCHES[tool],
+      }))}
+      selected={props.editor.tool()}
+      onSelect={(tool) => props.editor.setTool(tool)}
+      disabled={props.disabled}
+      dataSet={{ testid: 'sokoban-tools' }}
+    />
   );
 }
 
@@ -141,7 +165,7 @@ function Board(props: {
   const cells = createMemo((): readonly CellGridCell[] =>
     props.board.squares.map((square, index) => ({
       id: squareName(cellOf(props.board, index)),
-      glyph: glyphOf(props.board, index),
+      ...pieceOf(props.board, index),
       label: squareLabel(props.board, props.board, index, words),
       tone:
         square === 'wall'
@@ -154,6 +178,8 @@ function Board(props: {
   );
   return (
     <CellGridBoard
+      boardTheme="sokoban"
+      fill
       label={t`Sokoban board being built`}
       testId="sokoban-editor-board"
       cellTestId={(id) => `sokoban-square-${id}`}
@@ -181,22 +207,32 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       }
     >
       {(board) => (
-        <StackVertical gap="lg">
-          <SokobanSizeControls
-            board={board()}
-            disabled={props.disabled}
-            onResize={editor.resize}
-          />
-          <ToolPalette editor={editor} disabled={props.disabled} />
-          <Board editor={editor} board={board()} disabled={props.disabled} />
-          <P variant="caption" tone="secondary">
-            <Trans>
-              Choose a tool, then a square. Walls and outside squares remove any
-              piece on them; erasing makes plain floor.
-            </Trans>
-          </P>
-          <Feedback editor={editor} board={board()} />
-        </StackVertical>
+        // The tools, used on every press, sit beside the board when there
+        // is room and head it on a phone, so the whole board is in view
+        // under them. The size, set once, follows with how to use the
+        // tools and what to correct: beside the board, or after it.
+        <EditorWorkbench
+          tools={<ToolPalette editor={editor} disabled={props.disabled} />}
+          canvas={
+            <Board editor={editor} board={board()} disabled={props.disabled} />
+          }
+          notes={
+            <>
+              <SokobanSizeControls
+                board={board()}
+                disabled={props.disabled}
+                onResize={editor.resize}
+              />
+              <P variant="caption" tone="secondary">
+                <Trans>
+                  Choose a tool, then a square. Walls and outside squares remove
+                  any piece on them; erasing makes plain floor.
+                </Trans>
+              </P>
+              <Feedback editor={editor} board={board()} />
+            </>
+          }
+        />
       )}
     </Show>
   );

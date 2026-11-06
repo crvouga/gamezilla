@@ -8,42 +8,67 @@ import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { Accessor, JSX } from 'solid-js';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import {
-  ConfirmDeletePills,
+  AcceptDeclinePills,
   SingleActionPill,
 } from './friend-action-pill-buttons';
 
+const STATUS_ICON_SIZE = 16;
+
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
-function noopOperation(): Promise<void> {
-  return Promise.resolve();
+/** How a relationship status reads: its ink, and the glyph before it. */
+type RelationshipIntent = 'neutral' | 'success';
+
+/**
+ * A relationship, not an action: words in the row's trailing slot (a check
+ * and "Friends" in the success ink, or "Unavailable" in the secondary ink),
+ * never a pill. Actions are pills, so
+ * the two never read alike, and both end at the row's trailing edge,
+ * centred on it.
+ */
+function RelationshipStatus(props: {
+  readonly label: JSX.Element;
+  readonly intent: RelationshipIntent;
+  readonly testId?: string | undefined;
+}): JSX.Element {
+  return (
+    <StackHorizontal align="center" gap="xs" testId={props.testId}>
+      <Show when={props.intent === 'success'}>
+        <CheckIcon size={STATUS_ICON_SIZE} color="success" />
+      </Show>
+      <Text
+        variant="label"
+        tone={props.intent === 'success' ? 'success' : 'secondary'}
+        lines={1}
+      >
+        {props.label}
+      </Text>
+    </StackHorizontal>
+  );
 }
 
 function renderBlockedByThem(): JSX.Element {
-  const { t } = useLingui();
   return (
-    <SingleActionPill
-      operation={noopOperation}
-      idle={t`Unavailable`}
-      loading={t`Unavailable`}
-      success={t`Unavailable`}
-      error={t`Unavailable`}
-      variant="outline"
-      disabled
-    />
+    <RelationshipStatus label={<Trans>Unavailable</Trans>} intent="neutral" />
   );
 }
 
 function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   const { t } = useLingui();
   return (
     <SingleActionPill
+      compact={compact}
       operation={wrap(mutations.unblock)}
       idle={<Trans>Unblock</Trans>}
       loading={t`Unblocking…`}
@@ -59,57 +84,91 @@ function renderBlockedByMe(
 function renderPendingIncoming(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   return (
-    <ConfirmDeletePills
-      onConfirm={wrap(mutations.confirmRequest)}
-      onDelete={wrap(mutations.deleteRequest)}
+    <AcceptDeclinePills
+      compact={compact}
+      onAccept={wrap(mutations.confirmRequest)}
+      onDecline={wrap(mutations.deleteRequest)}
       {...(username !== undefined && username.length > 0
         ? {
-            confirmTestID: Handles.friendConfirm(username),
-            deleteTestID: Handles.friendDecline(username),
+            acceptTestID: Handles.friendConfirm(username),
+            declineTestID: Handles.friendDecline(username),
           }
         : {})}
     />
   );
 }
 
+/**
+ * "Request sent": a request that is out, as a status tag in the info wash,
+ * so it reads as a fact rather than a disabled control. A list row shows it
+ * under the person's name ({@link FriendRequestSentTag}); a profile shows
+ * it over "Cancel request".
+ */
+export function FriendRequestSentTag(): JSX.Element {
+  return <Badge label={<Trans>Request sent</Trans>} intent="info" />;
+}
+
+/**
+ * "Asked you": they asked the person to be friends, as the same info tag
+ * under their name as "Request sent", so a row's Accept / Decline says what
+ * it answers. Short, so it fits beside both pills on a phone.
+ */
+export function FriendRequestReceivedTag(): JSX.Element {
+  return <Badge label={<Trans>Asked you</Trans>} intent="info" />;
+}
+
+/**
+ * A request is out. At a row's end, "Cancel request" is the row's one
+ * control (said in full, so it never reads as dismissing the screen): the
+ * same small outlined pill as "Add friend" in the row above it, so every
+ * row's action has one weight, one size and one trailing edge; the row's
+ * "Request sent" status under the name says what is going on.
+ * On a profile, the status sits over the outlined "Cancel request".
+ */
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  username: string | undefined
+  username: string | undefined,
+  compact: boolean
 ): JSX.Element {
   const { t } = useLingui();
-  return (
+  const named = username !== undefined && username.length > 0;
+  const cancel = (
     <SingleActionPill
+      compact={compact}
       operation={wrap(mutations.cancelRequest)}
-      idle={<Trans>Requested</Trans>}
+      idle={<Trans>Cancel request</Trans>}
       loading={t`Cancelling…`}
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
       variant="outline"
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendCancel(username) }
-        : {})}
+      {...(named ? { testID: Handles.friendCancel(username) } : {})}
     />
+  );
+  return compact ? (
+    cancel
+  ) : (
+    <StackVertical align="center" gap="sm" self="stretch">
+      <FriendRequestSentTag />
+      <StackVertical self="stretch">{cancel}</StackVertical>
+    </StackVertical>
   );
 }
 
 function renderFriends(username: string | undefined): JSX.Element {
-  const { t } = useLingui();
   return (
-    <SingleActionPill
-      operation={noopOperation}
-      idle={<Trans>Friends</Trans>}
-      loading={t`Friends`}
-      success={t`Friends`}
-      error={t`Friends`}
-      variant="outline"
-      disabled
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendStatusFriends(username) }
-        : {})}
+    <RelationshipStatus
+      label={<Trans>Friends</Trans>}
+      intent="success"
+      testId={
+        username !== undefined && username.length > 0
+          ? Handles.friendStatusFriends(username)
+          : undefined
+      }
     />
   );
 }
@@ -133,15 +192,18 @@ function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   addFailureCode: Accessor<string | null>,
-  username: string | undefined
+  row: { readonly username: string | undefined; readonly compact: boolean }
 ): JSX.Element {
+  const { username, compact } = row;
   const { t } = useLingui();
   const sendFailureLabel = useSendFailureLabel();
   return (
     <StackVertical gap="xs">
       <SingleActionPill
+        compact={compact}
+        icon={UserPlusIcon}
         operation={wrap(mutations.addFriend)}
-        idle={<Trans>Add Friend</Trans>}
+        idle={<Trans>Add friend</Trans>}
         loading={t`Sending…`}
         success={t`Sent`}
         error={sendFailureLabel(addFailureCode())}
@@ -157,31 +219,37 @@ function renderNone(
   );
 }
 
+/**
+ * The controls for one relationship. `compact` is a list row's trailing
+ * control: one small secondary pill (or a tag), so every row ends alike.
+ */
 export function renderFriendActionPillsForStatus({
   status,
   mutations,
   addFailureCode,
   wrap,
   username,
+  compact,
 }: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
   addFailureCode: Accessor<string | null>;
   wrap: WrapMutation;
   username?: string | undefined;
+  compact: boolean;
 }): JSX.Element {
   switch (status) {
     case 'blocked_by_them':
       return renderBlockedByThem();
     case 'blocked_by_me':
-      return renderBlockedByMe(wrap, mutations, username);
+      return renderBlockedByMe(wrap, mutations, username, compact);
     case 'pending_incoming':
-      return renderPendingIncoming(wrap, mutations, username);
+      return renderPendingIncoming(wrap, mutations, username, compact);
     case 'pending_outgoing':
-      return renderPendingOutgoing(wrap, mutations, username);
+      return renderPendingOutgoing(wrap, mutations, username, compact);
     case 'friends':
       return renderFriends(username);
     default:
-      return renderNone(wrap, mutations, addFailureCode, username);
+      return renderNone(wrap, mutations, addFailureCode, { username, compact });
   }
 }

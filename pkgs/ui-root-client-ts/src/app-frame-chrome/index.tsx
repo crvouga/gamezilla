@@ -4,6 +4,7 @@ import {
   type Accessor,
   createContext,
   createEffect,
+  createMemo,
   createSignal,
   type JSX,
   onCleanup,
@@ -78,9 +79,33 @@ export function useSetAppFrameHeader(node: AppFrameHeaderOverride): void {
   onCleanup(() => ctx.setHeaderOverride(null));
 }
 
+/** True inside a column whose sidebar already carries the global chrome. */
+const GlobalTrailingInRailContext = createContext<Accessor<boolean>>(
+  () => false
+);
+
+/**
+ * Marks content beside a sidebar that shows the global chrome (the account
+ * menu), so headers inside it do not draw it a second time.
+ */
+export function GlobalTrailingInRail(props: {
+  readonly when: boolean;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  // Inherits: content already marked beside a sidebar stays marked.
+  const outer = useContext(GlobalTrailingInRailContext);
+  const when = createMemo(() => props.when || outer());
+  return (
+    <GlobalTrailingInRailContext.Provider value={when}>
+      {props.children}
+    </GlobalTrailingInRailContext.Provider>
+  );
+}
+
 export function useAppFrameGlobalTrailing(): Accessor<JSX.Element | null> {
   const ctx = useContext(AppFrameChromeContext);
-  return ctx?.globalTrailing ?? (() => null);
+  const inRail = useContext(GlobalTrailingInRailContext);
+  return () => (inRail() ? null : (ctx?.globalTrailing() ?? null));
 }
 
 /** Resolved header: an override when registered, else `defaultHeader`. */
@@ -94,6 +119,15 @@ export function useAppFrameHeader(
     if (override !== null) return override;
     return defaultHeader();
   };
+}
+
+/**
+ * Whether a screen has replaced or hidden the default header for its
+ * lifetime (an active space draws its own chrome; the sidebar steps aside).
+ */
+export function useAppFrameHeaderOverridden(): Accessor<boolean> {
+  const ctx = useContext(AppFrameChromeContext);
+  return () => (ctx?.headerOverride() ?? null) !== null;
 }
 
 /** Register the mounted wide screen, with identity-safe cleanup during route swaps. */

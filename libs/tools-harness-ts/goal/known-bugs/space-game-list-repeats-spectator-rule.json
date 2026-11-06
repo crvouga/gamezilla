@@ -1,0 +1,4 @@
+{
+  "summary": "With more people in a space than a game seats, every row of the games list said \"2 play, others watch\" under a line that already said everyone else watches. Rows now say only who plays; the one line above says the rest watch.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-games-player-tags.test.tsx"
+}

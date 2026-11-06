@@ -13,7 +13,6 @@ const meta = {
   args: {
     theme: 'system',
     muted: false,
-    perfEnabled: false,
     offline: false,
     canViewBilling: false,
     version: '1.0.0',
@@ -24,7 +23,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Defaults: online, system appearance, sound on, monitor off, no billing. */
+/**
+ * Defaults: online, system appearance, sound on, monitor off, no billing.
+ * Everyday groups lead; About and Troubleshooting close the page, each a
+ * page of its own behind a right chevron.
+ */
 export const Default: Story = {};
 
 /** Billing is offered when the person may view it. */
@@ -32,10 +35,10 @@ export const WithBilling: Story = { args: { canViewBilling: true } };
 
 /** Every preference away from its default, as its row values say. */
 export const PreferencesChanged: Story = {
-  args: { theme: 'dark', muted: true, perfEnabled: true, offline: true },
+  args: { theme: 'dark', muted: true, offline: true },
 };
 
-/** Sections the composed subs contribute follow the shell's own groups. */
+/** Sections the composed subs contribute follow the everyday groups. */
 export const WithSubSettings: Story = {
   render: (args) => (
     <SettingsScreenView
@@ -66,5 +69,15 @@ export const OpenAppearance: Story = {
     const target = await canvas.findByText('Appearance');
     await userEvent.click(target);
     await expect(args.onNavigate).toHaveBeenCalledWith('/more/theme');
+  },
+};
+
+/** Troubleshooting opens its page of diagnostics, like every other row. */
+export const OpenTroubleshooting: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const troubleshooting = await canvas.findByText('Troubleshooting');
+    await userEvent.click(troubleshooting);
+    await expect(args.onNavigate).toHaveBeenCalledWith('/more/troubleshooting');
   },
 };

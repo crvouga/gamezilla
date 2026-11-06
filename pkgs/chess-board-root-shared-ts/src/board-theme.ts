@@ -117,6 +117,36 @@ export function mergeBoardTheme(
   };
 }
 
+/** `a` moved `amount` (0..1) of the way to `b`, both `#rrggbb`; `a` as given otherwise. */
+function mixHex(a: string, b: string, amount: number): string {
+  const parse = (hex: string) =>
+    /^#[0-9a-f]{6}$/i.test(hex)
+      ? [1, 3, 5].map((at) => Number.parseInt(hex.slice(at, at + 2), 16))
+      : null;
+  const from = parse(a);
+  const to = parse(b);
+  if (from === null || to === null) return a;
+  return `#${from
+    .map((channel, i) =>
+      Math.round(channel + ((to[i] ?? channel) - channel) * amount)
+        .toString(16)
+        .padStart(2, '0')
+    )
+    .join('')}`;
+}
+
+/**
+ * Coordinate inks that contrast with the square under them: on a light
+ * square a walnut deeper than the border, on a dark square a cream paler
+ * than the light square.
+ */
+function coordinateInks(theme: BoardTheme): Record<string, string> {
+  return {
+    '--chess-coord-on-light': mixHex(theme.border, '#000000', 0.32),
+    '--chess-coord-on-dark': mixHex(theme.lightSquare, '#ffffff', 0.7),
+  };
+}
+
 /**
  * Host CSS custom properties — only the ones the stylesheet reads (badge and
  * arrow colours are SVG attributes, not variables).
@@ -133,5 +163,6 @@ export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
     '--chess-check': theme.check,
     '--chess-legal-dot': theme.legalMoveDot,
     '--chess-legal-ring': theme.legalMoveCaptureRing,
+    ...coordinateInks(theme),
   };
 }

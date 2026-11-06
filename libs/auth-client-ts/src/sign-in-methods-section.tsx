@@ -11,7 +11,6 @@ import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -20,7 +19,7 @@ import { For, type JSX, Show } from 'solid-js';
 
 import { AccountSyncErrorNotice } from './account-sync-error-notice';
 import { providerName } from './auth-flow-messages';
-import { SignInMethodRow } from './sign-in-method-row';
+import { RemoveMethodControl, SignInMethodRow } from './sign-in-method-row';
 import { UnlinkMethodModal } from './unlink-method-modal';
 import type { LinkedIdentity } from './use-linked-identities';
 
@@ -72,7 +71,12 @@ export function SignInMethodsSection(
           />
         }
       >
-        <MenuSection title={<Trans>Sign-in methods</Trans>}>
+        <MenuSection
+          title={<Trans>Sign-in methods</Trans>}
+          description={<Trans>How you sign in</Trans>}
+          footer={<RemoveMethodFooter removable={removable()} />}
+          footerInside
+        >
           {/* Only a Synthetic User's account ever holds an email method. */}
           <Show when={identities().find((row) => row.provider === 'email')}>
             {(identity) => (
@@ -107,26 +111,48 @@ export function SignInMethodsSection(
   );
 }
 
+/**
+ * What Remove does, as the methods card's last row: it stops that method
+ * signing in, and the account keeps at least one, which is why the only one
+ * cannot go.
+ */
+function RemoveMethodFooter(props: {
+  readonly removable: boolean;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.removable}
+      fallback={
+        <Trans>
+          Your account needs at least one way to sign in. Connect another before
+          removing this one.
+        </Trans>
+      }
+    >
+      <Trans>
+        Removing a method stops it signing in to this account. You can connect
+        it again later.
+      </Trans>
+    </Show>
+  );
+}
+
 function EmailMethodRow(props: {
   readonly identity: LinkedIdentity;
   readonly removable: boolean;
   readonly onRemove: () => void;
 }): JSX.Element {
-  const { i18n, t } = useLingui();
+  const { i18n } = useLingui();
   return (
     <MenuRow
       title={providerName(i18n(), 'email')}
       caption={props.identity.email ?? ''}
       hideChevron
       trailing={
-        <Button
-          title={t`Remove`}
-          variant="ghost"
-          intent="danger"
-          size="sm"
-          disabled={!props.removable}
-          onClick={props.onRemove}
-          dataSet={{ testid: Handles.accountUnlinkProvider('email') }}
+        <RemoveMethodControl
+          method="email"
+          removable={props.removable}
+          onRemove={props.onRemove}
         />
       }
       dataSet={{ testid: Handles.accountSignInMethod('email') }}

@@ -1,0 +1,4 @@
+{
+  "summary": "With one move played, a chess puzzle's move list was a lone highlighted chip (\"4… g6\") in an empty row, which read as unfinished. While the solver is to move at the line's end, a dashed \"Your move\" slot (MoveStripSlot) follows the last move, so the line reads as in progress.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-moves-label.test.tsx"
+}

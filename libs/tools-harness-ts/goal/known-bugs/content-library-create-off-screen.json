@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the puzzle library's Create puzzle and Create pack controls sat after the playing lists, far below the first screen. They now come first, under the library's title, before its tabs.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

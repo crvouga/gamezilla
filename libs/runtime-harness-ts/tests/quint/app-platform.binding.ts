@@ -77,7 +77,8 @@ type Place = 'Ended' | 'InSpace' | 'Settings' | 'Search' | Tab | 'Elsewhere';
 async function placeOf(s: ProductHarness, actorId: string): Promise<Place> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'Ended';
-  if (await visible(s, actorId, [Handles.spaceClose])) return 'InSpace';
+  if (await visible(s, actorId, [Handles.spaceChromeOverflow]))
+    return 'InSpace';
   if (await onScreen(s, actorId, 'more')) return 'Settings';
   if (await visible(s, actorId, [Handles.searchInput])) return 'Search';
   for (const [tab, { screen }] of Object.entries(TABS)) {

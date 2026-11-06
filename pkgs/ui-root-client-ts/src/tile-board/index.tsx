@@ -12,7 +12,11 @@ export type TileBoardTile = {
   /** The tile's whole accessible name: where it is and what is on it. */
   readonly label: string;
 };
-/** What stands on a tile; each tone also differs by its glyph. */
+/**
+ * What stands on a tile, drawn as a token most of a tile wide: `actor` a
+ * round figure, `object` a square block, `settled` a block in the place it
+ * belongs. Each tone also differs by its shape and its glyph.
+ */
 export type TileBoardPiece = {
   /** Keep each piece at the same array position as it moves, so it glides. */
   readonly id: string;
@@ -36,6 +40,12 @@ export type TileBoardProps = {
   readonly onDirection?: ((direction: TileBoardDirection) => void) | undefined;
   /** A tap on the tile at this row-major index. */
   readonly onTile?: ((index: number) => void) | undefined;
+  /**
+   * `compact` (default): tiles of at most 44px. `fill`: the board is the
+   * screen's hero, as wide as what holds it (tiles up to 80px) while it
+   * still fits the viewport's height, its pieces scaled with the tiles.
+   */
+  readonly size?: 'compact' | 'fill' | undefined;
 };
 
 const KEYS: Readonly<Record<string, TileBoardDirection>> = {
@@ -107,6 +117,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       aria-disabled={props.disabled === true}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
+      data-size={props.size ?? 'compact'}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,
@@ -155,7 +166,8 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
                 transform: `translate(${piece().column * 100}%, ${piece().row * 100}%)`,
               }}
             >
-              {piece().glyph}
+              {/* The token fills most of its tile, its glyph inside it. */}
+              <span class={styles['token']}>{piece().glyph}</span>
             </span>
           )}
         </Index>

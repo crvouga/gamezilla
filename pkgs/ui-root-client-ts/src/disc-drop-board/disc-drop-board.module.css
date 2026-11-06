@@ -68,6 +68,26 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
+/* The column pointed at or focused while the board takes a drop: one
+   quiet wash down its whole height, under its cells. It is the column's
+   only mark; the disc waiting in its landing cell is the other signal. */
+.column {
+  position: relative;
+  isolation: isolate;
+}
+.column::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ui-color-text);
+  opacity: 0;
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.column[data-previewed="true"]::before {
+  opacity: 0.12;
+}
 .column[data-full="true"] {
   opacity: var(--ui-opacity-muted);
 }
@@ -75,17 +95,60 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
 }
+/* What to do now, in one line under the columns: it keeps its height
+   while someone else is to move, so the board never moves with the turn.
+   In the board's own ink, not its muted blue, so it reads on the blue. */
+.prompt {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-height: 1lh;
+  margin: 0;
+  padding-block: var(--ui-space-1) 0;
+  color: var(--ui-color-text);
+  text-align: center;
+}
+/* A column's number, quiet; the column pointed at rings it in the dropping
+   side's colour, a hollow disc waiting in the drop slot above the column:
+   the disc in hand, never one on the board. */
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--ui-space-1) var(--ui-space-hairline);
+}
 .number {
-  font: inherit;
-  min-height: var(--ui-space-6);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: calc(1lh + var(--ui-space-2));
+  min-height: calc(1lh + var(--ui-space-2));
+  padding-inline: var(--ui-space-1);
+  font-weight: 700;
+  border: 3px solid transparent;
+  border-radius: var(--ui-radius-full);
+  color: var(--ui-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition:
+    color var(--ui-duration-fast) var(--ui-easing-standard),
+    border-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.drop[data-disc="1"] .number {
+  border-color: var(--ui-color-destructive);
+  color: var(--ui-color-text);
+}
+.drop[data-disc="2"] .number {
+  border-color: var(--ui-color-warning);
+  color: var(--ui-color-text);
 }
 .cell {
+  /* The hole's own colour, which also sets a landing preview off the board. */
+  --disc-hole: var(--ui-color-background);
   display: grid;
   place-items: center;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--ui-color-background);
-  border: 2px solid var(--ui-color-surface);
+  background: var(--disc-hole);
   overflow: visible;
 }
 .disc {
@@ -96,6 +159,7 @@
   border-radius: 50%;
   font-size: var(--ui-font-size-xl);
   line-height: 1;
+  transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
 .cell[data-disc="1"] .disc {
   background: var(--ui-color-destructive);
@@ -105,16 +169,40 @@
   background: var(--ui-color-warning);
   color: var(--ui-color-background);
 }
-.cell[data-preview="true"] {
-  outline: 2px dashed var(--ui-color-tint);
-  outline-offset: -3px;
+/* Where the disc would land: an empty hole ringed by a thick dashed edge
+   of the dropping side's colour, set off from the board by a dark halo and
+   breathing slowly, so it reads against the board. No fill and no mark: a
+   played disc is always solid, so the outline can only read as a disc to
+   come. */
+.cell[data-preview-disc="1"] .disc,
+.cell[data-preview-disc="2"] .disc {
+  box-sizing: border-box;
+  border: 4px dashed var(--disc-preview);
+  box-shadow: 0 0 0 2px var(--disc-hole);
+  animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
+    alternate;
+}
+.cell[data-preview-disc="1"] {
+  --disc-preview: var(--ui-color-destructive);
+}
+.cell[data-preview-disc="2"] {
+  --disc-preview: var(--ui-color-warning);
+}
+/* Four connected: the rest of the board steps back, and the four keep
+   their full colour inside a ring in the board's ink. */
+.board[data-won="true"]
+  .cell[data-disc]:not([data-disc="0"]):not([data-winning="true"])
+  .disc {
+  opacity: var(--ui-opacity-muted);
 }
 .cell[data-winning="true"] {
-  outline: 3px solid var(--ui-color-tint);
-  outline-offset: 1px;
+  outline: 3px solid var(--ui-color-text);
+  outline-offset: 2px;
 }
+/* The last disc played falls the column's height under gravity: slow at
+   the top, fastest as it lands. */
 .cell[data-last="true"] .disc {
-  animation: disc-drop var(--ui-duration-normal) var(--ui-easing-standard);
+  animation: disc-drop var(--ui-duration-slow) linear;
 }
 .hidden {
   position: absolute;
@@ -125,16 +213,40 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+@keyframes disc-preview-breathe {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
 @keyframes disc-drop {
   from {
     transform: translateY(var(--disc-distance));
+  }
+  25% {
+    transform: translateY(calc(var(--disc-distance) * 0.9375));
+  }
+  50% {
+    transform: translateY(calc(var(--disc-distance) * 0.75));
+  }
+  75% {
+    transform: translateY(calc(var(--disc-distance) * 0.4375));
   }
   to {
     transform: translateY(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cell[data-last="true"] .disc {
+  .cell[data-last="true"] .disc,
+  .cell[data-preview-disc="1"] .disc,
+  .cell[data-preview-disc="2"] .disc {
     animation: none;
+  }
+  .column::before,
+  .number,
+  .disc {
+    transition: none;
   }
 }

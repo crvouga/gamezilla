@@ -39,6 +39,7 @@ export const STORY_APP_TABS: readonly AppTabSpec[] = [
     label: 'Profile',
     Icon: UserIcon,
     testID: 'tab-profile',
+    alsoActiveUnder: ['/more'],
   },
 ];
 

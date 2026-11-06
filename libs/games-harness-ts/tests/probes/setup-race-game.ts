@@ -146,6 +146,7 @@ export const SETUP_RACE_GAME = assertHarnessGame({
     shared: SHARED,
     title: 'Setup race',
     caption: 'Pick a stride, then run',
+    tile: 'trails',
     subtitle: () => 'Each side picks its stride before the race.',
     presentation: probePresentation(SETUP_RACE_RULES, {
       name: 'Setup race',

@@ -5,23 +5,28 @@ import {
   GameMenuScreenView,
 } from './game-menu-screen-view';
 
-const CHOICES: readonly GameMenuChoiceView[] = [
-  {
-    screen: 'custom-game',
-    title: 'Custom games',
-    caption: 'Choose people or bots for each of the 2 places',
-  },
-  {
-    screen: 'multiplayer',
-    title: 'Find an opponent',
-    caption: 'Meet another Connect Four player',
-  },
-  {
-    screen: 'history',
-    title: 'History and stats',
-    caption: 'Review your games, wins and draws',
-  },
-];
+/** The shared choices of a two-player game named `name`. */
+function sharedChoices(name: string): readonly GameMenuChoiceView[] {
+  return [
+    {
+      screen: 'custom-game',
+      title: 'Play with friends',
+      caption: 'With the people in this space, or bots',
+    },
+    {
+      screen: 'multiplayer',
+      title: 'Find an opponent',
+      caption: `Meet another ${name} player`,
+    },
+    {
+      screen: 'history',
+      title: 'History and stats',
+      caption: 'Review your games, wins and draws',
+    },
+  ];
+}
+
+const CHOICES = sharedChoices('Connect Four');
 
 const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
   {
@@ -30,11 +35,11 @@ const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
     caption: 'Solve rated puzzles and climb the ladder',
   },
   {
-    screen: 'puzzle-stats',
+    screen: 'stats',
     title: 'Puzzle stats',
     caption: 'Puzzle rating trend and game log',
   },
-  ...CHOICES,
+  ...sharedChoices('Chess'),
   { screen: 'settings', title: 'Settings', caption: 'Board and pieces' },
 ];
 
@@ -49,6 +54,7 @@ const meta = {
   },
   args: {
     title: 'Connect Four',
+    tile: 'discs',
     subtitle: 'Drop discs and line up four',
     instructions:
       'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
@@ -66,6 +72,7 @@ export const SharedChoices: Story = {};
 export const WithPuzzlesAndSettings: Story = {
   args: {
     title: 'Chess',
+    tile: 'checkered',
     subtitle: 'The classic game of kings',
     instructions: undefined,
     choices: PUZZLE_CHOICES,
@@ -76,12 +83,13 @@ export const WithPuzzlesAndSettings: Story = {
 export const ManyPlayers: Story = {
   args: {
     title: 'Hearts',
+    tile: 'cards',
     subtitle: 'Avoid hearts and the queen of spades',
     choices: [
       {
         screen: 'custom-game',
-        title: 'Custom games',
-        caption: 'Choose people or bots for each of the 4 places',
+        title: 'Play with friends',
+        caption: 'With the people in this space, or bots',
       },
       {
         screen: 'multiplayer',
@@ -96,6 +104,7 @@ export const ManyPlayers: Story = {
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
+    tile: 'paths',
     subtitle: 'Connect every pair of numbers',
     instructions: undefined,
     choices: [
@@ -115,9 +124,9 @@ export const LongContent: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Custom games with friends, family and bots of every level',
+        title: 'Play with friends, family and bots of every level',
         caption:
-          'Choose people or bots for each of the 2 places, then agree the clock and the rules before anyone moves',
+          'With the people in this space, or bots, then agree the clock and the rules before anyone moves',
       },
       ...CHOICES.slice(1),
     ],

@@ -3390,8 +3390,13 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@apps/storybook-ts#deploy": {
+      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@libs/infra-server-ts#apply:fleet": {
-      "dependsOn": ["@apps/auth-relay-ts#deploy"],
+      "dependsOn": ["@apps/auth-relay-ts#deploy", "@apps/storybook-ts#deploy"],
       "cache": false,
       "passThroughEnv": ["*"]
     },

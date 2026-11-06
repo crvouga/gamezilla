@@ -13,6 +13,7 @@ import { spaced } from '../layout-classes';
 import type { ScrollFrameProps } from '../scroll-frame';
 import { scrollFlush, scrollFrameClass, scrollHandlers } from '../scroll-frame';
 import { useTestViewport } from '../test-viewport/index';
+import styles from './virtual-list.module.css';
 
 export type VirtualListProps<ItemT> = ScrollFrameProps & {
   items: readonly ItemT[];
@@ -32,6 +33,21 @@ export type VirtualListProps<ItemT> = ScrollFrameProps & {
   /** Rendered instead of rows when `items` is empty. */
   empty?: JSX.Element | undefined;
   /**
+   * Draw the rows as one panel: the surface tone inside one hairline at
+   * the card radius, hairlines between rows (the `MenuList` look), so a
+   * long collection reads as one group like every other list.
+   */
+  panel?: boolean | undefined;
+  /**
+   * Draw the rows as several panels, one per group (a day of an inbox):
+   * say where each row sits. A `heading` row above a group stays unpainted;
+   * `first`, `middle`, `last` and `only` rows share their group's panel,
+   * with hairlines between them. Takes the place of `panel`.
+   */
+  panelGroups?:
+    | ((item: ItemT, index: number) => VirtualListPanelPlace)
+    | undefined;
+  /**
    * Fixed scroller size for environments without layout (tests). When set the
    * scroller box is not observed.
    */
@@ -40,15 +56,49 @@ export type VirtualListProps<ItemT> = ScrollFrameProps & {
   'aria-multiselectable'?: boolean | undefined;
 };
 
+/** Where a row sits in a grouped list: see {@link VirtualListProps.panelGroups}. */
+export type VirtualListPanelPlace =
+  | 'heading'
+  | 'first'
+  | 'middle'
+  | 'last'
+  | 'only';
+
 const DEFAULT_ESTIMATE = 56;
+/** A panel's hairline, top and bottom, around the measured rows. */
+const PANEL_BORDER_PX = 2;
 
 type RowsProps<ItemT> = {
   virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
   items: readonly ItemT[];
   renderItem: (item: ItemT, index: number) => JSX.Element;
+  panel: boolean;
+  panelGroups:
+    | ((item: ItemT, index: number) => VirtualListPanelPlace)
+    | undefined;
 };
 
+/** The row's panel class and place, from `panel` or `panelGroups`. */
+function rowPanel<ItemT>(
+  props: RowsProps<ItemT>,
+  row: ItemT,
+  index: number
+): { readonly class: string | undefined; readonly place: string | undefined } {
+  const groups = props.panelGroups;
+  if (groups === undefined) {
+    return { class: props.panel ? 'panelItem' : undefined, place: undefined };
+  }
+  const place = groups(row, index);
+  return {
+    class: place === 'heading' ? undefined : styles['segment'],
+    place,
+  };
+}
+
 function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
+  // One panel around every row: `panel` without `panelGroups`.
+  const outerPanel = (): boolean =>
+    props.panel && props.panelGroups === undefined;
   const virtualItems = createMemo(() => props.virtualizer.getVirtualItems());
   const renderRow = (item: VirtualItem): JSX.Element => {
     // The virtualizer reuses `VirtualItem` objects for unchanged slots, so the
@@ -60,6 +110,8 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
         {(row) => (
           <div
             role="listitem"
+            class={rowPanel(props, row, item.index).class}
+            data-panel-place={rowPanel(props, row, item.index).place}
             data-index={item.index}
             ref={(el) =>
               queueMicrotask(() => props.virtualizer.measureElement(el))
@@ -81,8 +133,9 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
   return (
     <div
       role="list"
+      class={outerPanel() ? 'panel' : undefined}
       style={{
-        height: `${props.virtualizer.getTotalSize()}px`,
+        height: `${props.virtualizer.getTotalSize() + (outerPanel() ? PANEL_BORDER_PX : 0)}px`,
         position: 'relative',
         width: '100%',
       }}
@@ -198,6 +251,8 @@ export function VirtualList<ItemT>(
             virtualizer={virtualizer}
             items={props.items}
             renderItem={props.renderItem}
+            panel={props.panel === true}
+            panelGroups={props.panelGroups}
           />
         </Show>
         {props.footer}

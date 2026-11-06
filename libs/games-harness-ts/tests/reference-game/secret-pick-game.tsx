@@ -125,6 +125,7 @@ export const SECRET_PICK_CLIENT: GameClient<typeof SECRET_PICK_SHARED> = {
   shared: SECRET_PICK_SHARED,
   title: 'Secret pick',
   caption: 'Find the hidden number first',
+  tile: 'cards',
   subtitle: () => 'Hide a number, then guess theirs.',
   presentation: {
     canFlip: false,
@@ -133,6 +134,7 @@ export const SECRET_PICK_CLIENT: GameClient<typeof SECRET_PICK_SHARED> = {
     SetupBoard,
     sideLabel: notice.side,
     frame: {
+      drawOffers: true,
       players: fixedPlayers(2),
       options: [],
       seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),

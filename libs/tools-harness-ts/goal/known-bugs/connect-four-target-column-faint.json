@@ -1,0 +1,4 @@
+{
+  "summary": "On the person's turn the column about to take their disc was marked only by a small coloured chevron, which read weakly against the board. The column pointed at or focused now takes one tint down its whole height, and its landing hole alone holds the person's ring and mark; nothing else competes with those two signals.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

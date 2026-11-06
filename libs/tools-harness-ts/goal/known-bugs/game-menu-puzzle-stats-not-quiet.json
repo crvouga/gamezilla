@@ -1,0 +1,4 @@
+{
+  "summary": "A game's menu keyed its quiet emphasis on 'puzzle-stats', but the puzzle stats screen's key is 'stats', so the Puzzle stats choice read as an ordinary way in beside Puzzle instead of a quiet look back. Fixed by keying the menu's emphasis (and pictures) on the platform's shared screen keys.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-menu-emphasis.test.ts"
+}

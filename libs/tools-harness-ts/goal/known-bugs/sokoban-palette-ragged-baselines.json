@@ -1,0 +1,4 @@
+{
+  "summary": "In the Sokoban builder's tool palette \"Remove crate\" wrapped onto two lines and bare glyphs (outside's dot, erase's cross) stretched their swatches, so swatches and names sat at different heights from tile to tile. Names keep to one line (the tool reads \"Lift crate\") under a top-aligned swatch, and a bare glyph is set small enough not to stretch its square.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/cell-grid-palette.test.tsx"
+}

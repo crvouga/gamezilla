@@ -23,9 +23,11 @@ export async function authorJourneyPack(args: {
   args.onCreated(await createJourneyDraft(args.device, 'pack', args.title));
   for (const item of args.items)
     await contentTap(args.device, `content-add-puzzle-${item.revisionId}`);
-  const up = args.device.ui
+  await args.device.ui
     .get(`content-pack-item-${args.items[1].documentId}`)
-    .get('content-pack-up');
+    .get('content-pack-menu')
+    .tap(args.device);
+  const up = args.device.ui.get('content-pack-up');
   await up.wait('enabled', args.device);
   await up.tap(args.device);
   await args.device.ui

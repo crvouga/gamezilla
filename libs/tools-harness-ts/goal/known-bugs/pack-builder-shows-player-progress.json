@@ -1,0 +1,4 @@
+{
+  "summary": "The pack builder's story staged a player's view of the pack (\"1 of 3 puzzles completed\" and a filled \"Continue Count to seven\"), so building and playing read as one screen. The builder's stage is now the real pack editor view: the pack's puzzles in order, each with Edit, move up, move down and remove, then published puzzles to add and a new puzzle to create.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

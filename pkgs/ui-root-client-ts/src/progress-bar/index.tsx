@@ -18,6 +18,11 @@ export type ProgressBarProps = {
   progress?: number | undefined;
   /** Accessible name; when set it is shown with the percentage. */
   label?: string | undefined;
+  /**
+   * Accessible name for a bare track whose words sit beside it (`7 of 12
+   * rated games`): names the bar without drawing a label.
+   */
+  accessibleLabel?: string | undefined;
   /** Supporting copy under a labelled bar. */
   description?: JSX.Element | undefined;
   /** Default `tint`. */
@@ -43,6 +48,10 @@ function clamp01(v: number): number {
   return Number.isNaN(v) ? 0 : Math.min(Math.max(v, 0), 1);
 }
 
+/**
+ * The track is the line tone (`border`), a step off a raised card in both
+ * themes: the sunken well vanished on a dark card.
+ */
 function ProgressTrack(props: {
   known: boolean;
   value: number;
@@ -52,7 +61,7 @@ function ProgressTrack(props: {
 }): JSX.Element {
   return (
     <div
-      class={`box w-full overflow-hidden rounded-full bg-surface-muted ${SIZE[props.size]}`}
+      class={`box w-full overflow-hidden rounded-full bg-border ${SIZE[props.size]}`}
       role="progressbar"
       aria-label={props.label}
       aria-valuemin={0}
@@ -114,7 +123,7 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
       <ProgressTrack
         known={known()}
         value={value()}
-        label={props.label ?? t`Progress`}
+        label={props.label ?? props.accessibleLabel ?? t`Progress`}
         tone={props.tone ?? 'tint'}
         size={props.size ?? 'md'}
       />

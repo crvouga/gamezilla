@@ -34,7 +34,7 @@ export function AccountDeviceDetailScreenView(
     <MenuScreen
       screenId="account-device-detail"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         {
           name: <Trans>Account</Trans>,

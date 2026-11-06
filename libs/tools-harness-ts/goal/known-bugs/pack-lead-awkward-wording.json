@@ -1,0 +1,4 @@
+{
+  "summary": "The pack builder's next action read \"Open Count to nine to publish it\" over a line repeating \"publish Count to nine first\", then \"Publish Count to nine first\". It now reads \"Finish Count to nine\", and the line says where the pack stands.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

@@ -3,9 +3,14 @@ import {
   PUZZLE_PLAY_STATUS,
   PuzzlePlayAttr,
 } from '@libs/game-puzzle-shared-ts/play-attr';
-import { SeekPuzzlePlay } from '@libs/game-puzzle-shared-ts/play-messages';
-import type { PuzzleNavIntent } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import {
+  SeekPuzzlePlay,
+  StepBackPuzzlePlay,
+  StepForwardPuzzlePlay,
+} from '@libs/game-puzzle-shared-ts/play-messages';
+import {
+  PUZZLE_NAV_INTENT,
+  type PuzzleNavIntent,
   puzzleNavFromState,
   resolvePuzzleNavTarget,
 } from '@libs/game-puzzle-shared-ts/puzzle-nav';
@@ -61,7 +66,16 @@ export function PuzzleMoveHistoryBar(): JSX.Element {
     dispatch(SeekPuzzlePlay({ solveIdx: targetSolveIdx }));
   };
 
+  // A step is the room's own step command; a jump seeks its end of the line.
   const onNavigate = (intent: PuzzleNavIntent): void => {
+    if (intent === PUZZLE_NAV_INTENT.back) {
+      if (nav().canGoBack) dispatch(StepBackPuzzlePlay({}));
+      return;
+    }
+    if (intent === PUZZLE_NAV_INTENT.forward) {
+      if (nav().canGoForward) dispatch(StepForwardPuzzlePlay({}));
+      return;
+    }
     const target = resolvePuzzleNavTarget({
       intent,
       solveIdx: solveIdx(),
@@ -79,11 +93,13 @@ export function PuzzleMoveHistoryBar(): JSX.Element {
       interactive={interactive()}
       writing={writing}
       onSeek={onSeek}
+      awaiting={
+        status() === PUZZLE_PLAY_STATUS.solving &&
+        solveIdx() === furthestSolveIdx()
+      }
       nav={{
         canGoBack: nav().canGoBack,
         canGoForward: nav().canGoForward,
-        // Back / Forward already live in the bottom action bar here.
-        showStepControls: false,
         onNavigate,
       }}
     />

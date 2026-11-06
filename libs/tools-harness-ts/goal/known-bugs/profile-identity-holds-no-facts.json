@@ -1,0 +1,4 @@
+{
+  "summary": "A person's own profile identity held only a face, a handle and Edit profile: on a desktop a 960px band with nothing else in it, while \"Playing now\" dominated a page about the person. The identity now shows the facts this device knows (Friends, the number from the friends sub; Joined, the month the profile was made), and on a desktop the band is as wide as what it holds.",
+  "regressionTest": "libs/profile-client-ts/tests/profile-identity-facts.test.tsx"
+}

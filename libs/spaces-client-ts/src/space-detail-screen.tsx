@@ -10,6 +10,7 @@ import { SpaceMembersDialogProvider } from './space-members-dialog-context';
 import { ReachableSpace } from './space-reachability';
 import { SpaceRoomProvider } from './space-room-context';
 import { useSpaceRouteId } from './space-routes';
+import { SpaceShareDialogProvider } from './space-share-dialog-context';
 import { SpacesNavProvider } from './spaces-nav-context';
 import { useSpaceByLink } from './use-space-by-link';
 
@@ -29,7 +30,9 @@ export function SpaceDetailScreen(): JSX.Element {
       <SpacesNavProvider>
         <SpaceRoomProvider spaceId={spaceId()}>
           <SpaceMembersDialogProvider spaceId={spaceId()}>
-            <SpaceDetailBody spaceId={spaceId()} />
+            <SpaceShareDialogProvider spaceId={spaceId()}>
+              <SpaceDetailBody spaceId={spaceId()} />
+            </SpaceShareDialogProvider>
           </SpaceMembersDialogProvider>
         </SpaceRoomProvider>
       </SpacesNavProvider>

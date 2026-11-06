@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the Sokoban editor's board took a fixed 520px measure, so on a 1440×900 window the builder's \"3 · Check and publish\" step and its steps were cut off by the window's foot. The editor's canvas is now capped by the window's height, so the whole step is in the first screen.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/editor-workbench.test.ts"
+}

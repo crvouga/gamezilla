@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board the Connect Four record listed bare digits (\"● 4\") with nothing saying they were columns, while the phone's strip read \"● col 4\": two notations for one record. The table now reads every move as the strip does, the word quiet and a step clear of the disc.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

@@ -10,11 +10,13 @@ import { SpaceMembersSheetView } from './space-members-sheet-view';
 import { SpacePresenceStripView } from './space-presence-strip-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { GameAreaExample } from './space-story-game-area.example';
+import { SpaceWhoIsHereView } from './space-who-is-here-view';
 import {
   AVERY,
   faces,
   GAMES,
   GUESTS,
+  HOSTED_SPACE,
   JORDAN,
   MEMBERS,
 } from './spaces-story.example';
@@ -31,8 +33,17 @@ function gamesList(canSelectGame: boolean): JSX.Element {
       games={GAMES}
       shownGame={null}
       canSelectGame={canSelectGame}
+      present={1 + GUESTS.length}
       hostChoosesNotice={false}
       onSelectGame={fn()}
+      whoIsHere={
+        <SpaceWhoIsHereView
+          faces={faces([AVERY, ...GUESTS])}
+          host={AVERY}
+          hostIsYou={canSelectGame}
+          onInvite={fn()}
+        />
+      }
     />
   );
 }
@@ -66,12 +77,17 @@ const meta = {
   },
   args: {
     title: 'Friday game night',
+    spaceId: HOSTED_SPACE.spaceId,
     status: 'ready',
     hostOffline: false,
     canRename: true,
     canEnd: true,
-    presence: (size: number) => (
-      <SpacePresenceStripView faces={faces([AVERY, ...GUESTS])} size={size} />
+    presence: (size: number, compact: boolean) => (
+      <SpacePresenceStripView
+        faces={faces([AVERY, ...GUESTS])}
+        size={size}
+        compact={compact}
+      />
     ),
     onPressHome: fn(),
     onPressBack: null,
@@ -86,7 +102,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The host in their space: every action, choosing what to play. */
+/**
+ * The host in their space, choosing what to play. The bar reads the same on
+ * every size: where you are (the room, with its own tile beside the
+ * sidebar), then at the far edge the members, Minimize (the space goes on in
+ * the miniplayer) and ⋯ with Share and Rename, then, after a divider and in
+ * red, Leave and End space, each behind a confirm. Wide shows everyone's
+ * faces; on a phone the members button is the people glyph with how many
+ * are here. Under the Games title, who is here and who hosts.
+ */
 export const HostChoosingGame: Story = {};
 
 /** First load, or the host not known yet: chrome stays, the body loads. */
@@ -95,18 +119,44 @@ export const Loading: Story = {
   render: (args) => withSlots(args, {}),
 };
 
-/** A guest: Leave instead of End, no Rename, the list says the host picks. */
+/** A guest: ⋯ holds Leave and no End, no Rename; the list says the host picks. */
 export const Guest: Story = {
   args: { canRename: false, canEnd: false },
   render: (args) => withSlots(args, { body: () => gamesList(false) }),
 };
 
-/** A game in progress: Back returns to its menu; the game area is a slot. */
+/**
+ * A game's own menu: the trail reads "Friday game night › Connect Four", and the
+ * room is the one way back (to the space's games), so moving within the
+ * room never reads like leaving it. A phone shows ‹ (named for the room)
+ * with the room's name small over the game's. The game area is a slot.
+ */
 export const GameInProgress: Story = {
-  args: { onPressBack: fn() },
+  args: {
+    onPressBack: fn(),
+    backLabel: 'Games',
+    place: 'Connect Four',
+  },
   render: (args) =>
     withSlots(args, {
       body: () => <GameAreaExample title="A game in progress" />,
+    }),
+};
+
+/**
+ * A screen a game's choices open (custom setup, finding an opponent, a
+ * board, puzzles): the trail reads "Friday game night › Connect Four", and
+ * the game is the way back to its own menu, whose way back is the room.
+ */
+export const InsideAGame: Story = {
+  args: {
+    onPressBack: fn(),
+    backLabel: 'Connect Four',
+    place: 'Connect Four',
+  },
+  render: (args) =>
+    withSlots(args, {
+      body: () => <GameAreaExample title="Connect Four" />,
     }),
 };
 
@@ -176,11 +226,25 @@ export const ShareOpen: Story = {
     }),
 };
 
-/** Close leaves the space screen (the space keeps running in the miniplayer). */
+/**
+ * Minimize steps out of the space screen (the space keeps running in the
+ * miniplayer); it may sit in ⋯ on a short row. The id stays `close-space`
+ * so its baselines keep their paths.
+ */
 export const CloseSpace: Story = {
+  name: 'Minimize space',
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId(Handles.spaceClose));
+    if (canvas.queryByTestId(Handles.spaceClose) === null) {
+      await userEvent.click(
+        await canvas.findByTestId(Handles.spaceChromeOverflow)
+      );
+    }
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByTestId(
+        Handles.spaceClose
+      )
+    );
     await expect(args.onPressHome).toHaveBeenCalled();
   },
 };

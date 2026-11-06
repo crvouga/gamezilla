@@ -98,6 +98,13 @@ export type ColorTokens = Record<GameColorName, string> & {
   player6: string;
   player7: string;
   player8: string;
+  /** A space's own tile colours, identical in both schemes. */
+  monogram1: string;
+  monogram2: string;
+  monogram3: string;
+  monogram4: string;
+  monogram5: string;
+  monogram6: string;
 
   // Neutral board surfaces, the same roles in both schemes.
   boardLight: string;

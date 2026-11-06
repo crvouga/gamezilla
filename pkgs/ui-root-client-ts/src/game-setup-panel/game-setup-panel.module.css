@@ -1,0 +1,76 @@
+/* A setup panel with an aside: the choices and commands, then what the
+   person brings to them under a hairline, on every size, so the card keeps
+   a form's measure and its command spans it. */
+.setupSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-5);
+}
+.setupMain,
+.setupAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.setupAside {
+  border-top: 1px solid var(--ui-color-border);
+  padding-top: var(--ui-space-5);
+}
+/* Wide (a game column of a board and its rail): the choice and its command
+   beside what the person brings, split by a hairline, so one card holds
+   both instead of two columns that end apart. The choice's facts and its
+   command stay one group at the top of their half, never stretched apart
+   to the card's height. */
+@container game-column (min-width: 880px) {
+  .setupSplit {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--ui-space-8);
+  }
+  .setupAside {
+    border-top: 0;
+    padding-top: 0;
+    border-left: 1px solid var(--ui-color-border);
+    padding-left: var(--ui-space-8);
+  }
+}
+/* Wide, the card is one grid (the split's halves its own cells): its title
+   heads the choice's half, so the other half's heading (`Your ratings`)
+   starts level with it, never a line lower; the card's foot (how a search
+   works) spans both under them. */
+@container game-column (min-width: 880px) {
+  section:has(> .setupSplit) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--ui-space-8);
+    row-gap: var(--ui-space-4);
+    align-content: start;
+  }
+  section:has(> .setupSplit) > :first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  section > .setupSplit {
+    display: contents;
+  }
+  section > .setupSplit > .setupMain {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  section > .setupSplit > .setupAside {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  section > .setupSplit ~ * {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  /* Details across: the card fills the game column in two columns
+     weighted by what they are for. The choice and its command lead, the
+     wider; what the person brings follows past a hairline; the details
+     span the card's foot past its hairline as plain quiet text, never a
+     sunken card of their own, so no column stands empty under its command. */
+  section:has(> .setupSplit[data-details-across="true"]) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}

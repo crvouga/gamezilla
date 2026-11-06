@@ -1,12 +1,12 @@
 import { plural, t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -20,12 +20,9 @@ import type {
 } from './game-frame-view-types';
 
 /** The agreed clock: minutes + added seconds. */
-function TimeControlBadge(props: {
-  readonly status: FrameStatus;
-}): JSX.Element {
+function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
   return (
-    <Badge
-      intent="neutral"
+    <GameFact
       label={
         <Show when={props.status.minutes > 0} fallback={<Trans>Untimed</Trans>}>
           {props.status.minutes}+{props.status.increment}
@@ -36,12 +33,45 @@ function TimeControlBadge(props: {
 }
 
 /**
+ * The game's facts for the title row, as one quiet line (`Unrated ·
+ * Untimed`): settings, never pills that look pressable, in the same words
+ * a search for an opponent uses.
+ */
+export function FrameFactsView(props: {
+  readonly status: FrameStatus | null;
+}): JSX.Element {
+  return (
+    <Show when={props.status}>
+      {(status) => (
+        <GameFacts>
+          <GameFact
+            label={<Trans>Unrated</Trans>}
+            testId="custom-game-unrated"
+          />
+          <TimeControlFact status={status()} />
+        </GameFacts>
+      )}
+    </Show>
+  );
+}
+
+/**
  * Where the game stands, in one line: the eye reads the state beside the
  * seats; a listener, who cannot see the seats, first hears who holds them.
- * With no game yet only a listener hears it.
+ * With no game yet only a listener hears it. When the screen already shows
+ * the same thing (`spokenOnly`: the seat to move says whose move it is, the
+ * Start section says whether the game can start), the line is for a
+ * listener only.
  */
 export function FrameStatusView(props: {
   readonly status: FrameStatus | null;
+  readonly spokenOnly?: boolean | undefined;
+  /**
+   * A game played in real time: a neutral line that only says how play
+   * goes on (`Keep the ball in play.`) is plain hint text, not a pill that
+   * reads as a button under the arena.
+   */
+  readonly arena?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -69,15 +99,14 @@ export function FrameStatusView(props: {
             </>
           }
           detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
-          trailing={
-            <StackHorizontal align="center" gap="sm">
-              <Badge
-                intent="neutral"
-                label={<Trans>Unrated</Trans>}
-                dataSet={{ testid: 'custom-game-unrated' }}
-              />
-              <TimeControlBadge status={status()} />
-            </StackHorizontal>
+          spokenOnly={props.spokenOnly === true && !status().sending}
+          look={
+            props.arena === true &&
+            status().tone === 'neutral' &&
+            status().emphasis !== 'yours' &&
+            !status().sending
+              ? 'plain'
+              : 'pill'
           }
         />
       )}

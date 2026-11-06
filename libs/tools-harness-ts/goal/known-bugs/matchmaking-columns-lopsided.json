@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, finding an opponent showed a 210px search card beside a 500px rail of ratings and three paragraphs on how matchmaking works. The search, the person's ratings and a three-point guide are now one card across the game column.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

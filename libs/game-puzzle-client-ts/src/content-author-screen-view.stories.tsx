@@ -16,18 +16,32 @@ import {
   StoryCountingPlayer,
   StoryDraftHistory,
   StoryKeptCopies,
-  StoryPackOverview,
+  StoryPackEditor,
   StoryPlaytest,
 } from './content-story.example';
 
 const DOCUMENT_ID = '5d0c1a00-0000-4000-8000-0000000000a1';
 
-/** Validation and publication of the draft, with nothing in flight. */
+/**
+ * Validation and publication of the draft, with nothing in flight; a
+ * puzzle's playtest comes first among its actions.
+ */
 function publication(
   overrides: Partial<ContentPublicationControlsViewProps> = {}
 ) {
   return (
     <ContentPublicationControlsView
+      layout="bar"
+      before={
+        overrides.kind === 'pack'
+          ? undefined
+          : (next) => (
+              <StoryPlaytest
+                disabled={overrides.disabled === true}
+                next={next()}
+              />
+            )
+      }
       kind="puzzle"
       validation="unchecked"
       validationMessage=""
@@ -46,26 +60,31 @@ function publication(
 
 type Slots = Pick<
   ContentAuthorScreenViewProps,
-  'history' | 'playtest' | 'publication' | 'stage' | 'keptCopies'
+  'history' | 'publication' | 'stage' | 'keptCopies'
 >;
 
 /**
  * Renders the view with fresh smart-widget stand-ins per mount; `slots`
- * replaces some of them for one state.
+ * replaces some of them for one state. They are made when the view first
+ * reads them, as production's JSX props are, so they are made inside the
+ * view (where a phone moves the publication's next action to the title).
  */
 function renderWith(
   args: ContentAuthorScreenViewProps,
   slots: () => Partial<Slots> = () => ({})
 ) {
-  const chosen = slots();
+  let chosen: Partial<Slots> | undefined;
+  const slot = <K extends keyof Slots>(key: K): Partial<Slots>[K] => {
+    chosen ??= slots();
+    return chosen[key];
+  };
   return (
     <ContentAuthorScreenView
       {...args}
-      history={chosen.history ?? <StoryDraftHistory />}
-      playtest={chosen.playtest ?? <StoryPlaytest />}
-      publication={chosen.publication ?? publication()}
-      stage={chosen.stage ?? <StoryCountingEditor target="7" />}
-      keptCopies={chosen.keptCopies ?? <StoryKeptCopies />}
+      history={slot('history') ?? <StoryDraftHistory />}
+      publication={slot('publication') ?? publication()}
+      stage={slot('stage') ?? <StoryCountingEditor target="7" />}
+      keptCopies={slot('keptCopies') ?? <StoryKeptCopies />}
     />
   );
 }
@@ -84,7 +103,6 @@ const meta = {
         'body',
         'save',
         'history',
-        'playtest',
         'publication',
         'stage',
         'keptCopies',
@@ -144,7 +162,6 @@ export const Saving: Story = {
   render: (args) =>
     renderWith(args, () => ({
       history: <StoryDraftHistory disabled />,
-      playtest: <StoryPlaytest disabled />,
       publication: publication({ disabled: true }),
     })),
 };
@@ -243,7 +260,9 @@ const renderPublished = (args: ContentAuthorScreenViewProps) =>
   }));
 
 /** An edition is out: it can be viewed or withdrawn from discovery. */
-export const Published: Story = { render: (args) => renderPublished(args) };
+export const Published: Story = {
+  render: (args) => renderPublished(args),
+};
 
 /** The author may draft but not publish; the denial replaces Publish. */
 export const PublishDenied: Story = {
@@ -259,16 +278,30 @@ export const PublishDenied: Story = {
     })),
 };
 
-/** A pack: its puzzles instead of a game editor, and no playtest. */
+/**
+ * A pack: its puzzles in order, each with its tools, published puzzles to
+ * add and a new one to create, instead of a game editor; no playtest.
+ */
 export const PackBuilder: Story = {
   args: {
     kind: 'pack',
-    body: { ...COUNTING_BODY, title: 'Weekend counts' },
+    body: {
+      ...COUNTING_BODY,
+      title: 'Weekend counts',
+      description: 'Three counts that get harder.',
+      difficulty: '',
+    },
   },
   render: (args) =>
     renderWith(args, () => ({
-      stage: <StoryPackOverview />,
-      publication: publication({ kind: 'pack' }),
+      stage: <StoryPackEditor />,
+      publication: publication({
+        kind: 'pack',
+        waitingOn: ['Count to nine'],
+      }),
+      keptCopies: (
+        <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
+      ),
     })),
 };
 

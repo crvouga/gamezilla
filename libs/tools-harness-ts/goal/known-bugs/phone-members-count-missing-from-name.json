@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the space's members button showed how many people are here as a number badge, but its name only said \"People in this space\", so the visible label was not part of the accessible name (WCAG 2.5.3) and the custom-game listening scenarios failed. The name now says the number it shows (\"5 people in this space\").",
+  "regressionTest": "libs/spaces-client-ts/tests/space-presence-strip-compact.test.tsx"
+}

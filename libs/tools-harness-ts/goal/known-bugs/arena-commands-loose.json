@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a real-time game's Resign and History and stats sat as two loose links, one under the other. They now share one actions row, as every game's commands do.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+}

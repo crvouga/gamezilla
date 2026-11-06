@@ -1,0 +1,4 @@
+{
+  "summary": "On the account screen the note \"Your account needs at least one way to sign in. Connect another before removing this one.\" sat under the sign-in methods card as loose text, reading as the start of the next section. MenuSection gained footerInside, and the note is now the methods card's last row.",
+  "regressionTest": "libs/auth-client-ts/tests/sign-in-methods-note.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The count beside the inbox's Needs you heading kept to its own top (the badge's self-start), so it sat about 4px above the heading's middle. It now sits in a box the heading row centres.",
+  "regressionTest": "libs/notifications-client-ts/tests/notifications-needs-you-first.test.tsx"
+}

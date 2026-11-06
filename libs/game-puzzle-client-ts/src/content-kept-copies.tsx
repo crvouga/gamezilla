@@ -38,11 +38,12 @@ export function ContentKeptCopies(props: {
   return (
     <>
       <MenuSection
-        title={<Trans>Kept copies</Trans>}
+        title={<Trans>Draft copies</Trans>}
         footer={
           <Trans>
-            Choosing a copy keeps earlier work and leaves published editions
-            unchanged.
+            Each save keeps a copy of this draft. Choose one to keep working
+            from it; the others stay saved, and published editions do not
+            change.
           </Trans>
         }
       >
@@ -59,7 +60,7 @@ export function ContentKeptCopies(props: {
                   : t`Saved draft copy`
               }
               selected={id === props.currentId}
-              value={id === props.currentId ? t`Current` : t`Use copy`}
+              value={id === props.currentId ? t`Editing now` : t`Use copy`}
               disabled={props.disabled || id === props.currentId}
               onClick={() => choice.select(id)}
               dataSet={{ testid: `content-use-copy-${id}` }}
@@ -69,17 +70,17 @@ export function ContentKeptCopies(props: {
       </MenuSection>
       <ContentLoadMore
         page={data.pages.drafts}
-        label={t`Load more kept copies`}
+        label={t`Load more draft copies`}
         disabled={props.disabled}
       />
       <MutationModal
         visible={choice.visible()}
         onClose={choice.close}
-        title={<Trans>Use this kept copy?</Trans>}
+        title={<Trans>Keep working from this copy?</Trans>}
         message={
           <Trans>
-            A new working copy will use these details. Your other saved copies
-            remain available.
+            Your draft will continue from this copy. Your other draft copies
+            stay saved.
           </Trans>
         }
         operation={choice.choose}

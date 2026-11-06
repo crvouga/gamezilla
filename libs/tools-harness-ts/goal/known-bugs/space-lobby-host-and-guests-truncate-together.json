@@ -1,0 +1,4 @@
+{
+  "summary": "A lobby card on a phone put the host and the guests in one sentence (\"Hosted by jordan_plays · robin_42 and …\"), so a narrow card cut off the guests and the reader could not tell who owns the space from who is in it. The host now keeps its own phrase, and the guests show at the line's end as a few small faces and a \"+N\" count, or \"No guests yet\".",
+  "regressionTest": "libs/spaces-client-ts/tests/space-card-meta-line.test.tsx"
+}

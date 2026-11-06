@@ -53,6 +53,8 @@ export function requiredPrCheckFailures(
       (policy) =>
         policy.context === check.name && policy.integration_id === check.appId
     );
+    // GitGuardian was explicitly retired; its installed app can still post results.
+    if (!declared && check.appId === 46505) continue;
     if (!shard && !declared) {
       failures.push(
         `Optional or untrusted check: ${check.name} (app ${check.appId}); declare it in the repository required-checks registry`

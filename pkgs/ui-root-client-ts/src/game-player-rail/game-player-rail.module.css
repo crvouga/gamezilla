@@ -1,0 +1,44 @@
+/* The players at a table of three or more: chips that wrap, two across a
+   phone, more beside a wide board, so none is cut off at the edge. */
+.playerRail {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  gap: var(--ui-space-2);
+  width: 100%;
+  min-width: 0;
+}
+/* Three players on a phone: one row of three short chips, so no chip is
+   left alone on a second row and the board keeps its height. Every chip
+   has the same two lines and so the same height: its name, then its
+   swatch, figure and any short fact (`You`) on one line that never wraps.
+   The swatch names the player's piece on the board, the name the person,
+   so the avatar steps aside and the chips stay short. */
+@container game-column (max-width: 879px) {
+  .playerRail:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipFrame {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    align-content: start;
+    gap: var(--ui-space-1);
+    padding: var(--ui-space-2) var(--ui-space-1);
+    text-align: center;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipText {
+    display: contents;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipAvatar {
+    display: none;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipName {
+    justify-self: stretch;
+  }
+  .playerRail:has(> :nth-child(3):last-child) .chipFacts {
+    flex-wrap: nowrap;
+    justify-content: center;
+    white-space: nowrap;
+  }
+}

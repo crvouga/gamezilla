@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -124,3 +124,133 @@ test('storybook integration: native banner Controls update the portal and visibi
   ).toBeChecked();
   await expect(bottom.getByText('A new version is ready')).toBeVisible();
 });
+
+/**
+ * Every control on a builder's stage that is in the window is the topmost
+ * thing at its centre, at the first scroll position and at the last; and
+ * the last scroll position shows the whole publish step.
+ */
+async function builderControlsUncovered(page: Page) {
+  return await page.evaluate(() => {
+    const scroller = document.querySelector<HTMLElement>(
+      '[data-screen="puzzle-content-author"]'
+    );
+    const publish = document.querySelector(
+      '[data-testid="content-author-publish"]'
+    );
+    if (scroller === null || publish === null)
+      return ['the builder or its publish step is missing'];
+    const covered: string[] = [];
+    const check = (at: string): void => {
+      const controls = document.querySelectorAll<HTMLElement>(
+        '[data-testid="content-author-stage"] :is(button, input)'
+      );
+      for (const control of controls) {
+        const box = control.getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        if (y < 0 || y >= window.innerHeight) continue;
+        if (x < 0 || x >= window.innerWidth) continue;
+        const top = document.elementFromPoint(x, y);
+        if (top !== null && control.contains(top)) continue;
+        const name =
+          control.getAttribute('data-testid') ??
+          control.getAttribute('aria-label') ??
+          control.textContent.trim();
+        covered.push(`${at}: ${name}`);
+      }
+    };
+    check('top');
+    scroller.scrollTop = scroller.scrollHeight;
+    check('bottom');
+    const step = publish.getBoundingClientRect();
+    if (step.top < 0 || step.bottom > window.innerHeight)
+      covered.push('bottom: the publish step is not wholly in view');
+    return covered;
+  });
+}
+
+// regression: builder-publish-strip-clips-stage — the publish step was a
+// strip pinned under the scroll area, so in the first view of the pack
+// builder "Create puzzle in this pack" was cut in half by it, and on a
+// phone the strip hid the Sokoban board. The step is now a section in the
+// flow after the stage: nothing on the stage is ever under it.
+for (const story of [
+  'screens-puzzles-content-author--pack-builder',
+  'screens-games-sokoban-editor--two-crates',
+])
+  for (const size of [
+    { width: 390, height: 791 },
+    { width: 1200, height: 884 },
+  ])
+    test(`storybook integration: ${story} at ${size.width}px keeps its stage uncovered`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      await page.goto(
+        `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+      );
+      await expect
+        .poll(() =>
+          page.locator('#storybook-root').getAttribute('data-story-ready')
+        )
+        .toBe('true');
+      await page.evaluate(() => document.fonts.ready);
+      expect(await builderControlsUncovered(page)).toEqual([]);
+    });
+
+/**
+ * On a phone's first screen: the stage's first row (the board's first
+ * squares, the pack's first puzzle) is wholly in view, the publish step
+ * comes after it, and the one next action is in view in the title row.
+ */
+async function builderPhoneFirstScreen(page: Page) {
+  return await page.evaluate(() => {
+    const first = document.querySelector(
+      '[data-testid="content-author-stage"] :is([data-testid^="sokoban-square-"], [data-testid^="content-pack-item-"])'
+    );
+    const publish = document.querySelector(
+      '[data-testid="content-author-publish"]'
+    );
+    const lead = document.querySelector(
+      '[data-component="ScreenIntroActions"] :is(button, a)'
+    );
+    if (first === null || publish === null || lead === null)
+      return ['the first row, the publish step or the lead is missing'];
+    const found: string[] = [];
+    const row = first.getBoundingClientRect();
+    if (row.top < 0 || row.bottom > window.innerHeight)
+      found.push('the first row is not wholly in the first screen');
+    if (publish.getBoundingClientRect().top < row.bottom)
+      found.push('the publish step comes before the first row');
+    const action = lead.getBoundingClientRect();
+    if (action.top < 0 || action.bottom > window.innerHeight)
+      found.push('the next action is not in the first screen');
+    return found;
+  });
+}
+
+// regression: builder-phone-publish-card-buries-stage — on a phone the
+// unnumbered "Check and publish" card sat between "1 · Details" and
+// "2 · Board", so the board (or the pack's puzzle list) started under the
+// fold and the steps read out of order. The steps now read in order and
+// the next action sits in the title row.
+for (const story of [
+  'screens-puzzles-content-author--pack-builder',
+  'screens-games-sokoban-editor--two-crates',
+])
+  test(`storybook integration: ${story} on a phone shows its first row before the publish step`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 791 });
+    await page.goto(
+      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+    );
+    await expect
+      .poll(() =>
+        page.locator('#storybook-root').getAttribute('data-story-ready')
+      )
+      .toBe('true');
+    await page.evaluate(() => document.fonts.ready);
+    expect(await builderPhoneFirstScreen(page)).toEqual([]);
+  });

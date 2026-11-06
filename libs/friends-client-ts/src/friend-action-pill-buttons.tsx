@@ -3,6 +3,7 @@ import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -23,50 +24,60 @@ function usePillSounds(
   };
 }
 
-export function ConfirmDeletePills(props: {
-  onConfirm: () => Promise<void>;
-  onDelete: () => Promise<void>;
-  confirmTestID?: string;
-  deleteTestID?: string;
+/**
+ * A request's answer: Accept / Decline, the same two words the inbox and the
+ * request modal use, so one decision reads alike everywhere.
+ */
+export function AcceptDeclinePills(props: {
+  /** A row's trailing pair: small pills that keep to their labels. */
+  compact?: boolean;
+  onAccept: () => Promise<void>;
+  onDecline: () => Promise<void>;
+  acceptTestID?: string;
+  declineTestID?: string;
 }): JSX.Element {
   const { t } = useLingui();
-  const confirm = useMutationButton({
-    operation: () => props.onConfirm(),
+  const accept = useMutationButton({
+    operation: () => props.onAccept(),
     labels: {
-      idle: <Trans>Confirm</Trans>,
-      loading: t`Confirming…`,
-      success: t`Confirmed`,
-      error: t`Couldn't confirm`,
+      idle: <Trans>Accept</Trans>,
+      loading: t`Accepting…`,
+      success: t`Accepted`,
+      error: t`Couldn't accept`,
     },
     successHoldMs: 0,
   });
-  const del = useMutationButton({
-    operation: () => props.onDelete(),
+  const decline = useMutationButton({
+    operation: () => props.onDecline(),
     labels: {
-      idle: <Trans>Delete</Trans>,
-      loading: t`Deleting…`,
-      success: t`Deleted`,
-      error: t`Couldn't delete`,
+      idle: <Trans>Decline</Trans>,
+      loading: t`Declining…`,
+      success: t`Declined`,
+      error: t`Couldn't decline`,
     },
     successHoldMs: 0,
   });
+  const compact = (): boolean => props.compact === true;
   return (
-    <StackHorizontal gap="sm" self="stretch">
-      <StackVertical grow>
+    <StackHorizontal gap="sm" self={compact() ? undefined : 'stretch'}>
+      <StackVertical grow={!compact()}>
         <Button
           variant="solid"
-          {...confirm.buttonProps}
-          {...(props.confirmTestID !== undefined
-            ? { dataSet: { testid: props.confirmTestID } }
+          size={compact() ? 'sm' : undefined}
+          {...accept.buttonProps}
+          {...(props.acceptTestID !== undefined
+            ? { dataSet: { testid: props.acceptTestID } }
             : {})}
         />
       </StackVertical>
-      <StackVertical grow>
+      <StackVertical grow={!compact()}>
         <Button
           variant="outline"
-          {...del.buttonProps}
-          {...(props.deleteTestID !== undefined
-            ? { dataSet: { testid: props.deleteTestID } }
+          intent={compact() ? 'neutral' : undefined}
+          size={compact() ? 'sm' : undefined}
+          {...decline.buttonProps}
+          {...(props.declineTestID !== undefined
+            ? { dataSet: { testid: props.declineTestID } }
             : {})}
         />
       </StackVertical>
@@ -80,7 +91,13 @@ export function SingleActionPill(props: {
   loading: string;
   success: string;
   error: string;
-  variant?: 'solid' | 'outline';
+  variant?: 'solid' | 'outline' | 'ghost';
+  /**
+   * A row's trailing control: the small outlined pill every row's single
+   * action shares, whatever it does, so the rows end alike.
+   */
+  compact?: boolean;
+  icon?: IconComponent;
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
   testID?: string;
@@ -109,9 +126,15 @@ export function SingleActionPill(props: {
     },
     onPhaseChange,
   });
+  const small = (): boolean => props.compact === true;
+  const variant = (): 'solid' | 'outline' | 'ghost' =>
+    small() ? 'outline' : (props.variant ?? 'solid');
   return (
     <Button
-      variant={props.variant ?? 'solid'}
+      variant={variant()}
+      intent={small() ? 'neutral' : undefined}
+      size={small() ? 'sm' : undefined}
+      icon={props.icon}
       {...mutation.buttonProps}
       {...(props.testID !== undefined
         ? { dataSet: { testid: props.testID } }

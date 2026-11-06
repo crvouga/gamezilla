@@ -19,11 +19,14 @@ export type AppHeaderIslandViewProps = {
   readonly onSelect: (tab: AppTabSpec) => void;
   /** The global actions (the account menu); defaults to the frame's own. */
   readonly trailing?: JSX.Element;
+  /** `vertical` is the wide sidebar; the default is the top row. */
+  readonly orientation?: 'horizontal' | 'vertical' | undefined;
 };
 
 /**
- * Wide header island, presentational: logo | tab pills | global actions.
- * Mounted via `AppFrame` `header`; compact layouts use the tab bar instead.
+ * Wide navigation, presentational: logo, the tabs and the global actions —
+ * the top row, or (`vertical`) the sidebar mounted via `AppFrame` `rail`.
+ * Compact layouts use the tab bar instead.
  * `AppHeaderIslandHost` supplies the tabs, route and account menu.
  */
 export function AppHeaderIslandView(
@@ -34,7 +37,7 @@ export function AppHeaderIslandView(
       id: tab.name,
       label: tab.label,
       icon: tab.Icon,
-      active: isAppTabActive(tab.href, props.pathname),
+      active: isAppTabActive(tab.href, props.pathname, tab.alsoActiveUnder),
       onClick: () => props.onSelect(tab),
       dataSet: { testid: tab.testID },
     }));
@@ -50,6 +53,7 @@ export function AppHeaderIslandView(
       }
       items={items()}
       trailing={props.trailing}
+      orientation={props.orientation}
     />
   );
 }

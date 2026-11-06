@@ -1,0 +1,4 @@
+{
+  "summary": "A game menu's quiet rows (History and stats, Puzzle stats, Settings) stepped their titles down to the secondary ink, so they read as disabled. A quiet row now keeps its title's ordinary ink and only says less (a one-line caption).",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/main-menu-item-emphasis.test.tsx"
+}

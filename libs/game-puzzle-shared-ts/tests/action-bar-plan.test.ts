@@ -8,7 +8,6 @@ function input(
   return {
     status: 'solving',
     hintStage: 'none',
-    canGoBack: false,
     canGoForward: false,
     ...partial,
   };
@@ -37,45 +36,39 @@ describe('buildPuzzleActionBarPlan', () => {
     expect(idle?.id === 'hint' && idle.disabled).toBe(true);
   });
 
-  test('revealed review: back + forward + next button + retry', () => {
-    const slots = buildPuzzleActionBarPlan(
-      input({ status: 'revealed', canGoBack: true, canGoForward: false })
-    );
-    expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
+  test('revealed, solved or skipped: primary next button + retry action', () => {
+    for (const status of ['revealed', 'solved', 'skipped'] as const) {
+      const slots = buildPuzzleActionBarPlan(input({ status }));
+      expect(ids(slots)).toEqual(['next', 'retry']);
+      expect(slots[0]).toEqual({
+        id: 'next',
+        type: 'button',
+        intent: 'primary',
+      });
+      expect(slots[1]?.type).toBe('action');
+    }
   });
 
-  test('solving at frontier: hint + back + disabled forward', () => {
-    const slots = buildPuzzleActionBarPlan(
-      input({ status: 'solving', canGoBack: true, canGoForward: false })
+  // regression: puzzle-move-review-twice
+  // Moving through the line belongs to the move list's own controls.
+  test('solving: hint and skip only, the hint held back while looking back', () => {
+    const latest = buildPuzzleActionBarPlan(input({ status: 'solving' }));
+    expect(ids(latest)).toEqual(['hint', 'skip']);
+    expect(latest.map((s) => s.type === 'action' && s.disabled)).toEqual([
+      false,
+      false,
+    ]);
+    const earlier = buildPuzzleActionBarPlan(
+      input({ status: 'solving', canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
-    const back = slots.find((s) => s.id === 'back');
-    const forward = slots.find((s) => s.id === 'forward');
-    expect(back?.type === 'action' && back.disabled).toBe(false);
-    expect(forward?.type === 'action' && forward.disabled).toBe(true);
+    expect(ids(earlier)).toEqual(['hint', 'skip']);
+    expect(earlier[0]?.id === 'hint' && earlier[0].disabled).toBe(true);
   });
 
-  test('solving after back: hint + back + forward', () => {
-    const slots = buildPuzzleActionBarPlan(
-      input({ status: 'solving', canGoBack: true, canGoForward: true })
-    );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
-    expect(slots.find((s) => s.id === 'hint')?.disabled).toBe(true);
-    const forward = slots.find((s) => s.id === 'forward');
-    expect(forward?.type === 'action' && forward.disabled).toBe(false);
-  });
-
-  test('loading: hint + back + forward all disabled', () => {
-    const slots = buildPuzzleActionBarPlan(
-      input({ status: 'loading', canGoBack: true, canGoForward: true })
-    );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
-    const hint = slots[0];
-    const back = slots[1];
-    const forward = slots[2];
-    expect(hint?.id === 'hint' && hint.disabled).toBe(true);
-    expect(back?.id === 'back' && back.disabled).toBe(true);
-    expect(forward?.id === 'forward' && forward.disabled).toBe(true);
+  test('loading: hint and skip both disabled', () => {
+    const slots = buildPuzzleActionBarPlan(input({ status: 'loading' }));
+    expect(ids(slots)).toEqual(['hint', 'skip']);
+    expect(slots.every((s) => s.type === 'action' && s.disabled)).toBe(true);
   });
 
   test('wrong: solution + danger retry button + skip action', () => {
@@ -85,16 +78,5 @@ describe('buildPuzzleActionBarPlan', () => {
     expect(retry).toEqual({ id: 'retry', type: 'button', intent: 'danger' });
     const skip = slots.find((s) => s.id === 'skip');
     expect(skip?.type === 'action' && skip.disabled).toBe(false);
-  });
-
-  test('solved: position navigation + primary next button + retry action', () => {
-    const slots = buildPuzzleActionBarPlan(
-      input({ status: 'solved', canGoBack: true, canGoForward: false })
-    );
-    expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
-    const next = slots.find((s) => s.id === 'next');
-    expect(next).toEqual({ id: 'next', type: 'button', intent: 'primary' });
-    const retry = slots.find((s) => s.id === 'retry');
-    expect(retry?.type).toBe('action');
   });
 });

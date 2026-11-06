@@ -1,0 +1,4 @@
+{
+  "summary": "On a desktop the profile was three columns of different heights (a 208px identity card, the rooms, then friends and settings), leaving a large L-shaped empty area under the card and the rooms. The identity is now the page's own unframed header with Edit profile right after the words, over two columns whose tops are on one line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/profile-rail-layout.test.tsx"
+}

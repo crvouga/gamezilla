@@ -40,6 +40,8 @@ export const Handles = {
   /** Version row on the About screen. */
   aboutSecurityContact: 'about-security-contact',
   aboutVersion: 'about-version',
+  /** Settings' Troubleshooting disclosure; opening it shows Connection and the rest. */
+  settingsTroubleshooting: 'settings-troubleshooting',
   /** "Connection" row in Settings (→ the connection status screen). */
   settingsConnection: 'settings-server-status',
   /** Connection status screen: whether the app is connected right now. */
@@ -72,6 +74,8 @@ export const Handles = {
   /** This device's last activity in the space, for the harness clock. */
   spaceOwnActivity: 'space-own-activity',
   spaceClose: 'space-close',
+  /** A phone's ‹ at the room's root: back to Spaces (the space goes on, small). */
+  spaceBackToSpaces: 'space-back-to-spaces',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',
@@ -79,6 +83,7 @@ export const Handles = {
   spaceLeaveConfirm: 'space-leave-confirm',
   spaceEndConfirm: 'space-end-confirm',
   spaceShare: 'space-share',
+  spaceInviteFriends: 'space-invite-friends',
   spaceShareClose: 'space-share-close',
   spaceAddTrigger: 'space-add-trigger',
   spaceAddQuery: 'space-add-query',
@@ -283,6 +288,7 @@ export const Handles = {
   profileFriendsStats: 'profile-friends-stats',
   /** The number in the Profile tab's friends stat row. */
   profileFriendsCount: 'profile-friends-count',
+  profileFacts: 'profile-facts',
 
   // search
   searchInput: 'search-input',
@@ -324,7 +330,9 @@ export const Handles = {
   /** Notifications friend-request summary card (fromUsername). */
   notificationsFriendRequestCard: (fromUsername: string) =>
     `notifications-friend-request-card-${fromUsername}`,
-  /** Set that inbox item aside. The id is the card's test id. */
+  /** An inbox card's "…" menu. The id is the card's test id. */
+  notificationsCardMenu: (cardTestId: string) => `${cardTestId}-menu`,
+  /** Set that inbox item aside, from its card's menu. */
   notificationsArchive: (cardTestId: string) => `${cardTestId}-archive`,
   /** Inbox lists: everything, what still needs a choice, and what was set aside. */
   notificationsFilterAll: 'notifications-filter-all',
@@ -433,8 +441,6 @@ export const Handles = {
   chessPuzzleActionHint: 'chess-puzzle-action-hint',
   chessPuzzleActionNext: 'chess-puzzle-action-next',
   chessPuzzleActionRetry: 'chess-puzzle-action-retry',
-  chessPuzzleActionBack: 'chess-puzzle-action-back',
-  chessPuzzleActionForward: 'chess-puzzle-action-forward',
   chessPuzzleActionSkip: 'chess-puzzle-action-skip',
   chessPuzzleClock: 'chess-puzzle-clock',
   chessPuzzleStatusLabel: 'chess-puzzle-status-label',

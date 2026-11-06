@@ -1,12 +1,17 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import { lineActions } from '@libs/game-puzzle-shared-ts/step';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { t } from '@lingui/core/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -29,6 +34,7 @@ import { PuzzleTestProbes } from './puzzle-test-probes';
 import { useDeniedView } from './use-denied-view';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
 import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
+import { usePuzzleHistory } from './use-puzzle-history';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 import { usePuzzlePlayerState } from './use-puzzle-player-state';
@@ -68,6 +74,11 @@ function PuzzlePlayerBoardSlot(props: {
         moveMs={PUZZLE_PIECE_MOVE_MS}
         marks={p.marks()}
         suggestions={p.suggestions()}
+        lastAction={
+          p.atFrontier()
+            ? (lineActions(p.attempt.line())[p.attempt.solveIdx() - 1] ?? null)
+            : null
+        }
         onAction={(action: string) =>
           p.isSpectator() ? p.onRecommendAction(action) : p.onMove(action)
         }
@@ -93,6 +104,38 @@ function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
   );
 }
 
+/** The solver's side as the game names it, once a position is shown. */
+function useSolverSide(p: PuzzlePlayerChromeModel): () => string | null {
+  const presentation = useGamePresentation();
+  return () => {
+    const position = p.boardPosition();
+    return position === null || position.length === 0
+      ? null
+      : presentation(position).sideLabel(p.orientation());
+  };
+}
+
+/**
+ * The solver has played at least one right move of the line and is to
+ * move again: past the line's first solver move, still solving.
+ */
+function useCorrectSoFar(p: PuzzlePlayerChromeModel): () => boolean {
+  const firstSolveIdx = puzzleLineLayout(usePuzzleGame().game.puzzles).start;
+  return () => p.status() === 'solving' && p.attempt.solveIdx() > firstSolveIdx;
+}
+
+/** The solver's own run so far; nothing for a spectator. */
+function usePlayProgress(p: PuzzlePlayerChromeModel) {
+  const history = usePuzzleHistory();
+  return () =>
+    p.isSpectator()
+      ? undefined
+      : {
+          streak: history.stats().currentStreak,
+          solved: history.stats().totalSolved,
+        };
+}
+
 function PuzzlePlayerChrome(props: {
   model: PuzzlePlayerChromeModel;
   probe: JSX.Element;
@@ -103,21 +146,18 @@ function PuzzlePlayerChrome(props: {
   const allowance = usePuzzleAllowance();
   const [config] = usePuzzleFeedConfig();
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
-  const presentation = useGamePresentation();
-  /** The solver's side as the game names it, once a position is shown. */
-  const solverSide = (): string | null => {
-    const position = p.boardPosition();
-    return position === null || position.length === 0
-      ? null
-      : presentation(position).sideLabel(p.orientation());
-  };
+  const choices = useGameChoicesName();
+  const progress = usePlayProgress(p);
+  const correct = useCorrectSoFar(p);
+  const solverSide = useSolverSide(p);
   return (
     <>
-      <DefineBackButton onPress={p.backToRoot} />
+      <DefineBackButton onPress={p.backToRoot} label={choices()} />
       <PuzzlePlayScreenView
         pick="playing"
         statusKind={p.statusKind()}
         solverSide={solverSide()}
+        correct={correct()}
         coach={{
           message: p.coach()?.text ?? '',
           contextKey: p.coach()?.positionKey ?? '',
@@ -131,6 +171,7 @@ function PuzzlePlayerChrome(props: {
         elapsedMs={p.clockElapsedMs()}
         spectator={p.isSpectator()}
         allowanceLabel={allowance.label()}
+        progress={progress()}
         shareLink={
           <Show when={p.puzzleId()} keyed>
             {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}
@@ -158,12 +199,9 @@ function PuzzlePlayerChrome(props: {
         feedConfig={config()}
         status={p.status()}
         hintStage={p.hintStage()}
-        canGoBack={p.canGoBack()}
         canGoForward={p.canGoForward()}
         onHint={p.onHint}
         onSolution={p.onSolution}
-        onBack={p.onBack}
-        onForward={p.onForward}
         onRetry={p.onRetry}
         onSkip={p.onSkip}
         onNext={p.onNext}
@@ -242,6 +280,7 @@ function PuzzlePlayShell(props: {
 }): JSX.Element {
   const [config] = usePuzzleFeedConfig();
   const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
+  const choices = useGameChoicesName();
   const denial = useDeniedView({
     get decision() {
       return props.startDenial();
@@ -251,7 +290,7 @@ function PuzzlePlayShell(props: {
   const pick = (): PuzzlePlayPick => props.pickState();
   return (
     <>
-      <DefineBackButton onPress={props.backToRoot} />
+      <DefineBackButton onPress={props.backToRoot} label={choices()} />
       <PuzzlePlayScreenView
         pick={pick()}
         statusKind={props.pickState()}
@@ -271,12 +310,9 @@ function PuzzlePlayShell(props: {
         denial={denial()}
         status="loading"
         hintStage="none"
-        canGoBack={false}
         canGoForward={false}
         onHint={noop}
         onSolution={noop}
-        onBack={noop}
-        onForward={noop}
         onRetry={noop}
         onSkip={noop}
         onNext={noop}

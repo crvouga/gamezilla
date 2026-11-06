@@ -140,7 +140,10 @@ states and interactions, and a harness test.
 screen, follow the [Storybook agent workflow](pkgs/ui-root-harness-ts/README.md#agent-workflow)
 (discovery → reuse → stories → automated evidence → maintenance). It is the
 single workflow for every harness; `/storybook-ui <task>` is its command entry
-point. Use it together with the design guidance above.
+point. Use it together with the design guidance above. For a council-scored
+overhaul loop, run [`ui-overhaul`](.agents/skills/ui-overhaul/SKILL.md) (polish
+only) or [`ui-ux-overhaul`](.agents/skills/ui-ux-overhaul/SKILL.md) (redesign),
+naming the council roster and minimum rating.
 
 **DOM identifiers:** every host exposes `data-component="<Name>"`, and
 `ScreenBase` requires `screenId` (`data-screen`); both are stripped from

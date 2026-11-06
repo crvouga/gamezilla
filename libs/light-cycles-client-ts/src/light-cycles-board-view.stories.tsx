@@ -1,4 +1,10 @@
 import {
+  BOARD_CONTROLS_EXCLUDE,
+  boardArgs,
+  type GameTableStory,
+  renderGameTable,
+} from '@libs/game-session-client-ts/game-frame-table.example';
+import {
   LIGHT_CYCLES_SEATS,
   lightCyclesConfig,
 } from '@libs/light-cycles-shared-ts/light-cycles-config';
@@ -13,12 +19,6 @@ import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-pres
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import {
-  BOARD_CONTROLS_EXCLUDE,
-  boardArgs,
-  type GameTableStory,
-  renderGameTable,
-} from './game-table.example';
 import { LightCyclesBoardView } from './light-cycles-board-view';
 import { lightCyclesTrioClient } from './light-cycles-game-client';
 
@@ -87,6 +87,8 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
+    // Played in real time: no turns, so the record lists no moves.
+    table: { turns: false } satisfies GameTableStory,
   },
   args: boardArgs(RUNNING, { simulation: riding(['white']) }),
 } satisfies Meta<typeof LightCyclesBoardView>;

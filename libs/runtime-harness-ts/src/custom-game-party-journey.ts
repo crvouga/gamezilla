@@ -49,7 +49,7 @@ async function readyParty(host: JourneyHost): Promise<void> {
     guestName = (await ui.get('custom-game-black-person').text())?.trim() ?? '';
     check(guestName !== '', 'The second participant has no displayed name');
     await tap(ui, 'custom-game-ready');
-    await ui.get('custom-game-ready').expect.text('Withdraw readiness', {
+    await ui.get('custom-game-ready').expect.text("I'm not ready", {
       exact: false,
       timeoutMs: JOURNEY_WAIT_MS,
     });

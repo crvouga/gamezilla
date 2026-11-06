@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, For, type JSX } from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
 
 /**
@@ -30,12 +30,40 @@ export type CellGridCell = {
   /** Boundaries between cells; consecutive edges form a continuous barrier. */
   readonly edges?: readonly CellGridEdge[] | undefined;
   readonly previewEdges?: readonly CellGridEdge[] | undefined;
-  /** Four visual identities, also named by the cell's label and glyph. */
+  /**
+   * Four visual identities, also named by the cell's label and glyph. On a
+   * `checkered` board, `one` is a light piece and `two` a dark piece.
+   */
   readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
-  /** Playing-surface palette; never themes the surrounding application. */
-  readonly boardTheme?: 'battleship' | 'quoridor' | undefined;
+  /**
+   * Playing-surface palette; never themes the surrounding application.
+   * `checkered` is a wooden board of alternating light and dark squares
+   * (`boardLight` / `boardDark`) whose glyphs fill most of a square and
+   * whose labels sit inside the edge squares' corners, as a chess board's
+   * coordinates do: row labels at the top left of the first column, column
+   * labels at the bottom right of the last row, so the board is square and
+   * its insets equal on both sides.
+   * `sokoban` is a Sokoban board being built, drawn as the puzzle is
+   * played: `occupied` cells are its walls, dark solid blocks; `open` cells
+   * light floor; `quiet` cells are outside it. A cell's `identity` draws
+   * its piece as a token most of the square wide (`one` a crate, `two` a
+   * crate on its goal, `three` the worker, `four` a goal), and its squares
+   * are larger, so the board leads its screen.
+   */
+  readonly boardTheme?:
+    | 'battleship'
+    | 'quoridor'
+    | 'checkered'
+    | 'sokoban'
+    | undefined;
+  /**
+   * The grid spans its column's whole width, its cells growing past 44px,
+   * so a game's board lines up with the seats above and below it. Unset,
+   * a cell stops at 44px and the grid at its own width.
+   */
+  readonly fill?: boolean | undefined;
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -79,20 +107,34 @@ export function cellGridStep(
   return steps[event.key]?.() ?? null;
 }
 
+/** A checkered board's coordinates inside an edge square. */
+type CellCoordinates = {
+  readonly row?: string | undefined;
+  readonly column?: string | undefined;
+};
+
 function GridCell(props: {
   board: CellGridBoardProps;
   index: number;
+  coordinates?: CellCoordinates | undefined;
   focusable: boolean;
   onFocusIndex: (index: number) => void;
   onKey: (event: KeyboardEvent, index: number) => void;
 }): JSX.Element {
   const cell = () => props.board.cells[props.index];
   const id = () => cell()?.id ?? '';
+  // Squares alternate from a light top-left corner, as a board's do.
+  const shade = (): 'light' | 'dark' => {
+    const columns = Math.max(1, props.board.columnLabels.length);
+    const row = Math.floor(props.index / columns);
+    return (row + (props.index % columns)) % 2 === 0 ? 'light' : 'dark';
+  };
   return (
     <button
       type="button"
       class={styles['cell']}
       data-index={props.index}
+      data-shade={shade()}
       data-cell={id()}
       data-testid={
         props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`
@@ -135,6 +177,28 @@ function GridCell(props: {
       <span class={styles['glyph']} aria-hidden="true">
         {cell()?.glyph ?? ''}
       </span>
+      <Show when={props.coordinates?.row}>
+        {(label) => (
+          <span
+            class={styles['coordinate']}
+            data-corner="row"
+            aria-hidden="true"
+          >
+            {label()}
+          </span>
+        )}
+      </Show>
+      <Show when={props.coordinates?.column}>
+        {(label) => (
+          <span
+            class={styles['coordinate']}
+            data-corner="column"
+            aria-hidden="true"
+          >
+            {label()}
+          </span>
+        )}
+      </Show>
     </button>
   );
 }
@@ -162,6 +226,18 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
   // Numbers, not objects: a new label array never remounts a cell.
   const rows = createMemo(() => range(props.rowLabels.length));
   const columns = createMemo(() => range(props.columnLabels.length));
+  // A checkered board writes its labels inside the edge squares.
+  const inset = (): boolean => props.boardTheme === 'checkered';
+  const coordinates = (row: number, column: number): CellCoordinates =>
+    inset()
+      ? {
+          row: column === 0 ? props.rowLabels[row] : undefined,
+          column:
+            row === props.rowLabels.length - 1
+              ? props.columnLabels[column]
+              : undefined,
+        }
+      : {};
   let root: HTMLDivElement | undefined;
   const onKey = (event: KeyboardEvent, index: number): void => {
     const size = {
@@ -184,6 +260,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       ref={root}
       class={styles['board']}
       data-board-theme={props.boardTheme ?? 'battleship'}
+      data-fill={props.fill === true}
       {...dataAttrs({ component: 'CellGridBoard' })}
       role="group"
       aria-label={props.label}
@@ -191,17 +268,24 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       data-testid={props.testId}
       style={{ '--cell-grid-columns': props.columnLabels.length }}
     >
-      <span class={styles['header']} aria-hidden="true" />
-      <For each={props.columnLabels}>{(label) => <Header label={label} />}</For>
+      <Show when={!inset()}>
+        <span class={styles['header']} aria-hidden="true" />
+        <For each={props.columnLabels}>
+          {(label) => <Header label={label} />}
+        </For>
+      </Show>
       <For each={rows()}>
         {(row) => (
           <>
-            <Header label={props.rowLabels[row] ?? ''} />
+            <Show when={!inset()}>
+              <Header label={props.rowLabels[row] ?? ''} />
+            </Show>
             <For each={columns()}>
               {(column) => (
                 <GridCell
                   board={props}
                   index={row * columns().length + column}
+                  coordinates={coordinates(row, column)}
                   focusable={focusIndex() === row * columns().length + column}
                   onFocusIndex={setFocusIndex}
                   onKey={onKey}
@@ -212,5 +296,59 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
         )}
       </For>
     </div>
+  );
+}
+
+/** One mark a board's cells can show, and what it means. */
+export type CellGridLegendItem = {
+  readonly glyph: string;
+  readonly tone: CellGridTone;
+  readonly outlined?: boolean | undefined;
+  /** What the mark means (`Miss`). */
+  readonly label: string;
+};
+
+/**
+ * `CellGridLegend` -- the key to a battleship-palette board's marks: each
+ * mark drawn as a small cell exactly as the board draws it, beside what it
+ * means, in one quiet row that wraps. The marks are pictures of the words,
+ * so a listener hears only the words.
+ *
+ * @example
+ * ```tsx
+ * <CellGridLegend label="Key" items={[
+ *   { glyph: '•', tone: 'quiet', label: 'Miss' },
+ *   { glyph: '✕', tone: 'alert', label: 'Hit' },
+ * ]} />
+ * ```
+ */
+export function CellGridLegend(props: {
+  readonly label: string;
+  readonly items: readonly CellGridLegendItem[];
+  readonly testId?: string | undefined;
+}): JSX.Element {
+  return (
+    <ul
+      class={styles['legend']}
+      aria-label={props.label}
+      {...dataAttrs({ component: 'CellGridLegend' })}
+      data-testid={props.testId}
+    >
+      <For each={props.items}>
+        {(item) => (
+          <li class={styles['legendItem']}>
+            <span
+              class={`${styles['cell']} ${styles['legendMark']}`}
+              data-tone={item.tone}
+              data-outlined={String(item.outlined === true)}
+              aria-hidden="true"
+            >
+              <span class={styles['glyph']}>{item.glyph}</span>
+            </span>
+            {item.label}
+          </li>
+        )}
+      </For>
+    </ul>
   );
 }

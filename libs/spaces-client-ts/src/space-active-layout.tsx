@@ -8,12 +8,20 @@ import type { SpaceDetailStatus } from './space-detail-screen-view';
 import { SpaceDetailScreenView } from './space-detail-screen-view';
 import { useSpaceMembersDialog } from './space-members-dialog-context';
 import { SpaceMembersListModal } from './space-members-list-modal';
-import { SpacePresenceStrip } from './space-presence-strip';
+import {
+  SpacePresenceStrip,
+  useSpacePresenceCount,
+} from './space-presence-strip';
 import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { useSpaceShareDialog } from './space-share-dialog-context';
 import { SpaceShareSheet } from './space-share-sheet';
-import { useSpacesNavBack } from './spaces-nav-context';
+import {
+  useSpacesNavBack,
+  useSpacesNavBackLabel,
+  useSpacesNavPlace,
+} from './spaces-nav-context';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 import { useSpaceRoomDispatch } from './use-space-room-selector';
@@ -48,9 +56,20 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const sessionUi = useSpaceSessionUi();
   const title = useSpaceDisplayTitle(() => sessionUi.spaceId);
   const onPressBack = useSpacesNavBack();
+  const backLabel = useSpacesNavBackLabel();
+  const place = useSpacesNavPlace();
   const membersDialog = useSpaceMembersDialog();
   const onPressMembers = useOpenMembers();
-  const [shareOpen, setShareOpen] = createSignal(false);
+  // Shared with Invite friends in the body; a screen mounted without the
+  // route's provider keeps its own.
+  const [ownShareOpen, setOwnShareOpen] = createSignal(false);
+  const shareDialog = useSpaceShareDialog();
+  const shareOpen = (): boolean => shareDialog?.open() ?? ownShareOpen();
+  const setShareOpen = (open: boolean): void => {
+    if (shareDialog === undefined) setOwnShareOpen(open);
+    else shareDialog.setOpen(open);
+  };
+  const presenceCount = useSpacePresenceCount();
   const canRename = useSpaceCan(
     () => sessionUi.spaceId,
     PERMISSION.spacesRename
@@ -60,12 +79,19 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   return (
     <SpaceDetailScreenView
       title={title()}
+      spaceId={sessionUi.spaceId}
+      place={place()}
       status={props.status}
       hostOffline={props.hostOffline}
       canRename={canRename()}
       canEnd={canEnd()}
-      presence={(size) => (
-        <SpacePresenceStrip spaceId={sessionUi.spaceId} size={size} />
+      presenceCount={presenceCount()}
+      presence={(size, compact) => (
+        <SpacePresenceStrip
+          spaceId={sessionUi.spaceId}
+          size={size}
+          compact={compact}
+        />
       )}
       notice={<SpaceRefusedChangeNotice />}
       overlays={
@@ -84,6 +110,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
       }
       onPressHome={sessionUi.onPressHome}
       onPressBack={onPressBack()}
+      backLabel={backLabel()}
       onPressMembers={onPressMembers}
       onPressShare={() => setShareOpen(true)}
       onPressRename={sessionUi.onRequestRename}

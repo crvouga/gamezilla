@@ -34,10 +34,11 @@ function renderAt(
         <StoryReviewBoard
           plies={STORY_PLIES}
           selectedSolveIdx={cursor}
-          board={() => (
+          board={(size) => (
             <StoryPuzzleBoard
               position={POSITIONS[cursor] ?? STORY_LINE.mate}
               testId="chess-puzzle-review-board"
+              size={size}
             />
           )}
         />

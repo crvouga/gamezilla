@@ -1,0 +1,4 @@
+{
+  "summary": "On Account, the \"Only sign-in\" tag beside a linked method sat on the row's top line instead of its middle, because a tag pins itself to the top of whatever holds it. It now has its own box, which the row centres as it centres a button.",
+  "regressionTest": "libs/auth-client-ts/tests/only-sign-in-tag.test.tsx"
+}

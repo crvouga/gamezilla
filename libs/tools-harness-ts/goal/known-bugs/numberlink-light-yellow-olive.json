@@ -1,0 +1,4 @@
+{
+  "summary": "In the light scheme the yellow path colour was #8a6100, darker than the orange path beside it, so a Numberlink pair in yellow read as a muddy olive. Yellow is now #b07d00: a clear step lighter than orange while it keeps 3:1 against the canvas.",
+  "regressionTest": "pkgs/ui-root-shared-ts/tests/palette-contrast.test.ts"
+}

@@ -1,0 +1,92 @@
+/* A grid editor's tools: a segmented track of tiles, four to a row, each a
+   swatch over its name on one line, so no tool is a bare icon and every
+   tile is the same height. */
+.palette {
+  container: cell-grid-palette / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-1);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-card);
+}
+.track[aria-disabled="true"] {
+  opacity: var(--ui-opacity-disabled);
+}
+.tool {
+  /* The swatch at the top, its name one line under it: the swatches share
+     a row line and the names a baseline, whatever their length. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--ui-space-1) 0;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-md);
+  background: transparent;
+  color: var(--ui-color-text);
+}
+.tool[aria-checked="true"] {
+  background: var(--ui-color-tint-subtle);
+  border-color: var(--ui-color-primary-strong);
+  color: var(--ui-color-on-primary-soft);
+}
+.tool:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 1px;
+}
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+/* A one-square board: its padding a frame round the square, as the
+   board's own rim is. Smaller on a phone, so two rows of named tools cost
+   the board little more than one row of bare swatches did. */
+.swatch {
+  grid-template-columns: minmax(0, 1fr);
+  width: var(--ui-space-6);
+  max-width: none;
+  padding: var(--ui-space-1);
+  border-radius: var(--ui-radius-sm);
+  pointer-events: none;
+}
+/* A bare glyph (outside's dot, erase's cross) never stretches its square
+   past a token's, so every swatch is one size and the names under them
+   share a baseline. Tokens keep the board's own scale. */
+.swatch[data-board-theme] [data-tone]:not([data-identity]) > .swatchGlyph {
+  font-size: var(--ui-font-size-xs);
+  line-height: 1;
+}
+@container cell-grid-palette (min-width: 400px) {
+  .tool {
+    padding: var(--ui-space-2) var(--ui-space-1);
+  }
+  .swatch {
+    width: var(--ui-space-8);
+  }
+}
+/* On a phone the step heading over the editor already names the stage, so
+   the group's name is for listeners only and the board starts a row
+   higher. */
+@container cell-grid-palette (max-width: 399px) {
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

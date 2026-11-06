@@ -3,6 +3,7 @@ import type { ActionBarItem } from '@pkgs/ui-root-client-ts/action-bar-logic';
 import {
   actionBarBudgetWidth,
   actionBarHasContent,
+  actionBarMinWidth,
   actionBarRowWidth,
   isActionBarAvatarItem,
   partitionActionBarItems,
@@ -241,5 +242,30 @@ describe('adapters', () => {
         hasEndSlot: true,
       })
     ).toBe(true);
+  });
+});
+
+// regression: action-bar-pinned-item-collapses-before-title
+describe('actionBarMinWidth', () => {
+  test('keeps room for every never item beside the More trigger', () => {
+    const items = [
+      item('members', { overflow: 'never' }),
+      item('share', { overflow: 'always' }),
+      item('rename', { overflow: 'auto' }),
+    ];
+    expect(
+      actionBarMinWidth({ items, widthOf: () => 44, moreWidth: 44, gap: 8 })
+    ).toBe(96);
+  });
+
+  test('is the More trigger alone when nothing is pinned', () => {
+    expect(
+      actionBarMinWidth({
+        items: [item('share', { overflow: 'always' })],
+        widthOf: () => 44,
+        moreWidth: 40,
+        gap: 8,
+      })
+    ).toBe(40);
   });
 });

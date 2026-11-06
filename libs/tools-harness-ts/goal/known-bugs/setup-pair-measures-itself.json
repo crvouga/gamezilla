@@ -1,0 +1,4 @@
+{
+  "summary": "The board preview's card and the Players card were laid out by a container query on the pair itself, which a container cannot measure, so wide the pair never took its two columns and the preview's card shrank to a 134px sliver. The room around the pair is now the container and the pair the grid.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

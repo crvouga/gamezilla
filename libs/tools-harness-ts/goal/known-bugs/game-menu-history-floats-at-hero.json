@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, a game menu's lone 'History and stats' choice floated at the hero's top-right end, aligned with nothing, while the two ways to play ended high on the page. It is now a full-width quiet row under the tiles, sharing their edges, and the tiles are a little more substantial.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

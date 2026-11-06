@@ -8,8 +8,10 @@
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import type { JSX } from 'solid-js';
 import { Badge } from '../badge/index';
+import { StatusDot } from '../status-dot/index';
 
 /** One figure about a seat: what it is and its value (`Score`, `12`). */
 export type GameSeatStat = { label: string; value: string };
@@ -62,6 +64,66 @@ export function GameSeatStatValue(props: {
         classList={{ 'text-on-primary-soft': props.active }}
       >
         {props.stat.value}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * A seat's figure on one line, its label before its value (`Wins 3`), for
+ * a compact chip whose width belongs to the player's name.
+ */
+export function GameSeatStatInline(props: {
+  stat: GameSeatStat;
+  /** Ink of the soft tint when the seat is the active one. */
+  active: boolean;
+}): JSX.Element {
+  return (
+    <span
+      class="text textCaption whitespace-nowrap"
+      classList={{ 'text-on-primary-soft': props.active }}
+      {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
+    >
+      {props.stat.label}{' '}
+      <span class="textNumeral font-semibold">{props.stat.value}</span>
+    </span>
+  );
+}
+
+const READINESS_DOT_SIZE = 8;
+
+/**
+ * Whether a seat's holder is ready, as a status dot and its word in the
+ * caption style (`Ready`, `Getting ready`) — not a tag, so a seat's row
+ * keeps one tag style for its facts. The dot is the success color when
+ * ready and the quiet outline color while getting ready; the word always
+ * says it, never the color alone.
+ */
+export function GameSeatReadiness(props: {
+  ready: boolean;
+  label: JSX.Element;
+}): JSX.Element {
+  return (
+    <span
+      class="box flex-row shrink-0 items-center gap-1 min-w-0"
+      {...dataAttrs({
+        component: 'GameSeatReadiness',
+        ready: String(props.ready),
+      })}
+    >
+      <StatusDot
+        status={props.ready ? 'online' : undefined}
+        color={props.ready ? undefined : colorVar('outline')}
+        size={READINESS_DOT_SIZE}
+      />
+      <span
+        class="text textCaption whitespace-nowrap"
+        classList={{
+          'text-success': props.ready,
+          'text-text-secondary': !props.ready,
+        }}
+      >
+        {props.label}
       </span>
     </span>
   );

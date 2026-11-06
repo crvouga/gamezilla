@@ -30,15 +30,23 @@ export type SpacesNavBackHandler = () => void;
 type Entry = {
   readonly id: string;
   readonly handler: SpacesNavBackHandler;
+  readonly label: string | undefined;
 };
 
 type SpacesNavContextValue = {
   /** Active back handler, or `null` when no screen has registered one. */
   readonly current: SpacesNavBackHandler | null;
+  /** The active back control's destination name, when it gave one. */
+  readonly label: string | undefined;
+  /** The selected game's name, while its choices or a screen they open show. */
+  readonly place: string | undefined;
+  /** Names (or, with `undefined`, clears) the selected game for the bar. */
+  readonly setPlace: (id: string, name: string | undefined) => void;
   /** Pass a non-null handler to register/replace, `null` to clear. */
   readonly setHandler: (
     id: string,
-    handler: SpacesNavBackHandler | null
+    handler: SpacesNavBackHandler | null,
+    label?: string | undefined
   ) => void;
 };
 
@@ -50,24 +58,45 @@ export type SpacesNavProviderProps = {
 
 export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   const [entries, setEntries] = createSignal<readonly Entry[]>([]);
-
-  const setHandler: SpacesNavContextValue['setHandler'] = (id, handler) => {
-    setEntries((prev) => {
+  const [places, setPlaces] = createSignal<
+    readonly { readonly id: string; readonly name: string }[]
+  >([]);
+  const setPlace: SpacesNavContextValue['setPlace'] = (id, name) => {
+    setPlaces((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
-      if (handler === null) return filtered;
-      return [...filtered, { id, handler }];
+      return name === undefined ? filtered : [...filtered, { id, name }];
     });
   };
 
-  const current = createMemo<SpacesNavBackHandler | null>(() => {
-    const list = entries();
-    return list.length > 0 ? (list[list.length - 1]?.handler ?? null) : null;
-  });
+  const setHandler: SpacesNavContextValue['setHandler'] = (
+    id,
+    handler,
+    label
+  ) => {
+    setEntries((prev) => {
+      const filtered = prev.filter((e) => e.id !== id);
+      if (handler === null) return filtered;
+      return [...filtered, { id, handler, label }];
+    });
+  };
+
+  const top = createMemo<Entry | null>(() => entries().at(-1) ?? null);
+  // Keyed on the handler alone, so a label change never rebuilds the bar.
+  const current = createMemo<SpacesNavBackHandler | null>(
+    () => top()?.handler ?? null
+  );
 
   const value: SpacesNavContextValue = {
     get current() {
       return current();
     },
+    get label() {
+      return top()?.label;
+    },
+    get place() {
+      return places().at(-1)?.name;
+    },
+    setPlace,
     setHandler,
   };
 
@@ -94,9 +123,29 @@ export function useSpacesNavBack(): Accessor<SpacesNavBackHandler | null> {
   return () => nav.current;
 }
 
+/** The chrome back control's destination name, when the screen gave one. */
+export function useSpacesNavBackLabel(): Accessor<string | undefined> {
+  const nav = useSpacesNavContext();
+  return () => nav.label;
+}
+
+/**
+ * The selected game's name, for the bar's trail (`Friday game night ›
+ * Chess`); `undefined` on the space's list of games.
+ */
+export function useSpacesNavPlace(): Accessor<string | undefined> {
+  const nav = useSpacesNavContext();
+  return () => nav.place;
+}
+
 export type DefineBackButtonProps = {
   /** Invoked when the user taps the chrome-rendered back button. */
   onPress: () => void;
+  /**
+   * Where back goes, named for the chrome ("Games"), so leaving the room
+   * and moving within it never read alike. "Back" when omitted.
+   */
+  label?: string | undefined;
 };
 
 /**
@@ -124,11 +173,44 @@ export function DefineBackButton(props: DefineBackButtonProps): null {
   const id = createUniqueId();
 
   createEffect(() => {
-    setHandler(id, () => confirmNavigation(() => props.onPress()));
+    setHandler(id, () => confirmNavigation(() => props.onPress()), props.label);
     onCleanup(() => {
       setHandler(id, null);
     });
   });
 
   return null;
+}
+
+const GameChoicesNameContext = createContext<Accessor<string | undefined>>(
+  () => undefined
+);
+
+/**
+ * Names the selected game's choices (the game's own menu, titled with its
+ * name) for every screen they open, so a Back that returns there says
+ * where it goes ("‹ Connect Four"), as the menu's own Back says "Games".
+ * It also names the game to the space's bar, whose trail then reads
+ * "Friday game night › Connect Four" while any of them shows.
+ */
+export function GameChoicesName(props: {
+  readonly name: string;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const nav = useContext(SpacesNavContext);
+  const id = createUniqueId();
+  createEffect(() => {
+    nav?.setPlace(id, props.name);
+    onCleanup(() => nav?.setPlace(id, undefined));
+  });
+  return (
+    <GameChoicesNameContext.Provider value={() => props.name}>
+      {props.children}
+    </GameChoicesNameContext.Provider>
+  );
+}
+
+/** The game's choices' name, for a Back that returns to them; else none. */
+export function useGameChoicesName(): Accessor<string | undefined> {
+  return useContext(GameChoicesNameContext);
 }

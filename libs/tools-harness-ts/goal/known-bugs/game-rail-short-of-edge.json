@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board the game rail kept a fixed 376px, so it ended wherever the window's height left the board (Battleship's at x=1203, Chess's at 1300, Light Cycles' at 1320) under a header running to 1320, with about 380px of empty page under the record. The rail now takes what the board leaves of the column, so every rail ends at the column's edge, and a long game's move table grows to about the board's height before it scrolls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

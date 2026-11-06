@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle builder said Finish a playtest, then validate while Validate was the filled button and Publish an outline as available-looking as any step. The playtest is now the one filled step until it proves the puzzle, Validate until the draft passes its check, and Publish stays a quiet ghost until it is next (still pressable, to say what is missing).",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

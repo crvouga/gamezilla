@@ -5,6 +5,7 @@ import {
   AvatarSeedGenerator,
   configsEqual,
   createDefaultAvatarConfig,
+  DEFAULT_AVATAR_OPTIONS,
   DEFAULT_AVATAR_STYLE,
   parseAvatarConfig,
   resolveAvatarSeed,
@@ -97,7 +98,7 @@ describe('avatar config wire form', () => {
         expect(config).toEqual({
           style: DEFAULT_AVATAR_STYLE,
           seed: profileId,
-          options: {},
+          options: { ...DEFAULT_AVATAR_OPTIONS },
         });
         expect(resolveAvatarSeed(config, 'fallback')).toBe(
           profileId.trim().length > 0 ? profileId.trim() : 'fallback'

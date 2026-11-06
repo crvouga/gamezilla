@@ -2,7 +2,7 @@
  * Story-only fixtures for the puzzle play and review screen views: the
  * presentational widgets their containers put in the views' slots (feed
  * strip, result overlay, move list) and a game-agnostic board drawing a
- * fixed puzzle line (Legal's mate) on the design system's cell grid. The
+ * fixed puzzle line (Legal's mate) on the design system's checkered board. The
  * platform knows no game, so the stories use no game's own board.
  * Production never imports this module.
  */
@@ -15,9 +15,9 @@ import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { Layer } from '@pkgs/ui-root-client-ts/layer';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
+import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import { PuzzleCelebrationOverlayView } from './puzzle-celebration-overlay-view';
 import type { PuzzleBoardMarks } from './puzzle-client';
@@ -26,6 +26,10 @@ import {
   type PuzzleFeedRatingChange,
 } from './puzzle-feed-bar-view';
 import { PuzzleMoveHistory } from './puzzle-move-history';
+import {
+  PuzzlePlayScreenView,
+  type PuzzlePlayScreenViewProps,
+} from './puzzle-play-screen-view';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
@@ -46,15 +50,14 @@ const WRITING: PuzzleMoveWriting = {
 const noop = (): void => {};
 
 /**
- * Decorator: a fixed full-viewport frame (with the canvas held at that
- * height), so a screen whose board takes the room its chrome leaves (play)
- * has a definite room to measure, as in the app.
+ * Decorator: the room the app frame's content region leaves (its height
+ * held, never more), so a screen whose board takes the room its chrome
+ * leaves (play) has a definite room to measure, as in the app, and sits
+ * under the frame's header (an open space's top bar) rather than over it.
  */
 export const withScreenFrame = createJSXDecorator((Story) => (
-  <StackVertical minHeight="screen">
-    <Layer inset="viewport">
-      <Story />
-    </Layer>
+  <StackVertical grow minHeight="none">
+    <Story />
   </StackVertical>
 ));
 
@@ -108,10 +111,13 @@ export function StoryCelebration(props: {
 export function StoryTimeline(props: {
   readonly plies: readonly PuzzleHistoryPly[];
   readonly selectedSolveIdx?: number | undefined;
+  /** The solver is to move at the line's end. */
+  readonly awaiting?: boolean | undefined;
 }): JSX.Element {
   return (
     <PuzzleMoveHistory
       plies={props.plies}
+      awaiting={props.awaiting}
       selectedSolveIdx={props.selectedSolveIdx ?? props.plies.length}
       interactive
       writing={WRITING}
@@ -119,7 +125,6 @@ export function StoryTimeline(props: {
       nav={{
         canGoBack: props.plies.length > 0,
         canGoForward: false,
-        showStepControls: false,
         onNavigate: noop,
       }}
     />
@@ -146,7 +151,6 @@ export function StoryReviewBoard(props: {
           nav={{
             canGoBack: props.selectedSolveIdx > 0,
             canGoForward: props.selectedSolveIdx < props.plies.length,
-            showStepControls: true,
             onNavigate: noop,
           }}
         />
@@ -197,19 +201,25 @@ export const STORY_PLIES: readonly PuzzleHistoryPly[] = [
   { plyIndex: 5, solveIdxAfter: 6, label: 'Nd5#', before: STORY_LINE.afterKe7 },
 ];
 
-const PIECES: Readonly<Record<string, { glyph: string; name: string }>> = {
-  K: { glyph: '♔', name: 'white king' },
-  Q: { glyph: '♕', name: 'white queen' },
-  R: { glyph: '♖', name: 'white rook' },
-  B: { glyph: '♗', name: 'white bishop' },
-  N: { glyph: '♘', name: 'white knight' },
-  P: { glyph: '♙', name: 'white pawn' },
-  k: { glyph: '♚', name: 'black king' },
-  q: { glyph: '♛', name: 'black queen' },
-  r: { glyph: '♜', name: 'black rook' },
-  b: { glyph: '♝', name: 'black bishop' },
-  n: { glyph: '♞', name: 'black knight' },
-  p: { glyph: '♟', name: 'black pawn' },
+/**
+ * Each piece as one filled figure (text presentation, never emoji), its side
+ * told by the board's light and dark piece inks and by its label.
+ */
+const PIECES: Readonly<
+  Record<string, { glyph: string; name: string; side: 'one' | 'two' }>
+> = {
+  K: { glyph: '\u265A\uFE0E', name: 'white king', side: 'one' },
+  Q: { glyph: '\u265B\uFE0E', name: 'white queen', side: 'one' },
+  R: { glyph: '\u265C\uFE0E', name: 'white rook', side: 'one' },
+  B: { glyph: '\u265D\uFE0E', name: 'white bishop', side: 'one' },
+  N: { glyph: '\u265E\uFE0E', name: 'white knight', side: 'one' },
+  P: { glyph: '\u265F\uFE0E', name: 'white pawn', side: 'one' },
+  k: { glyph: '\u265A\uFE0E', name: 'black king', side: 'two' },
+  q: { glyph: '\u265B\uFE0E', name: 'black queen', side: 'two' },
+  r: { glyph: '\u265C\uFE0E', name: 'black rook', side: 'two' },
+  b: { glyph: '\u265D\uFE0E', name: 'black bishop', side: 'two' },
+  n: { glyph: '\u265E\uFE0E', name: 'black knight', side: 'two' },
+  p: { glyph: '\u265F\uFE0E', name: 'black pawn', side: 'two' },
 };
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -238,6 +248,7 @@ function cellOf(
     label: `${square}, ${piece?.name ?? 'empty'}${wrong ? ', wrong move' : ''}${hinted ? ', hint' : ''}`,
     tone: wrong ? 'critical' : piece === undefined ? 'open' : 'occupied',
     emphasis: wrong ? 'refused' : hinted ? 'pending' : 'none',
+    identity: piece?.side,
     enabled: false,
   };
 }
@@ -258,19 +269,170 @@ function positionCells(
 
 const NO_MARKS: PuzzleBoardMarks = { wrong: null, hint: null, solution: null };
 
-/** A puzzle position on the design system's cell grid, standing in for a game's board. */
-export function StoryPuzzleBoard(props: {
+/** What a story's board draws: a position, its marks, at the well's size. */
+export type StoryPuzzleBoardProps = {
   readonly position: string;
   readonly testId: string;
   readonly marks?: PuzzleBoardMarks | undefined;
-}): JSX.Element {
+  /** The board well's size, px; a board that fills its box may ignore it. */
+  readonly size: number;
+  /** The line's move that led to `position`, for the board to mark. */
+  readonly lastAction?: string | null | undefined;
+};
+
+/**
+ * A puzzle position on the design system's checkered board, standing in for
+ * a game's board: wooden squares, pieces filling most of a square.
+ */
+export function StoryPuzzleBoard(props: StoryPuzzleBoardProps): JSX.Element {
   return (
     <CellGridBoard
+      boardTheme="checkered"
       label="Puzzle position"
       testId={props.testId}
       columnLabels={FILES}
       rowLabels={RANKS}
       cells={positionCells(props.position, props.marks ?? NO_MARKS)}
+    />
+  );
+}
+
+/** The puzzle a play story shows in its feed. */
+const STORY_PUZZLE_ID = 'chess/00a3f';
+
+/** What the slots show for one state: the board, the line so far, the result. */
+export type PuzzleScene = {
+  readonly fen: string;
+  readonly marks?: PuzzleBoardMarks;
+  readonly plies: number;
+  /** The line's move that led to `fen` (UCI), marked on the board. */
+  readonly lastAction?: string;
+  readonly over?: boolean;
+  readonly ratingChange?: number | 'unrated';
+  readonly allowanceLabel?: string;
+  readonly completion?: PuzzleCompletion;
+};
+
+/** A solved puzzle that raised the rating, for the result overlay. */
+export const STORY_SOLVED: PuzzleCompletion = {
+  outcome: 'solved',
+  ratingBefore: 1500,
+  ratingAfter: 1516,
+  delta: 16,
+  streak: 3,
+  puzzleRating: 1702,
+  rated: true,
+};
+
+/** The solver's turn after the setup move, the line's opening state. */
+const SOLVING_SCENE: PuzzleScene = {
+  fen: STORY_LINE.start,
+  plies: 1,
+  lastAction: 'g7g6',
+};
+
+/** The play view's slots a story fills itself, hidden from Controls. */
+export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
+  'coach',
+  'speaker',
+  'shareLink',
+  'feed',
+  'legend',
+  'timeline',
+  'board',
+  'feedConfig',
+  'denial',
+  'probe',
+  'overlay',
+] as const;
+
+/** The play view's props, for a game's own puzzle stories. */
+export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
+
+/**
+ * The puzzle play screen for a game's own stories (chess draws its real
+ * puzzle board in it), through this story-fixture module rather than the
+ * framework's implementation.
+ */
+export { PuzzlePlayScreenView, type PuzzlePlayScreenViewProps };
+
+/** The play view solving the line's first move, every callback a spy. */
+export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
+  pick: 'playing',
+  statusKind: 'started',
+  solverSide: 'White',
+  coach: {
+    message: 'Something on the board is undefended.',
+    contextKey: 'start',
+  },
+  elapsedMs: 12_000,
+  spectator: false,
+  allowanceLabel: '',
+  progress: { streak: 3, solved: 24 },
+  feedConfig: STORY_FEED_CONFIG,
+  status: 'solving',
+  hintStage: 'none',
+  canGoForward: false,
+  onHint: fn(),
+  onSolution: fn(),
+  onRetry: fn(),
+  onSkip: fn(),
+  onNext: fn(),
+  onIncludeAllPuzzles: fn(),
+  onOpenFeedSettings: fn(),
+};
+
+/**
+ * The play view with its slots filled from the story's `puzzleScene`
+ * parameter, fresh per mount: the feed strip, the line so far, the result,
+ * and `Board` drawing the position (the platform's stand-in, or a game's
+ * own board).
+ */
+export function renderPuzzlePlayScene(
+  args: PuzzlePlayScreenViewProps,
+  context: { readonly parameters: Record<string, unknown> },
+  Board: (props: StoryPuzzleBoardProps) => JSX.Element
+): JSX.Element {
+  const scene =
+    (context.parameters['puzzleScene'] as PuzzleScene | undefined) ??
+    SOLVING_SCENE;
+  return (
+    <PuzzlePlayScreenView
+      {...args}
+      feed={
+        <StoryFeedBar
+          puzzleId={args.pick === 'playing' ? STORY_PUZZLE_ID : undefined}
+          rating={1702}
+          themes={['mate', 'opening', 'sacrifice']}
+          over={scene.over}
+          ratingChange={scene.ratingChange}
+          allowanceLabel={scene.allowanceLabel}
+        />
+      }
+      timeline={
+        <StoryTimeline
+          plies={
+            args.pick === 'playing' ? STORY_PLIES.slice(0, scene.plies) : []
+          }
+          awaiting={args.pick === 'playing' && args.status === 'solving'}
+        />
+      }
+      board={(size) => (
+        <Board
+          position={scene.fen}
+          testId="chess-puzzle-board"
+          marks={scene.marks}
+          size={size}
+          lastAction={scene.lastAction ?? null}
+        />
+      )}
+      overlay={
+        <Show when={scene.completion} keyed>
+          {(completion) => (
+            <StoryCelebration completion={completion} onNext={args.onNext} />
+          )}
+        </Show>
+      }
     />
   );
 }

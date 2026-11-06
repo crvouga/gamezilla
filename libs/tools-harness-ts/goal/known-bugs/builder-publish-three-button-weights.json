@@ -1,0 +1,4 @@
+{
+  "summary": "The builder's publish step used three weights for one tier of action: the next step filled, Publish a text-only ghost and the other steps outlined (and the pack builder's Create puzzle outlined). The next step is now the one filled action and every other step is an outline.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

@@ -14,10 +14,15 @@ const directory = join(
   import.meta.dirname,
   '../../infra-shared-ts/tofu/modules/repository/required-checks'
 );
-const REQUIRED = readdirSync(directory).map(
+const CONFIGURED = readdirSync(directory).map(
   (file) =>
     JSON.parse(readFileSync(join(directory, file), 'utf8')) as RequiredPrCheck
 );
+// Exercise required third-party checks independently of the installed integrations.
+const REQUIRED = [
+  ...CONFIGURED,
+  { context: 'GitGuardian Security Checks', integration_id: 46505 },
+];
 const START: PrCheck = {
   name: 'verify:start',
   appId: 15368,
@@ -49,6 +54,25 @@ const withSecurity = (check: PrCheck): readonly PrCheck[] =>
 
 test('every declared check passes while the current final verdict is still executing', () => {
   expect(requiredPrCheckFailures(REQUIRED, PASSED, false)).toEqual([]);
+});
+
+// regression: retired-gitguardian-check-blocks-pr
+test('retired GitGuardian results do not gate PRs, but declaring it again enforces its result', () => {
+  const skippedScan = { ...SECURITY, conclusion: 'neutral' };
+  expect(CONFIGURED.some((check) => check.integration_id === 46505)).toBe(
+    false
+  );
+  expect(
+    requiredPrCheckFailures(CONFIGURED, [START, END, skippedScan], false)
+  ).toEqual([]);
+  expect(
+    requiredPrCheckFailures(REQUIRED, [START, END, skippedScan], false)
+  ).toEqual([
+    'Required check did not pass: GitGuardian Security Checks (neutral)',
+  ]);
+  expect(
+    requiredPrCheckFailures(CONFIGURED, [END, skippedScan], false)
+  ).toContain('Missing required check: verify:start (app 15368)');
 });
 
 // regression: optional-pr-checks

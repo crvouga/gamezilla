@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts hand overlapped its cards: on a phone the lower of two rows covered the upper row's centre pips, and on a wide table the fan left each card a 20px corner with the end cards tilted past the board's edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

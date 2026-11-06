@@ -1,0 +1,4 @@
+{
+  "summary": "In a game's setup the bot's seat card stood 4px shorter than the host's beside it, because its facts line held no \"Host\" tag. A compact seat's facts line is now a tag's height either way, so the two cards' rows stay level.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

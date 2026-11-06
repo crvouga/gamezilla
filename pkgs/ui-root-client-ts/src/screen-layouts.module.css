@@ -31,11 +31,231 @@
   min-width: 0;
   gap: var(--ui-space-3);
 }
-.puzzle {
+/* An identity whose picture stands apart (a profile with a rail): on a
+   phone the same centered column; in a wide band the picture, the words
+   and the actions in one line. */
+.identityAvatar {
+  display: flex;
+  flex-shrink: 0;
+}
+.identityText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+  gap: var(--ui-space-3);
+}
+.identityText > * {
+  max-width: 100%;
+}
+.identityActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--ui-space-2);
+}
+/* A profile: identity, then its sections. Stacked on a phone; side by side
+   once the column is wide enough, the identity a card in a fixed left
+   column. */
+.profileFrame {
+  container-type: inline-size;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileAside {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.profileSections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileSections:empty {
+  display: none;
+}
+@container (min-width: 40rem) {
+  .profile[data-split="true"] {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    column-gap: var(--ui-space-2xl);
+    align-items: start;
+  }
+  /* Beside the sections the identity is a card: one panel whose top is on
+     the same line as the first section's label and whose height is its own
+     content, so the face never floats in an empty box stretched to the
+     sections' height. */
+  .profile[data-split="true"] > .profileAside > .identity {
+    box-sizing: border-box;
+    padding: var(--ui-space-xl) var(--ui-space-lg);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+}
+.profileRail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+}
+.profileRail:empty {
+  display: none;
+}
+/* With a rail, a phone's identity is a compact panel read from the start
+   edge: a small picture, and beside it the name and its facts over the
+   actions, so the picture never echoes the header's at hero size. */
+.profile[data-rail="true"] > .profileAside > .identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--ui-space-lg);
+  row-gap: var(--ui-space-2);
+  box-sizing: border-box;
+  padding: var(--ui-space-lg);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+  grid-row: 1 / span 2;
+  align-self: start;
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityText {
+  align-items: flex-start;
+  gap: var(--ui-space-1);
+}
+.profile[data-rail="true"] > .profileAside > .identity > .identityActions {
+  grid-column: 2;
+}
+/* With a rail, the identity is a band across the top on a tablet's
+   column: a panel with the picture at its start, the name and its facts
+   beside it (read from the start edge, not centered) and the actions at
+   its end. */
+@container (min-width: 40rem) and (max-width: 55.99rem) {
+  /* A band across the whole column: its edges are the columns' edges
+     below, so the page reads as one grid instead of a short card beside
+     empty space. */
+  .profile[data-rail="true"] > .profileAside > .identity {
+    display: flex;
+    align-self: stretch;
+    width: auto;
+    max-width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ui-space-lg);
+    box-sizing: border-box;
+    padding: var(--ui-space-lg) var(--ui-space-xl);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityText {
+    flex: 1;
+    align-items: flex-start;
+    align-self: center;
+    gap: var(--ui-space-1);
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+    align-self: center;
+  }
+}
+/* A desktop column reads in one order: the identity as the page's own
+   header (the picture, the name over its facts, Edit profile right after
+   the words), unframed, so no card stands short beside the sections and no
+   band runs empty to the far edge; then two columns whose tops are on one
+   line, the main sections taking what is left and the rail (friends,
+   settings) wide enough for its rows' captions on one line. */
+@container (min-width: 56rem) {
+  .profile[data-rail="true"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 23rem;
+    column-gap: var(--ui-space-xl);
+    row-gap: var(--ui-space-xl);
+    align-items: start;
+  }
+  .profile[data-rail="true"] > .profileAside {
+    grid-column: 1 / -1;
+  }
+  .profile[data-rail="true"] > .profileAside > .identity {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--ui-space-lg);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  /* Tops on one line: the face beside the name, Edit profile on the
+     name's line, the facts under the name. */
+  .profile[data-rail="true"] > .profileAside > .identity > .identityAvatar {
+    align-self: flex-start;
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityText {
+    flex: 0 1 auto;
+    align-items: flex-start;
+    align-self: flex-start;
+    gap: var(--ui-space-1);
+  }
+  .profile[data-rail="true"] > .profileAside > .identity > .identityActions {
+    align-self: flex-start;
+    margin-inline-start: var(--ui-space-lg);
+  }
+}
+/* A desktop column (the whole frame column) has room for the sections
+   side by side: the first (the most timely, such as who is playing now)
+   down the left, the rest stacked beside it, so the page is one composed
+   block level with the identity card instead of a long strip. */
+@container (min-width: 56rem) {
+  .profile[data-split="true"] > .profileSections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--ui-space-6);
+    row-gap: var(--ui-space-section);
+    align-items: start;
+  }
+  .profile[data-split="true"] > .profileSections > :first-child {
+    grid-row: span 2;
+  }
+}
+/* The puzzle's frame: what the wide template measures, filling the screen. */
+.puzzleFrame {
+  container: puzzle-frame / inline-size;
   display: flex;
   flex: 1;
   flex-direction: column;
   align-self: stretch;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+/* One column as wide as a board can use, centered: the feed, the board, the
+   move list and the actions stay together instead of spanning a wide frame.
+   A wider-than-square board widens the column by its aspect ratio. */
+.puzzle {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* The coaching, the board, its move list and the actions each keep a
+     breath apart, so the coach's card never touches the board. */
+  gap: var(--ui-space-3);
+  align-self: stretch;
+  width: 100%;
+  max-width: calc(
+    var(--ui-max-width-prose) *
+    max(1, var(--ui-puzzle-column-ratio, 1))
+  );
+  margin-inline: auto;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -46,13 +266,22 @@
   flex-shrink: 0;
   min-width: 0;
 }
+/* The board's well: as tall as the board it holds (its width over the
+   board's aspect ratio), shrinking only when the screen is too short, so
+   the move list and the actions sit right under the board and any spare
+   room falls below them. The page inset on both sides keeps the board off
+   the screen's edges and centered. */
 .well {
+  box-sizing: content-box;
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
+  align-self: stretch;
+  aspect-ratio: var(--ui-puzzle-column-ratio, 1);
   min-height: 0;
   min-width: 0;
+  padding-inline: var(--ui-space-lg);
   overflow: hidden;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   container-type: size;
 }
@@ -67,4 +296,207 @@
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
+}
+/* On a phone the title opens the column at the page's inset, its facts
+   on the same line, so the mode is named without costing the board a row
+   of its own. */
+.title {
+  padding-inline: var(--ui-space-lg);
+  padding-top: var(--ui-space-2);
+}
+/* The title and its facts share one line, the facts after the title as a
+   game screen's are, wrapping only when the line is too short. */
+.puzzleHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2) var(--ui-space-3);
+  min-width: 0;
+}
+.puzzleFacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* The wide panel's card; a phone has no panel. */
+.panelCard {
+  display: none;
+}
+/* Live regions, probes and dialogs: after everything, taking no room of
+   their own. */
+.overlay {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.overlay:empty {
+  display: none;
+}
+/* Wide: the game screens' template. The title over both columns; the
+   board on the left, as tall as the window leaves it (never under a usable
+   320px, never past 720px, a square board sized as a game's board is, and
+   never so wide the panel loses its room); beside
+   it a panel column wide enough for the prompt to read in a line or two:
+   the header (the feed, the prompt), the actions right under the prompt,
+   then the move list and the legend. */
+@container puzzle-frame (min-width: 880px) {
+  .puzzle {
+    --puzzle-panel-measure: var(--ui-max-width-panel);
+    --puzzle-board-block: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--ui-host-chrome-block-size, 0px) -
+        var(--ui-space-2xl) *
+        3
+      ),
+      720px
+    );
+    display: grid;
+    grid-template-columns:
+      min(
+        calc(var(--puzzle-board-block) * var(--ui-puzzle-column-ratio, 1)),
+        calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6))
+      )
+      var(--puzzle-panel-measure);
+    grid-template-rows: auto auto auto auto auto var(--ui-space-2) 1fr;
+    grid-template-areas:
+      "title title"
+      "well header"
+      "well actions"
+      "well timeline"
+      "well legend"
+      "well ."
+      "well .";
+    column-gap: var(--ui-space-6);
+    row-gap: 0;
+    justify-content: center;
+    align-content: start;
+    flex: none;
+    max-width: none;
+  }
+  /* A square board takes one size on every game screen: the measure a
+     game's board takes beside its rail (`game-ui.module.css`), so a chess
+     puzzle's board and a chess game's are the same size in one window. */
+  .puzzle[data-square="true"] {
+    --puzzle-board-block: clamp(
+      320px,
+      calc(
+        100dvh -
+        var(--game-board-chrome-block, 284px) -
+        var(--ui-host-chrome-block-size, 0px)
+      ),
+      560px
+    );
+    /* As wide as a game's board and rail (the column the host's bar and
+       every game screen share), its tracks from that column's start, so
+       the title, the board and the bar above all begin on one edge. */
+    max-width: calc(560px + var(--ui-space-6) + var(--puzzle-panel-measure));
+    /* The panel takes the rest of that column, so when the window leaves
+       the board under 560px the panel still ends on the column's edge, as
+       a game's rail and every other screen do. */
+    grid-template-columns:
+      min(
+        var(--puzzle-board-block),
+        calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6))
+      )
+      minmax(var(--puzzle-panel-measure), 1fr);
+    justify-content: start;
+  }
+  .title {
+    grid-area: title;
+    padding-inline: 0;
+    padding-top: 0;
+    padding-bottom: var(--ui-space-3);
+  }
+  .puzzle > .header,
+  .puzzle > .actions,
+  .puzzle > .legend,
+  .puzzle > .timeline {
+    padding-bottom: var(--ui-space-3);
+    padding-inline: var(--ui-space-4);
+  }
+  .puzzle > .header {
+    padding-top: var(--ui-space-5);
+  }
+  /* One card from the header to just under the last region, as the game
+     screens' record panel is: the prompt, its actions and the moves read
+     as one group instead of floating beside the board. */
+  .panelCard {
+    display: block;
+    grid-column: 2;
+    grid-row: 2 / 7;
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+  .well {
+    grid-area: well;
+    width: 100%;
+    padding-inline: 0;
+  }
+  .header {
+    grid-area: header;
+  }
+  .legend {
+    grid-area: legend;
+  }
+  .timeline {
+    grid-area: timeline;
+  }
+  .actions {
+    grid-area: actions;
+  }
+  .overlay {
+    grid-column: 1 / -1;
+  }
+}
+
+/* A desktop menu section: its label in a column of its own beside the
+   rows (the desktop settings idiom), the label's first line level with the
+   first row's title. */
+.sectionAside {
+  display: grid;
+  /* A narrow label column keeps each label near its rows; the rows end on
+     the same right edge as every other desktop page. */
+  grid-template-columns: 176px minmax(0, 1fr);
+  column-gap: var(--ui-space-4);
+  align-items: start;
+  min-width: 0;
+}
+.sectionAsideLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  padding-top: var(--ui-space-4);
+}
+
+/* A collection and, on desktop, its context column. */
+.collectionSplit {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.collectionSplitAside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  column-gap: var(--ui-space-8);
+  align-items: start;
+}
+.collectionSplitAside > .collection {
+  align-self: stretch;
+}
+.collectionAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-section);
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
 }

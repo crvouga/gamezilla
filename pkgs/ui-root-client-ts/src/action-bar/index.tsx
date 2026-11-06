@@ -33,10 +33,18 @@ import {
   useActionBarController,
 } from '../use-action-bar-controller';
 
+/** How much faster a measuring bar gives up room than its row-mates. */
+const ACTION_BAR_SHRINK = 1_000_000;
+
 export type ActionBarProps = {
   items: readonly ActionBarItem[];
   /** Icon-less actions that render as compact text buttons when inline. */
   textActions?: readonly ActionBarTextAction[] | undefined;
+  /**
+   * Where inline text actions sit: before the icon items (`'start'`, the
+   * default) or after them, just before More (`'end'`).
+   */
+  textPlacement?: 'start' | 'end' | undefined;
   /** Always-visible trailing slot after overflow-managed items. */
   endSlot?: JSX.Element | undefined;
   /** Main-axis packing. Defaults to `'end'` (trailing chrome). */
@@ -56,6 +64,12 @@ export type ActionBarProps = {
   slotWidth?: number | undefined;
   /** When true, shows a caption under each inline action. */
   showInlineLabels?: boolean | undefined;
+  /**
+   * When true, `never` items hold their room: a title beside the bar
+   * truncates before they fold into More. By default the bar gives up its
+   * room down to the More trigger before any row-mate gives up any.
+   */
+  holdPinned?: boolean | undefined;
   /** Overrides the default `FloatingMenu` overflow dropdown. */
   renderMenu?: ((menu: OverflowMenuRenderProps) => JSX.Element) | undefined;
   /** Notified when the More trigger is clicked (after the menu opens). */
@@ -68,6 +82,7 @@ export type ActionBarProps = {
 
 function ActionBarItemsRow(props: {
   bar: ActionBarController;
+  textPlacement: 'start' | 'end';
   showInlineLabels: boolean | undefined;
   overflowTrigger: ActionBarOverflowTriggerSpec;
   overflowDataSet: ComponentDataSet | undefined;
@@ -77,15 +92,18 @@ function ActionBarItemsRow(props: {
     props.bar.menu.openMenu();
     props.onOpenMenu?.();
   };
+  const text = (): JSX.Element => (
+    <ActionBarTextItems
+      actions={props.bar.layout().inlineText}
+      track={(id, el) => props.bar.widths.track(textKey(id), el)}
+    />
+  );
   return (
     <div
       class="box flex-row items-center min-w-0"
       style={{ gap: `${(props.bar.resolved().gap / 4) * 4}px` }}
     >
-      <ActionBarTextItems
-        actions={props.bar.layout().inlineText}
-        track={(id, el) => props.bar.widths.track(textKey(id), el)}
-      />
+      <Show when={props.textPlacement === 'start'}>{text()}</Show>
       <ActionBarIconItems
         items={props.bar.layout().partition.visible}
         buttonSize={props.bar.resolved().buttonSize}
@@ -93,6 +111,7 @@ function ActionBarItemsRow(props: {
         slotWidth={props.bar.resolved().slotWidth}
         track={(id, el) => props.bar.widths.track(itemKey(id), el)}
       />
+      <Show when={props.textPlacement === 'end'}>{text()}</Show>
       <Show when={props.bar.layout().overflowActions.length > 0}>
         <ActionBarOverflowTrigger
           buttonSize={props.bar.resolved().buttonSize}
@@ -189,6 +208,9 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
     get showInlineLabels() {
       return props.showInlineLabels;
     },
+    get holdPinned() {
+      return props.holdPinned;
+    },
   });
 
   return (
@@ -198,15 +220,18 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
         {...dataAttrs({ component: 'ActionBar', ...props.dataSet })}
         style={{
           // A measuring bar asks for its full row and gives room up before
-          // its row-mates do (shrink 1000), down to the More trigger. Its
-          // size never depends on what it renders, so collapsing is stable.
+          // its row-mates do, down to the More trigger. Shrink is weighted
+          // by width, so the weight must be large enough that a title beside
+          // it loses less than a layout unit (1/64px) — a fraction of a
+          // pixel is enough to wrap a clamped title's last word. Its size
+          // never depends on what it renders, so collapsing is stable.
           ...(bar.measures()
             ? {
                 width: cssPx(bar.naturalWidth()),
                 'max-width': '100%',
                 'min-width': cssPx(bar.minWidth()),
                 'flex-grow': 0,
-                'flex-shrink': 1000,
+                'flex-shrink': ACTION_BAR_SHRINK,
                 'align-self': 'stretch',
               }
             : {}),
@@ -218,6 +243,7 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
       >
         <ActionBarItemsRow
           bar={bar}
+          textPlacement={props.textPlacement ?? 'start'}
           showInlineLabels={props.showInlineLabels}
           overflowTrigger={props.overflowTrigger}
           overflowDataSet={props.overflowDataSet}

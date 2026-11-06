@@ -61,6 +61,12 @@ export type TrailArenaProps = TrailControls & {
   readonly label: string;
   readonly instructionsId: string;
   readonly testId: string;
+  /**
+   * `regular` (default): each head two cells across. `large`: 1.4 times
+   * that, for a phone's small cells, so a head and its letter read at a
+   * glance.
+   */
+  readonly heads?: 'regular' | 'large' | undefined;
 };
 
 export const TRAIL_RIDER_INDICES: readonly TrailRiderIndex[] = [0, 1, 2, 3];

@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's points were drawn large in the top of each half of the court, where the ball travels, so the ball ran under the digits. They now sit on a scoreboard over the court, outside the play, each side's points at its own end with who plays it beside them.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

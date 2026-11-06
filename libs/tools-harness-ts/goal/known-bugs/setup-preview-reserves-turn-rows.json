@@ -1,0 +1,4 @@
+{
+  "summary": "While a custom game was set up, the board thumbnail reserved the empty 'Choose a column' line and chevron band at its top, an empty blue band that made the preview look malformed; a finished board reserved them too. Fixed by drawing the prompt line and chevron band only while someone is to move, and none of the turn chrome on a GameBoardStage preview.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
+}

@@ -20,6 +20,10 @@
  *   `solid` is the `destructive-active` fill with a white label, for the
  *   action that confirms a destruction. Always with a word or an icon.
  *
+ * A **locked** button (`locked`) is an action that waits on an earlier
+ * step: no border or fill, the label in the secondary ink behind a lock.
+ * It stays pressable, so pressing it can say what is still missing.
+ *
  * Every face is a pill (`--ui-radius-full`). Success is never a resting
  * face: green appears only as the `feedback-success` phase.
  */
@@ -34,6 +38,8 @@ export type ButtonFeedback = 'idle' | 'loading' | 'success' | 'error';
 export type ButtonRenderInput = {
   intent?: ButtonIntent | undefined;
   variant?: ButtonVariant | undefined;
+  /** Waits on an earlier step: the muted `locked` face, still pressable. */
+  locked?: boolean | undefined;
   disabled?: boolean | undefined;
   loading?: boolean | undefined;
   feedback?: ButtonFeedback | undefined;
@@ -62,6 +68,7 @@ export type ButtonFaceName =
   | 'primary-ghost'
   | 'danger-ghost'
   | 'neutral-ghost'
+  | 'locked'
   | 'disabled'
   | 'disabled-outline'
   | 'disabled-ghost'
@@ -101,6 +108,7 @@ export function buttonFaceName(input: ButtonRenderInput): ButtonFaceName {
   if (disabled && outlined) return 'disabled-outline';
   if (disabled && variant === 'ghost') return 'disabled-ghost';
   if (disabled) return 'disabled';
+  if (input.locked === true) return 'locked';
   if (variant === 'outline') return OUTLINE_FACE[intent];
   if (variant === 'ghost') return GHOST_FACE[intent];
   return SOLID_FACE[intent];

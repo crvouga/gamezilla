@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Sokoban builder's size inputs, undo row and two rows of tool pills filled the screen, so the board started below them. The size is now one closed row there (open beside the board when wide), the tools one picker, and the hint and corrections follow the board.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

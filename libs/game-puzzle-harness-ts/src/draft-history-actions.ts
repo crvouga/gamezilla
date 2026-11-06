@@ -6,6 +6,7 @@ import {
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
+import { builderField } from './builder-session';
 import { contentClient, createDraftFor } from './content-actions';
 import type { ContentHarness } from './content-system';
 import {
@@ -19,6 +20,7 @@ import {
   workingDraftOn,
 } from './draft-editor-screen';
 import { arrangePackFor } from './pack-fixtures';
+import { movePackRowUp } from './pack-row-menu';
 
 type Editing = {
   readonly s: ContentHarness;
@@ -50,7 +52,7 @@ function settle(
 }
 
 async function typeTitle(editing: Editing, title: string): Promise<void> {
-  fireEvent.input(editing.view.getByLabelText('Title'), {
+  fireEvent.input(builderField(editing.view, 'Title'), {
     target: { value: title },
   });
   await settle(editing, (draft) => draft.title === title);
@@ -92,11 +94,7 @@ async function moveUp(editing: Editing, title: string): Promise<void> {
   if (item === undefined || index === 0)
     throw new Error(`The pack offers no way to move ${title} up`);
   const row = editing.view.getByTestId(`content-pack-item-${item.id}`);
-  const up = row.querySelector<HTMLButtonElement>(
-    '[data-testid="content-pack-up"]'
-  );
-  if (up === null) throw new Error(`The row ${title} offers no move up`);
-  fireEvent.click(up);
+  movePackRowUp(editing.view, row);
   const expected = order.map((entry) => entry.id);
   expected.splice(index - 1, 2, item.id, order[index - 1]?.id ?? '');
   await settle(

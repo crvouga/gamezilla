@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, the matchmaking screen's \"How matchmaking works\" points sat open under the search and outweighed its one command, while a phone kept them behind a closed disclosure. Every size now keeps the guide behind one closed disclosure.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

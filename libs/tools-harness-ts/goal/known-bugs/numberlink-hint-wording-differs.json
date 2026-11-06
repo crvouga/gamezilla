@@ -1,0 +1,4 @@
+{
+  "summary": "Wide, Numberlink's hint read \"Drag a number to its match.\" while a phone said \"Drag from a number to its match to draw a path.\": two wordings for one gesture. Both now say \"Drag from a number to its match.\"; wide adds only the keys.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-key-hints.test.tsx"
+}

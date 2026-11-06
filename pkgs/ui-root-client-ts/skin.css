@@ -201,6 +201,15 @@
     --ui-on-fg-muted: var(--ui-color-text-secondary);
   }
 
+  /* Locked: waits on an earlier step. No edge or fill, the label in the
+     secondary ink behind its lock; it still presses (and says why). */
+  .btn[data-face="locked"] {
+    color: var(--ui-color-text-secondary);
+    --ui-on-fg: var(--ui-color-text-secondary);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+    --ui-on-icon: var(--ui-color-text-secondary);
+  }
+
   .btn[data-face="disabled"],
   .fab[data-face="disabled"] {
     background: var(--ui-color-disabled);
@@ -310,16 +319,21 @@
     padding: 0 var(--ui-space-xs);
   }
 
-  /* LIVE: the only all-caps word and the only use of the `live` fill. */
+  /* Live: a status tag like any other (a wash, its ink, a dot in that ink,
+     sentence case), on the red wash. */
   .badge[data-intent="live"] {
-    background: var(--ui-color-live);
-    color: var(--ui-color-on-live);
-    text-transform: uppercase;
+    background: var(--ui-color-destructive-surface);
+    color: var(--ui-color-destructive);
   }
 
+  /* A neutral tag sits on cards as often as on the canvas. The sunken
+     `surface-muted` well reads as a hole on a dark card, so the tag takes
+     the raised hairline tone: a step lighter than the card in dark, a step
+     darker than it in light. Its ink is full text, never the muted grey that
+     reads as a disabled chip. */
   .badge[data-intent="neutral"][data-tone="subtle"] {
-    background: var(--ui-color-surface-muted);
-    color: var(--ui-color-text-secondary);
+    background: var(--ui-color-border);
+    color: var(--ui-color-text);
   }
 
   .badge[data-intent="neutral"][data-tone="solid"] {
@@ -390,19 +404,9 @@
       background-color var(--ui-duration-normal) var(--ui-easing-standard);
   }
 
-  .switchTrack[data-on="false"] {
-    box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
-  }
-
-  .switchTrack[data-on="true"] {
-    box-shadow: inset 0 0 0 var(--ui-space-hairline)
-      var(--ui-color-primary-strong);
-  }
-
   @media (hover: hover) and (pointer: fine) {
     .clickable:not(:disabled):hover > .switchTrack[data-on="false"] {
-      box-shadow: inset 0 0 0 var(--ui-space-hairline)
-        var(--ui-color-text-secondary);
+      background-color: var(--ui-color-text-secondary);
     }
   }
 
@@ -455,6 +459,10 @@
 
   .statusDot[data-status="pending"] {
     background: var(--ui-color-info);
+  }
+
+  .statusDot[data-status="unread"] {
+    background: var(--ui-color-tint-active);
   }
 
   @media (prefers-reduced-motion: reduce) {

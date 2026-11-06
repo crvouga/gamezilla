@@ -116,9 +116,153 @@ test('the editor paints with its tools, refuses misplaced pieces and lists corre
   const board = decodeSokobanBoard(definition());
   expect(board.valid && board.value.worker).toBeNull();
   expect(view.queryByTestId('sokoban-correction-needs_worker')).not.toBeNull();
+  // On a phone the size is one closed row until it is opened.
+  expect(view.queryByLabelText('Columns')).toBeNull();
+  fireEvent.click(view.getByTestId('sokoban-size-toggle'));
   fireEvent.input(view.getByLabelText('Columns'), { target: { value: '3' } });
   fireEvent.click(view.getByTestId('sokoban-resize'));
   expect(view.getByTestId('sokoban-removed').getAttribute('data-removed')).toBe(
     'goal E1'
   );
+});
+
+// regression: sokoban-editor-tools-as-buttons — the eight tools were eight
+// separate pill buttons, the chosen one filled like a command. They are now
+// one named group of chips with the chosen tool marked.
+test('the editor offers its tools as one group, with the chosen tool marked', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={CORRIDOR}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const group = view.getByRole('radiogroup', { name: 'Tool' });
+  const chips = group.querySelectorAll('[role="radio"]');
+  expect(chips).toHaveLength(8);
+  // regression: sokoban-editor-tools-text-only — the tools were text-only
+  // pills. Each is now a tile with a swatch of the square it lays down,
+  // drawn as the board draws it, over its name.
+  const swatch = (tool: string): Element | null =>
+    view
+      .getByTestId(`sokoban-tool-${tool}`)
+      .querySelector('[data-board-theme="sokoban"] [data-tone]');
+  expect(
+    ['wall', 'floor', 'goal', 'outside', 'worker', 'crate'].map((tool) => [
+      swatch(tool)?.getAttribute('data-tone'),
+      swatch(tool)?.getAttribute('data-identity') ?? null,
+    ])
+  ).toEqual([
+    ['occupied', null],
+    ['open', null],
+    ['open', 'four'],
+    ['quiet', null],
+    ['open', 'three'],
+    ['open', 'one'],
+  ]);
+  expect(view.getByTestId('sokoban-tool-crate').textContent).toContain('Crate');
+  const wall = view.getByTestId('sokoban-tool-wall');
+  const crate = view.getByTestId('sokoban-tool-crate');
+  expect(group.contains(crate)).toBe(true);
+  fireEvent.click(crate);
+  expect(crate.getAttribute('aria-checked')).toBe('true');
+  expect(wall.getAttribute('aria-checked')).toBe('false');
+});
+
+function precedes(a: Element, b: Element): boolean {
+  return (
+    (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
+}
+
+// regression: sokoban-editor-size-below-fold — the board's size inputs came
+// after the board, its caption and its corrections, below a desktop's
+// 900px fold, and the builder's pieces were drawn as bare glyphs. The tools
+// now head the board; the size heads the notes, which sit beside the board
+// under the tools where there is room, never after the caption and the
+// corrections; and each piece is drawn as a token (crate, crate on goal,
+// worker, goal) as the player draws it.
+test('the editor puts the tools above the board, the size beside it, pieces as tokens', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={JSON.stringify({ format: 1, rows: ['#@$.*'] })}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const size = view.getByTestId('sokoban-size');
+  const tools = view.getByTestId('sokoban-tools');
+  const board = view.getByTestId('sokoban-editor-board');
+  expect(precedes(tools, board)).toBe(true);
+  const said =
+    view.queryByTestId('sokoban-ready') ??
+    view.getByTestId('sokoban-corrections');
+  expect(precedes(size, said)).toBe(true);
+  // The workbench's notes column, which wide sits beside the board under
+  // the tools (above a desktop's fold), and holds the size first.
+  const notes = size.closest('[data-component="EditorWorkbench"] > div > div');
+  expect(notes?.firstElementChild?.contains(size)).toBe(true);
+  expect(notes?.contains(board)).toBe(false);
+  expect(notes?.contains(tools)).toBe(false);
+  const identity = (square: string): string | null =>
+    view.getByTestId(`sokoban-square-${square}`).getAttribute('data-identity');
+  expect(
+    ['A1', 'B1', 'C1', 'D1', 'E1'].map((square) => identity(square))
+  ).toEqual([null, 'three', 'one', 'four', 'two']);
+});
+
+// regression: sokoban-editor-board-below-config — on a phone the size
+// inputs, the undo row and two rows of tool pills filled the screen and
+// the board started below them. The size is now one closed row there,
+// the tools one picker, and what to correct follows the board.
+// regression: sokoban-editor-phone-size-over-board — once every tool showed
+// its name, the closed size row over the board pushed the board's last row
+// below a phone's fold. The size is set once, so on a phone it follows the
+// board, with the notes, and the board sits right under the tools.
+test('on a phone the board follows its tools, then the size a closed row, the notes after it', () => {
+  const view = render(() => (
+    <SokobanEditor
+      definition={CORRIDOR}
+      disabled={false}
+      onChange={() => undefined}
+    />
+  ));
+  const toggle = view.getByTestId('sokoban-size-toggle');
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(toggle.textContent).toBe('Board size · 5 × 1');
+  const board = view.getByTestId('sokoban-editor-board');
+  expect(precedes(view.getByTestId('sokoban-tools'), board)).toBe(true);
+  expect(precedes(board, view.getByTestId('sokoban-size'))).toBe(true);
+  const said =
+    view.queryByTestId('sokoban-ready') ??
+    view.getByTestId('sokoban-corrections');
+  expect(precedes(board, said)).toBe(true);
+});
+
+// regression: sokoban-direction-text-row — on a phone the movement
+// controls were a wrapping row of text buttons ("← Left", "↑ Up"), not
+// laid out the way the moves go. They are now a spatial pad of icon
+// buttons (up over left and right, down below), named for listeners.
+// regression: sokoban-phone-puzzle-too-tall — the pad's 48px buttons, the
+// commands and a headed puzzle card made a phone's Sokoban screen taller
+// than its viewport. The pad is now the 44px thumb pad (every button still
+// a full touch target), and the puzzle card is headed by the pack's place.
+test('on a phone the moves are a spatial pad of named icon buttons', () => {
+  const { view, actions } = player();
+  const pad = view.getByTestId('sokoban-move');
+  expect(pad.getAttribute('data-component')).toBe('DirectionPad');
+  expect(pad.getAttribute('data-size')).toBe('sm');
+  for (const [heading, name] of [
+    ['up', 'Move up'],
+    ['left', 'Move left'],
+    ['right', 'Move right'],
+    ['down', 'Move down'],
+  ] as const) {
+    const button = view.getByTestId(`sokoban-move-${heading}`);
+    expect(pad.contains(button)).toBe(true);
+    expect(button.getAttribute('aria-label')).toBe(name);
+    expect(button.textContent).toBe('');
+  }
+  fireEvent.click(view.getByTestId('sokoban-move-right'));
+  expect(actions).toEqual(['r']);
 });

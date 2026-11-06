@@ -1,6 +1,11 @@
 import type { JSX } from 'solid-js';
 import { ContentScreen } from '../content-screen/index';
+import {
+  type MenuSectionLayout,
+  MenuSectionLayoutProvider,
+} from '../menu-section/layout-context';
 import type { ScreenBaseProps } from '../screen-base-types';
+import { useLayoutMode } from '../use-layout-mode';
 
 export type MenuScreenProps = Pick<
   ScreenBaseProps,
@@ -15,8 +20,12 @@ export type MenuScreenProps = Pick<
   children: JSX.Element;
 };
 
-/** Routed preferences and destination groups, with one scrolling column. */
+/**
+ * Routed preferences and destination groups, with one scrolling column. On
+ * desktop its sections put their labels beside their rows.
+ */
 export function MenuScreen(props: MenuScreenProps): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <ContentScreen
       screenId={props.screenId}
@@ -27,7 +36,13 @@ export function MenuScreen(props: MenuScreenProps): JSX.Element {
       width="menu"
       dataSet={{ component: 'MenuScreen', ...props.dataSet }}
     >
-      {props.children}
+      <MenuSectionLayoutProvider
+        layout={(): MenuSectionLayout =>
+          mode() === 'wide' ? 'aside' : 'stacked'
+        }
+      >
+        {props.children}
+      </MenuSectionLayoutProvider>
     </ContentScreen>
   );
 }

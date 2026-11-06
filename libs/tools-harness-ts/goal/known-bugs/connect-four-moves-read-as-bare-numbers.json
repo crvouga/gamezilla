@@ -1,0 +1,4 @@
+{
+  "summary": "The move strip under a phone's Connect Four board read \"4 ● 3 ◆ 2\": nothing said the first number was a move and the others columns. The shown turn is named (\"Move 4\") and a bare-number move carries its game's word (\"col 3\"), while the move's own button keeps the notation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

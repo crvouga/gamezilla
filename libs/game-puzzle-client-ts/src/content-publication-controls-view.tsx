@@ -7,7 +7,20 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+  untrack,
+} from 'solid-js';
+import {
+  type PublicationActionPlace,
+  PublicationSteps,
+  publicationNextStep,
+} from './content-publication-steps';
 import { ContentWithdraw } from './content-withdraw';
 
 /**
@@ -24,6 +37,8 @@ export type ContentPublicationControlsViewProps = {
   readonly validationMessage: string;
   /** A completed playtest proves this version can be finished (puzzles). */
   readonly proven: boolean;
+  /** A pack's puzzles that are still drafts, by title: published first. */
+  readonly waitingOn?: readonly string[] | undefined;
   readonly pending: ContentPublicationPending;
   /** The server's refusal of the last publication, dismissible. */
   readonly refusal?: JSX.Element;
@@ -36,6 +51,21 @@ export type ContentPublicationControlsViewProps = {
   readonly onPublish: () => Promise<void>;
   readonly onViewPublication: () => void;
   readonly onWithdraw: () => Promise<void>;
+  /**
+   * `stacked` (default): each finding a notice above the actions. `bar`:
+   * for a `StepFooter`, one line saying the next step over the steps in
+   * order (`PublicationSteps`), and only what blocks publishing a notice.
+   */
+  readonly layout?: 'stacked' | 'bar' | undefined;
+  /**
+   * A step before the check (a puzzle's playtest), first among the
+   * actions; told whether it is the one next step, to be filled. In the
+   * `bar` layout it is drawn where it stands (the lead while it is next,
+   * then in its step), each time its place changes; otherwise once.
+   */
+  readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
+  /** Opens a pack's first draft puzzle, the pack's lead while it waits. */
+  readonly onOpenWaiting?: (() => void) | undefined;
 };
 
 /** The last choice for this draft stays visible across routes and app reopening. */
@@ -99,14 +129,12 @@ function ValidationNotices(
             when={props.proven}
             fallback={
               <Trans>
-                No completed playtest of this version yet. Complete a playtest
-                to prove it can be finished.
+                Not proven yet: finish a playtest of this version to show it can
+                be solved.
               </Trans>
             }
           >
-            <Trans>
-              A completed playtest proves this version can be finished.
-            </Trans>
+            <Trans>Proven: a finished playtest shows it can be solved.</Trans>
           </Show>
         </Notice>
       </Show>
@@ -114,14 +142,25 @@ function ValidationNotices(
   );
 }
 
+/** A failed check, the one finding that blocks publishing, as a notice. */
+function BarFinding(props: ContentPublicationControlsViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Show when={props.validation === 'invalid'}>
+      <Notice tone="error">
+        {props.validationMessage ||
+          t`Complete the required details and validate again.`}
+      </Notice>
+    </Show>
+  );
+}
+
 /**
- * Validate and publish a draft, presentational: the last check's result,
- * playtest proof, each action's progress and retryable failure, the
- * publication still on its way or refused, and view / withdraw once out.
+ * The draft's actions: Validate and Publish with their progress, a
+ * puzzle's playtest (mounted once, so a started playtest keeps its "Open
+ * playtest"), and the one next step, the only one filled.
  */
-export function ContentPublicationControlsView(
-  props: ContentPublicationControlsViewProps
-): JSX.Element {
+function usePublicationActions(props: ContentPublicationControlsViewProps) {
   const { t } = useLingui();
   const validate = useMutationButton({
     operation: () => props.onValidate(),
@@ -147,29 +186,75 @@ export function ContentPublicationControlsView(
       return props.disabled;
     },
   });
+  const next = () =>
+    publicationNextStep({
+      validation: props.validation,
+      needsProof: props.kind === 'puzzle' && !props.proven,
+      waiting: props.kind === 'pack' && (props.waitingOn?.length ?? 0) > 0,
+    });
+  const playtestNext = createMemo(() => next() === 'playtest');
+  // The stacked layout draws the playtest once; the bar draws it per place.
+  const before =
+    props.layout === 'bar'
+      ? undefined
+      : untrack(() => props.before?.(playtestNext));
+  // One weight for every step but the next one, which is filled.
+  const weight = (step: 'validate' | 'publish') =>
+    next() === step
+      ? ({ intent: 'primary', variant: 'solid' } as const)
+      : ({ intent: 'neutral', variant: 'outline' } as const);
+  return { validate, publish, next, before, weight };
+}
+
+type PublicationActions = ReturnType<typeof usePublicationActions>;
+
+/** A step's action as drawn where it stands in the `bar` layout. */
+function placed(place: PublicationActionPlace) {
+  if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
+  if (place === 'done')
+    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
+  return {
+    intent: 'neutral',
+    variant: 'ghost',
+    size: 'sm',
+    locked: true,
+  } as const;
+}
+
+function PublishButton(props: {
+  controls: ContentPublicationControlsViewProps;
+  actions: PublicationActions;
+  place?: PublicationActionPlace | undefined;
+}): JSX.Element {
+  const weight = () =>
+    props.place === undefined
+      ? props.actions.weight('publish')
+      : placed(props.place);
   return (
-    <StackVertical gap="md">
-      <PublicationStatus pending={props.pending} refusal={props.refusal} />
-      <ValidationNotices {...props} />
-      <StackHorizontal gap="sm" wrap>
+    <Show
+      when={props.controls.publishDenial}
+      fallback={
         <Button
-          {...validate.buttonProps}
-          dataSet={{ testid: 'content-validate' }}
+          {...props.actions.publish.buttonProps}
+          {...weight()}
+          dataSet={{ testid: 'content-publish' }}
         />
-        <Show
-          when={props.publishDenial}
-          fallback={
-            <Button
-              {...publish.buttonProps}
-              dataSet={{ testid: 'content-publish' }}
-            />
-          }
-        >
-          {(denial) => (
-            <DenialSurfaceView denial={denial()} variant="compact" />
-          )}
-        </Show>
-      </StackHorizontal>
+      }
+    >
+      {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
+    </Show>
+  );
+}
+
+/** A failed check or publication, retryable; then view / withdraw once out. */
+function PublicationAftermath(props: {
+  controls: ContentPublicationControlsViewProps;
+  actions: PublicationActions;
+}): JSX.Element {
+  const { t } = useLingui();
+  const { validate, publish } = props.actions;
+  return (
+    <>
       <Show when={validate.error() ?? publish.error()}>
         {(error) => (
           <ErrorState
@@ -184,19 +269,76 @@ export function ContentPublicationControlsView(
           />
         )}
       </Show>
-      <Show when={props.publishDenial === undefined && props.published}>
+      <Show
+        when={
+          props.controls.publishDenial === undefined && props.controls.published
+        }
+      >
         <Button
           title={t`View published edition`}
           intent="neutral"
           variant="outline"
-          onClick={() => props.onViewPublication()}
+          onClick={() => props.controls.onViewPublication()}
           dataSet={{ testid: 'content-view-publication' }}
         />
         <ContentWithdraw
-          disabled={props.disabled}
-          onWithdraw={props.onWithdraw}
+          disabled={props.controls.disabled}
+          onWithdraw={props.controls.onWithdraw}
         />
       </Show>
+    </>
+  );
+}
+
+/**
+ * Validate and publish a draft, presentational: the last check's result,
+ * playtest proof, each action's progress and retryable failure, the
+ * publication still on its way or refused, and view / withdraw once out.
+ */
+export function ContentPublicationControlsView(
+  props: ContentPublicationControlsViewProps
+): JSX.Element {
+  const actions = usePublicationActions(props);
+  return (
+    <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
+      <PublicationStatus pending={props.pending} refusal={props.refusal} />
+      <Switch>
+        <Match when={props.layout === 'bar'}>
+          <BarFinding {...props} />
+          <PublicationSteps
+            kind={props.kind}
+            validation={props.validation}
+            proven={props.proven}
+            waitingOn={props.waitingOn ?? []}
+            next={actions.next()}
+            playtest={(lead) => props.before?.(() => lead)}
+            validate={(place) => (
+              <Button
+                {...actions.validate.buttonProps}
+                {...placed(place)}
+                dataSet={{ testid: 'content-validate' }}
+              />
+            )}
+            publish={(place) => (
+              <PublishButton controls={props} actions={actions} place={place} />
+            )}
+            onOpenWaiting={props.onOpenWaiting}
+          />
+        </Match>
+        <Match when={props.layout !== 'bar'}>
+          <ValidationNotices {...props} />
+          <StackHorizontal gap="sm" wrap>
+            {actions.before}
+            <Button
+              {...actions.validate.buttonProps}
+              {...actions.weight('validate')}
+              dataSet={{ testid: 'content-validate' }}
+            />
+            <PublishButton controls={props} actions={actions} />
+          </StackHorizontal>
+        </Match>
+      </Switch>
+      <PublicationAftermath controls={props} actions={actions} />
     </StackVertical>
   );
 }

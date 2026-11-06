@@ -11,6 +11,7 @@ export const numberlinkGameClient = defineGameClient({
   shared: numberlinkGameShared,
   title: 'Numberlink',
   caption: 'Connect matching endpoints',
+  tile: 'paths',
   subtitle: () => <Trans>Connect each matching pair and fill the board.</Trans>,
   instructions: () => (
     <P>

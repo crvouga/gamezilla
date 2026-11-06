@@ -1,0 +1,4 @@
+{
+  "summary": "A phone's side seat at the Hearts table cut the player's name to \"jordan_pla…\". A narrow seat now sets a name a size smaller and lets it take a second line, so it is never cut.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

@@ -10,8 +10,44 @@ import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { waitForEditorAt, workingDraftOn } from './draft-editor-screen';
 import { mountContentExample } from './mount-content-example';
+import { movePackRowUp } from './pack-row-menu';
 
 type View = Awaited<ReturnType<typeof mountContentExample>>;
+
+/**
+ * The builder's title field, its details opened first as a person opens
+ * them when the builder shows them closed to one row over its stage (the
+ * builder closes them again when it is drawn anew).
+ */
+export function builderField(
+  view: Pick<View, 'queryByTestId' | 'getByLabelText'>,
+  label: 'Title' | 'Description' | 'Difficulty (optional)'
+): HTMLElement {
+  const toggle = view.queryByTestId('content-author-details-toggle');
+  if (toggle?.getAttribute('aria-expanded') === 'false')
+    fireEvent.click(toggle);
+  return view.getByLabelText(label);
+}
+
+/**
+ * The builder's details (title, description, difficulty), opened as a
+ * person does when the builder shows them closed to one row over its stage.
+ */
+export async function openBuilderDetails(
+  s: ContentHarness,
+  view: Pick<View, 'queryByTestId' | 'queryByLabelText'>
+): Promise<void> {
+  const toggle = 'content-author-details-toggle';
+  await waitForContent(s, () =>
+    Promise.resolve(view.queryByTestId(toggle) !== null)
+  );
+  const button = view.queryByTestId(toggle);
+  if (button !== null && button.getAttribute('aria-expanded') !== 'true')
+    fireEvent.click(button);
+  await waitForContent(s, () =>
+    Promise.resolve(view.queryByLabelText('Title') !== null)
+  );
+}
 /** One open builder per device: its undo and redo choices last while it is open. */
 export type BuilderSession = {
   readonly documentId: string;
@@ -50,9 +86,7 @@ export async function openBuilder(
     Promise.resolve(view.queryByTestId(entry) !== null)
   );
   fireEvent.click(view.getByTestId(entry));
-  await waitForContent(s, () =>
-    Promise.resolve(view.queryByLabelText('Title') !== null)
-  );
+  await openBuilderDetails(s, view);
   s.builders.set(clientId, { documentId, view });
   return view;
 }
@@ -99,7 +133,7 @@ export const editTitleInBuilder = defineAction({
   name: 'editTitleInBuilder',
   act: (s: ContentHarness, clientId: string, title: string) =>
     inBuilder(s, clientId, (view) => {
-      fireEvent.input(view.getByLabelText('Title'), {
+      fireEvent.input(builderField(view, 'Title'), {
         target: { value: title },
       });
     }),
@@ -129,9 +163,7 @@ export const movePackPuzzleUpInBuilder = defineAction({
       Promise.resolve(view.queryByTestId(item) !== null)
     );
     const row = view.getByTestId(item);
-    const up = row.querySelector('[data-testid="content-pack-up"]');
-    if (up === null) throw new Error(`${title} cannot move earlier`);
-    fireEvent.click(up);
+    movePackRowUp(view, row);
     await settleBuilder(s, clientId);
   },
 });
@@ -163,8 +195,7 @@ async function chooseHistory(
   );
   await settleBuilder(s, clientId);
   // The shared control shows its success face before offering the next edit.
-  const label =
-    testId === 'content-undo-draft-edit' ? 'Undo edit' : 'Redo edit';
+  const label = testId === 'content-undo-draft-edit' ? 'Undo' : 'Redo';
   await waitForContent(s, () => Promise.resolve(button.textContent === label));
 }
 

@@ -1,5 +1,6 @@
 /** What a person does in a hosted space: see the games, open a chess puzzle. */
 
+import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { check, expectVisible, tap } from './journey-gestures';
@@ -60,9 +61,12 @@ export async function expectSpaceEnded(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceEnded);
 }
 
-/** Inside the space: its close control is up (the same signal as an active space). */
+/**
+ * Inside the space: its bar is up, with its ⋯ menu (the same signal as an
+ * active space; Minimize folds into ⋯ on a short row).
+ */
 export async function expectInSpace(ui: Driver): Promise<void> {
-  await expectVisible(ui, Handles.spaceClose);
+  await expectVisible(ui, Handles.spaceChromeOverflow);
 }
 
 const LINK_POLLS = 10;
@@ -72,7 +76,7 @@ type LinkOffer = 'join' | 'ended' | 'inside';
 
 async function linkOffer(ui: Driver): Promise<LinkOffer | null> {
   if (await ui.get(Handles.spaceEnded).isVisible()) return 'ended';
-  if (await ui.get(Handles.spaceClose).isVisible()) return 'inside';
+  if (await spaceBarShown(ui)) return 'inside';
   if (await ui.get(Handles.spaceJoin).isVisible()) return 'join';
   return null;
 }

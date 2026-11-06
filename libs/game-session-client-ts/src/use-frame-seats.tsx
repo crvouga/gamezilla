@@ -133,7 +133,12 @@ export function useFrameTable(
     const table = layout();
     if (game === null) return { shape: 'none', near: null, others: [] };
     return {
-      shape: table.shape,
+      shape:
+        presentation(game.fen).frame.boardSeats === true &&
+        table.shape !== 'none'
+          ? 'board'
+          : table.shape,
+      named: presentation(game.fen).frame.boardNames === true,
       near: table.near === null ? null : playSeat(game, table.near),
       others: table.others.map((side) => playSeat(game, side)),
     };
@@ -183,7 +188,13 @@ export function useFrameSetupSeats(
       ...seat(game, side),
       host: holder.kind === 'person' && holder.person === game.creator,
       visiting: model.mySide() === side && !model.canConfigure(),
-      ready: game.ready.includes(side),
+      own: model.mySide() === side,
+      // A bot or a guest on this device is ready by itself, as the start
+      // rule counts it; only a person gets ready.
+      ready:
+        holder.kind === 'bot' ||
+        holder.kind === 'local' ||
+        game.ready.includes(side),
       invitation:
         holder.kind === 'invitation'
           ? {

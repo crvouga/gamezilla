@@ -7,6 +7,7 @@ export const connectFourGameClient = defineGameClient({
   shared: connectFourGameShared,
   title: 'Connect Four',
   caption: 'Connect four discs, play friends or bots',
+  tile: 'discs',
   subtitle: () => (
     <Trans>Drop a disc. Connect four. Plan your next turn.</Trans>
   ),

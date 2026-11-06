@@ -1,5 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import styles from './range-control.module.css';
 
 export type RangeControlProps = {
   label: string;
@@ -11,6 +12,24 @@ export type RangeControlProps = {
   disabled?: boolean;
   onInput: (value: number) => void;
   onCommit?: () => void;
+  /**
+   * `vertical` stands the control upright, `min` at the top, filling the
+   * height its row gives it: for a value that moves up and down (a paddle).
+   */
+  orientation?: 'horizontal' | 'vertical' | undefined;
+  /**
+   * `vertical` only: drawn as a paddle's lane beside a court, so it reads
+   * as the control for that paddle and never as a stray bar: a groove in
+   * the court's colours whose thumb is a paddle in this player's colour.
+   */
+  paddle?: 'player1' | 'player2' | undefined;
+  /**
+   * With `paddle`: laid over the paddle's half of its court instead of
+   * beside it, drawn as nothing but a focus ring around that half. The
+   * court is the lane and a finger drags on it; keys and assistive
+   * technology still reach this native slider.
+   */
+  overlay?: boolean | undefined;
   dataSet?: ComponentDataSet;
 };
 
@@ -19,7 +38,18 @@ export function RangeControl(props: RangeControlProps) {
   return (
     <input
       {...dataAttrs({ component: 'RangeControl', ...props.dataSet })}
-      class="box w-full min-h-11 accent-tint bg-transparent cursor-pointer"
+      class={
+        props.orientation === 'vertical'
+          ? `box accent-tint bg-transparent cursor-pointer ${styles['vertical']}`
+          : 'box w-full min-h-11 accent-tint bg-transparent cursor-pointer'
+      }
+      aria-orientation={props.orientation}
+      data-paddle={props.orientation === 'vertical' ? props.paddle : undefined}
+      data-overlay={
+        props.orientation === 'vertical' && props.overlay === true
+          ? 'true'
+          : undefined
+      }
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}

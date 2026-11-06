@@ -44,12 +44,13 @@ type SlotsProps = Pick<
 
 /**
  * In flow, the trailing content is laid out as items of the row itself (no
- * wrapper), so the room is shared in one place. The center has a 96px basis
- * and takes all the room left over, so a long title truncates first; below
- * that basis an `ActionBar` in the trailing content gives up room (it
- * shrinks 1000x faster, collapsing into its More menu), and only then does
- * the title shrink further. Leading and fixed trailing controls never
- * shrink, so nothing overlaps.
+ * wrapper), so the room is shared in one place. The center's basis is its
+ * title's own width and it takes any room left over. When the row is short,
+ * an `ActionBar` in the trailing content gives up room first (it shrinks
+ * far faster, collapsing into its More menu) and only then does the title
+ * shrink and end in an ellipsis, so a collapsed bar never holds empty room
+ * a title needs. Leading and fixed trailing controls never shrink, so
+ * nothing overlaps.
  */
 function FlexLayout(props: SlotsProps): JSX.Element {
   return (
@@ -60,7 +61,7 @@ function FlexLayout(props: SlotsProps): JSX.Element {
         </div>
       </Show>
       <div
-        class="box grow shrink basis-24 min-w-0 flex-row items-center"
+        class="box grow shrink basis-auto min-w-0 flex-row items-center"
         classList={{
           [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
         }}

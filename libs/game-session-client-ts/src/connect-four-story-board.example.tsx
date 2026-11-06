@@ -6,7 +6,11 @@ const ROWS = 6;
 
 type Cell = 0 | 1 | 2;
 
-/** The cells a list of drops fills, top row first, discs alternating from 1. */
+/**
+ * The cells a list of drops fills, discs alternating from 1. Rows count from
+ * the bottom, as `DiscDropBoard` reads them: a drop lands in its column's
+ * lowest empty row.
+ */
 function dropAll(moves: readonly number[]): {
   readonly cells: readonly Cell[];
   readonly last: number | undefined;
@@ -14,7 +18,7 @@ function dropAll(moves: readonly number[]): {
   const cells: Cell[] = Array.from({ length: COLUMNS * ROWS }, () => 0);
   let last: number | undefined;
   moves.forEach((column, index) => {
-    for (let row = ROWS - 1; row >= 0; row -= 1) {
+    for (let row = 0; row < ROWS; row += 1) {
       const cell = row * COLUMNS + column;
       if (cells[cell] !== 0) continue;
       cells[cell] = index % 2 === 0 ? 1 : 2;
@@ -34,7 +38,7 @@ function dropAll(moves: readonly number[]): {
 export function ConnectFourStoryBoard(props: {
   readonly moves: readonly number[];
   readonly interactive?: boolean | undefined;
-  /** The four cells of a finished line, top row first. */
+  /** The four cells of a finished line, bottom row first. */
   readonly winning?: readonly number[] | undefined;
 }): JSX.Element {
   const board = createMemo(() => dropAll(props.moves));
@@ -51,6 +55,14 @@ export function ConnectFourStoryBoard(props: {
       lastCell={board().last}
       interactive={props.interactive === true && props.winning === undefined}
       label="Connect Four board, seven columns and six rows"
+      prompt={
+        props.winning !== undefined
+          ? undefined
+          : props.interactive === true
+            ? 'Pick a column to drop your disc'
+            : ''
+      }
+      previewPrompt={(column) => `Drop in column ${column + 1}`}
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1 ? 'Red circle' : disc === 2 ? 'Yellow diamond' : 'Empty';

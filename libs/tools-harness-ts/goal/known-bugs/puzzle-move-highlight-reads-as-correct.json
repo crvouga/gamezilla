@@ -1,0 +1,4 @@
+{
+  "summary": "In the puzzles feed the current move's chip was the success green, the same paint as the \"Correct\" pill above it, so the two read as one signal. The current move is now drawn in the selection's blue (tint-subtle fill, tint ink), never the green of a correct answer.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-chrome-paint.test.tsx"
+}

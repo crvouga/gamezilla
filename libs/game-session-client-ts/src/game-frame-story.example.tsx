@@ -1,3 +1,13 @@
+import {
+  type SpacePerson,
+  SpacePersonAvatar,
+} from '@libs/spaces-client-ts/space-person-view';
+import {
+  AVERY as AVERY_PERSON,
+  JORDAN as JORDAN_PERSON,
+  MORGAN as MORGAN_PERSON,
+  ROBIN as ROBIN_PERSON,
+} from '@libs/spaces-client-ts/spaces-story.example';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
@@ -9,6 +19,7 @@ import {
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import type {
   FrameHolder,
+  FramePeople,
   FramePlaySeat,
   FrameRecord,
   FrameSeat,
@@ -30,11 +41,29 @@ export const PEOPLE = {
   robin: '0b6a1c52-0000-4000-8000-000000000004',
 } as const;
 
+/** Each frame person as the space stories show them, with a seeded avatar. */
+const SPACE_PEOPLE: ReadonlyMap<string, SpacePerson> = new Map([
+  [PEOPLE.avery, AVERY_PERSON],
+  [PEOPLE.jordan, JORDAN_PERSON],
+  [PEOPLE.morgan, MORGAN_PERSON],
+  [PEOPLE.robin, ROBIN_PERSON],
+]);
+
+/**
+ * How the stories show a person, as the app does with the live profile:
+ * their own avatar (the plain name stays the shown name).
+ */
+export const STORY_PEOPLE: FramePeople = {
+  avatar: (person, size) => (
+    <SpacePersonAvatar person={SPACE_PEOPLE.get(person) ?? null} size={size} />
+  ),
+};
+
 const LOOKS = {
-  white: { sideLabel: 'Red circle', swatch: { color: 'player7', mark: '●' } },
+  white: { sideLabel: 'Red circle', swatch: { color: 'disc-one', mark: '●' } },
   black: {
     sideLabel: 'Yellow diamond',
-    swatch: { color: 'player5', mark: '◆' },
+    swatch: { color: 'disc-two', mark: '◆' },
   },
   red: { sideLabel: 'Third seat', swatch: { color: 'player2', mark: '▲' } },
   blue: { sideLabel: 'Fourth seat', swatch: { color: 'player3', mark: '■' } },
@@ -82,6 +111,7 @@ export function setupSeat(
     ...base,
     host: false,
     visiting: false,
+    own: false,
     ready: false,
     invitation: null,
     canSit: false,
@@ -104,6 +134,7 @@ export function status(over: Partial<FrameStatus> = {}): FrameStatus {
   return {
     lineup: 'Red circle: avery. Yellow diamond: jordan_plays.',
     description: 'Red circle to move.',
+    plainTurn: true,
     emphasis: 'yours',
     tone: 'neutral',
     sending: false,
@@ -113,13 +144,17 @@ export function status(over: Partial<FrameStatus> = {}): FrameStatus {
   };
 }
 
-/** The record of a game played by turns, at its latest move. */
+/** The record of a game played by turns, at its latest move: the two seats alternate. */
 export function record(moves: readonly string[]): FrameRecord {
   return {
     earlier: [],
     selection: 'live',
     turns: true,
     moves,
+    perTurn: 2,
+    movers: moves.map((_, index) => LOOKS[index % 2 === 0 ? 'white' : 'black']),
+    // Connect Four's moves are column numbers: the record says `col 3`.
+    moveHeading: 'Column',
     displayedPly: moves.length,
     error: '',
     history: true,
@@ -174,13 +209,21 @@ export const RULE_OPTIONS: readonly GameOptionGroup[] = [
 ];
 
 /** Moves in column order, from the left (0) to the right (6). */
+/** Connect Four writes a move as its column, counted from 1. */
+function columnRecord(moves: readonly number[]): readonly string[] {
+  return moves.map((column) => String(column + 1));
+}
+
 export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
-export const MID_GAME_RECORD = ['d1', 'd2', 'e1', 'c1', 'c2', 'e2', 'f1'];
-/** Red circle drops four in column d. */
+export const MID_GAME_RECORD = columnRecord(MID_GAME_MOVES);
+/** Ten drops, five each: Red circle to move, as a real game's middle reads. */
+export const YOUR_TURN_MOVES = [3, 3, 2, 4, 4, 5, 2, 1, 6, 3];
+export const YOUR_TURN_RECORD = columnRecord(YOUR_TURN_MOVES);
+/** Red circle drops four in column 4. */
 export const WON_MOVES = [3, 2, 3, 2, 3, 2, 3];
-/** The four cells of Red circle's line in column d, top row first. */
-export const WON_LINE = [17, 24, 31, 38];
-export const WON_RECORD = ['d1', 'c1', 'd2', 'c2', 'd3', 'c3', 'd4'];
+/** The four cells of Red circle's line in column 4, bottom row first. */
+export const WON_LINE = [3, 10, 17, 24];
+export const WON_RECORD = columnRecord(WON_MOVES);
 
 const resolved = () => fn(() => Promise.resolve());
 
@@ -203,6 +246,7 @@ export function frameArgs(): GameFrameScreenViewProps {
     result: null,
     next: FRAME_NO_NEXT,
     record: null,
+    people: STORY_PEOPLE,
     onChoose: resolved(),
     onReady: resolved(),
     onPlayBot: resolved(),

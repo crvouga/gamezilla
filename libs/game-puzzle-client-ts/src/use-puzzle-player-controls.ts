@@ -25,10 +25,7 @@ type ControlsArgs = {
 export function usePuzzlePlayerControls(args: ControlsArgs): {
   hintStage: Accessor<HintStage>;
   atFrontier: Accessor<boolean>;
-  canGoBack: Accessor<boolean>;
   canGoForward: Accessor<boolean>;
-  onBack: () => void;
-  onForward: () => void;
   onMove: (action: string) => void;
   onHint: () => void;
   onSolution: () => void;
@@ -71,7 +68,6 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   return {
     hintStage,
     atFrontier: () => nav().atFrontier,
-    canGoBack: () => nav().canGoBack,
     canGoForward: () => nav().canGoForward,
     onMove: handlers.onMove,
     onHint: handlers.onHint,
@@ -79,8 +75,6 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
     onRetry: handlers.onRetry,
     onSkip: handlers.onSkip,
     onNext: handlers.onNext,
-    onBack: handlers.onBack,
-    onForward: handlers.onForward,
     backToRoot: handlers.backToRoot,
   };
 }

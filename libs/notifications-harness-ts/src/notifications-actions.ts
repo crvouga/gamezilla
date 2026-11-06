@@ -1,5 +1,9 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
-import { backToTabs } from '@libs/harness-ts/shell-actions';
+import {
+  backToTabs,
+  minimizeSpace,
+  spaceBarShown,
+} from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const WAIT_MS = 10_000;
@@ -15,8 +19,8 @@ export const openInbox = scenarioAction({
     // From inside a space, or a screen stacked over the tabs, as a person
     // would: out of it first, to where the inbox tab is.
     if (!(await ui.get(Handles.tabNotifications).isVisible())) {
-      if (await ui.get(Handles.spaceClose).isVisible()) {
-        await ui.get(Handles.spaceClose).tap({ timeoutMs: WAIT_MS });
+      if (await spaceBarShown(ui)) {
+        await minimizeSpace(ui, WAIT_MS);
         await s.session.waitForIdle();
       }
       if (!(await ui.get(Handles.tabNotifications).isVisible()))

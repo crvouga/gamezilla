@@ -16,10 +16,37 @@ export type FrameSeatCount = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /** A seat's player color, `n` for the design token `player<n>`. */
 export type FramePlayerColor = FrameSeatCount;
 
-/** How a seat is told apart: its player color, the board's own mark, or both. */
+/**
+ * The paint of a board whose pieces are not drawn in player colors, named
+ * for what is drawn: the first and second disc of a disc-drop board, the
+ * first to fourth rider's trail of a trail arena. A seat painted with it
+ * matches its pieces on the board in every theme.
+ */
+export type FrameBoardPaint =
+  | 'disc-one'
+  | 'disc-two'
+  | 'trail-one'
+  | 'trail-two'
+  | 'trail-three'
+  | 'trail-four';
+
+/** Every board paint, in a stable order. */
+export const FRAME_BOARD_PAINTS: readonly FrameBoardPaint[] = [
+  'disc-one',
+  'disc-two',
+  'trail-one',
+  'trail-two',
+  'trail-three',
+  'trail-four',
+];
+
+/** A seat's paint: a player color, or its board's own piece paint. */
+export type FrameSeatPaint = FramePlayerColor | FrameBoardPaint;
+
+/** How a seat is told apart: its paint, the board's own mark, or both. */
 export type GameSeatLook =
-  | { readonly color: FramePlayerColor; readonly mark?: string }
-  | { readonly color?: FramePlayerColor; readonly mark: string };
+  | { readonly color: FrameSeatPaint; readonly mark?: string }
+  | { readonly color?: FrameSeatPaint; readonly mark: string };
 
 /**
  * How many people a game seats. A game whose rules seat a fixed number has
@@ -95,10 +122,25 @@ export type GameFrameAction = {
   readonly run: () => void;
 };
 
+/**
+ * One step of what a game has ahead, in order (Hearts' deals, each passing
+ * one way): what it is, what happens in it, and whether it is open now.
+ */
+export type GameOutlineStep = {
+  readonly label: string;
+  readonly detail: string;
+  readonly current: boolean;
+};
+
 /** One seat of the game, as the frame shows it. */
 export type GameFrameSeat = {
   readonly side: GameSide;
   readonly look: GameSeatLook;
+  /**
+   * Who plays the seat, by name, when the host knows them: a board that
+   * marks its sides (Pong's halves) names the other player there.
+   */
+  readonly name?: string | undefined;
 };
 
 /**
@@ -122,6 +164,30 @@ export type GameFrameBoardSession<View> = {
 
 export type GameFrame<View> = {
   readonly players: GamePlayers;
+  /**
+   * Whether the frame offers the people playing a draw by agreement among
+   * its commands. A game says so itself: one that can never be drawn
+   * (Battleship), one played in real time (Pong, Light Cycles) and one
+   * whose table plays every hand out (Hearts) leave Offer draw out, so
+   * their commands are only the ones that fit them.
+   */
+  readonly drawOffers: boolean;
+  /**
+   * The board seats every player around its own table (a card game's four
+   * seats): the frame draws no seats above or below it and lends the board
+   * the person in each seat instead, so each player shows once, at their
+   * place at the table. Absent for a board the frame seats players around.
+   */
+  readonly boardSeats?: boolean;
+  /**
+   * The board names each player in their own part of it (Pong's halves of
+   * the court, each named under its points): on a phone, where the frame
+   * would draw a seat above the board and another below it, it draws
+   * neither, so each player is named once. Beside a wide board the
+   * players' card still lists everyone; a seat to take back from a
+   * stand-in bot still shows.
+   */
+  readonly boardNames?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {
@@ -152,6 +218,13 @@ export type GameFrame<View> = {
   ) => string | null;
   /** The finished game in `position`, which `winner` won. */
   readonly result: (position: string, winner: GameWinner) => GameResultSummary;
+  /**
+   * What the game has ahead in `position`, the step open now marked
+   * (Hearts' passing order by deal): beside a wide board the record card
+   * lists it until the first move, so the card always holds something of
+   * the game's own. Absent for a game with no such steps.
+   */
+  readonly outline?: (position: string) => readonly GameOutlineStep[];
 };
 
 /** First place first; seats sharing a place keep their seat order. */

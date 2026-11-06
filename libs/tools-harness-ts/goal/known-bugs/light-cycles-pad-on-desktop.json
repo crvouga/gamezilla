@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide screen Light Cycles drew the phone's direction pad under a four-line paragraph, so it ran off the window's foot while a keyboard does the steering. A wide screen now shows one line on steering by keys; a phone keeps the pad and a line on swiping.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

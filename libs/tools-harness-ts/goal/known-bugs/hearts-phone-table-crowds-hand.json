@@ -1,0 +1,4 @@
+{
+  "summary": "On a 390px phone the Hearts table's four seat plates stood about 360px tall, squeezing the hand and its Pass button to the bottom edge of the screen. A phone's table now sets the seats above and below as one strip each, the person beside their facts, so the felt is about 70px shorter.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

@@ -7,6 +7,7 @@ import {
   storySections,
 } from '@libs/notifications-client-ts/notifications-story.example';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
+import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -14,8 +15,13 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendAcceptedNotificationCard } from './friend-accepted-notification-card';
 import { FriendRequestNotificationCard } from './friend-request-notification-card';
 
-const AVERY_ID = '9f1c2a4e-0000-4000-8000-000000000001';
-const ROBIN_ID = '9f1c2a4e-0000-4000-8000-000000000004';
+/**
+ * Ids the space fixtures (`spaces-story.example.tsx`) give the same people,
+ * so they wear the same face in every story. The viewer here is not avery:
+ * avery is the one asking.
+ */
+const AVERY_ID = '5a1e0000-0000-4000-8000-000000000001';
+const ROBIN_ID = '5a1e0000-0000-4000-8000-000000000004';
 
 const REQUEST = storyNotification({
   id: 'c7a2e410-0000-4000-8000-000000000001',
@@ -25,17 +31,13 @@ const REQUEST = storyNotification({
   title: '@avery sent you a friend request',
   avatar: {
     fallbackLabel: '@avery',
-    avatarConfig: JSON.stringify({
-      style: 'funEmoji',
-      seed: AVERY_ID,
-      options: {},
-    }),
+    avatarConfig: serializeDefaultAvatarConfig(AVERY_ID),
   },
   isUnread: true,
   payload: { fromUserId: AVERY_ID, fromUsername: 'avery' },
   actions: [
-    { id: 'confirm', label: 'Confirm', variant: 'solid' },
-    { id: 'delete', label: 'Delete', variant: 'outline', destructive: true },
+    { id: 'accept', label: 'Accept', variant: 'solid' },
+    { id: 'decline', label: 'Decline', variant: 'ghost' },
   ],
   deepLink: { path: '/profile/user/[userId]', params: { userId: AVERY_ID } },
 });
@@ -45,7 +47,10 @@ const ACCEPTED = storyNotification({
   sourceNamespace: 'friends',
   sourceType: 'friend-request-accepted',
   title: '@robin_42 accepted your friend request',
-  avatar: { fallbackLabel: '@robin_42' },
+  avatar: {
+    fallbackLabel: '@robin_42',
+    avatarConfig: serializeDefaultAvatarConfig(ROBIN_ID),
+  },
   createdAt: '2023-11-13T19:00:00.000Z',
   payload: { toUserId: ROBIN_ID, toUsername: 'robin_42' },
   deepLink: { path: '/profile/user/[userId]', params: { userId: ROBIN_ID } },
@@ -114,7 +119,7 @@ type Story = StoryObj<typeof meta>;
 /** A friend request (opens a decision) and an accepted request (opens the profile). */
 export const FriendCards: Story = {};
 
-/** Pressing a friend request opens Confirm / Delete with the sender's profile. */
+/** Pressing a friend request opens Accept / Decline with the sender's profile. */
 export const FriendRequestDecision: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

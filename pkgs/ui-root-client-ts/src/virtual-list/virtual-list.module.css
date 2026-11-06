@@ -1,0 +1,35 @@
+/* `panelGroups` paints each group of a virtual list as its own panel, row
+   by row, since its rows are positioned one by one: the sides on every
+   row, the top edge and radius on a group's first row, the bottom on its
+   last, and the inset hairline above every row but a group's first (the
+   `.panel` look in `hosts.css`). Headings between groups stay unpainted. */
+.segment {
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--ui-color-surface);
+  border-inline: 1px solid var(--ui-color-border);
+}
+
+.segment:is([data-panel-place="first"], [data-panel-place="only"]) {
+  border-top: 1px solid var(--ui-color-border);
+  border-start-start-radius: var(--ui-radius-card);
+  border-start-end-radius: var(--ui-radius-card);
+}
+
+.segment:is([data-panel-place="last"], [data-panel-place="only"]) {
+  border-bottom: 1px solid var(--ui-color-border);
+  border-end-start-radius: var(--ui-radius-card);
+  border-end-end-radius: var(--ui-radius-card);
+}
+
+.segment:is([data-panel-place="middle"], [data-panel-place="last"])::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: var(--ui-space-lg);
+  right: 0;
+  height: 1px;
+  background: var(--ui-color-border);
+  pointer-events: none;
+}

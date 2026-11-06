@@ -1,7 +1,10 @@
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  useGameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
@@ -76,7 +79,12 @@ const DENIED_FRAME = {
   onOpenHistory: () => undefined,
 } satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
 
-type FrameProps = { model: CustomGameScreenModel; title: JSX.Element };
+type FrameProps = {
+  model: CustomGameScreenModel;
+  title: JSX.Element;
+  /** The game's own words on how it is played (its menu's instructions). */
+  instructions?: (() => JSX.Element) | undefined;
+};
 
 /** Reads the room for `GameFrameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
@@ -115,6 +123,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         board={<FrameBoardMount board={board} />}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
+        about={props.instructions}
         people={PEOPLE}
         onChoose={model.choose}
         onReady={model.ready}
@@ -137,6 +146,8 @@ export function CustomGameScreen(props: {
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
+  /** The game's own words on how it is played, beside a wide setup. */
+  instructions?: (() => JSX.Element) | undefined;
 }): JSX.Element {
   const model = useCustomGameScreen(
     props.onBack,
@@ -144,9 +155,10 @@ export function CustomGameScreen(props: {
     props.onHistory
   );
   const title = (): JSX.Element => props.title ?? <Trans>Custom game</Trans>;
+  const choices = useGameChoicesName();
   return (
     <>
-      <DefineBackButton onPress={model.back} />
+      <DefineBackButton onPress={model.back} label={choices()} />
       <DecisionGate
         decision={model.watchDecision()}
         testId="custom-game-denial"
@@ -159,7 +171,11 @@ export function CustomGameScreen(props: {
           />
         )}
       >
-        <CustomGameFrame model={model} title={title()} />
+        <CustomGameFrame
+          model={model}
+          title={title()}
+          instructions={props.instructions}
+        />
       </DecisionGate>
     </>
   );

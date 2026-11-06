@@ -1,0 +1,4 @@
+{
+  "summary": "End space sat on the space's top bar beside the members avatars, one stray click from ending the game for everyone. End and Leave now live in the ⋯ menu, after a divider, in red, behind a confirm.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+}

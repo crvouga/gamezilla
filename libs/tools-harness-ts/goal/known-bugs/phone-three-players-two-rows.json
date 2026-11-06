@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone three players' chips (Light Cycles Trio) wrapped as two and one, the third alone on a second row, so the player cards took two rows and pushed the arena down. Three players now make one row of three stacked chips.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

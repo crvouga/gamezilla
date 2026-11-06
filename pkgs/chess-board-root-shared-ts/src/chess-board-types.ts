@@ -34,6 +34,13 @@ export type ChessBoardProps = {
   sound?: boolean | undefined;
   showCoordinates?: boolean | undefined;
   highlightLastMove?: boolean | undefined;
+  /**
+   * The move that reached `fen`, when the parent knows it and the board
+   * cannot (a game opened part-way through, an earlier position reviewed).
+   * Marked while the board shows that position and has no move of its own;
+   * a move played or inferred on the board takes its place.
+   */
+  lastMove?: { readonly from: Square; readonly to: Square } | null | undefined;
   highlightLegalMoves?: boolean | undefined;
   theme?: Partial<BoardTheme> | undefined;
   dataSet?: ComponentDataSet | undefined;

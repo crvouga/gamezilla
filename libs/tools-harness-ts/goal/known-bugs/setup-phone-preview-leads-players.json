@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the board preview of a game being set up was a 96px thumbnail in a card about 140px tall ahead of the Players card, so the preview, not the players, led the setup. It is now a slim row ahead of the players: a 48px thumbnail beside its label.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

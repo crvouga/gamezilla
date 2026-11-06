@@ -7,6 +7,7 @@ import { GameLayout } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
+import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client-ts/screen-measure';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
@@ -83,11 +84,11 @@ test('a review with an empty reactive rail keeps the menu measure', () => {
   ));
   const content = () =>
     mustQuery('[data-component="ScrollViewContent"]') as HTMLElement;
-  expect(content().style.maxWidth).toBe('480px');
+  expect(content().style.maxWidth).toBe(SCREEN_MAX_WIDTH.menu);
   setVisible(true);
   expect(content().style.maxWidth).toBe('100%');
   setVisible(false);
-  expect(content().style.maxWidth).toBe('480px');
+  expect(content().style.maxWidth).toBe(SCREEN_MAX_WIDTH.menu);
 });
 
 // regression: ui-form-screen-native-submit

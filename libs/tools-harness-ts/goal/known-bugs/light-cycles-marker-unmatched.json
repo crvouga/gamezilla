@@ -1,0 +1,4 @@
+{
+  "summary": "A Light Cycles player's marker beside their name was the generic player blue while their trail in the arena was cyan. Each rider's seat now takes its trail's own paint (trail-one to trail-four), drawn in the very token its trail is.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-frame-commands.test.ts"
+}

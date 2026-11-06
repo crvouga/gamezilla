@@ -7,6 +7,9 @@ export const reviewCustomGameMove = scenarioAction({
   name: 'reviewCustomGameMove',
   act: async (s, actor: string, ply: number) => {
     const ui = await actorUi(s, actor);
+    // The number field waits behind its disclosure, as a person opens it.
+    if (!(await ui.get('custom-game-review-ply').isVisible()))
+      await ui.get('custom-game-review-jump').tap();
     await ui.get('custom-game-review-ply').clear();
     await ui.get('custom-game-review-ply').input(String(ply));
     await ui.get('custom-game-review-seek').tap();
@@ -25,8 +28,16 @@ export const openGameHistory = scenarioAction({
       s,
       async () => {
         if (await ui.get('game-history-statistics').isVisible()) return true;
+        const record = ui.get('custom-game-review-jump');
         if (await ui.get('custom-game-history-stats').isVisible())
           await ui.get('custom-game-history-stats').tap();
+        // Under a phone's board the record's disclosure holds the way to
+        // the history: a person opens it first.
+        else if (
+          (await record.isVisible()) &&
+          (await record.attribute('aria-expanded')) === 'false'
+        )
+          await record.tap();
         else if (await ui.get(Handles.gameChoice('history')).isVisible())
           await ui.get(Handles.gameChoice('history')).tap();
         else await ui.get(Handles.navBack).tap();

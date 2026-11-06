@@ -116,6 +116,9 @@ export const raceGameClient = defineGameClient({
   shared: raceGameShared,
   title: 'Race',
   caption: 'Count to five first',
+  // Its picture wherever it is picked: a `GameTile` motif, drawn in the
+  // colors of the playing surface it shows (`@pkgs/ui-root-client-ts/game-tile`).
+  tile: 'paths',
   subtitle: () => <Trans>Take turns counting on.</Trans>,
   presentation: { name: () => t`Race`, canFlip: false, Board: RaceBoard, sideLabel, endingDescription, endingLabel, timeoutDrawDescription },
   // Exactly when raceGameShared offers puzzles (a type error otherwise):

@@ -54,13 +54,13 @@ function fakeRouter(canGoBack: boolean): AppRouter & { calls: string[] } {
 }
 
 describe('ScreenBase compact', () => {
-  test('root and pushed screens title in the same heading style', () => {
+  test('root screens open with the large title; pushed screens keep the heading beside back', () => {
     const view = renderUi(
       () => <Screen breadcrumbs={[{ name: 'Spaces' }]} />,
       COMPACT
     );
     const root = screen.getByRole('heading', { level: 1, name: 'Spaces' });
-    expect(root.className).toMatch(/\btextHeading\b/);
+    expect(root.className).toMatch(/\btextTitle\b/);
     view.unmount();
     renderUi(() => <Screen />, COMPACT);
     const title = screen.getByRole('heading', { level: 1, name: 'Demo' });
@@ -97,6 +97,7 @@ describe('ScreenBase compact', () => {
     expect(bar).toHaveAttribute('data-divider', 'none');
   });
 
+  // regression: ui-title-truncated-beside-collapsed-actions
   test('trailing chrome sits in the row itself, so a long title keeps the room', () => {
     renderUi(
       () => (
@@ -111,7 +112,9 @@ describe('ScreenBase compact', () => {
     const center = screen.getByText('Account privacy').parentElement;
     expect(trailing.parentElement).toBe(center?.parentElement ?? null);
     expect(center?.className).toMatch(/\bgrow\b/);
-    expect(center?.className).toMatch(/\bbasis-24\b/);
+    // The title's own width is its basis, so a collapsed ActionBar never
+    // keeps room the title needs.
+    expect(center?.className).toMatch(/\bbasis-auto\b/);
   });
 
   test('renders data-screen, TopBar h1 title, back button and body', async () => {

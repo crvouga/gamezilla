@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle play put the run-so-far pills (in a row, solved) under the actions 12-16px outside the page's inset on both sizes, and a phone had no visible title naming the mode. The title shows on every size with the pills on its line, and every region's content shares one inset.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx"
+}

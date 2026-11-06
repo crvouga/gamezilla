@@ -10,15 +10,22 @@ const meta = {
   parameters: { appRouter: true, controls: { exclude: ['title', 'parent'] } },
   args: {
     screenId: 'not-found',
-    title: 'Not found',
+    title: 'Page not found',
     notFound: true,
     onGoToSpaces: fn(),
+    onGoBack: fn(),
   },
 } satisfies Meta<typeof RouteStubScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** An address with nothing at it: say so and offer the way home. */
+/**
+ * An address with nothing at it, reached from another screen: the title
+ * says what happened, then, centred in the content area, why, and two ways
+ * out on one line: Go to Spaces (home) and Go back (offered only when the
+ * app has a screen to return to). It belongs to no section, so the header
+ * shows no parent crumb.
+ */
 export const NotFound: Story = {};
 
 /**
@@ -34,10 +41,13 @@ export const NotYetAvailable: Story = {
   },
 };
 
-/** "Go to Spaces" leaves for the app's home. */
+/** "Go back" returns where the person was; "Go to Spaces" leaves for home. */
 export const GoToSpaces: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
+    const back = await canvas.findByRole('button', { name: 'Go back' });
+    await userEvent.click(back);
+    await expect(args.onGoBack).toHaveBeenCalledOnce();
     const target = await canvas.findByRole('button', { name: 'Go to Spaces' });
     await userEvent.click(target);
     await expect(args.onGoToSpaces).toHaveBeenCalledOnce();

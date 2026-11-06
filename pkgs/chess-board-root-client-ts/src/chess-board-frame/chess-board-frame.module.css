@@ -1,0 +1,66 @@
+/* A chess board's outside coordinates: a slim frame on every playing
+   board (280px and wider), phone or desktop, so the coordinates read the
+   same way everywhere; only a thumbnail keeps its corner labels. */
+.host {
+  container: chess-frame / inline-size;
+  width: 100%;
+  min-width: 0;
+}
+.frame {
+  display: grid;
+  grid-template-columns: 0 minmax(0, 1fr);
+  grid-template-rows: auto 0;
+  min-width: 0;
+}
+.board {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+.ranks,
+.files {
+  display: none;
+}
+.label {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-color-text-secondary);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+@container chess-frame (min-width: 280px) {
+  .frame {
+    grid-template-columns: 16px minmax(0, 1fr);
+    grid-template-rows: auto 20px;
+    column-gap: 4px;
+  }
+  .ranks {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .files {
+    display: flex;
+    flex-direction: row;
+    grid-column: 2;
+    grid-row: 2;
+  }
+  /* Ranks at the end edge: the squares start at the frame's start edge,
+     under the screen's title, the labels standing past their end. */
+  .frame[data-ranks="end"] {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+  .frame[data-ranks="end"] .ranks {
+    grid-column: 2;
+  }
+  .frame[data-ranks="end"] .board,
+  .frame[data-ranks="end"] .files {
+    grid-column: 1;
+  }
+}

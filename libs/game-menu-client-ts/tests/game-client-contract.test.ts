@@ -80,6 +80,7 @@ const puzzlesPart: GamePuzzlesClient = { Board: () => null };
 const contentFrame = { stats: {}, turnStatus: () => null };
 
 const frame = {
+  drawOffers: true,
   players: fixedPlayers(2),
   options: [],
   seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),
@@ -94,6 +95,7 @@ const frame = {
 const parts = {
   title: 'Race',
   caption: 'Count to seven first',
+  tile: 'paths' as const,
   subtitle: () => 'Take turns counting on.',
   presentation: {
     canFlip: false,
@@ -132,6 +134,7 @@ test('a puzzle-only client needs its player and no turn-game presentation', () =
     shared,
     title: 'Race puzzle',
     caption: 'Reach seven',
+    tile: 'paths',
     subtitle: () => 'Count on.',
     puzzleContent: { Player, frame: contentFrame },
   });
@@ -147,6 +150,7 @@ test("a puzzle-only game's menu offers its puzzles without reading turn rules", 
     shared: defineGame({ id: 'race-puzzle', puzzleContent: content }),
     title: 'Race puzzle',
     caption: 'Reach seven',
+    tile: 'paths',
     subtitle: () => 'Count on.',
     puzzleContent: { Player: () => null, frame: contentFrame },
   };
@@ -163,6 +167,7 @@ test('puzzle rendering agrees with standalone and combined registrations', () =>
       shared: standalone,
       title: 'Race puzzle',
       caption: '',
+      tile: 'paths',
       subtitle: () => '',
     })
   ).toThrow('puzzleContent.Player');
@@ -298,6 +303,7 @@ test('a presentation or puzzle content without its frame is refused at type chec
       shared,
       title: 'Race puzzle',
       caption: '',
+      tile: 'paths',
       subtitle: () => '',
       // @ts-expect-error: the solo frame labels the content's figures.
       puzzleContent: { Player: () => null },
@@ -373,4 +379,22 @@ test("a frame's options are ones its rules apply, and its seats look apart", () 
   expect(() =>
     withFrame({ seats: lookOnlySeats(() => ({ color: 1 })) })
   ).toThrow('race: two seats share one look');
+});
+
+test("a frame's seats may take a board's own paint, never an unknown one", () => {
+  expect(() =>
+    withFrame({
+      seats: lookOnlySeats((side) => ({
+        color: side === 'white' ? 'disc-one' : 'disc-two',
+      })),
+    })
+  ).not.toThrow();
+  expect(() =>
+    withFrame({
+      // A paint no board draws, as an untyped game might send it.
+      seats: lookOnlySeats((side) => ({
+        color: (side === 'white' ? 'disc-one' : 'disc-three') as 'disc-one',
+      })),
+    })
+  ).toThrow("race: the black seat's color is player1 to player8");
 });

@@ -6,13 +6,14 @@ import {
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import { createSignal, createUniqueId, For, type JSX, Show } from 'solid-js';
+import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
 import { useLayoutMode } from '../use-layout-mode';
 
 export type TabItem<V extends string = string> = {
   readonly value: V;
   readonly label: string;
-  /** A count or short note after the label (`12`, `New`). */
+  /** A count or short note after the label (`12`, `New`), as a pill. */
   readonly badge?: string | number | undefined;
   readonly disabled?: boolean | undefined;
 };
@@ -30,6 +31,12 @@ export type TabsProps<V extends string = string> = {
   variant?: TabsVariant | undefined;
   /** The selected tab's panel. */
   children?: ((value: V) => JSX.Element) | undefined;
+  /**
+   * Render every tab's panel and hide the unselected ones, instead of
+   * rendering only the selected one: a list keeps its loaded pages and
+   * place when the person comes back to its tab.
+   */
+  keepMounted?: boolean | undefined;
   'aria-label'?: string | undefined;
   'aria-labelledby'?: string | undefined;
   /** Rendered as `data-testid`; each tab gets `<testId>-<value>`. */
@@ -116,7 +123,8 @@ function onTabKeyDown(tab: HTMLElement, event: KeyboardEvent): void {
  *   state from `defaultValue` (default: the first enabled tab).
  * - The panel is the `children` render prop, called with the selected value.
  *   Every tab has a panel element so `aria-controls` always resolves; only the
- *   selected one renders content.
+ *   selected one renders content, unless `keepMounted` keeps every panel
+ *   rendered and hides the others.
  *
  * Variants:
  * - `underline` (default): the profile-tab look. A hairline track under the
@@ -195,9 +203,15 @@ export function Tabs<V extends string = string>(
                 <span class="text textLabel whitespace-nowrap">
                   {item.label}
                 </span>
+                {/* A count pill apart from the label, never a number that
+                    reads as one more word of it ("Continue 2"). */}
                 <Show when={item.badge !== undefined}>
-                  <span class="text textFootnote textNumeral text-text-secondary">
-                    {String(item.badge)}
+                  <span class="box self-center">
+                    <Badge
+                      label={String(item.badge)}
+                      intent="neutral"
+                      size="sm"
+                    />
                   </span>
                 </Show>
                 <Show when={variant() === 'underline'}>
@@ -222,7 +236,9 @@ export function Tabs<V extends string = string>(
             tabIndex={0}
             hidden={item.value !== selected()}
           >
-            <Show when={item.value === selected()}>
+            <Show
+              when={props.keepMounted === true || item.value === selected()}
+            >
               {props.children?.(item.value)}
             </Show>
           </div>

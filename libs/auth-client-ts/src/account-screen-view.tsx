@@ -4,15 +4,22 @@ import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
-import { DatabaseIcon, SmartphoneIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  DatabaseIcon,
+  SmartphoneIcon,
+  Trash2Icon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
-import { AccountActionsRow } from './account-actions-row';
+import { AccountSignInAction, SignOutRow } from './account-actions-row';
 import type { SignInMethodsView } from './sign-in-methods-section';
 import { SignInMethodsSection } from './sign-in-methods-section';
-import { SignOutEverywhereButton } from './sign-out-everywhere';
+import {
+  SignOutEverywhereConfirm,
+  SignOutEverywhereRow,
+} from './sign-out-everywhere';
 
 const ROW_ICON_SIZE = 20;
 
@@ -29,6 +36,8 @@ export type AccountScreenViewProps = {
   readonly signingOutEverywhere: boolean;
   readonly onOpenDevices: () => void;
   readonly onOpenPrivacy: () => void;
+  /** Opens what deletion removes, where it is confirmed. */
+  readonly onOpenDeletion: () => void;
   readonly onSignIn: () => void;
   readonly onSignOut: () => void;
   /** Connects a provider; rejects with the message its row shows. */
@@ -44,9 +53,41 @@ export type AccountScreenViewProps = {
 };
 
 /**
- * `/more/account`, presentational: sign-in methods, devices, the privacy
- * entry and sign in / out. A guest sees devices (which asks them to sign in)
- * and Sign in only. `AccountScreen` wires it to the session and auth port.
+ * The account's one irreversible choice, set apart at the foot under its own
+ * "Danger zone" label in the destructive ink: Delete account (opens what
+ * deletion removes, where it is confirmed). Signing out everywhere is a
+ * security step, not a loss, so it sits with Devices and Sign out instead.
+ */
+function AccountDangerZone(props: {
+  readonly onOpenDeletion: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <MenuSection
+      title={<Trans>Danger zone</Trans>}
+      description={
+        <Trans>Removes your account for good; you confirm first</Trans>
+      }
+    >
+      <MenuRow
+        title={t`Delete account`}
+        leading={<Trash2Icon size={ROW_ICON_SIZE} color="destructive" />}
+        tone="destructive"
+        onClick={() => props.onOpenDeletion()}
+        hideChevron
+        dataSet={{ testid: 'account-delete' }}
+      />
+    </MenuSection>
+  );
+}
+
+/**
+ * `/more/account`, presentational: sign-in methods, security (devices and
+ * Sign out for this device), the data export entry, and a danger zone at
+ * the foot (Delete account); each sign-out spells
+ * out its scope and asks first. A guest sees devices (which asks them to
+ * sign in) and Sign in only. `AccountScreen` wires it to the session and
+ * auth port.
  */
 export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -54,7 +95,7 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
     <MenuScreen
       screenId="account"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Account</Trans> },
       ]}
@@ -70,7 +111,10 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           onConfirmRemove={props.onConfirmRemoveMethod}
         />
       </Show>
-      <MenuSection title={<Trans>Security</Trans>}>
+      <MenuSection
+        title={<Trans>Security</Trans>}
+        description={<Trans>Where you are signed in</Trans>}
+      >
         <MenuRow
           title={t`Devices`}
           caption={t`Installs signed into this account`}
@@ -78,27 +122,36 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
           onClick={() => props.onOpenDevices()}
           dataSet={{ testid: Handles.accountDevices }}
         />
+        <Show when={props.signedIn}>
+          <SignOutRow onOpen={props.onSignOut} />
+          <SignOutEverywhereRow onOpen={props.onSignOutEverywhere} />
+        </Show>
       </MenuSection>
       <Show when={props.signedIn}>
-        <MenuSection title={<Trans>Your data</Trans>}>
+        <MenuSection
+          title={<Trans>Your data</Trans>}
+          description={
+            <Trans>
+              A copy of your profile, friends, progress and preferences
+            </Trans>
+          }
+        >
           <MenuRow
-            title={t`Account privacy`}
-            caption={t`Take a personal-data export or delete your account`}
+            title={t`Export your data`}
+            caption={t`Download a personal-data export`}
             leading={<DatabaseIcon size={ROW_ICON_SIZE} color="icon" />}
             onClick={() => props.onOpenPrivacy()}
             dataSet={{ testid: 'account-privacy' }}
           />
         </MenuSection>
+        <AccountDangerZone onOpenDeletion={props.onOpenDeletion} />
       </Show>
-      <AccountActionsRow
-        signedIn={props.signedIn}
-        onSignIn={props.onSignIn}
-        onSignOut={props.onSignOut}
-      />
+      <Show when={!props.signedIn}>
+        <AccountSignInAction onSignIn={props.onSignIn} />
+      </Show>
       <Show when={props.signedIn}>
-        <SignOutEverywhereButton
+        <SignOutEverywhereConfirm
           confirming={props.signingOutEverywhere}
-          onOpen={props.onSignOutEverywhere}
           onClose={props.onCancelSignOutEverywhere}
           onConfirm={props.onConfirmSignOutEverywhere}
         />

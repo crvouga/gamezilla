@@ -74,7 +74,7 @@ export async function localRows(
 
 /**
  * `me`'s friendship status with `them`, by the precedence the product renders: their
- * profile's pill (Unblock, Friends, Requested, Confirm / Delete, Add), and
+ * profile's pill (Unblock, Friends, Requested, Accept / Decline, Add), and
  * search leaving out someone who blocked `me`.
  */
 export function friendshipStatusOf(

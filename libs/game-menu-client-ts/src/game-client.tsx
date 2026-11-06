@@ -8,7 +8,11 @@ import type {
 import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  GameTile,
+  type GameTileMotif,
+} from '@pkgs/ui-root-client-ts/game-tile';
 import type { JSX } from 'solid-js';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
@@ -73,6 +77,11 @@ type GameClientParts = {
   readonly title: string;
   /** One line under the name in the game choice. */
   readonly caption: string;
+  /**
+   * The game's picture beside its name wherever it is picked: a miniature
+   * of its playing surface (`GameTile`), in the surface's own colors.
+   */
+  readonly tile: GameTileMotif;
   /** One line under the name above the game's choices. */
   readonly subtitle: () => JSX.Element;
   /** How to play, under the game's choices. */
@@ -99,10 +108,12 @@ class DefinedGameClient implements GameClientDefinition {
   readonly id: string;
   readonly title: string;
   readonly caption: string;
+  readonly players: number;
   /** The family its modes share, for a game with rules. */
   declare readonly family?: string;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
+  readonly Tile: GameClientDefinition['Tile'];
   readonly MainMenu: GameClientDefinition['MainMenu'];
   /** The game's puzzles part, when it offers puzzles. */
   declare readonly puzzles?: GamePuzzlesClient;
@@ -113,7 +124,11 @@ class DefinedGameClient implements GameClientDefinition {
     this.id = id;
     this.title = game.title;
     this.caption = game.caption;
+    const motif = game.tile;
+    this.Tile = (props) => <GameTile motif={motif} size={props.size} />;
     const rules = game.shared.registration?.rules;
+    // A game with no rules of its own (puzzles only) is played alone.
+    this.players = rules === undefined ? 1 : gameSides(rules).length;
     if (rules !== undefined) this.family = gameFamily(rules);
     if (game.presentation !== undefined)
       this.presentation = { ...game.presentation, id };

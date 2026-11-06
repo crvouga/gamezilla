@@ -34,6 +34,10 @@ const HOST_CHOICES: FrameSeatChoices = {
   ],
 };
 
+/** The board's game's own instructions, as its menu shows them. */
+const CONNECT_FOUR_RULES = () =>
+  'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.';
+
 const OPEN = seat('black', { kind: 'open' }, 'Open place');
 
 const CONFIGURING: Partial<GameFrameScreenViewProps> = {
@@ -47,11 +51,13 @@ const CONFIGURING: Partial<GameFrameScreenViewProps> = {
   setup: setup([
     setupSeat(AVERY, {
       host: true,
+      own: true,
       ready: true,
       canLeave: true,
       choices: HOST_CHOICES,
     }),
     setupSeat(BOT, {
+      ready: true,
       choices: {
         ...HOST_CHOICES,
         difficulties: ['easy', 'medium', 'hard'],
@@ -76,6 +82,7 @@ const meta = {
     <GameFrameScreenView
       {...args}
       board={<ConnectFourStoryBoard moves={[]} />}
+      about={CONNECT_FOUR_RULES}
     />
   ),
 } satisfies Meta<typeof GameFrameScreenView>;
@@ -119,7 +126,12 @@ export const WaitingForPlayers: Story = {
     }),
     setup: setup(
       [
-        setupSeat(AVERY, { host: true, canLeave: true, choices: HOST_CHOICES }),
+        setupSeat(AVERY, {
+          host: true,
+          own: true,
+          canLeave: true,
+          choices: HOST_CHOICES,
+        }),
         setupSeat(OPEN, { choices: HOST_CHOICES }),
       ],
       {
@@ -140,7 +152,12 @@ export const InvitationPending: Story = {
     ...CONFIGURING,
     setup: setup(
       [
-        setupSeat(AVERY, { host: true, ready: true, choices: HOST_CHOICES }),
+        setupSeat(AVERY, {
+          host: true,
+          own: true,
+          ready: true,
+          choices: HOST_CHOICES,
+        }),
         setupSeat(
           seat(
             'black',
@@ -217,7 +234,7 @@ export const GuestSeated: Story = {
     setup: setup(
       [
         setupSeat(AVERY, { host: true, ready: true }),
-        setupSeat(JORDAN, { visiting: true, canLeave: true }),
+        setupSeat(JORDAN, { visiting: true, own: true, canLeave: true }),
       ],
       {
         start: {
@@ -329,6 +346,7 @@ export const TimedSetup: Story = {
         }),
         {
           host: true,
+          own: true,
           ready: true,
         }
       ),
@@ -378,7 +396,12 @@ export const LocalAndClosedSeats: Story = {
     playerCount: 3,
     setup: setup(
       [
-        setupSeat(AVERY, { host: true, ready: true, choices: HOST_CHOICES }),
+        setupSeat(AVERY, {
+          host: true,
+          own: true,
+          ready: true,
+          choices: HOST_CHOICES,
+        }),
         setupSeat(seat('black', { kind: 'local' }, 'Player on this device'), {
           ready: true,
           choices: HOST_CHOICES,

@@ -1,0 +1,4 @@
+{
+  "summary": "The builders' next step had no single dominant action: its button sat inside the step track among the others, and a pack waiting on a draft puzzle had no action at all, so publishing read as three steps to work out. The next step's action now leads, filled, under the line naming it and over the steps; a pack's lead opens its first draft puzzle to publish it.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

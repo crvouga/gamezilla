@@ -59,7 +59,7 @@ function pair() {
             await frame;
             accepted = true;
           }
-          if (text === 'Withdraw readiness' && !ready.has(actor))
+          if (text === "I'm not ready" && !ready.has(actor))
             throw new Error('not ready');
         },
       },

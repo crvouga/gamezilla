@@ -1,0 +1,765 @@
+#!/usr/bin/env python3
+"""council-round: the bookkeeping and stopping rule for an overhaul loop.
+
+Shared, byte for byte, by the ui-overhaul and ui-ux-overhaul skills. Python 3.9+
+standard library only, so it runs in any repository and under any agent host.
+
+Subcommands (run `council-round <cmd> --help` for flags):
+
+  init-run   Fix the roster, minimum, scope and council prompt for a run.
+  manifest   Hash an evidence directory and open a round (round.json).
+  prompt     Fill the council review prompt for a round.
+  collect    Read Agent Council session(s) and extract each member's rating.
+  record     Record check results and the scope audit on a round.
+  decide     Apply the stopping rule. Exit 0 PASS, 10 ANOTHER_ROUND, 20 INCOMPLETE.
+  render     Print the ratings table, findings, verdict and resume marker.
+  final      Print the success comment. Refuses unless the round PASSES.
+  gallery    Print commit-pinned Markdown images for paired screenshots.
+  markers    Parse resume markers from PR comments on stdin (--restore rebuilds state).
+  self-test  Run the bundled validation cases in ../tests/fixtures.
+
+The verdict never averages, never mixes revisions and never drops a member.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import secrets
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+SCHEMA = 1
+AGENT_COUNCIL_MEMBERS = ("claude", "codex", "gemini")
+ALIASES = {
+    "claude": "claude", "claude code": "claude", "anthropic": "claude",
+    "codex": "codex", "codex cli": "codex", "openai": "codex", "gpt": "codex",
+    "gemini": "gemini", "gemini cli": "gemini", "google": "gemini",
+}
+SKILLS = {
+    "ui-overhaul": "UI quality overhaul",
+    "ui-ux-overhaul": "UI and UX overhaul",
+}
+RATING_FENCE = re.compile(r"```ui-council-rating\s*\n(.*?)\n```", re.S)
+MARKER = re.compile(r"<!--\s*overhaul-loop:(run|round|final)\s+(\{.*?\})\s*-->", re.S)
+EXIT = {"PASS": 0, "ANOTHER_ROUND": 10, "INCOMPLETE": 20}
+SKILL_DIR = Path(__file__).resolve().parent.parent
+
+
+class Refusal(Exception):
+    """A request the loop's rules forbid. Exit 2 with the reason."""
+
+
+# ---------------------------------------------------------------- helpers
+
+def load(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def dump(path, data):
+    Path(path).write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 16), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def canonical_member(name):
+    key = name.strip().lower()
+    if key not in ALIASES:
+        raise Refusal(
+            f"'{name}' is not a member Agent Council can convene "
+            f"(supported: {', '.join(AGENT_COUNCIL_MEMBERS)}). Ask the user to choose "
+            "supported members, or install an Agent Council version that adds this agent."
+        )
+    return ALIASES[key]
+
+
+def git(repo, *args):
+    out = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True)
+    if out.returncode != 0:
+        raise Refusal(f"git {' '.join(args)} failed: {out.stderr.strip()}")
+    return out.stdout.strip()
+
+
+def fmt(score):
+    if score is None:
+        return "—"
+    return f"{score:g}"
+
+
+def num(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if value < 0 or value > 10:
+        return None
+    return float(value)
+
+
+# ---------------------------------------------------------------- init-run
+
+def cmd_init_run(a):
+    if a.skill not in SKILLS:
+        raise Refusal(f"--skill must be one of {', '.join(SKILLS)}")
+    roster = []
+    for name in a.roster.split(","):
+        if name.strip():
+            member = canonical_member(name)
+            if member not in roster:
+                roster.append(member)
+    if not roster:
+        raise Refusal("The roster is empty. Ask the user which council members to use.")
+    minimum = float(a.minimum)
+    if not 0 < minimum <= 10:
+        raise Refusal("The minimum must be a rating out of 10, above 0.")
+    template = Path(a.prompt_template)
+    run = {
+        "schema": SCHEMA,
+        "skill": a.skill,
+        "pr_title": a.pr_title or SKILLS[a.skill],
+        "roster": roster,
+        "minimum": minimum,
+        "prompt_template": str(template),
+        "prompt_sha256": sha256_file(template),
+        "product": a.product,
+        "journeys": a.journey,
+        "screens": a.screen,
+        "storybook": a.storybook,
+    }
+    dump(a.out, run)
+    print(json.dumps(run, indent=2))
+    print("\nPaste this resume marker at the end of the opening PR comment:\n")
+    print(marker("run", run))
+
+
+# ---------------------------------------------------------------- manifest
+
+def cmd_manifest(a):
+    run = load(a.run)
+    evidence = Path(a.evidence).resolve()
+    if not evidence.is_dir():
+        raise Refusal(f"{evidence} is not a directory")
+    if a.repo:
+        head = git(a.repo, "rev-parse", "HEAD")
+        if not head.startswith(a.candidate_sha) and not a.candidate_sha.startswith(head):
+            raise Refusal(f"HEAD is {head}, not the candidate {a.candidate_sha}. Check out the candidate first.")
+        dirty = git(a.repo, "status", "--porcelain", "--untracked-files=no")
+        if dirty:
+            raise Refusal("The working tree has uncommitted changes; members must see exactly the candidate commit.\n" + dirty)
+    files = []
+    for path in sorted(evidence.rglob("*")):
+        if path.is_file() and path.name not in ("manifest.json",):
+            files.append({"path": path.relative_to(evidence).as_posix(), "sha256": sha256_file(path)})
+    if not files:
+        raise Refusal("The evidence directory is empty.")
+    before_manifest_sha = None
+    if a.before_manifest:
+        before_manifest_sha = sha256_file(a.before_manifest)
+    token = a.code or secrets.token_hex(8)
+    manifest = {
+        "schema": SCHEMA,
+        "skill": run["skill"],
+        "round": a.round,
+        "kind": a.kind,
+        "candidate_sha": a.candidate_sha,
+        "evidence_code": token,
+        "files": files,
+    }
+    manifest_path = evidence / "manifest.json"
+    dump(manifest_path, manifest)
+    round_ = {
+        "schema": SCHEMA,
+        "skill": run["skill"],
+        "round": a.round,
+        "kind": a.kind,
+        "start_sha": a.start_sha or a.candidate_sha,
+        "candidate_sha": a.candidate_sha,
+        "evidence_dir": str(evidence),
+        "manifest_sha256": sha256_file(manifest_path),
+        "evidence_code": token,
+        "before_manifest_sha256": before_manifest_sha,
+        "stories": a.story,
+        "checks": [],
+        "scope_audit": None,
+    }
+    dump(a.out, round_)
+    print(f"{len(files)} evidence files; manifest {round_['manifest_sha256'][:12]}; round written to {a.out}")
+
+
+# ---------------------------------------------------------------- prompt
+
+def cmd_prompt(a):
+    run, round_ = load(a.run), load(a.round)
+    template = Path(a.template or run["prompt_template"])
+    if sha256_file(template) != run["prompt_sha256"]:
+        raise Refusal(
+            "The council prompt changed since the run started. The rubric stays fixed for a run "
+            "unless the user explicitly changes it; restore the template or start a new run."
+        )
+    evidence = Path(round_["evidence_dir"])
+    rel = os.path.relpath(evidence, a.repo_root) if a.repo_root else str(evidence)
+    values = {
+        "SKILL": run["skill"],
+        "PRODUCT": run.get("product") or "(see the repository README)",
+        "CANDIDATE_SHA": round_["candidate_sha"],
+        "EVIDENCE_DIR": rel,
+        "ROUND": str(round_["round"]),
+        "JOURNEYS": "\n".join(f"  - J{i}: {j}" for i, j in enumerate(run.get("journeys") or [], start=1)) or "  - (none listed)",
+        "SCREENS": "\n".join(f"  - `{s}`" for s in round_.get("stories") or run.get("screens") or []) or "  - (see manifest)",
+        "NOTES": a.notes or "None.",
+    }
+    text = template.read_text(encoding="utf-8")
+    body = text.split("<!-- prompt-start -->", 1)[-1]
+    for key, value in values.items():
+        body = body.replace("{{" + key + "}}", value)
+    left = re.findall(r"\{\{[A-Z_]+\}\}", body)
+    if left:
+        raise Refusal(f"Unfilled placeholders: {', '.join(sorted(set(left)))}")
+    Path(a.out).write_text(body.strip() + "\n", encoding="utf-8")
+    print(f"Council question written to {a.out}")
+
+
+# ---------------------------------------------------------------- collect
+
+def parse_rating(opinion, round_, run):
+    """Return (rating, problem). problem is None when the rating is valid."""
+    if opinion.get("status") != "ok":
+        return None, f"no review ({opinion.get('status')}: {opinion.get('error') or 'no detail'})"
+    blocks = RATING_FENCE.findall(opinion.get("response") or "")
+    if not blocks:
+        return None, "the response has no ui-council-rating block"
+    try:
+        data = json.loads(blocks[-1])
+    except json.JSONDecodeError as e:
+        return None, f"the rating block is not valid JSON ({e.msg})"
+    design, ux = num(data.get("design")), num(data.get("ux"))
+    if design is None or ux is None:
+        return None, "design and ux must be numbers from 0 to 10"
+    revision = str(data.get("revision") or "")
+    if not revision or not (round_["candidate_sha"].startswith(revision) or revision.startswith(round_["candidate_sha"])) or len(revision) < 7:
+        return None, f"rated revision '{revision}', not the candidate {round_['candidate_sha'][:12]}"
+    if data.get("evidence_code") != round_["evidence_code"]:
+        return None, "the evidence code does not match this round's evidence manifest (evidence not inspected, or a different evidence set)"
+    scope = data.get("scope")
+    if scope not in ("respected", "violated"):
+        return None, "scope must be 'respected' or 'violated'"
+    for axis, score in (("design", design), ("ux", ux)):
+        cites = data.get(f"{axis}_deductions") or []
+        if score < 10 and not any(isinstance(c, dict) and c.get("where") and c.get("issue") for c in cites):
+            return None, f"{axis} {score:g} has no deduction citing a screen, state or interaction"
+    if (design < 10 or ux < 10) and not str(data.get("top_fix") or "").strip():
+        return None, "the most important remaining fix is missing"
+    journeys = data.get("journeys") or []
+    if run["skill"] == "ui-ux-overhaul":
+        seen = {j.get("id"): j for j in journeys if isinstance(j, dict)}
+        for i, _ in enumerate(run.get("journeys") or [], start=1):
+            j = seen.get(f"J{i}")
+            if j is None or not isinstance(j.get("completable"), bool):
+                return None, f"journey J{i} has no completable true/false assessment"
+    return {
+        "design": design,
+        "ux": ux,
+        "scope": scope,
+        "scope_notes": data.get("scope_notes") or "",
+        "design_deductions": data.get("design_deductions") or [],
+        "ux_deductions": data.get("ux_deductions") or [],
+        "top_fix": data.get("top_fix") or "",
+        "journeys": journeys,
+        "out_of_scope": data.get("out_of_scope") or [],
+        "revision": revision,
+        "model": opinion.get("model"),
+    }, None
+
+
+def cmd_collect(a):
+    run, round_ = load(a.run), load(a.round)
+    if round_["skill"] != run["skill"]:
+        raise Refusal("round.json belongs to a different run")
+    members = {m: {"status": "missing", "problem": "not convened in any session", "session": None} for m in run["roster"]}
+    extras = []
+    for session in a.session:
+        session = Path(session)
+        meta = load(session / "meta.json")
+        for agent in meta.get("members", []):
+            if agent not in members and agent not in extras:
+                extras.append(agent)
+        for member in run["roster"]:
+            path = session / "stage1" / f"opinion_{member}.json"
+            if not path.exists():
+                if members[member]["status"] != "ok" and member not in meta.get("members", []):
+                    members[member]["problem"] = "not convened (not installed, failed preflight, or not detected)"
+                continue
+            rating, problem = parse_rating(load(path), round_, run)
+            if rating:
+                members[member] = {"status": "ok", "session": meta.get("id", session.name), **rating}
+            elif members[member]["status"] != "ok":
+                members[member] = {"status": "missing", "problem": problem, "session": meta.get("id", session.name)}
+    out = {
+        "schema": SCHEMA,
+        "skill": run["skill"],
+        "round": round_["round"],
+        "candidate_sha": round_["candidate_sha"],
+        "manifest_sha256": round_["manifest_sha256"],
+        "sessions": [load(Path(s) / "meta.json").get("id", Path(s).name) for s in a.session],
+        "members": members,
+        "non_voting": extras,
+    }
+    dump(a.out, out)
+    for member, r in members.items():
+        if r["status"] == "ok":
+            print(f"{member}: design {fmt(r['design'])}, ux {fmt(r['ux'])}, scope {r['scope']}")
+        else:
+            print(f"{member}: MISSING — {r['problem']}")
+    if extras:
+        print(f"non-voting (not on the roster): {', '.join(extras)}")
+
+
+# ---------------------------------------------------------------- record
+
+def cmd_record(a):
+    round_ = load(a.round)
+    for item in a.check or []:
+        name, _, status = item.partition("=")
+        status = status.strip().lower()
+        if status not in ("pass", "fail", "pending"):
+            raise Refusal(f"check '{item}': status must be pass, fail or pending")
+        round_["checks"] = [c for c in round_["checks"] if c["name"] != name.strip()]
+        round_["checks"].append({"name": name.strip(), "status": status, "detail": a.detail or ""})
+    if a.scope:
+        round_["scope_audit"] = {"respected": a.scope == "respected", "notes": a.scope_notes or ""}
+    dump(a.round, round_)
+    print(json.dumps({"checks": round_["checks"], "scope_audit": round_["scope_audit"]}, indent=2))
+
+
+# ---------------------------------------------------------------- decide
+
+def decide(run, round_, ratings):
+    """The stopping rule. Returns (verdict, reasons)."""
+    if ratings["skill"] != run["skill"] or round_["skill"] != run["skill"]:
+        raise Refusal("ratings, round and run belong to different skills")
+    if ratings["candidate_sha"] != round_["candidate_sha"] or ratings["manifest_sha256"] != round_["manifest_sha256"]:
+        raise Refusal("the ratings were collected for a different revision or evidence set than this round")
+    if set(ratings["members"]) != set(run["roster"]):
+        raise Refusal("the ratings do not cover exactly the run's roster; the roster is fixed for the run")
+    minimum = run["minimum"]
+    incomplete, failing = [], []
+    for member in run["roster"]:
+        r = ratings["members"][member]
+        if r["status"] != "ok":
+            incomplete.append(f"{member}: review missing — {r['problem']}")
+            continue
+        for axis in ("design", "ux"):
+            if r[axis] < minimum:
+                failing.append(f"{member}: {axis} {fmt(r[axis])} is below the minimum {fmt(minimum)}")
+        if r["scope"] == "violated":
+            failing.append(f"{member}: reports the change leaves the {run['skill']} scope — {r['scope_notes'] or 'no note'}")
+        for j in r.get("journeys") or []:
+            if isinstance(j, dict) and j.get("completable") is False:
+                failing.append(f"{member}: journey {j.get('id')} can no longer be completed — {j.get('notes') or 'no note'}")
+    checks = round_.get("checks") or []
+    if not checks:
+        incomplete.append("no check results recorded for the candidate")
+    for c in checks:
+        if c["status"] == "pending":
+            incomplete.append(f"check {c['name']} is still pending")
+        elif c["status"] == "fail":
+            failing.append(f"check {c['name']} failed{': ' + c['detail'] if c.get('detail') else ''}")
+    audit = round_.get("scope_audit")
+    if audit is None:
+        incomplete.append("the scope audit has not been recorded")
+    elif not audit["respected"]:
+        failing.append(f"scope audit: the change leaves the {run['skill']} scope — {audit['notes']}")
+    if incomplete:
+        return "INCOMPLETE", incomplete + failing
+    if failing:
+        return "ANOTHER_ROUND", failing
+    return "PASS", [f"every member gave design and UX at least {fmt(minimum)} on {round_['candidate_sha'][:12]}; checks pass; scope respected"]
+
+
+def cmd_decide(a):
+    run, round_, ratings = load(a.run), load(a.round), load(a.ratings)
+    verdict, reasons = decide(run, round_, ratings)
+    print(verdict)
+    for r in reasons:
+        print(f"- {r}")
+    return EXIT[verdict]
+
+
+# ---------------------------------------------------------------- render
+
+def before_scores(round_, before_ratings):
+    if before_ratings is None:
+        return None, "no earlier rating of the starting revision"
+    if before_ratings["candidate_sha"] != round_["start_sha"]:
+        raise Refusal(
+            f"the before ratings were given to {before_ratings['candidate_sha'][:12]}, but this round started from "
+            f"{round_['start_sha'][:12]}. Rate the starting revision before using its scores."
+        )
+    if round_.get("before_manifest_sha256") and before_ratings["manifest_sha256"] != round_["before_manifest_sha256"]:
+        raise Refusal(
+            "the before ratings were given on a different evidence set than this round's before screenshots "
+            "(the review scope changed). Obtain comparable baseline ratings for the expanded scope."
+        )
+    note = f"ratings given to {round_['start_sha'][:12]} in council session(s) {', '.join(before_ratings.get('sessions') or [])}"
+    return before_ratings["members"], note
+
+
+def ratings_table(run, round_, ratings, before):
+    minimum = run["minimum"]
+    lines = [
+        f"| Member | Design before | Design after | UX before | UX after | Meets minimum ({fmt(minimum)})? |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for member in run["roster"]:
+        r = ratings["members"][member]
+        b = (before or {}).get(member) or {}
+        bd = fmt(b.get("design")) if b.get("status") == "ok" else "—"
+        bu = fmt(b.get("ux")) if b.get("status") == "ok" else "—"
+        if r["status"] != "ok":
+            lines.append(f"| {member} | {bd} | missing | {bu} | missing | ⚠️ Incomplete — review missing |")
+            continue
+        meets = r["design"] >= minimum and r["ux"] >= minimum
+        low = [axis for axis in ("design", "ux") if r[axis] < minimum]
+        mark = "✅ Yes" if meets else f"❌ No ({', '.join(low)} below {fmt(minimum)})"
+        if meets and r["scope"] == "violated":
+            mark = "❌ No (scope violation reported)"
+        lines.append(f"| {member} | {bd} | {fmt(r['design'])} | {bu} | {fmt(r['ux'])} | {mark} |")
+    return "\n".join(lines)
+
+
+def findings(run, ratings):
+    out = []
+    for member in run["roster"]:
+        r = ratings["members"][member]
+        out.append(f"<details><summary><b>{member}</b>" + (f" — top fix: {r['top_fix']}" if r["status"] == "ok" and r["top_fix"] else "") + "</summary>\n")
+        if r["status"] != "ok":
+            out.append(f"Review missing: {r['problem']}\n")
+        else:
+            out.append(f"Session `{r['session']}`" + (f", model `{r['model']}`" if r.get("model") else "") + f". Scope: **{r['scope']}**" + (f" — {r['scope_notes']}" if r["scope_notes"] else "") + "\n")
+            for axis in ("design", "ux"):
+                out.append(f"**{axis.upper()} {fmt(r[axis])}** deductions:")
+                for d in r[f"{axis}_deductions"]:
+                    cost = f" (−{fmt(d['cost'])})" if isinstance(d.get("cost"), (int, float)) else ""
+                    out.append(f"- `{d.get('where')}`{cost}: {d.get('issue')}")
+                if not r[f"{axis}_deductions"]:
+                    out.append("- none")
+                out.append("")
+            for j in r.get("journeys") or []:
+                if isinstance(j, dict):
+                    out.append(f"- Journey {j.get('id')}: {'completable' if j.get('completable') else '**NOT completable**'}"
+                               + (f", {j.get('steps_before')} → {j.get('steps_after')} steps" if j.get('steps_after') is not None else "")
+                               + f" — {j.get('notes', '')}")
+            if r.get("out_of_scope"):
+                out.append("\nOutside this skill's scope (not deducted): " + "; ".join(str(x) for x in r["out_of_scope"]))
+        out.append("</details>\n")
+    if ratings.get("non_voting"):
+        out.append(f"Non-voting opinions (not on the roster, ignored by the stopping rule): {', '.join(ratings['non_voting'])}.\n")
+    return "\n".join(out)
+
+
+def checks_md(round_):
+    lines = [f"- {'✅' if c['status'] == 'pass' else '❌' if c['status'] == 'fail' else '⏳'} {c['name']}" + (f" — {c['detail']}" if c.get("detail") else "") for c in round_.get("checks") or []]
+    audit = round_.get("scope_audit")
+    if audit is not None:
+        lines.append(f"- {'✅' if audit['respected'] else '❌'} scope audit — {audit['notes'] or ('respected' if audit['respected'] else 'violated')}")
+    return "\n".join(lines) or "- none recorded"
+
+
+def marker(kind, payload):
+    return f"<!-- overhaul-loop:{kind} {json.dumps(payload, sort_keys=True, separators=(',', ':'))} -->"
+
+
+def cmd_render(a):
+    run, round_, ratings = load(a.run), load(a.round), load(a.ratings)
+    before, before_note = before_scores(round_, load(a.before_ratings) if a.before_ratings else None)
+    verdict, reasons = decide(run, round_, ratings)
+    label = {"PASS": "✅ PASS", "ANOTHER_ROUND": "🔁 ANOTHER ROUND", "INCOMPLETE": "⚠️ INCOMPLETE — retrying the missing review"}[verdict]
+    sb = run.get("storybook") or ""
+    linkable = sb.startswith("http") and not re.search(r"//(localhost|127\.|0\.0\.0\.0)", sb)
+    stories = ", ".join(f"[`{s}`]({sb.rstrip('/')}/?path=/story/{s})" if linkable else f"`{s}`" for s in round_.get("stories") or [])
+    parts = [
+        f"**Stories reviewed:** {stories or '(see manifest)'}",
+        "",
+        "### Ratings",
+        "",
+        ratings_table(run, round_, ratings, before),
+        "",
+        f"_Before scores: {before_note}._ "
+        "Scores are never averaged; every member must meet the minimum on both axes on this revision.",
+        "",
+        "### Findings",
+        "",
+        findings(run, ratings),
+        "### Checks",
+        "",
+        checks_md(round_),
+        "",
+        f"### Verdict: {label}",
+        "",
+        *[f"- {r}" for r in reasons],
+        "",
+        marker("round", {
+            "skill": run["skill"], "round": round_["round"], "kind": round_["kind"],
+            "start_sha": round_["start_sha"], "candidate_sha": round_["candidate_sha"],
+            "manifest_sha256": round_["manifest_sha256"], "evidence_commit": a.evidence_commit,
+            "verdict": verdict,
+            "ratings": {m: ({"design": r["design"], "ux": r["ux"], "scope": r["scope"]} if r["status"] == "ok" else None) for m, r in ratings["members"].items()},
+        }),
+    ]
+    text = "\n".join(parts)
+    if a.out:
+        Path(a.out).write_text(text + "\n", encoding="utf-8")
+    print(text)
+    return EXIT[verdict]
+
+
+def cmd_final(a):
+    run, round_, ratings = load(a.run), load(a.round), load(a.ratings)
+    verdict, reasons = decide(run, round_, ratings)
+    if verdict != "PASS":
+        print(f"Refusing to finish: round {round_['round']} is {verdict}.", file=sys.stderr)
+        for r in reasons:
+            print(f"- {r}", file=sys.stderr)
+        return EXIT[verdict]
+    rows = "\n".join(
+        f"| {m} | {fmt(ratings['members'][m]['design'])} | {fmt(ratings['members'][m]['ux'])} | `{ratings['members'][m]['session']}` |"
+        for m in run["roster"]
+    )
+    text = "\n".join([
+        f"## {run['pr_title']}: passed in round {round_['round']}",
+        "",
+        f"Every council member rated revision `{round_['candidate_sha']}` at or above **{fmt(run['minimum'])}/10** on both design and UX, the checks pass, and the {run['skill']} scope was respected.",
+        "",
+        f"- Passing round: {a.round_url or '(link the round comment)'}",
+        f"- Screenshots: {a.screenshots_url or '(link the evidence commit)'}",
+        "",
+        "| Member | Design | UX | Council session |",
+        "| --- | --- | --- | --- |",
+        rows,
+        "",
+        marker("final", {"skill": run["skill"], "round": round_["round"], "candidate_sha": round_["candidate_sha"],
+                         "ratings": {m: {"design": r["design"], "ux": r["ux"]} for m, r in ratings["members"].items()}}),
+    ])
+    print(text)
+    return 0
+
+
+def cmd_markers(a):
+    text = sys.stdin.read()
+    found = [{**json.loads(v), "marker": k} for k, v in MARKER.findall(text)]
+    print(json.dumps(found, indent=2))
+    if not a.restore:
+        return 0
+    state = Path(a.restore)
+    runs = [m for m in found if m["marker"] == "run"]
+    if not runs:
+        raise Refusal("no run marker found; the opening comment is missing or was edited")
+    run = {k: v for k, v in runs[-1].items() if k != "marker"}
+    state.mkdir(parents=True, exist_ok=True)
+    dump(state / "run.json", run)
+    for m in (m for m in found if m["marker"] == "round"):
+        d = state / f"round-{m['round']}"
+        d.mkdir(exist_ok=True)
+        members = {
+            member: ({"status": "ok", **r, "session": "restored from PR marker"} if r else {"status": "missing", "problem": "missing in the posted round"})
+            for member, r in m["ratings"].items()
+        }
+        dump(d / "ratings.json", {"schema": SCHEMA, "skill": m["skill"], "round": m["round"], "candidate_sha": m["candidate_sha"],
+                                  "manifest_sha256": m["manifest_sha256"], "sessions": ["restored from PR marker"],
+                                  "members": members, "non_voting": [], "verdict": m["verdict"], "evidence_commit": m.get("evidence_commit")})
+    scored = [m for m in found if m["marker"] == "round" and all(m["ratings"].values())]
+    last = scored[-1] if scored else None
+    print(f"restored run.json and {sum(1 for m in found if m['marker'] == 'round')} round(s) into {state}", file=sys.stderr)
+    if last:
+        print(f"last fully scored revision: {last['candidate_sha']} (round {last['round']}, {last['verdict']}, evidence commit {last.get('evidence_commit')})", file=sys.stderr)
+    return 0
+
+
+def cmd_gallery(a):
+    """Markdown for paired screenshots: one section per story, first viewport inline, others folded."""
+    base = a.base_url.rstrip("/")
+    pairs = sorted(Path(a.pairs).glob("*.png"))
+    if not pairs:
+        raise Refusal(f"no paired images in {a.pairs}")
+    stories = {}
+    for f in pairs:
+        # <story-id> itself contains "--" (title--name); split viewport/theme from the right.
+        parts = f.stem.split("--")
+        story, variant = ("--".join(parts[:2]), "--".join(parts[2:])) if len(parts) > 2 else (f.stem, "")
+        stories.setdefault(story, []).append((variant, f.name))
+    out = []
+    prefix = a.prefix.strip("/") + "/" if a.prefix else ""
+    for story, shots in stories.items():
+        shots.sort(key=lambda v: (not v[0].startswith(a.inline), v[0]))
+        out.append(f"#### `{story}`")
+        inline = [s for s in shots if s[0].startswith(a.inline)] or shots[:1]
+        folded = [s for s in shots if s not in inline]
+        for variant, name in inline:
+            out.append(f"![{story} {variant} before and after]({base}/{prefix}{name})")
+        if folded:
+            out.append("\n<details><summary>" + ", ".join(v or "other" for v, _ in folded) + "</summary>\n")
+            for variant, name in folded:
+                out.append(f"![{story} {variant} before and after]({base}/{prefix}{name})\n")
+            out.append("</details>")
+        out.append("")
+    for f in sorted(Path(a.journeys).glob("*.png")) if a.journeys else []:
+        out.append(f"#### Journey `{f.stem}`\n![{f.stem} before and after sequences]({base}/{a.journeys_prefix.strip('/') + '/' if a.journeys_prefix else ''}{f.name})\n")
+    print("\n".join(out))
+
+
+# ---------------------------------------------------------------- self-test
+
+def cmd_self_test(a):
+    fixtures = Path(a.fixtures or SKILL_DIR / "tests" / "fixtures")
+    failures = 0
+    cases = sorted(p for p in fixtures.iterdir() if (p / "expected.json").exists())
+    if not cases:
+        raise Refusal(f"no fixtures in {fixtures}")
+    with tempfile.TemporaryDirectory() as tmp:
+        for case in cases:
+            expected = load(case / "expected.json")
+            run, round_ = load(case / "run.json"), load(case / "round.json")
+            out = Path(tmp) / f"{case.name}.ratings.json"
+            ns = argparse.Namespace(run=case / "run.json", round=case / "round.json",
+                                    session=[case / s for s in expected["sessions"]], out=out)
+            with open(os.devnull, "w") as null:
+                stdout, sys.stdout = sys.stdout, null
+                try:
+                    cmd_collect(ns)
+                finally:
+                    sys.stdout = stdout
+            ratings = load(out)
+            verdict, reasons = decide(run, round_, ratings)
+            with open(os.devnull, "w") as null:
+                stdout, stderr = sys.stdout, sys.stderr
+                sys.stdout = sys.stderr = null
+                try:
+                    final_exit = cmd_final(argparse.Namespace(run=case / "run.json", round=case / "round.json", ratings=out,
+                                                              round_url=None, screenshots_url=None))
+                finally:
+                    sys.stdout, sys.stderr = stdout, stderr
+            finished = final_exit == 0
+            ok = verdict == expected["verdict"] and finished == expected["may_finish"]
+            if expected.get("reason_contains"):
+                ok = ok and any(expected["reason_contains"] in r for r in reasons)
+            failures += 0 if ok else 1
+            print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {verdict}{' (finishes)' if finished else ''}")
+            for r in reasons:
+                print(f"       - {r}")
+    # Resume markers survive a round trip, including a payload with its own "kind" field.
+    text = marker("run", {"skill": "ui-overhaul", "roster": ["claude"]}) + "\n" + marker("round", {"kind": "baseline", "round": 0})
+    parsed = [{**json.loads(v), "marker": k} for k, v in MARKER.findall(text)]
+    ok = [m["marker"] for m in parsed] == ["run", "round"] and parsed[1]["kind"] == "baseline"
+    failures += 0 if ok else 1
+    print(f"{'ok  ' if ok else 'FAIL'} resume-marker-round-trip")
+    print(f"{len(cases) + 1 - failures}/{len(cases) + 1} cases behave as expected")
+    return 1 if failures else 0
+
+
+# ---------------------------------------------------------------- main
+
+def main(argv=None):
+    p = argparse.ArgumentParser(prog="council-round", description=__doc__.split("\n\n")[0])
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("init-run", help="fix roster, minimum and prompt for the run")
+    s.add_argument("--skill", required=True, choices=sorted(SKILLS))
+    s.add_argument("--roster", required=True, help="comma-separated, e.g. claude,codex,gemini")
+    s.add_argument("--minimum", required=True, help="minimum rating out of 10 for design and UX")
+    s.add_argument("--prompt-template", default=str(SKILL_DIR / "assets" / "council-review-prompt.md"))
+    s.add_argument("--pr-title")
+    s.add_argument("--product", help="one paragraph describing the product for reviewers")
+    s.add_argument("--journey", action="append", default=[], help="a primary journey (repeatable)")
+    s.add_argument("--screen", action="append", default=[], help="a screen or state under review (repeatable)")
+    s.add_argument("--storybook", help="Storybook URL or static build directory")
+    s.add_argument("--out", required=True)
+    s.set_defaults(fn=cmd_init_run)
+
+    s = sub.add_parser("manifest", help="hash evidence and open a round")
+    s.add_argument("--run", required=True)
+    s.add_argument("--round", required=True, type=int, help="0 for the baseline")
+    s.add_argument("--kind", default="round", choices=["baseline", "round", "rebaseline"])
+    s.add_argument("--start-sha", help="the last scored revision this round started from")
+    s.add_argument("--candidate-sha", required=True, help="the commit the council will rate")
+    s.add_argument("--evidence", required=True, help="directory the council will inspect")
+    s.add_argument("--before-manifest", help="manifest.json of the evidence the before scores were given on")
+    s.add_argument("--story", action="append", default=[], help="story id under review (repeatable)")
+    s.add_argument("--repo", help="verify HEAD is the candidate and the tree is clean")
+    s.add_argument("--code", help=argparse.SUPPRESS)
+    s.add_argument("--out", required=True)
+    s.set_defaults(fn=cmd_manifest)
+
+    s = sub.add_parser("prompt", help="fill the council review prompt")
+    s.add_argument("--run", required=True)
+    s.add_argument("--round", required=True)
+    s.add_argument("--template")
+    s.add_argument("--repo-root", help="members run here; the evidence path is given relative to it")
+    s.add_argument("--notes", help="what changed this round, stated neutrally")
+    s.add_argument("--out", required=True)
+    s.set_defaults(fn=cmd_prompt)
+
+    s = sub.add_parser("collect", help="extract each member's rating from council sessions")
+    s.add_argument("--run", required=True)
+    s.add_argument("--round", required=True)
+    s.add_argument("--session", required=True, action="append", help="Agent Council session dir (repeatable; same revision and evidence only)")
+    s.add_argument("--out", required=True)
+    s.set_defaults(fn=cmd_collect)
+
+    s = sub.add_parser("record", help="record checks and the scope audit")
+    s.add_argument("--round", required=True)
+    s.add_argument("--check", action="append", help="name=pass|fail|pending (repeatable)")
+    s.add_argument("--detail")
+    s.add_argument("--scope", choices=["respected", "violated"])
+    s.add_argument("--scope-notes")
+    s.set_defaults(fn=cmd_record)
+
+    for name, fn in (("decide", cmd_decide), ("render", cmd_render), ("final", cmd_final)):
+        s = sub.add_parser(name)
+        s.add_argument("--run", required=True)
+        s.add_argument("--round", required=True)
+        s.add_argument("--ratings", required=True)
+        if name == "render":
+            s.add_argument("--before-ratings", help="ratings.json of the starting revision")
+            s.add_argument("--evidence-commit", help="commit that stores this round's screenshots")
+            s.add_argument("--out")
+        if name == "final":
+            s.add_argument("--round-url")
+            s.add_argument("--screenshots-url")
+        s.set_defaults(fn=fn)
+
+    s = sub.add_parser("markers", help="parse resume markers from PR comments on stdin")
+    s.add_argument("--restore", help="state dir to rebuild run.json and each round's ratings.json in")
+    s.set_defaults(fn=cmd_markers)
+
+    s = sub.add_parser("gallery", help="markdown image gallery for paired screenshots")
+    s.add_argument("--pairs", required=True, help="directory of composed before/after images")
+    s.add_argument("--base-url", required=True, help="commit-pinned URL of the evidence root")
+    s.add_argument("--prefix", default="", help="path of the pairs directory under the base URL")
+    s.add_argument("--inline", default="phone", help="viewport shown inline; others fold")
+    s.add_argument("--journeys", help="directory of journey comparison images")
+    s.add_argument("--journeys-prefix", default="")
+    s.set_defaults(fn=cmd_gallery)
+
+    s = sub.add_parser("self-test", help="run the bundled validation cases")
+    s.add_argument("--fixtures")
+    s.set_defaults(fn=cmd_self_test)
+
+    a = p.parse_args(argv)
+    try:
+        return a.fn(a) or 0
+    except Refusal as e:
+        print(f"council-round: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

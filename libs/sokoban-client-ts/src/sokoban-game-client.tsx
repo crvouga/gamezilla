@@ -11,6 +11,7 @@ export const sokobanGameClient = defineGameClient({
   shared: sokobanGameShared,
   title: 'Sokoban',
   caption: 'Push every crate onto a goal',
+  tile: 'crates',
   subtitle: () => <Trans>Push every crate onto a goal, one at a time.</Trans>,
   instructions: () => (
     <P>

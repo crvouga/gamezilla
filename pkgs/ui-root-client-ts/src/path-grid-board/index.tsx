@@ -87,7 +87,12 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
   );
 }
 
-/** A fitted rectangular path surface. Rules and every interaction decision belong to its consumer. */
+/**
+ * A fitted rectangular path surface. Rules and every interaction decision
+ * belong to its consumer. Like the other game boards it keeps one palette
+ * in both themes: its night canvas and bright paths, a board on the page
+ * rather than a cream sheet in the light theme.
+ */
 export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const [focus, setFocus] = createSignal(0);
   const cells = createMemo(() =>
@@ -125,6 +130,7 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     <div
       ref={root}
       class={styles['board']}
+      data-theme="dark"
       {...dataAttrs({ component: 'PathGridBoard' })}
       role="group"
       aria-label={props.label}

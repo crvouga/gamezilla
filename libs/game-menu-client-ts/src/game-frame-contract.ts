@@ -1,10 +1,14 @@
 import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import type {
+  FrameBoardPaint,
   GameFrame,
   GameOptionGroup,
   GamePlayers,
 } from '@pkgs/turn-game-shared-ts/game-frame';
-import { FRAME_SEAT_LIMIT } from '@pkgs/turn-game-shared-ts/game-frame';
+import {
+  FRAME_BOARD_PAINTS,
+  FRAME_SEAT_LIMIT,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GamePositionRules,
   GameSide,
@@ -137,6 +141,11 @@ function assertOptions(
   }
 }
 
+/** A board paint a seat may take instead of a player color. */
+function isBoardPaint(color: unknown): color is FrameBoardPaint {
+  return FRAME_BOARD_PAINTS.some((paint) => paint === color);
+}
+
 function assertLooks(
   id: string,
   look: (side: GameSide) => unknown,
@@ -148,9 +157,9 @@ function assertLooks(
     const mark = seat.mark === undefined ? null : seat.mark;
     if (color === null && (typeof mark !== 'string' || mark.trim() === ''))
       throw new Error(`${id}: the ${side} seat has neither a color nor a mark`);
-    if (color !== null && !isSeatCount(color))
+    if (color !== null && !isSeatCount(color) && !isBoardPaint(color))
       throw new Error(
-        `${id}: the ${side} seat's color is player1 to player${String(FRAME_SEAT_LIMIT)}`
+        `${id}: the ${side} seat's color is player1 to player${String(FRAME_SEAT_LIMIT)} or a board paint (${FRAME_BOARD_PAINTS.join(', ')})`
       );
     return JSON.stringify([color, mark]);
   });

@@ -40,6 +40,26 @@
   --ui-color-on-info: var(--ui-color-game-pong-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* The court, and over each half this device controls, its own slider. */
+.stage {
+  position: relative;
+  width: 100%;
+}
+.half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  /* A finger drags on the court under it; only keys reach the slider. */
+  pointer-events: none;
+}
+.half[data-side="first"] {
+  left: 0;
+}
+.half[data-side="second"] {
+  right: 0;
+}
 .court {
   width: 100%;
   overflow: hidden;
@@ -72,6 +92,91 @@
 .ball {
   fill: currentColor;
 }
+/* Each paddle in its player's color, as their swatch beside their name. */
+.paddle[data-color="player1"] {
+  fill: var(--ui-color-player1);
+}
+.paddle[data-color="player2"] {
+  fill: var(--ui-color-player2);
+}
+.paddle[data-color="player3"] {
+  fill: var(--ui-color-player3);
+}
+.paddle[data-color="player4"] {
+  fill: var(--ui-color-player4);
+}
+/* The person's own paddle: ringed in the court's ink as well. */
 .paddle[data-controlled="true"] {
-  fill: var(--ui-color-tint);
+  stroke: var(--ui-color-text);
+  stroke-width: 3;
+}
+/* The court under its scoreboard. */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  width: 100%;
+}
+/* Over the court, outside the play: each side's points at its own end. */
+.scoreboard {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ui-space-4);
+  min-width: 0;
+  padding-inline: var(--ui-space-1);
+}
+.side {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* The second side reads from its own end: its name, then its points. */
+.side[data-side="second"] {
+  flex-direction: row-reverse;
+}
+/* Who plays each side, small beside its points: `You` in the person's own. */
+.own {
+  overflow: hidden;
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.own[data-own="true"] {
+  color: var(--ui-color-text);
+}
+/* Where the person's thumb drags their paddle: a slim lane of the court's
+   lighter violet along their half's outer edge, shown only while a thumb is
+   on the court or keys reach the paddle's slider. At rest the court is one
+   colour edge to edge, so no unexplained band runs down its side. */
+.lane {
+  fill: var(--ui-color-surface);
+  opacity: 0;
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.stage:active .lane,
+.stage:has(.half :focus-visible) .lane {
+  opacity: 0.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lane {
+    transition: none;
+  }
+}
+.ring {
+  fill: none;
+  stroke: var(--ui-color-border);
+  stroke-width: 4;
+}
+/* The points: large and in the page's bright ink, the first thing read. */
+.score {
+  color: var(--ui-color-text);
+  opacity: 1;
+  font-size: var(--ui-font-size-2xl);
+  font-weight: var(--ui-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }

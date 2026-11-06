@@ -1,0 +1,4 @@
+{
+  "summary": "In a custom game's setup the seat's controls (Change player, I'm not ready) were indented under the name on a desktop but started at the card's edge on a phone, so the same seat looked different by size. They now start at the row's edge on every size.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-seat-card-layout.test.ts"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/permissions-client-ts#src",
+        "@libs/search-shared-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@libs/user-search-client-ts#src",
+        "@libs/user-search-shared-ts#src",
+        "@pkgs/keyword-shared-ts#src",
+        "@pkgs/kv-root-client-ts#src",
+        "@pkgs/kv-root-shared-ts#src",
+        "@pkgs/solid-context-client-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
+    }
+  }
+}

@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { buildNotificationSections } from '@libs/notifications-shared-ts/notifications-sections';
+import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -12,66 +14,212 @@ import {
   storySections,
 } from './notifications-story.example';
 
-const INVITE = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000001',
-  category: 'action_required',
-  title: '@jordan_plays invited you to Friday chess',
-  subtitle: 'Space invite',
-  avatar: { fallbackLabel: '@jordan_plays' },
-  isUnread: true,
-  actions: [
-    { id: 'accept', label: 'Join', variant: 'ghost' },
-    { id: 'decline', label: 'Decline', variant: 'ghost', destructive: true },
-  ],
-});
+/**
+ * Who a notification is about, with the default face every profile is
+ * seeded with. The id is the one the space fixtures
+ * (`spaces-story.example.tsx`) give the same person, so they wear the same
+ * face in every story.
+ */
+function person(username: string, suffix: string) {
+  return {
+    fallbackLabel: `@${username}`,
+    avatarConfig: serializeDefaultAvatarConfig(
+      `5a1e0000-0000-4000-8000-0000000000${suffix}`
+    ),
+  };
+}
 
-const STARTED = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000002',
-  sourceType: 'space_started',
-  title: '@morgan started a space',
-  body: 'Tap to watch or join the next game.',
-  avatar: { fallbackLabel: '@morgan' },
-  createdAt: '2023-11-14T18:30:00.000Z',
-  isUnread: true,
-  deepLink: { path: '/spaces/[spaceId]', params: { spaceId: 'friday-chess' } },
-});
-
-const DISABLED = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000003',
-  category: 'action_required',
-  title: '@sam invited you to Quick connect four',
-  subtitle: 'The space is full',
-  avatar: { fallbackLabel: '@sam' },
-  createdAt: '2023-11-13T20:00:00.000Z',
-  actions: [
-    {
-      id: 'accept',
-      label: 'Join',
-      variant: 'ghost',
-      disabled: true,
-      disabledReason: 'The space is full',
+/** A friend request waiting, with the inbox's own Accept / Decline. */
+function friendRequest(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  createdAt: string,
+  isUnread: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    sourceNamespace: 'friends',
+    sourceType: 'friend-request',
+    category: 'action_required',
+    title: `@${username} sent you a friend request`,
+    avatar: person(username, suffix),
+    createdAt,
+    isUnread,
+    // As the friends sub publishes it: as urgent as a turn waiting on you.
+    priority: 10,
+    actions: [
+      { id: 'accept', label: 'Accept', variant: 'solid' },
+      { id: 'decline', label: 'Decline', variant: 'ghost' },
+    ],
+    deepLink: {
+      path: '/profile/user/[userId]',
+      params: { userId: `5a1e0000-0000-4000-8000-0000000000${suffix}` },
     },
-  ],
-});
+  });
+}
 
-const SYSTEM = storyNotification({
-  id: 'b51c7a90-0000-4000-8000-000000000004',
-  sourceNamespace: 'app',
-  sourceType: 'release_notes',
-  category: 'system',
-  title: 'Puzzles now remember where you left off',
-  createdAt: '2023-11-02T09:00:00.000Z',
-});
+/** A daily game notice: whose turn it is, or how a game ended. */
+function dailyGame(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  text: {
+    readonly title: string;
+    readonly body?: string;
+    readonly createdAt: string;
+    readonly isUnread: boolean;
+    /** As the game platform publishes it: a turn 10, a turn reminder 20. */
+    readonly priority?: number;
+  },
+  ended: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    // The game platform's own namespace; the inbox never names a game.
+    sourceNamespace: 'game-session',
+    sourceType: ended ? 'multiplayer-result' : 'multiplayer-turn',
+    category: ended ? 'informational' : 'action_required',
+    avatar: person(username, suffix),
+    ...text,
+    actions: ended
+      ? [{ id: 'dismiss', label: 'Dismiss', variant: 'ghost' }]
+      : [],
+    deepLink: { path: '/daily-game/multiplayer' },
+  });
+}
 
-const SECTIONS = storySections([
-  ['Today', [INVITE, STARTED]],
-  ['Yesterday', [DISABLED]],
-  ['Earlier', [SYSTEM]],
-]);
+/** A friend request avery sent was accepted. */
+function accepted(
+  id: string,
+  who: readonly [username: string, suffix: string],
+  createdAt: string,
+  isUnread: boolean
+) {
+  const [username, suffix] = who;
+  return storyNotification({
+    id,
+    sourceNamespace: 'friends',
+    sourceType: 'friend-request-accepted',
+    title: `@${username} accepted your friend request`,
+    avatar: person(username, suffix),
+    createdAt,
+    isUnread,
+    deepLink: {
+      path: '/profile/user/[userId]',
+      params: { userId: `5a1e0000-0000-4000-8000-0000000000${suffix}` },
+    },
+  });
+}
 
+const JORDAN = ['jordan', '10'] as const;
+const RILEY = ['riley_k', '12'] as const;
+const ROBIN = ['robin_42', '04'] as const;
+const SAM = ['sam', '05'] as const;
+const MORGAN = ['morgan', '03'] as const;
+const JORDAN_PLAYS = ['jordan_plays', '02'] as const;
+const CASEY = ['casey', '09'] as const;
+
+const ID = 'b51c7a90-0000-4000-8000-0000000000';
+
+// What waits on avery, in no particular order: the inbox lists it (the
+// section builder below) the most urgent first, the turn low on time, then
+// the newest of the rest.
+const NEEDS_YOU = [
+  dailyGame(
+    `${ID}03`,
+    SAM,
+    {
+      title: "You're low on time in your daily game against @sam",
+      body: '3 hours left to move.',
+      createdAt: '2023-11-14T13:10:00.000Z',
+      isUnread: true,
+      priority: 20,
+    },
+    false
+  ),
+  dailyGame(
+    `${ID}02`,
+    ROBIN,
+    {
+      title: "It's your turn in your daily game against @robin_42",
+      createdAt: '2023-11-14T20:05:00.000Z',
+      isUnread: true,
+      priority: 10,
+    },
+    false
+  ),
+  friendRequest(`${ID}01`, JORDAN, '2023-11-14T21:48:00.000Z', true),
+  friendRequest(`${ID}04`, RILEY, '2023-11-13T16:30:00.000Z', true),
+];
+
+const TODAY = [
+  accepted(`${ID}05`, MORGAN, '2023-11-14T18:20:00.000Z', true),
+  dailyGame(
+    `${ID}06`,
+    JORDAN_PLAYS,
+    {
+      title: 'You won your daily game against @jordan_plays',
+      body: 'By resignation.',
+      createdAt: '2023-11-14T15:45:00.000Z',
+      isUnread: true,
+    },
+    true
+  ),
+];
+
+const YESTERDAY = [
+  dailyGame(
+    `${ID}07`,
+    ROBIN,
+    {
+      title: 'Your daily game against @robin_42 is drawn',
+      body: 'Drawn by agreement.',
+      createdAt: '2023-11-13T21:15:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+  accepted(`${ID}08`, CASEY, '2023-11-13T11:00:00.000Z', false),
+];
+
+const EARLIER = [
+  dailyGame(
+    `${ID}09`,
+    SAM,
+    {
+      title: 'You lost your daily game against @sam',
+      body: 'White ran out of time.',
+      createdAt: '2023-11-11T19:30:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+  dailyGame(
+    `${ID}10`,
+    MORGAN,
+    {
+      title: 'Your daily game against @morgan was aborted',
+      createdAt: '2023-11-09T08:40:00.000Z',
+      isUnread: false,
+    },
+    true
+  ),
+];
+
+/** The Storybook virtual clock's now, the inbox's "now" in every story. */
+const STORY_NOW = Date.parse('2023-11-14T22:13:20.000Z');
+
+/** Grouped and ordered the way the inbox does it, never by hand. */
+const SECTIONS = buildNotificationSections(
+  [...NEEDS_YOU, ...TODAY, ...YESTERDAY, ...EARLIER],
+  () => STORY_NOW
+);
+
+/** The same week once every item has been read. */
 const READ_SECTIONS = storySections([
-  ['Yesterday', [DISABLED]],
-  ['Earlier', [SYSTEM]],
+  ['Yesterday', YESTERDAY],
+  ['Earlier', EARLIER],
 ]);
 
 const meta = {
@@ -99,9 +247,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The inbox by day: an invite with Join / Decline, an unread update that
- * opens its space, a disabled action, and a system note. Unread items put
- * Mark all read in the header.
+ * An active week. What needs you comes first, on every size: two friend
+ * requests with Accept / Decline, and two daily games waiting on your move
+ * (one low on time) with an explicit Open step. Then the Activity timeline
+ * by day: a request accepted, games won, drawn, lost and aborted, each
+ * result with its reason and a quiet Dismiss. Unread items lead with the
+ * named accent dot, read ones have none, and every title keeps the body
+ * weight. Only a card's own main answer (Accept) is solid; Open is an
+ * outline. Archive is the quiet icon at each card's top trailing corner.
+ * Every heading starts on the edge the title and the filter chips start on.
+ * While anything is unread, Mark all read sits beside the title.
  */
 export const Populated: Story = {};
 
@@ -117,7 +272,7 @@ export const LoadingMore: Story = { args: { isLoading: true } };
 /** Nothing in the inbox at all. */
 export const Empty: Story = { args: { sections: [] } };
 
-/** Nothing waits for a reply under Action required. */
+/** Nothing waits for a reply under Needs you. */
 export const EmptyActionRequired: Story = {
   args: { sections: [], filter: 'action_required' },
 };
@@ -127,7 +282,7 @@ export const EmptyArchived: Story = {
   args: { sections: [], filter: 'archived' },
 };
 
-/** Mark all read is in flight: the header action shows it. */
+/** Mark all read is in flight: its button at the filter row's end shows it. */
 export const MarkingAllRead: Story = { args: { markingAllRead: true } };
 
 /** A choice failed because the device could not reach the inbox. */
@@ -180,7 +335,10 @@ export const Denied: Story = {
 export const ChangeFilter: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Action required'));
+    const needsYou = await canvas.findByRole('radio', {
+      name: 'Action needed',
+    });
+    await userEvent.click(needsYou);
     await expect(args.onFilterChange).toHaveBeenCalledWith('action_required');
   },
 };

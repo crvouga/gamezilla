@@ -1,0 +1,4 @@
+{
+  "summary": "During live play the game record's four replay steps were filled discs that carried more weight than the board and the game's commands. They are now quiet glyphs while the board is live and take their plates only while an earlier position is being reviewed.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+}

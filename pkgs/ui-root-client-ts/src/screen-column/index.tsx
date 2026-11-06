@@ -1,20 +1,24 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
 import styles from '../screen-layouts.module.css';
-import { SCREEN_MAX_WIDTH, type ScreenMeasure } from '../screen-measure';
+import type { ScreenMeasure } from '../screen-measure';
+import { useScreenMeasure } from '../use-screen-measure';
 
 /**
  * Shared measure and section rhythm for routed screen bodies and footers.
- * Centers the column whenever the frame is wider than its measure.
+ * Capped and centered on compact hosts; on desktop it starts at the frame
+ * column's edge, and only `prose` stays capped ({@link useScreenMeasure}).
  */
 export function ScreenColumn(props: {
   children: JSX.Element;
   width?: ScreenMeasure | undefined;
 }): JSX.Element {
+  const measure = useScreenMeasure(() => props.width ?? 'prose');
   return (
     <div
-      class={`${styles['column']} mx-auto`}
-      style={{ 'max-width': SCREEN_MAX_WIDTH[props.width ?? 'prose'] }}
+      class={styles['column']}
+      classList={{ 'mx-auto': measure().centered }}
+      style={{ 'max-width': measure().maxWidth }}
       {...dataAttrs({ component: 'ScreenColumn' })}
     >
       {props.children}

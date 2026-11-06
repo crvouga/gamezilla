@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, a person's own profile showed their avatar twice: in the header and again as a 96px hero centered above the name. The profile's picture is now 64px, beside the name and its facts in a compact panel read from the start edge, so it no longer echoes the header's.",
+  "regressionTest": "libs/profile-client-ts/tests/profile-identity-facts.test.tsx"
+}

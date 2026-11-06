@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's score sat only in the players' panel beside a bare court (an 8px ball on a flat field with a dashed line), so the court had no identity and the score was away from the play. The court now draws each side's points large and faint in its own half, with a centre circle, while a listener still hears the score from the court's words.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

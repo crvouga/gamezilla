@@ -2,7 +2,11 @@
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { BrandIcon } from '@pkgs/ui-root-client-ts/brand-icon';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -84,13 +88,52 @@ function ConnectableMethodRow(props: {
   );
 }
 
+/**
+ * The trailing end of a linked method's row: Remove while the account has
+ * another way to sign in; otherwise a neutral "Only sign-in" tag that says
+ * why it stays, instead of a button that looks pressable and does nothing.
+ */
+export function RemoveMethodControl(props: {
+  readonly method: SignInMethodId;
+  readonly removable: boolean;
+  readonly onRemove: () => void;
+}): JSX.Element {
+  const { i18n, t } = useLingui();
+  return (
+    <Show
+      when={props.removable}
+      fallback={
+        // A tag sits at the top of whatever holds it; its own box lets the
+        // row centre it on the row's middle, as it centres a button.
+        <StackVertical justify="center">
+          <Badge
+            label={t`Only sign-in`}
+            intent="neutral"
+            dataSet={{ testid: Handles.accountUnlinkProvider(props.method) }}
+          />
+        </StackVertical>
+      }
+    >
+      <Button
+        title={t`Remove`}
+        aria-label={t`Remove ${providerName(i18n(), props.method)} sign-in`}
+        variant="ghost"
+        intent="danger"
+        size="sm"
+        onClick={() => props.onRemove()}
+        dataSet={{ testid: Handles.accountUnlinkProvider(props.method) }}
+      />
+    </Show>
+  );
+}
+
 function LinkedMethodRow(props: {
   readonly provider: OauthProviderId;
   readonly identity: LinkedIdentity;
   readonly removable: boolean;
   readonly onRemove: (provider: OauthProviderId) => void;
 }): JSX.Element {
-  const { i18n, t } = useLingui();
+  const { i18n } = useLingui();
   return (
     <MenuRow
       title={providerName(i18n(), props.provider)}
@@ -98,14 +141,10 @@ function LinkedMethodRow(props: {
       leading={<BrandIcon name={props.provider} size={ICON_SIZE} />}
       hideChevron
       trailing={
-        <Button
-          title={t`Remove`}
-          variant="ghost"
-          intent="danger"
-          size="sm"
-          disabled={!props.removable}
-          onClick={() => props.onRemove(props.provider)}
-          dataSet={{ testid: Handles.accountUnlinkProvider(props.provider) }}
+        <RemoveMethodControl
+          method={props.provider}
+          removable={props.removable}
+          onRemove={() => props.onRemove(props.provider)}
         />
       }
       dataSet={{ testid: Handles.accountSignInMethod(props.provider) }}

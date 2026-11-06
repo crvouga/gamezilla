@@ -14,7 +14,10 @@ import {
   findCommandForShortcut,
   matchOpenShortcut,
 } from '@pkgs/ui-root-client-ts/command-registry-shortcuts';
-import { highlightSegments } from '@pkgs/ui-root-client-ts/highlighted-text';
+import {
+  highlightSegments,
+  rangesOfMatch,
+} from '@pkgs/ui-root-client-ts/highlighted-text';
 import type { RegisteredCommand } from '@pkgs/ui-root-client-ts/types';
 import {
   commandSearchText,
@@ -117,6 +120,22 @@ describe('fuzzyMatch', () => {
     ]);
     expect(highlightSegments('abc', [])).toEqual([
       { text: 'abc', bold: false },
+    ]);
+  });
+
+  // regression: search-highlight-emphasises-the-rest
+  test('rangesOfMatch emphasises what was typed, not what follows it', () => {
+    expect(rangesOfMatch('@jordan_plays', 'JOR')).toEqual([[1, 3]]);
+    expect(rangesOfMatch('@jordy', ' jor ')).toEqual([[1, 3]]);
+    expect(rangesOfMatch('@jordan', '@jordan')).toEqual([[0, 6]]);
+    expect(rangesOfMatch('@morgan', 'jor')).toEqual([]);
+    expect(rangesOfMatch('@jordan', '  ')).toEqual([]);
+    expect(
+      highlightSegments('@jordan', rangesOfMatch('@jordan', 'jor'))
+    ).toEqual([
+      { text: '@', bold: false },
+      { text: 'jor', bold: true },
+      { text: 'dan', bold: false },
     ]);
   });
 });

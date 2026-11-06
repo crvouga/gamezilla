@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle library's two outlined create buttons were the first content under its title, before the tabs and the attempts to continue, and Continue was the second tab. Creating is now the screen's own action at its title (ScreenIntro actions, small buttons), Continue is the first tab, and its lists are compact rows at every width.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

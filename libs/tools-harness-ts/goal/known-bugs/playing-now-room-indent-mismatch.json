@@ -1,0 +1,4 @@
+{
+  "summary": "Playing now rows by room led with an avatar stack as wide as the friends in the room, so a room with two friends indented its title further than a room with one (about 1074px against 1057px on desktop). Every room row now leads with its 40px room tile, so titles start at one inset.",
+  "regressionTest": "libs/friends-client-ts/tests/friends-playing-now.test.tsx"
+}

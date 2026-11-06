@@ -40,7 +40,7 @@ export type DismissibleBannerPortalProviderProps = {
  *
  * Prefer hosting the portal on {@link AppFrame} so wide-mode hosts sit outside
  * the max-width column (full-bleed sheet) while banner content still aligns to
- * the wide measure (`max-w-ui-wide`). Use {@link InFlowBanner} for custom chrome (e.g. perf
+ * the frame column (`max-w-ui-space`). Use {@link InFlowBanner} for custom chrome (e.g. perf
  * HUD) and {@link DismissibleBanner} for the standard dismissible sheet. Mount
  * and dismiss are instant (no slide animation) for low-end Android.
  */
@@ -259,7 +259,7 @@ function DismissibleBannerFrame(
   return (
     <div class={sheetClass(props.position, props.tone)}>
       {/* Content follows the wide column's measure and 16px gutter. */}
-      <div class="box w-full max-w-ui-wide mx-auto flex-row items-center gap-3 py-1 pl-4 pr-2">
+      <div class="box w-full max-w-ui-space mx-auto flex-row items-center gap-3 py-1 pl-4 pr-2">
         <BannerToneIcon tone={props.tone} />
         <DismissibleBannerPromptBody
           tone={props.tone}

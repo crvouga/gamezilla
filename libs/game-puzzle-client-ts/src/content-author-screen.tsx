@@ -101,18 +101,21 @@ function AuthorWorkspaceScreen(props: {
           }
         />
       }
-      playtest={
-        <ContentDraftPlaytest
-          documentId={props.document.id}
-          writer={writer}
-          disabled={workspace.disabled()}
-        />
-      }
       publication={
         <ContentPublicationControls
           document={props.document}
           writer={writer}
           disabled={workspace.disabled() || workspace.conflicted()}
+          before={(next) => (
+            <Show when={props.document.kind === 'puzzle'}>
+              <ContentDraftPlaytest
+                documentId={props.document.id}
+                writer={writer}
+                next={next()}
+                disabled={workspace.disabled()}
+              />
+            </Show>
+          )}
         />
       }
       stage={<AuthorStage document={props.document} workspace={workspace} />}

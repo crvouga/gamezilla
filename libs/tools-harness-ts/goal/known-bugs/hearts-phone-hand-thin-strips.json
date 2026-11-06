@@ -1,0 +1,4 @@
+{
+  "summary": "On a 390px phone the Hearts hand fitted thirteen cards into one overlapping row, leaving each card a 24px strip too thin to read or tap. A narrow hand of more than seven cards now lies in two staggered rows that never scroll: each card steps by about 48px, and the lower row starts 48px below the upper, past every corner index even when a chosen card lifts.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
+}

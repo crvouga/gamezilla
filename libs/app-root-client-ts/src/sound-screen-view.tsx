@@ -31,7 +31,7 @@ export function SoundSettingsScreenView(
     <MenuScreen
       screenId="sound"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Sound</Trans> },
       ]}

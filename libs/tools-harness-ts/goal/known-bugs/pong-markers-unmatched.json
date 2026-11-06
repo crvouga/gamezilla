@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's players were marked blue and orange while both paddles were drawn in the court's own ink, and nothing on the court said which paddle was the person's. Each paddle now takes its seat's color, and the person's own half says \"You\".",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

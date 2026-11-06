@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme a Battleship hit was the app's pale destructive wash with a thin red edge, hard to tell from an untouched square. A hit is now the hit fill itself with its cross in the fill's own ink in both themes; a sunk ship adds the heavy ring.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}

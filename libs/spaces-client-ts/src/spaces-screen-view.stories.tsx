@@ -4,10 +4,12 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpacesScreenView } from './spaces-screen-view';
 import {
+  FRIEND_SPACE,
   HOSTED_SPACE,
   JOINED_SPACE,
+  LOBBY_SPACES,
   LONG_SPACE,
-  SPACES,
+  SECOND_HOSTED_SPACE,
 } from './spaces-story.example';
 
 const meta = {
@@ -21,8 +23,8 @@ const meta = {
   },
   args: {
     status: 'ready',
-    hostedCount: 1,
-    spaces: SPACES,
+    hostedCount: 2,
+    spaces: LOBBY_SPACES,
     onCreateSpace: fn(() => Promise.resolve()),
     onOpenSpace: fn(),
   },
@@ -31,8 +33,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The viewer's own space (open here, so "Current"), a friend's live space,
- * and a crowded space they were added to — open-here first.
+ * An active person's lobby: under "Hosting 2 spaces" the one open here
+ * and their other (both "Open"), then under "Shared with you" four
+ * friends' spaces, from filling up to "No guests yet", each "Join". Every
+ * space wears its own mark (its colour and initial), the host's face is
+ * secondary, and every row has the same anatomy: name, host and guests,
+ * with what pressing it does at its trailing edge.
  */
 export const Populated: Story = {};
 
@@ -44,14 +50,20 @@ export const Loading: Story = {
 /** The lobby has answered with nothing: the empty state offers to start one. */
 export const Empty: Story = { args: { hostedCount: 0, spaces: [] } };
 
-/** Spaces to join but none hosted: no "Hosting" line. */
+/**
+ * Spaces to join but none hosted: no "Hosting" group, only "Shared with
+ * you"; a lone card spans the row on a wide screen.
+ */
 export const JoinableOnly: Story = {
   args: { hostedCount: 0, spaces: [JOINED_SPACE] },
 };
 
 /** Hosting more than one space (kept after paid access ended). */
 export const HostingSeveral: Story = {
-  args: { hostedCount: 2, spaces: [HOSTED_SPACE, LONG_SPACE] },
+  args: {
+    hostedCount: 2,
+    spaces: [HOSTED_SPACE, SECOND_HOSTED_SPACE, LONG_SPACE],
+  },
 };
 
 /** Long titles and names truncate to one line inside the card. */
@@ -78,7 +90,7 @@ export const OpenAndCreate: Story = {
     await userEvent.click(
       await canvas.findByTestId(Handles.spaceCard('robin_42'))
     );
-    await expect(args.onOpenSpace).toHaveBeenCalledWith(SPACES[1]?.spaceId);
+    await expect(args.onOpenSpace).toHaveBeenCalledWith(FRIEND_SPACE.spaceId);
     await userEvent.click(await canvas.findByTestId(Handles.spaceCreate));
     await expect(args.onCreateSpace).toHaveBeenCalled();
   },

@@ -1,4 +1,7 @@
-import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
+import type {
+  GameOptionGroup,
+  GameOutlineStep,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   BotDifficulty,
   GameSide,
@@ -84,7 +87,16 @@ export type FramePlaySeat = FrameSeat & {
 
 /** The seats around the board once the game is played. */
 export type FrameTable = {
-  readonly shape: 'strip' | 'rail' | 'none';
+  /**
+   * `board`: the game's board seats every player at its own table, and the
+   * frame lends it each player (`GameFrame.boardSeats`).
+   */
+  readonly shape: 'strip' | 'rail' | 'none' | 'board';
+  /**
+   * The board names each player itself (`GameFrame.boardNames`): a phone
+   * draws no seats above or below it, except one to take back.
+   */
+  readonly named?: boolean | undefined;
   readonly near: FramePlaySeat | null;
   readonly others: readonly FramePlaySeat[];
 };
@@ -97,7 +109,7 @@ export type FrameInvitee = {
   readonly disabled: boolean;
 };
 
-/** What the host may put in a seat, behind its "Change who sits here". */
+/** What the host may put in a seat, behind its "Change". */
 export type FrameSeatChoices = {
   readonly localPlayers: boolean;
   readonly bots: boolean;
@@ -124,6 +136,9 @@ export type FrameSetupSeat = FrameSeat & {
   readonly host: boolean;
   /** The viewer's own seat at someone else's table. */
   readonly visiting: boolean;
+  /** The viewer's own seat, at their table or someone else's. */
+  readonly own: boolean;
+  /** Its holder is ready: a ready person, or a bot or a guest here (always). */
   readonly ready: boolean;
   readonly invitation: FrameInvitation | null;
   readonly canSit: boolean;
@@ -185,6 +200,11 @@ export type FrameStatus = {
   /** Who holds every seat, for a listener who cannot see the seats. */
   readonly lineup: string;
   readonly description: string;
+  /**
+   * The line only says which side moves (`<Side> to move.`), which the
+   * seat to move already says: no game's own words, stand-in or phase.
+   */
+  readonly plainTurn: boolean;
   readonly emphasis: GameTurnPillEmphasis;
   readonly tone: GameTurnPillTone;
   readonly sending: boolean;
@@ -253,6 +273,9 @@ export type FrameNext = {
 };
 
 /** The game's record beside the board. */
+/** Who made a move, as their seat looks in the record. */
+export type FrameMover = Pick<FrameSeat, 'sideLabel' | 'swatch'>;
+
 export type FrameRecord = {
   /** Ids of this space's earlier games, newest first. */
   readonly earlier: readonly string[];
@@ -262,8 +285,28 @@ export type FrameRecord = {
   readonly turns: boolean;
   /** Every move of the shown game, as its notation. */
   readonly moves: readonly string[];
+  /**
+   * Moves per numbered turn: the seats taking turns in order (2 for
+   * `1 e4 e5`); 1 when the game itself decides who moves next.
+   */
+  readonly perTurn: number;
+  /**
+   * The seat that made each move, in order; empty when the game itself
+   * decides who moves next, so the record names no mover.
+   */
+  readonly movers: readonly FrameMover[];
+  /**
+   * The word naming every move once when the game's notation is a bare
+   * number (`Column`); `''` when the notation reads on its own.
+   */
+  readonly moveHeading?: string | undefined;
   readonly displayedPly: number;
   /** A refused review, in words; `''` for none. */
   readonly error: string;
   readonly history: boolean;
+  /**
+   * What the game has ahead, the step open now marked (Hearts' passing
+   * order by deal), listed beside a wide board until the first move.
+   */
+  readonly outline?: readonly GameOutlineStep[] | undefined;
 };

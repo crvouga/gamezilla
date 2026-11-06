@@ -19,7 +19,11 @@ function statsSurface(entryScreen: string, gameId: string) {
     }
     if (screen === 'join') return handle === Handles.spaceJoin;
     if (screen === 'games') {
-      return [Handles.spaceClose, Handles.gameMenu(gameId)].includes(handle);
+      return [
+        Handles.spaceClose,
+        Handles.spaceChromeOverflow,
+        Handles.gameMenu(gameId),
+      ].includes(handle);
     }
     if (screen === 'game-menu') return handle === Handles.gameChoice('stats');
     return screen === 'stats' && handle === Handles.chessStatsElo;

@@ -24,6 +24,9 @@ function points(position: string, side: GameSide): number {
 
 /** Left and Right paddles, their points, and the points that win. */
 export const pongFrame: GameFrame<JSX.Element> = {
+  drawOffers: false,
+  // Each half of the court names its player under their points.
+  boardNames: true,
   players: fixedPlayers(2),
   options: [
     {
@@ -41,17 +44,19 @@ export const pongFrame: GameFrame<JSX.Element> = {
   ],
   seats: {
     look: (side) => ({ color: side === 'white' ? 1 : 2 }),
-    stat: (position, side) => ({
-      label: t`Points`,
-      value: String(points(position, side)),
-    }),
+    // The court itself shows each side's points, large in its own half.
+    stat: () => null,
     facts: () => [],
     out: () => false,
   },
   createBoard: boardOnly(PongBoard),
+  // The serve and the result; while play simply goes on, the hint under
+  // the court says how to play, so the game has no line of its own.
   turnStatus: (position) => {
     const state = pongPositionCodec.decode(position);
-    return state === null ? null : pongStatus(state, undefined);
+    return state === null || state.phase === 'playing'
+      ? null
+      : pongStatus(state, undefined);
   },
   result: (position, winner) => ({
     scoreLabel: t`Points`,

@@ -78,9 +78,21 @@
     display: none;
   }
 
-  /* The panel clips its rows, so a row's focus ring is drawn inside it. */
+  /* The panel clips its rows, so a row's focus ring is drawn inside it.
+     The first and last rows take the panel's inner corners, so the ring
+     follows the card's rounding instead of cutting square across it. */
   .panelItem > .clickable:focus-visible {
     outline-offset: -2px;
+  }
+
+  .panelItem:first-child > .clickable {
+    border-start-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-start-end-radius: calc(var(--ui-radius-card) - 1px);
+  }
+
+  .panelItem:last-child > .clickable {
+    border-end-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-end-end-radius: calc(var(--ui-radius-card) - 1px);
   }
 
   .divider {
@@ -133,7 +145,7 @@
     color: var(--ui-color-text);
   }
 
-  /* Type roles use the shared Manrope / Unbounded scale. Screens choose
+  /* Type roles use the shared Manrope scale. Screens choose
      a role; the system owns its face, size, weight and wrapping. */
 
   .textBody {
@@ -145,6 +157,12 @@
      display, display-xl. */
   .textBodyBold {
     font-weight: var(--ui-text-body-strong-weight);
+  }
+
+  /* A row's title: body size at medium weight, so it outranks the row's
+     caption and the section label above it. */
+  .textRowTitle {
+    font-weight: var(--ui-font-weight-medium);
   }
 
   /* A navigation label that is semibold only while current. The box is
@@ -186,11 +204,13 @@
   }
 
   /* Section labels above a group: the `label` style in the muted ink. */
+  /* Section labels name a group without outranking its rows: sentence
+     case in the muted ink, semibold rather than bold. */
   .textSectionLabel {
     font-family: var(--ui-text-label-family);
     font-size: var(--ui-text-label-size);
     line-height: var(--ui-text-label-leading);
-    font-weight: var(--ui-text-label-weight);
+    font-weight: var(--ui-font-weight-semibold);
     color: var(--ui-color-text-secondary);
   }
 
@@ -218,7 +238,7 @@
     font-size: var(--ui-text-display-xl-size);
     line-height: var(--ui-text-display-xl-leading);
     font-weight: var(--ui-text-display-xl-weight);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.025em;
   }
 
   .textTitle {
@@ -226,7 +246,7 @@
     font-size: var(--ui-text-display-size);
     line-height: var(--ui-text-display-leading);
     font-weight: var(--ui-text-display-weight);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .textHeading {
@@ -451,10 +471,19 @@
     opacity: 1;
   }
 
-  /* The same ring as every control; flat, so no glow around the field. */
+  /* A field's ring is its own edge: the border turns `focus-ring` and a 1px
+     outline thickens it to the same 2px as every control. No gap, so a
+     bordered field never reads as two rings; flat, so no glow. */
   .input:focus-visible {
-    outline: 2px solid var(--ui-color-focus-ring);
-    outline-offset: 2px;
+    border-color: var(--ui-color-focus-ring);
+    outline: 1px solid var(--ui-color-focus-ring);
+    outline-offset: 0;
+  }
+
+  /* A borderless field set into an editor has no edge to thicken: it takes
+     the full 2px ring, still without a gap. */
+  .inputEmbedded:focus-visible {
+    outline-width: 2px;
   }
 
   /* Error is the destructive edge plus the message and `aria-invalid`;

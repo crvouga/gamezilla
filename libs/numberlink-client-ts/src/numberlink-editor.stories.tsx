@@ -1,14 +1,32 @@
+import { StoryPuzzleBuilder } from '@libs/game-puzzle-client-ts/content-builder-story.example';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NumberlinkEditorView } from './numberlink-editor';
 import { initialNumberlinkDefinition } from './numberlink-editor-actions';
 import { FIVE_BY_FIVE } from './numberlink-player.example';
+import type { NumberlinkEditorInputs } from './use-numberlink-editor';
+
+/** The Numberlink editor as the stage of the shared puzzle builder. */
+function renderInBuilder(args: NumberlinkEditorInputs) {
+  return (
+    <StoryPuzzleBuilder
+      title="Five pairs"
+      description="Join every pair without crossing a path."
+      difficulty="Medium"
+      definition={args.definition}
+      earlier="Pairs"
+      disabled={args.disabled}
+      stage={<NumberlinkEditorView {...args} />}
+    />
+  );
+}
 
 const meta = {
   id: 'screens-games-numberlink-editor',
   title: 'Screens/Games/Numberlink/Editor',
   component: NumberlinkEditorView,
   tags: ['autodocs'],
+  render: (args) => renderInBuilder(args),
   parameters: {
     appRouter: true,
     controls: { exclude: ['onChange', 'createId'] },

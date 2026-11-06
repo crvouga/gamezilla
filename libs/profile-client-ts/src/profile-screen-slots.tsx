@@ -15,10 +15,14 @@ import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from 'solid-js';
 
 export type ProfileScreenSlots = {
-  /** Summary line under the identity block (e.g. friend count). */
+  /** The friends panel's row to the friends list, with their faces. */
   readonly stats?: () => JSX.Element;
+  /** How many friends: the number the identity's Friends fact shows. */
+  readonly count?: () => JSX.Element;
   /** Actions in the profile header (e.g. add friend / unblock). */
   readonly actions?: () => JSX.Element;
+  /** The rooms friends are playing in now: the main section, before the friends panel. */
+  readonly playing?: () => JSX.Element;
 };
 
 const ProfileScreenSlotsContext =

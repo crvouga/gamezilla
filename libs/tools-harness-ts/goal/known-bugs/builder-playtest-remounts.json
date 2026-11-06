@@ -1,0 +1,4 @@
+{
+  "summary": "Telling the builder's playtest step whether it is the next one rebuilt it each time the draft's check changed, so a started playtest lost its Open playtest button and the Sokoban pack journey timed out. The step is mounted once and given an accessor.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

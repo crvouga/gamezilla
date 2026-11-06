@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle-library card's board was drawn as a disabled board, at 70% opacity, so over the dark theme's picture well its cream floor turned a muddy tan. A preview's picture is still, not waiting on play: PreviewThumbnail draws its board at full strength in both themes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/preview-card-board-fill.test.ts"
+}

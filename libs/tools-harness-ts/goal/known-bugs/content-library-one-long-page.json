@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle library put playing, finished attempts, publishing, drafts and private playtests on one long two-column page, each attempt row carrying its own status pill. It is now three tabs (Browse, Continue, My creations); finished attempts sit in their own section apart from the ones to continue, and the library opens on Continue only when something is unfinished.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-library-layout.test.tsx"
+}

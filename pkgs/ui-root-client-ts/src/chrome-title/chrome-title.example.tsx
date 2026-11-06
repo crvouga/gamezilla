@@ -23,6 +23,11 @@ export default function ChromeTitleExample(): JSX.Element {
           </ChromeTitle>
         </Surface>
       </ExampleSection>
+      <ExampleSection title="with an eyebrow naming what holds it">
+        <Surface tone="surface" radius="control" padding="md">
+          <ChromeTitle eyebrow="Friday game night">Connect Four</ChromeTitle>
+        </Surface>
+      </ExampleSection>
     </ExampleRoot>
   );
 }

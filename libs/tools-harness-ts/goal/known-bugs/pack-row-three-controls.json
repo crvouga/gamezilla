@@ -1,0 +1,4 @@
+{
+  "summary": "Each puzzle row in the pack builder carried three separate controls: a status pill, an Edit link and a … menu. The whole row now opens the puzzle, its status is a chip at the row's end, and the … menu, the one other control, sits beside the row's button instead of inside it.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-builder-layout.test.tsx"
+}

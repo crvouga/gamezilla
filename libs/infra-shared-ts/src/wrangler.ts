@@ -185,3 +185,24 @@ export function renderAuthRelayWranglerConfig(
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   return rendered;
 }
+
+/**
+ * The static Storybook site (`apps/storybook-ts`): one assets-only Worker,
+ * named in `global.tfvars.json`, serving the canonical Storybook build.
+ */
+export function renderStorybookWranglerConfig(
+  committed: WranglerConfig
+): WranglerConfig {
+  const base = resolveIdentityPlaceholders(committed);
+  assertEnvAgnostic(base);
+  if ('main' in base) {
+    throw new Error(
+      'The Storybook site is assets-only: its wrangler.toml must not set main.'
+    );
+  }
+  return {
+    ...base,
+    name: GLOBAL.storybook.worker,
+    assets: rerootedAssets(base['assets']),
+  };
+}

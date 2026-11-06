@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle play offered move review twice: jump arrows beside the move list, then Back and Forward again in a bottom toolbar beside Hint and Skip, whose double-chevron icon matched the jump arrows. Review now lives only in the move list's row (jump and step on either side of the moves); the action row holds only what is done about the puzzle, with Skip puzzle a quiet text button apart from Hint.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/action-bar-plan.test.ts"
+}

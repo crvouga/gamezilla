@@ -11,7 +11,11 @@ import { useThemeTokens } from '../theme-context/index';
 import type { TooltipPlacement } from '../tooltip/index';
 import { Tooltip, useTooltipTrigger } from '../tooltip/index';
 
-export type IconButtonVariant = 'icon' | 'avatar';
+/**
+ * `icon` a glyph; `avatar` a face in a hairline ring; `faces` a row of faces
+ * that carry their own rings (an avatar stack), so no ring of its own.
+ */
+export type IconButtonVariant = 'icon' | 'avatar' | 'faces';
 
 /** How the button exposes its `label` as a tooltip. */
 export type IconButtonTooltipMode = 'default' | 'hover' | 'none';
@@ -96,8 +100,13 @@ function discStyle(args: {
   size: number;
   bg: string;
   isAvatar: boolean;
+  isFaces: boolean;
   borderColor: string;
 }): JSX.CSSProperties {
+  // Faces bring their own rings: the disc only sizes them, unpainted.
+  if (args.isFaces) {
+    return { height: `${args.size}px`, 'min-width': `${args.size}px` };
+  }
   // Avatar ring uses padding (not borderWidth) so the disc stays exactly
   // `size` tall — borderWidth inflated the box next to icon siblings.
   if (args.isAvatar) {
@@ -125,6 +134,7 @@ function IconButtonFace(
   const label = children(() => props.label);
   const size = (): number => props.size ?? 40;
   const isAvatar = (): boolean => props.variant === 'avatar';
+  const isFaces = (): boolean => props.variant === 'faces';
   const hasBackground = (): boolean => props.background !== undefined;
   /** CSS var for the painted disc (tracks live scheme flips). */
   const bgCss = (): string =>
@@ -180,10 +190,14 @@ function IconButtonFace(
           size: size(),
           bg: bgCss(),
           isAvatar: isAvatar(),
+          isFaces: isFaces(),
           borderColor: tokens.colors.border,
         })}
       >
-        <Show when={hasBackground() && !isAvatar()} fallback={props.children}>
+        <Show
+          when={hasBackground() && !isAvatar() && !isFaces()}
+          fallback={props.children}
+        >
           <OnColorProvider
             background={bgContrast()}
             backdrop={tokens.palette().background}

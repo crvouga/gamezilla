@@ -30,9 +30,10 @@ describe('the time left a turn reminder gives', () => {
     expect(timeLeftText(23 * HOUR_MS + 59 * MINUTE_MS + 1)).toBe('1 day');
   });
 
-  test('the reminder says how long the person has to move', () => {
-    expect(turnReminderBody('1 day')).toBe(
-      "It's your turn. You have 1 day left to move."
-    );
+  // regression: inbox-turn-reminder-urgency-twice — the reminder's body
+  // ("It's your turn. You have 3 hours left to move.") said again what its
+  // title ("You're low on time…") had said. It says only the time left.
+  test('the reminder says how long the person has to move, once', () => {
+    expect(turnReminderBody('1 day')).toBe('1 day left to move.');
   });
 });

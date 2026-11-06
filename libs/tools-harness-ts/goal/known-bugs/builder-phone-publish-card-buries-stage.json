@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the builders put an unnumbered Check and publish card between 1 · Details and 2 · Board, so the Sokoban board and the pack's puzzle list started under the fold and the steps read out of order. The steps now read 1, 2, 3 on a phone too, and the one next action (Start playtest, Validate, Publish) is a filled button in the screen's title row, in the flow, covering nothing.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

@@ -29,7 +29,9 @@ export function NotificationsFilterBar(
     },
     {
       key: NOTIFICATIONS_FILTER_ACTION_REQUIRED,
-      label: t`Action required`,
+      // Not the "Needs you" heading's words: under All the chip sits right
+      // above that heading, and the same words twice read as a stutter.
+      label: t`Action needed`,
       testid: Handles.notificationsFilterWaiting,
     },
     {

@@ -46,7 +46,7 @@ export async function observeSokobanJourneyCounts(
 ): Promise<void> {
   await device.ui
     .get('sokoban-counts')
-    .expect.text(`Moves: ${moves} · Pushes: ${pushes}`, device);
+    .expect.text(`Moves ${moves} · Pushes ${pushes}`, device);
 }
 
 async function solve(device: ContentJourneyDevice): Promise<void> {

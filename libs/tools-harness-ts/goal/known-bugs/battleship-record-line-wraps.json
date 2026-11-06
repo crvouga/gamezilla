@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide Battleship board the record's \"G10 sinks the destroyer\" wrapped onto a second line in an equal-width seat column while \"F10 hit\" left its half empty, so one turn stood twice as tall and broke the record's rhythm. The turns now share one grid whose seat columns size to their longest move, so every turn keeps one line and the columns stay aligned.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-move-list.test.tsx"
+}

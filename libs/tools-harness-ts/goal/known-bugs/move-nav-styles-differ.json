@@ -1,0 +1,4 @@
+{
+  "summary": "A chess puzzle's move steps were filled discs at all times while a game's record showed quiet glyphs during play, so the same control looked different in two places. Both now follow one rule: quiet glyphs while the board shows the latest move, plated discs while an earlier move is reviewed.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-moves-label.test.tsx"
+}

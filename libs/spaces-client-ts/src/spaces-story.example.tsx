@@ -1,5 +1,10 @@
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
+import {
+  GameTile,
+  type GameTileMotif,
+} from '@pkgs/ui-root-client-ts/game-tile';
+import type { JSX } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import type { SpacePerson } from './space-person-view';
@@ -34,6 +39,10 @@ export const LONG_NAME = person(
   'a_really_long_username_that_keeps_going_and_going'
 );
 
+export const CASEY = person('09', 'casey');
+export const RILEY = person('10', 'riley.k');
+export const TAYLOR = person('11', 'taylor_moves');
+
 export const GUESTS: readonly SpacePerson[] = [JORDAN, MORGAN, ROBIN, SAM];
 
 function space(
@@ -48,6 +57,7 @@ function space(
     hostUsername: host.name,
     badge: 'live',
     active: false,
+    hostedByViewer: host === AVERY,
     guests: [],
     ...fields,
   };
@@ -76,10 +86,47 @@ export const LONG_SPACE = space('04', LONG_NAME, {
   guests: [LONG_NAME, JORDAN],
 });
 
+/** A second space the viewer hosts, kept after paid access ended. */
+export const SECOND_HOSTED_SPACE = space('05', AVERY, {
+  title: 'Sunday puzzle club',
+  guests: [ROBIN],
+});
+
 export const SPACES: readonly SpaceCardData[] = [
   HOSTED_SPACE,
   FRIEND_SPACE,
   JOINED_SPACE,
+];
+
+/** A friend's chess night the viewer was invited to. */
+export const CHESS_NIGHT_SPACE = space('06', JORDAN, {
+  title: 'Friday chess',
+  guests: [ROBIN, CASEY],
+});
+
+/** A friend's quick game, filling up. */
+export const QUICK_GAME_SPACE = space('07', SAM, {
+  title: 'Quick connect four',
+  guests: [MORGAN, RILEY, TAYLOR, PLAYBOT],
+});
+
+/** A friend's word game with one guest so far. */
+export const WORD_GAME_SPACE = space('08', MORGAN, {
+  title: 'Word tiles after work',
+  guests: [CASEY],
+});
+
+/**
+ * An active person's lobby: the two spaces they host (one open here), then
+ * four shared with them, from empty to filling up.
+ */
+export const LOBBY_SPACES: readonly SpaceCardData[] = [
+  { ...HOSTED_SPACE, guests: [JORDAN, MORGAN, ROBIN] },
+  { ...SECOND_HOSTED_SPACE, guests: [ROBIN, CASEY] },
+  CHESS_NIGHT_SPACE,
+  QUICK_GAME_SPACE,
+  WORD_GAME_SPACE,
+  FRIEND_SPACE,
 ];
 
 /** One connected face per person, in roster order. */
@@ -105,25 +152,45 @@ export const MEMBERS: readonly SpaceMemberRow[] = faces([
   isHost: index === 0,
 }));
 
+/** A made-up game's picture, as `defineGameClient` gives a registered game one. */
+export function storyTile(
+  motif: GameTileMotif
+): (props: { readonly size?: 'md' | 'lg' }) => JSX.Element {
+  return (props) => <GameTile motif={motif} size={props.size} />;
+}
+
 /**
- * Games a space offers, as the composition root would register them. Ids
- * are made up: platform code never names a real game.
+ * Games a space offers, as the composition root would register them: real
+ * games' names and lines, so a story reads as the product does. Ids are
+ * made up: platform code never spells a registered game's id.
  */
 export const GAMES = [
   {
     id: 'example-board',
-    title: 'Board duel',
+    title: 'Chess',
     caption: 'Two players, one board, turn by turn.',
+    players: 2,
+    Tile: storyTile('checkered'),
   },
   {
     id: 'example-cards',
-    title: 'Card table',
-    caption: 'Four players pass and play tricks.',
+    title: 'Hearts',
+    caption: 'Avoid hearts and the queen of spades.',
+    players: 4,
+    Tile: storyTile('cards'),
   },
   {
     id: 'example-race',
-    title: 'Light race',
-    caption: 'Steer, turn and outlast everyone.',
+    title: 'Light Cycles',
+    caption: 'Steer your trail and outlast everyone.',
+    players: 4,
+    Tile: storyTile('trails'),
   },
-  { id: 'example-puzzle', title: 'Path puzzle' },
+  {
+    id: 'example-puzzle',
+    title: 'Numberlink',
+    caption: 'Join each pair of dots without crossing a line.',
+    players: 1,
+    Tile: storyTile('paths'),
+  },
 ] as const;

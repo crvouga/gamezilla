@@ -112,6 +112,8 @@ export function TrailPath(props: {
 export function RiderHead(props: {
   rider: TrailRider;
   trailCount: number;
+  /** How much larger than a cell's measure the head is drawn (a phone's small cells). */
+  scale?: number | undefined;
   testId: string;
 }): JSX.Element {
   return (
@@ -127,7 +129,8 @@ export function RiderHead(props: {
       data-controlled={props.rider.controlled}
       data-mark={props.rider.mark}
       data-trail-count={props.trailCount}
-      transform={`translate(${props.rider.x + 0.5} ${props.rider.y + 0.5})`}
+      data-scale={props.scale ?? 1}
+      transform={`translate(${props.rider.x + 0.5} ${props.rider.y + 0.5}) scale(${props.scale ?? 1})`}
     >
       <title>{props.rider.label}</title>
       <Show when={props.rider.controlled}>

@@ -1,0 +1,74 @@
+/* A section and the picture of what it sets up (a board preview), as two
+   cards that read as one pair: the picture's card first, so a phone shows
+   it above the section; wide, beside the section and as tall as it. */
+/* The pair measures the room it is given (a container cannot measure
+   itself), and lays its two cards out by it. */
+.sectionRoom {
+  container: game-section / inline-size;
+  min-width: 0;
+}
+.sectionPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+/* A phone: a slim row ahead of the section, a small thumbnail beside its
+   label, so what the section sets up (the players) takes the screen. */
+.sectionMedia {
+  --game-board-preview-measure: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--ui-space-3);
+  min-width: 0;
+  padding: var(--ui-space-2) var(--ui-space-3);
+}
+/* In a phone's pair the board stage's thumbnail sits beside its label, one
+   slim row (the stage is the preview's only `[data-preview]` element), the
+   stage as wide as its thumbnail (and label), so what the game says beside
+   it (how it is played) takes the rest of the row. */
+@container game-section (max-width: 39.99rem) {
+  .sectionPair .sectionMedia [data-preview="true"] {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-start;
+    width: auto;
+    max-width: none;
+    gap: var(--ui-space-3);
+  }
+  .sectionPair .sectionMedia [data-preview="true"] > :first-child {
+    flex: 0 0 var(--game-board-preview-measure);
+    width: var(--game-board-preview-measure);
+  }
+}
+/* Wide: the section and the picture's card share the room as two equal
+   columns, as tall as each other: the section (the players) one seat to a
+   row with its foot (Start) closing it, and beside it a board large enough
+   to read as the game, the picture and its words centred in their card on
+   both axes, so neither card ends in a band of empty room and the pair
+   fills the column instead of a strip across its top. */
+@container game-section (min-width: 40rem) {
+  .sectionPair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+  /* A board about as tall as two seats, their title and their foot, so
+     with how the game is played under it the picture's card ends level
+     with the players of a two-player game. */
+  .sectionMedia {
+    --game-board-preview-measure: 240px;
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--ui-space-4);
+    padding: var(--ui-space-5);
+  }
+  /* Beside a taller picture, the section's foot (Start) stays at the
+     card's end, never floating under the seats with room below it. */
+  .sectionPair .sectionFoot {
+    margin-top: auto;
+  }
+}

@@ -84,6 +84,8 @@
     "workbox-window": "catalog:"
   },
   "devDependencies": {
+    "@dicebear/collection": "catalog:",
+    "@dicebear/core": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",

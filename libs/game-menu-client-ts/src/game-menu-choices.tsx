@@ -60,6 +60,7 @@ export function sharedScreens(
               <CustomGameScreen
                 gameId={id}
                 title={game.title}
+                instructions={game.instructions}
                 onBack={back}
                 {...history}
               />
@@ -131,11 +132,13 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.customGames,
-            title: () => <Trans>Custom games</Trans>,
+            // Short enough to keep the lead's tag beside it on a phone's
+            // row; the caption says bots are welcome too.
+            title: () => <Trans>Play with friends</Trans>,
+            // The game menu is always inside a space: its people are who
+            // plays a custom game, beside any bots.
             caption: () => (
-              <Trans>
-                Choose people or bots for each of the {playerCount} places
-              </Trans>
+              <Trans>With the people in this space, or bots</Trans>
             ),
           },
         ]

@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440×900 a game's Offer draw and Resign sat under the board, below the fold, while the rail beside the board had empty room under the record. With actionsBeside the game's status and commands head the rail on wide layouts (phones keep them under the board), and the board shrinks to the window's height.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-frame.test.tsx"
+}

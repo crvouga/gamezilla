@@ -14,7 +14,7 @@ import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles
 import { t } from '@lingui/core/macro';
 import {
   boardOnly,
-  type FramePlayerColor,
+  type FrameBoardPaint,
   type GameFrame,
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -24,12 +24,15 @@ import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
 import { arenaOverlay } from './light-cycles-view';
 
-/** Each rider's color in the arena: blue, orange, purple and green. */
-const RIDER_COLORS: Readonly<Record<LightCyclesSeat, FramePlayerColor>> = {
-  white: 1,
-  black: 2,
-  red: 4,
-  blue: 8,
+/**
+ * Each rider's paint: its trail's own, so the marker beside a player's name
+ * is the colour of the trail they ride (cyan, orange, violet, white).
+ */
+const RIDER_COLORS: Readonly<Record<LightCyclesSeat, FrameBoardPaint>> = {
+  white: 'trail-one',
+  black: 'trail-two',
+  red: 'trail-three',
+  blue: 'trail-four',
 };
 
 /** The round wins of the rider on `side`. */
@@ -56,6 +59,7 @@ export function lightCyclesFrame(
 ): GameFrame<JSX.Element> {
   const sides = LIGHT_CYCLES_SEATS[count];
   return {
+    drawOffers: false,
     players: {
       min: 2,
       max: 4,
@@ -85,8 +89,9 @@ export function lightCyclesFrame(
         color: RIDER_COLORS[side as LightCyclesSeat],
         mark: LIGHT_CYCLES_RIDERS[side as LightCyclesSeat].mark,
       }),
+      // Short, so a player's name keeps its room on a strip or a chip.
       stat: (position, side) => ({
-        label: t`Round wins`,
+        label: t`Wins`,
         value: String(roundWins(decodeLightCycles(position), side)),
       }),
       facts: () => [],

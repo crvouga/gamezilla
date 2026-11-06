@@ -12,7 +12,7 @@ import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql } from '@libs/harness-ts/identity';
-import { openSettings } from '@libs/harness-ts/shell-actions';
+import { openSettings, spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import {
   ownSpaceCard,
@@ -23,7 +23,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { SHARED_SCREEN_MARK } from './game-navigation';
 import { PUZZLE_RATING_SCALE } from './puzzle-fixtures';
-import { closeResultPanel } from './puzzle-screen';
+import { closeResultPanel, moveChipText } from './puzzle-screen';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;
@@ -64,7 +64,7 @@ async function stepTowardStats(
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   } else if (await ui.get(Handles.gameMenu(gameId)).isVisible()) {
     await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: WAIT_MS });
-  } else if (await ui.get(Handles.spaceClose).isVisible()) {
+  } else if (await spaceBarShown(ui)) {
     // In a space whose game choice is still coming up: wait for it.
   } else if (await ui.get(Handles.spaceMiniplayer).isVisible()) {
     const card = await ownSpaceCard(s, actorId);
@@ -333,7 +333,7 @@ export async function readPuzzleReviewMoves(
   for (let index = 0; ; index += 1) {
     const node = ui.get(Handles.chessPuzzleMovePly(index));
     if (!(await node.isVisible())) break;
-    moves.push(stripProbe(await node.text()));
+    moves.push(moveChipText(await node.text()));
   }
   return moves;
 }
