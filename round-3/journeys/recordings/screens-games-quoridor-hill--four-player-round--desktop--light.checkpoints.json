@@ -1,0 +1,320 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [3] findByTestId"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [5] toHaveAccessibleName"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [6] findByTestId"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [8] findByTestId"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [10] toHaveAccessibleName"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [11] findByTestId"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [12] click"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [13] findByTestId"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [15] toHaveAccessibleName"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [16] findByTestId"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [18] findByTestId"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [20] toHaveAccessibleName"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [21] findByTestId"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [22] click"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [23] findByTestId"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [24] click"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [25] findByTestId"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [27] toHaveTextContent"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [28] findByTestId"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [29] click"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [32] toBeInTheDocument"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [33] findByTestId"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [34] click"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--026.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [35] findByRole"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--027.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [36] click"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [37] findByTestId"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--four-player-round [39] toBeEnabled"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--four-player-round--desktop--light--031.png",
+    "capturedFrame": true
+  }
+]

@@ -1,0 +1,236 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/runtime-harness-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/runtime-harness-ts:test: cache miss, executing da49e0db3a55a7b7
+@libs/runtime-harness-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/runtime-harness-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/battleship-fleet-privacy.test.ts:
+@libs/runtime-harness-ts:test: (pass) what a Battleship screen shows of the rival fleet > a screen with its own whole fleet reads as one [0.07ms]
+@libs/runtime-harness-ts:test: (pass) what a Battleship screen shows of the rival fleet > marks the viewer’s shots found are not seen beyond them [0.18ms]
+@libs/runtime-harness-ts:test: (pass) what a Battleship screen shows of the rival fleet > a targeting cell drawn as a ship no shot struck is seen [0.07ms]
+@libs/runtime-harness-ts:test: (pass) what a Battleship screen shows of the rival fleet > a placement of an unsunk rival ship anywhere on the screen is seen [0.06ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/environment-release-policy.test.ts:
+@libs/runtime-harness-ts:test: (pass) the system setup warning still tells the team and permits opening [1.11ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/numberlink-journey-navigation.test.ts:
+@libs/runtime-harness-ts:test: (pass) a reopened space landing on games reaches the Numberlink library [0.16ms]
+@libs/runtime-harness-ts:test: (pass) a reopened space landing on numberlink reaches the Numberlink library [0.01ms]
+@libs/runtime-harness-ts:test: (pass) a reopened space landing on library reaches the Numberlink library
+@libs/runtime-harness-ts:test: (pass) a reopened space landing on loading-library reaches the Numberlink library
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/numberlink-publication-cleanup.test.ts:
+@libs/runtime-harness-ts:test: (pass) publication cleanup withdraws from the current library without reloading its space [0.34ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/custom-game-journey-board-orientation.test.ts:
+@libs/runtime-harness-ts:test: (pass) Bob faces Black on the shipped board without a debug probe [0.13ms]
+@libs/runtime-harness-ts:test: (pass) a board facing White cannot satisfy facing Black [0.02ms]
+@libs/runtime-harness-ts:test: (pass) missing square positions cannot satisfy an orientation [0.01ms]
+@libs/runtime-harness-ts:test: (pass) the shipped board read supports a WebView with one evaluation in flight [0.05ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/pong-rematch-connection.test.ts:
+@libs/runtime-harness-ts:test: (pass) accepting a rematch waits for the connection before the command [0.09ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/layout-preferences.test.ts:
+@libs/runtime-harness-ts:test: (pass) preference setup reaches Settings through wide subscreen chrome [518.77ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/party-journey-review-contract.test.ts:
+@libs/runtime-harness-ts:test: 80 |       await Promise.resolve();
+@libs/runtime-harness-ts:test: 81 |       const mutated = tracker.takeMutated();
+@libs/runtime-harness-ts:test: 82 |       if (check()) return;
+@libs/runtime-harness-ts:test: 83 |       const now = clock.now();
+@libs/runtime-harness-ts:test: 84 |       if (now >= deadline) {
+@libs/runtime-harness-ts:test: 85 |         throw new TimeoutError(
+@libs/runtime-harness-ts:test:                    ^
+@libs/runtime-harness-ts:test: TimeoutError: Timed out after 20000ms waiting for visible
+@libs/runtime-harness-ts:test:  timeoutMs: 20000,
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test:       at waitForDom (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/dom-wait.ts:85:15)
+@libs/runtime-harness-ts:test:       at wait (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/solid-dom-driver-node.ts:146:16)
+@libs/runtime-harness-ts:test:       at runExpectVisible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-root-shared-ts/src/driver-expect.ts:21:14)
+@libs/runtime-harness-ts:test:       at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:286:24
+@libs/runtime-harness-ts:test:       at measureStepWork (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/report-performance.ts:32:11)
+@libs/runtime-harness-ts:test:       at runOpen (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/reporter.ts:216:13)
+@libs/runtime-harness-ts:test:       at record (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/reporter.ts:154:32)
+@libs/runtime-harness-ts:test:       at record (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:285:22)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at playCustomGamePartyTurn (native:1:1)
+@libs/runtime-harness-ts:test: (fail) the Hill party returns a real reviewed board to the live position [27254.04ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/multiplayer-journey-move.test.ts:
+@libs/runtime-harness-ts:test: (pass) Black waits for the accepted e2-e4 before tapping e7-e5 [0.19ms]
+@libs/runtime-harness-ts:test: (pass) Black plays e7-e5 again when the board did not take the first try [0.07ms]
+@libs/runtime-harness-ts:test: (pass) Black plays e7-e5 once when the board takes it at once [0.02ms]
+@libs/runtime-harness-ts:test: (pass) a board that never takes the move fails the step [0.04ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/multiplayer-search-loading.test.ts:
+@libs/runtime-harness-ts:test: (pass) a loading permission surface does not count as a completed search [0.42ms]
+@libs/runtime-harness-ts:test: (pass) a chess journey leaves Connect Four choices before finding an opponent [0.12ms]
+@libs/runtime-harness-ts:test: (pass) a monitor left in an unfinished game retires it before finding a new opponent [0.06ms]
+@libs/runtime-harness-ts:test: (pass) an account invitation never starts a guest search [0.03ms]
+@libs/runtime-harness-ts:test: (pass) a pre-existing search waits for its accepted waiting row before the next person searches [0.05ms]
+@libs/runtime-harness-ts:test: (pass) the same completed board on both devices is not a newly matched game [0.12ms]
+@libs/runtime-harness-ts:test: (pass) recovery setup can establish its unfinished game beyond the separate timed pairing assertion [0.28ms]
+@libs/runtime-harness-ts:test: (pass) cleanup stops a waiting search before ending its space [0.17ms]
+@libs/runtime-harness-ts:test: (pass) a previous 2+1 choice is changed to the requested 5+0 before finding an opponent [0.04ms]
+@libs/runtime-harness-ts:test: (pass) an unchanged 2+1 radio refuses to start a search requested at 5+0 [0.04ms]
+@libs/runtime-harness-ts:test: (pass) cleanup retires the match that replaces a search before Stop receives its tap [0.07ms]
+@libs/runtime-harness-ts:test: (pass) search transition ongoing=%s matched=%s preserves cleanup failures [0.03ms]
+@libs/runtime-harness-ts:test: (pass) search transition ongoing=%s matched=%s preserves cleanup failures
+@libs/runtime-harness-ts:test: (pass) search transition ongoing=%s matched=%s preserves cleanup failures
+@libs/runtime-harness-ts:test: (pass) search transition ongoing=%s matched=%s preserves cleanup failures [0.02ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/custom-game-pair.test.ts:
+@libs/runtime-harness-ts:test: (pass) Alice waits for Bob’s accepted seat before submitting readiness [0.32ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/critical-journey-host-space.test.ts:
+@libs/runtime-harness-ts:test: (pass) hostSpace > waits for a hosted card whose profile is still hydrating [0.37ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > ends a leftover through the overflow menu before hosting [0.10ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > waits for End on a late bar instead of opening the overflow menu over it [0.08ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > ends leftover live spaces before opening a new one [0.08ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > opens a space with Minimize collapsed into the closed overflow menu [0.05ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > ends leftovers that appear only once the list has synced [0.06ms]
+@libs/runtime-harness-ts:test: (pass) hostSpace > waits for the lazy profile route before reading the host username [0.05ms]
+@libs/runtime-harness-ts:test: (pass) cleanup ends the space when saved participation opens during the Join tap [0.06ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/run-migrate-index-reconcile.test.ts:
+@libs/runtime-harness-ts:test: (pass) runMigrateIndexReconcile > creates desired owned indexes on empty tables [5.70ms]
+@libs/runtime-harness-ts:test: (pass) runMigrateIndexReconcile > throws when execute returns failed [0.38ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/custom-game-party-journey.test.ts:
+@libs/runtime-harness-ts:test: 128 |         // The record beside a wide board always shows its steps.
+@libs/runtime-harness-ts:test: 129 |         shown: () => id === 'custom-game-review-live',
+@libs/runtime-harness-ts:test: 130 |         visible: () => {
+@libs/runtime-harness-ts:test: 131 |           if (!id.startsWith('custom-game-review-move-')) return;
+@libs/runtime-harness-ts:test: 132 |           const ply = Number(id.slice('custom-game-review-move-'.length));
+@libs/runtime-harness-ts:test: 133 |           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
+@libs/runtime-harness-ts:test:                                               ^
+@libs/runtime-harness-ts:test: error: Move 10 has not arrived
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:133:41)
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:190:36)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at async playCustomGamePartyTurn (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:149:9)
+@libs/runtime-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-journey.ts:105:27)
+@libs/runtime-harness-ts:test: (fail) the party waits for the last accepted turn before choosing the next person [3.06ms]
+@libs/runtime-harness-ts:test: (pass) the recorded Hill position chooses a legal move past the occupied f5 [0.55ms]
+@libs/runtime-harness-ts:test: 128 |         // The record beside a wide board always shows its steps.
+@libs/runtime-harness-ts:test: 129 |         shown: () => id === 'custom-game-review-live',
+@libs/runtime-harness-ts:test: 130 |         visible: () => {
+@libs/runtime-harness-ts:test: 131 |           if (!id.startsWith('custom-game-review-move-')) return;
+@libs/runtime-harness-ts:test: 132 |           const ply = Number(id.slice('custom-game-review-move-'.length));
+@libs/runtime-harness-ts:test: 133 |           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
+@libs/runtime-harness-ts:test:                                               ^
+@libs/runtime-harness-ts:test: error: Move 10 has not arrived
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:133:41)
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:190:36)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at async playCustomGamePartyTurn (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:149:9)
+@libs/runtime-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-journey.ts:105:27)
+@libs/runtime-harness-ts:test: (fail) the party returns from review15 to live16 before choosing a human move [3.03ms]
+@libs/runtime-harness-ts:test: 128 |         // The record beside a wide board always shows its steps.
+@libs/runtime-harness-ts:test: 129 |         shown: () => id === 'custom-game-review-live',
+@libs/runtime-harness-ts:test: 130 |         visible: () => {
+@libs/runtime-harness-ts:test: 131 |           if (!id.startsWith('custom-game-review-move-')) return;
+@libs/runtime-harness-ts:test: 132 |           const ply = Number(id.slice('custom-game-review-move-'.length));
+@libs/runtime-harness-ts:test: 133 |           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
+@libs/runtime-harness-ts:test:                                               ^
+@libs/runtime-harness-ts:test: error: Move 10 has not arrived
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:133:41)
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:190:36)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at async playCustomGamePartyTurn (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:149:9)
+@libs/runtime-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-journey.ts:105:27)
+@libs/runtime-harness-ts:test: (fail) the party re-reads the acting board after Blue g6 rebases to f5 [2.62ms]
+@libs/runtime-harness-ts:test: (pass) both provisional g6 and authoritative f5 are real bot choices [0.71ms]
+@libs/runtime-harness-ts:test: 128 |         // The record beside a wide board always shows its steps.
+@libs/runtime-harness-ts:test: 129 |         shown: () => id === 'custom-game-review-live',
+@libs/runtime-harness-ts:test: 130 |         visible: () => {
+@libs/runtime-harness-ts:test: 131 |           if (!id.startsWith('custom-game-review-move-')) return;
+@libs/runtime-harness-ts:test: 132 |           const ply = Number(id.slice('custom-game-review-move-'.length));
+@libs/runtime-harness-ts:test: 133 |           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
+@libs/runtime-harness-ts:test:                                               ^
+@libs/runtime-harness-ts:test: error: Move 10 has not arrived
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:133:41)
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:190:36)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at async playCustomGamePartyTurn (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:149:9)
+@libs/runtime-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-journey.ts:105:27)
+@libs/runtime-harness-ts:test: (fail) the party reselects a pending acting board without repeating a move [2.48ms]
+@libs/runtime-harness-ts:test: 128 |         // The record beside a wide board always shows its steps.
+@libs/runtime-harness-ts:test: 129 |         shown: () => id === 'custom-game-review-live',
+@libs/runtime-harness-ts:test: 130 |         visible: () => {
+@libs/runtime-harness-ts:test: 131 |           if (!id.startsWith('custom-game-review-move-')) return;
+@libs/runtime-harness-ts:test: 132 |           const ply = Number(id.slice('custom-game-review-move-'.length));
+@libs/runtime-harness-ts:test: 133 |           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
+@libs/runtime-harness-ts:test:                                               ^
+@libs/runtime-harness-ts:test: error: Move 10 has not arrived
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:133:41)
+@libs/runtime-harness-ts:test:       at visible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/tests/custom-game-party-fixture.ts:190:36)
+@libs/runtime-harness-ts:test:       at playOnSettledBoard (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:113:29)
+@libs/runtime-harness-ts:test:       at async playCustomGamePartyTurn (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-turn.ts:149:9)
+@libs/runtime-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts/src/custom-game-party-journey.ts:105:27)
+@libs/runtime-harness-ts:test: (fail) the party observes completion received when the acting device activates [2.62ms]
+@libs/runtime-harness-ts:test: (pass) a failed party gesture retains its cause and bounded public board context [0.40ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/journey-sign-in-menu.test.ts:
+@libs/runtime-harness-ts:test: (pass) account confirmation after menu hydration preserves game context false [2.04ms]
+@libs/runtime-harness-ts:test: (pass) account confirmation after menu hydration preserves game context true [0.02ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/tablet-settings-navigation.test.ts:
+@libs/runtime-harness-ts:test: (pass) tablet settings keep preferences without a compact back button [234.28ms]
+@libs/runtime-harness-ts:test: (pass) the settings harness can leave tablet Appearance through the global menu [0.24ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/custom-game-journey-connection.test.ts:
+@libs/runtime-harness-ts:test: (pass) [AsyncFunction: prepareCustomGame] waits for a fresh room before sending its first choice [0.17ms]
+@libs/runtime-harness-ts:test: (pass) [AsyncFunction: startCustomGameAgainstBot] waits for a fresh room before sending its first choice [0.02ms]
+@libs/runtime-harness-ts:test: (pass) [AsyncFunction: prepareCustomGame] fails without sending a choice when the room never connects [0.04ms]
+@libs/runtime-harness-ts:test: (pass) [AsyncFunction: startCustomGameAgainstBot] fails without sending a choice when the room never connects
+@libs/runtime-harness-ts:test: (pass) the offline start gesture still attempts the choice while disconnected [0.04ms]
+@libs/runtime-harness-ts:test: (pass) the offline start waits for the room to observe the network cut [0.06ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/multiplayer-journey-runner.test.ts:
+@libs/runtime-harness-ts:test: (pass) the journey runner binds and completes all three literal multiplayer journeys [6436.97ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/custom-game-journey-move.test.ts:
+@libs/runtime-harness-ts:test: (pass) White plays e2-e4 again when the board did not take the first try [0.21ms]
+@libs/runtime-harness-ts:test: (pass) White plays e2-e4 once when the board takes it at once [0.02ms]
+@libs/runtime-harness-ts:test: (pass) a board that never takes the move fails the step [0.04ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/game-journey-connection.test.ts:
+@libs/runtime-harness-ts:test: (pass) the third move waits for the opponent second move before its gesture [0.19ms]
+@libs/runtime-harness-ts:test: (pass) visible history does not trigger a drop while its column is still disabled [0.17ms]
+@libs/runtime-harness-ts:test: (pass) a move waits for reconnection even after its opponent move is visible [5.52ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/workload-index-columns.test.ts:
+@libs/runtime-harness-ts:test: (pass) fresh database workload reconciliation uses only declared columns [34.95ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: tests/journey-diagnostics.test.ts:
+@libs/runtime-harness-ts:test: (pass) journey diagnostics report Battleship counts without exposing fleet cells [0.35ms]
+@libs/runtime-harness-ts:test: (pass) journey diagnostics distinguish an unavailable snapshot from an absent fleet [0.05ms]
+@libs/runtime-harness-ts:test: (pass) journey diagnostics keep the failed readiness control and public refusal [0.12ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test: 6 tests failed:
+@libs/runtime-harness-ts:test: (fail) the Hill party returns a real reviewed board to the live position [27254.04ms]
+@libs/runtime-harness-ts:test: (fail) the party waits for the last accepted turn before choosing the next person [3.06ms]
+@libs/runtime-harness-ts:test: (fail) the party returns from review15 to live16 before choosing a human move [3.03ms]
+@libs/runtime-harness-ts:test: (fail) the party re-reads the acting board after Blue g6 rebases to f5 [2.62ms]
+@libs/runtime-harness-ts:test: (fail) the party reselects a pending acting board without repeating a move [2.48ms]
+@libs/runtime-harness-ts:test: (fail) the party observes completion received when the acting device activates [2.62ms]
+@libs/runtime-harness-ts:test: 
+@libs/runtime-harness-ts:test:  70 pass
+@libs/runtime-harness-ts:test:  6 fail
+@libs/runtime-harness-ts:test:  332 expect() calls
+@libs/runtime-harness-ts:test: Ran 76 tests across 22 files. [35.63s]
+@libs/runtime-harness-ts:test: error: script "test" exited with code 1
+@libs/runtime-harness-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/runtime-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    35.958s 
+Failed:    @libs/runtime-harness-ts#test
+
+ ERROR  run failed: command  exited (1)

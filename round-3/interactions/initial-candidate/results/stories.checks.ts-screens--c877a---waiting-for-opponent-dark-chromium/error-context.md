@@ -1,0 +1,276 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: stories.checks.ts >> screens-games-quoridor-classic--waiting-for-opponent dark
+- Location: tests/storybook/stories.checks.ts:27:5
+
+# Error details
+
+```
+Error: expect(locator).toHaveScreenshot(expected) failed
+
+Locator: locator('#storybook-root')
+  3189 pixels (ratio 0.01 of all image pixels) are different.
+
+  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark.png
+
+Call log:
+  - Expect "toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark.png)" with timeout 5000ms
+    - verifying given screenshot expectation
+  - waiting for locator('#storybook-root')
+    - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+  - taking element screenshot
+    - disabled all CSS animations
+  - waiting for fonts to load...
+  - fonts loaded
+  - attempting scroll into view action
+    - waiting for element to be stable
+  - 3189 pixels (ratio 0.01 of all image pixels) are different.
+  - waiting 100ms before taking screenshot
+  - waiting for locator('#storybook-root')
+    - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+  - taking element screenshot
+    - disabled all CSS animations
+  - waiting for fonts to load...
+  - fonts loaded
+  - attempting scroll into view action
+    - waiting for element to be stable
+  - captured a stable screenshot
+  - 3189 pixels (ratio 0.01 of all image pixels) are different.
+
+```
+
+# Page snapshot
+
+```yaml
+- main [ref=e6]:
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - heading "Classic Quoridor" [level=1] [ref=e16]
+      - generic [ref=e18]:
+        - generic [ref=e19]: Unrated
+        - generic [ref=e20]: ·Untimed
+    - generic [ref=e21]:
+      - generic [ref=e23]:
+        - paragraph [ref=e24]: North gold diamond to move, heading for row 1.
+        - generic [ref=e25]:
+          - paragraph [ref=e30]: No moves yet.
+          - button "All moves" [ref=e31] [cursor=pointer]:
+            - img [ref=e35]
+      - generic [ref=e37]:
+        - generic [ref=e39]:
+          - generic [ref=e41]:
+            - generic [ref=e46]:
+              - img "North gold diamond" [ref=e47]:
+                - generic [ref=e48]: ◆
+              - generic [ref=e49]: jordan_plays
+              - generic [ref=e50]: To move
+            - generic [ref=e51]:
+              - generic [ref=e52]: Walls
+              - generic [ref=e53]: "9"
+          - generic [ref=e55]:
+            - group "Quoridor board, nine columns and nine rows" [ref=e56]:
+              - generic [ref=e58]: a
+              - generic [ref=e59]: b
+              - generic [ref=e60]: c
+              - generic [ref=e61]: d
+              - generic [ref=e62]: e
+              - generic [ref=e63]: f
+              - generic [ref=e64]: g
+              - generic [ref=e65]: h
+              - generic [ref=e66]: i
+              - generic [ref=e67]: "9"
+              - 'button "a9: Empty" [disabled] [ref=e68]'
+              - 'button "b9: Empty" [disabled] [ref=e69]'
+              - 'button "c9: Empty" [disabled] [ref=e70]'
+              - 'button "d9: Empty" [disabled] [ref=e71]'
+              - 'button "e9: Empty" [disabled] [ref=e72]'
+              - 'button "f9: Empty" [disabled] [ref=e73]'
+              - 'button "g9: Empty" [disabled] [ref=e74]'
+              - 'button "h9: Empty" [disabled] [ref=e75]'
+              - 'button "i9: Empty" [disabled] [ref=e76]'
+              - generic [ref=e77]: "8"
+              - 'button "a8: Empty" [disabled] [ref=e78]'
+              - 'button "b8: Empty" [disabled] [ref=e79]'
+              - 'button "c8: Empty" [disabled] [ref=e80]'
+              - 'button "d8: Empty, wall boundaries: bottom" [disabled] [ref=e81]'
+              - 'button "e8: Empty, wall boundaries: bottom" [disabled] [ref=e82]'
+              - 'button "f8: Empty" [disabled] [ref=e83]'
+              - 'button "g8: Empty" [disabled] [ref=e84]'
+              - 'button "h8: Empty" [disabled] [ref=e85]'
+              - 'button "i8: Empty" [disabled] [ref=e86]'
+              - generic [ref=e87]: "7"
+              - 'button "a7: Empty" [disabled] [ref=e88]'
+              - 'button "b7: Empty" [disabled] [ref=e89]'
+              - 'button "c7: Empty" [disabled] [ref=e90]'
+              - 'button "d7: Empty, wall boundaries: top" [disabled] [ref=e91]'
+              - 'button "e7: Empty, legal move, wall boundaries: top" [disabled] [ref=e92]':
+                - generic: ·
+              - 'button "f7: Empty, wall boundaries: right" [disabled] [ref=e93]'
+              - 'button "g7: Empty, wall boundaries: left" [disabled] [ref=e94]'
+              - 'button "h7: Empty" [disabled] [ref=e95]'
+              - 'button "i7: Empty" [disabled] [ref=e96]'
+              - generic [ref=e97]: "6"
+              - 'button "a6: Empty" [disabled] [ref=e98]'
+              - 'button "b6: Empty" [disabled] [ref=e99]'
+              - 'button "c6: Empty" [disabled] [ref=e100]'
+              - 'button "d6: Empty, legal move" [disabled] [ref=e101]':
+                - generic: ·
+              - 'button "e6: North gold diamond" [disabled] [ref=e102]':
+                - generic: ◆
+              - 'button "f6: Empty, legal move, wall boundaries: right" [disabled] [ref=e103]':
+                - generic: ·
+              - 'button "g6: Empty, wall boundaries: left" [disabled] [ref=e104]'
+              - 'button "h6: Empty" [disabled] [ref=e105]'
+              - 'button "i6: Empty" [disabled] [ref=e106]'
+              - generic [ref=e107]: "5"
+              - 'button "a5: Empty" [disabled] [ref=e108]'
+              - 'button "b5: Empty" [disabled] [ref=e109]'
+              - 'button "c5: Empty" [disabled] [ref=e110]'
+              - 'button "d5: Empty, wall boundaries: bottom" [disabled] [ref=e111]'
+              - 'button "e5: Empty, legal move, wall boundaries: bottom" [disabled] [ref=e112]':
+                - generic: ·
+              - 'button "f5: Empty" [disabled] [ref=e113]'
+              - 'button "g5: Empty" [disabled] [ref=e114]'
+              - 'button "h5: Empty" [disabled] [ref=e115]'
+              - 'button "i5: Empty" [disabled] [ref=e116]'
+              - generic [ref=e117]: "4"
+              - 'button "a4: Empty" [disabled] [ref=e118]'
+              - 'button "b4: Empty" [disabled] [ref=e119]'
+              - 'button "c4: Empty, wall boundaries: right" [disabled] [ref=e120]'
+              - 'button "d4: Empty, wall boundaries: top, left" [disabled] [ref=e121]'
+              - 'button "e4: Empty, wall boundaries: top" [disabled] [ref=e122]'
+              - 'button "f4: Empty" [disabled] [ref=e123]'
+              - 'button "g4: Empty" [disabled] [ref=e124]'
+              - 'button "h4: Empty" [disabled] [ref=e125]'
+              - 'button "i4: Empty" [disabled] [ref=e126]'
+              - generic [ref=e127]: "3"
+              - 'button "a3: Empty" [disabled] [ref=e128]'
+              - 'button "b3: Empty" [disabled] [ref=e129]'
+              - 'button "c3: Empty, wall boundaries: right" [disabled] [ref=e130]'
+              - 'button "d3: Empty, wall boundaries: left" [disabled] [ref=e131]'
+              - 'button "e3: South red circle" [disabled] [ref=e132]':
+                - generic: ●
+              - 'button "f3: Empty" [disabled] [ref=e133]'
+              - 'button "g3: Empty" [disabled] [ref=e134]'
+              - 'button "h3: Empty" [disabled] [ref=e135]'
+              - 'button "i3: Empty" [disabled] [ref=e136]'
+              - generic [ref=e137]: "2"
+              - 'button "a2: Empty" [disabled] [ref=e138]'
+              - 'button "b2: Empty" [disabled] [ref=e139]'
+              - 'button "c2: Empty" [disabled] [ref=e140]'
+              - 'button "d2: Empty" [disabled] [ref=e141]'
+              - 'button "e2: Empty" [disabled] [ref=e142]'
+              - 'button "f2: Empty" [disabled] [ref=e143]'
+              - 'button "g2: Empty" [disabled] [ref=e144]'
+              - 'button "h2: Empty" [disabled] [ref=e145]'
+              - 'button "i2: Empty" [disabled] [ref=e146]'
+              - generic [ref=e147]: "1"
+              - 'button "a1: Empty" [disabled] [ref=e148]'
+              - 'button "b1: Empty" [disabled] [ref=e149]'
+              - 'button "c1: Empty" [disabled] [ref=e150]'
+              - 'button "d1: Empty" [disabled] [ref=e151]'
+              - 'button "e1: Empty" [disabled] [ref=e152]'
+              - 'button "f1: Empty" [disabled] [ref=e153]'
+              - 'button "g1: Empty" [disabled] [ref=e154]'
+              - 'button "h1: Empty" [disabled] [ref=e155]'
+              - 'button "i1: Empty" [disabled] [ref=e156]'
+            - status [ref=e157]: This board is read-only. Follow the game or review earlier moves.
+          - status [ref=e159]:
+            - generic [ref=e160]:
+              - generic [ref=e161]: "South red circle: avery. North gold diamond: jordan_plays."
+              - text: North gold diamond to move, heading for row 1.
+          - generic [ref=e164]:
+            - generic [ref=e169]:
+              - img "South red circle" [ref=e170]:
+                - generic [ref=e171]: ●
+              - generic [ref=e172]: avery
+            - generic [ref=e173]:
+              - generic [ref=e174]: Walls
+              - generic [ref=e175]: "7"
+        - generic [ref=e178]:
+          - group "Game actions" [ref=e179]:
+            - button "Move pawn" [disabled] [pressed] [ref=e180]:
+              - paragraph [ref=e183]: Move pawn
+            - button "Horizontal wall" [disabled] [ref=e184]:
+              - paragraph [ref=e187]: Horizontal wall
+            - button "Vertical wall" [disabled] [ref=e188]:
+              - paragraph [ref=e191]: Vertical wall
+            - button "Offer draw" [ref=e192] [cursor=pointer]:
+              - paragraph [ref=e195]: Offer draw
+            - button "Resign game" [ref=e196] [cursor=pointer]:
+              - paragraph [ref=e199]:
+                - text: Resign
+                - generic [ref=e200]: game
+          - button "History and stats" [ref=e201] [cursor=pointer]:
+            - generic [ref=e203]:
+              - paragraph [ref=e204]: History and stats
+              - img [ref=e207]
+```
+
+# Test source
+
+```ts
+  1  | // @io-wall-ok — browser verification adapter; all requests stay on the static server.
+  2  | import { expect, type Page } from '@playwright/test';
+  3  | import axe from 'axe-core';
+  4  | import type { visualScenarios } from '../../storybook/scenarios';
+  5  | 
+  6  | /** The same readiness, accessibility and pixel contract for every canvas. */
+  7  | export async function verifyStoryScenario(
+  8  |   page: Page,
+  9  |   storyId: string,
+  10 |   scenario: ReturnType<typeof visualScenarios>[number]
+  11 | ): Promise<void> {
+  12 |   const { width, height, theme } = scenario;
+  13 |   await page.setViewportSize({ width, height });
+  14 |   const failures: string[] = [];
+  15 |   page.on('pageerror', (error) => failures.push(error.message));
+  16 |   await page.route('**/*', (route) =>
+  17 |     new URL(route.request().url()).hostname === '127.0.0.1'
+  18 |       ? route.continue()
+  19 |       : route.abort()
+  20 |   );
+  21 |   await page.goto(
+  22 |     `/iframe.html?id=${storyId}&viewMode=story&globals=theme:${theme}`
+  23 |   );
+  24 |   await expect
+  25 |     .poll(async () =>
+  26 |       page.locator('#storybook-root').evaluate((root) => {
+  27 |         const status = root.getAttribute('data-story-status');
+  28 |         if (status === 'error')
+  29 |           return `error: ${root.getAttribute('data-story-error') ?? 'Storybook reported a failure'}`;
+  30 |         return root.getAttribute('data-story-ready') === 'true'
+  31 |           ? 'success'
+  32 |           : 'pending';
+  33 |       })
+  34 |     )
+  35 |     .toBe('success');
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+  39 |   const violations = await page.evaluate(async () => {
+  40 |     const root = document.querySelector<HTMLElement>('#storybook-root');
+  41 |     if (!root) throw new Error('Storybook canvas is missing');
+  42 |     const result = await (window as unknown as { axe: typeof axe }).axe.run(
+  43 |       root
+  44 |     );
+  45 |     return result.violations.filter(
+  46 |       (v) => v.impact === 'serious' || v.impact === 'critical'
+  47 |     );
+  48 |   });
+  49 |   expect(violations).toEqual([]);
+  50 |   expect(failures).toEqual([]);
+> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+     |                                                 ^ Error: expect(locator).toHaveScreenshot(expected) failed
+  52 |     scenario.baseline.split('/'),
+  53 |     { animations: 'disabled' }
+  54 |   );
+  55 | }
+  56 | 
+```

@@ -1,0 +1,37 @@
+{
+  "candidateSha": "897a7562d2fee9d4cec187281ac84119de322c05",
+  "runId": 42255354537,
+  "url": "https://github.com/crvouga/gamezilla/actions/runs/42255354537",
+  "observedAt": "2026-11-06T17:17:24.618569+00:00",
+  "status": "in_progress",
+  "conclusion": "",
+  "authoring": {
+    "completedAt": "2026-11-06T17:11:53Z",
+    "conclusion": "success",
+    "name": "Author references explicitly",
+    "number": 7,
+    "startedAt": "2026-11-06T16:55:06Z",
+    "status": "completed"
+  },
+  "comparison": {
+    "completedAt": "0001-01-01T00:00:00Z",
+    "conclusion": "",
+    "name": "Compare every authored Storybook state",
+    "number": 9,
+    "startedAt": "2026-11-06T17:12:18Z",
+    "status": "in_progress"
+  },
+  "acceptedReferences": 0,
+  "finalEncodedPatchRetrieved": false,
+  "macOSReferencesAccepted": false,
+  "supersededRun": {
+    "runId": 42249571026,
+    "candidateSha": "4c0543986df4199f26fb19a94dbfb656a9295935",
+    "authorPassedCases": 629,
+    "decodedReferenceChanges": 366,
+    "comparison": "cancelled after candidate superseded",
+    "acceptedReferences": 0
+  },
+  "publicStatus": "Final-head Ubuntu reference authoring succeeded; comparison is still running in run 42255354537. No references are accepted, and pixel approval remains pending. The historical Ubuntu phone drift is not retroactively explained by current controlled-pair stability.",
+  "next": "Retrieve completed public logs, decode the final encoded patch, review actual intended changes and compare results; withhold unexplained variance. A reference commit requires refreshed exact-head checks and media. No child PR watch."
+}

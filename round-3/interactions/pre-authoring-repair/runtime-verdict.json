@@ -1,0 +1,30 @@
+{
+  "candidateSha": "d4ba9d517c59e9e03ecd2453a59972e77da866f4",
+  "cases": 628,
+  "visualCases": 620,
+  "fontCases": 8,
+  "nativeReadinessPlayBrowserErrorsAxe": {
+    "passed": 620,
+    "failed": 0
+  },
+  "fontChecks": {
+    "passed": 8,
+    "failed": 0
+  },
+  "pixels": {
+    "pixel": 620
+  },
+  "sharedReferencesAcceptedOnMacOS": false,
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1440,
+      "height": 844
+    }
+  ],
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 bunx turbo run storybook:test --filter=@pkgs/ui-root-harness-ts --only --concurrency=1 -- --workers=2 --reporter=line,json --grep <pattern.txt>",
+  "publicStatus": "All 620 visual cases passed native readiness/play, browser-error and serious/critical axe stages; all 8 controlled font checks passed. Local pixel comparisons remain separate and no macOS references were accepted. Full bun verify failed the pre-existing /more/troubleshooting statechart-owner rule. Two new independent reviews remain pending."
+}

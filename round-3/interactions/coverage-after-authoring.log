@@ -1,0 +1,1856 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:coverage in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:build: cache hit, replaying logs 49715895bba72c15
+@pkgs/ui-root-harness-ts:storybook:build: $ storybook build -c storybook -o .cache/storybook
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:build: ┌  Building storybook v10.6.5
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Cleaning outputDir: .cache/storybook
+@pkgs/ui-root-harness-ts:storybook:build: (node:28262) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+@pkgs/ui-root-harness-ts:storybook:build: (Use `node --trace-deprecation ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ▲  One or more extensionless imports detected: "./docgen" in file
+@pkgs/ui-root-harness-ts:storybook:build: │  "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/storybook/main.ts".
+@pkgs/ui-root-harness-ts:storybook:build: │  For more information on how to resolve the issue:
+@pkgs/ui-root-harness-ts:storybook:build: │  ]8;;https://storybook.js.org/docs/faq#extensionless-imports-in-storybookmaints-and-required-ts-extensionshttps://storybook.js.org/docs/faq#extensionless-imports-in-st...]8;;
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Loading presets
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Building manager..
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ●  Building open services..
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ●  Building preview..
+@pkgs/ui-root-harness-ts:storybook:build: │  Vite vite v8.3.4 building client environment for production...
+@pkgs/ui-root-harness-ts:storybook:build: transforming...
+@pkgs/ui-root-harness-ts:storybook:build: ✓ 3060 modules transformed.
+@pkgs/ui-root-harness-ts:storybook:build: rendering chunks...
+@pkgs/ui-root-harness-ts:storybook:build: computing gzip size...
+@pkgs/ui-root-harness-ts:storybook:build: │  Vite .cache/storybook/assets/success-subtle-Bi_IGIaM.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-over-BOg-dkEd.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/host-changed-CJyLUFja.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/settings-changed-3Rdau8eO.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tab-switch-tWoPQfEG.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-500-normal-DCXiE_xi.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  4.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/host-changed-BeGPC9b8.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/inventory-add-D78HebnR.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-400-normal-DHb3EETF.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  4.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-600-normal-C1J5PCl_.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  4.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-700-normal-CUqMx5-1.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  4.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-over-checkmate-C7vs22--.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/confirmation-BdOXZxZA.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-over-stalemate-Dk_LXifn.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/invite-accepted-DSx9u1Kv.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spectator-joined-B2I2I946.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/unlock-BSg6pLId.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/share-DWW5Iivr.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.94 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dropdown-select-CcYXfsXd.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/inventory-remove-Dqo6qt47.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  4.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/room-joined-CXgkLuIN.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-600-normal-BoRV6lzK.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  5.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-700-normal-CHUG9PD8.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  5.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-500-normal-GeMIHyWm.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  5.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/defeat-BSmyiknN.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/modal-close-CPQV4BHg.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-400-normal-CM4qok81.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  5.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/speaker-muted-Dli7NHg9.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/accordion-collapse-DeOpvNOz.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sync-started-E2aaeXTb.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/reward-DWyhjP6x.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/success-CfHNpjel.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/streak-BOnNKViN.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/picker-open-DY2-3bhg.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/draw-Du7-OcZY.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/modal-open-C9p74aEc.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/achievement-DX7oITx4.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  5.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-500-normal-DaZ8i3XM.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-400-normal-D7E_mLGF.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-600-normal-lA7a_7Ok.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/accordion-expand-Cm3FVdTM.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/user-blocked-B-PS2cET.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sync-completed-D9QEOwCG.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-vietnamese-700-normal-pt65Fn2Z.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.36 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/score-increase-BeDwnYL4.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/combo-D3oo_AKC.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/search-clear-DkBD4INu.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/capture-Cve6FrMg.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/badge-unlocked-CFWQQxxl.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-600-normal-CF2i9ZRY.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-700-normal-DyfsrCpP.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/unfavorite-CfcfaUpA.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-500-normal-DyxYGEtJ.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-greek-400-normal-DuX9RsAR.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  6.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mic-muted-pnBu8c-f.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  6.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/gems-AGzu8mAY.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  7.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/invalid-move-Dq8BYVRp.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  7.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/error-D5N3Fx-2.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  7.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-400-normal-BMzJvInZ.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  7.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-700-normal-Dw_fZAg2.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  7.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-500-normal-B1OEZity.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  7.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-600-normal-DvRl3Mj-.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  7.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/coins-BYbCjvJC.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  8.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-500-normal-dm74KBQw.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  8.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-700-normal-DYOwVNan.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  8.27 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-400-normal-CMDvPJRp.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  8.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-600-normal-_gBojHdJ.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  8.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/purchase-ClJsV96X.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  8.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/victory-C2c42fLi.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  8.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/milestone-Bce0qFhr.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  8.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-ended-LDJC6pAE.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  9.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-700-normal-7JNVKxyl.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  10.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-500-normal-CNwnNrRC.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  10.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-400-normal-Dvx59UGC.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  10.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-cyrillic-600-normal-It4mZcQk.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  10.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/thread-reply-srDDbvqr.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  10.27 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/level-up-DlzrG5Hk.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  10.33 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-starting-DqQwPLZy.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  10.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/matchmaking-found-ClQfmmF0.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  10.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/friend-request-accepted-BC3-cV7T.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  10.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-500-normal-EtoS1VaI.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  11.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-600-normal-u5Pl7hTU.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  11.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-400-normal-C-X6QNXX.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  11.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-ext-700-normal-eVCcYqtJ.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  11.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/refresh-BPHP4xwf.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  12.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/checkpoint-yDKwFFDJ.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  12.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/google-sans-medium-latin-ext-nMqR9eJL.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  13.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/voice-connected-DvF5BlOe.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  13.79 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-500-normal-BYYD-dBL.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  14.04 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-400-normal-PaqtzbVb.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  14.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-600-normal-4f0koTD-.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  14.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-700-normal-BZp_XxE4.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  14.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mic-enabled-C1hUbS2L.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  14.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/search-MzqrAOlo.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  15.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/picker-select-C53cIq46.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  16.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-500-normal-DMZssgOp.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  18.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-400-normal-8tf8FM3T.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  18.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-600-normal-BqgrALkZ.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  18.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/manrope-latin-700-normal-DGRFkw-m.woff
+@pkgs/ui-root-harness-ts:storybook:build: │  18.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/google-sans-medium-latin-DL4ee5e9.woff2
+@pkgs/ui-root-harness-ts:storybook:build: │  23.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/iframe.html
+@pkgs/ui-root-harness-ts:storybook:build: │  30.84 kB │ gzip:   6.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/google-g-CpxN0HWb.png
+@pkgs/ui-root-harness-ts:storybook:build: │  33.66 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/notification-urgent-DoaEltZG.mp3
+@pkgs/ui-root-harness-ts:storybook:build: │  63.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-fit-DAX18coD.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.04 kB │ gzip:   0.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sound-indicator-CpNP3X5z.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.07 kB │ gzip:   0.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/json-view-AaX8wZSY.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.08 kB │ gzip:   0.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/speaking-avatar-BBxitZps.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.11 kB │ gzip:   0.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-session-layout-CVQ9xpsB.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.12 kB │ gzip:   0.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-stat-V2fyvRAK.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.13 kB │ gzip:   0.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-footer-vKp8oi6A.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.16 kB │ gzip:   0.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-DmQsK0vf.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.20 kB │ gzip:   0.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tab-strip-Bhzy0kfc.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.26 kB │ gzip:   0.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spinner-DI2Gtd_B.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.26 kB │ gzip:   0.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-facts-D6c6cj8E.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.28 kB │ gzip:   0.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-screen-DBUPJOXD.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.32 kB │ gzip:   0.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/move-strip-DjPya-LB.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.33 kB │ gzip:   0.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-row-D5h2ERmU.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.35 kB │ gzip:   0.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-edge-padding-cpoJjq4x.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.36 kB │ gzip:   0.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/progress-bar-DnhpnLPM.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.41 kB │ gzip:   0.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/editor-workbench-D8DNizbl.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.56 kB │ gzip:   0.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/paired-panels-Uk88Z-zO.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.63 kB │ gzip:   0.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/social-sign-in-button-CHDBJTFC.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.64 kB │ gzip:   0.33 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/key-hints-DKurLRl9.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.64 kB │ gzip:   0.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/create-memory-page-loader-B4AKG9hZ.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.75 kB │ gzip:   0.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/virtual-list-rFLbj5sB.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.77 kB │ gzip:   0.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-player-bar-DAi2h6LW.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.78 kB │ gzip:   0.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/code-editor-Dm6ndJ0y.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.87 kB │ gzip:   0.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tooltip-n1pppP51.css
+@pkgs/ui-root-harness-ts:storybook:build: │  0.92 kB │ gzip:   0.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-table-seat-DHTJ5HWq.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.05 kB │ gzip:   0.44 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-section-C4ZWBh05.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.12 kB │ gzip:   0.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-setup-panel-4GsDaCoK.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.14 kB │ gzip:   0.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disclosure-card-D9SnW3rr.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.14 kB │ gzip:   0.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tile-rack-Cm4FJlYF.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.23 kB │ gzip:   0.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-player-rail-BTP45EUo.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.24 kB │ gzip:   0.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-palette-tWyQLewU.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.65 kB │ gzip:   0.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-thumbnail-L1zzZdxi.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.66 kB │ gzip:   0.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/safe-markdown-Djnut6Gl.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.72 kB │ gzip:   0.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-track-MqSjI38J.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.72 kB │ gzip:   0.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/range-control-Dp_8cAWR.css
+@pkgs/ui-root-harness-ts:storybook:build: │  1.84 kB │ gzip:   0.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/direction-pad-BjMSY3fc.css
+@pkgs/ui-root-harness-ts:storybook:build: │  2.16 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-card-grid-BPGDU8No.css
+@pkgs/ui-root-harness-ts:storybook:build: │  2.22 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-menu-screen-pvRFUpnC.css
+@pkgs/ui-root-harness-ts:storybook:build: │  2.80 kB │ gzip:   0.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-move-list-1AakJILa.css
+@pkgs/ui-root-harness-ts:storybook:build: │  2.84 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-tile--oBLWBOV.css
+@pkgs/ui-root-harness-ts:storybook:build: │  2.98 kB │ gzip:   0.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/path-grid-board-BWf7YPkA.css
+@pkgs/ui-root-harness-ts:storybook:build: │  4.26 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/paddle-court-C5EWie5m.css
+@pkgs/ui-root-harness-ts:storybook:build: │  4.41 kB │ gzip:   1.12 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tile-board-FYSB9yii.css
+@pkgs/ui-root-harness-ts:storybook:build: │  5.18 kB │ gzip:   1.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/trail-arena-Ouzn_XKc.css
+@pkgs/ui-root-harness-ts:storybook:build: │  5.31 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tile-board-D_PjGK1J.css
+@pkgs/ui-root-harness-ts:storybook:build: │  5.32 kB │ gzip:   1.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disc-drop-board-DCwqK1x3.css
+@pkgs/ui-root-harness-ts:storybook:build: │  6.19 kB │ gzip:   1.43 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-layouts-Bdw69LVo.css
+@pkgs/ui-root-harness-ts:storybook:build: │  8.60 kB │ gzip:   1.68 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/card-table-CHup6F06.css
+@pkgs/ui-root-harness-ts:storybook:build: │  11.26 kB │ gzip:   2.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-ui-CstsEDZ8.css
+@pkgs/ui-root-harness-ts:storybook:build: │  11.84 kB │ gzip:   2.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/in-memory-audio-playback-port-DZzJD-Cs.css
+@pkgs/ui-root-harness-ts:storybook:build: │  14.39 kB │ gzip:   3.66 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-board-DQX8f61Y.css
+@pkgs/ui-root-harness-ts:storybook:build: │  15.14 kB │ gzip:   2.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/iframe-D-idY-fo.css
+@pkgs/ui-root-harness-ts:storybook:build: │  150.85 kB │ gzip:  33.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/localized-string-DHCVE6jP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.12 kB │ gzip:   0.12 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/svg-data-uri-BBSR7SR9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.18 kB │ gzip:   0.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/css-px-C1aTIb9A.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.20 kB │ gzip:   0.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-preview-B_umjufK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.22 kB │ gzip:   0.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-theme-DdHuvMcq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.24 kB │ gzip:   0.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/formatter-L2YTDE3Q-BU_x0T8H.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.24 kB │ gzip:   0.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sizes--rAKgT4q.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.25 kB │ gzip:   0.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/use-layout-mode-DhW4OYM1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.26 kB │ gzip:   0.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/subscription-signal-NHZ-7m6v.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.27 kB │ gzip:   0.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-slot-fXc1H5ug.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.29 kB │ gzip:   0.22 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-example-frame-Bg1Cjx6T.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.29 kB │ gzip:   0.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chunk-QQBDHPVZ-DGKYZDIn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.32 kB │ gzip:   0.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-row-sql-BEiAvMzz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.33 kB │ gzip:   0.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/banner-host-story.example-CwJRgqCU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.33 kB │ gzip:   0.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/display-BZ5gq3af.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.36 kB │ gzip:   0.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/compact-number-Bap2ykJu.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.36 kB │ gzip:   0.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/account-sync-error-notice-BbcPeklE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.37 kB │ gzip:   0.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-story-game-area.example-C75XdnDc.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.38 kB │ gzip:   0.27 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-board.module-saV4wZXT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.39 kB │ gzip:   0.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/solid-C4wM3OoH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.39 kB │ gzip:   0.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-sample-svg-Baeg_kLn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.40 kB │ gzip:   0.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/resolve-color-DXCiYkRA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.41 kB │ gzip:   0.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/friend-profile-avatar-PQ2Jp3aX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.46 kB │ gzip:   0.27 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/floating-menu-position-FwNfJBU4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.46 kB │ gzip:   0.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/scale-DDKeOmsb.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.47 kB │ gzip:   0.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/escape-dismiss-stack-DDpHx0Gg.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.50 kB │ gzip:   0.33 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/turn-games-context-2vqsD8fq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.52 kB │ gzip:   0.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/use-word-tiles-lexicon-BNk9Z4l5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.58 kB │ gzip:   0.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/react-DITjJg24.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.58 kB │ gzip:   0.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/solid-Dj5h8uD9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.61 kB │ gzip:   0.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/element-targets-CbL54EZF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.63 kB │ gzip:   0.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/layout-context-B3aVLtd2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.63 kB │ gzip:   0.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/observe-element-resize-rLoQxA9y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.64 kB │ gzip:   0.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/measure-Crq5eF9q.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.64 kB │ gzip:   0.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/boot-loading-shell-DJCwXNXt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.64 kB │ gzip:   0.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/permissions-story.example-BOmASnR7.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.67 kB │ gzip:   0.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/focus-trap-logic-BXpoyB4q.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.67 kB │ gzip:   0.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/convert-BINEuvdq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.73 kB │ gzip:   0.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/example-root-Ba7DIdUL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.73 kB │ gzip:   0.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chunk-UAWMPV5J-BrGPyIDv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.74 kB │ gzip:   0.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/example-section-D_8A9HvX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.75 kB │ gzip:   0.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-tabs-story.example-B0RDH3qW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.76 kB │ gzip:   0.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/roving-focus-BmSHtxaF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.81 kB │ gzip:   0.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/portal-host-frame-DWIY0vt3.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.84 kB │ gzip:   0.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sokoban-preview.stories-EKEcqPVS.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.86 kB │ gzip:   0.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-example-data-r5-SHVuX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.90 kB │ gzip:   0.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/fade-switch-kvPWSgU4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.90 kB │ gzip:   0.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/numberlink-preview.stories-BNWjwmPB.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.90 kB │ gzip:   0.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/quoridor-board.stories-BgUbWt9g.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.93 kB │ gzip:   0.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/participant-color-Jp5HcnHX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.96 kB │ gzip:   0.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-classes-DzdQ5QfS.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.96 kB │ gzip:   0.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/fade-switch.stories-BXoXRG09.js
+@pkgs/ui-root-harness-ts:storybook:build: │  0.97 kB │ gzip:   0.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-board.stories-Ci8d1LNx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.00 kB │ gzip:   0.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/boot-loading-shell.stories-CitbGfS_.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.00 kB │ gzip:   0.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-screen-behind.example-CnEJ5xmO.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.02 kB │ gzip:   0.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/button-face-Nrjuc0p7.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.03 kB │ gzip:   0.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/solid-COg6SH6Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.04 kB │ gzip:   0.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/scheme-preview-CcGIJHOZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.04 kB │ gzip:   0.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/css-vars-C_CBVIIh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.10 kB │ gzip:   0.59 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/precedence-C7wTlTsM.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.10 kB │ gzip:   0.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/seeded-rng-bMrSI_cR.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.12 kB │ gzip:   0.61 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spectator-indicator.stories-1zQ0qUWh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.12 kB │ gzip:   0.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sso-callback-screen-view.stories-BANk4Gzf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.17 kB │ gzip:   0.61 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/rolldown-runtime-sJBDdmOt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.20 kB │ gzip:   0.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-config-DaNkl4B4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.21 kB │ gzip:   0.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/key-hints.stories-uPSW7nXm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.23 kB │ gzip:   0.62 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/connect-four-story-board.example-DUVxjhyM.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.23 kB │ gzip:   0.68 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/range-control.stories-DtuE5ytQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.24 kB │ gzip:   0.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/document-panel.stories-Dvnim96e.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.27 kB │ gzip:   0.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/rating-B5ndSrgS.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.27 kB │ gzip:   0.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/relative-time-BrXZc_Jm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.28 kB │ gzip:   0.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/brand-icon.stories-CcLG1wYZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.28 kB │ gzip:   0.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/metric-strip-BBtwAnb2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.36 kB │ gzip:   0.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-layouts.module-ivhuEIj9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.37 kB │ gzip:   0.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-countdown-B3Kw1k5-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.37 kB │ gzip:   0.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/picker-section-DY12EhQi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.39 kB │ gzip:   0.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-setup-panel.stories-sVmZGeli.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.39 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pending-navigation-CjpS1yXP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.39 kB │ gzip:   0.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/divider-CkJJdFAy.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.40 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/picker-section.stories-pIqstX1f.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.41 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/file-picker-B5dPnC6z.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.43 kB │ gzip:   0.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/scroll-view.stories-DT7jxdBv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.45 kB │ gzip:   0.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/client-events-screen-view.stories-3mO8NUf5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.46 kB │ gzip:   0.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/card.stories-BHVShXZP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.47 kB │ gzip:   0.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/embedded-screen.stories-CUv5vsLp.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.48 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-builder-story.example-DWeKlDgx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.49 kB │ gzip:   0.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/document-panel-DHulpPda.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.50 kB │ gzip:   0.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-person-view-Da0ZhV0K.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.51 kB │ gzip:   0.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-tile.stories-3gNuEnXh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.51 kB │ gzip:   0.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/multi-select-swatch-grid.stories-Du_IiP7K.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.52 kB │ gzip:   0.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/glicko2-DV0YLc7b.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.55 kB │ gzip:   0.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sync-engine-context-BP_1Q72z.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.55 kB │ gzip:   0.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pagination-controls.stories-BxcN0IAr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.58 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/card-BUXiDq6L.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.58 kB │ gzip:   0.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-attempt-story.example-CI6Vwby0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.60 kB │ gzip:   0.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-search-state-BhFLw5aj.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.61 kB │ gzip:   0.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spacer-D2qvA2xk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.63 kB │ gzip:   0.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preload-helper-2GovK0wV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.64 kB │ gzip:   0.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/copy-to-clipboard-field.stories-B6GBNYjd.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.64 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-preview.stories-CJrkIIEl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.64 kB │ gzip:   0.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/suggestion-list.stories-BR6eqXRM.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.65 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-board.example-7aoobhrs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.65 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spectator-indicator-97H2NVwC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.65 kB │ gzip:   0.94 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/status-icon-slot-RKdgld8V.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.65 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-example-game-Cc6v2EIV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.66 kB │ gzip:   0.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-edge-padding-DhjaVT2a.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.67 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/divider.stories-CH53Budm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.67 kB │ gzip:   0.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-fit.stories-CVC72-Ak.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.67 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-facts-BNo_YOuZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.69 kB │ gzip:   0.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/presence-roster-list-C2kJFbuU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.70 kB │ gzip:   0.79 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-list-iInTVDm4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.71 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-ui.module-BaJMNchP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.71 kB │ gzip:   0.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-screen.stories-DCbXXVpN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.71 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/remove-space-person-modal-view.stories-BTc-2wck.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.72 kB │ gzip:   0.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-footer.stories-pWKzclqp.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.72 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-large-title-LHz9htum.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.74 kB │ gzip:   0.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/monogram-tile.stories-6rTyecHI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.74 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/visually-hidden.stories-_Ecdpyt6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.75 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-review-screen.stories-CGZ5opV7.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.75 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/move-strip.stories-D4tWf53I.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.76 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/collapsible-CtlojVD6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.77 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-title.stories-DREPvPQr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.77 kB │ gzip:   0.93 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/test-command-probe.stories-Df_8u3dq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.77 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/editor-workbench.stories-CrcqfSou.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.77 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/collapsible.stories-CtZkjoee.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.78 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/loading-state.stories-4AttqzBa.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.79 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/progress-bar.stories-BMYxCvME.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.79 kB │ gzip:   0.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/parse-client-config-vFsMMpYC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.80 kB │ gzip:   0.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/notice.stories-DynI3k4h.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.80 kB │ gzip:   0.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/key-hints-Dr55q-KX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.82 kB │ gzip:   0.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/main-menu-screen.stories-wyCzP8P0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.83 kB │ gzip:   0.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/use-mutation-button-EDWOzDRT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.83 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/denial-surface-view-DY1blR8U.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.83 kB │ gzip:   0.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pane.stories-CtEOfris.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.84 kB │ gzip:   0.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-screen-layout.stories-p6vPwDgt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.84 kB │ gzip:   0.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/action-notice-CpLElfmP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.84 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/status-dot-BE_lyA3e.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.84 kB │ gzip:   0.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chrome-title.stories-C7lsEt2R.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.85 kB │ gzip:   0.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/remove-space-person-modal-view-B6C_65jP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.85 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-footer-B7bGLLAR.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.86 kB │ gzip:   0.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/grid.stories-BgkE51XL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.90 kB │ gzip:   0.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-track.stories-Bj50Mdje.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.90 kB │ gzip:   0.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/visually-hidden-Bkgt6dlN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.92 kB │ gzip:   0.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-screen.stories-CiCnETNO.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.93 kB │ gzip:   0.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/status-icon-slot.stories-CPEfFw5T.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.94 kB │ gzip:   0.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/arrow-key-group.stories-BoV2qoUA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.96 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/speaking-avatar.stories-CdYnzyzI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.96 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/loading-state-DNQNsaUq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.96 kB │ gzip:   0.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-thumbnail.stories-DoNTaARi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.96 kB │ gzip:   0.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-clock-PsHrSkx-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.97 kB │ gzip:   0.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chrome-title-DuBbr8Gj.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.97 kB │ gzip:   0.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/use-document-shortcuts-D04HP8fS.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.97 kB │ gzip:   0.94 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/checkered-board.stories-DFJaQ7cm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.97 kB │ gzip:   0.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/paddle-court.stories-BPbXwd-l.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.98 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spinner.stories-C0BwPX5-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.98 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spacer.stories-e2H9_EfN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.98 kB │ gzip:   0.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tile-board.stories-XI55Dkdi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.98 kB │ gzip:   1.05 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/collection-screen.stories-D2noIXA5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1.99 kB │ gzip:   0.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/user-username-view-DbvTGVZF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.02 kB │ gzip:   0.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-thumbnail-BgKGDI1F.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.03 kB │ gzip:   1.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/badged-icon.stories-C6OgUB3u.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.03 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disclosure-card.stories-BVp8WFL4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.03 kB │ gzip:   0.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-actions-footer.stories-pCsu2VDp.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.03 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-screen.stories-CsD-LCnx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.05 kB │ gzip:   0.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/code-block.stories-Bji7zIaz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.07 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tooltip.stories-CL2kcJaJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.07 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/code-editor.stories-CLubxeg2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.07 kB │ gzip:   1.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/segmented-control.stories-FoEhuXx1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.08 kB │ gzip:   0.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/action-bar-logic-Bw3rDSuC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.08 kB │ gzip:   0.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tab-bar.stories-uCHxXO8k.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.08 kB │ gzip:   0.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/radio-group.stories-WZQBtA2j.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.08 kB │ gzip:   0.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-choice-grid-DcxpGy_5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.11 kB │ gzip:   0.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/semantic-list.stories-B87bQFhA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.11 kB │ gzip:   0.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/product-identity-_h4EkvqF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.12 kB │ gzip:   1.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/skeleton.stories-lFxVQ_bY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.13 kB │ gzip:   0.92 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/on-color-context-CO-OuzF2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.13 kB │ gzip:   0.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-screen.stories-CmwCdE4W.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.14 kB │ gzip:   1.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pwa-update-prompt-view.stories-_NlV4fOl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.14 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-link.stories-CTACaBB-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.14 kB │ gzip:   0.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/badged-icon-CNMoIDG6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.15 kB │ gzip:   1.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-history-screen.stories-DWD9QrNz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.15 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/field-label.stories-D2bD6tBL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.16 kB │ gzip:   0.90 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-history-screen-DAtvSxGe.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.17 kB │ gzip:   0.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/layer.stories-C1aU94tv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.20 kB │ gzip:   0.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/code-block-eij_sXi-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.21 kB │ gzip:   1.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icon-CKGmBPMU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.24 kB │ gzip:   1.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/arrow-key-group-Cw2P3R43.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.24 kB │ gzip:   1.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-replay-screen-view-CfGVKZzW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.25 kB │ gzip:   0.93 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chip.stories-w0b8pI0n.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.26 kB │ gzip:   1.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sparkline.stories-yc1GUZ1-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.27 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/action-bar.stories-Ds17n9DK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.28 kB │ gzip:   1.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mutation-lifecycle-B7m0Y9gr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.28 kB │ gzip:   1.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-replay-screen-view.stories-NEpNnDav.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.28 kB │ gzip:   0.94 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-hero.stories-BMK-Q1ji.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.30 kB │ gzip:   1.08 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/success-state.stories-CALnkspQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.30 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-review-screen-C0iQN8V4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.30 kB │ gzip:   0.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/toolbar.stories-BzgDR6VV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.30 kB │ gzip:   1.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-palette.stories-C9FKb-46.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.31 kB │ gzip:   0.92 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/contrast-B30qSJmj.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.31 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/username-change-feedback-view-9fd4WFm5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.33 kB │ gzip:   0.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tabs.stories-BuFyKOTI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.37 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spaces-story.example-CgLfIuDq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.37 kB │ gzip:   1.27 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-logo.stories-Bnjp_TBr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.38 kB │ gzip:   1.02 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-card-grid.stories-BWD9GK2c.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.39 kB │ gzip:   1.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/status-dot.stories-CPxrNKur.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.39 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/textarea.stories-CGJmkjJh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.42 kB │ gzip:   1.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-field.stories-B8mvyobq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.42 kB │ gzip:   1.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tile-rack-C9H9Ltmm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.44 kB │ gzip:   1.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-frame.stories-B9ON181q.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.45 kB │ gzip:   1.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-hero-bblTn1uG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.45 kB │ gzip:   1.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/heading.stories-Bw46LD_a.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.45 kB │ gzip:   1.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-screen.stories-CZwBMF1o.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.46 kB │ gzip:   1.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-intro-DGPXVHM_.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.46 kB │ gzip:   1.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chip-group.stories-BqKD4Ni5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.47 kB │ gzip:   1.12 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/monogram-tile-CX3B34Wk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.47 kB │ gzip:   1.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/kv-state-codec-DNKLHP1Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.48 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/data-table.stories-kZy7mwDk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.48 kB │ gzip:   1.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-result.stories-C1xKafjT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.48 kB │ gzip:   1.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/file-picker.stories-DX5bsL-w.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.49 kB │ gzip:   0.92 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-frame-chrome-B0_RbPXE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.49 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-boundary-contrast.stories-BWyPXHic.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.49 kB │ gzip:   1.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/floating-action-button.stories-BQuKyZNl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.50 kB │ gzip:   1.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/solid-DWZVQDdj.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.50 kB │ gzip:   1.04 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/landmarks.stories-CYJuFxvt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.51 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/overflow-menu-button.stories-kRnc0pya.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.51 kB │ gzip:   1.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chrome-breadcrumb.stories-Cw2sNKA-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.51 kB │ gzip:   0.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icon.stories-BtG_6V7r.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.53 kB │ gzip:   1.08 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/async-save.stories-DQxcqRiM.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.55 kB │ gzip:   1.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-members-sheet-view.stories-B2jwZjIu.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.57 kB │ gzip:   0.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/responsive-surface.stories-d2m3hN8Z.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.58 kB │ gzip:   1.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-body-virtual-list.stories-Buea6eyn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.59 kB │ gzip:   0.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-screen-QB3ZQYWe.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.64 kB │ gzip:   1.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/stat-pill-CIbj5Q6P.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.65 kB │ gzip:   1.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-settings-screen-view.stories-CHhYhT2L.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.67 kB │ gzip:   1.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-player-QHqk-4ib.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.67 kB │ gzip:   1.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/attribute-Bl6SNtIW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.71 kB │ gzip:   1.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-people-Cds-UocW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.71 kB │ gzip:   0.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dist-DjDIlhcC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.76 kB │ gzip:   1.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/filter-bar.stories-D_FspX-a.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.77 kB │ gzip:   1.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/step-track-Co2fIgNm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.77 kB │ gzip:   1.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/combobox.stories-BC2ut1cf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.77 kB │ gzip:   1.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-seat-swatch-D5wK4KRn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.79 kB │ gzip:   1.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/field-label-COVVCjHs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.81 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/identity-boot-screen-view.stories-o7q_r3d2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.82 kB │ gzip:   1.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/editor-workbench-BxBTQHxa.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.82 kB │ gzip:   1.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-move-list.stories-nQGCR2Yd.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.84 kB │ gzip:   1.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-editor.stories-Ypsb6oe5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.84 kB │ gzip:   0.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/test-command-probe-DSU4uDo1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.86 kB │ gzip:   1.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/use-space-column-BAjfmCSF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.86 kB │ gzip:   1.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/metric-strip.stories-E8-XvlUg.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.86 kB │ gzip:   1.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/presence-strip-DnDqeuR9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.87 kB │ gzip:   1.05 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/suggestion-list-CxE7fjes.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.92 kB │ gzip:   1.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/layout-classes-sbrnkkl2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.92 kB │ gzip:   1.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-setup-panel-vJHQrEjk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.94 kB │ gzip:   1.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/account-device-list-title-text-CGlwrdgV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.95 kB │ gzip:   1.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/error-state.stories-BncpIr5J.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.95 kB │ gzip:   1.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-session-layout.stories-CS7LS2HQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.95 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/singleton-Bnof74vh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.95 kB │ gzip:   1.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-router-CjrD6DID.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.96 kB │ gzip:   1.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-board-stage-DAMqpxn5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  2.97 kB │ gzip:   1.22 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/empty-state.stories-BS92oHtL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.00 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sparkline-CM0DCuNl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.01 kB │ gzip:   1.44 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-review-screen-view-KHbgT2Jj.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.02 kB │ gzip:   1.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/activity-region.stories-7NeHQevK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.03 kB │ gzip:   1.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-board.stories-BN8C5Jx5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.04 kB │ gzip:   0.92 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disclosure-card-BTFE__Bp.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.05 kB │ gzip:   1.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-setup.stories-DjERx6sv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.07 kB │ gzip:   1.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-stat-B-HQymw5.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.08 kB │ gzip:   1.33 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chrome-breadcrumb-Cyq3XS_m.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.15 kB │ gzip:   1.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/badge.stories-B4z-AeIz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.16 kB │ gzip:   1.20 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icon-link.stories-Tobjk3ub.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.18 kB │ gzip:   1.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/path-grid-board.stories-DCW7c8Op.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.20 kB │ gzip:   1.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-story.example-DLlFJv6x.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.23 kB │ gzip:   1.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/surface.stories-B937gads.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.23 kB │ gzip:   1.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chip-DowxfKaE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.24 kB │ gzip:   1.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/list.stories-CnAsIeBA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.25 kB │ gzip:   1.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-update-required-view.stories-ff7zSPs3.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.25 kB │ gzip:   1.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-screen-pytrst2C.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.26 kB │ gzip:   1.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/range-control-CcxKzp8-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.26 kB │ gzip:   1.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/semantic-list-nHHSdsPW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.27 kB │ gzip:   0.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/switch-C5_GdA6l.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.29 kB │ gzip:   1.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/hot-asserts-Ddrpj217.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.31 kB │ gzip:   1.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/create-icon-B6nsHRpf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.34 kB │ gzip:   1.58 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-header-global-menu-view.stories-B-S8oVVI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.35 kB │ gzip:   1.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/brand-icon-CZi8qaP4.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.36 kB │ gzip:   1.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/public-use-profile-row-DML1olal.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.37 kB │ gzip:   1.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-story.example-CqiOezcw.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.44 kB │ gzip:   1.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-group.stories-CcE-aiGk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.45 kB │ gzip:   1.36 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icon-button.stories-CA7YnMv3.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.46 kB │ gzip:   1.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/highlighted-text-J3c6ZV0g.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.47 kB │ gzip:   1.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-members-sheet-view-FDpTT2V2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.48 kB │ gzip:   1.43 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/toolbar-ClfcLb0M.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.48 kB │ gzip:   1.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/log-line.stories-DSgk6k5Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.49 kB │ gzip:   1.61 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/direction-pad-D8eCiQ9b.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.49 kB │ gzip:   1.61 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/success-state-DB3MZ0iZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.52 kB │ gzip:   1.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-watching-D7hh1v6B.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.53 kB │ gzip:   1.38 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/surface-stack-CIxviilJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.58 kB │ gzip:   1.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sound-indicator.stories-DcscOo1p.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.58 kB │ gzip:   1.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/file-trigger.stories-BxDVRMwD.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.59 kB │ gzip:   1.61 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/checkbox-Bxbsd2J7.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.59 kB │ gzip:   1.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/embedded-frame.stories-Dpf4Ynl0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.62 kB │ gzip:   1.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-settings-developer-screen-view.stories-TYxvTDjc.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.63 kB │ gzip:   1.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-edit-screen-view.stories-BBoPAn1C.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.68 kB │ gzip:   1.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/markdown-content.stories-T-gGRe5w.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.74 kB │ gzip:   1.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text.stories-KZyuFX4y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.75 kB │ gzip:   1.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/explorer-workspace.stories-D0OFuWR_.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.77 kB │ gzip:   1.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/confirmation-modal-tpQXF8BO.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.78 kB │ gzip:   1.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/notice-C6qQqI6w.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.79 kB │ gzip:   1.68 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/end-space-confirm-modal.stories-W_Bz73x6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.81 kB │ gzip:   1.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/board-fit-wb8tA2h1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.83 kB │ gzip:   1.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-base.stories-CdhbvkTi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.84 kB │ gzip:   1.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-disclosure-BniN3jtY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  3.92 kB │ gzip:   1.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mini-player.stories-Fij1aMJS.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.00 kB │ gzip:   1.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-field-DBL4bHWM.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.01 kB │ gzip:   1.59 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tile-board.stories-wpdxMRFn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.01 kB │ gzip:   1.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame.stories-BOvXDgbG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.07 kB │ gzip:   1.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chunk-242VQQM5-CQUR7y2g.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.09 kB │ gzip:   1.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/copy-to-clipboard-field-BpQgSNPG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.12 kB │ gzip:   1.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sound-screen-view.stories-UYX8mpFV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.13 kB │ gzip:   1.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/modal-parts-C73tYUMH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.14 kB │ gzip:   1.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/progress-bar-BeY3O4iN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.15 kB │ gzip:   1.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-menu-screen.stories-B5Mj1M2e.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.16 kB │ gzip:   1.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/list-BLao5UGz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.18 kB │ gzip:   1.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar.stories-BqVW8Sik.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.19 kB │ gzip:   1.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-section-BnlLvzXA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.20 kB │ gzip:   1.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/main-menu-screen-DUn798_0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.21 kB │ gzip:   1.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-unreachable-screen-view.stories-CbnJqMID.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.22 kB │ gzip:   1.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pane-C2wodsWf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.22 kB │ gzip:   1.58 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-screen-DdfL1Ewv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.23 kB │ gzip:   1.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sql-BhqrGHyA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.25 kB │ gzip:   1.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-option-field-Cla5Gntq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.25 kB │ gzip:   1.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/paired-panels-CVDSsP5h.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.26 kB │ gzip:   1.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tab-bar-ZoMKH_2V.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.27 kB │ gzip:   1.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-edition-screen-view-DzTExZVw.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.29 kB │ gzip:   1.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-table-seat-cXxvs3Fv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.35 kB │ gzip:   1.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-editor-DeUGNY6N.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.35 kB │ gzip:   1.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/provider-composition.stories-LACyfATb.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.35 kB │ gzip:   1.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/top-bar-DB6YIdq7.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.35 kB │ gzip:   1.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/embedded-screen-DBSz3MzQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.39 kB │ gzip:   1.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-games-screen-view-wWJJbsS0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.40 kB │ gzip:   1.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/card-table.stories-CxuYBUOT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.40 kB │ gzip:   1.79 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/state-block-C-cLLEZh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.42 kB │ gzip:   1.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/inspection-workspace.stories-XcOZK_fE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.43 kB │ gzip:   1.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/empty-state-BICATwNs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.44 kB │ gzip:   1.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-review-screen-view.stories-N13Tn108.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.46 kB │ gzip:   1.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spinner-BiLtNL_u.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.47 kB │ gzip:   2.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/floating-action-button-JiIG3JKJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.57 kB │ gzip:   1.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/presence.stories-B9stl4j-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.57 kB │ gzip:   1.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-frame-Ds2vv30s.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.59 kB │ gzip:   1.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dist-P4AMafh_.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.61 kB │ gzip:   1.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-classes-IU3hXTdO.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.62 kB │ gzip:   1.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-link-CHxmESxG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.68 kB │ gzip:   2.05 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-screen-DtzmM5qr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.69 kB │ gzip:   1.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-section-D-Ffm0H2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.70 kB │ gzip:   1.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/direction-pad.stories-C_WmcG0F.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.71 kB │ gzip:   1.59 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dist-CZmQ6hbd.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.72 kB │ gzip:   2.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-header-island.stories-oo2n4vjJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.75 kB │ gzip:   1.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-story.example-BQHmOViP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB │ gzip:   1.79 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/segmented-control-oNHLHkgI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB │ gzip:   2.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chip-group-Chy6v0Of.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB │ gzip:   1.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-palette-BOwybZIp.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB │ gzip:   2.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/collection-screen-DBo-2vZb.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.76 kB │ gzip:   1.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/theme-context-52eMWflK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.77 kB │ gzip:   1.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/move-strip-D2rFIpXX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.83 kB │ gzip:   1.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pressable.stories-BQvY-SVo.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.83 kB │ gzip:   1.58 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/switch.stories-DEkI7lWi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.85 kB │ gzip:   1.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chunk-DRQKCCAG-B1urANvs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.91 kB │ gzip:   2.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-ended-screen-view.stories-CvEonDu6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.93 kB │ gzip:   1.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/checkbox.stories--0HnZWLR.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.94 kB │ gzip:   1.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/durable-names-D8bYRiSI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.96 kB │ gzip:   1.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/stack.stories-Dq4t2EIc.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.97 kB │ gzip:   1.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/leave-space-confirm-modal.stories-D2YeTu7R.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.99 kB │ gzip:   1.81 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tile-board-TIJe3iS9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  4.99 kB │ gzip:   2.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-history-screen-view-DfFX3hJ1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.01 kB │ gzip:   1.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/element-handles.stories-npMagxMx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.07 kB │ gzip:   2.09 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-group-CGJNGOnU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.07 kB │ gzip:   2.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/troubleshooting-screen-view.stories-l-1H8i3F.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.08 kB │ gzip:   1.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/textarea-8S3BQBY9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.10 kB │ gzip:   1.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disc-drop-board.stories-1q8G0YBC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.17 kB │ gzip:   1.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/preview-card-grid-C3fLalsV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.17 kB │ gzip:   2.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-screen-layout-rjo_60Dq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.20 kB │ gzip:   1.97 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sokoban-player-CW-aR1Li.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.23 kB │ gzip:   2.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/gated-view.stories-DKLAqFBN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.23 kB │ gzip:   1.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/store-B3s4d96O.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.23 kB │ gzip:   2.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/theme-screen-view.stories-D8qi0AdH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.25 kB │ gzip:   1.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/badge-Dk4GYq8K.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.35 kB │ gzip:   1.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-share-sheet-view-C75dNAeQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.35 kB │ gzip:   1.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-row.stories-DAHC0-ya.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.38 kB │ gzip:   2.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-focus-Mj3UWqNA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.39 kB │ gzip:   2.33 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form.stories-hBlZRYbA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.42 kB │ gzip:   2.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-header-global-menu-view-CJcVF7rA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.43 kB │ gzip:   2.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pagination-controls-vhUHwGWi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.46 kB │ gzip:   2.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/denial-surface-view.stories-B5nyvr3U.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.52 kB │ gzip:   1.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/modal.stories-Dtu6rueL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.56 kB │ gzip:   2.08 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/refused-change-notice-B9tJ4oTa.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.63 kB │ gzip:   2.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/trail-arena.stories-MWbkdUJB.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.63 kB │ gzip:   2.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/theme-tokens.stories-BhbWlLri.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.65 kB │ gzip:   1.93 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/skeleton-BccFArbA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.67 kB │ gzip:   2.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-link-screen-view.stories-BNGpCy57.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.71 kB │ gzip:   1.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-input.stories-BfuHLxvU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.73 kB │ gzip:   2.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sound-indicator-BaaM5Kpx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.83 kB │ gzip:   2.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/image.stories-H2fm9fC0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.86 kB │ gzip:   2.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/number-stepper-lm0zTyX1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.87 kB │ gzip:   2.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/number-stepper.stories-CSA_M7PV.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.96 kB │ gzip:   2.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-screen-story.example-1M9IsheK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.96 kB │ gzip:   2.53 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-result-BVPjmlep.js
+@pkgs/ui-root-harness-ts:storybook:build: │  5.98 kB │ gzip:   2.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-pack-editor-view-vtF0mLm3.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.17 kB │ gzip:   2.26 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-card-view-yj5hGZof.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.18 kB │ gzip:   1.93 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/layer-nYiMJ9OB.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.18 kB │ gzip:   1.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/about-screen-view.stories-SCwRUBgx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.21 kB │ gzip:   2.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-play.stories-B9d9dmrJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.23 kB │ gzip:   2.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-turn-pill-Bf6XL71x.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.24 kB │ gzip:   2.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-stats-screen-view.stories-IawmiG1T.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.29 kB │ gzip:   1.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/rename-space-modal-view.stories-eElw94e8.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.30 kB │ gzip:   2.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dismissible-top-banner.stories-BKR4mmX2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.39 kB │ gzip:   2.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-session-layout-ChoFgKAP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.40 kB │ gzip:   2.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-input-CLGfD_Vr.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.48 kB │ gzip:   2.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-menu-screen-view-CF2I7h0K.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.48 kB │ gzip:   2.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tile-board-BXK5L9GA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.49 kB │ gzip:   2.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/multi-select-swatch-grid-CJzSSVOH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.50 kB │ gzip:   2.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-header-island-BxJxFw6-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.51 kB │ gzip:   2.39 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-tab-bar-view.stories-DnUEko6u.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.55 kB │ gzip:   1.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-move-list-oowtb70h.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.56 kB │ gzip:   2.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/form-actions-footer-CnTfYf6S.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.61 kB │ gzip:   1.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/client-config-screen-view.stories-DoTfneLy.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.66 kB │ gzip:   2.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/select.stories-DQzZvxBT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.70 kB │ gzip:   2.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/numberlink-player-BiedhuUY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.74 kB │ gzip:   2.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/main-menu-item-row-Bm0G5jru.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.75 kB │ gzip:   2.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-breadcrumb-trail-QbK6YwnC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.75 kB │ gzip:   2.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-games-screen-view.stories-RdSrStac.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.77 kB │ gzip:   1.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tabs-qLY7H5kn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.78 kB │ gzip:   2.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/bottom-action-bar.stories-DhgzjFRh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.78 kB │ gzip:   2.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/radio-group-SsZeoaYN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.79 kB │ gzip:   2.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/boot-error-screen-view.stories-BHfPpt3Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.84 kB │ gzip:   2.18 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-screen-DAosTi1G.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.91 kB │ gzip:   2.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/layout-host-BnfkC5Su.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.92 kB │ gzip:   1.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/personal-puzzle-stats-screen-view.stories-DhSoJE9l.js
+@pkgs/ui-root-harness-ts:storybook:build: │  6.94 kB │ gzip:   2.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/path-grid-board-BGSRQV3S.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.07 kB │ gzip:   2.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/code-editor-CwC10CRU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.08 kB │ gzip:   2.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/multiplayer-link-screen-view.stories-DDvWxzJ9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.18 kB │ gzip:   2.28 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tooltip-0rD14Djs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.24 kB │ gzip:   2.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/route-stub-screen-view.stories-CftdLTIo.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.43 kB │ gzip:   2.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/denial-modal-view.stories-x-g1YT0w.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.50 kB │ gzip:   2.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/back-icon-button-DNiw7wlB.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.55 kB │ gzip:   1.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/close-icon-button-B0ATUflE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.64 kB │ gzip:   2.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-body-virtual-list-BpQ6Gq-S.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.77 kB │ gzip:   2.43 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/performance-screen-view.stories-BiJC0oLB.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.87 kB │ gzip:   2.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/react-DlPsW1c0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.87 kB │ gzip:   3.00 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/floating-panel.stories-D3O-eQth.js
+@pkgs/ui-root-harness-ts:storybook:build: │  7.94 kB │ gzip:   3.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-stats-screen-view-BAIEO-D1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.09 kB │ gzip:   2.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-puzzle-story.example-B5xEVJCe.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.11 kB │ gzip:   2.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/numberlink-player.example-C26Xwlws.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.17 kB │ gzip:   3.10 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-menu-screen-view.stories-Drc5jk2E.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.20 kB │ gzip:   2.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/landmarks-BWqWYpqU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.27 kB │ gzip:   1.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-menu-screen-DcsXGjmD.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.32 kB │ gzip:   2.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/synthetic-population-config-screen-view.stories-_opi-E01.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.42 kB │ gzip:   2.05 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/disc-drop-board-DOx65rvU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.45 kB │ gzip:   3.14 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/dismissible-top-banner-Bm7ULFvX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.51 kB │ gzip:   2.89 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-history-screen-view.stories-uFouhyK0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.53 kB │ gzip:   2.16 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-logo-Bd2mTR3R.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.56 kB │ gzip:   2.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sokoban-player.example-s6VdB7BZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.59 kB │ gzip:   3.45 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/popover.stories-3NyQnEED.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.63 kB │ gzip:   3.53 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-attempt-screen-view-DQH3PMGe.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.86 kB │ gzip:   2.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/table.stories-DfKgL_FH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.93 kB │ gzip:   3.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-body-scroll-view-DQdSddTC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  8.94 kB │ gzip:   2.29 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/modal-root-DQX2YkKx.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.36 kB │ gzip:   3.53 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-player-rail-DuUPa1il.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.46 kB │ gzip:   3.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-arena.stories-DLvD_dTA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.46 kB │ gzip:   3.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/cell-grid-board-CixdqT74.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.50 kB │ gzip:   3.51 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/introduction-9x7sSwUK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.56 kB │ gzip:   3.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/synthetic-population-event-timeline-CJk8O0TI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.62 kB │ gzip:   3.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/speaking-avatar-DzHHStSl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.64 kB │ gzip:   3.93 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-tile-D-xJdJPk.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.76 kB │ gzip:   2.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/paddle-court-P6arGRgl.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.79 kB │ gzip:   3.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mutation-modal.stories-DcXRXh74.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.81 kB │ gzip:   2.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-puzzle-board.stories-CIhX3kaF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.81 kB │ gzip:   3.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/grid-DlvhAnVX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.87 kB │ gzip:   2.68 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/error-state-DUrogMrP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.91 kB │ gzip:   3.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-library-screen-view.stories-cePT2rFK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  9.98 kB │ gzip:   2.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/crash-screen-view.stories-CBK55eGG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.06 kB │ gzip:   3.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-player-view-CRpdUzD6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.34 kB │ gzip:   3.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/connection-screen-view.stories-EZE4gzd0.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.45 kB │ gzip:   3.25 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/menu-row-BxwMwfUJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.45 kB │ gzip:   3.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/social-sign-in-button.stories-TxFgxctv.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.71 kB │ gzip:   3.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/surface-CE1XKQJG.js
+@pkgs/ui-root-harness-ts:storybook:build: │  10.78 kB │ gzip:   2.74 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/scroll-view-BUvBS7jE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.03 kB │ gzip:   3.08 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/assistant.stories-lBcQ3VAh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.38 kB │ gzip:   4.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/button.stories-gF9FlYXT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.43 kB │ gzip:   3.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/app-header-island-view.stories-BLm7e-eL.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.49 kB │ gzip:   3.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sync-screen-view.stories-CGAwzN8H.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.52 kB │ gzip:   3.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-share-sheet-view.stories-FudMZ9md.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.55 kB │ gzip:   3.48 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/account-devices-screen-view.stories-B_cVaPpf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.86 kB │ gzip:   3.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/account-device-detail-screen-view.stories-Cgc2mGZd.js
+@pkgs/ui-root-harness-ts:storybook:build: │  11.91 kB │ gzip:   3.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/synthetic-population-screen-view.stories-C9OxcHqA.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.33 kB │ gzip:   2.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-edition-screen-view.stories-DA1Ad2zh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.37 kB │ gzip:   2.44 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/synthetic-population-screen-view-Cu7jJ0_j.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.61 kB │ gzip:   3.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/settings-screen-view.stories-DRoxTQ19.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.83 kB │ gzip:   3.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/handles-B5a_O-Wq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.83 kB │ gzip:   3.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/catalog.stories-DrDL1VcR.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.86 kB │ gzip:   4.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/tab-strip.stories-BM24PbUn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  12.91 kB │ gzip:   4.76 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sokoban-editor.stories-CrOMVLCn.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.06 kB │ gzip:   4.58 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-detail-screen-view-D6r0BWHZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.20 kB │ gzip:   4.17 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icon-button-D-MPS8Zz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.30 kB │ gzip:   4.05 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/friends-notification-cards.stories-B-DEqCOD.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.33 kB │ gzip:   3.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-Bvt3F3NU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.37 kB │ gzip:   4.95 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pressable-BN5SrwoE.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.42 kB │ gzip:   3.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-player-view.stories-DL-gaxt3.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.44 kB │ gzip:   3.02 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/card-table-DJsn9TsN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.76 kB │ gzip:   5.06 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/numberlink-editor.stories-Bvn9ixYY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.82 kB │ gzip:   4.57 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/button-BnRPkAxJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.83 kB │ gzip:   4.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/sokoban-player.stories-Dt_km4IC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  13.88 kB │ gzip:   3.64 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-handle-screen-view.stories-C8rPCZnF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.00 kB │ gzip:   3.50 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/heading-D541GrKd.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.25 kB │ gzip:   1.70 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/select-dKfPIH5z.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.50 kB │ gzip:   4.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/battleship-setup-board-DRcZzrX9.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.54 kB │ gzip:   5.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/battleship-setup-board.stories-BUcfaCD6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.54 kB │ gzip:   2.65 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/mutation-modal-0chSbffs.js
+@pkgs/ui-root-harness-ts:storybook:build: │  14.60 kB │ gzip:   3.37 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/spaces-screen-view.stories-B-qv-2o6.js
+@pkgs/ui-root-harness-ts:storybook:build: │  15.25 kB │ gzip:   4.44 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/numberlink-player.stories-C0wFI46I.js
+@pkgs/ui-root-harness-ts:storybook:build: │  15.45 kB │ gzip:   4.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/trail-arena-BuIaUPbi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  15.48 kB │ gzip:   5.24 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/responsive-surface-DfSYf8YO.js
+@pkgs/ui-root-harness-ts:storybook:build: │  15.73 kB │ gzip:   5.03 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/alias-CtvYY-3o.js
+@pkgs/ui-root-harness-ts:storybook:build: │  16.03 kB │ gzip:   7.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-player-bar-4dK5OmAb.js
+@pkgs/ui-root-harness-ts:storybook:build: │  16.16 kB │ gzip:   4.87 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/notifications-screen-view.stories-ChLo8SyU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  16.52 kB │ gzip:   4.01 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chess-game-presentation.stories-ZOfW5B2X.js
+@pkgs/ui-root-harness-ts:storybook:build: │  16.67 kB │ gzip:   4.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-detail-screen-view.stories-B3IQNJPY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.00 kB │ gzip:   5.08 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/multiplayer-screen-view.stories-Be5PfC_1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.15 kB │ gzip:   3.35 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/quoridor-board.stories-BfP2A0mq.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.20 kB │ gzip:   3.58 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-play-screen-view.stories-MOQKc6r8.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.34 kB │ gzip:   3.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/overflow-menu-button-DIG3p3X8.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.68 kB │ gzip:   5.86 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-author-screen-view.stories-LIIOHvsc.js
+@pkgs/ui-root-harness-ts:storybook:build: │  17.93 kB │ gzip:   4.13 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/quoridor-board-hill.stories-C58pNhEN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  18.19 kB │ gzip:   3.62 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/create-memory-page-loader-CZchIm7s.js
+@pkgs/ui-root-harness-ts:storybook:build: │  18.23 kB │ gzip:   5.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-FAZg6JYb.js
+@pkgs/ui-root-harness-ts:storybook:build: │  18.35 kB │ gzip:   6.82 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-attempt-screen-view.stories-B3lZoPp2.js
+@pkgs/ui-root-harness-ts:storybook:build: │  18.71 kB │ gzip:   2.55 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/space-join-screen-view.stories-D0fTxYFZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  18.79 kB │ gzip:   4.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-library-screen-view-CTpj8NHf.js
+@pkgs/ui-root-harness-ts:storybook:build: │  19.57 kB │ gzip:   5.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/quoridor-game-client-C_TFS_Lh.js
+@pkgs/ui-root-harness-ts:storybook:build: │  20.01 kB │ gzip:   7.80 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/notifications-story.example-aFKjPNxK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  20.78 kB │ gzip:   6.88 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/multiplayer-screen-view-BdHHmOYt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  21.10 kB │ gzip:   5.98 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/action-bar-chrome-B3zabVYN.js
+@pkgs/ui-root-harness-ts:storybook:build: │  22.37 kB │ gzip:   6.11 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/chunk-W22LQPXL-CNnlAbSH.js
+@pkgs/ui-root-harness-ts:storybook:build: │  23.02 kB │ gzip:   7.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/content-publication-controls-view-KXhJnH-R.js
+@pkgs/ui-root-harness-ts:storybook:build: │  23.23 kB │ gzip:   6.75 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/profile-screen-view.stories-CQe2KdOT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  23.25 kB │ gzip:   5.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/search-screen-view.stories-DF7t3x3w.js
+@pkgs/ui-root-harness-ts:storybook:build: │  23.97 kB │ gzip:   6.36 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/avatar-editor-screen-view.stories-CBwLl-Qt.js
+@pkgs/ui-root-harness-ts:storybook:build: │  24.37 kB │ gzip:   6.42 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/connect-four-presentation.stories-DglZDeUz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  24.86 kB │ gzip:   6.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/combobox-DePJyI4o.js
+@pkgs/ui-root-harness-ts:storybook:build: │  24.90 kB │ gzip:   6.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-screen-view.setup.stories-BJdmRLYY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  25.41 kB │ gzip:   4.54 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/text-BiBD-59x.js
+@pkgs/ui-root-harness-ts:storybook:build: │  25.73 kB │ gzip:   2.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-screen-view.stories-nYh8nIep.js
+@pkgs/ui-root-harness-ts:storybook:build: │  25.94 kB │ gzip:   5.92 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/stack-5fWHYM0E.js
+@pkgs/ui-root-harness-ts:storybook:build: │  26.53 kB │ gzip:   2.63 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/json-view.stories-DENa122L.js
+@pkgs/ui-root-harness-ts:storybook:build: │  26.88 kB │ gzip:   6.84 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/vite-inject-mocker-entry.js
+@pkgs/ui-root-harness-ts:storybook:build: │  27.81 kB │ gzip:   9.67 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/matchers-JIUQ3HVY-_vs9p5fQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  28.79 kB │ gzip:   9.68 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/battleship-board.stories-BQWG3yh_.js
+@pkgs/ui-root-harness-ts:storybook:build: │  28.85 kB │ gzip:   8.60 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/command-palette.stories-DGQWtZ9Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  29.38 kB │ gzip:   9.59 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/friends-list-screen-view.stories-MGcheqDe.js
+@pkgs/ui-root-harness-ts:storybook:build: │  29.92 kB │ gzip:   8.73 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/Color-6AOWCN3U-Du4mckhW.js
+@pkgs/ui-root-harness-ts:storybook:build: │  30.39 kB │ gzip:  11.49 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-management-screen-view.stories-Blx8RrtT.js
+@pkgs/ui-root-harness-ts:storybook:build: │  30.50 kB │ gzip:   6.47 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/icons-CuJPM8Ed.js
+@pkgs/ui-root-harness-ts:storybook:build: │  30.53 kB │ gzip:  10.15 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/account-screen-view.stories-D6lrnWyg.js
+@pkgs/ui-root-harness-ts:storybook:build: │  31.87 kB │ gzip:   6.41 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/WithTooltip-CDUNV5IS-Bnux2vcz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  32.65 kB │ gzip:  11.43 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/client-sql-screen-view.stories-DhluZreD.js
+@pkgs/ui-root-harness-ts:storybook:build: │  33.92 kB │ gzip:  11.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/component-id-badqARGi.js
+@pkgs/ui-root-harness-ts:storybook:build: │  35.08 kB │ gzip:  13.52 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/puzzle-play-screen-view-CzWDgQ0P.js
+@pkgs/ui-root-harness-ts:storybook:build: │  35.21 kB │ gzip:  10.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/lib-DCJYVn6-.js
+@pkgs/ui-root-harness-ts:storybook:build: │  35.27 kB │ gzip:  11.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/screen-base-DLjXGmES.js
+@pkgs/ui-root-harness-ts:storybook:build: │  36.21 kB │ gzip:   7.62 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/privacy-screen-view.stories-DNwx1oyF.js
+@pkgs/ui-root-harness-ts:storybook:build: │  37.27 kB │ gzip:   7.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/pong-board-view.stories-B9QR28gX.js
+@pkgs/ui-root-harness-ts:storybook:build: │  37.75 kB │ gzip:  11.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/billing-screen-view.stories-CFGuF1We.js
+@pkgs/ui-root-harness-ts:storybook:build: │  39.45 kB │ gzip:   8.91 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/friend-user-screen-view.stories-9NNOKsrZ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  41.03 kB │ gzip:   8.69 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/hearts-board.stories-CWkqHhwo.js
+@pkgs/ui-root-harness-ts:storybook:build: │  41.24 kB │ gzip:  11.79 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/virtual-list-DPiCXQ1o.js
+@pkgs/ui-root-harness-ts:storybook:build: │  43.29 kB │ gzip:  13.12 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/moderation-story.example-Kw9MUAsI.js
+@pkgs/ui-root-harness-ts:storybook:build: │  43.98 kB │ gzip:  17.99 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-board-view.stories-CRWG-q9m.js
+@pkgs/ui-root-harness-ts:storybook:build: │  47.90 kB │ gzip:  13.34 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/light-cycles-board-view.stories-DqrQ-ykg.js
+@pkgs/ui-root-harness-ts:storybook:build: │  48.71 kB │ gzip:  14.71 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/design-tokens-Dn5me5oP.js
+@pkgs/ui-root-harness-ts:storybook:build: │  52.29 kB │ gzip:   8.40 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/theming-BnxDG17x.js
+@pkgs/ui-root-harness-ts:storybook:build: │  55.34 kB │ gzip:  21.31 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-frame-screen-view-BULswmTU.js
+@pkgs/ui-root-harness-ts:storybook:build: │  60.01 kB │ gzip:  13.77 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/synthetic-user-screen-view.stories-B2BhT2gK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  66.08 kB │ gzip:  19.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/syntaxhighlighter-4REYKNEV-CsrbNwtK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  75.80 kB │ gzip:  27.21 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/schemas-BCT5xjB1.js
+@pkgs/ui-root-harness-ts:storybook:build: │  97.02 kB │ gzip:  27.78 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/safe-markdown-BTepWjxm.js
+@pkgs/ui-root-harness-ts:storybook:build: │  166.24 kB │ gzip:  65.85 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/in-memory-audio-playback-port-CSHVUv3W.js
+@pkgs/ui-root-harness-ts:storybook:build: │  181.08 kB │ gzip:  56.02 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/markdown-editor.stories-B2czSSaK.js
+@pkgs/ui-root-harness-ts:storybook:build: │  182.93 kB │ gzip:  58.07 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/blocks-B4PPYQPy.js
+@pkgs/ui-root-harness-ts:storybook:build: │  190.30 kB │ gzip:  59.83 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/DocsRenderer-JROSPFPF-Cz-3izVz.js
+@pkgs/ui-root-harness-ts:storybook:build: │  208.75 kB │ gzip:  65.72 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/solid-1iPbI5LY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  259.69 kB │ gzip: 127.32 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/csf-7B0AE51y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  281.95 kB │ gzip:  93.56 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/components-5kk2luqQ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  454.09 kB │ gzip: 141.46 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/game-client-BnDHeADY.js
+@pkgs/ui-root-harness-ts:storybook:build: │  550.47 kB │ gzip: 165.23 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/word-tiles-puzzle-BegYn86V.js
+@pkgs/ui-root-harness-ts:storybook:build: │  571.61 kB │ gzip: 235.19 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/axe-BMNngl7Y.js
+@pkgs/ui-root-harness-ts:storybook:build: │  578.78 kB │ gzip: 158.30 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/iframe-C3NhRVEC.js
+@pkgs/ui-root-harness-ts:storybook:build: │  958.80 kB │ gzip: 263.94 kB
+@pkgs/ui-root-harness-ts:storybook:build: │  .cache/storybook/assets/device-avatar-BvtZQ_cJ.js
+@pkgs/ui-root-harness-ts:storybook:build: │  1,989.63 kB │ gzip: 675.96 kB
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ▲  Vite [33m[IMPORT_IS_UNDEFINED] [0mImport `merge` will always be undefined
+@pkgs/ui-root-harness-ts:storybook:build: │  because there is no matching export in
+@pkgs/ui-root-harness-ts:storybook:build: │  '../../node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/solid.js'
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m
+@pkgs/ui-root-harness-ts:storybook:build: │  ../../node_modules/.bun/storybook-solidjs-vite@10.7.4+fca283b9f35add14/node_modules/storybook-solidjs-vite/dist/index.js:9:62
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;246m][0m
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;246m│[0m
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;246m9 │[0m [38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249mm[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249mg[0m[38;5;249me[0m[38;5;249mA[0m[38;5;249mr[0m[38;5;249mg[0m[38;5;249ms[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249m"[0m[38;5;249mm[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249mg[0m[38;5;249me[0m[38;5;249mP[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mp[0m[38;5;249ms[0m[38;5;249m"[0m[38;5;249m [0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249m [0m[38;5;249ms[0m[38;5;249mo[0m[38;5;249ml[0m[38;5;249mi[0m[38;5;249md[0m[38;5;249m [0m[38;5;249m?[0m[38;5;249m [0m[38;5;249ms[0m[38;5;249mo[0m[38;5;249ml[0m[38;5;249mi[0m[38;5;249md[0m[38;5;249m.[0m[38;5;249mm[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249mg[0m[38;5;249me[0m[38;5;249mP[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mp[0m[38;5;249ms[0m[38;5;249m [0m[38;5;249m:[0m[38;5;249m
+@pkgs/ui-root-harness-ts:storybook:build: │  [0msolid.merge[38;5;249m;[0m
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;240m│[0m
+@pkgs/ui-root-harness-ts:storybook:build: │  ─────┬─────
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;240m│[0m
+@pkgs/ui-root-harness-ts:storybook:build: │  ╰───────
+@pkgs/ui-root-harness-ts:storybook:build: │  [38;5;246m───╯[0m
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ▲  Vite [plugin builtin:vite-reporter]
+@pkgs/ui-root-harness-ts:storybook:build: │  (!) Some chunks are larger than 500 kB after minification. Consider:
+@pkgs/ui-root-harness-ts:storybook:build: │  - Using dynamic import() to code-split the application
+@pkgs/ui-root-harness-ts:storybook:build: │  - Use build.rolldownOptions.output.codeSplitting to improve chunking:
+@pkgs/ui-root-harness-ts:storybook:build: │  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+@pkgs/ui-root-harness-ts:storybook:build: │  - Adjust chunk size limit for this warning via
+@pkgs/ui-root-harness-ts:storybook:build: │  build.chunkSizeWarningLimit.
+@pkgs/ui-root-harness-ts:storybook:build: │  Vite ✓ built in 2m 54s
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ▲  Vite [33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 173.3s of this
+@pkgs/ui-root-harness-ts:storybook:build: │  173.8s build (100%).
+@pkgs/ui-root-harness-ts:storybook:build: │  The slowest callbacks, timed inside each callback (the wait before a
+@pkgs/ui-root-harness-ts:storybook:build: │  callback starts is excluded, the time it awaits is included):
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin storybook:solid-component-meta transform (55%, 95.3s, 399
+@pkgs/ui-root-harness-ts:storybook:build: │  calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin storybook:code-generator-plugin load (42%, 73.2s, 3058 calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin solid transform (1%, 2.4s, 3060 calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin @tailwindcss/vite:generate:build transform (1%, 1.3s, 61
+@pkgs/ui-root-harness-ts:storybook:build: │  calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  Additional callback time came from the callbacks below and from
+@pkgs/ui-root-harness-ts:storybook:build: │  callbacks under 1s.
+@pkgs/ui-root-harness-ts:storybook:build: │  3 callbacks are listed without a time. Their calls overlapped, so the
+@pkgs/ui-root-harness-ts:storybook:build: │  time inside one call includes work from other calls. To find their
+@pkgs/ui-root-harness-ts:storybook:build: │  cost, profile the build with `node --cpu-prof`:
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin plugin-csf transform (3060 calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin vite:css transform (61 calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  - plugin vite:asset-import-meta-url transform (4 calls)
+@pkgs/ui-root-harness-ts:storybook:build: │  See ]8;;https://rolldown.rs/reference/InputOptions.checks#bundlertimingshttps://rolldown.rs/reference/InputOptions.checks#bundlertimings]8;;
+@pkgs/ui-root-harness-ts:storybook:build: │  for more details.
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Output directory:
+@pkgs/ui-root-harness-ts:storybook:build: │  /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: └  Storybook build completed successfully
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:coverage: cache bypass, force executing 30837e7dca3fd64f
+@pkgs/ui-root-harness-ts:storybook:coverage: $ bun scripts/storybook-coverage.ts
+@pkgs/ui-root-harness-ts:storybook:coverage: 963 UI exports, 256 story files, 254 violations
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/puzzle-play-screen-view.stories.tsx: CSF component must reference an exported production component, never a demonstration implementation.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/monogram-tile/baselines/chromium/components-data-display-monogramtile/states-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/monogram-tile/baselines/chromium/components-data-display-monogramtile/states-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/preview-thumbnail/baselines/chromium/components-data-display-previewthumbnail/sizes-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/preview-thumbnail/baselines/chromium/components-data-display-previewthumbnail/sizes-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/sokoban-tools-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/sokoban-tools-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/disabled-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/disabled-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/chrome-breadcrumb/baselines/chromium/components-navigation-chromebreadcrumb/states-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/chrome-breadcrumb/baselines/chromium/components-navigation-chromebreadcrumb/states-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/closed-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/closed-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/open-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/open-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/editor-workbench/baselines/chromium/components-layout-editorworkbench/tools-beside-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/editor-workbench/baselines/chromium/components-layout-editorworkbench/tools-beside-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/key-hints/baselines/chromium/components-display-keyhints/board-keys-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/key-hints/baselines/chromium/components-display-keyhints/board-keys-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/preview-card-grid/baselines/chromium/components-data-previewcardgrid/boards-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/preview-card-grid/baselines/chromium/components-data-previewcardgrid/boards-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/step-footer/baselines/chromium/components-inputs-stepfooter/publish-step-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/step-footer/baselines/chromium/components-inputs-stepfooter/publish-step-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/step-track/baselines/chromium/components-inputs-steptrack/states-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/step-track/baselines/chromium/components-inputs-steptrack/states-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-1440.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-move-list/baselines/chromium/games-shared-gamemovelist/states-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-move-list/baselines/chromium/games-shared-gamemovelist/states-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-tile/baselines/chromium/games-shared-game-tile/motifs-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/game-tile/baselines/chromium/games-shared-game-tile/motifs-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/organisms-games-checkeredboard/states-light.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/organisms-games-checkeredboard/states-dark.png: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light-1440.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light.png: orphan baseline. Remove it or restore its canonical story.
+@pkgs/ui-root-harness-ts:storybook:coverage: error: script "storybook:coverage" exited with code 1
+@pkgs/ui-root-harness-ts#storybook:coverage:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run storybook:coverage exited (1)
+
+ Tasks:    1 successful, 2 total
+Cached:    1 cached, 2 total
+  Time:    5.494s 
+Failed:    @pkgs/ui-root-harness-ts#storybook:coverage
+
+ ERROR  run failed: command  exited (1)

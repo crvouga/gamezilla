@@ -1,0 +1,410 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [4] toHaveTextContent"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [6] toHaveTextContent"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [9] toBeInTheDocument"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [12] toBeInTheDocument"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [15] toBeInTheDocument"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [16] findByTestId"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [18] toBeVisible"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [20] toBeEnabled"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [22] toBeGreaterThan"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [24] toBeGreaterThan"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [26] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [28] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [30] toBeLessThanOrEqual"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [32] toBeLessThanOrEqual"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [34] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [36] toBeLessThanOrEqual"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [38] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [40] toBeLessThanOrEqual"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [42] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [44] toBeLessThanOrEqual"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [46] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [48] toBeLessThanOrEqual"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [50] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [52] toBeLessThanOrEqual"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [54] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [56] toBeLessThanOrEqual"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [58] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [60] toBeLessThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [62] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [64] toBeLessThanOrEqual"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [66] toHaveFocus"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [67] keyboard"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [70] toBeInTheDocument"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [71] findByTestId"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [73] toBeEnabled"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [74] findByTestId"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [75] click"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [76] findByTestId"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--pass-and-continue [78] toHaveAccessibleName"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light--040.png",
+    "capturedFrame": true
+  }
+]

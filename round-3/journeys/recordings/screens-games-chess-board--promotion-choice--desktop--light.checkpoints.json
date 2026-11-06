@@ -1,0 +1,60 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-chess-board--promotion-choice [2] keyboard"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-chess-board--promotion-choice [5] toBeVisible"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-chess-board--promotion-choice [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-chess-board--promotion-choice [10] toBeVisible"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-chess-board--promotion-choice [13] toBeVisible"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-chess-board--promotion-choice--desktop--light--005.png",
+    "capturedFrame": true
+  }
+]

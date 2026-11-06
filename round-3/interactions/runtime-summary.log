@@ -1,0 +1,34 @@
+{
+  "candidateSha": "897a7562d2fee9d4cec187281ac84119de322c05",
+  "cases": 629,
+  "visualCases": 620,
+  "fontCases": 8,
+  "instrumentedGeometryRegression": {
+    "passed": 1,
+    "failed": 0
+  },
+  "nativeReadinessPlayBrowserErrorsAxe": {
+    "passed": 620,
+    "failed": 0
+  },
+  "fontChecks": {
+    "passed": 8,
+    "failed": 0
+  },
+  "pixels": {
+    "pixel": 620
+  },
+  "sharedReferencesAcceptedOnMacOS": false,
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1440,
+      "height": 844
+    }
+  ],
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 bunx turbo run storybook:test --filter=@pkgs/ui-root-harness-ts --only --concurrency=1 -- --workers=2 --reporter=line,json --grep <pattern.txt>",
+  "publicStatus": "All 620 visual cases passed native readiness/play, browser-error and serious/critical axe stages; all 8 controlled font checks passed. Local pixel comparisons remain separate and no macOS references were accepted. Full bun verify failed the pre-existing /more/troubleshooting statechart-owner rule. Hosted verify:end also failed the Numberlink library-navigation journey before board interaction. Two new independent reviews remain pending."
+}

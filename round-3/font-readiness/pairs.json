@@ -1,0 +1,37 @@
+[
+  {
+    "case": "font-readiness.checks.ts-s-d749a-larged-blank-light-1440x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-58be9--and-restore-light-1440x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-853e1-accepted-pass-light-390x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-e7b5b-nlarged-blank-dark-1440x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-59c97-pted-exchange-light-390x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-f48f6-epted-exchange-dark-390x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-21689-er-and-submit-dark-1440x844-chromium",
+    "geometryEqual": true,
+    "pairByteIdentical": false
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [5] toBeDisabled"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-pass [11] toBeInTheDocument"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-pass--desktop--light--004.png",
+    "capturedFrame": true
+  }
+]

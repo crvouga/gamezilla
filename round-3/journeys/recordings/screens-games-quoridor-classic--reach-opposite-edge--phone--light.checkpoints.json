@@ -1,0 +1,60 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--reach-opposite-edge [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--reach-opposite-edge [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--reach-opposite-edge [5] toHaveAccessibleName"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--reach-opposite-edge [8] toHaveTextContent"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--reach-opposite-edge [11] toBeDisabled"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light--005.png",
+    "capturedFrame": true
+  }
+]

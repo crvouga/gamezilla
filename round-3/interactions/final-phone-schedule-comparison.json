@@ -1,0 +1,20 @@
+[
+  {
+    "case": "font-readiness.checks.ts-s-853e1-accepted-pass-light-390x844-chromium",
+    "geometryEqualWithinRun": true,
+    "pairByteIdentical": true,
+    "geometryEqualPriorRun": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-59c97-pted-exchange-light-390x844-chromium",
+    "geometryEqualWithinRun": true,
+    "pairByteIdentical": true,
+    "geometryEqualPriorRun": true
+  },
+  {
+    "case": "font-readiness.checks.ts-s-f48f6-epted-exchange-dark-390x844-chromium",
+    "geometryEqualWithinRun": true,
+    "pairByteIdentical": true,
+    "geometryEqualPriorRun": true
+  }
+]

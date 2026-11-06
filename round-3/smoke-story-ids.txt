@@ -1,0 +1,2 @@
+screens-puzzles-chess-play--wrong-move-recovery
+screens-games-word-tiles-board--enlarged-coordinates

@@ -1,0 +1,21 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/word-tiles-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@libs/word-tiles-client-ts:tc: cache miss, executing 851293a2616c2d2a
+@libs/word-tiles-client-ts:tc: $ tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json
+@libs/word-tiles-client-ts:tc: src/word-tiles-coordinate.checks.ts(48,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+@libs/word-tiles-client-ts:tc:   Type 'undefined' is not assignable to type 'string'.
+@libs/word-tiles-client-ts:tc: src/word-tiles-coordinate.checks.ts(49,51): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+@libs/word-tiles-client-ts:tc:   Type 'undefined' is not assignable to type 'string'.
+@libs/word-tiles-client-ts:tc: error: script "tc" exited with code 1
+@libs/word-tiles-client-ts#tc:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run tc exited (1)
+
+ Tasks:    4 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    4.52s 
+Failed:    @libs/word-tiles-client-ts#tc
+
+ ERROR  run failed: command  exited (1)

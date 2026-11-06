@@ -1,0 +1,180 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [7] toHaveAttribute"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [10] toHaveAttribute"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [12] click"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [15] toHaveAttribute"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [16] findByTestId"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [19] click"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [22] toHaveAccessibleName"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [24] click"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [26] click"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [29] toHaveTextContent"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [31] click"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [33] click"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--place-a-wall [36] toHaveAccessibleName"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--place-a-wall--desktop--light--017.png",
+    "capturedFrame": true
+  }
+]

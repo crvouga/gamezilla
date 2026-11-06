@@ -1,0 +1,59 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/quoridor-shared-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/quoridor-shared-ts:test: cache miss, executing 5822e52ccdea8139
+@libs/quoridor-shared-ts:test: $ bun test tests
+@libs/quoridor-shared-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-bot-blocked-pawn.test.ts:
+@libs/quoridor-shared-ts:test: (pass) a bot places a legal wall when its pawn is temporarily boxed in by pawns [1.25ms]
+@libs/quoridor-shared-ts:test: (pass) only an immobile hill player without a legal wall may pass [0.26ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-central-wall-witness.test.ts:
+@libs/quoridor-shared-ts:test: (pass) with at most two walls a central witness preserves every connected component [223.14ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-pass-automation.test.ts:
+@libs/quoridor-shared-ts:test: 1 | import { expect, test } from 'bun:test';
+@libs/quoridor-shared-ts:test: 2 | import { quoridorHillGameShared } from '@libs/quoridor-shared-ts/quoridor-game';
+@libs/quoridor-shared-ts:test: 3 | 
+@libs/quoridor-shared-ts:test: 4 | function unused(): never {
+@libs/quoridor-shared-ts:test: 5 |   throw new Error('The forced-pass board exposes only its pass control');
+@libs/quoridor-shared-ts:test:                 ^
+@libs/quoridor-shared-ts:test: error: The forced-pass board exposes only its pass control
+@libs/quoridor-shared-ts:test:       at unused (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-shared-ts/tests/quoridor-pass-automation.test.ts:5:13)
+@libs/quoridor-shared-ts:test:       at perform (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-shared-ts/src/quoridor-game.ts:49:25)
+@libs/quoridor-shared-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-shared-ts/tests/quoridor-pass-automation.test.ts:39:9)
+@libs/quoridor-shared-ts:test: (fail) the automated forced pass uses the sole available control [0.18ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-integrity.test.ts:
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > cell codec is a bijection on the complete board [0.82ms]
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > untrusted histories cannot invent a state or continue after a winner [0.97ms]
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > jump geometry handles open, fenced, edge and occupied landings [0.05ms]
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > wall segment intersections differ from legal endpoint adjacency [0.04ms]
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > closing the final route is refused for every required goal [0.01ms]
+@libs/quoridor-shared-ts:test: (pass) Quoridor spatial and serialization integrity > every opening action preserves immutable state, paths, inventories and deterministic replay [1.55ms]
+@libs/quoridor-shared-ts:test: (pass) classic and hill replay stop at their own objective [0.07ms]
+@libs/quoridor-shared-ts:test: (pass) bots choose legal deterministic actions and finish both modes [60.92ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-small-wall-topology.test.ts:
+@libs/quoridor-shared-ts:test: (pass) with two walls every separated component is a small corner rectangle [63.95ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test: tests/quoridor-topology.test.ts:
+@libs/quoridor-shared-ts:test: (pass) a single two-boundary wall cannot disconnect any square from any goal [1.93ms]
+@libs/quoridor-shared-ts:test: 
+@libs/quoridor-shared-ts:test:  13 pass
+@libs/quoridor-shared-ts:test:  1 fail
+@libs/quoridor-shared-ts:test:  134537 expect() calls
+@libs/quoridor-shared-ts:test: Ran 14 tests across 6 files. [387.00ms]
+@libs/quoridor-shared-ts:test: error: script "test" exited with code 1
+@libs/quoridor-shared-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-shared-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    706ms 
+Failed:    @libs/quoridor-shared-ts#test
+
+ ERROR  run failed: command  exited (1)

@@ -1,0 +1,150 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [7] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [9] toBeLessThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [11] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [13] pointer"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [16] toHaveAccessibleName"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [18] pointer"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [21] toHaveTextContent"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [23] click"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [26] toBeDisabled"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [28] click"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [30] click"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [33] toHaveAccessibleName"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light--014.png",
+    "capturedFrame": true
+  }
+]

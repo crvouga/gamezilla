@@ -1,0 +1,80 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [4] toBeLessThanOrEqual"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [7] pointer"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [10] toHaveAttribute"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [13] toHaveAttribute"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [14] pointer"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [17] toHaveAttribute"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [20] toHaveTextContent"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--007.png",
+    "capturedFrame": true
+  }
+]

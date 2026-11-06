@@ -1,0 +1,7 @@
+captured screens-puzzles-chess-play--wrong-move-recovery
+captured screens-games-word-tiles-board--enlarged-coordinates
+capture-stories: some stories did not render:
+  screens-puzzles-chess-play--wrong-move-recovery @ phone/light: page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#storybook-root[data-story-ready="true"]') to be visible[22m
+

@@ -1,0 +1,3 @@
+# Final local catalog
+
+Candidate `897a7562d2fee9d4cec187281ac84119de322c05`. `NODE_OPTIONS=--max-old-space-size=8192 TURBO_CONCURRENCY=1 bun verify` failed at `ci:statecharts`: `/more/troubleshooting` has no chart owner. Setup generation passed 13/13; the catalog reported 19 successful tasks and 88 total when stopped. Unexecuted tasks are not passing. The route and machine blobs match round 2 and the supplied candidate (preexisting-statechart-proof.json). No spec intent was invented and no gate was weakened. Full log: verify-final.log; diagnostics: verify-final-diagnostics.tar.gz. Hosted safety is separately red; see HOSTED_SAFETY.md.

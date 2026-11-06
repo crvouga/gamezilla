@@ -1,0 +1,15 @@
+$ turbo run //#task:cache:sync --
+
+   • turbo 2.11.10
+   • Packages in scope: //
+   • Running //#task:cache:sync in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+//:task:cache:sync: cache bypass, force executing e42ac69b3f8a58e5
+//:task:cache:sync: $ bun run libs/tools-harness-ts/scripts/verify-cache-hygiene.ts --sync
+//:task:cache:sync: cache sync: 0 src edge files, 0 Biome slice files rewritten
+
+ Tasks:    1 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.467s 
+

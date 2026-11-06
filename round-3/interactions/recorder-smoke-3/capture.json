@@ -1,0 +1,41 @@
+{
+  "stories": [
+    "screens-puzzles-chess-play--wrong-move-recovery",
+    "screens-games-word-tiles-board--enlarged-coordinates"
+  ],
+  "viewports": [
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "themes": [
+    "light"
+  ],
+  "globals": "",
+  "files": [
+    {
+      "file": "screens-puzzles-chess-play--wrong-move-recovery--phone--light.png",
+      "story": "screens-puzzles-chess-play--wrong-move-recovery",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--enlarged-coordinates--phone--light.png",
+      "story": "screens-games-word-tiles-board--enlarged-coordinates",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--enlarged-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    }
+  ]
+}

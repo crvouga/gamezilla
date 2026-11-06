@@ -1,0 +1,211 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:test: cache bypass, force executing 00fd2edf94417b05
+@pkgs/ui-root-harness-ts:storybook:test: $ playwright test -c storybook/playwright.config.ts "--workers=1" "--reporter=line,json" --grep "instrumented chess geometry"
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: Running 1 test using 1 worker
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:28739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: [1/1] [chromium] › tests/storybook/stories.checks.ts:332:1 › storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery
+@pkgs/ui-root-harness-ts:storybook:test:   1) [chromium] › tests/storybook/stories.checks.ts:332:1 › storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: expect(locator).toHaveAttribute(expected) failed
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Locator:  locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:     Expected: "true"
+@pkgs/ui-root-harness-ts:storybook:test:     Received: ""
+@pkgs/ui-root-harness-ts:storybook:test:     Timeout:  5000ms
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Call log:
+@pkgs/ui-root-harness-ts:storybook:test:       - Expect "toHaveAttribute" with timeout 5000ms
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       338 |     '/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true'
+@pkgs/ui-root-harness-ts:storybook:test:       339 |   );
+@pkgs/ui-root-harness-ts:storybook:test:     > 340 |   await expect(page.locator('#storybook-root')).toHaveAttribute(
+@pkgs/ui-root-harness-ts:storybook:test:           |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       341 |     'data-story-ready',
+@pkgs/ui-root-harness-ts:storybook:test:       342 |     'true'
+@pkgs/ui-root-harness-ts:storybook:test:       343 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:340:49
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/stories.checks.ts-storyboo-b7184-s-play--wrong-move-recovery-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: {
+@pkgs/ui-root-harness-ts:storybook:test:   "config": {
+@pkgs/ui-root-harness-ts:storybook:test:     "argv": [
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.local/share/mise/installs/node/26.12.0/bin/node",
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/node_modules/.bin/playwright",
+@pkgs/ui-root-harness-ts:storybook:test:       "test",
+@pkgs/ui-root-harness-ts:storybook:test:       "-c",
+@pkgs/ui-root-harness-ts:storybook:test:       "storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "--workers=1",
+@pkgs/ui-root-harness-ts:storybook:test:       "--reporter=line,json",
+@pkgs/ui-root-harness-ts:storybook:test:       "--grep",
+@pkgs/ui-root-harness-ts:storybook:test:       "instrumented chess geometry"
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "configFile": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:     "rootDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:     "failOnFlakyTests": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "forbidOnly": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "fullyParallel": true,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalSetup": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTeardown": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTimeout": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "grep": {},
+@pkgs/ui-root-harness-ts:storybook:test:     "grepInvert": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "maxFailures": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "metadata": {
+@pkgs/ui-root-harness-ts:storybook:test:       "actualWorkers": 1
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     "preserveOutput": "always",
+@pkgs/ui-root-harness-ts:storybook:test:     "projects": [
+@pkgs/ui-root-harness-ts:storybook:test:       {
+@pkgs/ui-root-harness-ts:storybook:test:         "outputDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results",
+@pkgs/ui-root-harness-ts:storybook:test:         "repeatEach": 1,
+@pkgs/ui-root-harness-ts:storybook:test:         "retries": 0,
+@pkgs/ui-root-harness-ts:storybook:test:         "metadata": {
+@pkgs/ui-root-harness-ts:storybook:test:           "actualWorkers": 1
+@pkgs/ui-root-harness-ts:storybook:test:         },
+@pkgs/ui-root-harness-ts:storybook:test:         "id": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "name": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "testDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:         "testIgnore": [],
+@pkgs/ui-root-harness-ts:storybook:test:         "testMatch": [
+@pkgs/ui-root-harness-ts:storybook:test:           "**/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/integration.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/font-readiness.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/essentials.checks.ts"
+@pkgs/ui-root-harness-ts:storybook:test:         ],
+@pkgs/ui-root-harness-ts:storybook:test:         "timeout": 30000
+@pkgs/ui-root-harness-ts:storybook:test:       }
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "quiet": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "reporter": [
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "line"
+@pkgs/ui-root-harness-ts:storybook:test:       ],
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "json"
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "reportSlowTests": {
+@pkgs/ui-root-harness-ts:storybook:test:       "max": 5,
+@pkgs/ui-root-harness-ts:storybook:test:       "threshold": 300000
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     "shard": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSnapshots": "none",
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSourceMethod": "patch",
+@pkgs/ui-root-harness-ts:storybook:test:     "version": "1.61.1",
+@pkgs/ui-root-harness-ts:storybook:test:     "workers": 1,
+@pkgs/ui-root-harness-ts:storybook:test:     "webServer": {
+@pkgs/ui-root-harness-ts:storybook:test:       "command": "bun static-server.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "url": "http://127.0.0.1:6007/index.json",
+@pkgs/ui-root-harness-ts:storybook:test:       "reuseExistingServer": false
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   },
+@pkgs/ui-root-harness-ts:storybook:test:   "suites": [
+@pkgs/ui-root-harness-ts:storybook:test:     {
+@pkgs/ui-root-harness-ts:storybook:test:       "title": "stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "file": "stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "column": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "line": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "specs": [
+@pkgs/ui-root-harness-ts:storybook:test:         {
+@pkgs/ui-root-harness-ts:storybook:test:           "title": "storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery",
+@pkgs/ui-root-harness-ts:storybook:test:           "ok": false,
+@pkgs/ui-root-harness-ts:storybook:test:           "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:           "tests": [
+@pkgs/ui-root-harness-ts:storybook:test:             {
+@pkgs/ui-root-harness-ts:storybook:test:               "timeout": 30000,
+@pkgs/ui-root-harness-ts:storybook:test:               "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:               "expectedStatus": "passed",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectId": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectName": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "results": [
+@pkgs/ui-root-harness-ts:storybook:test:                 {
+@pkgs/ui-root-harness-ts:storybook:test:                   "workerIndex": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "parallelIndex": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "status": "failed",
+@pkgs/ui-root-harness-ts:storybook:test:                   "duration": 9211,
+@pkgs/ui-root-harness-ts:storybook:test:                   "error": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#storybook-root')\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n",
+@pkgs/ui-root-harness-ts:storybook:test:                     "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#storybook-root')\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:340:49",
+@pkgs/ui-root-harness-ts:storybook:test:                     "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                       "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                       "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                       "line": 340
+@pkgs/ui-root-harness-ts:storybook:test:                     },
+@pkgs/ui-root-harness-ts:storybook:test:                     "snippet": "  338 |     '/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true'\n  339 |   );\n> 340 |   await expect(page.locator('#storybook-root')).toHaveAttribute(\n      |                                                 ^\n  341 |     'data-story-ready',\n  342 |     'true'\n  343 |   );"
+@pkgs/ui-root-harness-ts:storybook:test:                   },
+@pkgs/ui-root-harness-ts:storybook:test:                   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                         "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                         "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                         "line": 340
+@pkgs/ui-root-harness-ts:storybook:test:                       },
+@pkgs/ui-root-harness-ts:storybook:test:                       "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#storybook-root')\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\n\n  338 |     '/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true'\n  339 |   );\n> 340 |   await expect(page.locator('#storybook-root')).toHaveAttribute(\n      |                                                 ^\n  341 |     'data-story-ready',\n  342 |     'true'\n  343 |   );\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:340:49"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stdout": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stderr": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "retry": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "startTime": "2026-11-06T15:59:52.426Z",
+@pkgs/ui-root-harness-ts:storybook:test:                   "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "attachments": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "name": "error-context",
+@pkgs/ui-root-harness-ts:storybook:test:                       "contentType": "text/markdown",
+@pkgs/ui-root-harness-ts:storybook:test:                       "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-storyboo-b7184-s-play--wrong-move-recovery-chromium/error-context.md"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "errorLocation": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                     "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                     "line": 340
+@pkgs/ui-root-harness-ts:storybook:test:                   }
+@pkgs/ui-root-harness-ts:storybook:test:                 }
+@pkgs/ui-root-harness-ts:storybook:test:               ],
+@pkgs/ui-root-harness-ts:storybook:test:               "status": "unexpected"
+@pkgs/ui-root-harness-ts:storybook:test:             }
+@pkgs/ui-root-harness-ts:storybook:test:           ],
+@pkgs/ui-root-harness-ts:storybook:test:           "id": "420b43e5a84eecfe9d23-e21b459958ed6837b578",
+@pkgs/ui-root-harness-ts:storybook:test:           "file": "stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "line": 332,
+@pkgs/ui-root-harness-ts:storybook:test:           "column": 1
+@pkgs/ui-root-harness-ts:storybook:test:         }
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   ],
+@pkgs/ui-root-harness-ts:storybook:test:   "errors": [],
+@pkgs/ui-root-harness-ts:storybook:test:   "stats": {
+@pkgs/ui-root-harness-ts:storybook:test:     "startTime": "2026-11-06T15:59:51.684Z",
+@pkgs/ui-root-harness-ts:storybook:test:     "duration": 10307.647,
+@pkgs/ui-root-harness-ts:storybook:test:     "expected": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "skipped": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "unexpected": 1,
+@pkgs/ui-root-harness-ts:storybook:test:     "flaky": 0
+@pkgs/ui-root-harness-ts:storybook:test:   }
+@pkgs/ui-root-harness-ts:storybook:test: }
+@pkgs/ui-root-harness-ts:storybook:test:   1 failed
+@pkgs/ui-root-harness-ts:storybook:test:     [chromium] › tests/storybook/stories.checks.ts:332:1 › storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery 
+@pkgs/ui-root-harness-ts:storybook:test: error: script "storybook:test" exited with code 1
+@pkgs/ui-root-harness-ts#storybook:test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run storybook:test --workers=1 --reporter=line,json --grep instrumented chess geometry exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    10.834s 
+Failed:    @pkgs/ui-root-harness-ts#storybook:test
+
+ ERROR  run failed: command  exited (1)

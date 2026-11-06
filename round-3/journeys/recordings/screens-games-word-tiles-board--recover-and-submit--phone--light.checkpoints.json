@@ -1,0 +1,220 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [3] toBeVisible"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [5] click"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [9] click"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [11] click"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [13] click"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [15] click"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [20] toBeVisible"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [23] toBeEnabled"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [26] toBeVisible"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [28] click"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [31] toHaveAttribute"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [33] click"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [36] toHaveAttribute"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [39] toBeInTheDocument"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [42] toBeDisabled"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [47] toBeVisible"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [50] toHaveTextContent"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [55] toBeVisible"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [58] toBeVisible"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light--021.png",
+    "capturedFrame": true
+  }
+]

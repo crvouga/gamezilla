@@ -1,0 +1,12 @@
+{
+  "browserErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "state": {
+    "phase": "playing",
+    "callCount": 13363,
+    "pending": [],
+    "cursor": 13363,
+    "calls": []
+  }
+}
