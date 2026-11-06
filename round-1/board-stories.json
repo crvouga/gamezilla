@@ -1,0 +1,2157 @@
+[
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--your-turn",
+    "name": "Your Turn",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "YourTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--waiting-for-opponent",
+    "name": "Waiting For Opponent",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOpponent"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--won",
+    "name": "Won",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Won"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--lost",
+    "name": "Lost",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Lost"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--fire-a-shot",
+    "name": "Fire A Shot",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "FireAShot"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--hit-a-ship",
+    "name": "Hit A Ship",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "HitAShip"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--sink-a-ship",
+    "name": "Sink A Ship",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "SinkAShip"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-board--sink-the-fleet",
+    "name": "Sink The Fleet",
+    "title": "Screens/Games/Battleship/Board",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "SinkTheFleet"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--empty",
+    "name": "Empty",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Empty"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--partial",
+    "name": "Partial",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Partial"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--complete",
+    "name": "Complete",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Complete"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--locked",
+    "name": "Locked",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Locked"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--refused-off-board",
+    "name": "Refused Off Board",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "RefusedOffBoard"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--place-a-ship",
+    "name": "Place A Ship",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PlaceAShip"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-battleship-setup--arrange-full-fleet",
+    "name": "Arrange Full Fleet",
+    "title": "Screens/Games/Battleship/Fleet setup",
+    "importPath": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "componentPath": "../../libs/battleship-client-ts/src/battleship-setup-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ArrangeFullFleet"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-puzzles-chess-play--solving",
+    "name": "Solving",
+    "title": "Screens/Puzzles/Chess/Play",
+    "importPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "componentPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Solving"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-puzzles-chess-play--hint",
+    "name": "Hint",
+    "title": "Screens/Puzzles/Chess/Play",
+    "importPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "componentPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Hint"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-puzzles-chess-play--solution-shown",
+    "name": "Solution Shown",
+    "title": "Screens/Puzzles/Chess/Play",
+    "importPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "componentPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "SolutionShown"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-puzzles-chess-play--solve-journey",
+    "name": "Solve Journey",
+    "title": "Screens/Puzzles/Chess/Play",
+    "importPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "componentPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "SolveJourney"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-puzzles-chess-play--wrong-move-recovery",
+    "name": "Wrong Move Recovery",
+    "title": "Screens/Puzzles/Chess/Play",
+    "importPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "componentPath": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "WrongMoveRecovery"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--your-turn",
+    "name": "Your Turn",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "YourTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--early-game",
+    "name": "Early Game",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "EarlyGame"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--waiting-for-opponent",
+    "name": "Waiting For Opponent",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOpponent"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--in-check",
+    "name": "In Check",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "InCheck"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--checkmated",
+    "name": "Checkmated",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Checkmated"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--stalemate",
+    "name": "Stalemate",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Stalemate"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--insufficient-material",
+    "name": "Insufficient Material",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "InsufficientMaterial"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-chess-board--promotion-choice",
+    "name": "Promotion Choice",
+    "title": "Screens/Games/Chess/Board",
+    "importPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "componentPath": "../../libs/chess-root-client-ts/src/chess-game-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PromotionChoice"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--your-turn",
+    "name": "Your Turn",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "YourTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--waiting-for-opponent",
+    "name": "Waiting For Opponent",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOpponent"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--won",
+    "name": "Won",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "Won"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--lost",
+    "name": "Lost",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Lost"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--full-board-draw",
+    "name": "Full Board Draw",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "FullBoardDraw"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--drop-a-disc",
+    "name": "Drop A Disc",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "DropADisc"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--full-column",
+    "name": "Full Column",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "FullColumn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-connect-four-board--connect-four-to-win",
+    "name": "Connect Four To Win",
+    "title": "Screens/Games/Connect Four/Board",
+    "importPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "componentPath": "../../libs/connect-four-client-ts/src/connect-four-presentation.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ConnectFourToWin"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--passing",
+    "name": "Passing",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Passing"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--passed-waiting-for-others",
+    "name": "Passed Waiting For Others",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "PassedWaitingForOthers"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--your-turn-to-play",
+    "name": "Your Turn To Play",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "YourTurnToPlay"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--waiting-for-turn",
+    "name": "Waiting For Turn",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--trick-taken",
+    "name": "Trick Taken",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "TrickTaken"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--cards-on-their-way",
+    "name": "Cards On Their Way",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "CardsOnTheirWay"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--game-over",
+    "name": "Game Over",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "GameOver"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--pass-three-cards",
+    "name": "Pass Three Cards",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PassThreeCards"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--pass-sending",
+    "name": "Pass Sending",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PassSending"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--complete-trick",
+    "name": "Complete Trick",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "CompleteTrick"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-hearts-board--pass-acknowledged",
+    "name": "Pass Acknowledged",
+    "title": "Screens/Games/Hearts/Table",
+    "importPath": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "componentPath": "../../libs/hearts-client-ts/src/hearts-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PassAcknowledged"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--countdown",
+    "name": "Countdown",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Countdown"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--riding",
+    "name": "Riding",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Riding"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--crashed",
+    "name": "Crashed",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "Crashed"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--round-over",
+    "name": "Round Over",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "RoundOver"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--finished",
+    "name": "Finished",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Finished"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--reconnecting",
+    "name": "Reconnecting",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "Reconnecting"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--riding-elsewhere",
+    "name": "Riding Elsewhere",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "RidingElsewhere"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--two-riders-on-one-device",
+    "name": "Two Riders On One Device",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "TwoRidersOnOneDevice"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--steer-up",
+    "name": "Steer Up",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "SteerUp"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--duel-steering",
+    "name": "Duel Steering",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "DuelSteering"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--quad-steering",
+    "name": "Quad Steering",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "QuadSteering"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-light-cycles-arena--shared-keyboard",
+    "name": "Shared Keyboard",
+    "title": "Screens/Games/Light Cycles/Arena",
+    "importPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "componentPath": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "SharedKeyboard"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--fresh",
+    "name": "Fresh",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Fresh"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--in-progress",
+    "name": "In Progress",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "InProgress"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--solved",
+    "name": "Solved",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Solved"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--disabled",
+    "name": "Disabled",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Disabled"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-numberlink-puzzle--complete-with-keyboard",
+    "name": "Complete With Keyboard",
+    "title": "Screens/Games/Numberlink/Puzzle",
+    "importPath": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "componentPath": "../../libs/numberlink-client-ts/src/numberlink-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "CompleteWithKeyboard"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--countdown",
+    "name": "Countdown",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Countdown"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--rally",
+    "name": "Rally",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Rally"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--serve-after-point",
+    "name": "Serve After Point",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "ServeAfterPoint"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--match-point",
+    "name": "Match Point",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "MatchPoint"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--paused",
+    "name": "Paused",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Paused"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--reconnecting",
+    "name": "Reconnecting",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Reconnecting"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--two-players-on-one-device",
+    "name": "Two Players On One Device",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "TwoPlayersOnOneDevice"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--finished",
+    "name": "Finished",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Finished"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--paddle-movement",
+    "name": "Paddle Movement",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PaddleMovement"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-pong-court--return-score-and-reconnect",
+    "name": "Return Score And Reconnect",
+    "title": "Screens/Games/Pong/Court",
+    "importPath": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "componentPath": "../../libs/pong-client-ts/src/pong-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ReturnScoreAndReconnect"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--must-pass",
+    "name": "Must Pass",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "MustPass"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--waiting-for-others",
+    "name": "Waiting For Others",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOthers"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--won",
+    "name": "Won",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Won"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--lost",
+    "name": "Lost",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Lost"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--pass-and-continue",
+    "name": "Pass And Continue",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PassAndContinue"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--four-player-round",
+    "name": "Four Player Round",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "FourPlayerRound"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--reach-the-hill",
+    "name": "Reach The Hill",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ReachTheHill"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-hill--recover-wall-placement",
+    "name": "Recover Wall Placement",
+    "title": "Screens/Games/Quoridor/King of the Hill",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "RecoverWallPlacement"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--your-turn",
+    "name": "Your Turn",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "YourTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--waiting-for-opponent",
+    "name": "Waiting For Opponent",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOpponent"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--won",
+    "name": "Won",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Won"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--lost",
+    "name": "Lost",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Lost"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--place-a-wall",
+    "name": "Place A Wall",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PlaceAWall"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--reach-opposite-edge",
+    "name": "Reach Opposite Edge",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ReachOppositeEdge"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--keep-a-path-open",
+    "name": "Keep A Path Open",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "KeepAPathOpen"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-quoridor-classic--pawn-identity-and-keyboard",
+    "name": "Pawn Identity And Keyboard",
+    "title": "Screens/Games/Quoridor/Classic",
+    "importPath": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "componentPath": "../../libs/quoridor-client-ts/src/quoridor-board.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PawnIdentityAndKeyboard"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--fresh",
+    "name": "Fresh",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Fresh"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--in-progress",
+    "name": "In Progress",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "InProgress"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--solved",
+    "name": "Solved",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Solved"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--disabled",
+    "name": "Disabled",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Disabled"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--blocked-move",
+    "name": "Blocked Move",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "BlockedMove"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-sokoban-puzzle--solve-with-keyboard",
+    "name": "Solve With Keyboard",
+    "title": "Screens/Games/Sokoban/Puzzle",
+    "importPath": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "componentPath": "../../libs/sokoban-client-ts/src/sokoban-player.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "SolveWithKeyboard"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--opening",
+    "name": "Opening",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Opening"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--your-turn",
+    "name": "Your Turn",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "YourTurn"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--waiting-for-opponent",
+    "name": "Waiting For Opponent",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WaitingForOpponent"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--watching",
+    "name": "Watching",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Watching"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--word-list-unavailable",
+    "name": "Word List Unavailable",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WordListUnavailable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--four-players",
+    "name": "Four Players",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "FourPlayers"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--game-over",
+    "name": "Game Over",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "GameOver"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--place-a-word",
+    "name": "Place A Word",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PlaceAWord"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--checking-words",
+    "name": "Checking Words",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "CheckingWords"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--three-players",
+    "name": "Three Players",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "ThreePlayers"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--recall-and-restore",
+    "name": "Recall And Restore",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "RecallAndRestore"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-board--assign-a-blank",
+    "name": "Assign A Blank",
+    "title": "Screens/Games/Word Tiles/Board",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "AssignABlank"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--ready",
+    "name": "Ready",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Ready"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--after-a-move",
+    "name": "After A Move",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "AfterAMove"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--disabled",
+    "name": "Disabled",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Disabled"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--word-list-unavailable",
+    "name": "Word List Unavailable",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "WordListUnavailable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--unreadable",
+    "name": "Unreadable",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs"
+    ],
+    "exportName": "Unreadable"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--place-a-word",
+    "name": "Place A Word",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "PlaceAWord"
+  },
+  {
+    "type": "story",
+    "subtype": "story",
+    "id": "screens-games-word-tiles-puzzle--reach-target",
+    "name": "Reach Target",
+    "title": "Screens/Games/Word Tiles/Puzzle",
+    "importPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "componentPath": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "autodocs",
+      "play-fn"
+    ],
+    "exportName": "ReachTarget"
+  }
+]

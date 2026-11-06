@@ -1,0 +1,386 @@
+[
+  {
+    "journeyId": "J1",
+    "component": "ChessGameBoard",
+    "goal": "Chess: select piece, legal destination, observe move; promotion and orientation",
+    "source": "libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "stories": [
+      "screens-games-chess-board--opening",
+      "screens-games-chess-board--your-turn",
+      "screens-games-chess-board--early-game",
+      "screens-games-chess-board--waiting-for-opponent",
+      "screens-games-chess-board--in-check",
+      "screens-games-chess-board--watching",
+      "screens-games-chess-board--checkmated",
+      "screens-games-chess-board--stalemate",
+      "screens-games-chess-board--insufficient-material",
+      "screens-games-chess-board--promotion-choice"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-chess-board--promotion-choice"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "Promotion choice is exercised; a complete ordinary match and network turn progression are not established."
+  },
+  {
+    "journeyId": "J2",
+    "component": "ChessPuzzleBoard",
+    "goal": "Chess puzzle: make solution moves; recover wrong move; hint",
+    "source": "libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "stories": [
+      "screens-puzzles-chess-play--solving",
+      "screens-puzzles-chess-play--hint",
+      "screens-puzzles-chess-play--solution-shown",
+      "screens-puzzles-chess-play--solve-journey",
+      "screens-puzzles-chess-play--wrong-move-recovery"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-puzzles-chess-play--solve-journey"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "SolveJourney and WrongMoveRecovery exercise puzzle fixture completion; persisted attempt history and overview navigation remain unproven."
+  },
+  {
+    "journeyId": "J3",
+    "component": "ConnectFourGameBoard",
+    "goal": "Drop a disc into a non-full column and observe turn/result",
+    "source": "libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "stories": [
+      "screens-games-connect-four-board--opening",
+      "screens-games-connect-four-board--your-turn",
+      "screens-games-connect-four-board--waiting-for-opponent",
+      "screens-games-connect-four-board--watching",
+      "screens-games-connect-four-board--won",
+      "screens-games-connect-four-board--lost",
+      "screens-games-connect-four-board--full-board-draw",
+      "screens-games-connect-four-board--drop-a-disc",
+      "screens-games-connect-four-board--full-column",
+      "screens-games-connect-four-board--connect-four-to-win"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-connect-four-board--connect-four-to-win"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ConnectFourToWin reaches a winning board through stateful play; network match continuation remains unproven."
+  },
+  {
+    "journeyId": "J4",
+    "component": "BattleshipSetupBoard",
+    "goal": "Place and rotate full fleet; recover invalid placement; ready",
+    "source": "libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "stories": [
+      "screens-games-battleship-setup--empty",
+      "screens-games-battleship-setup--partial",
+      "screens-games-battleship-setup--complete",
+      "screens-games-battleship-setup--locked",
+      "screens-games-battleship-setup--refused-off-board",
+      "screens-games-battleship-setup--place-a-ship",
+      "screens-games-battleship-setup--arrange-full-fleet"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-battleship-setup--arrange-full-fleet"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ArrangeFullFleet covers intrinsic fleet setup; persisted submission to a live match remains unproven."
+  },
+  {
+    "journeyId": "J5",
+    "component": "BattleshipBoard",
+    "goal": "Target untried square; observe hit/miss/sunk and turn",
+    "source": "libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "stories": [
+      "screens-games-battleship-board--opening",
+      "screens-games-battleship-board--your-turn",
+      "screens-games-battleship-board--waiting-for-opponent",
+      "screens-games-battleship-board--watching",
+      "screens-games-battleship-board--won",
+      "screens-games-battleship-board--lost",
+      "screens-games-battleship-board--fire-a-shot",
+      "screens-games-battleship-board--hit-a-ship",
+      "screens-games-battleship-board--sink-a-ship",
+      "screens-games-battleship-board--sink-the-fleet"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-battleship-board--sink-the-fleet"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "SinkTheFleet reaches a fleet defeat through the fixture; network turn and reconnect remain unproven."
+  },
+  {
+    "journeyId": "J6",
+    "component": "NumberlinkPlayer",
+    "goal": "Draw all matching paths covering board; cancel/remove and recover",
+    "source": "libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "stories": [
+      "screens-games-numberlink-puzzle--fresh",
+      "screens-games-numberlink-puzzle--in-progress",
+      "screens-games-numberlink-puzzle--solved",
+      "screens-games-numberlink-puzzle--disabled",
+      "screens-games-numberlink-puzzle--unreadable",
+      "screens-games-numberlink-puzzle--complete-with-keyboard"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-numberlink-puzzle--complete-with-keyboard"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "CompleteWithKeyboard reaches puzzle completion; persisted attempt, undo/redo and overview navigation remain unproven."
+  },
+  {
+    "journeyId": "J7",
+    "component": "SokobanPlayer",
+    "goal": "Move and push every crate onto goals; recover blocked move; undo/redo",
+    "source": "libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "stories": [
+      "screens-games-sokoban-puzzle--fresh",
+      "screens-games-sokoban-puzzle--in-progress",
+      "screens-games-sokoban-puzzle--solved",
+      "screens-games-sokoban-puzzle--disabled",
+      "screens-games-sokoban-puzzle--unreadable",
+      "screens-games-sokoban-puzzle--blocked-move",
+      "screens-games-sokoban-puzzle--solve-with-keyboard"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-sokoban-puzzle--solve-with-keyboard"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "SolveWithKeyboard reaches puzzle completion; shared undo/redo/restart, deadlock recovery and overview navigation remain unproven."
+  },
+  {
+    "journeyId": "J8",
+    "component": "QuoridorBoard",
+    "goal": "Move pawn and place/rotate valid wall; reach opposite edge",
+    "source": "libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "stories": [
+      "screens-games-quoridor-classic--opening",
+      "screens-games-quoridor-classic--your-turn",
+      "screens-games-quoridor-classic--waiting-for-opponent",
+      "screens-games-quoridor-classic--watching",
+      "screens-games-quoridor-classic--won",
+      "screens-games-quoridor-classic--lost",
+      "screens-games-quoridor-classic--place-a-wall",
+      "screens-games-quoridor-classic--reach-opposite-edge",
+      "screens-games-quoridor-classic--keep-a-path-open",
+      "screens-games-quoridor-classic--pawn-identity-and-keyboard"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-quoridor-classic--reach-opposite-edge"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ReachOppositeEdge completes the local rules fixture; multiplayer synchronization/reconnect remains unproven."
+  },
+  {
+    "journeyId": "J9",
+    "component": "QuoridorBoard",
+    "goal": "Move to hill, place walls and pass when required",
+    "source": "libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "stories": [
+      "screens-games-quoridor-hill--opening",
+      "screens-games-quoridor-hill--must-pass",
+      "screens-games-quoridor-hill--waiting-for-others",
+      "screens-games-quoridor-hill--won",
+      "screens-games-quoridor-hill--lost",
+      "screens-games-quoridor-hill--pass-and-continue",
+      "screens-games-quoridor-hill--four-player-round",
+      "screens-games-quoridor-hill--reach-the-hill",
+      "screens-games-quoridor-hill--recover-wall-placement"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-quoridor-hill--reach-the-hill"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ReachTheHill and FourPlayerRound cover local goal and four-seat progression; network/spectator recovery remains unproven."
+  },
+  {
+    "journeyId": "J10",
+    "component": "WordTilesBoardView",
+    "goal": "Place and submit valid word; blank assignment; exchange/pass; recover word-list failure",
+    "source": "libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "stories": [
+      "screens-games-word-tiles-board--opening",
+      "screens-games-word-tiles-board--your-turn",
+      "screens-games-word-tiles-board--waiting-for-opponent",
+      "screens-games-word-tiles-board--watching",
+      "screens-games-word-tiles-board--word-list-unavailable",
+      "screens-games-word-tiles-board--four-players",
+      "screens-games-word-tiles-board--game-over",
+      "screens-games-word-tiles-board--unreadable",
+      "screens-games-word-tiles-board--place-a-word",
+      "screens-games-word-tiles-board--checking-words",
+      "screens-games-word-tiles-board--three-players",
+      "screens-games-word-tiles-board--recall-and-restore",
+      "screens-games-word-tiles-board--assign-a-blank"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-word-tiles-board--recall-and-restore"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "RecallAndRestore and AssignABlank cover draft editing; accepted submission/next turn, exchange/pass and lexicon recovery remain unproven."
+  },
+  {
+    "journeyId": "J11",
+    "component": "WordTilesPuzzlePlayerView",
+    "goal": "Place a word meeting puzzle target; recover invalid placement",
+    "source": "libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "stories": [
+      "screens-games-word-tiles-puzzle--ready",
+      "screens-games-word-tiles-puzzle--after-a-move",
+      "screens-games-word-tiles-puzzle--disabled",
+      "screens-games-word-tiles-puzzle--word-list-unavailable",
+      "screens-games-word-tiles-puzzle--unreadable",
+      "screens-games-word-tiles-puzzle--place-a-word",
+      "screens-games-word-tiles-puzzle--reach-target"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-word-tiles-puzzle--reach-target"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ReachTarget completes the controlled target fixture; persisted attempt, blank assignment and lexicon recovery remain unproven."
+  },
+  {
+    "journeyId": "J12",
+    "component": "HeartsBoard",
+    "goal": "Select and pass three cards, then play legal card through trick",
+    "source": "libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "stories": [
+      "screens-games-hearts-board--passing",
+      "screens-games-hearts-board--passed-waiting-for-others",
+      "screens-games-hearts-board--your-turn-to-play",
+      "screens-games-hearts-board--waiting-for-turn",
+      "screens-games-hearts-board--trick-taken",
+      "screens-games-hearts-board--cards-on-their-way",
+      "screens-games-hearts-board--watching",
+      "screens-games-hearts-board--game-over",
+      "screens-games-hearts-board--pass-three-cards",
+      "screens-games-hearts-board--pass-sending",
+      "screens-games-hearts-board--complete-trick",
+      "screens-games-hearts-board--pass-acknowledged"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-hearts-board--complete-trick"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "CompleteTrick and PassAcknowledged cover fixture transitions; a complete hand/match and network acknowledgement remain unproven."
+  },
+  {
+    "journeyId": "J13",
+    "component": "PongBoardView",
+    "goal": "Control paddle, return ball, score; resume after reconnect",
+    "source": "libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "stories": [
+      "screens-games-pong-court--countdown",
+      "screens-games-pong-court--rally",
+      "screens-games-pong-court--serve-after-point",
+      "screens-games-pong-court--match-point",
+      "screens-games-pong-court--paused",
+      "screens-games-pong-court--reconnecting",
+      "screens-games-pong-court--two-players-on-one-device",
+      "screens-games-pong-court--watching",
+      "screens-games-pong-court--finished",
+      "screens-games-pong-court--unreadable",
+      "screens-games-pong-court--paddle-movement",
+      "screens-games-pong-court--return-score-and-reconnect"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-pong-court--return-score-and-reconnect"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "ReturnScoreAndReconnect covers controlled score/reconnect presentation; live real-time recovery and full match completion remain unproven."
+  },
+  {
+    "journeyId": "J14",
+    "component": "LightCyclesBoardView",
+    "goal": "Steer safely, crash/round result; reconnect and resume",
+    "source": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "stories": [
+      "screens-games-light-cycles-arena--countdown",
+      "screens-games-light-cycles-arena--riding",
+      "screens-games-light-cycles-arena--crashed",
+      "screens-games-light-cycles-arena--round-over",
+      "screens-games-light-cycles-arena--finished",
+      "screens-games-light-cycles-arena--reconnecting",
+      "screens-games-light-cycles-arena--riding-elsewhere",
+      "screens-games-light-cycles-arena--watching",
+      "screens-games-light-cycles-arena--two-riders-on-one-device",
+      "screens-games-light-cycles-arena--unreadable",
+      "screens-games-light-cycles-arena--steer-up",
+      "screens-games-light-cycles-arena--duel-steering",
+      "screens-games-light-cycles-arena--quad-steering",
+      "screens-games-light-cycles-arena--shared-keyboard"
+    ],
+    "status": "All selected story readiness/play, browser-error and serious/critical axe checks reached pixel comparison in initial 528-case run. Visual comparisons failed. Complete production journey remains subject to named assertion and fixture-fidelity review.",
+    "baselineGapsToReconcile": [
+      "Need candidate-bound automated journey output and screenshots in both themes at phone 390x844 and desktop 1440x900.",
+      "Callback spies/static end states do not prove complete persisted journey."
+    ],
+    "representativeInteractionStories": [
+      "screens-games-light-cycles-arena--shared-keyboard"
+    ],
+    "videoStatus": "pending recording",
+    "remainingJourneyGap": "DuelSteering, QuadSteering and SharedKeyboard exercise inputs; collision-to-round completion and live reconnect remain unproven."
+  }
+]
