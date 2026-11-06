@@ -30,3 +30,29 @@ test('touch guidance keeps keyboard grammar behind a discoverable disclosure', (
   expect(disclosure?.textContent).toContain('Escape to cancel.');
   board.unmount();
 });
+
+// regression: chess-guidance-placement-contract-proof-missing
+test('before placement keeps keyboard guidance ahead of the same playable board', () => {
+  const board = mountBoard({
+    showGuidance: true,
+    showCoordinates: true,
+    coordinatePlacement: 'outside-start',
+    guidancePlacement: 'before',
+  });
+  try {
+    const frame = board.host.closest('[data-component="ChessBoardFrame"]');
+    const help = frame?.parentElement?.querySelector('details');
+    if (!frame || !help)
+      throw new Error('Missing board frame or keyboard help');
+    expect(
+      frame.compareDocumentPosition(help) & Node.DOCUMENT_POSITION_PRECEDING
+    ).not.toBe(0);
+    help.open = true;
+    expect(board.host.closest('[data-component="ChessBoardFrame"]')).toBe(
+      frame
+    );
+    expect(board.host.querySelectorAll('button[data-square]').length).toBe(64);
+  } finally {
+    board.unmount();
+  }
+});

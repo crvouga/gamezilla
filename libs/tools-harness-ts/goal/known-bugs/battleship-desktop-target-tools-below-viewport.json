@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844, correct-target-before-firing starts with Larger targets ending at 848.34375px, below the viewport, while the grid and Fire action fit. Tighten the grouped target-grid spacing without shrinking controls or scrolling before measurement.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

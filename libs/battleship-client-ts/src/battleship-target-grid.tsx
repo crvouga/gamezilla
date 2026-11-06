@@ -48,7 +48,7 @@ export function BattleshipTargetGrid(props: {
     setLarge(!large());
   };
   return (
-    <StackVertical gap="sm" width="full">
+    <StackVertical gap="xs" width="full">
       <CellGridBoard
         fill={!large()}
         label={props.label}

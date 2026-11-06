@@ -57,7 +57,7 @@ async function finishAndContinue(
   await drawNumberlinkJourneyRow(device, 2);
   await device.ui
     .get('content-attempt-complete')
-    .expect.text('Puzzle completed', { ...device, exact: false });
+    .expect.text('Completion saved', { ...device, exact: false });
   await contentTap(device, 'content-next-puzzle');
   const next = await startJourneyAttempt(device);
   await drawNumberlinkJourneyRow(device, 0);

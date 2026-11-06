@@ -160,3 +160,19 @@ for (const id of [
     });
   }
 }
+
+// regression: battleship-desktop-target-tools-below-viewport
+test('screens-games-battleship-board--correct-target-before-firing regression battleship-desktop-target-tools-below-viewport', async ({
+  page,
+}) => {
+  const story =
+    index.entries[
+      'screens-games-battleship-board--correct-target-before-firing'
+    ];
+  if (!story) throw new Error('Missing literal desktop targeting regression');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 1440 && item.theme === 'light'
+  );
+  if (!scenario) throw new Error('Missing desktop light scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});

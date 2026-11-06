@@ -31,6 +31,7 @@ test('the puzzle king can move from e1 to f1 with guidance and square fitting en
   }
 });
 
+// regression: chess-guidance-placement-contract-proof-missing
 // regression: chess-puzzle-board-shifts-on-outcome
 test('puzzle guidance follows the board, and expanding it retains the same board node', () => {
   const board = mountBoard({

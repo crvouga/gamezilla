@@ -98,12 +98,27 @@ function PaddleSlider(props: {
 }
 
 /**
- * Both scores and the points that win, for a listener: the eye reads the
- * points in each half of the court and the target under it.
+ * Scores and the active rally for a listener. Countdown, pause and result
+ * remain on court; the rally summary never obscures the moving ball.
  */
-function CourtScores(props: { state: PongState; testId: string }): JSX.Element {
+function CourtSummary(props: {
+  state: PongState;
+  testId: string;
+  controls: GameSimulationControls | undefined;
+}): JSX.Element {
   return (
     <VisuallyHidden>
+      <Show
+        when={
+          props.state.phase === 'playing' &&
+          !props.controls?.paused &&
+          !props.controls?.stale
+        }
+      >
+        <Text variant="inherit" testId={`${props.testId}-status`}>
+          {t`Keep the ball in play.`}
+        </Text>
+      </Show>
       <Text variant="inherit" testId={`${props.testId}-score-left`}>
         {t`Left ${props.state.score.left}`}
       </Text>{' '}
@@ -226,7 +241,11 @@ function PongScene(props: {
     props.state.phase !== 'completed';
   return (
     <StackVertical gap="md">
-      <CourtScores state={props.state} testId={props.board.testId} />
+      <CourtSummary
+        state={props.state}
+        testId={props.board.testId}
+        controls={props.board.simulation}
+      />
 
       {/* On a phone each controlled half holds its own slider, so the
           court (its shape fixed) takes the whole width. */}

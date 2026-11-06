@@ -11,7 +11,7 @@ import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 
-function board(sides: readonly GameSide[]) {
+function board(sides: readonly GameSide[], testId = 'pong') {
   const [paused, setPaused] = createSignal(false);
   const [position, setPosition] = createSignal(
     pongPositionCodec.encode(initialPongState(pongConfig(), () => 0))
@@ -28,7 +28,7 @@ function board(sides: readonly GameSide[]) {
         interactive={true}
         sound={false}
         syncKey={0}
-        testId="pong"
+        testId={testId}
         setup={null}
         hand={null}
         committed={[]}
@@ -126,4 +126,36 @@ test('literal unreadable story offers the existing Spaces destination', () => {
   expect(recovery.getAttribute('href')).toBe('/');
   expect(view.getByRole('alert').contains(recovery)).toBe(true);
   expect(view.queryByRole('application')).toBeNull();
+});
+
+// regression: pong-playing-status-disappears
+test('the multiplayer court retains one readable status through the live rally and pause', () => {
+  const view = board(['white'], 'multiplayer-board');
+  const state = initialPongState(pongConfig(), () => 0);
+  view.setPosition(
+    pongPositionCodec.encode({
+      ...state,
+      phase: 'playing',
+      countdown: 0,
+      ball: { ...state.ball, vx: pongConfig().ballSpeed },
+    })
+  );
+  const status = view.getByTestId('multiplayer-board-status');
+  expect(status.textContent).toBe('Keep the ball in play.');
+  expect(view.getByRole('application').contains(status)).toBe(false);
+  expect(view.queryByRole('status')).toBeNull();
+  fireEvent.input(view.getByTestId('multiplayer-board-white-control'), {
+    target: { value: '750' },
+  });
+  expect(view.inputs).toEqual([['white', { kind: 'target', target: 0.75 }]]);
+  view.setPaused(true);
+  expect(view.getAllByTestId('multiplayer-board-status')).toHaveLength(1);
+  expect(view.getByTestId('multiplayer-board-status').textContent).toBe(
+    'Paused while a player returns.'
+  );
+  expect(
+    view
+      .getByRole('application')
+      .contains(view.getByTestId('multiplayer-board-status'))
+  ).toBe(true);
 });

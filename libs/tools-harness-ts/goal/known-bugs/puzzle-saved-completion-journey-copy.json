@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink and Sokoban cross-device and offline journeys still expected Puzzle completed after the saved-completion notice changed to Completion saved. Keep all attempt identity, solved-board and pack-progress persistence assertions while checking the saved notice text.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

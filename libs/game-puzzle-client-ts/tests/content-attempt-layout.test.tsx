@@ -167,6 +167,7 @@ test("the puzzle panel shows the game's own figures for the attempt", () => {
   expect(screen.queryByTestId('puzzle-attempt-figures')).toBeNull();
 });
 
+// regression: puzzle-saved-completion-journey-copy
 // regression: puzzle-saved-completion-confused-with-current-board
 test('saved completion remains distinct when the player has moved beyond the solved position', () => {
   mount(390, [], true);
