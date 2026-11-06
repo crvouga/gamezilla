@@ -1,0 +1,4 @@
+{
+  "summary": "Release journeys timed out after successfully hosting a space because Minimize collapsed into the overflow menu. Wait for the always-visible members control instead.",
+  "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
+}
