@@ -45,6 +45,19 @@
   .participants [data-active] > :is(div, button) {
     padding-inline: var(--ui-space-1);
   }
+  .participants
+    > [role="list"]:has(> :nth-child(4):last-child)
+    [data-active]
+    > :is(div, button) {
+    padding-block: 0;
+  }
+  .participants
+    > [role="list"]:has(> :nth-child(4):last-child)
+    [data-active]
+    > :is(div, button)
+    > span:not([aria-hidden]) {
+    row-gap: 0;
+  }
   .participants [data-active] > :is(div, button) > span[aria-hidden="true"] {
     display: none;
   }

@@ -401,3 +401,14 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blan
     1440
   );
 });
+
+// regression: shared-board-four-seat-wrapped-name-height
+test('screens-games-frame-geometry--four-players regression shared-board-four-seat-wrapped-name-height', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-frame-geometry--four-players',
+    390
+  );
+});

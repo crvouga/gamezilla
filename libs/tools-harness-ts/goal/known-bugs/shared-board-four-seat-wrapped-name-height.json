@@ -1,0 +1,4 @@
+{
+  "summary": "FourPlayers at 390x844 with jordan_plays, Points12 and Chosen grew to122px when full names wrapped, violating the existing112px metadata cap. Remove vertical chip padding and the internal name/facts gap without truncation or shrinking controls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}
