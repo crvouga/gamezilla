@@ -8,7 +8,6 @@ import {
   type PuzzlePlayScreenViewProps,
   type StoryPuzzleBoardProps,
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
-import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import {
   AudioPlaybackProvider,
   SoundsPreferenceProvider,
@@ -20,22 +19,12 @@ import { ChessPuzzleBoard } from './chess-puzzle-board';
 
 /**
  * Story decorator: silent audio playback, the app's sound preference and
- * still, reduced-motion piece movement.
+ * still piece movement selected by each board fixture’s `animated={false}`.
  */
 export const withChessPuzzleBoardContext = createJSXDecorator((Story) => (
   <AudioPlaybackProvider value={createInMemoryAudioPlaybackPort()}>
     <SoundsPreferenceProvider>
-      <BoardMotionProvider
-        value={{
-          animate: null,
-          prefersReducedMotion: () => true,
-          lowEnd: false,
-          hidden: () => false,
-          paintedTransform: () => '',
-        }}
-      >
-        <Story />
-      </BoardMotionProvider>
+      <Story />
     </SoundsPreferenceProvider>
   </AudioPlaybackProvider>
 ));

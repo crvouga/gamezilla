@@ -3,8 +3,9 @@
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { createBoardController } from '../chess-board-controller';
+import { ChessBoardFrame } from '../chess-board-frame/index';
 import { ChessBoardView } from '../chess-board-view/index';
 
 /**
@@ -23,5 +24,20 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
     colorScheme: () => themeCtx.colorScheme(),
     timers,
   });
-  return <ChessBoardView props={props} ctrl={ctrl} />;
+  return (
+    <Show
+      when={
+        props.showCoordinates &&
+        props.coordinatePlacement?.startsWith('outside-')
+      }
+      fallback={<ChessBoardView props={props} ctrl={ctrl} />}
+    >
+      <ChessBoardFrame
+        orientation={props.orientation ?? 'white'}
+        ranks={props.coordinatePlacement === 'outside-end' ? 'end' : 'start'}
+      >
+        <ChessBoardView props={props} ctrl={ctrl} />
+      </ChessBoardFrame>
+    </Show>
+  );
 }

@@ -9,7 +9,6 @@ import { chessPuzzleLastMove } from '@libs/chess-puzzle-shared-ts/last-move';
 import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
-import { ChessBoardFrame } from '@pkgs/chess-board-root-client-ts/chess-board-frame';
 import { formatUci } from '@pkgs/chess-rules-shared-ts/uci';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -23,34 +22,29 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   const sounds = useSoundsPreference();
   const mode = useLayoutMode();
   return (
-    <ChessBoardFrame
+    <ChessBoard
+      theme={BOARD_THEME}
+      sound={!sounds.muted()}
+      dataSet={{ testid: props.testId }}
+      fen={props.position}
+      fenSyncKey={props.syncKey}
       orientation={requireTwoPlayerSide(props.orientation)}
-      // Wide, the ranks stand at the end, so the squares start under the
-      // screen's title.
-      ranks={mode() === 'wide' ? 'end' : 'start'}
-    >
-      <ChessBoard
-        theme={BOARD_THEME}
-        sound={!sounds.muted()}
-        dataSet={{ testid: props.testId }}
-        fen={props.position}
-        fenSyncKey={props.syncKey}
-        orientation={requireTwoPlayerSide(props.orientation)}
-        animationDurationMs={props.moveMs ?? undefined}
-        interactive={props.interactive}
-        onMove={(move) => props.onAction(formatUci(move))}
-        autoPromoteQueen={false}
-        showCoordinates
-        highlightLastMove
-        lastMove={chessPuzzleLastMove(props.lastAction)}
-        highlightLegalMoves
-        cellFeedback={puzzleBoardFeedback(props.marks)}
-        arrows={puzzleBoardArrows({
-          solution: props.marks.solution,
-          suggestions: props.suggestions,
-        })}
-      />
-    </ChessBoardFrame>
+      animations={props.animated}
+      animationDurationMs={props.moveMs ?? undefined}
+      interactive={props.interactive}
+      onMove={(move) => props.onAction(formatUci(move))}
+      autoPromoteQueen={false}
+      showCoordinates
+      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      highlightLastMove
+      lastMove={chessPuzzleLastMove(props.lastAction)}
+      highlightLegalMoves
+      cellFeedback={puzzleBoardFeedback(props.marks)}
+      arrows={puzzleBoardArrows({
+        solution: props.marks.solution,
+        suggestions: props.suggestions,
+      })}
+    />
   );
 }
 
@@ -58,31 +52,25 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
   const sounds = useSoundsPreference();
   const mode = useLayoutMode();
   return (
-    <ChessBoardFrame
+    <ChessBoard
+      theme={BOARD_THEME}
+      sound={!sounds.muted()}
+      dataSet={{ testid: props.testId }}
+      fen={props.position}
+      fenSyncKey={props.syncKey}
       orientation={requireTwoPlayerSide(props.orientation)}
-      // Wide, the ranks stand at the end, so the squares start under the
-      // screen's title.
-      ranks={mode() === 'wide' ? 'end' : 'start'}
-    >
-      <ChessBoard
-        theme={BOARD_THEME}
-        sound={!sounds.muted()}
-        dataSet={{ testid: props.testId }}
-        fen={props.position}
-        fenSyncKey={props.syncKey}
-        orientation={requireTwoPlayerSide(props.orientation)}
-        interactive={false}
-        animations={props.animated}
-        showCoordinates
-        highlightLastMove
-      />
-    </ChessBoardFrame>
+      interactive={false}
+      animations={props.animated}
+      showCoordinates
+      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      highlightLastMove
+    />
   );
 }
 
 /**
  * Chess's board for the platform's puzzle screens, its coordinates outside
- * the squares as a game's board reads them (`ChessBoardFrame`), filling the
+ * the squares through the public board's coordinate placement, filling the
  * well the screen measured: in `play` the solver's
  * moves (reported in UCI, never auto-queened), a hint's square outline, a wrong
  * move's cross and the solution and suggestions as arrows; in `review` a

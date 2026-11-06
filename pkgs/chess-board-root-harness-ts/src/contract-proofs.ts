@@ -24,6 +24,7 @@ export const CHESSBOARD_CONTRACT_PROOFS = {
     'board-lifecycle.qnt',
     'sound-lifecycle.contract.test.tsx',
   ],
+  coordinatePlacement: ['public-coordinates.contract.test.ts'],
   showCoordinates: ['board-options.feature', 'board-options.qnt'],
   highlightLastMove: ['board-options.feature', 'board-options.qnt'],
   lastMove: ['last-move-supplied.contract.test.ts'],

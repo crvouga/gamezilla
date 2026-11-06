@@ -33,6 +33,13 @@ export type ChessBoardProps = {
   /** Parent-owned board audio (default on). Disabling cancels pending playback. */
   sound?: boolean | undefined;
   showCoordinates?: boolean | undefined;
+  /**
+   * Coordinate placement: `inside` (default) uses square corners;
+   * `outside-start` / `outside-end` adds the responsive frame with ranks
+   * on that edge and files below. Thumbnails retain corner labels.
+   * The outside frame is shown only when `showCoordinates` is enabled.
+   */
+  coordinatePlacement?: 'inside' | 'outside-start' | 'outside-end' | undefined;
   highlightLastMove?: boolean | undefined;
   /**
    * The move that reached `fen`, when the parent knows it and the board
