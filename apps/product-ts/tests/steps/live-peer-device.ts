@@ -8,6 +8,7 @@ import {
 import {
   actOnLiveDevice,
   type LiveDevices,
+  navigateLiveDevice,
   requireDevice,
 } from '@apps/product-ts/live-journey-devices';
 import { prepareCriticalJourneyAccess } from '@apps/product-ts/prepare-critical-journey-access';
@@ -50,7 +51,7 @@ export function liveJourneyPeerDevice(
     },
     spaceLink: async () =>
       spaceLinkFromLocation(await readLocation(current().view)),
-    reopen: () => current().driver.launch(),
+    reopen: () => navigateLiveDevice(devices, current()),
     offline: () => emulateOffline(current().view),
     online: async () => {
       await current().view.cdp('Network.emulateNetworkConditions', {

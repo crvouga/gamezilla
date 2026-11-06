@@ -98,3 +98,20 @@ test('every destructive action is rejected even when accompanied by an allowed a
     )
   );
 });
+
+// regression: alerting-service-account-forbidden
+test('alerting management credentials are planned and permitted without widening the deployment scope', () => {
+  for (const address of [
+    'grafana_cloud_access_policy.alerting_management',
+    'grafana_cloud_access_policy_token.alerting_management',
+  ]) {
+    expect(alertingDeploymentPlanArgs(paths)).toContain(`-target=${address}`);
+    expect(alertingDeploymentDenials(plan(address, ['create']))).toEqual([]);
+    expect(alertingDeploymentDenials(plan(address, ['delete']))).toHaveLength(
+      1
+    );
+    expect(
+      alertingDeploymentDenials(plan(`${address}_other`, ['create']))
+    ).toHaveLength(1);
+  }
+});
