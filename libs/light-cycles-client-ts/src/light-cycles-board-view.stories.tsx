@@ -147,13 +147,21 @@ export const Unreadable: Story = {
   args: { position: 'light-cycles-3:not-a-position', simulation: undefined },
 };
 
-/** A pad press steers the person's rider, fenced to the round. */
+/** Steering by pad or focused arena keys is fenced to the round. */
+// regression: light-cycles-steer-up-wide-story
 export const SteerUp: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-white-pad-up')
-    );
+    const pad = canvas.queryByTestId('custom-game-board-white-pad-up');
+    if (pad?.checkVisibility()) {
+      await userEvent.click(pad);
+    } else {
+      const arena = await canvas.findByTestId('custom-game-board-arena');
+      await expect(arena).toBeVisible();
+      arena.focus();
+      await expect(arena).toHaveFocus();
+      await userEvent.keyboard('{ArrowUp}');
+    }
     await expect(args.simulation?.onInput).toHaveBeenCalledWith('white', {
       round: 1,
       heading: 'up',

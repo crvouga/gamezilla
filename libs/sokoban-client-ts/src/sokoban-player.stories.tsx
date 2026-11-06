@@ -63,10 +63,20 @@ export const Disabled: Story = { args: { disabled: true } };
 export const Unreadable: Story = { args: { definition: '{}' } };
 
 /** Walking into the wall is refused, with the reason, and sends nothing. */
+// regression: sokoban-blocked-move-wide-story
 export const BlockedMove: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('sokoban-move-left'));
+    const pad = canvas.queryByTestId('sokoban-move-left');
+    if (pad?.checkVisibility()) {
+      await userEvent.click(pad);
+    } else {
+      const board = await canvas.findByTestId('sokoban-board');
+      await expect(board).toBeVisible();
+      board.focus();
+      await expect(board).toHaveFocus();
+      await userEvent.keyboard('{ArrowLeft}');
+    }
     await expect(
       await canvas.findByTestId('sokoban-refusal')
     ).toHaveTextContent("The worker's way is blocked.");
