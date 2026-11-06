@@ -1,0 +1,17 @@
+{
+  "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041",
+  "evidence_code": "6829b284db795f67",
+  "mediaCommit": "902e8e2bde2eb7fa79f532554eaeb39e4e6d4241",
+  "mediaBranch": "overhaul-evidence/pr-280",
+  "manifestUrl": "https://github.com/crvouga/gamezilla/blob/902e8e2bde2eb7fa79f532554eaeb39e4e6d4241/round-4/manifest.json",
+  "comments": [
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6693192194",
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6693200086"
+  ],
+  "publishedBodiesVerified": true,
+  "remoteManifestVerified": true,
+  "reviewState": "parent to commission two NEW independent reviewers",
+  "hostedSafety": "verify:end success, run 42271608909",
+  "pixelState": "648 local pixel failures; Ubuntu authoring success, same-head comparison pending at timestamped snapshot; zero refs accepted",
+  "merged": false
+}
