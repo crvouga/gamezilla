@@ -308,3 +308,48 @@ test('completed snapshots retain compressed evidence and release only their own 
     removeTree(container, { whenLocked: 'leave' });
   }
 });
+
+// regression: verify-snapshot-large-path-list
+test('snapshots include tracked inputs beyond the subprocess output buffer', async () => {
+  const source = mkdtempSync(join(tmpdir(), 'verify-large-index-fixture-'));
+  let run: string | undefined;
+  try {
+    const git = (...args: string[]) =>
+      execFileSync('git', args, { cwd: source, encoding: 'utf8' });
+    git('init', '-q');
+    writeFileSync(join(source, 'input'), 'fixture');
+    git('add', 'input');
+    git(
+      '-c',
+      'user.name=Fixture',
+      '-c',
+      'user.email=fixture@example.com',
+      'commit',
+      '-qm',
+      'fixture'
+    );
+    const blob = git('rev-parse', 'HEAD:input').trim();
+    const paths = Array.from(
+      { length: 8192 },
+      (_, index) =>
+        `tracked-${String(index).padStart(4, '0')}-${'x'.repeat(128)}.ts`
+    );
+    expect(Buffer.byteLength(`${paths.join('\0')}\0`)).toBeGreaterThan(
+      1024 * 1024
+    );
+    execFileSync('git', ['update-index', '--index-info'], {
+      cwd: source,
+      input: paths.map((path) => `100644 ${blob}\t${path}\n`).join(''),
+    });
+    // Missing tracked entries are valid dirty deletions; retain a real tail input.
+    const tail = paths[8191] as string;
+    writeFileSync(join(source, tail), 'last tracked input');
+    run = await createVerifySnapshot(source);
+    expect(readFileSync(join(run, tail), 'utf8')).toBe('last tracked input');
+    expect(readFileSync(join(run, 'input'), 'utf8')).toBe('fixture');
+    expect(existsSync(join(run, paths[0] as string))).toBe(false);
+  } finally {
+    for (const path of [run === undefined ? undefined : dirname(run), source])
+      if (path) removeTree(path, { whenLocked: 'leave' });
+  }
+});
