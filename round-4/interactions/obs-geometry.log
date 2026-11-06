@@ -1,0 +1,16 @@
+$ bun run libs/secrets-server-ts/scripts/obs.ts last
+obs/v1
+source: /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.observability
+utc-range: 2026-11-06T17:58:04.217Z .. 2026-11-06T18:08:04.217Z (UTC)
+No recent activity in this range.
+next: bun obs last --window 24h
+nearby-activity: none
+error: script "obs" exited with code 1
+$ bun run libs/secrets-server-ts/scripts/obs.ts last --window "24h"
+obs/v1
+source: /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.observability
+utc-range: 2026-11-05T18:08:04.421Z .. 2026-11-06T18:08:04.421Z (UTC)
+No recent activity in this range.
+next: bun obs last --window 24h
+nearby-activity: none
+error: script "obs" exited with code 1

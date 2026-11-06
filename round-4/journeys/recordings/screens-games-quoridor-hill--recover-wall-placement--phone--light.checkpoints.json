@@ -1,0 +1,270 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [6] toBeLessThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [10] toEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [12] toEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [14] toEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [16] toEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [18] toEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [19] findByTestId"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [20] click"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [23] click"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [26] type"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [27] findByTestId"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [29] toEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [30] click"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [31] findByTestId"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [33] toHaveTextContent"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [36] click"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [39] type"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [40] findByTestId"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [42] toEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [43] click"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [46] toEqual"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [48] click"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [49] findByTestId"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--recover-wall-placement [51] toBeEnabled"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light--026.png",
+    "capturedFrame": true
+  }
+]

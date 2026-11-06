@@ -1,0 +1,14 @@
+{
+  "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041",
+  "runId": 42271653228,
+  "url": "https://github.com/crvouga/gamezilla/actions/runs/42271653228",
+  "observedAt": "2026-11-06T18:58:40.488255+00:00",
+  "status": "in_progress",
+  "conclusion": "",
+  "authoring": "success",
+  "collectReferencePatch": "success",
+  "sameHeadComparison": "in_progress",
+  "referencesAccepted": 0,
+  "reason": "Authoring succeeded; same-head comparison is still running. No polling loop or acceptance claim. Public completed log/export review remains pending; old-head references were not applied.",
+  "bucketDownloadAvailable": false
+}

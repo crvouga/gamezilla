@@ -1,0 +1,473 @@
+[
+  {
+    "journeyId": "J1",
+    "component": "ChessGameBoard",
+    "goal": "Chess: select piece, legal destination, observe move; promotion and orientation",
+    "source": "libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "stories": [
+      "screens-games-chess-board--opening",
+      "screens-games-chess-board--your-turn",
+      "screens-games-chess-board--early-game",
+      "screens-games-chess-board--waiting-for-opponent",
+      "screens-games-chess-board--in-check",
+      "screens-games-chess-board--watching",
+      "screens-games-chess-board--checkmated",
+      "screens-games-chess-board--stalemate",
+      "screens-games-chess-board--insufficient-material",
+      "screens-games-chess-board--promotion-choice"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-chess-board--promotion-choice"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Promotion choice and board guidance are exercised; ordinary full-match and network turn progression are not established.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "40 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 40 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 40,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 40,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J2",
+    "component": "ChessPuzzleBoard",
+    "goal": "Chess puzzle: make solution moves; recover wrong move; hint",
+    "source": "libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "stories": [
+      "screens-puzzles-chess-play--solving",
+      "screens-puzzles-chess-play--hint",
+      "screens-puzzles-chess-play--solution-shown",
+      "screens-puzzles-chess-play--solve-journey",
+      "screens-puzzles-chess-play--wrong-move-recovery"
+    ],
+    "representativeInteractionStories": [
+      "screens-puzzles-chess-play--solve-journey",
+      "screens-puzzles-chess-play--wrong-move-recovery"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Puzzle fixture completion and wrong-move recovery; persisted attempt history and overview navigation remain outside this Storybook evidence.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "23 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 23 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 23,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 23,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J3",
+    "component": "ConnectFourGameBoard",
+    "goal": "Drop a disc into a non-full column and observe turn/result",
+    "source": "libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "stories": [
+      "screens-games-connect-four-board--opening",
+      "screens-games-connect-four-board--your-turn",
+      "screens-games-connect-four-board--waiting-for-opponent",
+      "screens-games-connect-four-board--watching",
+      "screens-games-connect-four-board--won",
+      "screens-games-connect-four-board--lost",
+      "screens-games-connect-four-board--full-board-draw",
+      "screens-games-connect-four-board--drop-a-disc",
+      "screens-games-connect-four-board--full-column",
+      "screens-games-connect-four-board--connect-four-to-win"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-connect-four-board--connect-four-to-win"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Storybook exercises production components and deterministic fixture rules; live transport and persisted cross-session recovery are outside this board-only verification.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "40 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 40 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 40,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 40,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J4",
+    "component": "BattleshipSetupBoard",
+    "goal": "Place and rotate full fleet; recover invalid placement; ready",
+    "source": "libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "stories": [
+      "screens-games-battleship-setup--empty",
+      "screens-games-battleship-setup--partial",
+      "screens-games-battleship-setup--complete",
+      "screens-games-battleship-setup--locked",
+      "screens-games-battleship-setup--refused-off-board",
+      "screens-games-battleship-setup--place-a-ship",
+      "screens-games-battleship-setup--arrange-full-fleet",
+      "screens-games-battleship-setup--enlarged-placement"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-battleship-setup--arrange-full-fleet",
+      "screens-games-battleship-setup--enlarged-placement"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Storybook exercises production components and deterministic fixture rules; live transport and persisted cross-session recovery are outside this board-only verification.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "35 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 35 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 35,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 35,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J5",
+    "component": "BattleshipBoard",
+    "goal": "Target untried square; observe hit/miss/sunk and turn",
+    "source": "libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "stories": [
+      "screens-games-battleship-board--opening",
+      "screens-games-battleship-board--your-turn",
+      "screens-games-battleship-board--waiting-for-opponent",
+      "screens-games-battleship-board--watching",
+      "screens-games-battleship-board--won",
+      "screens-games-battleship-board--lost",
+      "screens-games-battleship-board--fire-a-shot",
+      "screens-games-battleship-board--hit-a-ship",
+      "screens-games-battleship-board--sink-a-ship",
+      "screens-games-battleship-board--sink-the-fleet",
+      "screens-games-battleship-board--correct-target-before-firing"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-battleship-board--sink-the-fleet",
+      "screens-games-battleship-board--correct-target-before-firing"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Storybook exercises production components and deterministic fixture rules; live transport and persisted cross-session recovery are outside this board-only verification.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "46 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 46 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 46,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 46,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J6",
+    "component": "NumberlinkPlayer",
+    "goal": "Draw all matching paths covering board; cancel/remove and recover",
+    "source": "libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "stories": [
+      "screens-games-numberlink-puzzle--fresh",
+      "screens-games-numberlink-puzzle--in-progress",
+      "screens-games-numberlink-puzzle--solved",
+      "screens-games-numberlink-puzzle--disabled",
+      "screens-games-numberlink-puzzle--unreadable",
+      "screens-games-numberlink-puzzle--complete-with-keyboard",
+      "screens-games-numberlink-puzzle--recover-with-pointer"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-numberlink-puzzle--recover-with-pointer"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Pointer recovery uses synthetic touch events with native pointer capture stubbed; trusted touch capture, cross-session persistence and shared undo/redo remain unproven. Keyboard completion has a separate matrix story.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "30 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 30 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 30,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 30,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J7",
+    "component": "SokobanPlayer",
+    "goal": "Move and push every crate onto goals; recover blocked move; undo/redo",
+    "source": "libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "stories": [
+      "screens-games-sokoban-puzzle--fresh",
+      "screens-games-sokoban-puzzle--in-progress",
+      "screens-games-sokoban-puzzle--solved",
+      "screens-games-sokoban-puzzle--disabled",
+      "screens-games-sokoban-puzzle--unreadable",
+      "screens-games-sokoban-puzzle--blocked-move",
+      "screens-games-sokoban-puzzle--solve-with-keyboard",
+      "screens-games-sokoban-puzzle--corner-recovery"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-sokoban-puzzle--corner-recovery"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Local production-rule history fixture exercises corner recovery, undo, redo, solving and restart; shared persisted mutation history and touch/swipe completion remain unproven.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "35 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 35 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 35,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 35,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J8",
+    "component": "QuoridorBoard",
+    "goal": "Move pawn and place/rotate valid wall; reach opposite edge",
+    "source": "libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "stories": [
+      "screens-games-quoridor-classic--opening",
+      "screens-games-quoridor-classic--your-turn",
+      "screens-games-quoridor-classic--waiting-for-opponent",
+      "screens-games-quoridor-classic--watching",
+      "screens-games-quoridor-classic--won",
+      "screens-games-quoridor-classic--lost",
+      "screens-games-quoridor-classic--place-a-wall",
+      "screens-games-quoridor-classic--reach-opposite-edge",
+      "screens-games-quoridor-classic--keep-a-path-open",
+      "screens-games-quoridor-classic--pawn-identity-and-keyboard",
+      "screens-games-quoridor-classic--precise-coordinates"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-quoridor-classic--reach-opposite-edge",
+      "screens-games-quoridor-classic--place-a-wall",
+      "screens-games-quoridor-classic--precise-coordinates"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Storybook exercises production components and deterministic fixture rules; live transport and persisted cross-session recovery are outside this board-only verification.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "47 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 47 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 47,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 47,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J9",
+    "component": "QuoridorBoard",
+    "goal": "Move to hill, place walls and pass when required",
+    "source": "libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "stories": [
+      "screens-games-quoridor-hill--opening",
+      "screens-games-quoridor-hill--must-pass",
+      "screens-games-quoridor-hill--waiting-for-others",
+      "screens-games-quoridor-hill--won",
+      "screens-games-quoridor-hill--lost",
+      "screens-games-quoridor-hill--precise-coordinates",
+      "screens-games-quoridor-hill--pass-and-continue",
+      "screens-games-quoridor-hill--four-player-round",
+      "screens-games-quoridor-hill--reach-the-hill",
+      "screens-games-quoridor-hill--recover-wall-placement"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-quoridor-hill--reach-the-hill",
+      "screens-games-quoridor-hill--four-player-round",
+      "screens-games-quoridor-hill--pass-and-continue",
+      "screens-games-quoridor-hill--recover-wall-placement",
+      "screens-games-quoridor-hill--precise-coordinates"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Storybook exercises production components and deterministic fixture rules; live transport and persisted cross-session recovery are outside this board-only verification.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "42 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 42 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 42,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 42,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J10",
+    "component": "WordTilesBoardView",
+    "goal": "Place and submit valid word; blank assignment; exchange/pass; recover word-list failure",
+    "source": "libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "stories": [
+      "screens-games-word-tiles-board--opening",
+      "screens-games-word-tiles-board--your-turn",
+      "screens-games-word-tiles-board--waiting-for-opponent",
+      "screens-games-word-tiles-board--watching",
+      "screens-games-word-tiles-board--word-list-unavailable",
+      "screens-games-word-tiles-board--four-players",
+      "screens-games-word-tiles-board--game-over",
+      "screens-games-word-tiles-board--unreadable",
+      "screens-games-word-tiles-board--place-a-word",
+      "screens-games-word-tiles-board--checking-words",
+      "screens-games-word-tiles-board--three-players",
+      "screens-games-word-tiles-board--recall-and-restore",
+      "screens-games-word-tiles-board--assign-a-blank",
+      "screens-games-word-tiles-board--recover-and-submit",
+      "screens-games-word-tiles-board--accepted-pass",
+      "screens-games-word-tiles-board--accepted-exchange",
+      "screens-games-word-tiles-board--enlarged-coordinates"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-word-tiles-board--recover-and-submit",
+      "screens-games-word-tiles-board--accepted-pass",
+      "screens-games-word-tiles-board--accepted-exchange",
+      "screens-games-word-tiles-board--enlarged-coordinates"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Real resolveProposal/playEncoded fixture proves accepted CAT/score/turn, pass and exchange; retry is synchronous and does not prove asynchronous progress or live persistence.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "74 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 74 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 74,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 74,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J11",
+    "component": "WordTilesPuzzlePlayerView",
+    "goal": "Place a word meeting puzzle target; recover invalid placement",
+    "source": "libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "stories": [
+      "screens-games-word-tiles-puzzle--ready",
+      "screens-games-word-tiles-puzzle--after-a-move",
+      "screens-games-word-tiles-puzzle--disabled",
+      "screens-games-word-tiles-puzzle--word-list-unavailable",
+      "screens-games-word-tiles-puzzle--retry-word-list",
+      "screens-games-word-tiles-puzzle--unreadable",
+      "screens-games-word-tiles-puzzle--place-a-word",
+      "screens-games-word-tiles-puzzle--reach-target",
+      "screens-games-word-tiles-puzzle--enlarged-blank"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-word-tiles-puzzle--reach-target",
+      "screens-games-word-tiles-puzzle--retry-word-list"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Production placement evaluator proves retained draft retry and target completion; live lexicon loading and persisted attempts remain outside this evidence.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "38 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 38 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 38,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 38,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J12",
+    "component": "HeartsBoard",
+    "goal": "Select and pass three cards, then play legal card through trick",
+    "source": "libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "stories": [
+      "screens-games-hearts-board--passing",
+      "screens-games-hearts-board--passed-waiting-for-others",
+      "screens-games-hearts-board--your-turn-to-play",
+      "screens-games-hearts-board--waiting-for-turn",
+      "screens-games-hearts-board--trick-taken",
+      "screens-games-hearts-board--cards-on-their-way",
+      "screens-games-hearts-board--watching",
+      "screens-games-hearts-board--game-over",
+      "screens-games-hearts-board--pass-three-cards",
+      "screens-games-hearts-board--pass-sending",
+      "screens-games-hearts-board--complete-trick",
+      "screens-games-hearts-board--pass-acknowledged",
+      "screens-games-hearts-board--pass-through-first-trick"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-hearts-board--pass-through-first-trick"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Real legal-card rules drive accepted pass and first trick with rotating identities; a full hand/match and network acknowledgement remain unproven.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "55 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 55 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 55,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 55,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J13",
+    "component": "PongBoardView",
+    "goal": "Control paddle, return ball, score; resume after reconnect",
+    "source": "libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "stories": [
+      "screens-games-pong-court--countdown",
+      "screens-games-pong-court--rally",
+      "screens-games-pong-court--serve-after-point",
+      "screens-games-pong-court--match-point",
+      "screens-games-pong-court--paused",
+      "screens-games-pong-court--reconnecting",
+      "screens-games-pong-court--two-players-on-one-device",
+      "screens-games-pong-court--watching",
+      "screens-games-pong-court--finished",
+      "screens-games-pong-court--unreadable",
+      "screens-games-pong-court--paddle-movement",
+      "screens-games-pong-court--return-score-and-reconnect"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-pong-court--return-score-and-reconnect"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Controlled production-rule score/reconnect fixture; live real-time transport recovery remains unproven.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "48 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 48 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 48,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 48,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "journeyId": "J14",
+    "component": "LightCyclesBoardView",
+    "goal": "Steer safely, crash/round result; reconnect and resume",
+    "source": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "stories": [
+      "screens-games-light-cycles-arena--countdown",
+      "screens-games-light-cycles-arena--riding",
+      "screens-games-light-cycles-arena--crashed",
+      "screens-games-light-cycles-arena--round-over",
+      "screens-games-light-cycles-arena--finished",
+      "screens-games-light-cycles-arena--reconnecting",
+      "screens-games-light-cycles-arena--riding-elsewhere",
+      "screens-games-light-cycles-arena--watching",
+      "screens-games-light-cycles-arena--two-riders-on-one-device",
+      "screens-games-light-cycles-arena--unreadable",
+      "screens-games-light-cycles-arena--steer-up",
+      "screens-games-light-cycles-arena--duel-steering",
+      "screens-games-light-cycles-arena--quad-steering",
+      "screens-games-light-cycles-arena--shared-keyboard",
+      "screens-games-light-cycles-arena--collision-through-next-round",
+      "screens-games-light-cycles-arena--resumed-steering",
+      "screens-games-light-cycles-arena--shared-swipe"
+    ],
+    "representativeInteractionStories": [
+      "screens-games-light-cycles-arena--collision-through-next-round",
+      "screens-games-light-cycles-arena--resumed-steering",
+      "screens-games-light-cycles-arena--shared-swipe"
+    ],
+    "videoStatus": "See exact-head audited video manifest",
+    "remainingJourneyGap": "Production step rules drive collision, result, next round and resumed steering; live transport reconnection remains unproven.",
+    "ubuntuStatus": "See round-four ubuntu/verdict.json; prior-round references not applied",
+    "status": "72 canonical cases passed native readiness/play, browser-error and serious/critical axe. Pixels: 0 passed, 72 failed; no macOS acceptance.",
+    "finalMatrix": {
+      "cases": 72,
+      "interactionAccessibilityFailures": 0,
+      "pixelFailures": 72,
+      "pixelPasses": 0
+    },
+    "evidenceCodeRevision": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  }
+]

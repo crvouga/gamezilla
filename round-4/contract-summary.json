@@ -1,0 +1,27 @@
+{
+  "newSlices": {
+    "BattleshipPlacementLayout": [
+      "controls",
+      "working",
+      "overview",
+      "overviewLabel"
+    ],
+    "WordTileWorkbench": [
+      "children"
+    ]
+  },
+  "requiredNewProps": {
+    "WordTilesPuzzlePlayerView": [
+      "onReturnToLibrary"
+    ]
+  },
+  "newStoryExportsWithoutErrors": [
+    "screens-games-quoridor-classic--precise-coordinates",
+    "screens-games-quoridor-hill--precise-coordinates",
+    "screens-games-word-tiles-puzzle--retry-word-list",
+    "games-battleship-placement-layout--enlarged",
+    "product-wordtileworkbench--recovery"
+  ],
+  "status": "verified against final static build",
+  "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+}

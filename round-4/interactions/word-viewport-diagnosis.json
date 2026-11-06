@@ -1,0 +1,48 @@
+{
+  "error": "expected 283 to be less than or equal to 262",
+  "cellId": "custom-game-board-cell-h8",
+  "cell": {
+    "x": 231,
+    "y": 598.4375,
+    "width": 52,
+    "height": 52,
+    "top": 598.4375,
+    "right": 283,
+    "bottom": 650.4375,
+    "left": 231
+  },
+  "board": {
+    "x": -161,
+    "y": 198.4375,
+    "width": 819,
+    "height": 827,
+    "top": 198.4375,
+    "right": 658,
+    "bottom": 1025.4375,
+    "left": -161
+  },
+  "viewport": {
+    "x": 16,
+    "y": 574.4375,
+    "width": 246,
+    "height": 260,
+    "top": 574.4375,
+    "right": 262,
+    "bottom": 834.4375,
+    "left": 16
+  },
+  "overview": {
+    "x": 270,
+    "y": 574.4375,
+    "width": 104,
+    "height": 104,
+    "top": 574.4375,
+    "right": 374,
+    "bottom": 678.4375,
+    "left": 270
+  },
+  "scrollLeft": 177,
+  "scrollTop": 376,
+  "scrollWidth": 819,
+  "clientWidth": 246
+}

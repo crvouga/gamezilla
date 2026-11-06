@@ -1,0 +1,24 @@
+$ turbo run //#task:i18n:extract --
+
+   • turbo 2.11.10
+   • Packages in scope: //
+   • Running //#task:i18n:extract in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+//:task:i18n:extract: cache bypass, force executing f64cc4fdf3dc0fd2
+//:task:i18n:extract: $ lingui extract --clean --overwrite
+//:task:i18n:extract: ✔ Done in 1s
+//:task:i18n:extract: Catalog statistics for libs/app-root-shared-ts/locales/{locale}/messages: 
+//:task:i18n:extract: ┌─────────────┬─────────────┬─────────┐
+//:task:i18n:extract: │[32m Language    [39m│[32m Total count [39m│[32m Missing [39m│
+//:task:i18n:extract: ├─────────────┼─────────────┼─────────┤
+//:task:i18n:extract: │ en (source) │    2130     │    -    │
+//:task:i18n:extract: └─────────────┴─────────────┴─────────┘
+//:task:i18n:extract: 
+//:task:i18n:extract: (Use "npm run task:i18n:extract" to update catalogs with new messages.)
+//:task:i18n:extract: (Use "npm run task:i18n:compile" to compile catalogs for production. Alternatively, use bundler plugins: https://lingui.dev/ref/cli#compiling-catalogs-in-ci)
+
+ Tasks:    1 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    2.866s 
+

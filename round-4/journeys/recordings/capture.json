@@ -1,0 +1,689 @@
+{
+  "stories": [
+    "screens-games-battleship-board--sink-the-fleet",
+    "screens-games-battleship-setup--arrange-full-fleet",
+    "screens-puzzles-chess-play--solve-journey",
+    "screens-games-chess-board--promotion-choice",
+    "screens-games-connect-four-board--connect-four-to-win",
+    "screens-games-hearts-board--pass-through-first-trick",
+    "screens-games-light-cycles-arena--collision-through-next-round",
+    "screens-games-numberlink-puzzle--recover-with-pointer",
+    "screens-games-pong-court--return-score-and-reconnect",
+    "screens-games-quoridor-hill--reach-the-hill",
+    "screens-games-quoridor-classic--reach-opposite-edge",
+    "screens-games-sokoban-puzzle--corner-recovery",
+    "screens-games-word-tiles-board--recover-and-submit",
+    "screens-games-word-tiles-puzzle--reach-target",
+    "screens-games-light-cycles-arena--resumed-steering",
+    "screens-games-battleship-board--correct-target-before-firing",
+    "screens-games-word-tiles-board--accepted-pass",
+    "screens-games-word-tiles-board--accepted-exchange",
+    "screens-puzzles-chess-play--wrong-move-recovery",
+    "screens-games-battleship-setup--enlarged-placement",
+    "screens-games-quoridor-classic--place-a-wall",
+    "screens-games-quoridor-hill--four-player-round",
+    "screens-games-quoridor-hill--pass-and-continue",
+    "screens-games-quoridor-hill--recover-wall-placement",
+    "screens-games-word-tiles-board--enlarged-coordinates",
+    "screens-games-light-cycles-arena--shared-swipe",
+    "screens-games-quoridor-classic--precise-coordinates",
+    "screens-games-quoridor-hill--precise-coordinates",
+    "screens-games-word-tiles-puzzle--retry-word-list"
+  ],
+  "viewports": [
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "themes": [
+    "light"
+  ],
+  "globals": "",
+  "files": [
+    {
+      "file": "screens-games-battleship-board--sink-the-fleet--phone--light.png",
+      "story": "screens-games-battleship-board--sink-the-fleet",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-board--sink-the-fleet&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-board--sink-the-fleet--desktop--light.png",
+      "story": "screens-games-battleship-board--sink-the-fleet",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-board--sink-the-fleet&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-setup--arrange-full-fleet--phone--light.png",
+      "story": "screens-games-battleship-setup--arrange-full-fleet",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--arrange-full-fleet&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-setup--arrange-full-fleet--desktop--light.png",
+      "story": "screens-games-battleship-setup--arrange-full-fleet",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--arrange-full-fleet&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-puzzles-chess-play--solve-journey--phone--light.png",
+      "story": "screens-puzzles-chess-play--solve-journey",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-puzzles-chess-play--solve-journey&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-puzzles-chess-play--solve-journey--desktop--light.png",
+      "story": "screens-puzzles-chess-play--solve-journey",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-puzzles-chess-play--solve-journey&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-chess-board--promotion-choice--phone--light.png",
+      "story": "screens-games-chess-board--promotion-choice",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-chess-board--promotion-choice&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-chess-board--promotion-choice--desktop--light.png",
+      "story": "screens-games-chess-board--promotion-choice",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-chess-board--promotion-choice&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-connect-four-board--connect-four-to-win--phone--light.png",
+      "story": "screens-games-connect-four-board--connect-four-to-win",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-connect-four-board--connect-four-to-win&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-connect-four-board--connect-four-to-win--desktop--light.png",
+      "story": "screens-games-connect-four-board--connect-four-to-win",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-connect-four-board--connect-four-to-win&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-hearts-board--pass-through-first-trick--phone--light.png",
+      "story": "screens-games-hearts-board--pass-through-first-trick",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-hearts-board--pass-through-first-trick&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-hearts-board--pass-through-first-trick--desktop--light.png",
+      "story": "screens-games-hearts-board--pass-through-first-trick",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-hearts-board--pass-through-first-trick&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--collision-through-next-round--phone--light.png",
+      "story": "screens-games-light-cycles-arena--collision-through-next-round",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--collision-through-next-round&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--collision-through-next-round--desktop--light.png",
+      "story": "screens-games-light-cycles-arena--collision-through-next-round",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--collision-through-next-round&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-numberlink-puzzle--recover-with-pointer--phone--light.png",
+      "story": "screens-games-numberlink-puzzle--recover-with-pointer",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-numberlink-puzzle--recover-with-pointer&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light.png",
+      "story": "screens-games-numberlink-puzzle--recover-with-pointer",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-numberlink-puzzle--recover-with-pointer&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-pong-court--return-score-and-reconnect--phone--light.png",
+      "story": "screens-games-pong-court--return-score-and-reconnect",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-pong-court--return-score-and-reconnect&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light.png",
+      "story": "screens-games-pong-court--return-score-and-reconnect",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-pong-court--return-score-and-reconnect&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--reach-the-hill--phone--light.png",
+      "story": "screens-games-quoridor-hill--reach-the-hill",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--reach-the-hill&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--reach-the-hill--desktop--light.png",
+      "story": "screens-games-quoridor-hill--reach-the-hill",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--reach-the-hill&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light.png",
+      "story": "screens-games-quoridor-classic--reach-opposite-edge",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--reach-opposite-edge&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--reach-opposite-edge--desktop--light.png",
+      "story": "screens-games-quoridor-classic--reach-opposite-edge",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--reach-opposite-edge&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light.png",
+      "story": "screens-games-sokoban-puzzle--corner-recovery",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-sokoban-puzzle--corner-recovery&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-sokoban-puzzle--corner-recovery--desktop--light.png",
+      "story": "screens-games-sokoban-puzzle--corner-recovery",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-sokoban-puzzle--corner-recovery&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--recover-and-submit--phone--light.png",
+      "story": "screens-games-word-tiles-board--recover-and-submit",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--recover-and-submit&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light.png",
+      "story": "screens-games-word-tiles-board--recover-and-submit",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--recover-and-submit&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-puzzle--reach-target--phone--light.png",
+      "story": "screens-games-word-tiles-puzzle--reach-target",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-puzzle--reach-target&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light.png",
+      "story": "screens-games-word-tiles-puzzle--reach-target",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-puzzle--reach-target&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--resumed-steering--phone--light.png",
+      "story": "screens-games-light-cycles-arena--resumed-steering",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--resumed-steering&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--resumed-steering--desktop--light.png",
+      "story": "screens-games-light-cycles-arena--resumed-steering",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--resumed-steering&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-board--correct-target-before-firing--phone--light.png",
+      "story": "screens-games-battleship-board--correct-target-before-firing",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-board--correct-target-before-firing&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-board--correct-target-before-firing--desktop--light.png",
+      "story": "screens-games-battleship-board--correct-target-before-firing",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-board--correct-target-before-firing&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--accepted-pass--phone--light.png",
+      "story": "screens-games-word-tiles-board--accepted-pass",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--accepted-pass&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--accepted-pass--desktop--light.png",
+      "story": "screens-games-word-tiles-board--accepted-pass",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--accepted-pass&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--accepted-exchange--phone--light.png",
+      "story": "screens-games-word-tiles-board--accepted-exchange",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--accepted-exchange&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light.png",
+      "story": "screens-games-word-tiles-board--accepted-exchange",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--accepted-exchange&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-puzzles-chess-play--wrong-move-recovery--phone--light.png",
+      "story": "screens-puzzles-chess-play--wrong-move-recovery",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light.png",
+      "story": "screens-puzzles-chess-play--wrong-move-recovery",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-setup--enlarged-placement--phone--light.png",
+      "story": "screens-games-battleship-setup--enlarged-placement",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--enlarged-placement&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-setup--enlarged-placement--desktop--light.png",
+      "story": "screens-games-battleship-setup--enlarged-placement",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--enlarged-placement&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--place-a-wall--phone--light.png",
+      "story": "screens-games-quoridor-classic--place-a-wall",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--place-a-wall&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--place-a-wall--desktop--light.png",
+      "story": "screens-games-quoridor-classic--place-a-wall",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--place-a-wall&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--four-player-round--phone--light.png",
+      "story": "screens-games-quoridor-hill--four-player-round",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--four-player-round&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--four-player-round--desktop--light.png",
+      "story": "screens-games-quoridor-hill--four-player-round",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--four-player-round&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--pass-and-continue--phone--light.png",
+      "story": "screens-games-quoridor-hill--pass-and-continue",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--pass-and-continue&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--pass-and-continue--desktop--light.png",
+      "story": "screens-games-quoridor-hill--pass-and-continue",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--pass-and-continue&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light.png",
+      "story": "screens-games-quoridor-hill--recover-wall-placement",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--recover-wall-placement&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--recover-wall-placement--desktop--light.png",
+      "story": "screens-games-quoridor-hill--recover-wall-placement",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--recover-wall-placement&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--enlarged-coordinates--phone--light.png",
+      "story": "screens-games-word-tiles-board--enlarged-coordinates",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--enlarged-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--enlarged-coordinates--desktop--light.png",
+      "story": "screens-games-word-tiles-board--enlarged-coordinates",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--enlarged-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--shared-swipe--phone--light.png",
+      "story": "screens-games-light-cycles-arena--shared-swipe",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--shared-swipe&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light.png",
+      "story": "screens-games-light-cycles-arena--shared-swipe",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-light-cycles-arena--shared-swipe&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--precise-coordinates--phone--light.png",
+      "story": "screens-games-quoridor-classic--precise-coordinates",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--precise-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light.png",
+      "story": "screens-games-quoridor-classic--precise-coordinates",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-classic--precise-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--precise-coordinates--phone--light.png",
+      "story": "screens-games-quoridor-hill--precise-coordinates",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--precise-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-quoridor-hill--precise-coordinates--desktop--light.png",
+      "story": "screens-games-quoridor-hill--precise-coordinates",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-quoridor-hill--precise-coordinates&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-puzzle--retry-word-list--phone--light.png",
+      "story": "screens-games-word-tiles-puzzle--retry-word-list",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-puzzle--retry-word-list&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-puzzle--retry-word-list--desktop--light.png",
+      "story": "screens-games-word-tiles-puzzle--retry-word-list",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-puzzle--retry-word-list&viewMode=story&instrument=true&globals=theme:light"
+    }
+  ]
+}

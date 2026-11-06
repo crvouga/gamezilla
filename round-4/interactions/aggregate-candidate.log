@@ -1,0 +1,11 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/game-puzzle-client-ts, @libs/hearts-client-ts, @libs/quoridor-client-ts, @libs/runtime-harness-ts, @libs/word-tiles-client-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 8 packages
+   • Remote caching disabled, using shared worktree cache
+
+
+ Tasks:    24 successful, 24 total
+Cached:    24 cached, 24 total
+  Time:    480ms >>> FULL TURBO
+

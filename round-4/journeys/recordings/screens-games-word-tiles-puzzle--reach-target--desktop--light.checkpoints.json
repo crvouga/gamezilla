@@ -1,0 +1,190 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [7] toBeDisabled"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [9] click"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [11] click"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [13] click"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [16] toBeDisabled"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [18] click"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [21] toHaveTextContent"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [24] toBeEnabled"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [26] click"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [29] toHaveTextContent"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [32] toHaveTextContent"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [35] toBeInTheDocument"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [38] toHaveAccessibleName"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [41] toBeVisible"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [42] click"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--reach-target [44] toHaveBeenCalledOnce"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--reach-target--desktop--light--018.png",
+    "capturedFrame": true
+  }
+]

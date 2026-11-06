@@ -1,0 +1,70 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [3] findByTestId"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [5] toHaveAccessibleName"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [6] findByText"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--reach-the-hill [8] toBeVisible"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light--006.png",
+    "capturedFrame": true
+  }
+]

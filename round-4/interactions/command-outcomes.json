@@ -1,0 +1,62 @@
+[
+  {
+    "name": "verify",
+    "command": [
+      "bun",
+      "verify"
+    ],
+    "exitCode": 1,
+    "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "name": "aggregate-candidate",
+    "command": [
+      "bunx",
+      "turbo",
+      "run",
+      "lint",
+      "tc",
+      "test",
+      "--filter=@libs/battleship-client-ts",
+      "--filter=@libs/hearts-client-ts",
+      "--filter=@libs/quoridor-client-ts",
+      "--filter=@libs/word-tiles-client-ts",
+      "--filter=@libs/game-puzzle-client-ts",
+      "--filter=@pkgs/ui-root-client-ts",
+      "--filter=@pkgs/ui-root-harness-ts",
+      "--filter=@libs/runtime-harness-ts",
+      "--only",
+      "--concurrency=1",
+      "--continue=always"
+    ],
+    "exitCode": 0,
+    "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "name": "build-final",
+    "command": [
+      "bunx",
+      "turbo",
+      "run",
+      "storybook:build",
+      "--filter=@pkgs/ui-root-harness-ts",
+      "--concurrency=1"
+    ],
+    "exitCode": 0,
+    "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041"
+  },
+  {
+    "name": "coverage-candidate",
+    "command": [
+      "bunx",
+      "turbo",
+      "run",
+      "storybook:coverage",
+      "--filter=@pkgs/ui-root-harness-ts",
+      "--only",
+      "--concurrency=1"
+    ],
+    "candidateSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041",
+    "exitCode": 1
+  }
+]

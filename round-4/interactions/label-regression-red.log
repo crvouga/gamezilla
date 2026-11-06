@@ -1,0 +1,55 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/quoridor-client-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/quoridor-client-ts:test: cache miss, executing 236425a190b29a93
+@libs/quoridor-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/quoridor-client-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test: tests/quoridor-pass-recovery.test.tsx:
+@libs/quoridor-client-ts:test: (pass) an exhausted blocked player is directed straight to the sole pass action [13.98ms]
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test: tests/quoridor-hill-pass-guidance.test.tsx:
+@libs/quoridor-client-ts:test: (pass) a forced Hill pass has one action and no contradictory move guidance [3.91ms]
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test: tests/quoridor-board-regressions.test.tsx:
+@libs/quoridor-client-ts:test: (pass) an accepted wall clears its preview instead of reporting an overlap [13.27ms]
+@libs/quoridor-client-ts:test: (pass) outside wall anchors never paint a partial wall preview [0.12ms]
+@libs/quoridor-client-ts:test: (pass) a finished hill game never announces the next player to move [5.66ms]
+@libs/quoridor-client-ts:test: (pass) the turn line names the pawn to move and where it is heading [0.09ms]
+@libs/quoridor-client-ts:test: (pass) the tools are the board’s actions, one pressed, and choosing one keeps the board [4.15ms]
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test: tests/quoridor-precision.test.tsx:
+@libs/quoridor-client-ts:test: (pass) opening destinations and d4 wall anchor have precise coordinate choices [34.44ms]
+@libs/quoridor-client-ts:test: (pass) wall modes, target and confirmation share the working board container [4.64ms]
+@libs/quoridor-client-ts:test: (pass) Classic goal row and Hill center do not use the heavy physical outline [0.16ms]
+@libs/quoridor-client-ts:test: 113 |   for (const name of ['Horizontal wall', 'Vertical wall']) {
+@libs/quoridor-client-ts:test: 114 |     const button = view.getByRole('button', { name });
+@libs/quoridor-client-ts:test: 115 |     expect(name.toLowerCase()).toContain(button.textContent!.trim().toLowerCase());
+@libs/quoridor-client-ts:test: 116 |   }
+@libs/quoridor-client-ts:test: 117 |   view.unmount();
+@libs/quoridor-client-ts:test: 118 | });
+@libs/quoridor-client-ts:test:                                      ^
+@libs/quoridor-client-ts:test: error: expect(received).toContain(expected)
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test: Expected to contain: "wall across"
+@libs/quoridor-client-ts:test: Received: "horizontal wall"
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/tests/quoridor-precision.test.tsx:118:32)
+@libs/quoridor-client-ts:test: (fail) compact wall labels remain within their spoken control names [10.76ms]
+@libs/quoridor-client-ts:test: 
+@libs/quoridor-client-ts:test:  10 pass
+@libs/quoridor-client-ts:test:  1 fail
+@libs/quoridor-client-ts:test:  60 expect() calls
+@libs/quoridor-client-ts:test: Ran 11 tests across 4 files. [455.00ms]
+@libs/quoridor-client-ts:test: error: script "test" exited with code 1
+@libs/quoridor-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1s 
+Failed:    @libs/quoridor-client-ts#test
+
+ ERROR  run failed: command  exited (1)

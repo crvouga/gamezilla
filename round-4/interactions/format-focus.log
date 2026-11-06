@@ -1,0 +1,26 @@
+pkgs/ui-root-client-ts/src/word-tile-board/index.tsx:109:8 lint/complexity/noExcessiveLinesPerFunction ━━━━━━━━━━
+
+  × This function has too many lines (72). Maximum allowed is 70.
+  
+    107 │  * activates. It fits its container, shrinking its squares on small screens.
+    108 │  */
+  > 109 │ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+        │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 110 │   const [selectedIndex, setFocusIndex] = createSignal<number>();
+         ...
+  > 217 │     </StackVertical>
+  > 218 │   );
+  > 219 │ }
+        │ ^
+    220 │ 
+  
+  i Consider refactoring this function to split it into smaller functions.
+  
+
+Checked 2 files in 3s. No fixes applied.
+Found 1 error.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while applying fixes.
+  
+

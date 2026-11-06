@@ -1,0 +1,460 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [6] toBeLessThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [10] toEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [12] toEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [14] toEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [16] toEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [18] toEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [22] toHaveAttribute"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [24] toHaveAttribute"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [26] toBe"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [28] toBe"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [30] toBe"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [33] click"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [36] findByTestId"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [38] toEqual"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [39] click"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [42] toHaveAccessibleName"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [44] click"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [46] findByTestId"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [50] toBeLessThanOrEqual"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--019.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [52] toBeLessThanOrEqual"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--019.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [54] toEqual"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [56] toEqual"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [58] toEqual"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [60] toEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [62] toEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--026.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [65] click"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--027.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [68] type"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [69] findByTestId"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [71] toEqual"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [72] click"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [75] toHaveAttribute"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [77] toHaveAttribute"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [80] toEqual"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [83] toEqual"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [85] click"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [87] toHaveAttribute"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [90] click"
+    ],
+    "cursor": 91,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [93] type"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [94] findByTestId"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [96] toEqual"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [97] click"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [99] click"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--043.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--precise-coordinates [101] toHaveAttribute"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--044.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--precise-coordinates--desktop--light--045.png",
+    "capturedFrame": true
+  }
+]

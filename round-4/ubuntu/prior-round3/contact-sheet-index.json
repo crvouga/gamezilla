@@ -1,0 +1,553 @@
+[
+  {
+    "file": "games-cellgridboard-boundary-contrast-01.jpg",
+    "references": [
+      "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/games-cellgridboard-boundary-contrast/open-water-dark.png",
+      "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/games-cellgridboard-boundary-contrast/open-water-light.png"
+    ]
+  },
+  {
+    "file": "product-cardtable-01.jpg",
+    "references": [
+      "pkgs/ui-root-client-ts/src/card-table/baselines/chromium/product-cardtable/states-dark.png",
+      "pkgs/ui-root-client-ts/src/card-table/baselines/chromium/product-cardtable/states-light.png"
+    ]
+  },
+  {
+    "file": "product-cellgridboard-01.jpg",
+    "references": [
+      "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/product-cellgridboard/states-dark.png",
+      "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/product-cellgridboard/states-light.png"
+    ]
+  },
+  {
+    "file": "product-wordtileboard-01.jpg",
+    "references": [
+      "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/enlarged-placement-dark.png",
+      "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/enlarged-placement-light.png",
+      "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/states-dark.png",
+      "pkgs/ui-root-client-ts/src/word-tile-board/baselines/chromium/product-wordtileboard/states-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-board-01.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/correct-target-before-firing-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/fire-a-shot-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/hit-a-ship-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-board-02.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/lost-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/opening-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-a-ship-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-board-03.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/sink-the-fleet-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/won-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-board/your-turn-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-setup-01.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/arrange-full-fleet-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/complete-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/empty-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-setup-02.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/enlarged-placement-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/locked-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/partial-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-battleship-setup-03.jpg",
+    "references": [
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/place-a-ship-light.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-dark-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-dark.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-light-1440.png",
+      "libs/battleship-client-ts/src/baselines/chromium/screens-games-battleship-setup/refused-off-board-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-hearts-board-01.jpg",
+    "references": [
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/cards-on-their-way-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-dark-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-light-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/complete-trick-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/game-over-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-acknowledged-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-sending-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-hearts-board-02.jpg",
+    "references": [
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-three-cards-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-dark-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-light-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/pass-through-first-trick-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passing-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/trick-taken-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-hearts-board-03.jpg",
+    "references": [
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/waiting-for-turn-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/watching-light.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-dark-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-dark.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light-1440.png",
+      "libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-01.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/collision-through-next-round-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/countdown-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/crashed-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-02.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/duel-steering-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/finished-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-03.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/reconnecting-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/resumed-steering-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-dark.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-04.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-elsewhere-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/riding-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/round-over-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-keyboard-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-05.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/shared-swipe-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/steer-up-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/two-riders-on-one-device-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-light-cycles-arena-06.jpg",
+    "references": [
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/unreadable-light.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-dark-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-dark.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-light-1440.png",
+      "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/watching-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-classic-01.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/keep-a-path-open-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/lost-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-classic-02.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/pawn-identity-and-keyboard-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/place-a-wall-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/reach-opposite-edge-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-classic-03.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/waiting-for-opponent-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/watching-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/won-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-classic-04.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/your-turn-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-hill-01.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/lost-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/must-pass-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-hill-02.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/pass-and-continue-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/reach-the-hill-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-quoridor-hill-03.jpg",
+    "references": [
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/recover-wall-placement-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/waiting-for-others-light.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-dark-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-dark.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-light-1440.png",
+      "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/won-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-01.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-exchange-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/accepted-pass-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-02.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/checking-words-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/four-players-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-03.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/game-over-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/place-a-word-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-04.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/three-players-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-05.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/waiting-for-opponent-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/watching-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/word-list-unavailable-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-board-06.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle-01.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/after-a-move-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/disabled-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle-02.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/place-a-word-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/ready-light.png"
+    ]
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle-03.jpg",
+    "references": [
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-dark-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-dark.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-light-1440.png",
+      "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/word-list-unavailable-light.png"
+    ]
+  },
+  {
+    "file": "screens-puzzles-chess-play-01.jpg",
+    "references": [
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-dark-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-dark.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-light-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/hint-light.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-dark-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-dark.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-light-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solution-shown-light.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-dark-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-dark.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-light-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solve-journey-light.png"
+    ]
+  },
+  {
+    "file": "screens-puzzles-chess-play-02.jpg",
+    "references": [
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-dark-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-dark.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-light-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/solving-light.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-dark-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-dark.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light-1440.png",
+      "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light.png"
+    ]
+  }
+]

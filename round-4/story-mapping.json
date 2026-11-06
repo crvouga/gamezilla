@@ -1,0 +1,938 @@
+[
+  {
+    "before": "screens-games-battleship-board--opening",
+    "after": "screens-games-battleship-board--opening",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--your-turn",
+    "after": "screens-games-battleship-board--your-turn",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--waiting-for-opponent",
+    "after": "screens-games-battleship-board--waiting-for-opponent",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--watching",
+    "after": "screens-games-battleship-board--watching",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--won",
+    "after": "screens-games-battleship-board--won",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--lost",
+    "after": "screens-games-battleship-board--lost",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--fire-a-shot",
+    "after": "screens-games-battleship-board--fire-a-shot",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--hit-a-ship",
+    "after": "screens-games-battleship-board--hit-a-ship",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--sink-a-ship",
+    "after": "screens-games-battleship-board--sink-a-ship",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--sink-the-fleet",
+    "after": "screens-games-battleship-board--sink-the-fleet",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-board--correct-target-before-firing",
+    "after": "screens-games-battleship-board--correct-target-before-firing",
+    "source": "../../libs/battleship-client-ts/src/battleship-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--empty",
+    "after": "screens-games-battleship-setup--empty",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--partial",
+    "after": "screens-games-battleship-setup--partial",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--complete",
+    "after": "screens-games-battleship-setup--complete",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--locked",
+    "after": "screens-games-battleship-setup--locked",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--refused-off-board",
+    "after": "screens-games-battleship-setup--refused-off-board",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--place-a-ship",
+    "after": "screens-games-battleship-setup--place-a-ship",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--arrange-full-fleet",
+    "after": "screens-games-battleship-setup--arrange-full-fleet",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-battleship-setup--enlarged-placement",
+    "after": "screens-games-battleship-setup--enlarged-placement",
+    "source": "../../libs/battleship-client-ts/src/battleship-setup-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-puzzles-chess-play--solving",
+    "after": "screens-puzzles-chess-play--solving",
+    "source": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-puzzles-chess-play--hint",
+    "after": "screens-puzzles-chess-play--hint",
+    "source": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-puzzles-chess-play--solution-shown",
+    "after": "screens-puzzles-chess-play--solution-shown",
+    "source": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-puzzles-chess-play--solve-journey",
+    "after": "screens-puzzles-chess-play--solve-journey",
+    "source": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-puzzles-chess-play--wrong-move-recovery",
+    "after": "screens-puzzles-chess-play--wrong-move-recovery",
+    "source": "../../libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--opening",
+    "after": "screens-games-chess-board--opening",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--your-turn",
+    "after": "screens-games-chess-board--your-turn",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--early-game",
+    "after": "screens-games-chess-board--early-game",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--waiting-for-opponent",
+    "after": "screens-games-chess-board--waiting-for-opponent",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--in-check",
+    "after": "screens-games-chess-board--in-check",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--watching",
+    "after": "screens-games-chess-board--watching",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--checkmated",
+    "after": "screens-games-chess-board--checkmated",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--stalemate",
+    "after": "screens-games-chess-board--stalemate",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--insufficient-material",
+    "after": "screens-games-chess-board--insufficient-material",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-chess-board--promotion-choice",
+    "after": "screens-games-chess-board--promotion-choice",
+    "source": "../../libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--opening",
+    "after": "screens-games-connect-four-board--opening",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--your-turn",
+    "after": "screens-games-connect-four-board--your-turn",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--waiting-for-opponent",
+    "after": "screens-games-connect-four-board--waiting-for-opponent",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--watching",
+    "after": "screens-games-connect-four-board--watching",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--won",
+    "after": "screens-games-connect-four-board--won",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--lost",
+    "after": "screens-games-connect-four-board--lost",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--full-board-draw",
+    "after": "screens-games-connect-four-board--full-board-draw",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--drop-a-disc",
+    "after": "screens-games-connect-four-board--drop-a-disc",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--full-column",
+    "after": "screens-games-connect-four-board--full-column",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-connect-four-board--connect-four-to-win",
+    "after": "screens-games-connect-four-board--connect-four-to-win",
+    "source": "../../libs/connect-four-client-ts/src/connect-four-presentation.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--passing",
+    "after": "screens-games-hearts-board--passing",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--passed-waiting-for-others",
+    "after": "screens-games-hearts-board--passed-waiting-for-others",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--your-turn-to-play",
+    "after": "screens-games-hearts-board--your-turn-to-play",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--waiting-for-turn",
+    "after": "screens-games-hearts-board--waiting-for-turn",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--trick-taken",
+    "after": "screens-games-hearts-board--trick-taken",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--cards-on-their-way",
+    "after": "screens-games-hearts-board--cards-on-their-way",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--watching",
+    "after": "screens-games-hearts-board--watching",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--game-over",
+    "after": "screens-games-hearts-board--game-over",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--pass-three-cards",
+    "after": "screens-games-hearts-board--pass-three-cards",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--pass-sending",
+    "after": "screens-games-hearts-board--pass-sending",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--complete-trick",
+    "after": "screens-games-hearts-board--complete-trick",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--pass-acknowledged",
+    "after": "screens-games-hearts-board--pass-acknowledged",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-hearts-board--pass-through-first-trick",
+    "after": "screens-games-hearts-board--pass-through-first-trick",
+    "source": "../../libs/hearts-client-ts/src/hearts-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--countdown",
+    "after": "screens-games-light-cycles-arena--countdown",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--riding",
+    "after": "screens-games-light-cycles-arena--riding",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--crashed",
+    "after": "screens-games-light-cycles-arena--crashed",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--round-over",
+    "after": "screens-games-light-cycles-arena--round-over",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--finished",
+    "after": "screens-games-light-cycles-arena--finished",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--reconnecting",
+    "after": "screens-games-light-cycles-arena--reconnecting",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--riding-elsewhere",
+    "after": "screens-games-light-cycles-arena--riding-elsewhere",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--watching",
+    "after": "screens-games-light-cycles-arena--watching",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--two-riders-on-one-device",
+    "after": "screens-games-light-cycles-arena--two-riders-on-one-device",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--unreadable",
+    "after": "screens-games-light-cycles-arena--unreadable",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--steer-up",
+    "after": "screens-games-light-cycles-arena--steer-up",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--duel-steering",
+    "after": "screens-games-light-cycles-arena--duel-steering",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--quad-steering",
+    "after": "screens-games-light-cycles-arena--quad-steering",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--shared-keyboard",
+    "after": "screens-games-light-cycles-arena--shared-keyboard",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--collision-through-next-round",
+    "after": "screens-games-light-cycles-arena--collision-through-next-round",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--resumed-steering",
+    "after": "screens-games-light-cycles-arena--resumed-steering",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-light-cycles-arena--shared-swipe",
+    "after": "screens-games-light-cycles-arena--shared-swipe",
+    "source": "../../libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--fresh",
+    "after": "screens-games-numberlink-puzzle--fresh",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--in-progress",
+    "after": "screens-games-numberlink-puzzle--in-progress",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--solved",
+    "after": "screens-games-numberlink-puzzle--solved",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--disabled",
+    "after": "screens-games-numberlink-puzzle--disabled",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--unreadable",
+    "after": "screens-games-numberlink-puzzle--unreadable",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--complete-with-keyboard",
+    "after": "screens-games-numberlink-puzzle--complete-with-keyboard",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-numberlink-puzzle--recover-with-pointer",
+    "after": "screens-games-numberlink-puzzle--recover-with-pointer",
+    "source": "../../libs/numberlink-client-ts/src/numberlink-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--countdown",
+    "after": "screens-games-pong-court--countdown",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--rally",
+    "after": "screens-games-pong-court--rally",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--serve-after-point",
+    "after": "screens-games-pong-court--serve-after-point",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--match-point",
+    "after": "screens-games-pong-court--match-point",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--paused",
+    "after": "screens-games-pong-court--paused",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--reconnecting",
+    "after": "screens-games-pong-court--reconnecting",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--two-players-on-one-device",
+    "after": "screens-games-pong-court--two-players-on-one-device",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--watching",
+    "after": "screens-games-pong-court--watching",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--finished",
+    "after": "screens-games-pong-court--finished",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--unreadable",
+    "after": "screens-games-pong-court--unreadable",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--paddle-movement",
+    "after": "screens-games-pong-court--paddle-movement",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-pong-court--return-score-and-reconnect",
+    "after": "screens-games-pong-court--return-score-and-reconnect",
+    "source": "../../libs/pong-client-ts/src/pong-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--opening",
+    "after": "screens-games-quoridor-hill--opening",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--must-pass",
+    "after": "screens-games-quoridor-hill--must-pass",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--waiting-for-others",
+    "after": "screens-games-quoridor-hill--waiting-for-others",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--won",
+    "after": "screens-games-quoridor-hill--won",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--lost",
+    "after": "screens-games-quoridor-hill--lost",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": null,
+    "after": "screens-games-quoridor-hill--precise-coordinates",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "new state; no prior-round screenshot"
+  },
+  {
+    "before": "screens-games-quoridor-hill--pass-and-continue",
+    "after": "screens-games-quoridor-hill--pass-and-continue",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--four-player-round",
+    "after": "screens-games-quoridor-hill--four-player-round",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--reach-the-hill",
+    "after": "screens-games-quoridor-hill--reach-the-hill",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-hill--recover-wall-placement",
+    "after": "screens-games-quoridor-hill--recover-wall-placement",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--opening",
+    "after": "screens-games-quoridor-classic--opening",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--your-turn",
+    "after": "screens-games-quoridor-classic--your-turn",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--waiting-for-opponent",
+    "after": "screens-games-quoridor-classic--waiting-for-opponent",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--watching",
+    "after": "screens-games-quoridor-classic--watching",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--won",
+    "after": "screens-games-quoridor-classic--won",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--lost",
+    "after": "screens-games-quoridor-classic--lost",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--place-a-wall",
+    "after": "screens-games-quoridor-classic--place-a-wall",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--reach-opposite-edge",
+    "after": "screens-games-quoridor-classic--reach-opposite-edge",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--keep-a-path-open",
+    "after": "screens-games-quoridor-classic--keep-a-path-open",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-quoridor-classic--pawn-identity-and-keyboard",
+    "after": "screens-games-quoridor-classic--pawn-identity-and-keyboard",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": null,
+    "after": "screens-games-quoridor-classic--precise-coordinates",
+    "source": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "change": "new state; no prior-round screenshot"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--fresh",
+    "after": "screens-games-sokoban-puzzle--fresh",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--in-progress",
+    "after": "screens-games-sokoban-puzzle--in-progress",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--solved",
+    "after": "screens-games-sokoban-puzzle--solved",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--disabled",
+    "after": "screens-games-sokoban-puzzle--disabled",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--unreadable",
+    "after": "screens-games-sokoban-puzzle--unreadable",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--blocked-move",
+    "after": "screens-games-sokoban-puzzle--blocked-move",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--solve-with-keyboard",
+    "after": "screens-games-sokoban-puzzle--solve-with-keyboard",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-sokoban-puzzle--corner-recovery",
+    "after": "screens-games-sokoban-puzzle--corner-recovery",
+    "source": "../../libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--opening",
+    "after": "screens-games-word-tiles-board--opening",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--your-turn",
+    "after": "screens-games-word-tiles-board--your-turn",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--waiting-for-opponent",
+    "after": "screens-games-word-tiles-board--waiting-for-opponent",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--watching",
+    "after": "screens-games-word-tiles-board--watching",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--word-list-unavailable",
+    "after": "screens-games-word-tiles-board--word-list-unavailable",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--four-players",
+    "after": "screens-games-word-tiles-board--four-players",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--game-over",
+    "after": "screens-games-word-tiles-board--game-over",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--unreadable",
+    "after": "screens-games-word-tiles-board--unreadable",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--place-a-word",
+    "after": "screens-games-word-tiles-board--place-a-word",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--checking-words",
+    "after": "screens-games-word-tiles-board--checking-words",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--three-players",
+    "after": "screens-games-word-tiles-board--three-players",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--recall-and-restore",
+    "after": "screens-games-word-tiles-board--recall-and-restore",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--assign-a-blank",
+    "after": "screens-games-word-tiles-board--assign-a-blank",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--recover-and-submit",
+    "after": "screens-games-word-tiles-board--recover-and-submit",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--accepted-pass",
+    "after": "screens-games-word-tiles-board--accepted-pass",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--accepted-exchange",
+    "after": "screens-games-word-tiles-board--accepted-exchange",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-board--enlarged-coordinates",
+    "after": "screens-games-word-tiles-board--enlarged-coordinates",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--ready",
+    "after": "screens-games-word-tiles-puzzle--ready",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--after-a-move",
+    "after": "screens-games-word-tiles-puzzle--after-a-move",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--disabled",
+    "after": "screens-games-word-tiles-puzzle--disabled",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--word-list-unavailable",
+    "after": "screens-games-word-tiles-puzzle--word-list-unavailable",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": null,
+    "after": "screens-games-word-tiles-puzzle--retry-word-list",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "new state; no prior-round screenshot"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--unreadable",
+    "after": "screens-games-word-tiles-puzzle--unreadable",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--place-a-word",
+    "after": "screens-games-word-tiles-puzzle--place-a-word",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--reach-target",
+    "after": "screens-games-word-tiles-puzzle--reach-target",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "after": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "source": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "templates-game-frame--states",
+    "after": "templates-game-frame--states",
+    "source": "../ui-root-client-ts/src/game-session-layout/game-frame.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": null,
+    "after": "games-battleship-placement-layout--enlarged",
+    "source": "../ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx",
+    "change": "new state; no prior-round screenshot"
+  },
+  {
+    "before": "product-cardtable--states",
+    "after": "product-cardtable--states",
+    "source": "../ui-root-client-ts/src/card-table/card-table.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "games-cellgridboard-boundary-contrast--open-water",
+    "after": "games-cellgridboard-boundary-contrast--open-water",
+    "source": "../ui-root-client-ts/src/cell-grid-board/board-boundary-contrast.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "product-cellgridboard--states",
+    "after": "product-cellgridboard--states",
+    "source": "../ui-root-client-ts/src/cell-grid-board/cell-grid-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "product-wordtileboard--states",
+    "after": "product-wordtileboard--states",
+    "source": "../ui-root-client-ts/src/word-tile-board/word-tile-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": "product-wordtileboard--enlarged-placement",
+    "after": "product-wordtileboard--enlarged-placement",
+    "source": "../ui-root-client-ts/src/word-tile-board/word-tile-board.stories.tsx",
+    "change": "preserved story ID"
+  },
+  {
+    "before": null,
+    "after": "product-wordtileworkbench--recovery",
+    "source": "../ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.stories.tsx",
+    "change": "new state; no prior-round screenshot"
+  }
+]

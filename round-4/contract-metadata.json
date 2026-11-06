@@ -1,0 +1,631 @@
+{
+  "games-battleship-placement-layout": {
+    "id": "games-battleship-placement-layout",
+    "name": "BattleshipPlacementLayout",
+    "path": "../ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx",
+    "stories": [
+      {
+        "id": "games-battleship-placement-layout--enlarged",
+        "name": "Enlarged",
+        "snippet": "const Enlarged = () => <BattleshipPlacementLayout\n    overviewLabel=\"Fleet overview\"\n    controls={\n      <>\n        <Select\n          label=\"Ship\"\n          value=\"carrier\"\n          onValueChange={() => undefined}\n          options={[{ value: 'carrier', label: 'Carrier \u00b7 5' }]}\n        />\n        <Select\n          label=\"Region\"\n          value=\"nw\"\n          onValueChange={() => undefined}\n          options={[{ value: 'nw', label: 'A\u2013E / 1\u20135' }]}\n        />\n      </>\n    }\n    working={\n      <CellGridBoard\n        label=\"Working region\"\n        testId=\"working\"\n        columnLabels={columns.slice(0, 5)}\n        rowLabels={rows.slice(0, 5)}\n        cells={cells(5)}\n      />\n    }\n    overview={\n      <CellGridBoard\n        label=\"Fleet\"\n        testId=\"overview\"\n        columnLabels={columns}\n        rowLabels={rows}\n        cells={cells(10)}\n      />\n    } />;",
+        "description": "A bounded working quadrant stays beside a smaller fleet overview, wrapping on phones."
+      }
+    ],
+    "import": "import { BattleshipPlacementLayout } from \"./index\";",
+    "jsDocTags": {},
+    "subcomponents": {},
+    "description": "Keeps fleet placement controls with the working grid and a compact overview.",
+    "reactComponentMeta": {
+      "displayName": "BattleshipPlacementLayout",
+      "exportName": "BattleshipPlacementLayout",
+      "filePath": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx",
+      "description": "Keeps fleet placement controls with the working grid and a compact overview.",
+      "props": {
+        "controls": {
+          "name": "controls",
+          "required": true,
+          "type": {
+            "name": "Element",
+            "raw": "Element"
+          }
+        },
+        "working": {
+          "name": "working",
+          "required": true,
+          "type": {
+            "name": "Element",
+            "raw": "Element"
+          }
+        },
+        "overview": {
+          "name": "overview",
+          "required": true,
+          "type": {
+            "name": "Element",
+            "raw": "Element"
+          }
+        },
+        "overviewLabel": {
+          "name": "overviewLabel",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        }
+      }
+    }
+  },
+  "product-wordtileworkbench": {
+    "id": "product-wordtileworkbench",
+    "name": "WordTileWorkbench",
+    "path": "../ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.stories.tsx",
+    "stories": [
+      {
+        "id": "product-wordtileworkbench--recovery",
+        "name": "Recovery",
+        "snippet": "const Recovery = () => (\n  <WordTileWorkbench>\n    <Button title=\"Play word\" />\n    <P role=\"status\">\n      Scores 10 points. The word list could not load here; the game checks the\n      words when you play.\n    </P>\n  </WordTileWorkbench>\n);",
+        "description": "Long recovery feedback wraps below the turn action at every viewport width."
+      }
+    ],
+    "import": "import { WordTileWorkbench } from \"./index\";",
+    "jsDocTags": {},
+    "subcomponents": {},
+    "description": "Word editing actions and full-width feedback, with clearance for session history.",
+    "reactComponentMeta": {
+      "displayName": "WordTileWorkbench",
+      "exportName": "WordTileWorkbench",
+      "filePath": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx",
+      "description": "Word editing actions and full-width feedback, with clearance for session history.",
+      "props": {
+        "children": {
+          "name": "children",
+          "required": true,
+          "type": {
+            "name": "Element",
+            "raw": "Element"
+          }
+        }
+      }
+    }
+  },
+  "screens-games-quoridor-classic": {
+    "id": "screens-games-quoridor-classic",
+    "name": "QuoridorBoard",
+    "path": "../../libs/quoridor-client-ts/src/quoridor-board.stories.tsx",
+    "stories": [
+      {
+        "id": "screens-games-quoridor-classic--opening",
+        "name": "Opening",
+        "snippet": "const Opening = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "The start: South moves first, ten walls each, the move tool chosen."
+      },
+      {
+        "id": "screens-games-quoridor-classic--your-turn",
+        "name": "Your Turn",
+        "snippet": "const YourTurn = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "Mid-game on South's turn: walls on the board, fewer left to place."
+      },
+      {
+        "id": "screens-games-quoridor-classic--waiting-for-opponent",
+        "name": "Waiting For Opponent",
+        "snippet": "const WaitingForOpponent = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "North is deciding: the board is read-only and the tools are off."
+      },
+      {
+        "id": "screens-games-quoridor-classic--watching",
+        "name": "Watching",
+        "snippet": "const Watching = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "A watcher follows the game from outside it."
+      },
+      {
+        "id": "screens-games-quoridor-classic--won",
+        "name": "Won",
+        "snippet": "const Won = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "South reached the opposite home row and won."
+      },
+      {
+        "id": "screens-games-quoridor-classic--lost",
+        "name": "Lost",
+        "snippet": "const Lost = (args, context) =>\n  renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    args,\n    context\n  );",
+        "description": "North's side of the same game: South got there first."
+      },
+      {
+        "id": "screens-games-quoridor-classic--place-a-wall",
+        "name": "Place A Wall",
+        "snippet": "const PlaceAWall = (args, context) => {\n  const [position, setPosition] = createSignal(args.position);\n  const board = mergeProps(args, {\n    get position() {\n      return position();\n    },\n    onAction(action: string) {\n      args.onAction(action);\n      const next = playQuoridor(decodeQuoridor(position()), action);\n      if (next !== null) setPosition(encodeQuoridor(next));\n    },\n  });\n  return renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    board,\n    context\n  );\n};",
+        "description": "Place a wall, refuse a crossing, then rotate and place a legal wall."
+      },
+      {
+        "id": "screens-games-quoridor-classic--reach-opposite-edge",
+        "name": "Reach Opposite Edge",
+        "snippet": "const ReachOppositeEdge = (args, context) => {\n  const [position, setPosition] = createSignal(args.position);\n  const board = mergeProps(args, {\n    get position() {\n      return position();\n    },\n    onAction(action: string) {\n      args.onAction(action);\n      const next = playQuoridor(decodeQuoridor(position()), action);\n      if (next !== null) setPosition(encodeQuoridor(next));\n    },\n  });\n  return renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    board,\n    context\n  );\n};",
+        "description": "Move the actual pawn onto the opposite edge and observe completion."
+      },
+      {
+        "id": "screens-games-quoridor-classic--keep-a-path-open",
+        "name": "Keep A Path Open",
+        "snippet": "const KeepAPathOpen = (args, context) => {\n  const [position, setPosition] = createSignal(args.position);\n  const board = mergeProps(args, {\n    get position() {\n      return position();\n    },\n    onAction(action: string) {\n      args.onAction(action);\n      const next = playQuoridor(decodeQuoridor(position()), action);\n      if (next !== null) setPosition(encodeQuoridor(next));\n    },\n  });\n  return renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    board,\n    context\n  );\n};",
+        "description": "A refused enclosure preserves the last route, then a legal wall succeeds."
+      },
+      {
+        "id": "screens-games-quoridor-classic--pawn-identity-and-keyboard",
+        "name": "Pawn Identity And Keyboard",
+        "snippet": "const PawnIdentityAndKeyboard = (args, context) => {\n  const [position, setPosition] = createSignal(args.position);\n  const board = mergeProps(args, {\n    get position() {\n      return position();\n    },\n    onAction(action: string) {\n      args.onAction(action);\n      const next = playQuoridor(decodeQuoridor(position()), action);\n      if (next !== null) setPosition(encodeQuoridor(next));\n    },\n  });\n  return renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    board,\n    context\n  );\n};",
+        "description": ""
+      },
+      {
+        "id": "screens-games-quoridor-classic--precise-coordinates",
+        "name": "Precise Coordinates",
+        "snippet": "const PreciseCoordinates = (args, context) => {\n  const [position, setPosition] = createSignal(args.position);\n  const board = mergeProps(args, {\n    get position() {\n      return position();\n    },\n    onAction(action: string) {\n      args.onAction(action);\n      const next = playQuoridor(decodeQuoridor(position()), action);\n      if (next !== null) setPosition(encodeQuoridor(next));\n    },\n  });\n  return renderGameTable(\n    quoridorGameClient.presentation,\n    TWO_PLAYER_SIDES,\n    board,\n    context\n  );\n};",
+        "description": ""
+      }
+    ],
+    "import": "import { QuoridorBoard } from \"./quoridor-board\";",
+    "jsDocTags": {},
+    "subcomponents": {},
+    "description": "The board with its adjacent tools and precise coordinate picker.",
+    "reactComponentMeta": {
+      "displayName": "QuoridorBoard",
+      "exportName": "QuoridorBoard",
+      "filePath": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/quoridor-board.tsx",
+      "description": "The board with its adjacent tools and precise coordinate picker.",
+      "props": {
+        "simulation": {
+          "name": "simulation",
+          "required": false,
+          "type": {
+            "name": "{ claim: (() => void) | undefined; elsewhere: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[] | undefined; onInput: (side: \"white\" | \"black\" | \"red\" | \"blue\", input: unknown) => void; onRelease: () => void; paused: boolean; sides: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]; stale: boolean; }",
+            "raw": "{ claim: (() => void) | undefined; elsewhere: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[] | undefined; onInput: (side: \"white\" | \"black\" | \"red\" | \"blue\", input: unknown) => void; onRelease: () => void; paused: boolean; sides: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]; stale: boolean; }"
+          }
+        },
+        "position": {
+          "name": "position",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "lastAction": {
+          "name": "lastAction",
+          "description": "The action that reached `position`, as the game writes it, so a board\ncan mark the last move even when it opens part-way through a game;\n`null` or absent before the first move or where it is not known.",
+          "required": false,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "orientation": {
+          "name": "orientation",
+          "required": true,
+          "type": {
+            "name": "enum",
+            "raw": "\"white\" | \"black\" | \"red\" | \"blue\"",
+            "value": [
+              {
+                "value": "\"white\""
+              },
+              {
+                "value": "\"black\""
+              },
+              {
+                "value": "\"red\""
+              },
+              {
+                "value": "\"blue\""
+              }
+            ]
+          }
+        },
+        "interactive": {
+          "name": "interactive",
+          "required": true,
+          "type": {
+            "name": "boolean",
+            "raw": "boolean"
+          }
+        },
+        "sound": {
+          "name": "sound",
+          "required": true,
+          "type": {
+            "name": "boolean",
+            "raw": "boolean"
+          }
+        },
+        "syncKey": {
+          "name": "syncKey",
+          "required": true,
+          "type": {
+            "name": "number",
+            "raw": "number"
+          }
+        },
+        "onAction": {
+          "name": "onAction",
+          "required": true,
+          "type": {
+            "name": "(action: string) => void",
+            "raw": "(action: string) => void"
+          }
+        },
+        "testId": {
+          "name": "testId",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "setup": {
+          "name": "setup",
+          "description": "The viewer's own private setup, for a game whose sides prepare one;\n`null` for anyone else (a watcher) and for every other game. A board\nnever receives another side's setup.",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "hand": {
+          "name": "hand",
+          "description": "The viewer's own hand, for a game whose authority deals hands; `null`\nfor a watcher and for every other game. A board never receives another\nside's hand.",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "committed": {
+          "name": "committed",
+          "description": "In a game with private commitments: the sides that have committed in the\nphase open now (everyone sees which, never what), and the viewer's own\ncommitment, `null` until they make one. Empty and `null` otherwise.",
+          "required": true,
+          "type": {
+            "name": "array",
+            "raw": "readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]"
+          }
+        },
+        "commitment": {
+          "name": "commitment",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        }
+      }
+    }
+  },
+  "screens-games-quoridor-hill": {
+    "id": "screens-games-quoridor-hill",
+    "name": "QuoridorBoard",
+    "path": "../../libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx",
+    "stories": [
+      {
+        "id": "screens-games-quoridor-hill--opening",
+        "name": "Opening",
+        "snippet": "const Opening = (args, context) =>\n  renderGameTable(\n    quoridorHillGameClient.presentation,\n    QUORIDOR_SIDES,\n    args,\n    context\n  );",
+        "description": "Four pawns around the board, five walls each, all heading for e5."
+      },
+      {
+        "id": "screens-games-quoridor-hill--must-pass",
+        "name": "Must Pass",
+        "snippet": "const MustPass = (args, context) =>\n  renderGameTable(\n    quoridorHillGameClient.presentation,\n    QUORIDOR_SIDES,\n    args,\n    context\n  );",
+        "description": "No move or wall is legal: the pass is offered beside the tools."
+      },
+      {
+        "id": "screens-games-quoridor-hill--waiting-for-others",
+        "name": "Waiting For Others",
+        "snippet": "const WaitingForOthers = (args, context) =>\n  renderGameTable(\n    quoridorHillGameClient.presentation,\n    QUORIDOR_SIDES,\n    args,\n    context\n  );",
+        "description": "East is deciding while the others wait."
+      },
+      {
+        "id": "screens-games-quoridor-hill--won",
+        "name": "Won",
+        "snippet": "const Won = (args, context) =>\n  renderGameTable(\n    quoridorHillGameClient.presentation,\n    QUORIDOR_SIDES,\n    args,\n    context\n  );",
+        "description": "South reached the hill first and won outright."
+      },
+      {
+        "id": "screens-games-quoridor-hill--lost",
+        "name": "Lost",
+        "snippet": "const Lost = (args, context) =>\n  renderGameTable(\n    quoridorHillGameClient.presentation,\n    QUORIDOR_SIDES,\n    args,\n    context\n  );",
+        "description": "West's view of the same game: placed behind the winner."
+      },
+      {
+        "id": "screens-games-quoridor-hill--precise-coordinates",
+        "name": "Precise Coordinates",
+        "snippet": "const PreciseCoordinates = (args, context) => {\n  const [game, setGame] = createSignal(decodeQuoridor(args.position));\n  const view = createMemo(() => {\n    const current = game();\n    const side = sideAt(current.turn);\n    return renderGameTable(\n      quoridorHillGameClient.presentation,\n      QUORIDOR_SIDES,\n      {\n        ...args,\n        position: encodeQuoridor(current),\n        orientation: side,\n        interactive: current.winner === null,\n        onAction: (action) => {\n          const next = playQuoridor(game(), action);\n          if (next === null) throw new Error(`Refused hill action: ${action}`);\n          setGame(next);\n        },\n      },\n      {\n        ...context,\n        parameters: {\n          ...context.parameters,\n          table: {\n            turn: side,\n            moves: current.actions,\n            ...(current.winner === null\n              ? {}\n              : {\n                  ending: {\n                    winner: sideAt(current.winner),\n                    reason: 'hill reached',\n                  },\n                }),\n          } satisfies GameTableStory,\n        },\n      }\n    );\n  });\n  return <>{view()}</>;\n};",
+        "description": "Coordinate choices advance the same four-player production-rule fixture."
+      },
+      {
+        "id": "screens-games-quoridor-hill--pass-and-continue",
+        "name": "Pass And Continue",
+        "snippet": "const PassAndContinue = (args, context) => {\n  const [game, setGame] = createSignal(decodeQuoridor(args.position));\n  const view = createMemo(() => {\n    const current = game();\n    const side = sideAt(current.turn);\n    return renderGameTable(\n      quoridorHillGameClient.presentation,\n      QUORIDOR_SIDES,\n      {\n        ...args,\n        position: encodeQuoridor(current),\n        orientation: side,\n        interactive: current.winner === null,\n        onAction: (action) => {\n          const next = playQuoridor(game(), action);\n          if (next === null) throw new Error(`Refused hill action: ${action}`);\n          setGame(next);\n        },\n      },\n      {\n        ...context,\n        parameters: {\n          ...context.parameters,\n          table: {\n            turn: side,\n            moves: current.actions,\n            ...(current.winner === null\n              ? {}\n              : {\n                  ending: {\n                    winner: sideAt(current.winner),\n                    reason: 'hill reached',\n                  },\n                }),\n          } satisfies GameTableStory,\n        },\n      }\n    );\n  });\n  return <>{view()}</>;\n};",
+        "description": "Passing changes the active pawn and removes the forced-pass action."
+      },
+      {
+        "id": "screens-games-quoridor-hill--four-player-round",
+        "name": "Four Player Round",
+        "snippet": "const FourPlayerRound = (args, context) => {\n  const [game, setGame] = createSignal(decodeQuoridor(args.position));\n  const view = createMemo(() => {\n    const current = game();\n    const side = sideAt(current.turn);\n    return renderGameTable(\n      quoridorHillGameClient.presentation,\n      QUORIDOR_SIDES,\n      {\n        ...args,\n        position: encodeQuoridor(current),\n        orientation: side,\n        interactive: current.winner === null,\n        onAction: (action) => {\n          const next = playQuoridor(game(), action);\n          if (next === null) throw new Error(`Refused hill action: ${action}`);\n          setGame(next);\n        },\n      },\n      {\n        ...context,\n        parameters: {\n          ...context.parameters,\n          table: {\n            turn: side,\n            moves: current.actions,\n            ...(current.winner === null\n              ? {}\n              : {\n                  ending: {\n                    winner: sideAt(current.winner),\n                    reason: 'hill reached',\n                  },\n                }),\n          } satisfies GameTableStory,\n        },\n      }\n    );\n  });\n  return <>{view()}</>;\n};",
+        "description": "Each of the four pawns moves, then South places a wall."
+      },
+      {
+        "id": "screens-games-quoridor-hill--reach-the-hill",
+        "name": "Reach The Hill",
+        "snippet": "const ReachTheHill = (args, context) => {\n  const [game, setGame] = createSignal(decodeQuoridor(args.position));\n  const view = createMemo(() => {\n    const current = game();\n    const side = sideAt(current.turn);\n    return renderGameTable(\n      quoridorHillGameClient.presentation,\n      QUORIDOR_SIDES,\n      {\n        ...args,\n        position: encodeQuoridor(current),\n        orientation: side,\n        interactive: current.winner === null,\n        onAction: (action) => {\n          const next = playQuoridor(game(), action);\n          if (next === null) throw new Error(`Refused hill action: ${action}`);\n          setGame(next);\n        },\n      },\n      {\n        ...context,\n        parameters: {\n          ...context.parameters,\n          table: {\n            turn: side,\n            moves: current.actions,\n            ...(current.winner === null\n              ? {}\n              : {\n                  ending: {\n                    winner: sideAt(current.winner),\n                    reason: 'hill reached',\n                  },\n                }),\n          } satisfies GameTableStory,\n        },\n      }\n    );\n  });\n  return <>{view()}</>;\n};",
+        "description": "The final step onto the hill paints the pawn and displays the result."
+      },
+      {
+        "id": "screens-games-quoridor-hill--recover-wall-placement",
+        "name": "Recover Wall Placement",
+        "snippet": "const RecoverWallPlacement = (args, context) => {\n  const [game, setGame] = createSignal(decodeQuoridor(args.position));\n  const view = createMemo(() => {\n    const current = game();\n    const side = sideAt(current.turn);\n    return renderGameTable(\n      quoridorHillGameClient.presentation,\n      QUORIDOR_SIDES,\n      {\n        ...args,\n        position: encodeQuoridor(current),\n        orientation: side,\n        interactive: current.winner === null,\n        onAction: (action) => {\n          const next = playQuoridor(game(), action);\n          if (next === null) throw new Error(`Refused hill action: ${action}`);\n          setGame(next);\n        },\n      },\n      {\n        ...context,\n        parameters: {\n          ...context.parameters,\n          table: {\n            turn: side,\n            moves: current.actions,\n            ...(current.winner === null\n              ? {}\n              : {\n                  ending: {\n                    winner: sideAt(current.winner),\n                    reason: 'hill reached',\n                  },\n                }),\n          } satisfies GameTableStory,\n        },\n      }\n    );\n  });\n  return <>{view()}</>;\n};",
+        "description": "An overlapping wall is refused; a different anchor completes the turn."
+      }
+    ],
+    "import": "import { QuoridorBoard } from \"./quoridor-board\";",
+    "jsDocTags": {},
+    "subcomponents": {},
+    "description": "The board with its adjacent tools and precise coordinate picker.",
+    "reactComponentMeta": {
+      "displayName": "QuoridorBoard",
+      "exportName": "QuoridorBoard",
+      "filePath": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/quoridor-board.tsx",
+      "description": "The board with its adjacent tools and precise coordinate picker.",
+      "props": {
+        "simulation": {
+          "name": "simulation",
+          "required": false,
+          "type": {
+            "name": "{ claim: (() => void) | undefined; elsewhere: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[] | undefined; onInput: (side: \"white\" | \"black\" | \"red\" | \"blue\", input: unknown) => void; onRelease: () => void; paused: boolean; sides: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]; stale: boolean; }",
+            "raw": "{ claim: (() => void) | undefined; elsewhere: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[] | undefined; onInput: (side: \"white\" | \"black\" | \"red\" | \"blue\", input: unknown) => void; onRelease: () => void; paused: boolean; sides: readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]; stale: boolean; }"
+          }
+        },
+        "position": {
+          "name": "position",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "lastAction": {
+          "name": "lastAction",
+          "description": "The action that reached `position`, as the game writes it, so a board\ncan mark the last move even when it opens part-way through a game;\n`null` or absent before the first move or where it is not known.",
+          "required": false,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "orientation": {
+          "name": "orientation",
+          "required": true,
+          "type": {
+            "name": "enum",
+            "raw": "\"white\" | \"black\" | \"red\" | \"blue\"",
+            "value": [
+              {
+                "value": "\"white\""
+              },
+              {
+                "value": "\"black\""
+              },
+              {
+                "value": "\"red\""
+              },
+              {
+                "value": "\"blue\""
+              }
+            ]
+          }
+        },
+        "interactive": {
+          "name": "interactive",
+          "required": true,
+          "type": {
+            "name": "boolean",
+            "raw": "boolean"
+          }
+        },
+        "sound": {
+          "name": "sound",
+          "required": true,
+          "type": {
+            "name": "boolean",
+            "raw": "boolean"
+          }
+        },
+        "syncKey": {
+          "name": "syncKey",
+          "required": true,
+          "type": {
+            "name": "number",
+            "raw": "number"
+          }
+        },
+        "onAction": {
+          "name": "onAction",
+          "required": true,
+          "type": {
+            "name": "(action: string) => void",
+            "raw": "(action: string) => void"
+          }
+        },
+        "testId": {
+          "name": "testId",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "setup": {
+          "name": "setup",
+          "description": "The viewer's own private setup, for a game whose sides prepare one;\n`null` for anyone else (a watcher) and for every other game. A board\nnever receives another side's setup.",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "hand": {
+          "name": "hand",
+          "description": "The viewer's own hand, for a game whose authority deals hands; `null`\nfor a watcher and for every other game. A board never receives another\nside's hand.",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "committed": {
+          "name": "committed",
+          "description": "In a game with private commitments: the sides that have committed in the\nphase open now (everyone sees which, never what), and the viewer's own\ncommitment, `null` until they make one. Empty and `null` otherwise.",
+          "required": true,
+          "type": {
+            "name": "array",
+            "raw": "readonly (\"white\" | \"black\" | \"red\" | \"blue\")[]"
+          }
+        },
+        "commitment": {
+          "name": "commitment",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        }
+      }
+    }
+  },
+  "screens-games-word-tiles-puzzle": {
+    "id": "screens-games-word-tiles-puzzle",
+    "name": "WordTilesPuzzlePlayerView",
+    "path": "../../libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx",
+    "stories": [
+      {
+        "id": "screens-games-word-tiles-puzzle--ready",
+        "name": "Ready",
+        "snippet": "const Ready = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "A fresh attempt: the target, the frozen board and the rack."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--after-a-move",
+        "name": "After A Move",
+        "snippet": "const AfterAMove = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: 'play:j9=0', score: 12 })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "The last move fell short: its score against the target."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--disabled",
+        "name": "Disabled",
+        "snippet": "const Disabled = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "The attempt is over: the board shows, but no tile can be placed."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--word-list-unavailable",
+        "name": "Word List Unavailable",
+        "snippet": "const WordListUnavailable = () => {\n    const [lexicon, setLexicon] = createSignal(args.lexicon);\n\n    return (\n        <WordTilesPuzzlePlayerView\n            definition={encodePuzzle(PUZZLE)}\n            state={JSON.stringify({ v: 1, played: null, score: null })}\n            disabled={false}\n            onAction={fn()}\n            onReturnToLibrary={fn()}\n            lexicon={lexicon()}\n            onRetryLexicon={() => setLexicon(STORY_LEXICON)} />\n    );\n};",
+        "description": "The word list did not load: retry makes placement available again."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--retry-word-list",
+        "name": "Retry Word List",
+        "snippet": "const RetryWordList = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "Retry resolves the unavailable word list without replacing the player."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--unreadable",
+        "name": "Unreadable",
+        "snippet": "const Unreadable = () => <WordTilesPuzzlePlayerView\n    definition=\"{}\"\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "A definition this app cannot read offers the real library destination."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--place-a-word",
+        "name": "Place A Word",
+        "snippet": "const PlaceAWord = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "E and A placed under TOE spell a word the list lacks: the preview says so."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--reach-target",
+        "name": "Reach Target",
+        "snippet": "const ReachTarget = () => {\n    const [state, setState] = createSignal(args.state);\n    const [lexicon, setLexicon] = createSignal<LexiconState>({\n      status: 'unavailable',\n      reason: 'offline',\n    });\n\n    return (\n        <WordTilesPuzzlePlayerView\n            definition={encodePuzzle({ ...PUZZLE, target: 6 })}\n            disabled={false}\n            onReturnToLibrary={fn()}\n            state={state()}\n            lexicon={lexicon()}\n            onRetryLexicon={() => setLexicon(STORY_LEXICON)}\n            onAction={(action) => {\n              const placed = placementOf(PUZZLE, action);\n              if (placed === null) throw new Error('Invalid puzzle action');\n              const result = evaluatePlacement(PUZZLE.board, placed);\n              if (!result.ok) throw new Error('Invalid puzzle placement');\n              setState(\n                JSON.stringify({ v: 1, played: action, score: result.score.total })\n              );\n            }} />\n    );\n};",
+        "description": "A real placement is scored by the domain evaluator and fed back into the player."
+      },
+      {
+        "id": "screens-games-word-tiles-puzzle--enlarged-blank",
+        "name": "Enlarged Blank",
+        "snippet": "const EnlargedBlank = () => <WordTilesPuzzlePlayerView\n    definition={encodePuzzle(PUZZLE)}\n    state={JSON.stringify({ v: 1, played: null, score: null })}\n    disabled={false}\n    lexicon={STORY_LEXICON}\n    onAction={fn()}\n    onReturnToLibrary={fn()}\n    onRetryLexicon={fn()} />;",
+        "description": "Assign a blank through the enlarged board and retain its chosen letter."
+      }
+    ],
+    "import": "import { WordTilesPuzzlePlayerView } from \"./word-tiles-puzzle-player-view\";",
+    "jsDocTags": {},
+    "subcomponents": {},
+    "description": "A one-move Word Tiles challenge, presentational: the target, the last\nmove's score, the frozen board and the rack, the move's preview against\nthe word list, and play or recall. `WordTilesPuzzlePlayer` loads the word\nlist the puzzle pins.",
+    "reactComponentMeta": {
+      "displayName": "WordTilesPuzzlePlayerView",
+      "exportName": "WordTilesPuzzlePlayerView",
+      "filePath": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx",
+      "description": "A one-move Word Tiles challenge, presentational: the target, the last\nmove's score, the frozen board and the rack, the move's preview against\nthe word list, and play or recall. `WordTilesPuzzlePlayer` loads the word\nlist the puzzle pins.",
+      "props": {
+        "definition": {
+          "name": "definition",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "state": {
+          "name": "state",
+          "required": true,
+          "type": {
+            "name": "string",
+            "raw": "string"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "required": true,
+          "type": {
+            "name": "boolean",
+            "raw": "boolean"
+          }
+        },
+        "onAction": {
+          "name": "onAction",
+          "required": true,
+          "type": {
+            "name": "(action: string) => void",
+            "raw": "(action: string) => void"
+          }
+        },
+        "lexicon": {
+          "name": "lexicon",
+          "description": "The word list the puzzle pins: loading, ready, or unavailable.",
+          "required": true,
+          "type": {
+            "name": "LexiconState",
+            "raw": "LexiconState"
+          }
+        },
+        "onRetryLexicon": {
+          "name": "onRetryLexicon",
+          "required": true,
+          "type": {
+            "name": "() => void",
+            "raw": "() => void"
+          }
+        },
+        "onReturnToLibrary": {
+          "name": "onReturnToLibrary",
+          "description": "Open the existing puzzle library without changing the attempt.",
+          "required": true,
+          "type": {
+            "name": "() => void",
+            "raw": "() => void"
+          }
+        }
+      }
+    }
+  }
+}
