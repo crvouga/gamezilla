@@ -1,0 +1,4 @@
+{
+  "summary": "At a 390px viewport, Word Tiles hides all printed bonus labels, leaving sighted players to infer scoring from color alone. The browser regression requires every bonus label to remain visible at the design system's minimum 12px type size.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts"
+}
