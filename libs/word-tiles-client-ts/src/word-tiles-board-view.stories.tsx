@@ -332,7 +332,14 @@ export const RecoverAndSubmit: Story = {
         exact: true,
       })
     ).toBeVisible();
-    await expect(canvas.getByText(/Teal — to play/)).toBeVisible();
+    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+      'Teal — to play'
+    );
+    await expect(
+      within(canvas.getByTestId('custom-game-black')).getByText('To move', {
+        exact: true,
+      })
+    ).toBeVisible();
     await expect(
       canvas.getByText(/You can plan a word while you wait/)
     ).toBeVisible();
