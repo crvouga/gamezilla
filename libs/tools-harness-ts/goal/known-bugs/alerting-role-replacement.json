@@ -1,0 +1,4 @@
+{
+  "summary": "Changing the existing Grafana Cloud service account from Editor to Admin replaces its account and token, so the Release rehearsal correctly rejected the destructive plan. Provisioning now has its own account while the live delivery check retains its credential.",
+  "regressionTest": "libs/infra-server-ts/tests/alerting-management.test.ts"
+}

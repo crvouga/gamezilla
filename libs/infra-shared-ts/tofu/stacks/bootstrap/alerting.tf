@@ -96,9 +96,8 @@ resource "grafana_cloud_stack_service_account" "alerting" {
   provider   = grafana.alerting_management
   stack_slug = var.grafana.stack_slug
   name       = "${var.project}-alerting"
-  # Provisioning creates IRM integrations/chains and manages another user's
-  # notification rules. Grafana's Editor role explicitly forbids those actions.
-  role = "Admin"
+  # The live delivery check uses this account; preserve its existing credential.
+  role = "Editor"
 }
 
 resource "grafana_cloud_stack_service_account_token" "alerting" {
@@ -113,13 +112,13 @@ resource "grafana_cloud_stack_service_account_token" "alerting" {
 provider "grafana" {
   alias      = "alerting"
   url        = module.trace_stack.url
-  auth       = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting[0].key : "routing-not-configured"
+  auth       = local.routing_ready ? grafana_cloud_stack_service_account_token.alerting_provisioner[0].key : "routing-not-configured"
   oncall_url = local.irm_api_url
 }
 
 module "alert_routing" {
   # Provider references alone do not defer the module's user data lookup.
-  depends_on         = [grafana_cloud_stack_service_account_token.alerting]
+  depends_on         = [grafana_cloud_stack_service_account_token.alerting_provisioner]
   count              = local.routing_ready ? 1 : 0
   source             = "../../modules/alert-routing"
   responder          = var.alerting.irm_responder

@@ -15,7 +15,7 @@ test('initial alerting reads wait for the provider credentials to exist', () => 
     'utf8'
   );
   expect(bootstrap).toMatch(
-    /module "alert_routing"\s*\{\s*#[^\n]*\n\s*depends_on\s*=\s*\[grafana_cloud_stack_service_account_token.alerting\]/
+    /module "alert_routing"\s*\{\s*#[^\n]*\n\s*depends_on\s*=\s*\[grafana_cloud_stack_service_account_token.alerting_provisioner\]/
   );
   expect(bootstrap).toMatch(
     /module "synthetic_monitoring"\s*\{\s*#[^\n]*\n\s*depends_on\s*=\s*\[grafana_synthetic_monitoring_installation.this\]/

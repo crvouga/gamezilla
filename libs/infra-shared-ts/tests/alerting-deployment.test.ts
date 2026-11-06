@@ -115,3 +115,24 @@ test('alerting management credentials are planned and permitted without widening
     ).toHaveLength(1);
   }
 });
+
+// regression: alerting-role-replacement
+test('provisioner creation is allowed while replacing either credential remains forbidden', () => {
+  for (const kind of [
+    'grafana_cloud_stack_service_account',
+    'grafana_cloud_stack_service_account_token',
+  ]) {
+    const provisioner = `${kind}.alerting_provisioner`;
+    expect(alertingDeploymentPlanArgs(paths)).toContain(
+      `-target=${provisioner}`
+    );
+    expect(
+      alertingDeploymentDenials(plan(`${provisioner}[0]`, ['create']))
+    ).toEqual([]);
+    for (const address of [`${kind}.alerting[0]`, `${provisioner}[0]`]) {
+      expect(
+        alertingDeploymentDenials(plan(address, ['delete', 'create']))
+      ).toHaveLength(1);
+    }
+  }
+});
