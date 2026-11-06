@@ -1,6 +1,6 @@
 /** GitHub cannot compare orphan history; that is absence of integration proof. */
 export function branchComparison(result: {
-  readonly status: number;
+  readonly status: number | null;
   readonly stdout: string;
   readonly stderr: string;
 }): string {

@@ -1,6 +1,13 @@
 import { expect, test } from 'bun:test';
 import { branchComparison } from './branch-comparison';
 
+// regression: health-cleanup-terminated-comparison
+test('a terminated comparison fails maintenance without integration proof', () => {
+  expect(() =>
+    branchComparison({ status: null, stdout: '', stderr: 'terminated' })
+  ).toThrow('GitHub maintenance failed: terminated');
+});
+
 // regression: health-cleanup-unrelated-history
 test('orphan history is retained without aborting the maintenance inventory', () => {
   expect(
