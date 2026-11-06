@@ -1,0 +1,4 @@
+{
+  "summary": "Start stack captured mise activation output while permitting interactive input and network resolution, leaving the terminal blank during activation.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
