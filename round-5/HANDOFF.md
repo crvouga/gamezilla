@@ -2,7 +2,7 @@
 
 PR: https://github.com/crvouga/gamezilla/pull/280
 Source SHA: `d2ee6467e23b84ffd7b5128fb993a614df68a7d2`
-Media SHA: `Assigned by the immutable media publication; see publication receipt.`
+Media SHA: `b69dc3f7f93ddd7467c2057b56a974e60178b410`
 Evidence code: `1459fd0b37554c88`
 Build SHA-256: `106c59d28b3d6f1e82a58e094b16727c162c13ade0f0ef0fe6be39d1ad540e86`
 
@@ -83,6 +83,13 @@ The immutable manifest includes build/media/log/script hashes, before-image bind
 
 ## Publication
 
+- sourceSha: d2ee6467e23b84ffd7b5128fb993a614df68a7d2
+- mediaSha: b69dc3f7f93ddd7467c2057b56a974e60178b410
+- evidence_code: 1459fd0b37554c88
+- comments: ['https://github.com/crvouga/gamezilla/pull/280#issuecomment-6696848801', 'https://github.com/crvouga/gamezilla/pull/280#issuecomment-6696849442', 'https://github.com/crvouga/gamezilla/pull/280#issuecomment-6696850031']
+- manifest: https://github.com/crvouga/gamezilla/blob/b69dc3f7f93ddd7467c2057b56a974e60178b410/round-5/manifest.json
+- gallery: https://github.com/crvouga/gamezilla/blob/b69dc3f7f93ddd7467c2057b56a974e60178b410/round-5/GALLERY.md
+- canonicalRun: https://github.com/crvouga/gamezilla/actions/runs/42294182190
 
 ## Remaining ownership
 
