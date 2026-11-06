@@ -1,4 +1,4 @@
 {
   "summary": "Watching and reconnecting Light Cycles boards advertise unavailable steering controls.",
-  "regressionTest": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx#Reconnecting"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
 }

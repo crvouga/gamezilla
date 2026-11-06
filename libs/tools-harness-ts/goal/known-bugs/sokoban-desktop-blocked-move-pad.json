@@ -1,4 +1,4 @@
 {
   "summary": "Desktop BlockedMove story tried the phone-only direction pad instead of sending ArrowLeft to the focused board.",
-  "regressionTest": "libs/sokoban-client-ts/src/sokoban-player.stories.tsx: BlockedMove"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
 }

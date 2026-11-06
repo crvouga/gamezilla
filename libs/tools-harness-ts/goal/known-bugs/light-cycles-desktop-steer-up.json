@@ -1,4 +1,4 @@
 {
   "summary": "Light Cycles SteerUp queried a phone-only direction pad on desktop instead of exercising keyboard steering.",
-  "regressionTest": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx#SteerUp"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
 }

@@ -1,4 +1,4 @@
 {
   "summary": "A completed Numberlink board continued asking the player to draw and did not name completion.",
-  "regressionTest": "libs/numberlink-client-ts/src/numberlink-player.stories.tsx: CompleteWithKeyboard"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
 }

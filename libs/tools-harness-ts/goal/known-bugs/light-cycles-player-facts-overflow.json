@@ -1,4 +1,4 @@
 {
   "summary": "Trio phone seat facts force nowrap, pushing Nova, Out and You outside the crashed rider card; desktop names truncate.",
-  "regressionTest": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx#Crashed"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
 }
