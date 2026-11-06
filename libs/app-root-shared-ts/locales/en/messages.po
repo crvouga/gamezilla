@@ -3365,6 +3365,10 @@ msgstr "History and stats"
 msgid "Hit"
 msgstr "Hit"
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Horizontal"
+msgstr "Horizontal"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
@@ -8350,6 +8354,10 @@ msgstr "Version accepting new assignments"
 msgid "Version and diagnostics"
 msgstr "Version and diagnostics"
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Vertical"
+msgstr "Vertical"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Vertical wall"
 msgstr "Vertical wall"
@@ -8410,14 +8418,6 @@ msgstr "wall"
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Wall"
 msgstr "Wall"
-
-#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
-msgid "Wall across"
-msgstr "Wall across"
-
-#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
-msgid "Wall down"
-msgstr "Wall down"
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Walls"

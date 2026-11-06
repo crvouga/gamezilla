@@ -23,9 +23,9 @@ export function QuoridorBoardTools(props: {
           <Button
             title={
               action.id === 'mode-h'
-                ? t`Wall across`
+                ? t`Horizontal`
                 : action.id === 'mode-v'
-                  ? t`Wall down`
+                  ? t`Vertical`
                   : action.label
             }
             aria-label={action.label}

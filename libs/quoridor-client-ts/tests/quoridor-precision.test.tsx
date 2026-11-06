@@ -106,3 +106,15 @@ test('Classic goal row and Hill center do not use the heavy physical outline', (
     expect(cells.find((cell) => cell.id === 'd4')?.edges).toContain('top');
   }
 });
+
+// regression: quoridor-compact-tool-visible-name-mismatch
+test('compact wall labels remain within their spoken control names', () => {
+  const { view } = mountBoard();
+  for (const name of ['Horizontal wall', 'Vertical wall']) {
+    const button = view.getByRole('button', { name });
+    expect(name.toLowerCase()).toContain(
+      button.textContent!.trim().toLowerCase()
+    );
+  }
+  view.unmount();
+});
