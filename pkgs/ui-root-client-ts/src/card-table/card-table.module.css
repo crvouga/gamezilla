@@ -489,13 +489,26 @@ button.card:focus-visible {
   .table {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
-      "top top"
-      "left right"
+      "top right"
       "center center"
-      "bottom bottom";
+      "left bottom";
   }
   .seat {
     width: 100%;
+  }
+  .seat[data-player="true"][data-position] {
+    flex-direction: column;
+    gap: var(--ui-space-1);
+    padding: var(--ui-space-1);
+  }
+  .seat[data-player="true"][data-position] > :first-child {
+    flex: none;
+  }
+  .seat[data-player="true"][data-position] .facts {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
   .center {
     max-width: 100%;
@@ -515,4 +528,10 @@ button.card:focus-visible {
   right: var(--ui-space-1);
   font-size: var(--ui-font-size-sm);
   font-weight: var(--ui-font-weight-semibold);
+}
+
+/* The actionable cards have a solid selection-colored edge; faces stay legible. */
+button.card[aria-disabled="false"]:not([aria-pressed]) {
+  border-color: var(--ui-color-tint);
+  box-shadow: 0 0 0 2px var(--ui-color-tint);
 }

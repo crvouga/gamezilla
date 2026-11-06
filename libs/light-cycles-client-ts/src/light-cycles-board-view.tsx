@@ -137,7 +137,9 @@ function Pads(props: {
     <Show when={mode() !== 'wide'}>
       <StackHorizontal gap="lg" justify="center" wrap>
         <For
-          each={(props.board.simulation?.sides ?? []).filter(props.steerable)}
+          each={(props.board.simulation?.sides ?? [])
+            .filter(props.steerable)
+            .reverse()}
         >
           {(side) => (
             <StackVertical gap="xs" align="center">

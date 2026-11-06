@@ -1,0 +1,4 @@
+{
+  "summary": "Accepted exchange retained its selection mode after rack replacement and turn advancement.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-exchange-settlement.test.ts"
+}

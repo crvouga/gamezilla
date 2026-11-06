@@ -152,7 +152,7 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
-  max-height: calc(var(--ui-control-size-lg) * 7);
+  max-height: calc(var(--ui-control-size-lg) * 5);
 }
 .board[data-enlarged="true"] {
   width: max-content;
@@ -161,4 +161,28 @@
       var(--word-tile-columns),
       var(--ui-control-size-lg)
     );
+}
+
+.header[data-axis] {
+  position: sticky;
+  background: var(--ui-color-game-word-tiles-canvas);
+  z-index: 2;
+}
+.header[data-axis="column"],
+.header[data-axis="corner"] {
+  top: 0;
+}
+.header[data-axis="row"],
+.header[data-axis="corner"] {
+  left: 0;
+}
+.header[data-axis="corner"] {
+  z-index: 3;
+}
+.board[data-enlarged="true"] .cell {
+  scroll-margin-top: var(--ui-space-6);
+  scroll-margin-left: var(--ui-space-6);
+}
+.header[data-axis="column"] {
+  min-height: var(--ui-space-6);
 }

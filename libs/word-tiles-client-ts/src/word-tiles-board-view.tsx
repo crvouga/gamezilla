@@ -5,7 +5,7 @@ import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
@@ -42,21 +42,6 @@ function SeatBoard(props: {
   return (
     <StackVertical gap="sm">
       <LexiconRecovery draft={props.draft} />
-      <P variant="caption" tone="secondary">
-        {t`2L: double letter · 3L: triple letter · 2W: double word · 3W: triple word · ★: start, double word`}
-      </P>
-      <WordTileBoard
-        label={t`Word board, fifteen columns and fifteen rows`}
-        testId={props.draft.props.testId}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={cells()}
-        squareText={squareText}
-        onActivate={(id) => {
-          const cell = parseCell(id);
-          if (cell !== null) props.draft.update((c) => pressCell(c, cell));
-        }}
-      />
       <Show
         when={props.draft.props.hand !== null}
         fallback={
@@ -71,9 +56,23 @@ function SeatBoard(props: {
             props.draft.update((c) => pressTile(c, Number(id)))
           }
         />
-        <DraftControls draft={props.draft} />
-        <DraftSubmit draft={props.draft} />
+        <StackHorizontal gap="sm" align="center" wrap>
+          <DraftSubmit draft={props.draft} />
+          <DraftControls draft={props.draft} />
+        </StackHorizontal>
       </Show>
+      <WordTileBoard
+        label={t`Word board, fifteen columns and fifteen rows`}
+        testId={props.draft.props.testId}
+        columnLabels={COLUMN_LABELS}
+        rowLabels={ROW_LABELS}
+        cells={cells()}
+        squareText={squareText}
+        onActivate={(id) => {
+          const cell = parseCell(id);
+          if (cell !== null) props.draft.update((c) => pressCell(c, cell));
+        }}
+      />
     </StackVertical>
   );
 }
@@ -146,7 +145,7 @@ export function createWordTilesSession(
     Board: () => <DraftBoard draft={draft} />,
     actions: () =>
       wordTilesActions(draft, inputs.random).filter(
-        (action) => action.id !== 'submit'
+        (action) => action.id !== 'submit' && action.id !== 'exchange-confirm'
       ),
     controls: () => null,
   };
@@ -211,7 +210,13 @@ function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
 
 function DraftSubmit(props: { draft: WordTilesDraft }): JSX.Element {
   const action = () =>
-    wordTilesActions(props.draft, () => 0).find((item) => item.id === 'submit');
+    wordTilesActions(props.draft, () => 0).find(
+      (item) =>
+        item.id ===
+        (props.draft.candidate().exchange === null
+          ? 'submit'
+          : 'exchange-confirm')
+    );
   return (
     <Show when={action()}>
       {(submit) => (
@@ -219,7 +224,7 @@ function DraftSubmit(props: { draft: WordTilesDraft }): JSX.Element {
           title={submit().label}
           disabled={!submit().enabled}
           onClick={() => submit().run()}
-          dataSet={{ testid: `${props.draft.props.testId}-submit` }}
+          dataSet={{ testid: `${props.draft.props.testId}-${submit().id}` }}
         />
       )}
     </Show>

@@ -367,6 +367,9 @@ export const AcceptedExchange: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-exchange'));
     await userEvent.click(canvas.getByTestId('custom-game-board-rack-11'));
+    await expect(
+      canvas.queryByTestId('custom-game-board-submit')
+    ).not.toBeInTheDocument();
     await userEvent.click(
       canvas.getByTestId('custom-game-board-exchange-confirm')
     );
@@ -374,5 +377,12 @@ export const AcceptedExchange: Story = {
       canvas.queryByTestId('custom-game-board-rack-11')
     ).not.toBeInTheDocument();
     await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await expect(
+      canvas.queryByTestId('custom-game-board-exchange-confirm')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('custom-game-board-exchange-cancel')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
   },
 };

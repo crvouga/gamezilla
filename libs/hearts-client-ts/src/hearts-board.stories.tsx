@@ -27,6 +27,7 @@ import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
+import { assertHeartsHandBounds } from './hearts-hand-bounds.checks';
 import {
   journeyValue,
   receivedHands,
@@ -363,6 +364,17 @@ export const PassThroughFirstTrick: Story = {
   render: (_args, context) => renderPassJourney(context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const initial = canvas
+      .getByTestId('custom-game-board-hand')
+      .querySelectorAll('button');
+    await expect(initial).toHaveLength(13);
+    assertHeartsHandBounds(
+      [...initial].map((button) => button.getBoundingClientRect()),
+      {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }
+    );
     await chooseThree(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
     const hands = receivedHands(PASSED);
@@ -373,6 +385,22 @@ export const PassThroughFirstTrick: Story = {
     };
     for (let count = 0; count < 4; count++) {
       const seat = journeyValue(seatToPlay(position));
+      const tableBounds = canvas
+        .getByRole('group', { name: 'Hearts table' })
+        .getBoundingClientRect();
+      await expect(tableBounds.top).toBeGreaterThanOrEqual(0);
+      await expect(tableBounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+      const buttons = canvas
+        .getByTestId('custom-game-board-hand')
+        .querySelectorAll('button');
+      await expect(buttons).toHaveLength(journeyValue(hands[seat]).length);
+      assertHeartsHandBounds(
+        [...buttons].map((button) => button.getBoundingClientRect()),
+        {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        }
+      );
       for (const card of journeyValue(hands[seat]))
         await expect(
           canvas.getByTestId(`custom-game-board-card-${card}`)

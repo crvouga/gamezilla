@@ -273,3 +273,21 @@ test('screens-games-word-tiles-board--recover-and-submit regression word-tiles-s
     390
   );
 });
+
+// regression: battleship-enlargement-below-fold
+test('screens-games-battleship-setup--enlarged-placement regression battleship-enlargement-below-fold', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    390
+  );
+});
+
+// regression: chess-puzzle-guidance-clips-first-rank
+test('screens-puzzles-chess-play--solving regression chess-puzzle-guidance-clips-first-rank', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+});

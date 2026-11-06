@@ -116,6 +116,11 @@ msgstr "{0} active, expires {latestExpires}"
 msgid "{0} added"
 msgstr "{0} added"
 
+#. placeholder {0}: sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "{0} destroyed — all five ships sunk."
+msgstr "{0} destroyed — all five ships sunk."
+
 #. placeholder {0}: props.label
 #. placeholder {1}: props.max
 #: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
@@ -232,6 +237,11 @@ msgstr "{0} themes"
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 msgid "{0} tiles in the bag"
 msgstr "{0} tiles in the bag"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
+msgid "{0} wins"
+msgstr "{0} wins"
 
 #. placeholder {0}: riderName(state.result.winner)
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
@@ -727,10 +737,6 @@ msgstr "2 · Puzzles"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "2L"
 msgstr "2L"
-
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "2L: double letter · 3L: triple letter · 2W: double word · 3W: triple word · ★: start, double word"
-msgstr "2L: double letter · 3L: triple letter · 2W: double word · 3W: triple word · ★: start, double word"
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "2W"
@@ -1284,6 +1290,14 @@ msgstr "Behavior Statechart"
 msgid "Best streak"
 msgstr "Best streak"
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Between {column}{row}–{column}{above} and {right}{row}–{right}{above}."
+msgstr "Between {column}{row}–{column}{above} and {right}{row}–{right}{above}."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Between {column}{row}–{right}{row} and {column}{above}–{right}{above}."
+msgstr "Between {column}{row}–{right}{row} and {column}{above}–{right}{above}."
+
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
@@ -1468,10 +1482,15 @@ msgstr "cancel"
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Cancel aim"
+msgstr "Cancel aim"
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Cancel exchange"
@@ -1657,10 +1676,6 @@ msgid "Choose a square on the board."
 msgstr "Choose a square on the board."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
-msgid "Choose a square, check its coordinate, then fire. You can change your aim before firing."
-msgstr "Choose a square, check its coordinate, then fire. You can change your aim before firing."
-
-#: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Choose a target"
 msgstr "Choose a target"
 
@@ -1675,10 +1690,6 @@ msgstr "Choose a tool, then a square. Walls and outside squares remove any piece
 #: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "Choose a username"
 msgstr "Choose a username"
-
-#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
-msgid "Choose an area, then tap a large cell for the ship’s bow. Ships can extend into another area; the full fleet is shown below."
-msgstr "Choose an area, then tap a large cell for the ship’s bow. Ships can extend into another area; the full fleet is shown below."
 
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Choose another bow cell or rotate the ship, then try again."
@@ -3343,8 +3354,8 @@ msgid "Horizontal wall"
 msgstr "Horizontal wall"
 
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Horizontal wall: tap a square to place it above that square and its right neighbor."
-msgstr "Horizontal wall: tap a square to place it above that square and its right neighbor."
+msgid "Horizontal wall: choose a square to preview its upper boundary."
+msgstr "Horizontal wall: choose a square to preview its upper boundary."
 
 #: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Host"
@@ -3676,6 +3687,10 @@ msgstr "King"
 msgid "Knight"
 msgstr "Knight"
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Larger targets"
+msgstr "Larger targets"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Last activity"
 msgstr "Last activity"
@@ -3788,10 +3803,6 @@ msgstr "Left player: drag the left half. Right player: drag the right half."
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left wins."
 msgstr "Left wins."
-
-#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
-msgid "Legal wall. Choose this anchor to place it."
-msgstr "Legal wall. Choose this anchor to place it."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
@@ -4423,6 +4434,10 @@ msgstr "No guests yet"
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "No legal move or wall — pass turn"
 msgstr "No legal move or wall — pass turn"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "No legal move or wall. Pass to continue."
+msgstr "No legal move or wall. Pass to continue."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
@@ -5110,6 +5125,10 @@ msgstr "Place letter tiles, cross words, score squares."
 msgid "Place tiles from your rack on the board."
 msgstr "Place tiles from your rack on the board."
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Place wall"
+msgstr "Place wall"
+
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Placement area"
 msgstr "Placement area"
@@ -5337,6 +5356,10 @@ msgstr "Progress saved on this device."
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 msgid "Progress saved on this device. Changes share when connected."
 msgstr "Progress saved on this device. Changes share when connected."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Proposed wall. Choose Place wall to confirm, or Cancel."
+msgstr "Proposed wall. Choose Place wall to confirm, or Cancel."
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Prove the account again to continue"
@@ -6476,6 +6499,10 @@ msgstr "Sharing your username change…"
 msgid "Ship"
 msgstr "Ship"
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Ship to place"
+msgstr "Ship to place"
+
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Ships"
 msgstr "Ships"
@@ -6488,6 +6515,10 @@ msgstr "Show performance monitor"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
+
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Show whole board"
+msgstr "Show whole board"
 
 #: libs/spaces-client-ts/src/space-miniplayer.tsx
 msgid "Show your live spaces"
@@ -8289,8 +8320,8 @@ msgid "Vertical wall"
 msgstr "Vertical wall"
 
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Vertical wall: tap a square to place it beside that square and its upper neighbor."
-msgstr "Vertical wall: tap a square to place it beside that square and its upper neighbor."
+msgid "Vertical wall: choose a square to preview its right boundary."
+msgstr "Vertical wall: choose a square to preview its right boundary."
 
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "View profile"
@@ -8421,7 +8452,6 @@ msgid "Win, lose or draw, your rating moves once."
 msgstr "Win, lose or draw, your rating moves once."
 
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
-#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 msgid "Wins"
 msgstr "Wins"
 
@@ -9081,13 +9111,13 @@ msgstr "Your turn to fire."
 msgid "Your turn."
 msgstr "Your turn."
 
-#: libs/hearts-client-ts/src/hearts-board.tsx
-msgid "Your turn. Choose a card without a × to play. Cards marked × explain the rule here."
-msgstr "Your turn. Choose a card without a × to play. Cards marked × explain the rule here."
-
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Your turn. First to e5 wins."
 msgstr "Your turn. First to e5 wins."
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Your turn. Play a highlighted card."
+msgstr "Your turn. Play a highlighted card."
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Your turn. Reach row {row}."

@@ -560,7 +560,12 @@ export function CardTable(props: CardTableProps): JSX.Element {
           {props.center}
         </p>
       </div>
-      <Show when={props.handInstruction}>
+      <Show
+        when={
+          props.handInstruction &&
+          !props.hand.some((card) => card.refusal !== undefined)
+        }
+      >
         <p class={styles['guidance']}>{props.handInstruction}</p>
       </Show>
       <For

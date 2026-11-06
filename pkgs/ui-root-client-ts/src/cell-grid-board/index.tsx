@@ -18,6 +18,7 @@ export type CellGridEdge = 'top' | 'right' | 'bottom' | 'left';
 export type CellGridCell = {
   readonly id: string;
   /** Shown in the cell; hidden from assistive technology (the label says it). */
+  readonly goal?: boolean | undefined;
   readonly glyph: string;
   /** The cell's whole accessible name: where it is and what it holds. */
   readonly label: string;
@@ -136,6 +137,7 @@ function GridCell(props: {
       data-index={props.index}
       data-shade={shade()}
       data-cell={id()}
+      data-goal={cell()?.goal === true ? 'true' : undefined}
       data-testid={
         props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`
       }

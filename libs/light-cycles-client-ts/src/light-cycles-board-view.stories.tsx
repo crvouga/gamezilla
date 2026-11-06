@@ -359,5 +359,16 @@ export const ResumedSteering = recoveryJourney();
 // regression: light-cycles-shared-device-guidance
 export const SharedSwipe: Story = {
   render: interactiveRender(3, ['white', 'black']),
-  play: async ({ canvasElement }) => sharedSwipe(canvasElement),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const left = canvas.queryByTestId('custom-game-board-black-pad');
+    const right = canvas.queryByTestId('custom-game-board-white-pad');
+    if (left && right) {
+      // regression: light-cycles-pad-swipe-spatial-mismatch
+      await expect(left.getBoundingClientRect().right).toBeLessThanOrEqual(
+        right.getBoundingClientRect().left
+      );
+    }
+    await sharedSwipe(canvasElement);
+  },
 };

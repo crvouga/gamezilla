@@ -2,13 +2,13 @@
 
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { type JSX, Show } from 'solid-js';
 import { createBoardController } from '../chess-board-controller';
 import { ChessBoardFrame } from '../chess-board-frame/index';
 import { ChessBoardView } from '../chess-board-view/index';
 import { ChessBoardGuidance } from './guidance';
+import { ChessBoardLayout } from './layout';
 
 /**
  * Solid chess board. Owns the rules (chess.js via `ChessGame`) so a parent
@@ -27,10 +27,14 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
     timers,
   });
   return (
-    <StackVertical gap="xs">
-      <Show when={props.showGuidance}>
-        <ChessBoardGuidance props={props} ctrl={ctrl} />
-      </Show>
+    <ChessBoardLayout
+      fitSquare={props.fitSquare}
+      guidance={
+        <Show when={props.showGuidance}>
+          <ChessBoardGuidance props={props} ctrl={ctrl} />
+        </Show>
+      }
+    >
       <Show
         when={
           props.showCoordinates &&
@@ -45,6 +49,6 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
           <ChessBoardView props={props} ctrl={ctrl} />
         </ChessBoardFrame>
       </Show>
-    </StackVertical>
+    </ChessBoardLayout>
   );
 }

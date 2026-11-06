@@ -154,10 +154,18 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           data-testid={props.testId}
           style={{ '--word-tile-columns': props.columnLabels.length }}
         >
-          <span class={styles['header']} aria-hidden="true" />
+          <span
+            class={styles['header']}
+            data-axis="corner"
+            aria-hidden="true"
+          />
           <For each={props.columnLabels}>
             {(label) => (
-              <span class={styles['header']} aria-hidden="true">
+              <span
+                class={styles['header']}
+                data-axis="column"
+                aria-hidden="true"
+              >
                 {label}
               </span>
             )}
@@ -165,7 +173,11 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           <For each={rows()}>
             {(row) => (
               <>
-                <span class={styles['header']} aria-hidden="true">
+                <span
+                  class={styles['header']}
+                  data-axis="row"
+                  aria-hidden="true"
+                >
                   {props.rowLabels[row] ?? ''}
                 </span>
                 <For each={columns()}>

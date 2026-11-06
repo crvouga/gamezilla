@@ -11,7 +11,7 @@ export function WordTilesPuzzleStatus(props: {
   readonly complete: boolean;
   readonly disabled: boolean;
   readonly lexicon: LexiconState;
-  readonly onRetryLexicon?: (() => void) | undefined;
+  readonly onRetryLexicon: () => void;
 }) {
   return (
     <>
@@ -39,12 +39,10 @@ export function WordTilesPuzzleStatus(props: {
             ? t`Loading the word list. Your tiles are kept.`
             : t`The word list could not load. Your tiles are kept. Retry to check and play your word.`}
         </P>
-        <Show
-          when={props.lexicon.status === 'unavailable' && props.onRetryLexicon}
-        >
+        <Show when={props.lexicon.status === 'unavailable'}>
           <Button
             title={t`Retry word list`}
-            onClick={() => props.onRetryLexicon?.()}
+            onClick={() => props.onRetryLexicon()}
           />
         </Show>
       </Show>

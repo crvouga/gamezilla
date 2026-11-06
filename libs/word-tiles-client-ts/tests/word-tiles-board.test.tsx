@@ -149,7 +149,8 @@ test('the board, its actions and its controls share one draft', () => {
   run('exchange');
   expect(ids()).toContain('exchange-cancel');
   fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
-  run('exchange-confirm');
+  expect(view.queryByTestId('custom-game-board-submit')).toBeNull();
+  fireEvent.click(view.getByTestId('custom-game-board-exchange-confirm'));
   expect(actions).toEqual(['swap:11']);
 });
 

@@ -40,6 +40,7 @@ const meta = {
     disabled: false,
     lexicon: STORY_LEXICON,
     onAction: fn(),
+    onRetryLexicon: fn(),
   },
 } satisfies Meta<typeof WordTilesPuzzlePlayerView>;
 export default meta;
@@ -60,6 +61,16 @@ export const Disabled: Story = { args: { disabled: true } };
 
 /** The word list did not load: moves are scored, not checked. */
 export const WordListUnavailable: Story = {
+  render: (args) => {
+    const [lexicon, setLexicon] = createSignal(args.lexicon);
+    return (
+      <WordTilesPuzzlePlayerView
+        {...args}
+        lexicon={lexicon()}
+        onRetryLexicon={() => setLexicon(STORY_LEXICON)}
+      />
+    );
+  },
   args: {
     lexicon: {
       status: 'unavailable',

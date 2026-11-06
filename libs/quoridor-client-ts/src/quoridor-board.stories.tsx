@@ -125,9 +125,21 @@ export const PlaceAWall: Story = {
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-h')
     );
+    await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
+    await expect(
+      canvas.getByTestId('custom-game-board-action-d4h')
+    ).toHaveAttribute('data-preview-edge-top', 'true');
+    await expect(
+      canvas.getByTestId('custom-game-board-action-d4h')
+    ).toHaveAttribute('data-edge-top', 'false');
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+    await expect(
+      canvas.getByTestId('custom-game-board-action-d4h')
+    ).toHaveAttribute('data-preview-edge-top', 'false');
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-action-e5h')
     );
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       canvas.getByTestId('custom-game-board-action-e5h')
     ).toHaveAccessibleName(/wall boundaries/);
@@ -137,6 +149,7 @@ export const PlaceAWall: Story = {
       canvas.getByTestId('custom-game-board-wall-status')
     ).toHaveTextContent('crosses another wall');
     await userEvent.click(canvas.getByTestId('custom-game-board-action-b3v'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       canvas.getByTestId('custom-game-board-action-b3v')
     ).toHaveAccessibleName(/wall boundaries/);
@@ -181,6 +194,7 @@ export const KeepAPathOpen: Story = {
       canvas.getByTestId('custom-game-board-action-e1v')
     ).toHaveAttribute('data-edge-right', 'false');
     await userEvent.click(canvas.getByTestId('custom-game-board-action-g3v'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       canvas.getByTestId('custom-game-board-action-g3v')
     ).toHaveAttribute('data-edge-right', 'true');

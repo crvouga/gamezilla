@@ -1,0 +1,4 @@
+{
+  "summary": "Shared steering pads appeared on the opposite side from their rider swipe region.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

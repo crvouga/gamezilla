@@ -81,7 +81,7 @@ type PuzzleBoardProps = {
   state: string;
   lexicon: LexiconState;
   onAction: (action: string) => void;
-  onRetryLexicon?: (() => void) | undefined;
+  onRetryLexicon: () => void;
 };
 
 function createPuzzleBoard(props: PuzzleBoardProps) {
@@ -149,7 +149,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
     tiles,
   } = createPuzzleBoard(props);
   return (
-    <StackVertical gap="sm">
+    <StackVertical gap="sm" padding="lg" width="full" maxWidth="prose">
       <WordTilesPuzzleStatus
         target={target()}
         score={progress().score}
@@ -228,7 +228,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
 export type WordTilesPuzzlePlayerViewProps = PuzzlePlayerProps & {
   /** The word list the puzzle pins: loading, ready, or unavailable. */
   readonly lexicon: LexiconState;
-  readonly onRetryLexicon?: (() => void) | undefined;
+  readonly onRetryLexicon: () => void;
 };
 
 /**

@@ -476,3 +476,12 @@
   -webkit-text-stroke: 0.08em var(--ui-color-game-quoridor-ink);
   paint-order: stroke fill;
 }
+
+.board[data-board-theme="quoridor"] .cell[data-goal="true"] {
+  box-shadow: inset 0 0 0 2px var(--ui-color-game-quoridor-ink);
+}
+.board[data-board-theme="quoridor"]
+  .cell[data-goal="true"][data-tone="open"]
+  .glyph {
+  font-size: 72cqw;
+}

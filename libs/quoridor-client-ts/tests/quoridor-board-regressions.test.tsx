@@ -68,6 +68,13 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
   const anchor = view.getByTestId('wall-preview-action-a1h');
   fireEvent.focus(anchor);
   fireEvent.click(anchor);
+  // regression: quoridor-wall-touch-commit
+  expect(game().walls).toEqual([]);
+  expect(anchor.getAttribute('data-preview-edge-top')).toBe('true');
+  fireEvent.click(view.getByTestId('wall-preview-wall-cancel'));
+  expect(game().walls).toEqual([]);
+  fireEvent.click(anchor);
+  fireEvent.click(view.getByTestId('wall-preview-wall-commit'));
   expect(game().walls).toEqual(['a1h']);
   expect(
     view.getByTestId('wall-preview-wall-status').textContent

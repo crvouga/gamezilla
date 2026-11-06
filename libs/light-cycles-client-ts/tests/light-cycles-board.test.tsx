@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
 import { LightCyclesBoard } from '@libs/light-cycles-client-ts/light-cycles-board';
+import { lightCyclesFrame } from '@libs/light-cycles-client-ts/light-cycles-frame';
 import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import {
   lightCyclesPositionCodec,
@@ -216,4 +217,39 @@ test('both local riders and their swipe halves are named', () => {
   expect(
     view.getByText(/Swipe the right half for Comet, the left half for Ember/)
   ).toBeDefined();
+});
+
+// regression: light-cycles-pad-swipe-spatial-mismatch
+test('shared pads follow the left Ember and right Comet swipe regions', () => {
+  const view = board(['white', 'black'], running(lightCyclesStart(3, 3)));
+  const pads = view.container.querySelectorAll(
+    '[data-component="DirectionPad"]'
+  );
+  expect(Array.from(pads, (pad) => pad.getAttribute('data-testid'))).toEqual([
+    'arena-black-pad',
+    'arena-white-pad',
+  ]);
+  fireEvent.click(view.getByTestId('arena-black-pad-up'));
+  fireEvent.click(view.getByTestId('arena-white-pad-down'));
+  expect(view.inputs).toEqual([
+    ['black', { round: 1, heading: 'up' }],
+    ['white', { round: 1, heading: 'down' }],
+  ]);
+});
+
+// regression: light-cycles-rider-name-and-result-hierarchy
+test('seat statistics name riders while round context does not repeat the outcome', () => {
+  const state = until(
+    running(lightCyclesStart(3, 3)),
+    (value) => value.phase === 'round-over'
+  );
+  const position = trio.encode(state);
+  const frame = lightCyclesFrame(3);
+  expect(frame.seats.stat(position, 'white')?.label).toContain('Comet');
+  expect(frame.seats.stat(position, 'black')?.label).toContain('Ember');
+  expect(frame.turnStatus(position, 'white', [])).toContain('Round 1');
+  expect(frame.turnStatus(position, 'white', [])).not.toContain('wins');
+  expect(
+    board(['white'], state).getByTestId('arena-result').textContent
+  ).toBeTruthy();
 });

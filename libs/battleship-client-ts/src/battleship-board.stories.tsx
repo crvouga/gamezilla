@@ -253,6 +253,15 @@ export const CorrectTargetBeforeFiring: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // regression: battleship-touch-spends-mistarget
+    await userEvent.click(
+      canvas.getByTestId('custom-game-board-large-targets')
+    );
+    await userEvent.click(canvas.getByTestId('custom-game-board-area-3'));
+    const targetBounds = canvas
+      .getByTestId('custom-game-board-target-j10')
+      .getBoundingClientRect();
+    await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
+    await expect(targetBounds.height).toBeGreaterThanOrEqual(44);
     await userEvent.pointer([
       {
         keys: '[TouchA]',
@@ -271,6 +280,9 @@ export const CorrectTargetBeforeFiring: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-fire')
     ).toHaveTextContent('Fire at J10');
+    await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
+    await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('custom-game-board-target-j10'));
     await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
     await expect(
       canvas.getByTestId('custom-game-board-target-j10')

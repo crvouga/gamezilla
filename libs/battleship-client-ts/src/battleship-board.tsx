@@ -29,6 +29,8 @@ import {
 import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
 
+import { BattleshipTargetGrid } from './battleship-target-grid';
+
 type BoardView = 'own' | 'target';
 
 /**
@@ -142,6 +144,9 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   );
   return (
     <StackVertical gap="md" testId={props.testId}>
+      <Show when={battle().winner !== null}>
+        <P variant="bodyBold">{t`${sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))} destroyed — all five ships sunk.`}</P>
+      </Show>
       <BattlePanels
         testId={props.testId}
         labels={labels()}
@@ -160,6 +165,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
           selected={selected()}
           pending={aim.aiming() !== null}
           testId={props.testId}
+          onCancel={() => setSelected(null)}
           onFire={(cell) => {
             if (interactive() && aim.aiming() === null) aim.fire(cell);
           }}
@@ -179,10 +185,17 @@ function ShotConfirmation(props: {
   pending: boolean;
   testId: string;
   onFire: (cell: string) => void;
+  onCancel: () => void;
 }): JSX.Element {
   return (
     <>
-      <P variant="caption">{t`Choose a square, check its coordinate, then fire. You can change your aim before firing.`}</P>
+      <Show when={props.selected !== null && !props.pending}>
+        <Button
+          title={t`Cancel aim`}
+          onClick={props.onCancel}
+          dataSet={{ testid: `${props.testId}-cancel-aim` }}
+        />
+      </Show>
       <Button
         fullWidth
         disabled={props.selected === null || props.pending}
@@ -229,12 +242,11 @@ function BattlePanels(props: {
         />
       }
       second={
-        <BoardPanel
+        <BattleshipTargetGrid
           label={props.labels.target}
           testId={props.testId}
-          view="target"
           cells={props.target}
-          onFire={props.onAim}
+          onAim={props.onAim}
         />
       }
     />

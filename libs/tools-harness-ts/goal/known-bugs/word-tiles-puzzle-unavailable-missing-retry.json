@@ -1,0 +1,4 @@
+{
+  "summary": "Unavailable puzzle instructed retry but optional recovery callback hid the action.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-recovery.test.tsx"
+}

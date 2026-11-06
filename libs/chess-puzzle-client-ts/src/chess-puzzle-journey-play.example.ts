@@ -1,7 +1,12 @@
 import { expect, userEvent, within } from 'storybook/test';
+import {
+  assertPuzzleBounds,
+  checkPuzzleFirstRank,
+} from './chess-puzzle-bounds.checks';
 
 /** Keyboard moves exercise the board's real selection and action emission. */
 export async function completeChessPuzzle(canvasElement: HTMLElement) {
+  await checkPuzzleFirstRank(canvasElement);
   const canvas = within(canvasElement);
   const move = async (name: RegExp, keys: string) => {
     canvas.getByRole('button', { name }).focus();
@@ -26,6 +31,7 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
 }
 
 export async function recoverChessPuzzle(canvasElement: HTMLElement) {
+  await checkPuzzleFirstRank(canvasElement);
   const canvas = within(canvasElement);
   canvas.getByRole('button', { name: /^c3, White knight/ }).focus();
   await userEvent.keyboard('{Enter}{ArrowUp}{ArrowUp}{ArrowRight}{Enter}');
@@ -41,7 +47,9 @@ export async function recoverChessPuzzle(canvasElement: HTMLElement) {
   await expect(
     canvas.getByRole('button', { name: /^c3, White knight/ })
   ).toBeVisible();
+  await assertPuzzleBounds(canvasElement);
   await userEvent.click(canvas.getByRole('button', { name: /^Hint$/i }));
+  await assertPuzzleBounds(canvasElement);
   await expect(
     canvas.getByRole('button', {
       name: /f3, White knight, Hint: move this piece/,

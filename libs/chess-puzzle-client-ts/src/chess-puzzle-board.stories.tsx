@@ -8,6 +8,10 @@ import {
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
+import {
+  assertPuzzleBounds,
+  checkPuzzleFirstRank,
+} from './chess-puzzle-bounds.checks';
 import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
 import {
   completeChessPuzzle,
@@ -52,10 +56,13 @@ export default meta;
 type Story = StoryObj;
 
 /** The solver's turn after the setup move: find the best move for White. */
-export const Solving: Story = {};
+export const Solving: Story = {
+  play: async ({ canvasElement }) => checkPuzzleFirstRank(canvasElement),
+};
 
 /** The first hint: the knight to move is marked on chess's board. */
 export const Hint: Story = {
+  play: async ({ canvasElement }) => checkPuzzleFirstRank(canvasElement),
   parameters: {
     view: {
       hintStage: 'highlight',
@@ -75,6 +82,7 @@ export const Hint: Story = {
 
 /** The solution shown as an arrow on chess's board. */
 export const SolutionShown: Story = {
+  play: async ({ canvasElement }) => assertPuzzleBounds(canvasElement),
   parameters: {
     view: {
       statusKind: 'failed',

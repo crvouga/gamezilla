@@ -2,6 +2,7 @@ import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
+import { checkSetupPlacementBounds } from './battleship-setup-placement.checks';
 
 const FULL_FLEET =
   'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v';
@@ -131,6 +132,7 @@ export const EnlargedPlacement: Story = {
     const bow = await canvas.findByTestId(
       'custom-game-setup-precision-cell-a1'
     );
+    await checkSetupPlacementBounds(bow);
     await userEvent.click(bow);
     await expect(
       await canvas.findByTestId('custom-game-setup-progress')
@@ -138,6 +140,7 @@ export const EnlargedPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-setup-cell-e1')
     ).toHaveAccessibleName('E1: Carrier');
+    await checkSetupPlacementBounds(bow);
     await userEvent.click(bow);
     await expect(
       await canvas.findByTestId('custom-game-setup-refusal')
@@ -154,5 +157,26 @@ export const EnlargedPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-setup-progress')
     ).toHaveTextContent('2 of 5 ships placed');
+    for (const id of ['c3', 'e3']) {
+      const target = await canvas.findByTestId(
+        `custom-game-setup-precision-cell-${id}`
+      );
+      await checkSetupPlacementBounds(target);
+      await userEvent.click(target);
+    }
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-setup-rotate')
+    );
+    const last = await canvas.findByTestId(
+      'custom-game-setup-precision-cell-b2'
+    );
+    await checkSetupPlacementBounds(last);
+    await userEvent.click(last);
+    await expect(
+      await canvas.findByTestId('custom-game-setup-progress')
+    ).toHaveTextContent('All five ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-c2')
+    ).toHaveAccessibleName('C2: Destroyer');
   },
 };

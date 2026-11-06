@@ -9,7 +9,6 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 
 const BLOCKED_HILL = [
@@ -47,7 +46,7 @@ const BLOCKED_HILL = [
   'a5v',
 ];
 
-test('an exhausted blocked player can follow the wall refusal to the pass action', () => {
+test('an exhausted blocked player is directed straight to the sole pass action', () => {
   // regression: quoridor-exhausted-wall-pass-recovery
   const game = replayQuoridor('hill', BLOCKED_HILL);
   const { clock, timers } = createHarnessClock();
@@ -75,15 +74,16 @@ test('an exhausted blocked player can follow the wall refusal to the pass action
       </ThemeProvider>
     </ClockProvider>
   ));
+  const current = session;
+  if (!current) throw new Error('Missing board session');
   const action = (id: string) => {
-    const found = session!.actions().find((each) => each.id === id);
+    const found = current.actions().find((each) => each.id === id);
     if (found === undefined) throw new Error(`No action ${id}`);
     return found;
   };
-  action('mode-h').run();
-  fireEvent.focus(view.getByTestId('blocked-hill-action-a1h'));
-  expect(view.getByTestId('blocked-hill-wall-status').textContent).toMatch(
-    /pass turn/i
+  expect(current.actions().map((item) => item.id)).toEqual(['action-pass']);
+  expect(view.getByTestId('blocked-hill-wall-status').textContent).toBe(
+    'No legal move or wall. Pass to continue.'
   );
   // The pass is the board's action `action-pass`: in a custom game, the
   // frame's `custom-game-board-action-pass`.

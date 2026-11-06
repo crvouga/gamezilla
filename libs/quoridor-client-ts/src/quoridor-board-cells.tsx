@@ -29,7 +29,8 @@ export function quoridorPlayerName(game: Quoridor, player: number): string {
 export function quoridorWallMessage(
   reason: QuoridorWallRefusal | null
 ): string {
-  if (reason === null) return t`Legal wall. Choose this anchor to place it.`;
+  if (reason === null)
+    return t`Proposed wall. Choose Place wall to confirm, or Cancel.`;
   const messages: Readonly<Record<QuoridorWallRefusal, string>> = {
     outside: t`Walls must fit between four squares. Choose an anchor from a1 to h8.`,
     overlap: t`This wall overlaps another wall. Choose a different anchor.`,
@@ -121,6 +122,10 @@ export function quoridorBoardCells(
     return {
       ...identity,
       id,
+      goal:
+        game.mode === 'hill'
+          ? cell === 40
+          : Math.floor(cell / 9) === (game.turn === 0 ? 8 : 0),
       label: `${id}: ${identity.label}${moving ? t`, legal move` : ''}${edges.length > 0 ? t`, wall boundaries: ${edges.join(', ')}` : ''}`,
       emphasis:
         previewEdges.length > 0 && refused
@@ -134,4 +139,15 @@ export function quoridorBoardCells(
       previewEdges,
     };
   });
+}
+
+/** Name the two boundaries a wall will occupy, in board coordinates. */
+export function quoridorBoundary(action: string): string {
+  const column = action.charAt(0);
+  const right = String.fromCharCode(column.charCodeAt(0) + 1);
+  const row = Number(action[1]);
+  const above = row + 1;
+  return action[2] === 'h'
+    ? t`Between ${column}${row}–${column}${above} and ${right}${row}–${right}${above}.`
+    : t`Between ${column}${row}–${right}${row} and ${column}${above}–${right}${above}.`;
 }

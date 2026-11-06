@@ -22,6 +22,7 @@ export type Candidate = {
   readonly selected: number | null;
   /** Tiles chosen to exchange, while choosing; `null` otherwise. */
   readonly exchange: readonly number[] | null;
+  readonly exchangeBase: string | null;
   /** The cell of a placed blank waiting for its letter. */
   readonly blankAt: number | null;
   readonly undo: readonly (readonly ProposedTile[])[];
@@ -35,6 +36,7 @@ export function newCandidate(position: string, hand: string | null): Candidate {
     placed: [],
     selected: null,
     exchange: null,
+    exchangeBase: null,
     blankAt: null,
     undo: [],
     redo: [],
@@ -80,7 +82,11 @@ export function rebase(
       candidate.selected !== null && held.has(candidate.selected)
         ? candidate.selected
         : null,
-    exchange: candidate.exchange?.filter((id) => held.has(id)) ?? null,
+    exchange:
+      position !== candidate.exchangeBase &&
+      candidate.exchange?.some((id) => !held.has(id))
+        ? null
+        : candidate.exchange,
     blankAt: placed.some((t) => t.cell === candidate.blankAt)
       ? candidate.blankAt
       : null,
@@ -202,8 +208,8 @@ export function shuffleRack(
 
 export function toggleExchange(candidate: Candidate): Candidate {
   return candidate.exchange === null
-    ? { ...recallAll(candidate), exchange: [] }
-    : { ...candidate, exchange: null };
+    ? { ...recallAll(candidate), exchange: [], exchangeBase: candidate.base }
+    : { ...candidate, exchange: null, exchangeBase: null };
 }
 
 /** The one atomic proposal the candidate submits, or `null` while it is incomplete. */

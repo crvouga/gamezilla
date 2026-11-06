@@ -91,3 +91,25 @@ test('a refreshed game record preserves the selected target when its position is
   setRecord({ position, syncKey: 1 });
   expect(byTestId('refresh-fire').textContent).toContain('Choose a target');
 });
+
+test('large targeting areas partition all 100 cells and allow correction and cancellation', () => {
+  // regression: battleship-large-targets-unavailable
+  const actions = mount();
+  fireEvent.click(byTestId('precision-large-targets'));
+  const seen = new Set<string>();
+  for (let area = 0; area < 4; area += 1) {
+    fireEvent.click(byTestId(`precision-area-${area}`));
+    const cells = byTestId('precision-target-grid').querySelectorAll('button');
+    expect(cells.length).toBe(25);
+    for (const cell of cells) seen.add(cell.getAttribute('data-testid') ?? '');
+  }
+  expect(seen.size).toBe(100);
+  fireEvent.click(byTestId('precision-target-j9'));
+  fireEvent.click(byTestId('precision-target-j10'));
+  expect(actions).toEqual([]);
+  fireEvent.click(byTestId('precision-cancel-aim'));
+  expect(byTestId('precision-fire').hasAttribute('disabled')).toBe(true);
+  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-fire'));
+  expect(actions).toEqual(['j10']);
+});

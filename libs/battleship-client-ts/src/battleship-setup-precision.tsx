@@ -1,11 +1,11 @@
+import { isShipId, SHIPS } from '@libs/battleship-shared-ts/battleship-board';
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
+import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX, Show } from 'solid-js';
-import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
+import { COLUMN_LABELS, ROW_LABELS, shipName } from './battleship-copy';
 import type { SetupController } from './battleship-setup-controller';
 
 /** A magnified bow picker; placement still validates against the full fleet. */
@@ -39,21 +39,31 @@ export function SetupPrecision(props: {
         dataSet={{ testid: `${props.testId}-enlarge` }}
       />
       <Show when={open()}>
-        <P variant="caption">{t`Choose an area, then tap a large cell for the ship’s bow. Ships can extend into another area; the full fleet is shown below.`}</P>
-        <GameChoiceGrid
-          label={t`Placement area`}
-          value={area()}
-          onChange={setArea}
+        <Select
+          aria-label={t`Ship to place`}
+          value={props.setup.selected() ?? ''}
+          onValueChange={(value) => {
+            if (isShipId(value)) props.setup.choose(value);
+          }}
           disabled={props.locked}
-          choices={[
-            { value: 'nw', title: 'A–E / 1–5' },
-            { value: 'ne', title: 'F–J / 1–5' },
-            { value: 'sw', title: 'A–E / 6–10' },
-            { value: 'se', title: 'F–J / 6–10' },
+          options={SHIPS.map(({ id, length }) => ({
+            value: id,
+            label: `${shipName(id)} · ${length}`,
+          }))}
+        />
+        <Select
+          aria-label={t`Placement area`}
+          value={area()}
+          onValueChange={setArea}
+          disabled={props.locked}
+          options={[
+            { value: 'nw', label: 'A–E / 1–5' },
+            { value: 'ne', label: 'F–J / 1–5' },
+            { value: 'sw', label: 'A–E / 6–10' },
+            { value: 'se', label: 'F–J / 6–10' },
           ]}
         />
         <CellGridBoard
-          fill
           label={t`Enlarged bow placement`}
           testId={`${props.testId}-precision`}
           columnLabels={COLUMN_LABELS.slice(left(), left() + 5)}

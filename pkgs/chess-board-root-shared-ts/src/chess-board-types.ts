@@ -35,6 +35,8 @@ export type ChessBoardProps = {
   showCoordinates?: boolean | undefined;
   /** Visible side, check and keyboard guidance beside a full playing board. */
   showGuidance?: boolean | undefined;
+  /** Fit guidance and coordinates inside a square host, rather than adding height. */
+  fitSquare?: boolean | undefined;
   /**
    * Coordinate placement: `inside` (default) uses square corners;
    * `outside-start` / `outside-end` adds the responsive frame with ranks

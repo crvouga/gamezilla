@@ -16,7 +16,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
-import { expectHillPassVisible } from './quoridor-hill-visibility.example';
+import { expectHillPassVisible } from './quoridor-hill-visibility.checks';
 
 function sideAt(index: number) {
   const side = QUORIDOR_SIDES[index];
@@ -230,6 +230,21 @@ export const FourPlayerRound: Story = {
       await canvas.findByTestId('custom-game-board-action-e5h')
     );
     await expect(
+      await canvas.findByTestId('custom-game-board-wall-status')
+    ).toHaveTextContent(/Proposed wall/);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-wall-cancel')
+    );
+    await expect(
+      canvas.queryByTestId('custom-game-board-wall-cancel')
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-e5h')
+    );
+    await userEvent.click(
+      await canvas.findByRole('button', { name: /^Place wall$/i })
+    );
+    await expect(
       await canvas.findByTestId('custom-game-board-action-a3')
     ).toBeEnabled();
   },
@@ -268,6 +283,9 @@ export const RecoverWallPlacement: Story = {
     ).toHaveTextContent(/overlaps/);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-action-a1h')
+    );
+    await userEvent.click(
+      await canvas.findByRole('button', { name: /^Place wall$/i })
     );
     await expect(
       await canvas.findByTestId('custom-game-board-action-e8')
