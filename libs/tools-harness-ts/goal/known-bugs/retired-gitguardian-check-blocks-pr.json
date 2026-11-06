@@ -1,0 +1,4 @@
+{
+  "summary": "A neutral result posted by the retired GitGuardian integration still blocked the PR gate after its required-check entry was removed.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-pr-checks.test.ts"
+}
