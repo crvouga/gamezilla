@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { ciStageTasks } from './ci-stage';
+import { ciStageTasks, isBlockingCiTask } from './ci-stage';
 import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
 test('nightly and local verification retain the complete catalog', () => {
@@ -54,15 +54,15 @@ test('Release compares schema evolution against the pre-push commit', () => {
   );
 });
 
-test('PR predicts release; release additionally proves critical journeys', () => {
+// regression: pr-omitted-release-journeys
+test('PR and Release enforce the same production-build journeys', () => {
   const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
   const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
-  expect(release.filter((task) => !pr.includes(task))).toEqual(
-    RELEASE_JOURNEY_TASKS
-  );
+  expect(pr).toEqual(release);
   for (const task of pr) expect(release).toContain(task);
   for (const task of RELEASE_JOURNEY_TASKS) {
-    expect(pr).not.toContain(task);
+    expect(pr).toContain(task);
+    expect(isBlockingCiTask(task)).toBe(true);
     expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toContain(task);
   }
   expect(new Set(release).size).toBe(release.length);
@@ -101,7 +101,7 @@ test('stage selections stay nested as the catalog grows and changes order', () =
         const pr = ciStageTasks(catalog, 'pr');
         const release = ciStageTasks(catalog, 'release');
         const nightly = ciStageTasks(catalog, 'nightly');
-        for (const task of pr) expect(release).toContain(task);
+        expect(pr).toEqual(release);
         // Focused test selections are covered by nightly's generic test task.
         for (const task of release)
           expect(nightly.includes(task) || task.endsWith('#test')).toBe(true);

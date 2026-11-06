@@ -11,6 +11,7 @@ import type {
   CleanupPull,
 } from './branch-cleanup';
 import { cleanupBranches } from './branch-cleanup';
+import { branchComparison } from './branch-comparison';
 import { reportsStore } from './report-store';
 
 type GithubBranch = {
@@ -61,10 +62,12 @@ function githubPort(repo: string): BranchCleanupPort {
       return all.filter((pull) => pull.repo === repo);
     },
     async compare(base, head) {
-      return gh<{ status: string }>([
-        'api',
-        `${root}/compare/${encodeURIComponent(base)}...${head}`,
-      ]).status;
+      return branchComparison(
+        capture('gh', [
+          'api',
+          `${root}/compare/${encodeURIComponent(base)}...${head}`,
+        ])
+      );
     },
     async head(branch) {
       return gh<{ object: { sha: string } }>([
