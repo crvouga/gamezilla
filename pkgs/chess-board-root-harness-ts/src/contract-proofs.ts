@@ -18,6 +18,7 @@ export const CHESSBOARD_CONTRACT_PROOFS = {
     'board-options.qnt',
     'resize.contract.test.ts',
   ],
+  fitSquare: ['puzzle-first-rank.test.tsx', 'stories.checks.ts'],
   interactive: ['board-authority.feature', 'board-options.qnt'],
   sound: [
     'board-sound.feature',

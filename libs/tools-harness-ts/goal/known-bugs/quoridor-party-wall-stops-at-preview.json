@@ -1,0 +1,4 @@
+{
+  "summary": "The shared party automation selected d4h but never committed the persistent wall proposal, leaving move 10 absent.",
+  "regressionTest": "libs/runtime-harness-ts/tests/party-journey-review-contract.test.ts"
+}

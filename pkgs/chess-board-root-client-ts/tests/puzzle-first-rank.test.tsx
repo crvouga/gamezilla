@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { mountBoard } from './board-fixture';
 
+// regression: chess-square-fit-contract-proof-missing
 // regression: chess-puzzle-first-rank-selection
 test('the puzzle king can move from e1 to f1 with guidance and square fitting enabled', () => {
   const board = mountBoard({

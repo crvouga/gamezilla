@@ -28,6 +28,7 @@ export function delayedPartyHost(
   let returnsLive = 0;
   let rebased = false;
   let ready = true;
+  let proposedWall: string | null = null;
   const read = (actor: 'white' | 'black'): string => {
     const shown = actor === 'white' ? hostView : view;
     if (mode === 'reviewed' && !reviewed && shown.ply === 16) {
@@ -114,8 +115,15 @@ export function delayedPartyHost(
         },
         wait: () => waitFor(actor, id),
         key: () => {
-          if (id.startsWith('custom-game-board-action-'))
-            play(actor, id.slice('custom-game-board-action-'.length));
+          if (id === 'custom-game-board-wall-commit') {
+            if (proposedWall === null) throw new Error('No wall proposed');
+            play(actor, proposedWall);
+            proposedWall = null;
+          } else if (id.startsWith('custom-game-board-action-')) {
+            const action = id.slice('custom-game-board-action-'.length);
+            if (action.length === 3) proposedWall = action;
+            else play(actor, action);
+          }
         },
         // The record beside a wide board always shows its steps.
         shown: () => id === 'custom-game-review-live',
