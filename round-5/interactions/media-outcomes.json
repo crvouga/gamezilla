@@ -1,0 +1,84 @@
+[
+  {
+    "name": "capture",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/capture.sh"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0
+  },
+  {
+    "name": "compose",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/compose.sh"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0
+  },
+  {
+    "name": "videos",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/videos.sh"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0
+  },
+  {
+    "name": "audit-media",
+    "command": [
+      "python3",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/audit-media.py"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 1
+  },
+  {
+    "name": "audit-media-corrected",
+    "command": [
+      "python3",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/audit-media.py"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0,
+    "repair": "Exact capture-manifest inventory; unchanged assertions. Temporary page@ recording copies removed only after byte identity verified."
+  },
+  {
+    "name": "video-previews",
+    "command": [
+      "uv",
+      "run",
+      "--with",
+      "pillow",
+      "python",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/video-previews.py"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 1
+  },
+  {
+    "name": "video-previews-corrected",
+    "command": [
+      "uv",
+      "run",
+      "--with",
+      "pillow",
+      "python",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/video-previews.py"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0,
+    "repair": "Use supported output frame-rate option instead of absent fps filter; all 37 GIFs have multiple frames."
+  },
+  {
+    "name": "gallery",
+    "command": [
+      "python3",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/gallery.py"
+    ],
+    "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+    "exitCode": 0
+  }
+]

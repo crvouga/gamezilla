@@ -1,0 +1,114 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/game-puzzle-client-ts, @libs/pong-client-ts, @libs/runtime-harness-ts, @pkgs/chess-board-root-client-ts, @pkgs/chess-board-root-harness-ts
+   • Running lint, tc, test in 6 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/chess-board-root-client-ts:test: cache miss, executing f2ade1f56a62de96
+@pkgs/chess-board-root-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload ./src/board-style-preload.ts tests
+@pkgs/chess-board-root-client-ts:test: bun test v1.4.3 (c6da4a4d3)
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/board-stylesheet-tokens.test.ts:
+@pkgs/chess-board-root-client-ts:test: (pass) every design-system color the board stylesheet reads is a declared token [0.92ms]
+@pkgs/chess-board-root-client-ts:test: (pass) last-move wash has a board-ink perimeter in addition to its yellow fill [3.58ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/chess-board-parent.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) the parent's onMove runs with its own effects > after a drag-and-drop [19.92ms]
+@pkgs/chess-board-root-client-ts:test: (pass) the parent's onMove runs with its own effects > after a click-click move [6.76ms]
+@pkgs/chess-board-root-client-ts:test: (pass) the parent's onMove runs with its own effects > after a keyboard move [8.07ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/board-guidance.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) a checked black king has visible check, orientation and keyboard guidance [9.70ms]
+@pkgs/chess-board-root-client-ts:test: (pass) touch guidance keeps keyboard grammar behind a discoverable disclosure [2.62ms]
+@pkgs/chess-board-root-client-ts:test: 37 |   try {
+@pkgs/chess-board-root-client-ts:test: 38 |     const frame = board.host.closest('[data-component="ChessBoardFrame"]');
+@pkgs/chess-board-root-client-ts:test: 39 |     const help = frame?.parentElement?.querySelector('details');
+@pkgs/chess-board-root-client-ts:test: 40 |     if (!frame || !help)
+@pkgs/chess-board-root-client-ts:test: 41 |       throw new Error('Missing board frame or keyboard help');
+@pkgs/chess-board-root-client-ts:test: 42 |     expect(
+@pkgs/chess-board-root-client-ts:test:                                                                                     ^
+@pkgs/chess-board-root-client-ts:test: error: Missing board frame or keyboard help
+@pkgs/chess-board-root-client-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx:42:80)
+@pkgs/chess-board-root-client-ts:test: (fail) before placement keeps keyboard guidance ahead of the same playable board [2.14ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/chess-board.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) ChessBoard > mounts squares and a probe [1.90ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/sound-warmup.contract.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) closing the warming board cannot pause a second board already playing the same sound [0.32ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/board-geometry.contract.test.ts:
+@pkgs/chess-board-root-client-ts:test: (pass) rendered border and hit targets agree under fractional uniform scaling [1.53ms]
+@pkgs/chess-board-root-client-ts:test: (pass) invalid pointer coordinates never manufacture a square [0.01ms]
+@pkgs/chess-board-root-client-ts:test: (pass) scaled border regression maps the rendered far file [0.03ms]
+@pkgs/chess-board-root-client-ts:test: (pass) a resize awaiting observation uses the current scaled content box [0.33ms]
+@pkgs/chess-board-root-client-ts:test: (pass) available fractional dimensions are preserved without rounding cells [0.14ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/promotion-names.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) a7 to a8 offers visible named promotions and cancellation before committing [36.78ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/puzzle-hint-outline.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) the occupied f3 hint frames the perimeter in either orientation without a central badge [4.58ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/chess-board-sounds.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) board sounds > every board on a screen shares one bank of players [5.67ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/chess-board-announcement.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) spoken last move > a quiet move names the piece that moved [3.12ms]
+@pkgs/chess-board-root-client-ts:test: (pass) spoken last move > a promotion is a pawn move, not a move by the piece it became [2.53ms]
+@pkgs/chess-board-root-client-ts:test: (pass) spoken last move > a capturing promotion with check [2.75ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/sound-lifecycle.contract.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) disabling and re-enabling during a blocked seek never resurrects old sound [0.27ms]
+@pkgs/chess-board-root-client-ts:test: (pass) unmount cancels a blocked seek before it can play [0.09ms]
+@pkgs/chess-board-root-client-ts:test: (pass) a sound requested while disabled cannot play after re-enabling [0.06ms]
+@pkgs/chess-board-root-client-ts:test: (pass) a disposed board sound handle stays inert [0.05ms]
+@pkgs/chess-board-root-client-ts:test: (pass) muting or closing one board cannot trigger or cancel the other board [0.11ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/identifier.contract.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) a custom public identifier scopes square controls, probe and move output [6.62ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/chess-board-input.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) hot paths stay out of the framework > moving the pointer over an idle board writes nothing [3.72ms]
+@pkgs/chess-board-root-client-ts:test: (pass) hot paths stay out of the framework > each pointer move of a drag is one style write, on the avatar [4.01ms]
+@pkgs/chess-board-root-client-ts:test: (pass) hot paths stay out of the framework > a move re-places only the piece that moved [3.65ms]
+@pkgs/chess-board-root-client-ts:test: (pass) render budgets > releasing a tap on a piece changes nothing already painted (one reactive pass) [2.36ms]
+@pkgs/chess-board-root-client-ts:test: (pass) render budgets > a move updates only changed square meanings and two focus stops [3.27ms]
+@pkgs/chess-board-root-client-ts:test: (pass) render budgets > flipping the board keeps every hit-grid button where it is in the DOM [1.96ms]
+@pkgs/chess-board-root-client-ts:test: (pass) render budgets > empty annotation layers are not rendered above the pieces [3.58ms]
+@pkgs/chess-board-root-client-ts:test: (pass) render budgets > a view-only board offers no piece to grab [1.32ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > a press picks the piece up at once, centred under the pointer [1.94ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > a finger picks the piece up on the press, grown and held by its base [1.78ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > the next mouse press after a touch drag is true size again [2.65ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > a press that wobbles across a square edge is a tap, not a drop [2.26ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > the dragged piece is drawn outside the board and follows off it [4.57ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > the board owns its presses: defaults prevented, a mouse press focuses its square [2.97ms]
+@pkgs/chess-board-root-client-ts:test: (pass) pick-up > a touch long-press keeps holding the piece [2.56ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > the right-drag arrow is previewed square by square until released [1.97ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > a right button pressed during a drag puts the piece back [2.33ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > a right-click during a drag (context menu) puts the piece back [2.31ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > a right-drag draws its arrow when the context menu fires after release [2.23ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > a second finger neither steers nor drops the dragged piece [2.67ms]
+@pkgs/chess-board-root-client-ts:test: (pass) gestures > parent arrows redraw when the board flips [2.52ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: tests/puzzle-first-rank.test.tsx:
+@pkgs/chess-board-root-client-ts:test: (pass) the puzzle king can move from e1 to f1 with guidance and square fitting enabled [8.42ms]
+@pkgs/chess-board-root-client-ts:test: (pass) puzzle guidance follows the board, and expanding it retains the same board node [2.12ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test: 1 tests failed:
+@pkgs/chess-board-root-client-ts:test: (fail) before placement keeps keyboard guidance ahead of the same playable board [2.14ms]
+@pkgs/chess-board-root-client-ts:test: 
+@pkgs/chess-board-root-client-ts:test:  49 pass
+@pkgs/chess-board-root-client-ts:test:  1 fail
+@pkgs/chess-board-root-client-ts:test:  464 expect() calls
+@pkgs/chess-board-root-client-ts:test: Ran 50 tests across 14 files. [418.00ms]
+@pkgs/chess-board-root-client-ts:test: error: script "test" exited with code 1
+@pkgs/chess-board-root-client-ts#test:  WARNING  command finished with error, but continuing...
+@pkgs/chess-board-root-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/chess-board-root-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    17 successful, 18 total
+Cached:    0 cached, 18 total
+  Time:    35.908s 
+Failed:    @pkgs/chess-board-root-client-ts#test
+
+ ERROR  run failed: command  exited (1)

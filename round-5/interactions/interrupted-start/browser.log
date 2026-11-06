@@ -1,0 +1,197 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:test: cache bypass, force executing 7814c4b8cbdec440
+@pkgs/ui-root-harness-ts:storybook:test: $ playwright test -c storybook/playwright.config.ts "--workers=2" "--reporter=line,json" --grep "screens-games-(battleship-board|battleship-setup|chess-board|connect-four-board|hearts-board|light-cycles-arena|numberlink-puzzle|pong-court|quoridor-classic|quoridor-hill|sokoban-puzzle|word-tiles-board|word-tiles-puzzle)--|screens-puzzles-chess-play--|games-cellgridboard|product-(wordtileboard|cellgridboard|cardtable)|templates-game-frame|font readiness|games-battleship-placement-layout|product-wordtileworkbench|screens-games-frame-geometry--|components-inputs-(paddlecourt|trailarena)"
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: Running 739 tests using 2 workers
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:82813) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:82814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: [1/739] [chromium] › tests/storybook/board-round-five.checks.ts:31:1 › screens-puzzles-chess-play--keyboard-help regression chess-puzzle-phone-board-too-small
+@pkgs/ui-root-harness-ts:storybook:test: [2/739] [chromium] › tests/storybook/board-round-five.checks.ts:17:1 › screens-puzzles-chess-play--wrong-move-recovery regression chess-puzzle-board-shifts-on-outcome
+@pkgs/ui-root-harness-ts:storybook:test:   1) [chromium] › tests/storybook/board-round-five.checks.ts:31:1 › screens-puzzles-chess-play--keyboard-help regression chess-puzzle-phone-board-too-small 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/keyboard-help-light.png.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:40:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-bd2a3-uzzle-phone-board-too-small-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:83003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [3/739] [chromium] › tests/storybook/board-round-five.checks.ts:44:1 › screens-games-hearts-board--your-turn-to-play regression hearts-unavailable-cards-subtle
+@pkgs/ui-root-harness-ts:storybook:test:   2) [chromium] › tests/storybook/board-round-five.checks.ts:17:1 › screens-puzzles-chess-play--wrong-move-recovery regression chess-puzzle-board-shifts-on-outcome 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: expect(locator).toHaveScreenshot(expected) failed
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Locator: locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:       100883 pixels (ratio 0.31 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       Snapshot: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light.png
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Call log:
+@pkgs/ui-root-harness-ts:storybook:test:       - Expect "toHaveScreenshot(libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light.png)" with timeout 5000ms
+@pkgs/ui-root-harness-ts:storybook:test:         - verifying given screenshot expectation
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:         - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+@pkgs/ui-root-harness-ts:storybook:test:       - taking element screenshot
+@pkgs/ui-root-harness-ts:storybook:test:         - disabled all CSS animations
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for fonts to load...
+@pkgs/ui-root-harness-ts:storybook:test:       - fonts loaded
+@pkgs/ui-root-harness-ts:storybook:test:       - attempting scroll into view action
+@pkgs/ui-root-harness-ts:storybook:test:         - waiting for element to be stable
+@pkgs/ui-root-harness-ts:storybook:test:       - 100883 pixels (ratio 0.31 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting 100ms before taking screenshot
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:         - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+@pkgs/ui-root-harness-ts:storybook:test:       - taking element screenshot
+@pkgs/ui-root-harness-ts:storybook:test:         - disabled all CSS animations
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for fonts to load...
+@pkgs/ui-root-harness-ts:storybook:test:       - fonts loaded
+@pkgs/ui-root-harness-ts:storybook:test:       - attempting scroll into view action
+@pkgs/ui-root-harness-ts:storybook:test:         - waiting for element to be stable
+@pkgs/ui-root-harness-ts:storybook:test:       - captured a stable screenshot
+@pkgs/ui-root-harness-ts:storybook:test:       - 100883 pixels (ratio 0.31 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:27:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     attachment #1: libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light (image/png) 
+@pkgs/ui-root-harness-ts:storybook:test:     Expected: ../../libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light.png
+@pkgs/ui-root-harness-ts:storybook:test:     Received: .cache/storybook-test-results/board-round-five.checks.ts-bbe67-zle-board-shifts-on-outcome-chromium/libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light-actual.png
+@pkgs/ui-root-harness-ts:storybook:test:     Diff:     .cache/storybook-test-results/board-round-five.checks.ts-bbe67-zle-board-shifts-on-outcome-chromium/libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/wrong-move-recovery-light-diff.png
+@pkgs/ui-root-harness-ts:storybook:test:     ────────────────────────────────────────────────────────────────────────────────────────────────
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-bbe67-zle-board-shifts-on-outcome-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:83098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [4/739] [chromium] › tests/storybook/board-round-five.checks.ts:57:1 › screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small
+@pkgs/ui-root-harness-ts:storybook:test:   3) [chromium] › tests/storybook/board-round-five.checks.ts:44:1 › screens-games-hearts-board--your-turn-to-play regression hearts-unavailable-cards-subtle 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: expect(locator).toHaveScreenshot(expected) failed
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Locator: locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:       80680 pixels (ratio 0.25 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       Snapshot: libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light.png
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Call log:
+@pkgs/ui-root-harness-ts:storybook:test:       - Expect "toHaveScreenshot(libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light.png)" with timeout 5000ms
+@pkgs/ui-root-harness-ts:storybook:test:         - verifying given screenshot expectation
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:         - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+@pkgs/ui-root-harness-ts:storybook:test:       - taking element screenshot
+@pkgs/ui-root-harness-ts:storybook:test:         - disabled all CSS animations
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for fonts to load...
+@pkgs/ui-root-harness-ts:storybook:test:       - fonts loaded
+@pkgs/ui-root-harness-ts:storybook:test:       - attempting scroll into view action
+@pkgs/ui-root-harness-ts:storybook:test:         - waiting for element to be stable
+@pkgs/ui-root-harness-ts:storybook:test:       - 80680 pixels (ratio 0.25 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting 100ms before taking screenshot
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for locator('#storybook-root')
+@pkgs/ui-root-harness-ts:storybook:test:         - locator resolved to <div id="storybook-root" data-story-ready="true" data-story-status="success">…</div>
+@pkgs/ui-root-harness-ts:storybook:test:       - taking element screenshot
+@pkgs/ui-root-harness-ts:storybook:test:         - disabled all CSS animations
+@pkgs/ui-root-harness-ts:storybook:test:       - waiting for fonts to load...
+@pkgs/ui-root-harness-ts:storybook:test:       - fonts loaded
+@pkgs/ui-root-harness-ts:storybook:test:       - attempting scroll into view action
+@pkgs/ui-root-harness-ts:storybook:test:         - waiting for element to be stable
+@pkgs/ui-root-harness-ts:storybook:test:       - captured a stable screenshot
+@pkgs/ui-root-harness-ts:storybook:test:       - 80680 pixels (ratio 0.25 of all image pixels) are different.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:53:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     attachment #1: libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light (image/png) 
+@pkgs/ui-root-harness-ts:storybook:test:     Expected: ../../libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light.png
+@pkgs/ui-root-harness-ts:storybook:test:     Received: .cache/storybook-test-results/board-round-five.checks.ts-7c4db-ts-unavailable-cards-subtle-chromium/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light-actual.png
+@pkgs/ui-root-harness-ts:storybook:test:     Diff:     .cache/storybook-test-results/board-round-five.checks.ts-7c4db-ts-unavailable-cards-subtle-chromium/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/your-turn-to-play-light-diff.png
+@pkgs/ui-root-harness-ts:storybook:test:     ────────────────────────────────────────────────────────────────────────────────────────────────
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-7c4db-ts-unavailable-cards-subtle-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:83297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [5/739] [chromium] › tests/storybook/board-round-five.checks.ts:71:1 › screens-games-frame-geometry--long-name-rail regression shared-board-long-name-rail
+@pkgs/ui-root-harness-ts:storybook:test:   4) [chromium] › tests/storybook/board-round-five.checks.ts:71:1 › screens-games-frame-geometry--long-name-rail regression shared-board-long-name-rail 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-light.png.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:80:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-9efab-shared-board-long-name-rail-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:83391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [6/739] [chromium] › tests/storybook/board-round-five.checks.ts:84:1 › screens-games-frame-geometry--four-players regression shared-board-metadata-height
+Shutting down Turborepo tasks...
+Force killed Turborepo tasks: @pkgs/ui-root-harness-ts#storybook:test
+@pkgs/ui-root-harness-ts:storybook:test: error: script "storybook:test" was terminated by signal SIGTERM (Polite quit request)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    8.443s 
+

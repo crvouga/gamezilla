@@ -1,0 +1,901 @@
+{
+  "error": "custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []",
+  "elements": [
+    {
+      "selector": "[data-testid=\"custom-game-board\"]",
+      "rect": {
+        "x": 16,
+        "y": 429,
+        "width": 358,
+        "height": 349.75,
+        "top": 429,
+        "right": 374,
+        "bottom": 778.75,
+        "left": 16
+      },
+      "ancestors": [
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "hidden",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameBoardStage",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameLayout",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 767.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 980.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "CustomGameContent",
+          "rect": {
+            "x": 16,
+            "y": 85,
+            "width": 358,
+            "height": 919.75,
+            "top": 85,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameColumn",
+          "rect": {
+            "x": 16,
+            "y": 8,
+            "width": 358,
+            "height": 996.75,
+            "top": 8,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "ScrollViewContent",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 1036.75,
+            "top": 0,
+            "right": 390,
+            "bottom": 1036.75,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameScreen",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "hidden auto",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "DismissibleBannerPortalRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "AppFrame",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "StoryAppViewport",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "SurfaceStackRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "component": "ThemeProvider",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-tools\"]",
+      "rect": {
+        "x": 16,
+        "y": 333,
+        "width": 358,
+        "height": 92,
+        "top": 333,
+        "right": 374,
+        "bottom": 425,
+        "left": 16
+      },
+      "ancestors": [
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "hidden",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameBoardStage",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameLayout",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 767.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 980.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "CustomGameContent",
+          "rect": {
+            "x": 16,
+            "y": 85,
+            "width": 358,
+            "height": 919.75,
+            "top": 85,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameColumn",
+          "rect": {
+            "x": 16,
+            "y": 8,
+            "width": 358,
+            "height": 996.75,
+            "top": 8,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "ScrollViewContent",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 1036.75,
+            "top": 0,
+            "right": 390,
+            "bottom": 1036.75,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameScreen",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "hidden auto",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "DismissibleBannerPortalRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "AppFrame",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "StoryAppViewport",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "SurfaceStackRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "component": "ThemeProvider",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-precise-target\"]",
+      "rect": {
+        "x": 16,
+        "y": 806.75,
+        "width": 358,
+        "height": 44,
+        "top": 806.75,
+        "right": 374,
+        "bottom": 850.75,
+        "left": 16
+      },
+      "ancestors": [
+        {
+          "component": "Select",
+          "rect": {
+            "x": 16,
+            "y": 782.75,
+            "width": 358,
+            "height": 68,
+            "top": 782.75,
+            "right": 374,
+            "bottom": 850.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 333,
+            "width": 358,
+            "height": 543.75,
+            "top": 333,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "hidden",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameBoardStage",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 663.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 876.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameLayout",
+          "rect": {
+            "x": 16,
+            "y": 213,
+            "width": 358,
+            "height": 767.75,
+            "top": 213,
+            "right": 374,
+            "bottom": 980.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "CustomGameContent",
+          "rect": {
+            "x": 16,
+            "y": 85,
+            "width": 358,
+            "height": 919.75,
+            "top": 85,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameColumn",
+          "rect": {
+            "x": 16,
+            "y": 8,
+            "width": 358,
+            "height": 996.75,
+            "top": 8,
+            "right": 374,
+            "bottom": 1004.75,
+            "left": 16
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "ScrollViewContent",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 1036.75,
+            "top": 0,
+            "right": 390,
+            "bottom": 1036.75,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "GameScreen",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "hidden auto",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "DismissibleBannerPortalRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "AppFrame",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "StoryAppViewport",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "component": "SurfaceStackRoot",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "component": "ThemeProvider",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "clip",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "left": 0
+          },
+          "overflow": "visible",
+          "scrollTop": 0
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-wall-commit\"]",
+      "rect": null,
+      "ancestors": []
+    }
+  ]
+}

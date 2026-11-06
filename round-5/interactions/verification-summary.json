@@ -1,0 +1,19 @@
+{
+  "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+  "treeSha": "c2315ee28f2cf0058c8b6cfab286cf8eb50819c7",
+  "aggregate lint/typecheck/test": "PASS 96/96 on corrected head; aggregate-corrected-head.log",
+  "shared API consumers": "PASS 133/133 typecheck tasks on corrected head; consumer-typechecks-corrected-head.log",
+  "hosted fixes focused checks": "PASS 18/18; chess exhaustive proof, before/after guidance examples, Pong accessible rally status and saved-completion DOM regression",
+  "production release journeys": "FAIL overall 7 passed/1 failed. All five reported hosted journey regressions passed. Separate Numberlink republication title expected Canyon mw5ggq1r, observed Valley mw5ggq1r; unresolved, no retry/bypass. Run used the corrected runtime source before commit; hosted-fixes-release-verdict.json.",
+  "cache sync and Lingui": "PASS cache sync, extract and strict compile; followup logs",
+  "known-bug registry": "PASS ci:goals; goals-followup.log",
+  "canonical Storybook build": "PASS Node 8 GiB / Turbo concurrency 1; build-corrected-head.log",
+  "generated contracts": "PASS all selected story IDs and seven changed component contracts including shared-frame 10 stories; generated-contracts.json",
+  "Storybook full coverage": "FAIL 328: 255 missing visual references, 72 orphan references, 1 pre-existing demonstration-component contract. 81 selected-board/component violations, 246 other/retired families, 1 shared chess-screen contract; coverage-classification.json",
+  "full bun verify": "FAIL /more/troubleshooting has no chart-state owner. Full catalog selected 1540 tasks; 13/13 setup passed, 18/78 reported before halt; verify-corrected-head.log. Outside board scope; no invented spec.",
+  "native full matrix": "FAIL overall: 636 pixel differences and 116 missing references. All 752 native readiness/play/geometry/browser-error/serious-critical axe stages passed; 8 font checks and 1 instrumented chess regression passed. 761 total cases on corrected head; no native references accepted.",
+  "canonical Ubuntu": "PENDING comparison on exact d2ee6467e; authoring and public patch export steps succeeded, comparison in progress; run42294182190. No references accepted.",
+  "reviews": "Parent to commission two new independent reviews; no ratings assigned",
+  "hosted PR safety": "PASS verify:start, shards0\u20133 and verify:end on exact d2ee6467e; GitGuardian also success. PR remains draft; independent reviews pending.",
+  "media audit": "PASS 692 after PNGs and pairs, 74 native assertion recordings with completed checkpoints, zero checkpoint failures and at least two distinct frames each. Initial audit inventory failure retained; fixed exact manifest selection, byte-identical temporary copies only."
+}

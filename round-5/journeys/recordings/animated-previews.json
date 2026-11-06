@@ -1,0 +1,261 @@
+[
+  {
+    "file": "product-wordtileworkbench--secondary-tools--phone--light.gif",
+    "sourceVideo": "videos/product-wordtileworkbench--secondary-tools--phone--light.webm",
+    "frames": 6,
+    "fps": 2,
+    "sha256": "ce9137cbc5d3e1840e93af87f940894e9739b617614c75118e149b7d9c488f14"
+  },
+  {
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light.gif",
+    "sourceVideo": "videos/screens-games-battleship-board--correct-target-before-firing--phone--light.webm",
+    "frames": 22,
+    "fps": 2,
+    "sha256": "1bfde9c9eca0f8831aefc679e3bb1dac0df718e8bfa332c859d0ad64d38966c2"
+  },
+  {
+    "file": "screens-games-battleship-board--sink-the-fleet--phone--light.gif",
+    "sourceVideo": "videos/screens-games-battleship-board--sink-the-fleet--phone--light.webm",
+    "frames": 11,
+    "fps": 2,
+    "sha256": "17946477a32809a06def9ac8babf25c2fb7c007e9f5f7cedd426f24ff504e93e"
+  },
+  {
+    "file": "screens-games-battleship-setup--arrange-full-fleet--phone--light.gif",
+    "sourceVideo": "videos/screens-games-battleship-setup--arrange-full-fleet--phone--light.webm",
+    "frames": 34,
+    "fps": 2,
+    "sha256": "00c3dda5158fa967df108c11221e490236f152e403d5db98a8d4791ee240b3f5"
+  },
+  {
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light.gif",
+    "sourceVideo": "videos/screens-games-battleship-setup--enlarged-placement--phone--light.webm",
+    "frames": 46,
+    "fps": 2,
+    "sha256": "e0e3c77a075bebf2f7c61e26f2f71c354d95a79c3b37f8fe934d0b7c79a8b1a9"
+  },
+  {
+    "file": "screens-games-chess-board--promotion-choice--phone--light.gif",
+    "sourceVideo": "videos/screens-games-chess-board--promotion-choice--phone--light.webm",
+    "frames": 11,
+    "fps": 2,
+    "sha256": "2e2158b88b2883beaa8c30a0e47e64e658ab72a58700f5c40ab39da82a1ecce6"
+  },
+  {
+    "file": "screens-games-connect-four-board--connect-four-to-win--phone--light.gif",
+    "sourceVideo": "videos/screens-games-connect-four-board--connect-four-to-win--phone--light.webm",
+    "frames": 8,
+    "fps": 2,
+    "sha256": "a7d445b31a58233e92d88636db1f965bad5e8f611da5543ba60a9517857105d1"
+  },
+  {
+    "file": "screens-games-hearts-board--pass-through-first-trick--phone--light.gif",
+    "sourceVideo": "videos/screens-games-hearts-board--pass-through-first-trick--phone--light.webm",
+    "frames": 90,
+    "fps": 2,
+    "sha256": "891684f669bb3b6df00d82e86c2e61adcc67331e651acd52f260fe811e4b5c7e"
+  },
+  {
+    "file": "screens-games-light-cycles-arena--collision-through-next-round--phone--light.gif",
+    "sourceVideo": "videos/screens-games-light-cycles-arena--collision-through-next-round--phone--light.webm",
+    "frames": 15,
+    "fps": 2,
+    "sha256": "2a647f7b4607944c0fc7bbd2d0243c04f028d63482a5ed55c3cfda1d98390b03"
+  },
+  {
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light.gif",
+    "sourceVideo": "videos/screens-games-light-cycles-arena--resumed-steering--phone--light.webm",
+    "frames": 11,
+    "fps": 2,
+    "sha256": "1eaab599442ccab084e02921e3e243ca11e446bc275f3a3dc33b256b689063f2"
+  },
+  {
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light.gif",
+    "sourceVideo": "videos/screens-games-light-cycles-arena--shared-swipe--phone--light.webm",
+    "frames": 12,
+    "fps": 2,
+    "sha256": "d41e542d0fd3b74106ca4d6da52229c929255c2bdb2dbd4fe09e5c96c933fa60"
+  },
+  {
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light.gif",
+    "sourceVideo": "videos/screens-games-numberlink-puzzle--choose-path-to-remove--phone--light.webm",
+    "frames": 7,
+    "fps": 2,
+    "sha256": "734583f2fdfd6a404b0d7ae42dd89effc97b46132942e128c635eb90a920b61e"
+  },
+  {
+    "file": "screens-games-numberlink-puzzle--drawing-help--phone--light.gif",
+    "sourceVideo": "videos/screens-games-numberlink-puzzle--drawing-help--phone--light.webm",
+    "frames": 6,
+    "fps": 2,
+    "sha256": "841c934de5592f298936f35cb4bebcb8fe83160814cb7c5993e67a869110b3d5"
+  },
+  {
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--phone--light.gif",
+    "sourceVideo": "videos/screens-games-numberlink-puzzle--recover-with-pointer--phone--light.webm",
+    "frames": 34,
+    "fps": 2,
+    "sha256": "e96d55388b7b93929d6f0ce63ef222d5ef6a5755230a90e02c97ce4f94137e9d"
+  },
+  {
+    "file": "screens-games-pong-court--return-score-and-reconnect--phone--light.gif",
+    "sourceVideo": "videos/screens-games-pong-court--return-score-and-reconnect--phone--light.webm",
+    "frames": 16,
+    "fps": 2,
+    "sha256": "ec4af58eae82f6510ccdb7b701dbade05ac1cc960f0d264b6afc8f4fa552b04b"
+  },
+  {
+    "file": "screens-games-quoridor-classic--place-a-wall--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-classic--place-a-wall--phone--light.webm",
+    "frames": 37,
+    "fps": 2,
+    "sha256": "d69bb6f11593c0b600f3150aca8068beb249a25b902a5b4d4c548aa3387faa28"
+  },
+  {
+    "file": "screens-games-quoridor-classic--precise-coordinates--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-classic--precise-coordinates--phone--light.webm",
+    "frames": 41,
+    "fps": 2,
+    "sha256": "7afd7452b3087ca9c5944afa99346e7085e59cb7cf2dd1f31fa963f802098013"
+  },
+  {
+    "file": "screens-games-quoridor-classic--reach-opposite-edge--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-classic--reach-opposite-edge--phone--light.webm",
+    "frames": 7,
+    "fps": 2,
+    "sha256": "c0f9b3a0f3e024e03de0012be6b7bd291d2244e02744eda96d653487cd1d1c37"
+  },
+  {
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-classic--rotate-wall-preview--phone--light.webm",
+    "frames": 38,
+    "fps": 2,
+    "sha256": "d6c2705ba6814d551a6ab936556112746eeb7353b3fb7366f42a6d823255049e"
+  },
+  {
+    "file": "screens-games-quoridor-hill--four-player-round--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-hill--four-player-round--phone--light.webm",
+    "frames": 106,
+    "fps": 2,
+    "sha256": "eb4c5ac3a7c672a0e58019e1b45df9d90fb95bc7d41de6546d01e100c9b08f3c"
+  },
+  {
+    "file": "screens-games-quoridor-hill--pass-and-continue--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-hill--pass-and-continue--phone--light.webm",
+    "frames": 36,
+    "fps": 2,
+    "sha256": "5521a0b65744797967a22f2777aec71754be42bf8a70ad373a69bca79150aa24"
+  },
+  {
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-hill--precise-coordinates--phone--light.webm",
+    "frames": 175,
+    "fps": 2,
+    "sha256": "1e0de06b73e4dfee7cb5b84489fc51a3e9a420db5175d40a101b48f97b2d3536"
+  },
+  {
+    "file": "screens-games-quoridor-hill--reach-the-hill--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-hill--reach-the-hill--phone--light.webm",
+    "frames": 20,
+    "fps": 2,
+    "sha256": "74fefadcdb5bc88837424edf90a18dcde77eba5ab4cfe13dd363db4a66c52e19"
+  },
+  {
+    "file": "screens-games-quoridor-hill--recover-wall-placement--phone--light.gif",
+    "sourceVideo": "videos/screens-games-quoridor-hill--recover-wall-placement--phone--light.webm",
+    "frames": 42,
+    "fps": 2,
+    "sha256": "bbb1ee5bdc7780e3590ab1e0ebfca391886744a69dc19a9ecc527dd3c994d783"
+  },
+  {
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light.gif",
+    "sourceVideo": "videos/screens-games-sokoban-puzzle--corner-recovery--phone--light.webm",
+    "frames": 17,
+    "fps": 2,
+    "sha256": "60cb4971465e517b76e784ee271bb4036a8b5c41595b17793b7421951e407560"
+  },
+  {
+    "file": "screens-games-sokoban-puzzle--solved--phone--light.gif",
+    "sourceVideo": "videos/screens-games-sokoban-puzzle--solved--phone--light.webm",
+    "frames": 7,
+    "fps": 2,
+    "sha256": "98df9de28c80543ced808969f5b7acd1d6d2a0f5906958fb69fc9ad8f8711aa6"
+  },
+  {
+    "file": "screens-games-sokoban-puzzle--unreadable--phone--light.gif",
+    "sourceVideo": "videos/screens-games-sokoban-puzzle--unreadable--phone--light.webm",
+    "frames": 6,
+    "fps": 2,
+    "sha256": "9f29504cd99475c4693e38e8e65f5beae8443218ff8ce78c9f7d55648e64d40b"
+  },
+  {
+    "file": "screens-games-word-tiles-board--accepted-exchange--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-board--accepted-exchange--phone--light.webm",
+    "frames": 22,
+    "fps": 2,
+    "sha256": "b2e7924107be6faf900c2a858b738fce5e7f1c4e2839a58c092a7c02dc7162aa"
+  },
+  {
+    "file": "screens-games-word-tiles-board--accepted-pass--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-board--accepted-pass--phone--light.webm",
+    "frames": 9,
+    "fps": 2,
+    "sha256": "fdc6b1dca75798fadb1eecb6831499e1b0f068c44f5218ce98cf1ebaaf3b1fbf"
+  },
+  {
+    "file": "screens-games-word-tiles-board--enlarged-coordinates--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-board--enlarged-coordinates--phone--light.webm",
+    "frames": 62,
+    "fps": 2,
+    "sha256": "7c0bb303d7547075b31ece507e6e0f2ec98b6446bc207ae7aa897df568f21bac"
+  },
+  {
+    "file": "screens-games-word-tiles-board--recover-and-submit--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-board--recover-and-submit--phone--light.webm",
+    "frames": 32,
+    "fps": 2,
+    "sha256": "f2fb25497042bb6f70ea59e15dc8fe0ccb9dc5200dc12c3008268f32ff55f5a1"
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-puzzle--enlarged-blank--phone--light.webm",
+    "frames": 19,
+    "fps": 2,
+    "sha256": "759139e0f790d5db8768054c1394d8791a3db1f95e1289fcf66f7b7d95567cbe"
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle--reach-target--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-puzzle--reach-target--phone--light.webm",
+    "frames": 18,
+    "fps": 2,
+    "sha256": "22dcc77d7cf960f70ab423b51d6fdca4618719b46d767c2b6d7dea259aa1565f"
+  },
+  {
+    "file": "screens-games-word-tiles-puzzle--retry-word-list--phone--light.gif",
+    "sourceVideo": "videos/screens-games-word-tiles-puzzle--retry-word-list--phone--light.webm",
+    "frames": 6,
+    "fps": 2,
+    "sha256": "48eb71f0f4804f4ea5a5724225d503eb20d056051dc60e6fbc5d0e44e63b73ce"
+  },
+  {
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light.gif",
+    "sourceVideo": "videos/screens-puzzles-chess-play--keyboard-help--phone--light.webm",
+    "frames": 8,
+    "fps": 2,
+    "sha256": "a720d465d7e7577edd5ea63d60b09cb9c58f51f9ddb445dcec8a3ac1f94248cc"
+  },
+  {
+    "file": "screens-puzzles-chess-play--solve-journey--phone--light.gif",
+    "sourceVideo": "videos/screens-puzzles-chess-play--solve-journey--phone--light.webm",
+    "frames": 15,
+    "fps": 2,
+    "sha256": "cb6e4fab7cf2c494155f102df8e387bc96a733510aab8155d1d6070f572ce0e0"
+  },
+  {
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--phone--light.gif",
+    "sourceVideo": "videos/screens-puzzles-chess-play--wrong-move-recovery--phone--light.webm",
+    "frames": 30,
+    "fps": 2,
+    "sha256": "760db97edeff06eebdc9c0d13d9f02000c9badf03778b55573663e6c34f76d12"
+  }
+]

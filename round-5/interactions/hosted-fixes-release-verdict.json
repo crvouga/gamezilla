@@ -1,0 +1,18 @@
+{
+  "candidateBase": "05122f90dcfd6aee60d619015337420ea8f76ebb",
+  "dirtyFollowup": true,
+  "command": "bunx turbo run test:release-journeys --filter=@apps/product-ts --concurrency=1 -- specs/journeys/numberlink-packs.feature specs/journeys/sokoban-packs.feature specs/journeys/pong-game.feature",
+  "exitCode": 1,
+  "passed": 7,
+  "failed": 1,
+  "reportedHostedRegressions": "All five affected completion-copy and Pong real-physics rematch scenarios passed.",
+  "remainingFailure": "Numberlink earlier-edition republication expected Canyon mw5ggq1r but showed Valley mw5ggq1r; unrelated source-path relationship unproven; no retry or bypass.",
+  "log": "hosted-fixes-release-journeys.log",
+  "reportedHostedRegressionsPassed": [
+    "Numberlink cross-device attempt and pack progress",
+    "Numberlink offline authoring and play",
+    "Sokoban cross-device attempt and pack progress",
+    "Sokoban offline work and pending publication",
+    "Pong finish and accepted rematch using real physics"
+  ]
+}

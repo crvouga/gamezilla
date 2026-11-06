@@ -1,0 +1,20 @@
+$ bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @libs/tools-harness-ts#ci:goals
+turbo-ci-run: TURBO_TOKEN missing; using local cache only. Run `bun run secrets:pull` so local warms upload to the Vercel Remote Cache.
+turbo-ci-run: cache=local:rw concurrency=7 log-order=auto deadline=600s (local cache only)
+turbo-ci-run: 1 tasks — 0 cached, 1 to execute
+  miss  @libs/tools-harness-ts#ci:goals
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/tools-harness-ts
+   • Running @libs/tools-harness-ts#ci:goals in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+
+  Tasks:    1 successful, 1 total
+ Cached:    0 cached, 1 total
+   Time:    1.254s 
+Summary:    /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.turbo/runs/3LkU5LOfaOeTSMUaf35F1FDWorM.json
+
+turbo-ci-run: slowest tasks that ran
+      0s  @libs/tools-harness-ts#ci:goals
+turbo-ci-run: finished in 2.5s (plan 1.0s, turbo 1.3s)

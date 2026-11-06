@@ -1,0 +1,100 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [3] click"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [4] keyboard"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [6] toHaveAttribute"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [10] toHaveAttribute"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [11] click"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [12] keyboard"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [14] toHaveAttribute"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--resumed-steering [16] toHaveAttribute"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--resumed-steering--phone--light--009.png",
+    "capturedFrame": true
+  }
+]

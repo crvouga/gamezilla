@@ -1,0 +1,14 @@
+[AVFilterGraph @ 0x77ff050000] No option name near '2'
+[AVFilterGraph @ 0x77ff050000] Error parsing a filter description around: ,scale=320:-1
+[AVFilterGraph @ 0x77ff050000] Error parsing filterchain 'fps=2,scale=320:-1' around: ,scale=320:-1
+[vost#0:0/png @ 0x77fec90000] Error initializing a simple filtergraph
+Error opening output file /var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/round-five-video-776rdnht/%05d.png.
+Error opening output files: Invalid argument
+Traceback (most recent call last):
+  File "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/video-previews.py", line 9, in <module>
+    subprocess.run([ffmpeg,'-hide_banner','-loglevel','error','-i',str(p),'-vf','fps=2,scale=320:-1','-c:v','png',str(Path(d)/'%05d.png')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chrisvouga/.local/share/uv/python/cpython-3.13.16-macos-aarch64-none/lib/python3.13/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Users/chrisvouga/Library/Caches/ms-playwright/ffmpeg-1011/ffmpeg-mac', '-hide_banner', '-loglevel', 'error', '-i', '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-5/journeys/recordings/videos/product-wordtileworkbench--secondary-tools--phone--light.webm', '-vf', 'fps=2,scale=320:-1', '-c:v', 'png', '/var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/round-five-video-776rdnht/%05d.png']' returned non-zero exit status 234.

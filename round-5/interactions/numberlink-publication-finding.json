@@ -1,0 +1,13 @@
+{
+  "candidateBase": "05122f90dcfd6aee60d619015337420ea8f76ebb",
+  "dirtyFollowup": true,
+  "scenario": "An earlier Numberlink pack stays playable after a new publication",
+  "literalExpectedTitle": "Canyon mw5ggq1r",
+  "literalObservedTitle": "Valley mw5ggq1r",
+  "failure": "publishChangedNumberlinkEdition timed out after 20000ms on edition title",
+  "status": "unresolved, no retry or timeout change",
+  "scope": "Publication metadata path has no round-five source edits; relationship to board integration unproven. This failure prevents claiming the entire three-feature release run passed.",
+  "distinctFrom": "Saved-completion text failures and earlier hosted offline SQLite eight-second fallback",
+  "diagnostics": "numberlink-publication-diagnostic",
+  "observability": "numberlink-publication-observability.log"
+}

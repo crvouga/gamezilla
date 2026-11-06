@@ -1,0 +1,11 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/game-puzzle-client-ts, @libs/pong-client-ts, @libs/runtime-harness-ts, @pkgs/chess-board-root-client-ts, @pkgs/chess-board-root-harness-ts
+   • Running lint, tc, test in 6 packages
+   • Remote caching disabled, using shared worktree cache
+
+
+ Tasks:    18 successful, 18 total
+Cached:    12 cached, 18 total
+  Time:    4.012s 
+

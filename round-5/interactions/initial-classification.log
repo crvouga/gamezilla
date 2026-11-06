@@ -1,0 +1,1227 @@
+Counter({'pixel': 661, 'interaction-or-accessibility': 71, 'pass': 7})
+screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-frame-geometry--four-players regression shared-board-metadata-height Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 112 to be less than 112"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-enlarged-context-loss Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-quoridor-hill--precise-coordinates regression quoridor-hill-precise-controls-below-viewport Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+storybook integration: font readiness puzzle--enlarged-blank light 1440x844 [31mTest timeout of 30000ms exceeded.[39m
+storybook integration: font readiness puzzle--enlarged-blank dark 1440x844 [31mTest timeout of 30000ms exceeded.[39m
+screens-games-frame-geometry--two-players light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--two-players dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--four-players light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 112 to be less than 112"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/
+screens-games-frame-geometry--four-players dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 112 to be less than 112"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/
+screens-games-frame-geometry--four-players light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--four-players dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--win light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--win dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--drawn light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--drawn dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--long-name-rail light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--long-name-rail dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--two-players-desktop light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--two-players-desktop dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--four-players-desktop light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 112 to be less than 112"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/
+screens-games-frame-geometry--four-players-desktop dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 112 to be less than 112"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/
+screens-games-frame-geometry--four-players-desktop light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--four-players-desktop dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--win-desktop light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--win-desktop dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--drawn-desktop light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--drawn-desktop dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--long-name-rail-desktop light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-frame-geometry--long-name-rail-desktop dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 560 to be greater than 600"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybo
+screens-games-quoridor-hill--precise-coordinates light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--precise-coordinates dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--four-player-round light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--four-player-round dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--reach-the-hill light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--reach-the-hill dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-precise-target: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktr
+screens-games-quoridor-hill--recover-wall-placement light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-wall-commit: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees
+screens-games-quoridor-hill--recover-wall-placement dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: custom-game-board-wall-commit: expected [ 'outside initial viewport', …(3) ] to deeply equal []"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees
+screens-games-sokoban-puzzle--solve-with-keyboard light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 172[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--solve-with-keyboard dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 172[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--solve-with-keyboard light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 163[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--solve-with-keyboard dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 163[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--corner-recovery light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 172[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--corner-recovery dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 172[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--corner-recovery light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 163[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-sokoban-puzzle--corner-recovery dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 163[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-word-tiles-board--opening light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--opening dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--opening light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--opening dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-puzzle--enlarged-blank light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 881.25 to be less than or equal to 844"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-puzzle--enlarged-blank dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 881.25 to be less than or equal to 844"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-corner-recovery Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 172[39m
+
+[32m- success[39m
+[31m+ error: Unable to find an element with the text: Puzzle completed. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.[39m
+[31m+[39m
+[31m+ Ignored nodes: comments, script, style[39m
+[31m+ <div[39m
+[31m+   id="storybook-root"[39m
+[31m+ >[39m
+[31m+   <div[39m
+[31m+     class="themeHost bg-transparent bg-none"[39m
+[31m+     data-component="ThemeProvider"[39m
+[31m+     
+screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window light Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window dark Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cramped-precision-window light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 881.25 to be less than or equal to 844"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cramped-precision-window dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected 881.25 to be less than or equal to 844"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t

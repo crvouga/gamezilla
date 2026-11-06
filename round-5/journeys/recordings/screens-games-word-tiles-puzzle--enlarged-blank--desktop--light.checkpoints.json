@@ -1,0 +1,800 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [4] toBeGreaterThan"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [6] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [10] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [12] toBeLessThanOrEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [15] toBeGreaterThan"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [17] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--005.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--005.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--005.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--005.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [26] toBeGreaterThan"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [28] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [30] toBeLessThanOrEqual"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [32] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [34] toBeLessThanOrEqual"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--010.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [37] toBeGreaterThan"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [39] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [41] toBeLessThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [43] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [45] toBeLessThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [49] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [51] toBeLessThanOrEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [53] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [55] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [57] click"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [61] toBeGreaterThan"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [63] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [65] toBeLessThanOrEqual"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [67] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [69] toBeLessThanOrEqual"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [72] toBeGreaterThan"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [74] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--030.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [76] toBeLessThanOrEqual"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--030.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [78] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--030.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [80] toBeLessThanOrEqual"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--030.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [83] toBeGreaterThan"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [87] toBeLessThanOrEqual"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [89] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [91] toBeLessThanOrEqual"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [94] toBeGreaterThan"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [96] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [98] toBeLessThanOrEqual"
+    ],
+    "cursor": 99,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [100] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [102] toBeLessThanOrEqual"
+    ],
+    "cursor": 103,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [106] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [108] toBeLessThanOrEqual"
+    ],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [110] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 111,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [112] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 113,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [114] click"
+    ],
+    "cursor": 115,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--049.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [116] click"
+    ],
+    "cursor": 117,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--050.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [118] click"
+    ],
+    "cursor": 119,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--051.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [121] toHaveAccessibleName"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--052.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [124] toBeEnabled"
+    ],
+    "cursor": 125,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--053.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [127] toHaveTextContent"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--054.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [131] toBeGreaterThan"
+    ],
+    "cursor": 132,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--055.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [133] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [135] toBeLessThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [137] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [139] toBeLessThanOrEqual"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [142] toBeGreaterThan"
+    ],
+    "cursor": 143,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--060.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [144] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 145,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--060.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [146] toBeLessThanOrEqual"
+    ],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--060.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [148] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 149,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--060.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [150] toBeLessThanOrEqual"
+    ],
+    "cursor": 151,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--060.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [153] toBeGreaterThan"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--065.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [157] toBeLessThanOrEqual"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [159] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [161] toBeLessThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [164] toBeGreaterThan"
+    ],
+    "cursor": 165,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [166] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 167,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [168] toBeLessThanOrEqual"
+    ],
+    "cursor": 169,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [170] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 171,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [172] toBeLessThanOrEqual"
+    ],
+    "cursor": 173,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [176] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 177,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [178] toBeLessThanOrEqual"
+    ],
+    "cursor": 179,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [180] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 181,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-puzzle--enlarged-blank [182] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 183,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--070.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 183,
+    "failures": [],
+    "file": "screens-games-word-tiles-puzzle--enlarged-blank--desktop--light--079.png",
+    "capturedFrame": true
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+  "status": "pending canonical comparison",
+  "runUrl": "https://github.com/crvouga/gamezilla/actions/runs/42294182190",
+  "runId": 42294182190,
+  "authorAndCompareRequested": true,
+  "referencesAccepted": false,
+  "publicEncodedPatch": "Export step succeeded; finished-job log export pending. No bucket credentials accessed.",
+  "priorRounds": "Round-four run42271653228 and round-three success do not bind this head; no prior patches applied",
+  "observedAt": "2026-11-06T21:54:13.757466+00:00",
+  "authorStatus": "success",
+  "compareStatus": "in_progress",
+  "jobId": 128155036176
+}

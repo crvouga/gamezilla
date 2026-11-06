@@ -1,0 +1,191 @@
+ M docs/SELF_SERVICE_READINESS.md
+ M libs/app-root-shared-ts/locales/en/messages.po
+ M libs/battleship-client-ts/src/battleship-board.stories.tsx
+ M libs/battleship-client-ts/src/battleship-board.tsx
+ M libs/battleship-client-ts/src/battleship-setup-board.stories.tsx
+ M libs/battleship-client-ts/src/battleship-setup-board.tsx
+ M libs/battleship-client-ts/src/battleship-setup-placement.example.tsx
+ M libs/battleship-client-ts/src/battleship-setup-precision.tsx
+ M libs/battleship-client-ts/src/battleship-target-grid.tsx
+ M libs/battleship-client-ts/tests/board.test.tsx
+ M libs/battleship-client-ts/tests/setup-precision.test.tsx
+ M libs/battleship-client-ts/tests/targeting-precision.test.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzle-board.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzle-bounds.example.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzle-journey-play.example.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzle-journey.example.tsx
+ M libs/chess-puzzle-client-ts/src/chess-puzzles-client.tsx
+ M libs/chess-puzzle-client-ts/src/puzzle-board-feedback.ts
+ M libs/chess-puzzle-client-ts/src/puzzle-play-screen-view.stories.tsx
+ M libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts
+ M libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx
+ M libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+ M libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+ M libs/game-puzzle-client-ts/src/puzzle-client.ts
+ M libs/game-puzzle-client-ts/src/puzzle-play-screen-view.tsx
+ M libs/game-puzzle-client-ts/src/puzzle-play-screen.tsx
+ M libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
+ M libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx
+ M libs/game-puzzle-client-ts/tests/puzzle-phone-layout.test.tsx
+ M libs/game-session-client-ts/src/custom-game-status.tsx
+ M libs/game-session-client-ts/src/game-frame-actions-view.tsx
+ M libs/game-session-client-ts/src/game-frame-record-view.tsx
+ M libs/game-session-client-ts/src/game-frame-result-view.tsx
+ M libs/game-session-client-ts/src/game-frame-screen-view.tsx
+ M libs/game-session-client-ts/src/game-frame-table-view.tsx
+ M libs/game-session-client-ts/src/game-frame-table.example.tsx
+ M libs/game-session-client-ts/tests/game-frame-arena.test.tsx
+ M libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx
+ M libs/game-session-harness-ts/src/game-capability-laws.ts
+ M libs/hearts-client-ts/src/hearts-board.stories.tsx
+ M libs/hearts-client-ts/src/hearts-board.tsx
+ M libs/hearts-client-ts/src/hearts-frame.tsx
+ M libs/hearts-client-ts/src/hearts-hand-bounds.checks.ts
+ M libs/hearts-client-ts/src/hearts-table-view.tsx
+ M libs/hearts-client-ts/tests/hand-bounds.test.ts
+ M libs/hearts-client-ts/tests/seat-rotation.test.tsx
+ M libs/hearts-client-ts/tests/turn-guidance.test.ts
+ M libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx
+ M libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+ M libs/light-cycles-client-ts/src/light-cycles-swipe.example.tsx
+ M libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx
+ M libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx
+ M libs/numberlink-client-ts/src/numberlink-player.stories.tsx
+ M libs/numberlink-client-ts/src/numberlink-player.tsx
+ M libs/numberlink-client-ts/src/numberlink-pointer-recovery.example.tsx
+ M libs/numberlink-client-ts/src/numberlink-recovery.tsx
+ M libs/numberlink-harness-ts/tests/numberlink-key-hints.test.tsx
+ M libs/pong-client-ts/src/pong-board-view.stories.tsx
+ M libs/pong-client-ts/src/pong-board-view.tsx
+ M libs/pong-client-ts/src/pong-frame.tsx
+ M libs/pong-client-ts/tests/pong-board-layout.test.tsx
+ M libs/pong-client-ts/tests/pong-board.test.tsx
+ M libs/pong-client-ts/tests/pong-frame-commands.test.ts
+ M libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+ M libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx
+ M libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+ M libs/quoridor-client-ts/src/quoridor-board.stories.tsx
+ M libs/quoridor-client-ts/src/quoridor-board.tsx
+ M libs/quoridor-client-ts/src/quoridor-frame.tsx
+ M libs/quoridor-client-ts/src/quoridor-game-client.tsx
+ M libs/quoridor-client-ts/src/quoridor-hill-precision.example.tsx
+ M libs/quoridor-client-ts/src/quoridor-hill-visibility.example.tsx
+ M libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx
+ M libs/quoridor-client-ts/tests/quoridor-precision.test.tsx
+ M libs/sokoban-client-ts/src/create-sokoban-steering.ts
+ M libs/sokoban-client-ts/src/sokoban-history.example.tsx
+ M libs/sokoban-client-ts/src/sokoban-player.stories.tsx
+ M libs/sokoban-client-ts/src/sokoban-player.tsx
+ M libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx
+ M libs/sokoban-harness-ts/tests/sokoban-phone-hint.test.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-coordinate.example.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-geometry.example.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx
+ M libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
+ M libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx
+ M pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
+ M pkgs/chess-board-root-client-ts/src/chess-board/chess-board.module.css
+ M pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+ M pkgs/chess-board-root-client-ts/src/chess-board/index.tsx
+ M pkgs/chess-board-root-client-ts/src/chess-board/layout.tsx
+ M pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx
+ M pkgs/chess-board-root-client-ts/tests/board-stylesheet-tokens.test.ts
+ M pkgs/chess-board-root-client-ts/tests/puzzle-first-rank.test.tsx
+ M pkgs/chess-board-root-shared-ts/src/chess-board-types.ts
+ M pkgs/turn-game-shared-ts/src/game-frame.ts
+ M pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.module.css
+ M pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx
+ M pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx
+ M pkgs/ui-root-client-ts/src/card-table/card-table.module.css
+ M pkgs/ui-root-client-ts/src/cell-grid-board/cell-grid-board.module.css
+ M pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
+ M pkgs/ui-root-client-ts/src/game-session-layout/index.tsx
+ M pkgs/ui-root-client-ts/src/game-table-seat/game-table-seat.module.css
+ M pkgs/ui-root-client-ts/src/game-table-seat/index.tsx
+ M pkgs/ui-root-client-ts/src/game-ui.module.css
+ M pkgs/ui-root-client-ts/src/paddle-court/index.tsx
+ M pkgs/ui-root-client-ts/src/paddle-court/paddle-court.example.tsx
+ M pkgs/ui-root-client-ts/src/paddle-court/paddle-court.module.css
+ M pkgs/ui-root-client-ts/src/puzzle-screen/index.tsx
+ M pkgs/ui-root-client-ts/src/screen-layouts.module.css
+ M pkgs/ui-root-client-ts/src/tile-rack/tile-rack.module.css
+ M pkgs/ui-root-client-ts/src/trail-arena-types.ts
+ M pkgs/ui-root-client-ts/src/trail-arena/index.tsx
+ M pkgs/ui-root-client-ts/src/trail-arena/trail-arena.example.tsx
+ M pkgs/ui-root-client-ts/src/trail-arena/trail-arena.module.css
+ M pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css
+ M pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.module.css
+ M pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx
+ M pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.module.css
+ M pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.stories.tsx
+ M pkgs/ui-root-harness-ts/storybook/playwright.config.ts
+ M pkgs/ui-root-harness-ts/tests/battleship-placement-layout.test.tsx
+ M pkgs/ui-root-harness-ts/tests/card-table.test.tsx
+ M pkgs/ui-root-harness-ts/tests/game-surfaces-balance.test.tsx
+?? libs/battleship-client-ts/src/battleship-targeting.example.tsx
+?? libs/chess-puzzle-client-ts/src/chess-puzzle-geometry.example.tsx
+?? libs/game-session-client-ts/src/game-frame-geometry.example.tsx
+?? libs/game-session-client-ts/src/game-frame-geometry.stories.tsx
+?? libs/game-session-client-ts/src/game-frame-outcome-view.tsx
+?? libs/hearts-client-ts/tests/named-turn-guidance.test.tsx
+?? libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
+?? libs/numberlink-client-ts/src/numberlink-geometry.example.tsx
+?? libs/numberlink-harness-ts/tests/numberlink-recovery.test.tsx
+?? libs/quoridor-client-ts/src/quoridor-wall-preview.example.tsx
+?? libs/quoridor-client-ts/tests/quoridor-hill-destination-regression.test.tsx
+?? libs/quoridor-client-ts/tests/quoridor-hill-goal-wording.test.tsx
+?? libs/sokoban-harness-ts/tests/sokoban-player-recovery.test.tsx
+?? libs/tools-harness-ts/goal/known-bugs/battleship-enlargement-loses-aim-context.json
+?? libs/tools-harness-ts/goal/known-bugs/battleship-placement-recovery-travel.json
+?? libs/tools-harness-ts/goal/known-bugs/battleship-target-confirmation-competes-with-navigation.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-last-move-tan-wash.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-phone-keyboard-paragraph.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-promotion-silhouette-only.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-puzzle-board-shifts-on-outcome.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-puzzle-phone-board-too-small.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-puzzle-reveal-headline-failed.json
+?? libs/tools-harness-ts/goal/known-bugs/chess-puzzle-solution-move-indistinct.json
+?? libs/tools-harness-ts/goal/known-bugs/hearts-local-turn-compass-decoding.json
+?? libs/tools-harness-ts/goal/known-bugs/hearts-named-opponent-watcher-guidance.json
+?? libs/tools-harness-ts/goal/known-bugs/hearts-phone-player-stack-crowds-hand.json
+?? libs/tools-harness-ts/goal/known-bugs/hearts-unavailable-cards-subtle.json
+?? libs/tools-harness-ts/goal/known-bugs/light-cycles-round-result-fragmented.json
+?? libs/tools-harness-ts/goal/known-bugs/light-cycles-unmarked-touch-halves.json
+?? libs/tools-harness-ts/goal/known-bugs/light-cycles-unreadable-no-recovery.json
+?? libs/tools-harness-ts/goal/known-bugs/numberlink-progress-detached-from-board.json
+?? libs/tools-harness-ts/goal/known-bugs/numberlink-recovery-displaces-undo.json
+?? libs/tools-harness-ts/goal/known-bugs/numberlink-secondary-help-overwhelms-first-use.json
+?? libs/tools-harness-ts/goal/known-bugs/pong-court-state-and-touch-cues.json
+?? libs/tools-harness-ts/goal/known-bugs/pong-unreadable-recovery-destination.json
+?? libs/tools-harness-ts/goal/known-bugs/puzzle-saved-completion-confused-with-current-board.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-hill-coordinate-only-goal.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-hill-destination-prominence.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-hill-turn-coordinate-only.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-phone-toolbar-four-pixel-wrap.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-spatial-task-too-small.json
+?? libs/tools-harness-ts/goal/known-bugs/quoridor-wall-coordinate-decoding.json
+?? libs/tools-harness-ts/goal/known-bugs/shared-board-chip-facts-wrap-extra-row.json
+?? libs/tools-harness-ts/goal/known-bugs/shared-board-desktop-column-cascade.json
+?? libs/tools-harness-ts/goal/known-bugs/shared-board-long-name-rail.json
+?? libs/tools-harness-ts/goal/known-bugs/shared-board-metadata-height.json
+?? libs/tools-harness-ts/goal/known-bugs/shared-board-terminal-buried.json
+?? libs/tools-harness-ts/goal/known-bugs/sokoban-history-stale-refusal.json
+?? libs/tools-harness-ts/goal/known-bugs/sokoban-solved-below-controls.json
+?? libs/tools-harness-ts/goal/known-bugs/sokoban-solved-library-action.json
+?? libs/tools-harness-ts/goal/known-bugs/sokoban-story-restart-primary.json
+?? libs/tools-harness-ts/goal/known-bugs/sokoban-unreadable-library-action.json
+?? libs/tools-harness-ts/goal/known-bugs/word-tiles-cramped-precision-window.json
+?? libs/tools-harness-ts/goal/known-bugs/word-tiles-phone-action-overload.json
+?? libs/tools-harness-ts/goal/known-bugs/word-tiles-puzzle-detached-bonus-context.json
+?? libs/tools-harness-ts/goal/known-bugs/word-tiles-rack-corner-hit-gap.json
+?? libs/word-tiles-client-ts/src/word-tiles-puzzle-bonus-context.tsx
+?? libs/word-tiles-client-ts/src/word-tiles-puzzle-geometry.example.tsx
+?? libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx
+?? pkgs/chess-board-root-client-ts/tests/promotion-names.test.tsx
+?? pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts
+?? pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts
+?? pkgs/ui-root-harness-ts/tests/trail-arena-touch-regions.test.tsx
+?? pkgs/ui-root-harness-ts/tests/word-tile-actions.test.tsx

@@ -1,0 +1,130 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [1] toBe"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [3] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [5] toEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [8] click"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [10] toBeLessThanOrEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [12] toBeLessThanOrEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [14] toBeLessThanOrEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [16] toBeLessThanOrEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [18] toBe"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [20] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--008.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [22] toEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--keyboard-help [25] toBeVisible"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--keyboard-help--phone--light--012.png",
+    "capturedFrame": true
+  }
+]

@@ -1,0 +1,494 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:test: cache bypass, force executing 8914a5fc8df2d6ab
+@pkgs/ui-root-harness-ts:storybook:test: $ playwright test -c storybook/playwright.config.ts "--workers=2" "--reporter=line,json" --grep "regression (shared-board-(metadata-height|desktop-column-cascade)|quoridor-spatial-task-too-small|word-tiles-rack-corner-hit-gap)"
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: Running 4 tests using 2 workers
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:68475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:68474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [1/4] [chromium] › tests/storybook/board-round-five.checks.ts:58:1 › screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small
+@pkgs/ui-root-harness-ts:storybook:test: [2/4] [chromium] › tests/storybook/board-round-five.checks.ts:86:1 › screens-games-frame-geometry--four-players regression shared-board-metadata-height
+@pkgs/ui-root-harness-ts:storybook:test:   1) [chromium] › tests/storybook/board-round-five.checks.ts:58:1 › screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light.png.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:68:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-002b5-idor-spatial-task-too-small-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:68664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [3/4] [chromium] › tests/storybook/board-round-five.checks.ts:112:1 › screens-games-frame-geometry--two-players regression shared-board-desktop-column-cascade
+@pkgs/ui-root-harness-ts:storybook:test:   2) [chromium] › tests/storybook/board-round-five.checks.ts:86:1 › screens-games-frame-geometry--four-players regression shared-board-metadata-height 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: expect(received).toBe(expected) // Object.is equality
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Expected: "success"
+@pkgs/ui-root-harness-ts:storybook:test:     Received: "error: expected 112 to be less than 112"
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Call Log:
+@pkgs/ui-root-harness-ts:storybook:test:     - Timeout 5000ms exceeded while waiting on the predicate
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:35
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       33 |       })
+@pkgs/ui-root-harness-ts:storybook:test:       34 |     )
+@pkgs/ui-root-harness-ts:storybook:test:     > 35 |     .toBe('success');
+@pkgs/ui-root-harness-ts:storybook:test:          |      ^
+@pkgs/ui-root-harness-ts:storybook:test:       36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+@pkgs/ui-root-harness-ts:storybook:test:       37 |   await page.evaluate(() => document.fonts.ready);
+@pkgs/ui-root-harness-ts:storybook:test:       38 |   await page.addScriptTag({ content: axe.source });
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:95:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-f61e4-hared-board-metadata-height-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: (node:68758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@pkgs/ui-root-harness-ts:storybook:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:test: [4/4] [chromium] › tests/storybook/word-tiles-round-five.checks.ts:49:1 › screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-rack-corner-hit-gap
+@pkgs/ui-root-harness-ts:storybook:test:   3) [chromium] › tests/storybook/word-tiles-round-five.checks.ts:49:1 › screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-rack-corner-hit-gap 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:51
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       49 |   expect(violations).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:       50 |   expect(failures).toEqual([]);
+@pkgs/ui-root-harness-ts:storybook:test:     > 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(
+@pkgs/ui-root-harness-ts:storybook:test:          |                                                 ^
+@pkgs/ui-root-harness-ts:storybook:test:       52 |     scenario.baseline.split('/'),
+@pkgs/ui-root-harness-ts:storybook:test:       53 |     { animations: 'disabled' }
+@pkgs/ui-root-harness-ts:storybook:test:       54 |   );
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:59:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/word-tiles-round-five.chec-a9cc8-d-tiles-rack-corner-hit-gap-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:   4) [chromium] › tests/storybook/board-round-five.checks.ts:112:1 › screens-games-frame-geometry--two-players regression shared-board-desktop-column-cascade 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error: expect(received).toBe(expected) // Object.is equality
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Expected: "success"
+@pkgs/ui-root-harness-ts:storybook:test:     Received: "error: expected 560 to be greater than 600"
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Call Log:
+@pkgs/ui-root-harness-ts:storybook:test:     - Timeout 5000ms exceeded while waiting on the predicate
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:        at verify-story-scenario.ts:35
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:       33 |       })
+@pkgs/ui-root-harness-ts:storybook:test:       34 |     )
+@pkgs/ui-root-harness-ts:storybook:test:     > 35 |     .toBe('success');
+@pkgs/ui-root-harness-ts:storybook:test:          |      ^
+@pkgs/ui-root-harness-ts:storybook:test:       36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+@pkgs/ui-root-harness-ts:storybook:test:       37 |   await page.evaluate(() => document.fonts.ready);
+@pkgs/ui-root-harness-ts:storybook:test:       38 |   await page.addScriptTag({ content: axe.source });
+@pkgs/ui-root-harness-ts:storybook:test:         at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)
+@pkgs/ui-root-harness-ts:storybook:test:         at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:121:3
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test:     Error Context: .cache/storybook-test-results/board-round-five.checks.ts-449bc-oard-desktop-column-cascade-chromium/error-context.md
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: {
+@pkgs/ui-root-harness-ts:storybook:test:   "config": {
+@pkgs/ui-root-harness-ts:storybook:test:     "argv": [
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.local/share/mise/installs/node/26.12.0/bin/node",
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/node_modules/.bin/playwright",
+@pkgs/ui-root-harness-ts:storybook:test:       "test",
+@pkgs/ui-root-harness-ts:storybook:test:       "-c",
+@pkgs/ui-root-harness-ts:storybook:test:       "storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "--workers=2",
+@pkgs/ui-root-harness-ts:storybook:test:       "--reporter=line,json",
+@pkgs/ui-root-harness-ts:storybook:test:       "--grep",
+@pkgs/ui-root-harness-ts:storybook:test:       "regression (shared-board-(metadata-height|desktop-column-cascade)|quoridor-spatial-task-too-small|word-tiles-rack-corner-hit-gap)"
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "configFile": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:     "rootDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:     "failOnFlakyTests": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "forbidOnly": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "fullyParallel": true,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalSetup": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTeardown": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTimeout": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "grep": {},
+@pkgs/ui-root-harness-ts:storybook:test:     "grepInvert": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "maxFailures": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "metadata": {
+@pkgs/ui-root-harness-ts:storybook:test:       "actualWorkers": 2
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     "preserveOutput": "always",
+@pkgs/ui-root-harness-ts:storybook:test:     "projects": [
+@pkgs/ui-root-harness-ts:storybook:test:       {
+@pkgs/ui-root-harness-ts:storybook:test:         "outputDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results",
+@pkgs/ui-root-harness-ts:storybook:test:         "repeatEach": 1,
+@pkgs/ui-root-harness-ts:storybook:test:         "retries": 0,
+@pkgs/ui-root-harness-ts:storybook:test:         "metadata": {
+@pkgs/ui-root-harness-ts:storybook:test:           "actualWorkers": 2
+@pkgs/ui-root-harness-ts:storybook:test:         },
+@pkgs/ui-root-harness-ts:storybook:test:         "id": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "name": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "testDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:         "testIgnore": [],
+@pkgs/ui-root-harness-ts:storybook:test:         "testMatch": [
+@pkgs/ui-root-harness-ts:storybook:test:           "**/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/board-round-four.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/word-tiles-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/integration.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/font-readiness.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/essentials.checks.ts"
+@pkgs/ui-root-harness-ts:storybook:test:         ],
+@pkgs/ui-root-harness-ts:storybook:test:         "timeout": 30000
+@pkgs/ui-root-harness-ts:storybook:test:       }
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "quiet": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "reporter": [
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "line"
+@pkgs/ui-root-harness-ts:storybook:test:       ],
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "json"
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "reportSlowTests": {
+@pkgs/ui-root-harness-ts:storybook:test:       "max": 5,
+@pkgs/ui-root-harness-ts:storybook:test:       "threshold": 300000
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     "shard": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSnapshots": "none",
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSourceMethod": "patch",
+@pkgs/ui-root-harness-ts:storybook:test:     "version": "1.61.1",
+@pkgs/ui-root-harness-ts:storybook:test:     "workers": 2,
+@pkgs/ui-root-harness-ts:storybook:test:     "webServer": {
+@pkgs/ui-root-harness-ts:storybook:test:       "command": "bun static-server.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "url": "http://127.0.0.1:6007/index.json",
+@pkgs/ui-root-harness-ts:storybook:test:       "reuseExistingServer": false
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   },
+@pkgs/ui-root-harness-ts:storybook:test:   "suites": [
+@pkgs/ui-root-harness-ts:storybook:test:     {
+@pkgs/ui-root-harness-ts:storybook:test:       "title": "board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "file": "board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "column": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "line": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "specs": [
+@pkgs/ui-root-harness-ts:storybook:test:         {
+@pkgs/ui-root-harness-ts:storybook:test:           "title": "screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small",
+@pkgs/ui-root-harness-ts:storybook:test:           "ok": false,
+@pkgs/ui-root-harness-ts:storybook:test:           "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:           "tests": [
+@pkgs/ui-root-harness-ts:storybook:test:             {
+@pkgs/ui-root-harness-ts:storybook:test:               "timeout": 30000,
+@pkgs/ui-root-harness-ts:storybook:test:               "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:               "expectedStatus": "passed",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectId": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectName": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "results": [
+@pkgs/ui-root-harness-ts:storybook:test:                 {
+@pkgs/ui-root-harness-ts:storybook:test:                   "workerIndex": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "parallelIndex": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "status": "failed",
+@pkgs/ui-root-harness-ts:storybook:test:                   "duration": 1564,
+@pkgs/ui-root-harness-ts:storybook:test:                   "error": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "message": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light.png.",
+@pkgs/ui-root-harness-ts:storybook:test:                     "stack": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light.png.\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:68:3",
+@pkgs/ui-root-harness-ts:storybook:test:                     "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                       "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                       "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                       "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                     },
+@pkgs/ui-root-harness-ts:storybook:test:                     "snippet": "\u001b[90m   at \u001b[39mverify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );"
+@pkgs/ui-root-harness-ts:storybook:test:                   },
+@pkgs/ui-root-harness-ts:storybook:test:                   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                         "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                         "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                         "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                       },
+@pkgs/ui-root-harness-ts:storybook:test:                       "message": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:68:3"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stdout": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stderr": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "retry": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "startTime": "2026-11-06T20:23:54.271Z",
+@pkgs/ui-root-harness-ts:storybook:test:                   "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "attachments": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "name": "error-context",
+@pkgs/ui-root-harness-ts:storybook:test:                       "contentType": "text/markdown",
+@pkgs/ui-root-harness-ts:storybook:test:                       "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-five.checks.ts-002b5-idor-spatial-task-too-small-chromium/error-context.md"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "errorLocation": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                     "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                     "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                   }
+@pkgs/ui-root-harness-ts:storybook:test:                 }
+@pkgs/ui-root-harness-ts:storybook:test:               ],
+@pkgs/ui-root-harness-ts:storybook:test:               "status": "unexpected"
+@pkgs/ui-root-harness-ts:storybook:test:             }
+@pkgs/ui-root-harness-ts:storybook:test:           ],
+@pkgs/ui-root-harness-ts:storybook:test:           "id": "18ed7b061808cf4725c4-3b7c719d270794e82216",
+@pkgs/ui-root-harness-ts:storybook:test:           "file": "board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "line": 58,
+@pkgs/ui-root-harness-ts:storybook:test:           "column": 1
+@pkgs/ui-root-harness-ts:storybook:test:         },
+@pkgs/ui-root-harness-ts:storybook:test:         {
+@pkgs/ui-root-harness-ts:storybook:test:           "title": "screens-games-frame-geometry--four-players regression shared-board-metadata-height",
+@pkgs/ui-root-harness-ts:storybook:test:           "ok": false,
+@pkgs/ui-root-harness-ts:storybook:test:           "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:           "tests": [
+@pkgs/ui-root-harness-ts:storybook:test:             {
+@pkgs/ui-root-harness-ts:storybook:test:               "timeout": 30000,
+@pkgs/ui-root-harness-ts:storybook:test:               "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:               "expectedStatus": "passed",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectId": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectName": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "results": [
+@pkgs/ui-root-harness-ts:storybook:test:                 {
+@pkgs/ui-root-harness-ts:storybook:test:                   "workerIndex": 1,
+@pkgs/ui-root-harness-ts:storybook:test:                   "parallelIndex": 1,
+@pkgs/ui-root-harness-ts:storybook:test:                   "status": "failed",
+@pkgs/ui-root-harness-ts:storybook:test:                   "duration": 4339,
+@pkgs/ui-root-harness-ts:storybook:test:                   "error": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 112 to be less than 112\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+@pkgs/ui-root-harness-ts:storybook:test:                     "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 112 to be less than 112\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:95:3",
+@pkgs/ui-root-harness-ts:storybook:test:                     "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                       "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                       "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                       "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                     },
+@pkgs/ui-root-harness-ts:storybook:test:                     "snippet": "\u001b[90m   at \u001b[39mverify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });"
+@pkgs/ui-root-harness-ts:storybook:test:                   },
+@pkgs/ui-root-harness-ts:storybook:test:                   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                         "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                         "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                         "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                       },
+@pkgs/ui-root-harness-ts:storybook:test:                       "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 112 to be less than 112\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:95:3"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stdout": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stderr": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "retry": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "startTime": "2026-11-06T20:23:54.271Z",
+@pkgs/ui-root-harness-ts:storybook:test:                   "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "attachments": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "name": "error-context",
+@pkgs/ui-root-harness-ts:storybook:test:                       "contentType": "text/markdown",
+@pkgs/ui-root-harness-ts:storybook:test:                       "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-five.checks.ts-f61e4-hared-board-metadata-height-chromium/error-context.md"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "errorLocation": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                     "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                     "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                   }
+@pkgs/ui-root-harness-ts:storybook:test:                 }
+@pkgs/ui-root-harness-ts:storybook:test:               ],
+@pkgs/ui-root-harness-ts:storybook:test:               "status": "unexpected"
+@pkgs/ui-root-harness-ts:storybook:test:             }
+@pkgs/ui-root-harness-ts:storybook:test:           ],
+@pkgs/ui-root-harness-ts:storybook:test:           "id": "18ed7b061808cf4725c4-236f2ae740f6331f51e0",
+@pkgs/ui-root-harness-ts:storybook:test:           "file": "board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "line": 86,
+@pkgs/ui-root-harness-ts:storybook:test:           "column": 1
+@pkgs/ui-root-harness-ts:storybook:test:         },
+@pkgs/ui-root-harness-ts:storybook:test:         {
+@pkgs/ui-root-harness-ts:storybook:test:           "title": "screens-games-frame-geometry--two-players regression shared-board-desktop-column-cascade",
+@pkgs/ui-root-harness-ts:storybook:test:           "ok": false,
+@pkgs/ui-root-harness-ts:storybook:test:           "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:           "tests": [
+@pkgs/ui-root-harness-ts:storybook:test:             {
+@pkgs/ui-root-harness-ts:storybook:test:               "timeout": 30000,
+@pkgs/ui-root-harness-ts:storybook:test:               "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:               "expectedStatus": "passed",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectId": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectName": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "results": [
+@pkgs/ui-root-harness-ts:storybook:test:                 {
+@pkgs/ui-root-harness-ts:storybook:test:                   "workerIndex": 2,
+@pkgs/ui-root-harness-ts:storybook:test:                   "parallelIndex": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "status": "failed",
+@pkgs/ui-root-harness-ts:storybook:test:                   "duration": 5256,
+@pkgs/ui-root-harness-ts:storybook:test:                   "error": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 560 to be greater than 600\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+@pkgs/ui-root-harness-ts:storybook:test:                     "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 560 to be greater than 600\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:121:3",
+@pkgs/ui-root-harness-ts:storybook:test:                     "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                       "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                       "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                       "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                     },
+@pkgs/ui-root-harness-ts:storybook:test:                     "snippet": "\u001b[90m   at \u001b[39mverify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });"
+@pkgs/ui-root-harness-ts:storybook:test:                   },
+@pkgs/ui-root-harness-ts:storybook:test:                   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                         "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                         "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                         "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                       },
+@pkgs/ui-root-harness-ts:storybook:test:                       "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 560 to be greater than 600\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:121:3"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stdout": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stderr": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "retry": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "startTime": "2026-11-06T20:23:56.410Z",
+@pkgs/ui-root-harness-ts:storybook:test:                   "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "attachments": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "name": "error-context",
+@pkgs/ui-root-harness-ts:storybook:test:                       "contentType": "text/markdown",
+@pkgs/ui-root-harness-ts:storybook:test:                       "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-five.checks.ts-449bc-oard-desktop-column-cascade-chromium/error-context.md"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "errorLocation": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                     "column": 6,
+@pkgs/ui-root-harness-ts:storybook:test:                     "line": 35
+@pkgs/ui-root-harness-ts:storybook:test:                   }
+@pkgs/ui-root-harness-ts:storybook:test:                 }
+@pkgs/ui-root-harness-ts:storybook:test:               ],
+@pkgs/ui-root-harness-ts:storybook:test:               "status": "unexpected"
+@pkgs/ui-root-harness-ts:storybook:test:             }
+@pkgs/ui-root-harness-ts:storybook:test:           ],
+@pkgs/ui-root-harness-ts:storybook:test:           "id": "18ed7b061808cf4725c4-39f5034bf09cd7204716",
+@pkgs/ui-root-harness-ts:storybook:test:           "file": "board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "line": 112,
+@pkgs/ui-root-harness-ts:storybook:test:           "column": 1
+@pkgs/ui-root-harness-ts:storybook:test:         }
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     {
+@pkgs/ui-root-harness-ts:storybook:test:       "title": "word-tiles-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "file": "word-tiles-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "column": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "line": 0,
+@pkgs/ui-root-harness-ts:storybook:test:       "specs": [
+@pkgs/ui-root-harness-ts:storybook:test:         {
+@pkgs/ui-root-harness-ts:storybook:test:           "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-rack-corner-hit-gap",
+@pkgs/ui-root-harness-ts:storybook:test:           "ok": false,
+@pkgs/ui-root-harness-ts:storybook:test:           "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:           "tests": [
+@pkgs/ui-root-harness-ts:storybook:test:             {
+@pkgs/ui-root-harness-ts:storybook:test:               "timeout": 30000,
+@pkgs/ui-root-harness-ts:storybook:test:               "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:               "expectedStatus": "passed",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectId": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "projectName": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:               "results": [
+@pkgs/ui-root-harness-ts:storybook:test:                 {
+@pkgs/ui-root-harness-ts:storybook:test:                   "workerIndex": 3,
+@pkgs/ui-root-harness-ts:storybook:test:                   "parallelIndex": 1,
+@pkgs/ui-root-harness-ts:storybook:test:                   "status": "failed",
+@pkgs/ui-root-harness-ts:storybook:test:                   "duration": 1007,
+@pkgs/ui-root-harness-ts:storybook:test:                   "error": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "message": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.",
+@pkgs/ui-root-harness-ts:storybook:test:                     "stack": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:59:3",
+@pkgs/ui-root-harness-ts:storybook:test:                     "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                       "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                       "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                       "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                     },
+@pkgs/ui-root-harness-ts:storybook:test:                     "snippet": "\u001b[90m   at \u001b[39mverify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );"
+@pkgs/ui-root-harness-ts:storybook:test:                   },
+@pkgs/ui-root-harness-ts:storybook:test:                   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "location": {
+@pkgs/ui-root-harness-ts:storybook:test:                         "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                         "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                         "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                       },
+@pkgs/ui-root-harness-ts:storybook:test:                       "message": "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:59:3"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stdout": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "stderr": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "retry": 0,
+@pkgs/ui-root-harness-ts:storybook:test:                   "startTime": "2026-11-06T20:23:59.193Z",
+@pkgs/ui-root-harness-ts:storybook:test:                   "annotations": [],
+@pkgs/ui-root-harness-ts:storybook:test:                   "attachments": [
+@pkgs/ui-root-harness-ts:storybook:test:                     {
+@pkgs/ui-root-harness-ts:storybook:test:                       "name": "error-context",
+@pkgs/ui-root-harness-ts:storybook:test:                       "contentType": "text/markdown",
+@pkgs/ui-root-harness-ts:storybook:test:                       "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-a9cc8-d-tiles-rack-corner-hit-gap-chromium/error-context.md"
+@pkgs/ui-root-harness-ts:storybook:test:                     }
+@pkgs/ui-root-harness-ts:storybook:test:                   ],
+@pkgs/ui-root-harness-ts:storybook:test:                   "errorLocation": {
+@pkgs/ui-root-harness-ts:storybook:test:                     "file": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts",
+@pkgs/ui-root-harness-ts:storybook:test:                     "column": 49,
+@pkgs/ui-root-harness-ts:storybook:test:                     "line": 51
+@pkgs/ui-root-harness-ts:storybook:test:                   }
+@pkgs/ui-root-harness-ts:storybook:test:                 }
+@pkgs/ui-root-harness-ts:storybook:test:               ],
+@pkgs/ui-root-harness-ts:storybook:test:               "status": "unexpected"
+@pkgs/ui-root-harness-ts:storybook:test:             }
+@pkgs/ui-root-harness-ts:storybook:test:           ],
+@pkgs/ui-root-harness-ts:storybook:test:           "id": "d68ad5fd2d25b2359c37-1ed9302c493bf9e717e5",
+@pkgs/ui-root-harness-ts:storybook:test:           "file": "word-tiles-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "line": 49,
+@pkgs/ui-root-harness-ts:storybook:test:           "column": 1
+@pkgs/ui-root-harness-ts:storybook:test:         }
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   ],
+@pkgs/ui-root-harness-ts:storybook:test:   "errors": [],
+@pkgs/ui-root-harness-ts:storybook:test:   "stats": {
+@pkgs/ui-root-harness-ts:storybook:test:     "startTime": "2026-11-06T20:23:53.576Z",
+@pkgs/ui-root-harness-ts:storybook:test:     "duration": 8360.585,
+@pkgs/ui-root-harness-ts:storybook:test:     "expected": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "skipped": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "unexpected": 4,
+@pkgs/ui-root-harness-ts:storybook:test:     "flaky": 0
+@pkgs/ui-root-harness-ts:storybook:test:   }
+@pkgs/ui-root-harness-ts:storybook:test: }
+@pkgs/ui-root-harness-ts:storybook:test:   4 failed
+@pkgs/ui-root-harness-ts:storybook:test:     [chromium] › tests/storybook/board-round-five.checks.ts:58:1 › screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small 
+@pkgs/ui-root-harness-ts:storybook:test:     [chromium] › tests/storybook/board-round-five.checks.ts:86:1 › screens-games-frame-geometry--four-players regression shared-board-metadata-height 
+@pkgs/ui-root-harness-ts:storybook:test:     [chromium] › tests/storybook/board-round-five.checks.ts:112:1 › screens-games-frame-geometry--two-players regression shared-board-desktop-column-cascade 
+@pkgs/ui-root-harness-ts:storybook:test:     [chromium] › tests/storybook/word-tiles-round-five.checks.ts:49:1 › screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-rack-corner-hit-gap 
+@pkgs/ui-root-harness-ts:storybook:test: error: script "storybook:test" exited with code 1
+@pkgs/ui-root-harness-ts#storybook:test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run storybook:test --workers=2 --reporter=line,json --grep regression (shared-board-(metadata-height|desktop-column-cascade)|quoridor-spatial-task-too-small|word-tiles-rack-corner-hit-gap) exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    9.068s 
+Failed:    @pkgs/ui-root-harness-ts#storybook:test
+
+ ERROR  run failed: command  exited (1)

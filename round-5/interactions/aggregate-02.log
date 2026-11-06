@@ -1,0 +1,120 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/app-root-shared-ts, @libs/battleship-client-ts, @libs/battleship-harness-ts, @libs/chess-puzzle-client-ts, @libs/chess-puzzle-harness-ts, @libs/chess-root-client-ts, @libs/chess-root-harness-ts, @libs/game-matchmaking-client-ts, @libs/game-matchmaking-harness-ts, @libs/game-puzzle-client-ts, @libs/game-puzzle-harness-ts, @libs/game-session-client-ts, @libs/game-session-harness-ts, @libs/hearts-client-ts, @libs/hearts-harness-ts, @libs/light-cycles-client-ts, @libs/light-cycles-harness-ts, @libs/numberlink-client-ts, @libs/numberlink-harness-ts, @libs/pong-client-ts, @libs/pong-harness-ts, @libs/quoridor-client-ts, @libs/quoridor-harness-ts, @libs/sokoban-client-ts, @libs/sokoban-harness-ts, @libs/word-tiles-client-ts, @libs/word-tiles-harness-ts, @pkgs/chess-board-root-client-ts, @pkgs/chess-board-root-harness-ts, @pkgs/chess-board-root-shared-ts, @pkgs/turn-game-shared-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 33 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-client-ts:lint: cache miss, executing eff8b9f8eb4c6fa8
+@pkgs/ui-root-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts && bun run scripts/generate-tokens-css.ts --check
+@pkgs/ui-root-client-ts:lint: Found 0 warnings and 0 errors.
+@pkgs/ui-root-client-ts:lint: Finished in 4.5s on 669 files with 147 rules using 10 threads.
+@pkgs/ui-root-client-ts:lint: pkgs/ui-root-client-ts/src/game-ui.module.css:7:1 lint/style/noExcessiveLinesPerFile ━━━━━━━━━━━━━━━
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint:   × This file has too many lines (506). Maximum allowed is 500.
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint:       5 │    inside answers to this column's width, not the window's, so a frame
+@pkgs/ui-root-client-ts:lint:       6 │    narrowed by the host's own chrome never squeezes a rail beside the board. */
+@pkgs/ui-root-client-ts:lint:     > 7 │ .column,
+@pkgs/ui-root-client-ts:lint:         │ ^^^^^^^^
+@pkgs/ui-root-client-ts:lint:     > 8 │ .layout {
+@pkgs/ui-root-client-ts:lint:          ...
+@pkgs/ui-root-client-ts:lint:   > 599 │     transform: none;
+@pkgs/ui-root-client-ts:lint:   > 600 │   }
+@pkgs/ui-root-client-ts:lint:   > 601 │ }
+@pkgs/ui-root-client-ts:lint:         │ ^
+@pkgs/ui-root-client-ts:lint:     602 │ 
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint:   i Consider splitting this file into smaller files.
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint: Checked 741 files in 5s. No fixes applied.
+@pkgs/ui-root-client-ts:lint: Found 1 error.
+@pkgs/ui-root-client-ts:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint:   × Some errors were emitted while running checks.
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-client-ts#lint:  WARNING  command finished with error, but continuing...
+@libs/game-puzzle-harness-ts:test: cache miss, executing da53e358d1588b6a
+@libs/game-puzzle-harness-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/game-puzzle-harness-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/offline-verdict-interop.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) the online lifecycle port releases queued content writes without an offline request timeout [127.94ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/content-journey-discovery.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) discovery loads the next page before opening the requested edition [0.38ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/pack-workspace-lifetime.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) preview cannot unmount the pack editor while its chosen order is being saved [199.52ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/verdict-interop.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) the content adapter drives a pollable upload verdict to confirmation [48.55ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/attempt-page-order.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) equal-time attempts use the same cursor order in SQLite and the server [213.42ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/reference-auth-context.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) a cold authoring screen can render its permission states while the saved draft arrives [136.02ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/attempt-adoption.test.ts:
+@libs/game-puzzle-harness-ts:test: 116 |     }
+@libs/game-puzzle-harness-ts:test: 117 |     if (harnessClock.now() - start >= withinMs) break;
+@libs/game-puzzle-harness-ts:test: 118 |   }
+@libs/game-puzzle-harness-ts:test: 119 | 
+@libs/game-puzzle-harness-ts:test: 120 |   const held = heldSummary(surface);
+@libs/game-puzzle-harness-ts:test: 121 |   throw new Error(
+@libs/game-puzzle-harness-ts:test:                   ^
+@libs/game-puzzle-harness-ts:test: error: waitUntil timed out seed=205b75a321449f03 now=1700000007800 withinMs=2000 pendingEvents=56 held=none
+@libs/game-puzzle-harness-ts:test:       at waitUntil (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/sync-engine-harness-ts/src/wait-until.ts:121:13)
+@libs/game-puzzle-harness-ts:test:       at async waitForContent (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/src/content-sync.ts:8:9)
+@libs/game-puzzle-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/src/attempt-adoption-actions.ts:85:13)
+@libs/game-puzzle-harness-ts:test:       at async checkpoint (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/checkpoint.ts:107:14)
+@libs/game-puzzle-harness-ts:test:       at async runCheckpoint (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:78:24)
+@libs/game-puzzle-harness-ts:test:       at async applyAction (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:204:9)
+@libs/game-puzzle-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/tests/attempt-adoption.test.ts:10:13)
+@libs/game-puzzle-harness-ts:test: (fail) a saved position does not enable the next move until its head is displayed [231.45ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/draft-workspace-lifetime.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) independent head and draft watch deliveries keep the pending editor alive [117.58ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/offline-content-entry.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) an empty offline content library still opens its private builder [91.83ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/pack-query-hydration.test.ts:
+@libs/game-puzzle-harness-ts:test: (pass) pack publication keeps the session snapshot shape stable after an initially empty catalogue [158.36ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test: tests/scoped-content-entry.test.ts:
+@libs/game-puzzle-harness-ts:test: 116 |     }
+@libs/game-puzzle-harness-ts:test: 117 |     if (harnessClock.now() - start >= withinMs) break;
+@libs/game-puzzle-harness-ts:test: 118 |   }
+@libs/game-puzzle-harness-ts:test: 119 | 
+@libs/game-puzzle-harness-ts:test: 120 |   const held = heldSummary(surface);
+@libs/game-puzzle-harness-ts:test: 121 |   throw new Error(
+@libs/game-puzzle-harness-ts:test:                   ^
+@libs/game-puzzle-harness-ts:test: error: waitUntil timed out seed=464bcbd787bf95ec now=1700000005175 withinMs=2000 pendingEvents=45 held=none
+@libs/game-puzzle-harness-ts:test:       at waitUntil (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/sync-engine-harness-ts/src/wait-until.ts:121:13)
+@libs/game-puzzle-harness-ts:test:       at async waitForContent (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/src/content-sync.ts:8:9)
+@libs/game-puzzle-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/src/attempt-screen-actions.ts:43:13)
+@libs/game-puzzle-harness-ts:test:       at async checkpoint (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/checkpoint.ts:107:14)
+@libs/game-puzzle-harness-ts:test:       at async runCheckpoint (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:78:24)
+@libs/game-puzzle-harness-ts:test:       at async applyAction (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/harness-root-shared-ts/src/run.ts:204:9)
+@libs/game-puzzle-harness-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts/tests/scoped-content-entry.test.ts:38:13)
+@libs/game-puzzle-harness-ts:test: (fail) the shared screen hydrates its requested edition without a global content session [96.69ms]
+@libs/game-puzzle-harness-ts:test: 
+@libs/game-puzzle-harness-ts:test:  9 pass
+@libs/game-puzzle-harness-ts:test:  2 fail
+@libs/game-puzzle-harness-ts:test:  12 expect() calls
+@libs/game-puzzle-harness-ts:test: Ran 11 tests across 11 files. [2.07s]
+@libs/game-puzzle-harness-ts:test: error: script "test" exited with code 1
+@libs/game-puzzle-harness-ts#test:  WARNING  command finished with error, but continuing...
+@pkgs/ui-root-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+@libs/game-puzzle-harness-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    94 successful, 96 total
+Cached:    51 cached, 96 total
+  Time:    2m12.575s 
+Failed:    @libs/game-puzzle-harness-ts#test, @pkgs/ui-root-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

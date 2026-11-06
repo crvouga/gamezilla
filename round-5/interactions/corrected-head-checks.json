@@ -1,0 +1,30 @@
+[
+  {
+    "name": "build-corrected-head",
+    "exitCode": 0,
+    "command": [
+      "bunx",
+      "turbo",
+      "run",
+      "storybook:build",
+      "--filter=@pkgs/ui-root-harness-ts",
+      "--concurrency=1"
+    ]
+  },
+  {
+    "name": "aggregate-corrected-head",
+    "exitCode": 0,
+    "command": [
+      "sh",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/aggregate.sh"
+    ]
+  },
+  {
+    "name": "consumer-typechecks-corrected-head",
+    "exitCode": 0,
+    "command": [
+      "sh",
+      ".overhaul-evidence/ui-ux-overhaul/round-5/consumers.sh"
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/connect-four-client-ts, @libs/connect-four-harness-ts, @libs/runtime-harness-ts
+   • Running lint, tc, test in 3 packages
+   • Remote caching disabled, using shared worktree cache
+
+
+ Tasks:    8 successful, 8 total
+Cached:    5 cached, 8 total
+  Time:    15.644s 
+

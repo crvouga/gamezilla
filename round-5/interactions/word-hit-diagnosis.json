@@ -1,0 +1,169 @@
+{
+  "error": "expected false to be true // Object.is equality",
+  "elements": [
+    {
+      "selector": "[data-testid=\"custom-game-board-submit\"]",
+      "rect": {
+        "x": 16,
+        "y": 300.4375,
+        "width": 97.625,
+        "height": 44,
+        "top": 300.4375,
+        "right": 113.625,
+        "bottom": 344.4375,
+        "left": 16
+      },
+      "radius": "9999px",
+      "hits": [
+        {
+          "x": 18,
+          "y": 302.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idle\" data-face=\"disabled\" data-testid=\"custom-game-board-submit\" data-action=\"submit\" type=\"button\" disabled=\"\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowra"
+        },
+        {
+          "x": 18,
+          "y": 342.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idle\" data-face=\"disabled\" data-testid=\"custom-game-board-submit\" data-action=\"submit\" type=\"button\" disabled=\"\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowra"
+        },
+        {
+          "x": 111.625,
+          "y": 302.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idle\" data-face=\"disabled\" data-testid=\"custom-game-board-submit\" data-action=\"submit\" type=\"button\" disabled=\"\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowra"
+        },
+        {
+          "x": 111.625,
+          "y": 342.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idle\" data-face=\"disabled\" data-testid=\"custom-game-board-submit\" data-action=\"submit\" type=\"button\" disabled=\"\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowra"
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-more\"]",
+      "rect": {
+        "x": 121.625,
+        "y": 300.4375,
+        "width": 121.0625,
+        "height": 44,
+        "top": 300.4375,
+        "right": 242.6875,
+        "bottom": 344.4375,
+        "left": 121.625
+      },
+      "radius": "9999px",
+      "hits": [
+        {
+          "x": 123.625,
+          "y": 302.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"idle\" data-face=\"neutral-outline\" data-testid=\"custom-game-board-more\" type=\"button\" aria-expanded=\"false\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowrap\">M"
+        },
+        {
+          "x": 123.625,
+          "y": 342.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"idle\" data-face=\"neutral-outline\" data-testid=\"custom-game-board-more\" type=\"button\" aria-expanded=\"false\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowrap\">M"
+        },
+        {
+          "x": 240.6875,
+          "y": 302.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"idle\" data-face=\"neutral-outline\" data-testid=\"custom-game-board-more\" type=\"button\" aria-expanded=\"false\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowrap\">M"
+        },
+        {
+          "x": 240.6875,
+          "y": 342.4375,
+          "contained": true,
+          "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"idle\" data-face=\"neutral-outline\" data-testid=\"custom-game-board-more\" type=\"button\" aria-expanded=\"false\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowrap\">M"
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-rack\"]",
+      "rect": {
+        "x": 16,
+        "y": 231,
+        "width": 358,
+        "height": 61.4375,
+        "top": 231,
+        "right": 374,
+        "bottom": 292.4375,
+        "left": 16
+      },
+      "radius": "12px",
+      "hits": [
+        {
+          "x": 18,
+          "y": 233,
+          "contained": false,
+          "hit": "<div class=\"box gap-ui-sm\"><div class=\"_rack_1vftd_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_1vftd_10\" data-testid=\"custom-game-board-rack-11\" data-selected=\"false\" data-placed=\"false\" aria-pressed=\"false\" aria-label=\"C, 3 points\" aria-disabled=\"false\"><span aria-hidden=\"true\" class=\"_letter_1vftd_42\">C</span> <span aria-hidden=\"true\" class=\"_points_1vftd_46\">3</span></button><button type=\"button\" clas"
+        },
+        {
+          "x": 18,
+          "y": 290.4375,
+          "contained": false,
+          "hit": "<div class=\"box gap-ui-sm\"><div class=\"_rack_1vftd_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_1vftd_10\" data-testid=\"custom-game-board-rack-11\" data-selected=\"false\" data-placed=\"false\" aria-pressed=\"false\" aria-label=\"C, 3 points\" aria-disabled=\"false\"><span aria-hidden=\"true\" class=\"_letter_1vftd_42\">C</span> <span aria-hidden=\"true\" class=\"_points_1vftd_46\">3</span></button><button type=\"button\" clas"
+        },
+        {
+          "x": 372,
+          "y": 233,
+          "contained": false,
+          "hit": "<div class=\"box gap-ui-sm\"><div class=\"_rack_1vftd_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_1vftd_10\" data-testid=\"custom-game-board-rack-11\" data-selected=\"false\" data-placed=\"false\" aria-pressed=\"false\" aria-label=\"C, 3 points\" aria-disabled=\"false\"><span aria-hidden=\"true\" class=\"_letter_1vftd_42\">C</span> <span aria-hidden=\"true\" class=\"_points_1vftd_46\">3</span></button><button type=\"button\" clas"
+        },
+        {
+          "x": 372,
+          "y": 290.4375,
+          "contained": false,
+          "hit": "<div class=\"box gap-ui-sm\"><div class=\"_rack_1vftd_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_1vftd_10\" data-testid=\"custom-game-board-rack-11\" data-selected=\"false\" data-placed=\"false\" aria-pressed=\"false\" aria-label=\"C, 3 points\" aria-disabled=\"false\"><span aria-hidden=\"true\" class=\"_letter_1vftd_42\">C</span> <span aria-hidden=\"true\" class=\"_points_1vftd_46\">3</span></button><button type=\"button\" clas"
+        }
+      ]
+    },
+    {
+      "selector": "[aria-label=\"Scrollable word board\"]",
+      "rect": {
+        "x": 16,
+        "y": 422.4375,
+        "width": 358,
+        "height": 370.203125,
+        "top": 422.4375,
+        "right": 374,
+        "bottom": 792.640625,
+        "left": 16
+      },
+      "radius": "0px",
+      "hits": [
+        {
+          "x": 18,
+          "y": 424.4375,
+          "contained": true,
+          "hit": "<div role=\"region\" class=\"_viewport_vrw96_148\" data-enlarged=\"false\" aria-label=\"Scrollable word board\"><div class=\"_board_vrw96_1\" data-enlarged=\"false\" data-component=\"WordTileBoard\" role=\"group\" aria-label=\"Word board, fifteen columns and fifteen rows\" data-testid=\"custom-game-board\" style=\"--word-tile-columns: 15;\"><span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_vrw96_57\"></span><span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_vrw96_57\">a</span><span data-axis=\"column\" a"
+        },
+        {
+          "x": 18,
+          "y": 790.640625,
+          "contained": true,
+          "hit": "<div role=\"region\" class=\"_viewport_vrw96_148\" data-enlarged=\"false\" aria-label=\"Scrollable word board\"><div class=\"_board_vrw96_1\" data-enlarged=\"false\" data-component=\"WordTileBoard\" role=\"group\" aria-label=\"Word board, fifteen columns and fifteen rows\" data-testid=\"custom-game-board\" style=\"--word-tile-columns: 15;\"><span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_vrw96_57\"></span><span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_vrw96_57\">a</span><span data-axis=\"column\" a"
+        },
+        {
+          "x": 372,
+          "y": 424.4375,
+          "contained": true,
+          "hit": "<div role=\"region\" class=\"_viewport_vrw96_148\" data-enlarged=\"false\" aria-label=\"Scrollable word board\"><div class=\"_board_vrw96_1\" data-enlarged=\"false\" data-component=\"WordTileBoard\" role=\"group\" aria-label=\"Word board, fifteen columns and fifteen rows\" data-testid=\"custom-game-board\" style=\"--word-tile-columns: 15;\"><span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_vrw96_57\"></span><span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_vrw96_57\">a</span><span data-axis=\"column\" a"
+        },
+        {
+          "x": 372,
+          "y": 790.640625,
+          "contained": true,
+          "hit": "<div role=\"region\" class=\"_viewport_vrw96_148\" data-enlarged=\"false\" aria-label=\"Scrollable word board\"><div class=\"_board_vrw96_1\" data-enlarged=\"false\" data-component=\"WordTileBoard\" role=\"group\" aria-label=\"Word board, fifteen columns and fifteen rows\" data-testid=\"custom-game-board\" style=\"--word-tile-columns: 15;\"><span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_vrw96_57\"></span><span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_vrw96_57\">a</span><span data-axis=\"column\" a"
+        }
+      ]
+    },
+    {
+      "selector": "[data-testid=\"custom-game-board-overview\"]",
+      "missing": true
+    }
+  ]
+}

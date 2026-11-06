@@ -1,0 +1,490 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [1] toBe"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [3] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [5] toEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [9] pointer"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [11] toHaveAttribute"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [14] toBeVisible"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [15] keyboard"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [17] toHaveAttribute"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [20] keyboard"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [22] toBeLessThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--008.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [24] toBeLessThanOrEqual"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--008.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [26] toBeLessThanOrEqual"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--008.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [28] toBeLessThanOrEqual"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--008.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [31] toBeVisible"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [34] toBeVisible"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [36] click"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [38] toBeLessThanOrEqual"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [40] toBeLessThanOrEqual"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [42] toBeLessThanOrEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [44] toBeLessThanOrEqual"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [47] toBeVisible"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [49] toBe"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [51] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--021.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [53] toEqual"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [55] click"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [57] toBe"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [59] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 60,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [61] toEqual"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--027.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [64] toBeVisible"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [66] toBe"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [68] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--029.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [70] toEqual"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [74] pointer"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [76] toHaveAttribute"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [79] toBeVisible"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [80] keyboard"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [82] toHaveAttribute"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [85] keyboard"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [88] toBeVisible"
+    ],
+    "cursor": 89,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [90] keyboard"
+    ],
+    "cursor": 91,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [93] toBeVisible"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [95] keyboard"
+    ],
+    "cursor": 96,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [97] toBeLessThanOrEqual"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--041.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [99] toBeLessThanOrEqual"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--041.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [101] toBeLessThanOrEqual"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--041.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [103] toBeLessThanOrEqual"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--041.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [106] toBeVisible"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--046.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--wrong-move-recovery [109] toBeVisible"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--047.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--wrong-move-recovery--desktop--light--048.png",
+    "capturedFrame": true
+  }
+]

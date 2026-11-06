@@ -1,0 +1,10 @@
+$ bun run libs/secrets-server-ts/scripts/obs.ts find "mw5ggq1r"
+obs/v1
+source: /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.cache/localhost-stack/stack-e7a2a541/observability
+utc-range: 2026-11-05T20:59:47.102Z .. 2026-11-06T20:59:47.102Z (UTC)
+No traces matched "mw5ggq1r".
+next: bun obs find "mw5ggq1r" --window 7d
+next: bun obs last --window 7d
+nearest-nearby: 2026-11-06T20:57:05.559Z ok fd27fdab517bbbdae184313aa239e087 worker.fetch 0.3ms 1 spans
+next: bun obs trace fd27fdab517bbbdae184313aa239e087
+error: script "obs" exited with code 1

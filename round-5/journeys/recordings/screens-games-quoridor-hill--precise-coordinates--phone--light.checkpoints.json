@@ -1,0 +1,2850 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [6] toBeLessThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [10] toEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [12] toEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [14] toEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [16] toEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [18] toEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [22] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--007.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [25] toHaveTextContent"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [28] toHaveTextContent"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [32] toHaveAttribute"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [34] toHaveAttribute"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [36] toBe"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [38] toBe"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [40] toBe"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [44] toHaveAccessibleName"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [46] toHaveTextContent"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [48] toHaveAttribute"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [50] toBeGreaterThan"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [52] toBeGreaterThan"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [54] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--020.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [56] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--020.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [58] toBeLessThanOrEqual"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--020.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [60] toBeLessThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--020.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [62] findByTestId"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [66] toBeLessThanOrEqual"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [68] toBeLessThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [70] toEqual"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [72] toEqual"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [74] toEqual"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [76] toEqual"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [78] toEqual"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [82] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--032.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [85] toHaveTextContent"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [88] toHaveTextContent"
+    ],
+    "cursor": 89,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [92] toHaveAccessibleName"
+    ],
+    "cursor": 93,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [94] toHaveTextContent"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [96] toHaveAttribute"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [98] toBeGreaterThan"
+    ],
+    "cursor": 99,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [100] toBeGreaterThan"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [102] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 103,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [104] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 105,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [106] toBeLessThanOrEqual"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [108] toBeLessThanOrEqual"
+    ],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--040.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [111] click"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--045.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [114] findByTestId"
+    ],
+    "cursor": 115,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--046.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [116] toEqual"
+    ],
+    "cursor": 117,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--047.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [117] click"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--048.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [120] toHaveAccessibleName"
+    ],
+    "cursor": 121,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--049.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [122] findByTestId"
+    ],
+    "cursor": 123,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--050.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [126] toBeLessThanOrEqual"
+    ],
+    "cursor": 127,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--050.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [128] toBeLessThanOrEqual"
+    ],
+    "cursor": 129,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--050.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [130] toEqual"
+    ],
+    "cursor": 131,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--053.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [132] toEqual"
+    ],
+    "cursor": 133,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--054.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [134] toEqual"
+    ],
+    "cursor": 135,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--055.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [136] toEqual"
+    ],
+    "cursor": 137,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--056.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [138] toEqual"
+    ],
+    "cursor": 139,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--057.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [142] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 143,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--057.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [145] toHaveTextContent"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--059.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [148] toHaveTextContent"
+    ],
+    "cursor": 149,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--060.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [152] toHaveAccessibleName"
+    ],
+    "cursor": 153,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--061.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [154] toHaveTextContent"
+    ],
+    "cursor": 155,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--062.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [156] toHaveAttribute"
+    ],
+    "cursor": 157,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--063.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [158] toBeGreaterThan"
+    ],
+    "cursor": 159,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--064.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [160] toBeGreaterThan"
+    ],
+    "cursor": 161,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--065.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [162] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 163,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [164] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 165,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [166] toBeLessThanOrEqual"
+    ],
+    "cursor": 167,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [168] toBeLessThanOrEqual"
+    ],
+    "cursor": 169,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--065.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [171] click"
+    ],
+    "cursor": 172,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--070.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [174] findByTestId"
+    ],
+    "cursor": 175,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--071.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [176] toEqual"
+    ],
+    "cursor": 177,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--072.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [177] click"
+    ],
+    "cursor": 178,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--073.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [180] toHaveAccessibleName"
+    ],
+    "cursor": 181,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--074.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [182] findByTestId"
+    ],
+    "cursor": 183,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--075.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [186] toBeLessThanOrEqual"
+    ],
+    "cursor": 187,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--075.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [188] toBeLessThanOrEqual"
+    ],
+    "cursor": 189,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--075.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [190] toEqual"
+    ],
+    "cursor": 191,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--078.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [192] toEqual"
+    ],
+    "cursor": 193,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--079.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [194] toEqual"
+    ],
+    "cursor": 195,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--080.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [196] toEqual"
+    ],
+    "cursor": 197,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--081.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [198] toEqual"
+    ],
+    "cursor": 199,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--082.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [202] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 203,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--082.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [205] toHaveTextContent"
+    ],
+    "cursor": 206,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--084.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [208] toHaveTextContent"
+    ],
+    "cursor": 209,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--085.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [212] toHaveAccessibleName"
+    ],
+    "cursor": 213,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--086.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [214] toHaveTextContent"
+    ],
+    "cursor": 215,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--087.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [216] toHaveAttribute"
+    ],
+    "cursor": 217,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--088.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [218] toBeGreaterThan"
+    ],
+    "cursor": 219,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--089.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [220] toBeGreaterThan"
+    ],
+    "cursor": 221,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--090.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [222] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 223,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--090.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [224] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 225,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--090.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [226] toBeLessThanOrEqual"
+    ],
+    "cursor": 227,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--090.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [228] toBeLessThanOrEqual"
+    ],
+    "cursor": 229,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--090.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [231] click"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--095.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [234] findByTestId"
+    ],
+    "cursor": 235,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--096.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [236] toEqual"
+    ],
+    "cursor": 237,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--097.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [237] click"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--098.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [240] toHaveAccessibleName"
+    ],
+    "cursor": 241,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--099.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [242] findByTestId"
+    ],
+    "cursor": 243,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--100.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [246] toBeLessThanOrEqual"
+    ],
+    "cursor": 247,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--100.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [248] toBeLessThanOrEqual"
+    ],
+    "cursor": 249,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--100.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [250] toEqual"
+    ],
+    "cursor": 251,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--103.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [252] toEqual"
+    ],
+    "cursor": 253,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--104.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [254] toEqual"
+    ],
+    "cursor": 255,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--105.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [256] toEqual"
+    ],
+    "cursor": 257,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--106.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [258] toEqual"
+    ],
+    "cursor": 259,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--107.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [262] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 263,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--107.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [265] toHaveTextContent"
+    ],
+    "cursor": 266,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--109.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [268] toHaveTextContent"
+    ],
+    "cursor": 269,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--110.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [272] toHaveAccessibleName"
+    ],
+    "cursor": 273,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--111.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [274] toHaveTextContent"
+    ],
+    "cursor": 275,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--112.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [276] toHaveAttribute"
+    ],
+    "cursor": 277,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--113.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [278] toBeGreaterThan"
+    ],
+    "cursor": 279,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--114.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [280] toBeGreaterThan"
+    ],
+    "cursor": 281,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--115.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [282] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 283,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--115.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [284] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 285,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--115.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [286] toBeLessThanOrEqual"
+    ],
+    "cursor": 287,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--115.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [288] toBeLessThanOrEqual"
+    ],
+    "cursor": 289,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--115.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [291] click"
+    ],
+    "cursor": 292,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--120.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [294] findByTestId"
+    ],
+    "cursor": 295,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--121.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [296] toEqual"
+    ],
+    "cursor": 297,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--122.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [297] click"
+    ],
+    "cursor": 298,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--123.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [300] toHaveAccessibleName"
+    ],
+    "cursor": 301,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--124.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [303] findByTestId"
+    ],
+    "cursor": 304,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--125.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [307] toBeLessThanOrEqual"
+    ],
+    "cursor": 308,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--125.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [309] toBeLessThanOrEqual"
+    ],
+    "cursor": 310,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--125.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [311] toEqual"
+    ],
+    "cursor": 312,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--128.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [313] toEqual"
+    ],
+    "cursor": 314,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--129.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [315] toEqual"
+    ],
+    "cursor": 316,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--130.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [317] toEqual"
+    ],
+    "cursor": 318,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--131.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [319] toEqual"
+    ],
+    "cursor": 320,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--132.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [323] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 324,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--132.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [326] toHaveTextContent"
+    ],
+    "cursor": 327,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--134.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [329] toHaveTextContent"
+    ],
+    "cursor": 330,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--135.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [331] click"
+    ],
+    "cursor": 332,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--136.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [334] click"
+    ],
+    "cursor": 335,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--137.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [337] type"
+    ],
+    "cursor": 338,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--138.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [338] findByTestId"
+    ],
+    "cursor": 339,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--139.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [340] toEqual"
+    ],
+    "cursor": 341,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--140.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [341] click"
+    ],
+    "cursor": 342,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--141.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [345] findByTestId"
+    ],
+    "cursor": 346,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--142.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [349] toBeLessThanOrEqual"
+    ],
+    "cursor": 350,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [351] toBeLessThanOrEqual"
+    ],
+    "cursor": 352,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [353] toEqual"
+    ],
+    "cursor": 354,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--145.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [355] toEqual"
+    ],
+    "cursor": 356,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--146.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [357] toEqual"
+    ],
+    "cursor": 358,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--147.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [359] toEqual"
+    ],
+    "cursor": 360,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--148.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [361] toEqual"
+    ],
+    "cursor": 362,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--149.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [365] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 366,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--149.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [368] toHaveTextContent"
+    ],
+    "cursor": 369,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--151.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [371] toHaveTextContent"
+    ],
+    "cursor": 372,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--152.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [374] toEqual"
+    ],
+    "cursor": 375,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--153.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [377] toEqual"
+    ],
+    "cursor": 378,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--154.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [379] toBe"
+    ],
+    "cursor": 380,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--155.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [381] toBe"
+    ],
+    "cursor": 382,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--156.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [383] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 384,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [385] toBe"
+    ],
+    "cursor": 386,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--158.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [387] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 388,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--158.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [389] toBe"
+    ],
+    "cursor": 390,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--160.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [391] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 392,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--160.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [393] toBe"
+    ],
+    "cursor": 394,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--162.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [395] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 396,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--162.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [396] hover"
+    ],
+    "cursor": 397,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--164.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [397] unhover"
+    ],
+    "cursor": 398,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--165.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [399] toHaveAttribute"
+    ],
+    "cursor": 400,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--166.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [401] toHaveAttribute"
+    ],
+    "cursor": 402,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--167.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [404] findByTestId"
+    ],
+    "cursor": 405,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--168.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [408] toBeLessThanOrEqual"
+    ],
+    "cursor": 409,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--168.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [410] toBeLessThanOrEqual"
+    ],
+    "cursor": 411,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--168.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [412] toEqual"
+    ],
+    "cursor": 413,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--171.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [414] toEqual"
+    ],
+    "cursor": 415,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--172.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [416] toEqual"
+    ],
+    "cursor": 417,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--173.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [418] toEqual"
+    ],
+    "cursor": 419,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--174.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [420] toEqual"
+    ],
+    "cursor": 421,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--175.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [424] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 425,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--175.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [427] toHaveTextContent"
+    ],
+    "cursor": 428,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--177.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [430] toHaveTextContent"
+    ],
+    "cursor": 431,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--178.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [433] toEqual"
+    ],
+    "cursor": 434,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--179.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [436] toEqual"
+    ],
+    "cursor": 437,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--180.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [438] toBe"
+    ],
+    "cursor": 439,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--181.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [440] toBe"
+    ],
+    "cursor": 441,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--182.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [442] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 443,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--182.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [444] toBe"
+    ],
+    "cursor": 445,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--184.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [446] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 447,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--184.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [448] toBe"
+    ],
+    "cursor": 449,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--186.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [450] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 451,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--186.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [452] toBe"
+    ],
+    "cursor": 453,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--188.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [454] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 455,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--188.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [456] click"
+    ],
+    "cursor": 457,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--190.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [459] toHaveAttribute"
+    ],
+    "cursor": 460,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--191.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [461] toHaveAttribute"
+    ],
+    "cursor": 462,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--192.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [464] findByTestId"
+    ],
+    "cursor": 465,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--193.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [468] toBeLessThanOrEqual"
+    ],
+    "cursor": 469,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--193.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [470] toBeLessThanOrEqual"
+    ],
+    "cursor": 471,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--193.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [472] toEqual"
+    ],
+    "cursor": 473,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--196.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [474] toEqual"
+    ],
+    "cursor": 475,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--197.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [476] toEqual"
+    ],
+    "cursor": 477,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--198.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [478] toEqual"
+    ],
+    "cursor": 479,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--199.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [480] toEqual"
+    ],
+    "cursor": 481,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--200.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [484] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 485,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--200.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [487] toHaveTextContent"
+    ],
+    "cursor": 488,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--202.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [490] toHaveTextContent"
+    ],
+    "cursor": 491,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--203.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [493] toEqual"
+    ],
+    "cursor": 494,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--204.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [496] toEqual"
+    ],
+    "cursor": 497,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--205.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [498] toBe"
+    ],
+    "cursor": 499,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--206.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [500] toBe"
+    ],
+    "cursor": 501,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--207.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [502] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 503,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--207.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [504] toBe"
+    ],
+    "cursor": 505,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--209.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [506] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 507,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--209.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [508] toBe"
+    ],
+    "cursor": 509,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--211.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [510] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 511,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--211.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [512] toBe"
+    ],
+    "cursor": 513,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--213.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [514] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 515,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--213.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [516] click"
+    ],
+    "cursor": 517,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--215.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [518] toHaveAttribute"
+    ],
+    "cursor": 519,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--216.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [520] toHaveAttribute"
+    ],
+    "cursor": 521,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--217.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [523] click"
+    ],
+    "cursor": 524,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--218.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [526] type"
+    ],
+    "cursor": 527,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--219.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [527] findByTestId"
+    ],
+    "cursor": 528,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--220.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [529] toEqual"
+    ],
+    "cursor": 530,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--221.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [530] click"
+    ],
+    "cursor": 531,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--222.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [533] findByTestId"
+    ],
+    "cursor": 534,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--223.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [537] toBeLessThanOrEqual"
+    ],
+    "cursor": 538,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--223.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [539] toBeLessThanOrEqual"
+    ],
+    "cursor": 540,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--223.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [541] toEqual"
+    ],
+    "cursor": 542,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--226.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [543] toEqual"
+    ],
+    "cursor": 544,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--227.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [545] toEqual"
+    ],
+    "cursor": 546,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--228.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [547] toEqual"
+    ],
+    "cursor": 548,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--229.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [549] toEqual"
+    ],
+    "cursor": 550,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--230.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [553] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 554,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--230.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [556] toHaveTextContent"
+    ],
+    "cursor": 557,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--232.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [559] toHaveTextContent"
+    ],
+    "cursor": 560,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--233.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [562] toEqual"
+    ],
+    "cursor": 563,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--234.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [565] toEqual"
+    ],
+    "cursor": 566,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--235.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [567] toBe"
+    ],
+    "cursor": 568,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--236.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [569] toBe"
+    ],
+    "cursor": 570,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--237.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [571] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 572,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--237.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [573] toBe"
+    ],
+    "cursor": 574,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--239.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [575] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 576,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--239.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [577] toBe"
+    ],
+    "cursor": 578,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--241.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [579] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 580,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--241.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [581] toBe"
+    ],
+    "cursor": 582,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--243.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [583] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 584,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--243.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [585] click"
+    ],
+    "cursor": 586,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--245.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [588] toHaveAttribute"
+    ],
+    "cursor": 589,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--246.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [591] findByTestId"
+    ],
+    "cursor": 592,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--247.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [595] toBeLessThanOrEqual"
+    ],
+    "cursor": 596,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--247.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [597] toBeLessThanOrEqual"
+    ],
+    "cursor": 598,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--247.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [599] toEqual"
+    ],
+    "cursor": 600,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--250.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [601] toEqual"
+    ],
+    "cursor": 602,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--251.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [603] toEqual"
+    ],
+    "cursor": 604,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--252.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [605] toEqual"
+    ],
+    "cursor": 606,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--253.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [607] toEqual"
+    ],
+    "cursor": 608,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--254.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [611] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 612,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--254.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [614] toHaveTextContent"
+    ],
+    "cursor": 615,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--256.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [617] toHaveTextContent"
+    ],
+    "cursor": 618,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--257.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [620] toEqual"
+    ],
+    "cursor": 621,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--258.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [623] toEqual"
+    ],
+    "cursor": 624,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--259.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [625] toBe"
+    ],
+    "cursor": 626,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--260.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [627] toBe"
+    ],
+    "cursor": 628,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--261.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [629] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 630,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--261.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [631] toBe"
+    ],
+    "cursor": 632,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--263.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [633] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 634,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--263.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [635] toBe"
+    ],
+    "cursor": 636,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--265.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [637] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 638,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--265.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [639] toBe"
+    ],
+    "cursor": 640,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--267.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [641] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 642,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--267.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [643] click"
+    ],
+    "cursor": 644,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--269.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [646] toBeEnabled"
+    ],
+    "cursor": 647,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--270.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [648] findByTestId"
+    ],
+    "cursor": 649,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--271.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [652] toBeLessThanOrEqual"
+    ],
+    "cursor": 653,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--271.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [654] toBeLessThanOrEqual"
+    ],
+    "cursor": 655,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--271.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [656] toEqual"
+    ],
+    "cursor": 657,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--274.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [658] toEqual"
+    ],
+    "cursor": 659,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--275.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [660] toEqual"
+    ],
+    "cursor": 661,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--276.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [662] toEqual"
+    ],
+    "cursor": 663,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--277.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [664] toEqual"
+    ],
+    "cursor": 665,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--278.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [668] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 669,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--278.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [671] toHaveTextContent"
+    ],
+    "cursor": 672,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--280.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [674] toHaveTextContent"
+    ],
+    "cursor": 675,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--281.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [676] click"
+    ],
+    "cursor": 677,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--282.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-hill--precise-coordinates [679] toHaveAttribute"
+    ],
+    "cursor": 680,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--283.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 680,
+    "failures": [],
+    "file": "screens-games-quoridor-hill--precise-coordinates--phone--light--284.png",
+    "capturedFrame": true
+  }
+]

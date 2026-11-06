@@ -1,0 +1,10 @@
+{
+  "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+  "treeSha": "c2315ee28f2cf0058c8b6cfab286cf8eb50819c7",
+  "clean": true,
+  "baselineSha": "8a3538fca4c9d23ff931be3dfa85b1080ebc0041",
+  "intendedPaths": 206,
+  "actualPaths": 206,
+  "binaryDiffSha256": "4b37e8aabdec596d91e9fa5e850f852e424f75238ac7d308e56232cb485e8183",
+  "ownershipMatched": true
+}

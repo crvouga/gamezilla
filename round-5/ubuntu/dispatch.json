@@ -1,0 +1,21 @@
+{
+  "candidateSha": "d2ee6467e23b84ffd7b5128fb993a614df68a7d2",
+  "command": [
+    "gh",
+    "workflow",
+    "run",
+    "verify-nightly.yml",
+    "--ref",
+    "t3/game-board-ux-overhaul",
+    "-f",
+    "group=storybook",
+    "-f",
+    "update-storybook-baselines=true",
+    "-f",
+    "storybook-pattern=screens-games-(battleship-board|battleship-setup|chess-board|connect-four-board|hearts-board|light-cycles-arena|numberlink-puzzle|pong-court|quoridor-classic|quoridor-hill|sokoban-puzzle|word-tiles-board|word-tiles-puzzle)--|screens-puzzles-chess-play--|games-cellgridboard|product-(wordtileboard|cellgridboard|cardtable)|templates-game-frame|font readiness|games-battleship-placement-layout|product-wordtileworkbench|screens-games-frame-geometry--|components-inputs-(paddlecourt|trailarena)"
+  ],
+  "exitCode": 0,
+  "stdout": "https://github.com/crvouga/gamezilla/actions/runs/42294182190\n",
+  "stderr": "",
+  "dispatchedAt": "2026-11-06T21:08:04.815398+00:00"
+}

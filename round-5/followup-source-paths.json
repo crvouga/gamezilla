@@ -1,0 +1,19 @@
+[
+  "docs/SELF_SERVICE_READINESS.md",
+  "libs/battleship-client-ts/src/battleship-target-grid.tsx",
+  "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx",
+  "libs/pong-client-ts/src/pong-board-view.tsx",
+  "libs/pong-client-ts/tests/pong-board.test.tsx",
+  "libs/runtime-harness-ts/src/numberlink-continuity-journey.ts",
+  "libs/runtime-harness-ts/src/numberlink-offline-journey.ts",
+  "libs/runtime-harness-ts/src/sokoban-continuity-journey.ts",
+  "libs/runtime-harness-ts/src/sokoban-offline-journey.ts",
+  "libs/tools-harness-ts/goal/known-bugs/battleship-desktop-target-tools-below-viewport.json",
+  "libs/tools-harness-ts/goal/known-bugs/chess-guidance-placement-contract-proof-missing.json",
+  "libs/tools-harness-ts/goal/known-bugs/pong-playing-status-disappears.json",
+  "libs/tools-harness-ts/goal/known-bugs/puzzle-saved-completion-journey-copy.json",
+  "pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx",
+  "pkgs/chess-board-root-client-ts/tests/puzzle-first-rank.test.tsx",
+  "pkgs/chess-board-root-harness-ts/src/contract-proofs.ts",
+  "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+]

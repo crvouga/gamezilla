@@ -1,0 +1,1213 @@
+[
+  {
+    "error": "expected 112 to be less than 112",
+    "parents": [
+      {
+        "tag": "DIV",
+        "classes": "_board_nohpq_1",
+        "data": {
+          "component": "DiscDropBoard",
+          "testid": "custom-game-board",
+          "previewCell": "-1",
+          "cells": "[0,0,2,1,1,1,0,0,0,1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]",
+          "won": "false"
+        },
+        "rect": {
+          "x": 16,
+          "y": 259,
+          "width": 358,
+          "height": 372,
+          "top": 259,
+          "right": 374,
+          "bottom": 631,
+          "left": 16
+        },
+        "maxWidth": "608px",
+        "padding": "8px",
+        "grid": "48px 48px 48px 48px 48px 48px 48px",
+        "container": "none",
+        "display": "grid",
+        "text": "1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, row 2: Empty."
+      },
+      {
+        "tag": "DIV",
+        "classes": "_board_18oqp_123",
+        "data": {},
+        "rect": {
+          "x": 16,
+          "y": 259,
+          "width": 358,
+          "height": 372,
+          "top": 259,
+          "right": 374,
+          "bottom": 631,
+          "left": 16
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "block",
+        "text": "1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, row 2: Empty."
+      },
+      {
+        "tag": "DIV",
+        "classes": "_boardStage_18oqp_123",
+        "data": {
+          "preview": "false",
+          "component": "GameBoardStage",
+          "testid": "custom-game-public"
+        },
+        "rect": {
+          "x": 16,
+          "y": 135,
+          "width": 358,
+          "height": 568,
+          "top": 135,
+          "right": 374,
+          "bottom": 703,
+          "left": 16
+        },
+        "maxWidth": "560px",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "avery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingChosenBot■OutChoosing1Column 1, row 6: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_stage_18oqp_80",
+        "data": {},
+        "rect": {
+          "x": 16,
+          "y": 135,
+          "width": 358,
+          "height": 568,
+          "top": 135,
+          "right": 374,
+          "bottom": 703,
+          "left": 16
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "avery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingChosenBot■OutChoosing1Column 1, row 6: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_layout_18oqp_8",
+        "data": {
+          "hasStage": "true",
+          "hasSetup": "false",
+          "hasAside": "false",
+          "stagePreview": "false",
+          "arena": "false",
+          "workspace": "false",
+          "component": "GameLayout"
+        },
+        "rect": {
+          "x": 16,
+          "y": 135,
+          "width": 358,
+          "height": 672,
+          "top": 135,
+          "right": 374,
+          "bottom": 807,
+          "left": 16
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "358px",
+        "container": "none",
+        "display": "grid",
+        "text": "avery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingChosenBot■OutChoosing1Column 1, row 6: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "box gap-4 min-w-0 pb-6 _session_1764f_54",
+        "data": {
+          "boardFocus": "true",
+          "component": "CustomGameContent",
+          "testid": "custom-game-content"
+        },
+        "rect": {
+          "x": 16,
+          "y": 65,
+          "width": 358,
+          "height": 766,
+          "top": 65,
+          "right": 374,
+          "bottom": 831,
+          "left": 16
+        },
+        "maxWidth": "none",
+        "padding": "0px 0px 24px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "LiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingChosenBot■OutChoosing1Column "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_column_18oqp_7",
+        "data": {
+          "component": "GameColumn"
+        },
+        "rect": {
+          "x": 16,
+          "y": 8,
+          "width": 358,
+          "height": 823,
+          "top": 8,
+          "right": 374,
+          "bottom": 831,
+          "left": 16
+        },
+        "maxWidth": "640px",
+        "padding": "0px",
+        "grid": "none",
+        "container": "game-column / inline-size",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto",
+        "data": {
+          "component": "ScrollViewContent"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 863,
+          "top": 0,
+          "right": 390,
+          "bottom": 863,
+          "left": 0
+        },
+        "maxWidth": "100%",
+        "padding": "8px 16px 32px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "scroll flex-1 self-stretch w-full",
+        "data": {
+          "component": "GameScreen",
+          "screen": "custom-game"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0",
+        "data": {
+          "region": "content"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0 relative",
+        "data": {},
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0",
+        "data": {
+          "component": "DismissibleBannerPortalRoot"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "MAIN",
+        "classes": "box flex-1 min-h-0 bg-background",
+        "data": {
+          "component": "AppFrame",
+          "mode": "compact"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box h-dvh min-h-0",
+        "data": {
+          "component": "StoryAppViewport"
+        },
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimedLiveMove 4Column●6All movesavery●YouChoosingjordan_plays◆Points 12Chosenmorgan▲ReconnectingCho"
+      }
+    ],
+    "seats": [
+      {
+        "self": {
+          "tag": "DIV",
+          "classes": "box min-w-0 flex-1",
+          "data": {
+            "component": "GamePlayerChip",
+            "testid": "custom-game-white",
+            "active": "true"
+          },
+          "rect": {
+            "x": 16,
+            "y": 135,
+            "width": 86.5,
+            "height": 88,
+            "top": 135,
+            "right": 102.5,
+            "bottom": 223,
+            "left": 16
+          },
+          "maxWidth": "none",
+          "padding": "0px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "avery●YouChoosing"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_1pcld_20 bg-tint-subtle border-primary-strong",
+              "data": {},
+              "rect": {
+                "x": 16,
+                "y": 135,
+                "width": 86.5,
+                "height": 88,
+                "top": 135,
+                "right": 102.5,
+                "bottom": 223,
+                "left": 16
+              },
+              "maxWidth": "none",
+              "padding": "4px",
+              "grid": "none",
+              "container": "none",
+              "display": "flex",
+              "text": "avery●YouChoosing"
+            },
+            "children": [
+              {
+                "tag": "SPAN",
+                "classes": "box shrink-0 _chipAvatar_1pcld_33",
+                "data": {},
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "none",
+                "text": ""
+              },
+              {
+                "tag": "SPAN",
+                "classes": "box flex-1 min-w-0 items-start gap-1 _chipText_1pcld_30",
+                "data": {},
+                "rect": {
+                  "x": 21,
+                  "y": 140,
+                  "width": 76.5,
+                  "height": 78,
+                  "top": 140,
+                  "right": 97.5,
+                  "bottom": 218,
+                  "left": 21
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "avery●YouChoosing"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "self": {
+          "tag": "DIV",
+          "classes": "box min-w-0 flex-1",
+          "data": {
+            "component": "GamePlayerChip",
+            "testid": "custom-game-black",
+            "active": "false"
+          },
+          "rect": {
+            "x": 106.5,
+            "y": 135,
+            "width": 86.5,
+            "height": 112,
+            "top": 135,
+            "right": 193,
+            "bottom": 247,
+            "left": 106.5
+          },
+          "maxWidth": "none",
+          "padding": "0px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "jordan_plays◆Points 12Chosen"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_1pcld_20 bg-surface border-border",
+              "data": {},
+              "rect": {
+                "x": 106.5,
+                "y": 135,
+                "width": 86.5,
+                "height": 112,
+                "top": 135,
+                "right": 193,
+                "bottom": 247,
+                "left": 106.5
+              },
+              "maxWidth": "none",
+              "padding": "4px",
+              "grid": "none",
+              "container": "none",
+              "display": "flex",
+              "text": "jordan_plays◆Points 12Chosen"
+            },
+            "children": [
+              {
+                "tag": "SPAN",
+                "classes": "box shrink-0 _chipAvatar_1pcld_33",
+                "data": {},
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "none",
+                "text": ""
+              },
+              {
+                "tag": "SPAN",
+                "classes": "box flex-1 min-w-0 items-start gap-1 _chipText_1pcld_30",
+                "data": {},
+                "rect": {
+                  "x": 111.5,
+                  "y": 142,
+                  "width": 76.5,
+                  "height": 98,
+                  "top": 142,
+                  "right": 188,
+                  "bottom": 240,
+                  "left": 111.5
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "jordan_plays◆Points 12Chosen"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "self": {
+          "tag": "DIV",
+          "classes": "box min-w-0 flex-1",
+          "data": {
+            "component": "GamePlayerChip",
+            "testid": "custom-game-red",
+            "active": "false",
+            "state": "reconnecting"
+          },
+          "rect": {
+            "x": 197,
+            "y": 135,
+            "width": 86.5,
+            "height": 112,
+            "top": 135,
+            "right": 283.5,
+            "bottom": 247,
+            "left": 197
+          },
+          "maxWidth": "none",
+          "padding": "0px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "morgan▲ReconnectingChosen"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_1pcld_20 bg-surface border-border",
+              "data": {},
+              "rect": {
+                "x": 197,
+                "y": 135,
+                "width": 86.5,
+                "height": 112,
+                "top": 135,
+                "right": 283.5,
+                "bottom": 247,
+                "left": 197
+              },
+              "maxWidth": "none",
+              "padding": "4px",
+              "grid": "none",
+              "container": "none",
+              "display": "flex",
+              "text": "morgan▲ReconnectingChosen"
+            },
+            "children": [
+              {
+                "tag": "SPAN",
+                "classes": "box shrink-0 _chipAvatar_1pcld_33",
+                "data": {},
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "none",
+                "text": ""
+              },
+              {
+                "tag": "SPAN",
+                "classes": "box flex-1 min-w-0 items-start gap-1 _chipText_1pcld_30",
+                "data": {},
+                "rect": {
+                  "x": 202,
+                  "y": 140,
+                  "width": 76.5,
+                  "height": 102,
+                  "top": 140,
+                  "right": 278.5,
+                  "bottom": 242,
+                  "left": 202
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "morgan▲ReconnectingChosen"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "self": {
+          "tag": "DIV",
+          "classes": "box min-w-0 flex-1",
+          "data": {
+            "component": "GamePlayerChip",
+            "testid": "custom-game-blue",
+            "active": "true",
+            "state": "out"
+          },
+          "rect": {
+            "x": 287.5,
+            "y": 135,
+            "width": 86.5,
+            "height": 112,
+            "top": 135,
+            "right": 374,
+            "bottom": 247,
+            "left": 287.5
+          },
+          "maxWidth": "none",
+          "padding": "0px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "Bot■OutChoosing"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_1pcld_20 bg-tint-subtle border-primary-strong",
+              "data": {},
+              "rect": {
+                "x": 287.5,
+                "y": 135,
+                "width": 86.5,
+                "height": 112,
+                "top": 135,
+                "right": 374,
+                "bottom": 247,
+                "left": 287.5
+              },
+              "maxWidth": "none",
+              "padding": "4px",
+              "grid": "none",
+              "container": "none",
+              "display": "flex",
+              "text": "Bot■OutChoosing"
+            },
+            "children": [
+              {
+                "tag": "SPAN",
+                "classes": "box shrink-0 _chipAvatar_1pcld_33 opacity-disabled",
+                "data": {},
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "none",
+                "text": ""
+              },
+              {
+                "tag": "SPAN",
+                "classes": "box flex-1 min-w-0 items-start gap-1 _chipText_1pcld_30",
+                "data": {},
+                "rect": {
+                  "x": 292.5,
+                  "y": 152,
+                  "width": 76.5,
+                  "height": 78,
+                  "top": 152,
+                  "right": 369,
+                  "bottom": 230,
+                  "left": 292.5
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "Bot■OutChoosing"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "error": "expected 560 to be greater than 600",
+    "parents": [
+      {
+        "tag": "DIV",
+        "classes": "_board_nohpq_1",
+        "data": {
+          "component": "DiscDropBoard",
+          "testid": "custom-game-board",
+          "previewCell": "-1",
+          "cells": "[0,0,2,1,1,1,0,0,0,1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]",
+          "won": "false"
+        },
+        "rect": {
+          "x": 240,
+          "y": 134,
+          "width": 560,
+          "height": 545.15625,
+          "top": 134,
+          "right": 800,
+          "bottom": 679.15625,
+          "left": 240
+        },
+        "maxWidth": "608px",
+        "padding": "8px",
+        "grid": "76.8438px 76.8594px 76.8594px 76.8594px 76.8594px 76.8594px 76.8438px",
+        "container": "none",
+        "display": "grid",
+        "text": "1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, row 2: Empty."
+      },
+      {
+        "tag": "DIV",
+        "classes": "_board_18oqp_123",
+        "data": {},
+        "rect": {
+          "x": 240,
+          "y": 134,
+          "width": 560,
+          "height": 545.15625,
+          "top": 134,
+          "right": 800,
+          "bottom": 679.15625,
+          "left": 240
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "block",
+        "text": "1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, row 2: Empty."
+      },
+      {
+        "tag": "DIV",
+        "classes": "_boardStage_18oqp_123",
+        "data": {
+          "preview": "false",
+          "component": "GameBoardStage",
+          "testid": "custom-game-public"
+        },
+        "rect": {
+          "x": 240,
+          "y": 70,
+          "width": 560,
+          "height": 673.15625,
+          "top": 70,
+          "right": 800,
+          "bottom": 743.15625,
+          "left": 240
+        },
+        "maxWidth": "640px",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_stage_18oqp_80",
+        "data": {},
+        "rect": {
+          "x": 240,
+          "y": 70,
+          "width": 560,
+          "height": 673.15625,
+          "top": 70,
+          "right": 800,
+          "bottom": 743.15625,
+          "left": 240
+        },
+        "maxWidth": "640px",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_layout_18oqp_8",
+        "data": {
+          "hasStage": "true",
+          "hasSetup": "false",
+          "hasAside": "true",
+          "stagePreview": "false",
+          "arena": "false",
+          "workspace": "false",
+          "component": "GameLayout"
+        },
+        "rect": {
+          "x": 240,
+          "y": 70,
+          "width": 960,
+          "height": 673.15625,
+          "top": 70,
+          "right": 1200,
+          "bottom": 743.15625,
+          "left": 240
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "560px 376px",
+        "container": "none",
+        "display": "grid",
+        "text": "◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "box gap-4 min-w-0 pb-6 _session_1764f_54",
+        "data": {
+          "boardFocus": "true",
+          "component": "CustomGameContent",
+          "testid": "custom-game-content"
+        },
+        "rect": {
+          "x": 240,
+          "y": 70,
+          "width": 960,
+          "height": 697.15625,
+          "top": 70,
+          "right": 1200,
+          "bottom": 767.15625,
+          "left": 240
+        },
+        "maxWidth": "none",
+        "padding": "0px 0px 24px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1, row 3: Empty. Column 1, "
+      },
+      {
+        "tag": "DIV",
+        "classes": "_column_18oqp_7",
+        "data": {
+          "component": "GameColumn"
+        },
+        "rect": {
+          "x": 240,
+          "y": 8,
+          "width": 960,
+          "height": 759.15625,
+          "top": 8,
+          "right": 1200,
+          "bottom": 767.15625,
+          "left": 240
+        },
+        "maxWidth": "1040px",
+        "padding": "0px",
+        "grid": "none",
+        "container": "game-column / inline-size",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "scrollContent gap-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto",
+        "data": {
+          "component": "ScrollViewContent"
+        },
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 960,
+          "height": 799.15625,
+          "top": 0,
+          "right": 1200,
+          "bottom": 799.15625,
+          "left": 240
+        },
+        "maxWidth": "100%",
+        "padding": "8px 0px 32px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "scroll flex-1 self-stretch w-full",
+        "data": {
+          "component": "GameScreen",
+          "screen": "custom-game"
+        },
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 960,
+          "height": 828,
+          "top": 0,
+          "right": 1200,
+          "bottom": 828,
+          "left": 240
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0",
+        "data": {
+          "region": "content"
+        },
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 960,
+          "height": 828,
+          "top": 0,
+          "right": 1200,
+          "bottom": 828,
+          "left": 240
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0 w-full mx-auto max-w-ui-space px-4 pb-4 gap-2",
+        "data": {
+          "region": "column"
+        },
+        "rect": {
+          "x": 224,
+          "y": 0,
+          "width": 992,
+          "height": 844,
+          "top": 0,
+          "right": 1216,
+          "bottom": 844,
+          "left": 224
+        },
+        "maxWidth": "992px",
+        "padding": "0px 16px 16px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0",
+        "data": {},
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 844,
+          "top": 0,
+          "right": 1440,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-row flex-1 min-h-0 min-w-0",
+        "data": {},
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 844,
+          "top": 0,
+          "right": 1440,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      },
+      {
+        "tag": "DIV",
+        "classes": "box flex-1 min-h-0 min-w-0 relative",
+        "data": {},
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 844,
+          "top": 0,
+          "right": 1440,
+          "bottom": 844,
+          "left": 0
+        },
+        "maxWidth": "none",
+        "padding": "0px",
+        "grid": "none",
+        "container": "none",
+        "display": "flex",
+        "text": "Connect FourUnratedUntimed◆jordan_plays1Column 1, row 6: Empty. Column 1, row 5: Empty. Column 1, row 4: Empty. Column 1"
+      }
+    ],
+    "seats": [
+      {
+        "self": {
+          "tag": "SECTION",
+          "classes": "_player_18oqp_186 rounded-card py-1 bg-surface px-1",
+          "data": {
+            "density": "compact",
+            "active": "false",
+            "component": "GamePlayerBar",
+            "testid": "custom-game-black"
+          },
+          "rect": {
+            "x": 240,
+            "y": 70,
+            "width": 560,
+            "height": 52,
+            "top": 70,
+            "right": 800,
+            "bottom": 122,
+            "left": 240
+          },
+          "maxWidth": "none",
+          "padding": "4px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "◆jordan_plays"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "_playerRow_18oqp_210",
+              "data": {},
+              "rect": {
+                "x": 244,
+                "y": 74,
+                "width": 552,
+                "height": 44,
+                "top": 74,
+                "right": 796,
+                "bottom": 118,
+                "left": 244
+              },
+              "maxWidth": "none",
+              "padding": "0px",
+              "grid": "none",
+              "container": "seat-row / inline-size",
+              "display": "flex",
+              "text": "◆jordan_plays"
+            },
+            "children": [
+              {
+                "tag": "DIV",
+                "classes": "_playerPress_18oqp_225",
+                "data": {},
+                "rect": {
+                  "x": 244,
+                  "y": 74,
+                  "width": 552,
+                  "height": 44,
+                  "top": 74,
+                  "right": 796,
+                  "bottom": 118,
+                  "left": 244
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "◆jordan_plays"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "self": {
+          "tag": "SECTION",
+          "classes": "_player_18oqp_186 rounded-card py-1 bg-tint-subtle px-1",
+          "data": {
+            "density": "compact",
+            "active": "true",
+            "component": "GamePlayerBar",
+            "testid": "custom-game-white"
+          },
+          "rect": {
+            "x": 240,
+            "y": 691.15625,
+            "width": 560,
+            "height": 52,
+            "top": 691.15625,
+            "right": 800,
+            "bottom": 743.15625,
+            "left": 240
+          },
+          "maxWidth": "none",
+          "padding": "4px",
+          "grid": "none",
+          "container": "none",
+          "display": "flex",
+          "text": "●averyYour move"
+        },
+        "children": [
+          {
+            "self": {
+              "tag": "DIV",
+              "classes": "_playerRow_18oqp_210",
+              "data": {},
+              "rect": {
+                "x": 244,
+                "y": 695.15625,
+                "width": 552,
+                "height": 44,
+                "top": 695.15625,
+                "right": 796,
+                "bottom": 739.15625,
+                "left": 244
+              },
+              "maxWidth": "none",
+              "padding": "0px",
+              "grid": "none",
+              "container": "seat-row / inline-size",
+              "display": "flex",
+              "text": "●averyYour move"
+            },
+            "children": [
+              {
+                "tag": "DIV",
+                "classes": "_playerPress_18oqp_225",
+                "data": {},
+                "rect": {
+                  "x": 244,
+                  "y": 695.15625,
+                  "width": 552,
+                  "height": 44,
+                  "top": 695.15625,
+                  "right": 796,
+                  "bottom": 739.15625,
+                  "left": 244
+                },
+                "maxWidth": "none",
+                "padding": "0px",
+                "grid": "none",
+                "container": "none",
+                "display": "flex",
+                "text": "●averyYour move"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

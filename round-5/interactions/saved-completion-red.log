@@ -1,0 +1,153 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/game-puzzle-client-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/game-puzzle-client-ts:test: cache miss, executing b7cd1f213f9a92f9
+@libs/game-puzzle-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/game-puzzle-client-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-attempt-layout.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) at 390px the attempt's commands come before the puzzle panel [9.94ms]
+@libs/game-puzzle-client-ts:test: (pass) at 1440px the attempt's commands come before the puzzle panel [1.79ms]
+@libs/game-puzzle-client-ts:test: (pass) at 390px the puzzle's rule is said right above the board [1.37ms]
+@libs/game-puzzle-client-ts:test: (pass) at 1440px the puzzle's rule is said right above the board [0.99ms]
+@libs/game-puzzle-client-ts:test: (pass) a phone keeps the puzzle's own title beside its difficulty [0.99ms]
+@libs/game-puzzle-client-ts:test: (pass) at 390px the puzzle panel is headed by the pack's place, the save status after [5.13ms]
+@libs/game-puzzle-client-ts:test: (pass) at 1440px the puzzle panel is headed by the pack's place, the save status after [0.98ms]
+@libs/game-puzzle-client-ts:test: (pass) at 390px the panel shows the pack's progress over one short save line [1.01ms]
+@libs/game-puzzle-client-ts:test: (pass) at 1440px the panel shows the pack's progress over one short save line [0.86ms]
+@libs/game-puzzle-client-ts:test: (pass) the puzzle panel shows the game's own figures for the attempt [2.67ms]
+@libs/game-puzzle-client-ts:test: 169 |   const record = screen.getByTestId('content-attempt-complete');
+@libs/game-puzzle-client-ts:test: 170 |   expect(record.textContent).toContain('Completion saved');
+@libs/game-puzzle-client-ts:test: 171 |   expect(record.textContent).toContain('You can keep playing');
+@libs/game-puzzle-client-ts:test: 172 |   expect(screen.getByTestId('puzzle-attempt-panel').contains(record)).toBe(true);
+@libs/game-puzzle-client-ts:test: 173 |   expect(screen.getByTestId('player').textContent).toBe('board');
+@libs/game-puzzle-client-ts:test: 174 |   expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
+@libs/game-puzzle-client-ts:test:                                    ^
+@libs/game-puzzle-client-ts:test: error: expect(received).toContain(expected)
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: Expected to contain: "Completion saved"
+@libs/game-puzzle-client-ts:test: Received: "Puzzle completedYour completion is saved. You can keep playing or choose another puzzle."
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx:174:30)
+@libs/game-puzzle-client-ts:test: (fail) saved completion remains distinct when the player has moved beyond the solved position [2.32ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-pack-choice-hydration.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) a published pack uses its cached edition without derived membership rows [4.77ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-availability.test.ts:
+@libs/game-puzzle-client-ts:test: (pass) a selected pack edition stays startable after a later edition becomes current [0.05ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-phone-layout.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) phone: only the prompt sits over the board; the feed follows the actions [7.78ms]
+@libs/game-puzzle-client-ts:test: (pass) wide: the feed heads the panel beside the board, over the prompt [2.56ms]
+@libs/game-puzzle-client-ts:test: (pass) the revealed f3-e5 lesson says Solution shown and keeps retry and next [7.01ms]
+@libs/game-puzzle-client-ts:test: (pass) a wrong move still reports failure with retry [4.81ms]
+@libs/game-puzzle-client-ts:test: (pass) width-driven chess bypasses height fitting without changing the default puzzle layout [3.91ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-library-navigation.test.ts:
+@libs/game-puzzle-client-ts:test: (pass) the public board navigation action opens the existing library without reading or changing puzzle state [0.07ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-library-layout.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) browsing, continuing and building are separate tabs, the attempt note said once [7.14ms]
+@libs/game-puzzle-client-ts:test: (pass) Continue holds only what is unfinished; solved under Browse, playtests under My creations [12.53ms]
+@libs/game-puzzle-client-ts:test: (pass) with nothing unfinished, Continue says so and the solved stay under Browse [4.04ms]
+@libs/game-puzzle-client-ts:test: (pass) with nothing unfinished the library opens on Browse [2.69ms]
+@libs/game-puzzle-client-ts:test: (pass) creating a puzzle or pack comes before the tabs on a phone [2.75ms]
+@libs/game-puzzle-client-ts:test: (pass) every library card leads with its picture, a pack's stacked [3.72ms]
+@libs/game-puzzle-client-ts:test: (pass) rows lead with their board and keep kind, difficulty and status apart [3.53ms]
+@libs/game-puzzle-client-ts:test: (pass) cards say difficulty and pack progress, and titles are never cut short [3.61ms]
+@libs/game-puzzle-client-ts:test: (pass) Continue leads the tabs, creating is a title action, and attempts are rows [2.39ms]
+@libs/game-puzzle-client-ts:test: (pass) difficulty tags take distinct tints that climb with how hard [3.12ms]
+@libs/game-puzzle-client-ts:test: (pass) a sparse Continue is followed by More to play, never repeating what it lists [5.58ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-move-strip-scroll.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the selected move is revealed inside the strip, never by scrolling the page [3.51ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-chrome-paint.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the rating badge paints from its intent, not token names [0.26ms]
+@libs/game-puzzle-client-ts:test: (pass) the current move is highlighted by classes, not token names [0.27ms]
+@libs/game-puzzle-client-ts:test: (pass) a two-line status prompt grows its row instead of overlapping the coach [0.40ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/draft-edit-history.test.ts:
+@libs/game-puzzle-client-ts:test: (pass) an unchanged draft offers neither undo nor redo [0.02ms]
+@libs/game-puzzle-client-ts:test: (pass) undo returns to the preceding copy and offers redo of the undone one [0.06ms]
+@libs/game-puzzle-client-ts:test: (pass) a different edit replaces only the redo choice [0.02ms]
+@libs/game-puzzle-client-ts:test: (pass) history kept for another working copy offers nothing [0.01ms]
+@libs/game-puzzle-client-ts:test: (pass) editing history keeps at most its limit of earlier copies [0.10ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-turn-cue.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the solver's turn is the accent pill the game screens use, in the board's words [0.52ms]
+@libs/game-puzzle-client-ts:test: (pass) after a right move the turn pill says so in the success colour [0.26ms]
+@libs/game-puzzle-client-ts:test: (pass) any other status keeps its plain words [0.27ms]
+@libs/game-puzzle-client-ts:test: (pass) the move list is named [0.21ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/reveal-label.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the move hint and the attempt-ending solution have distinct labels [1.74ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-publication-steps.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) a puzzle's steps read in order, each marked done, next or later [2.51ms]
+@libs/game-puzzle-client-ts:test: (pass) the next step leads, filled, over the steps [0.89ms]
+@libs/game-puzzle-client-ts:test: (pass) the lead action and the line saying why share one row [0.64ms]
+@libs/game-puzzle-client-ts:test: (pass) a checked, proven puzzle has Publish as its one next step [0.62ms]
+@libs/game-puzzle-client-ts:test: (pass) steps that wait are locked, say so in a word, and still press [2.73ms]
+@libs/game-puzzle-client-ts:test: (pass) a pack waits on its draft puzzles first, names them, and opens the first [1.05ms]
+@libs/game-puzzle-client-ts:test: (pass) on a phone the steps read in order and the next action is filled in the title row [2.65ms]
+@libs/game-puzzle-client-ts:test: (pass) wide, publishing is the last step, after the stage, its lead inside it [1.63ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-feed-settings-label.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the feed bar names its settings in words beside the icon [4.64ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-builder-layout.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) until the draft passes its check, Validate is the one filled step [0.63ms]
+@libs/game-puzzle-client-ts:test: (pass) once the draft passes its check, Publish is the one filled step [0.80ms]
+@libs/game-puzzle-client-ts:test: (pass) until a playtest proves a puzzle, the playtest is the one filled step [0.49ms]
+@libs/game-puzzle-client-ts:test: (pass) a proven puzzle not yet checked fills Validate, and Publish stays quiet [0.37ms]
+@libs/game-puzzle-client-ts:test: (pass) a pack's puzzles are listed in order, each with its tools and no play controls [5.95ms]
+@libs/game-puzzle-client-ts:test: (pass) a pack row opens on a tap anywhere, its status a chip, the rest in one menu [6.22ms]
+@libs/game-puzzle-client-ts:test: (pass) the editing tools head the stage, and publishing has a section of its own [2.02ms]
+@libs/game-puzzle-client-ts:test: (pass) the builder reads as steps, with the draft copies after them [1.75ms]
+@libs/game-puzzle-client-ts:test: (pass) on a phone the publish step is a section in the scroll content, never pinned over it [1.83ms]
+@libs/game-puzzle-client-ts:test: (pass) on a desktop the publish step is a section in the scroll content, never pinned over it [1.43ms]
+@libs/game-puzzle-client-ts:test: (pass) wide, the details head the builder instead of sitting beside the stage [1.35ms]
+@libs/game-puzzle-client-ts:test: (pass) a titled draft's details are one closed row that opens on its fields [3.19ms]
+@libs/game-puzzle-client-ts:test: (pass) an untitled draft opens on its details [1.89ms]
+@libs/game-puzzle-client-ts:test: (pass) the publish footer says where the draft stands in its own text [1.35ms]
+@libs/game-puzzle-client-ts:test: (pass) on a phone the save line joins the subtitle and the stage tools share the step row [1.34ms]
+@libs/game-puzzle-client-ts:test: (pass) the playtest step stays mounted as the check changes, told when it is next [1.17ms]
+@libs/game-puzzle-client-ts:test: (pass) in the steps, the playtest is drawn again only when its place changes [1.80ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/content-connection-status.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) a late failed request does not insert another panel above offline authoring [1.88ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/rating-chip-label-in-name.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) a hidden puzzle rating inside a button says nothing the button's name leaves out [2.20ms]
+@libs/game-puzzle-client-ts:test: (pass) a hidden puzzle rating keeps its prefix out of the visible label [0.74ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/interrupted-outcome.test.ts:
+@libs/game-puzzle-client-ts:test: (pass) a failed result write leaves no half-finished attempt and retry counts once [21.93ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: tests/puzzle-moves-label.test.tsx:
+@libs/game-puzzle-client-ts:test: (pass) the move list is named on its own row, over moves that wrap rather than clip [2.43ms]
+@libs/game-puzzle-client-ts:test: (pass) the puzzle's steps are quiet at the latest move and plated while reviewing [3.18ms]
+@libs/game-puzzle-client-ts:test: (pass) while the solver is to move, a 'Your move' slot follows the last move [1.26ms]
+@libs/game-puzzle-client-ts:test: (pass) reviewing or finished, no slot follows the moves [0.96ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test: 1 tests failed:
+@libs/game-puzzle-client-ts:test: (fail) saved completion remains distinct when the player has moved beyond the solved position [2.32ms]
+@libs/game-puzzle-client-ts:test: 
+@libs/game-puzzle-client-ts:test:  77 pass
+@libs/game-puzzle-client-ts:test:  1 fail
+@libs/game-puzzle-client-ts:test:  343 expect() calls
+@libs/game-puzzle-client-ts:test: Ran 78 tests across 18 files. [600.00ms]
+@libs/game-puzzle-client-ts:test: error: script "test" exited with code 1
+@libs/game-puzzle-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/game-puzzle-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.138s 
+Failed:    @libs/game-puzzle-client-ts#test
+
+ ERROR  run failed: command  exited (1)

@@ -1,0 +1,11 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/app-root-shared-ts, @libs/battleship-client-ts, @libs/battleship-harness-ts, @libs/chess-puzzle-client-ts, @libs/chess-puzzle-harness-ts, @libs/chess-root-client-ts, @libs/chess-root-harness-ts, @libs/game-matchmaking-client-ts, @libs/game-matchmaking-harness-ts, @libs/game-puzzle-client-ts, @libs/game-puzzle-harness-ts, @libs/game-session-client-ts, @libs/game-session-harness-ts, @libs/hearts-client-ts, @libs/hearts-harness-ts, @libs/light-cycles-client-ts, @libs/light-cycles-harness-ts, @libs/numberlink-client-ts, @libs/numberlink-harness-ts, @libs/pong-client-ts, @libs/pong-harness-ts, @libs/quoridor-client-ts, @libs/quoridor-harness-ts, @libs/sokoban-client-ts, @libs/sokoban-harness-ts, @libs/word-tiles-client-ts, @libs/word-tiles-harness-ts, @pkgs/chess-board-root-client-ts, @pkgs/chess-board-root-harness-ts, @pkgs/chess-board-root-shared-ts, @pkgs/turn-game-shared-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 33 packages
+   • Remote caching disabled, using shared worktree cache
+
+
+ Tasks:    96 successful, 96 total
+Cached:    93 cached, 96 total
+  Time:    5.272s 
+
