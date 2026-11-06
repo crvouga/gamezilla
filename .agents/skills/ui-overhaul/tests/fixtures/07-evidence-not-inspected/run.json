@@ -1,0 +1,13 @@
+{
+  "journeys": ["Invite a friend to a space"],
+  "minimum": 9.0,
+  "pr_title": "UI quality overhaul",
+  "product": "fixture app",
+  "prompt_sha256": "fixture",
+  "prompt_template": "assets/council-review-prompt.md",
+  "roster": ["claude", "codex", "gemini"],
+  "schema": 1,
+  "screens": ["screens-friends-list--populated"],
+  "skill": "ui-overhaul",
+  "storybook": null
+}
