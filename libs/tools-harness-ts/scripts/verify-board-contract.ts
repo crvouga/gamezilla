@@ -3,22 +3,10 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ts from 'typescript';
+import { permittedBoardImport } from './board-import-contract';
 import { boardSoundIssues } from './board-sound-contract';
 
 const ROOT = resolve(process.cwd(), 'src');
-const PUBLIC_BOARD = new Set([
-  '@pkgs/chess-board-root-client-ts/chess-board',
-  '@pkgs/chess-board-root-shared-ts/chess-board-types',
-  '@pkgs/chess-board-root-client-ts/chess-board-sounds',
-]);
-function permitted(typeOnly: boolean, name: string) {
-  if (
-    name === '@pkgs/chess-board-root-shared-ts/chess-board-types' ||
-    name === '@pkgs/chess-board-core-shared-ts/types'
-  )
-    return typeOnly;
-  return PUBLIC_BOARD.has(name);
-}
 
 function boardImport(path: string, name: string) {
   if (name.startsWith('@pkgs/chess-board')) return true;
@@ -70,7 +58,7 @@ function inspect(path: string) {
     if (
       imported !== undefined &&
       boardImport(path, imported.name) &&
-      !permitted(imported.typeOnly, imported.name)
+      !permittedBoardImport(path, imported.typeOnly, imported.name)
     )
       issues.push(`${path}: undocumented board import ${imported.name}`);
     ts.forEachChild(node, visit);

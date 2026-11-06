@@ -1,0 +1,4 @@
+{
+  "summary": "The board import gate rejected the public coordinate frame and the deterministic story motion provider used by chess puzzle screens.",
+  "regressionTest": "libs/tools-harness-ts/scripts/board-import-contract.test.ts"
+}

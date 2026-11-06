@@ -2939,6 +2939,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-board-contract.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/board-import-contract.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/board-sound-contract.ts"
       ],
       "outputs": [],
