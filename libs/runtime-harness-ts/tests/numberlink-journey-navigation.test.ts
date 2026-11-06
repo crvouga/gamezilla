@@ -8,7 +8,14 @@ import type {
 
 // regression: numberlink-journey-saved-space-opens-game-menu
 // regression: numberlink-journey-checks-before-library-hydration
-test.each(['games', 'numberlink', 'library', 'loading-library'])(
+// regression: content-library-restored-during-game-selection
+test.each([
+  'games',
+  'numberlink',
+  'library',
+  'loading-library',
+  'restoring-game',
+])(
   'a reopened space landing on %s reaches the Numberlink library',
   async (landing) => {
     let screen = 'previous-attempt';
@@ -16,7 +23,8 @@ test.each(['games', 'numberlink', 'library', 'loading-library'])(
       throw new Error('Unexpected driver operation');
     };
     const shown = (id: string): boolean =>
-      (screen === 'games' && id === Handles.gameMenu('numberlink')) ||
+      (['games', 'restoring-game'].includes(screen) &&
+        id === Handles.gameMenu('numberlink')) ||
       (screen === 'numberlink' &&
         id === Handles.gameChoice('puzzle-library')) ||
       (screen === 'library' && id === 'content-create-puzzle');
@@ -49,6 +57,7 @@ test.each(['games', 'numberlink', 'library', 'loading-library'])(
         text: unused,
         tap: async () => {
           visible(id);
+          // Hydration may restore the saved library during the game-menu tap.
           screen = screen === 'games' ? 'numberlink' : 'library';
         },
         expect: {
