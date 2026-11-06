@@ -2,6 +2,7 @@ import {
   StoryPackAttempt,
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanPlayer } from './sokoban-player';
@@ -29,6 +30,10 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      complete={sokobanPuzzleContent.rules.complete(
+        args.definition,
+        args.state
+      )}
       player={<SokobanPlayer {...args} />}
     />
   ),
@@ -52,8 +57,14 @@ export const InProgress: Story = {
 };
 
 /** Every crate on a goal. */
+// regression: solved-pack-story-completion
 export const Solved: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES), disabled: true },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByTestId('content-attempt-complete')
+    ).toHaveTextContent('Puzzle completed');
+  },
 };
 
 /** While the shared player is not taking moves, the board stays still. */
