@@ -198,7 +198,7 @@ export function WordTilesBoardView(
 function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
   return (
     <Show when={props.draft.lexicon.state().status === 'unavailable'}>
-      <P role="status">{t`The word list could not load. Your draft is kept. Reload it to check and play your word.`}</P>
+      <P role="status">{t`The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them.`}</P>
       <Button
         title={t`Load the word list again`}
         variant="outline"

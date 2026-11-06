@@ -100,7 +100,9 @@ test('the targeting grid shows only the public shots, never a ship that was not 
 test('interactive targets fire through onAction and wait, aiming, for the outcome', () => {
   // regression: battleship-preview-overrides-pending-shot
   const view = board({ setup: FLEET, interactive: true });
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('target');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'target'
+  );
   expect(target('e5').getAttribute('aria-disabled')).toBe('false');
   expect(target('e5').getAttribute('aria-label')).toBe('Fire at E5');
   expect(target('a1').getAttribute('aria-disabled')).toBe('true');
@@ -130,16 +132,22 @@ test('interactive targets fire through onAction and wait, aiming, for the outcom
 
 test('read-only boards refuse every target, and the switch keeps both grids mounted', () => {
   const view = board({ setup: FLEET });
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('own');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'own'
+  );
   const before = target('e5');
   expect(before.getAttribute('aria-disabled')).toBe('true');
   fireEvent.click(before);
   expect(view.actions).toEqual([]);
   fireEvent.click(byTestId('board-view-target'));
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('target');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'target'
+  );
   expect(target('e5')).toBe(before);
   fireEvent.click(byTestId('board-view-own'));
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('own');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'own'
+  );
 });
 
 test("the frame's turn line announces the latest shot and whose turn it is", () => {

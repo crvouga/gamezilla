@@ -303,7 +303,16 @@ export const RecoverAndSubmit: Story = {
         canvas.getByTestId(`custom-game-board-cell-${cell}`)
       );
     }
-    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
+    await expect(
+      canvas.getByText(
+        /Reload it to preview words, or play for the game to check them/
+      )
+    ).toBeVisible();
+    // The local list is optional: the game authority still checks submitted words.
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeEnabled();
+    await expect(
+      canvas.getByText(/the game checks the words when you play/)
+    ).toBeVisible();
     await userEvent.click(
       canvas.getByTestId('custom-game-board-lexicon-retry')
     );
@@ -318,7 +327,11 @@ export const RecoverAndSubmit: Story = {
       canvas.queryByTestId('custom-game-board-rack-11')
     ).not.toBeInTheDocument();
     await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
-    await expect(canvas.getByText('10', { exact: true })).toBeVisible();
+    await expect(
+      within(canvas.getByTestId('custom-game-white')).getByText('10', {
+        exact: true,
+      })
+    ).toBeVisible();
     await expect(canvas.getByText(/Teal — to play/)).toBeVisible();
     await expect(
       canvas.getByText(/You can plan a word while you wait/)

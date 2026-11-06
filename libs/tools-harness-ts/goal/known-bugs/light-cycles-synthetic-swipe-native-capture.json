@@ -1,0 +1,4 @@
+{
+  "summary": "The shared-swipe story passed synthetic pointer IDs to native capture, raising browser errors. Synthetic fixture capture is isolated and restored; the browser regression also asserts real capture and both riders' steering with trusted input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

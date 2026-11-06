@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { type Page, test } from '@playwright/test';
 import { visualScenarios } from '../../storybook/scenarios';
+import { verifySharedSwipeCapture } from './light-cycles-pointer';
 import { verifyStoryScenario } from './verify-story-scenario';
 
 type Entry = { id: string; type: string; importPath: string };
@@ -235,6 +236,40 @@ test('screens-games-numberlink-puzzle--recover-with-pointer regression numberlin
   await verifyBoardRegression(
     page,
     'screens-games-numberlink-puzzle--recover-with-pointer',
+    390
+  );
+});
+
+// regression: word-tiles-local-lexicon-retry-misstates-play
+test('screens-games-word-tiles-board--recover-and-submit regression word-tiles-local-lexicon-retry-misstates-play', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--recover-and-submit',
+    390
+  );
+});
+
+// regression: light-cycles-synthetic-swipe-native-capture
+test('screens-games-light-cycles-arena--shared-swipe regression light-cycles-synthetic-swipe-native-capture', async ({
+  page,
+}) => {
+  await verifySharedSwipeCapture(page);
+  await verifyBoardRegression(
+    page,
+    'screens-games-light-cycles-arena--shared-swipe',
+    390
+  );
+});
+
+// regression: word-tiles-score-assertion-matches-coordinates
+test('screens-games-word-tiles-board--recover-and-submit regression word-tiles-score-assertion-matches-coordinates', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--recover-and-submit',
     390
   );
 });

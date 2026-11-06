@@ -30,7 +30,7 @@ test('a board shown behind the switch is not titled again under it', () => {
       onAction={() => undefined}
     />
   ));
-  const pair = byTestId('board-view');
+  const pair = byTestId('board-view-panels');
   // Each panel carries one title, which shows only while both panels show
   // side by side (the pair's own container rule); nothing else heads it.
   const titles = [...pair.querySelectorAll('h3')].map((h) => h.textContent);
@@ -125,7 +125,7 @@ test('on a phone the switch to the other fleet follows the grid', () => {
       onAction={() => undefined}
     />
   ));
-  const pair = byTestId('board-view');
+  const pair = byTestId('board-view-panels');
   const row = pair.querySelector('[data-switch-placement]');
   expect(row?.getAttribute('data-switch-placement')).toBe('below');
   const css = readFileSync(

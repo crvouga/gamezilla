@@ -131,7 +131,7 @@ export const Won: Story = {
   play: async ({ canvasElement }) => {
     // regression: battleship-victory-hides-enemy-fleet
     await expect(
-      within(canvasElement).getByTestId('custom-game-board-view')
+      within(canvasElement).getByTestId('custom-game-board-view-panels')
     ).toHaveAttribute('data-selected', 'target');
   },
   args: { position: after(BLUE_VICTORY), interactive: false },

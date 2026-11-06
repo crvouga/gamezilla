@@ -7549,8 +7549,8 @@ msgid "The unfinished file will not become available. You can save the chosen fi
 msgstr "The unfinished file will not become available. You can save the chosen file again."
 
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "The word list could not load. Your draft is kept. Reload it to check and play your word."
-msgstr "The word list could not load. Your draft is kept. Reload it to check and play your word."
+msgid "The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them."
+msgstr "The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them."
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-status.tsx
 msgid "The word list could not load. Your tiles are kept. Retry to check and play your word."

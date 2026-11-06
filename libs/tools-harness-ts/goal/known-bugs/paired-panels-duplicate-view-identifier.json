@@ -1,0 +1,4 @@
+{
+  "summary": "PairedPanels reused its segmented switch test ID on the panel root, making the Battleship victory view assertion ambiguous.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/cell-grid-board.test.tsx"
+}

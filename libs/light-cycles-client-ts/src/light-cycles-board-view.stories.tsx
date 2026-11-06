@@ -29,6 +29,7 @@ import {
   createLightCyclesJourney,
   type LightCyclesJourney,
 } from './light-cycles-journey.example';
+import { sharedSwipe } from './light-cycles-swipe.example';
 
 const TRIO = LIGHT_CYCLES_SEATS[3];
 const codec = lightCyclesPositionCodec(3);
@@ -358,50 +359,5 @@ export const ResumedSteering = recoveryJourney();
 // regression: light-cycles-shared-device-guidance
 export const SharedSwipe: Story = {
   render: interactiveRender(3, ['white', 'black']),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const arena = canvas.getByTestId('custom-game-board-arena');
-    const bounds = arena.getBoundingClientRect();
-    const right = bounds.left + bounds.width * 0.75;
-    const left = bounds.left + bounds.width * 0.25;
-    const y = bounds.top + bounds.height * 0.5;
-    await userEvent.pointer([
-      {
-        target: arena,
-        keys: '[TouchA>]',
-        coords: { clientX: right, clientY: y },
-      },
-      {
-        target: arena,
-        pointerName: 'TouchA',
-        coords: { clientX: right, clientY: y - 30 },
-      },
-      { target: arena, keys: '[/TouchA]' },
-    ]);
-    await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-0')
-    ).toHaveAttribute('data-heading', 'up');
-    await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-1')
-    ).toHaveAttribute('data-heading', 'left');
-    await userEvent.pointer([
-      {
-        target: arena,
-        keys: '[TouchB>]',
-        coords: { clientX: left, clientY: y },
-      },
-      {
-        target: arena,
-        pointerName: 'TouchB',
-        coords: { clientX: left, clientY: y - 30 },
-      },
-      { target: arena, keys: '[/TouchB]' },
-    ]);
-    await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-1')
-    ).toHaveAttribute('data-heading', 'up');
-    await expect(
-      canvas.getByTestId('custom-game-board-status')
-    ).toHaveTextContent('You ride Comet. You ride Ember.');
-  },
+  play: async ({ canvasElement }) => sharedSwipe(canvasElement),
 };
