@@ -1,0 +1,4 @@
+{
+  "summary": "Health branch maintenance aborted when GitHub returned No common ancestor for an orphan branch. Treat only that explicit response as unrelated history and retain the branch; other API failures still fail maintenance.",
+  "regressionTest": "libs/harness-ts/scripts/branch-comparison.test.ts"
+}

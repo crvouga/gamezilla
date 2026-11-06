@@ -1,4 +1,4 @@
-/** PR predicts release safety; release adds critical production-build journeys. */
+/** PR and Release enforce the same safety and production-build journeys. */
 const STATIC = new Set([
   'tc',
   'lint',
@@ -39,13 +39,11 @@ export function ciStageTasks(
   if (stage !== 'pr' && stage !== 'release')
     throw new Error(`Unknown CI stage: ${stage}`);
   // Recheck the selected commit, including merge changes, with cached results
-  // only for identical inputs. Critical browser journeys are release-only.
+  // only for identical inputs. PR catches critical browser failures before merge.
   return [
     ...catalog.filter(
       (task) =>
-        STATIC.has(task) ||
-        DEPLOYMENT.has(task) ||
-        (stage === 'release' && isReleaseJourney(task))
+        STATIC.has(task) || DEPLOYMENT.has(task) || isReleaseJourney(task)
     ),
     ...SECURITY_TESTS,
   ];
@@ -57,6 +55,7 @@ export function isBlockingCiTask(id: string): boolean {
     STATIC.has(id) ||
     DEPLOYMENT.has(id) ||
     SECURITY_TESTS.includes(id) ||
+    isReleaseJourney(id) ||
     STATIC.has(id.slice(id.indexOf('#') + 1))
   );
 }
