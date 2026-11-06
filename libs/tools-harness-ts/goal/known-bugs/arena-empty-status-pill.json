@@ -1,0 +1,4 @@
+{
+  "summary": "An arena spectator status with an empty description painted an empty pill around a spoken-only lineup.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-empty-status.test.tsx"
+}

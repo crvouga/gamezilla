@@ -158,17 +158,48 @@ function CourtHint(props: {
       </Text>
       {' · '}
       <Show
-        when={mode() === 'wide'}
-        fallback={<Trans>Drag up and down along your edge of the court.</Trans>}
+        when={!props.board.simulation?.stale && !props.board.simulation?.paused}
+        fallback={<Trans>Controls are unavailable until play resumes.</Trans>}
       >
-        <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
-          <Match when={shared()}>
-            <Trans>W and S move Left; the arrow keys move Right.</Trans>
-          </Match>
-          <Match when={props.board.simulation?.sides[0] === 'white'}>
-            <Trans>W and S or the arrow keys move your paddle.</Trans>
-          </Match>
-        </Switch>
+        <Show
+          when={props.state.phase !== 'completed'}
+          fallback={<Trans>Match finished.</Trans>}
+        >
+          <Show
+            when={(props.board.simulation?.sides.length ?? 0) > 0}
+            fallback={<Trans>Watching the rally.</Trans>}
+          >
+            <Show
+              when={mode() === 'wide'}
+              fallback={
+                <Show
+                  when={shared()}
+                  fallback={
+                    <Trans>
+                      Drag up and down along your edge of the court.
+                    </Trans>
+                  }
+                >
+                  <Trans>
+                    Left player: drag the left half. Right player: drag the
+                    right half.
+                  </Trans>
+                </Show>
+              }
+            >
+              <Switch
+                fallback={<Trans>The arrow keys move your paddle.</Trans>}
+              >
+                <Match when={shared()}>
+                  <Trans>W and S move Left; the arrow keys move Right.</Trans>
+                </Match>
+                <Match when={props.board.simulation?.sides[0] === 'white'}>
+                  <Trans>W and S or the arrow keys move your paddle.</Trans>
+                </Match>
+              </Switch>
+            </Show>
+          </Show>
+        </Show>
       </Show>
     </P>
   );
@@ -192,9 +223,13 @@ function sideLabels(
   controlled: readonly CourtSide[]
 ): Partial<Record<CourtSide, string | undefined>> {
   const label = (side: CourtSide): string | undefined =>
-    controlled.includes(side)
-      ? t`You`
-      : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
+    controlled.length > 1
+      ? side === 'first'
+        ? t`Left player`
+        : t`Right player`
+      : controlled.includes(side)
+        ? t`You`
+        : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
   return { first: label('first'), second: label('second') };
 }
 

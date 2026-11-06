@@ -91,6 +91,8 @@ export type CardTableProps = {
   readonly trick?: boolean | undefined;
   readonly hand: readonly CardTableHandCard[];
   readonly handLabel: string;
+  /** Visible guidance immediately above the hand. */
+  readonly handInstruction?: string | undefined;
   readonly cardTestId: (id: string) => string;
   readonly onCard: (id: string) => void;
   readonly action?: CardTableAction | undefined;
@@ -289,22 +291,29 @@ function handCardStyle(
   };
 }
 
-function Hand(
-  props: CardTableProps & { readonly onRefused: (reason: string) => void }
-): JSX.Element {
-  let row: HTMLDivElement | undefined;
-  // Cards keyed by id: a change re-renders only the cards that changed.
-  const ids = createMemo(() => props.hand.map((card) => card.id));
-  const suits = createMemo(() => props.hand.map((card) => card.suit));
-  const byId = createMemo(
-    () => new Map(props.hand.map((card) => [card.id, card] as const))
+function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
+  return (
+    <>
+      <CardFace card={props.card} />
+      <Show when={props.card.refusal}>
+        <span class={styles['unavailable']} aria-hidden="true">
+          ×
+        </span>
+      </Show>
+    </>
   );
+}
+
+function createHandFocus(
+  ids: () => readonly string[],
+  row: () => HTMLDivElement | undefined
+) {
   // The one card reached by Tab: the last one the person was on.
   const [current, setCurrent] = createSignal(0);
   const buttons = () =>
-    row?.querySelectorAll<HTMLButtonElement>('button') ?? [];
+    row()?.querySelectorAll<HTMLButtonElement>('button') ?? [];
   const focusAt = (at: number): void => {
-    const next = Math.max(0, Math.min(at, props.hand.length - 1));
+    const next = Math.max(0, Math.min(at, ids().length - 1));
     setCurrent(next);
     buttons()[next]?.focus();
   };
@@ -315,13 +324,13 @@ function Hand(
     on(
       ids,
       () => {
-        const at = Math.min(current(), Math.max(0, props.hand.length - 1));
+        const at = Math.min(current(), Math.max(0, ids().length - 1));
         setCurrent(at);
-        const active = row?.ownerDocument.activeElement;
+        const active = row()?.ownerDocument.activeElement;
         const lost =
           active === null ||
           active === undefined ||
-          active === row?.ownerDocument.body;
+          active === row()?.ownerDocument.body;
         if (played && lost) buttons()[at]?.focus();
         played = false;
       },
@@ -332,8 +341,29 @@ function Hand(
     const step = MOVES[event.key];
     if (step === undefined) return;
     event.preventDefault();
-    focusAt(step(at, props.hand.length - 1));
+    focusAt(step(at, ids().length - 1));
   };
+  return {
+    current,
+    setCurrent,
+    move,
+    markPlayed: () => {
+      played = true;
+    },
+  };
+}
+
+function Hand(
+  props: CardTableProps & { readonly onRefused: (reason: string) => void }
+): JSX.Element {
+  let row: HTMLDivElement | undefined;
+  // Cards keyed by id: a change re-renders only the cards that changed.
+  const ids = createMemo(() => props.hand.map((card) => card.id));
+  const suits = createMemo(() => props.hand.map((card) => card.suit));
+  const byId = createMemo(
+    () => new Map(props.hand.map((card) => [card.id, card] as const))
+  );
+  const focus = createHandFocus(ids, () => row);
   return (
     <div
       ref={row}
@@ -361,12 +391,13 @@ function Hand(
                 aria-label={spokenName(card())}
                 aria-pressed={card().selected ?? undefined}
                 aria-disabled={!card().enabled}
-                tabIndex={index() === current() ? 0 : -1}
-                onFocus={() => setCurrent(index())}
-                onKeyDown={(event) => move(event, index())}
+                title={card().refusal}
+                tabIndex={index() === focus.current() ? 0 : -1}
+                onFocus={() => focus.setCurrent(index())}
+                onKeyDown={(event) => focus.move(event, index())}
                 onClick={() => {
                   if (card().enabled) {
-                    played = true;
+                    focus.markPlayed();
                     props.onCard(id);
                   } else {
                     const reason = card().refusal;
@@ -374,7 +405,7 @@ function Hand(
                   }
                 }}
               >
-                <CardFace card={card()} />
+                <HandCardFace card={card()} />
               </button>
             )}
           </Show>
@@ -516,6 +547,18 @@ export function CardTable(props: CardTableProps): JSX.Element {
           {props.center}
         </p>
       </div>
+      <Show when={props.handInstruction}>
+        <p class={styles['guidance']}>{props.handInstruction}</p>
+      </Show>
+      <For
+        each={[
+          ...new Set(
+            props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
+          ),
+        ]}
+      >
+        {(reason) => <p class={styles['guidance']}>× {reason}</p>}
+      </For>
       <Hand {...props} onRefused={setRefusal} />
       <p
         class={styles['refusal']}

@@ -40,7 +40,8 @@ export type GameActionBarProps = {
 function ActionButton(props: {
   item: GameActionItem | undefined;
 }): JSX.Element {
-  const primary = (): boolean => props.item?.emphasis === 'primary';
+  const primary = (): boolean =>
+    props.item?.emphasis === 'primary' || props.item?.pressed === true;
   return (
     <Show when={props.item}>
       {(item) => (

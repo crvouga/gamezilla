@@ -8,6 +8,7 @@ import {
   LIGHT_CYCLES_SEATS,
   lightCyclesConfig,
 } from '@libs/light-cycles-shared-ts/light-cycles-config';
+import { parseLightCyclesInput } from '@libs/light-cycles-shared-ts/light-cycles-input';
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import {
   initialLightCyclesState,
@@ -17,10 +18,15 @@ import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles
 import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LightCyclesBoardView } from './light-cycles-board-view';
-import { lightCyclesTrioClient } from './light-cycles-game-client';
+import {
+  lightCyclesDuelClient,
+  lightCyclesQuadClient,
+  lightCyclesTrioClient,
+} from './light-cycles-game-client';
 
 const TRIO = LIGHT_CYCLES_SEATS[3];
 const codec = lightCyclesPositionCodec(3);
@@ -104,10 +110,14 @@ export const Riding: Story = {};
 /** The person's rider has crashed: they watch until the next round. */
 export const Crashed: Story = {
   args: { position: CRASHED, orientation: 'red', simulation: riding(['red']) },
+  play: playerBounds,
 };
 
 /** The round's winner shows over the arena until the next round starts. */
-export const RoundOver: Story = { args: { position: ROUND_OVER } };
+export const RoundOver: Story = {
+  args: { position: ROUND_OVER },
+  play: playerBounds,
+};
 
 /** The game is won: nobody steers, and the result shows. */
 export const Finished: Story = {
@@ -122,6 +132,7 @@ export const Finished: Story = {
 /** The connection dropped: steering waits for the game to return. */
 export const Reconnecting: Story = {
   args: { simulation: riding(['white'], { stale: true }) },
+  play: unavailableGuidance,
 };
 
 /** The person rides from another of their devices and may take it over here. */
@@ -135,6 +146,7 @@ export const RidingElsewhere: Story = {
 export const Watching: Story = {
   args: { simulation: undefined },
   parameters: { table: { viewer: null } },
+  play: unavailableGuidance,
 };
 
 /** Two riders on one device: one pad each. */
@@ -147,16 +159,141 @@ export const Unreadable: Story = {
   args: { position: 'light-cycles-3:not-a-position', simulation: undefined },
 };
 
-/** A pad press steers the person's rider, fenced to the round. */
-export const SteerUp: Story = {
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-white-pad-up')
-    );
-    await expect(args.simulation?.onInput).toHaveBeenCalledWith('white', {
-      round: 1,
-      heading: 'up',
+/** Inputs advance the real deterministic simulation and repaint the production board. */
+function interactiveRender(count: 2 | 3 | 4, sides: readonly GameSide[]) {
+  return ((args, context) => {
+    const config = lightCyclesConfig();
+    const step = createLightCyclesStep(config);
+    const seats = LIGHT_CYCLES_SEATS[count];
+    let tick = 0;
+    let initial = initialLightCyclesState(config, seats);
+    for (; tick < 120; tick++)
+      initial = step(initial, [], {
+        tick: tick + 1,
+        deltaMs: 1000 / config.tickRate,
+        elapsedMs: ((tick + 1) * 1000) / config.tickRate,
+        random: () => 0,
+      });
+    const [state, setState] = createSignal(initial);
+    const simulation = riding(sides, {
+      onInput: (playerId, value) => {
+        const input = parseLightCyclesInput(value);
+        if (!input) return;
+        for (let frame = 0; frame < config.movementTicks; frame++) {
+          tick++;
+          setState((current) =>
+            step(
+              current,
+              frame === 0
+                ? [{ playerId, value: input, sequence: tick, tick }]
+                : [],
+              {
+                tick,
+                deltaMs: 1000 / config.tickRate,
+                elapsedMs: (tick * 1000) / config.tickRate,
+                random: () => 0,
+              }
+            )
+          );
+        }
+      },
     });
+    const client =
+      count === 2
+        ? lightCyclesDuelClient
+        : count === 4
+          ? lightCyclesQuadClient
+          : lightCyclesTrioClient;
+    const view = {
+      ...client.presentation,
+      frame: {
+        ...client.presentation.frame,
+        createBoard: boardOnly(LightCyclesBoardView),
+      },
+    };
+    return renderGameTable(
+      view,
+      seats,
+      {
+        ...args,
+        get position() {
+          return lightCyclesPositionCodec(count).encode(state());
+        },
+        simulation,
+      },
+      context
+    );
+  }) satisfies NonNullable<Story['render']>;
+}
+
+// regression: light-cycles-desktop-steer-up
+export const SteerUp: Story = {
+  render: interactiveRender(3, ['white']),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const arena = canvas.getByTestId('custom-game-board-arena');
+    const rider = canvas.getByTestId('custom-game-board-arena-rider-0');
+    const y = Number(rider.getAttribute('data-y'));
+    await userEvent.click(arena);
+    await userEvent.keyboard('{ArrowUp}');
+    await expect(rider).toHaveAttribute('data-heading', 'up');
+    await expect(rider).toHaveAttribute('data-y', String(y - 1));
   },
 };
+
+export const DuelSteering: Story = {
+  ...SteerUp,
+  render: interactiveRender(2, ['white']),
+};
+export const QuadSteering: Story = {
+  ...SteerUp,
+  render: interactiveRender(4, ['white']),
+};
+
+export const SharedKeyboard: Story = {
+  render: interactiveRender(3, ['white', 'black']),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-arena'));
+    await userEvent.keyboard('{ArrowUp}w');
+    await expect(
+      canvas.getByTestId('custom-game-board-arena-rider-0')
+    ).toHaveAttribute('data-heading', 'up');
+    await expect(
+      canvas.getByTestId('custom-game-board-arena-rider-1')
+    ).toHaveAttribute('data-heading', 'up');
+  },
+};
+
+// regression: light-cycles-player-facts-overflow
+async function playerBounds({ canvasElement }: { canvasElement: HTMLElement }) {
+  const cards = canvasElement.querySelectorAll(
+    '[data-component="GamePlayerChip"], [data-component="GamePlayerBar"]'
+  );
+  await expect(cards.length).toBeGreaterThan(0);
+  for (const card of cards) {
+    const bounds = card.getBoundingClientRect();
+    for (const child of card.querySelectorAll('span')) {
+      const rect = child.getBoundingClientRect();
+      if (rect.width === 0) continue;
+      await expect(rect.left).toBeGreaterThanOrEqual(bounds.left - 1);
+      await expect(rect.right).toBeLessThanOrEqual(bounds.right + 1);
+    }
+  }
+}
+
+// regression: light-cycles-inactive-steering-guidance
+async function unavailableGuidance({
+  canvasElement,
+}: {
+  canvasElement: HTMLElement;
+}) {
+  const canvas = within(canvasElement);
+  await expect(
+    canvas.queryByText(/Swipe the arena|Steer with the arrow keys/)
+  ).not.toBeInTheDocument();
+  await expect(canvas.getByTestId('custom-game-board-arena')).toHaveAttribute(
+    'data-interactive',
+    'false'
+  );
+}

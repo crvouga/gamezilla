@@ -1,8 +1,12 @@
+import { evaluatePlacement } from '@libs/word-tiles-shared-ts/word-tiles-placement';
 import {
   encodePuzzle,
+  placementOf,
+  rackTileIds,
   type WordTilesPuzzle,
 } from '@libs/word-tiles-shared-ts/word-tiles-puzzle';
 import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -84,5 +88,48 @@ export const PlaceAWord: Story = {
     await expect(
       await canvas.findByTestId('word-tiles-puzzle-status')
     ).toHaveTextContent('Not in the word list');
+  },
+};
+
+/** A real placement is scored by the domain evaluator and fed back into the player. */
+export const ReachTarget: Story = {
+  args: { definition: encodePuzzle({ ...PUZZLE, target: 6 }) },
+  render: (args) => {
+    const [state, setState] = createSignal(args.state);
+    return (
+      <WordTilesPuzzlePlayerView
+        {...args}
+        state={state()}
+        onAction={(action) => {
+          const placed = placementOf(PUZZLE, action);
+          if (placed === null) throw new Error('Invalid puzzle action');
+          const result = evaluatePlacement(PUZZLE.board, placed);
+          if (!result.ok) throw new Error('Invalid puzzle placement');
+          setState(
+            JSON.stringify({ v: 1, played: action, score: result.score.total })
+          );
+        }}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Try a disconnected tile, then recover using the player's own recall action.
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-rack-0'));
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-recall'));
+    // Extend CAT to CATS on the triple-letter square at j8.
+    await userEvent.click(
+      canvas.getByTestId(
+        `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[2]}`
+      )
+    );
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-submit'));
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-score')
+    ).toHaveTextContent('8 of 6');
   },
 };

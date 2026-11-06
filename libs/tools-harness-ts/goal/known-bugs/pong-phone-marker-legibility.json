@@ -1,0 +1,4 @@
+{
+  "summary": "Phone Pong ball and paddle marks were too small to track comfortably in the reviewed 390px court. Drawn geometry is enlarged without changing physical dimensions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pong-phone-marker-legibility.test.tsx"
+}

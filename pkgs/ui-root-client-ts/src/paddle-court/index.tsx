@@ -141,17 +141,17 @@ function DragLanes(props: PaddleCourtProps): JSX.Element {
 
 /**
  * The ball is drawn round and this much larger than it plays, centred where
- * it plays, so it reads at a glance on a phone's court (about 11px across
+ * it plays, so it reads at a glance on a phone's court (about 14px across
  * there instead of 6px); the game's own size still decides every bounce.
  */
-export const BALL_DRAWN_SCALE = 1.8;
+export const BALL_DRAWN_SCALE = 2.4;
 
 /**
  * Each paddle is drawn this much wider than it plays, centred where it
- * plays, so it reads as a paddle on a phone's court (about 8px wide there
+ * plays, so it reads as a paddle on a phone's court (about 11px wide there
  * instead of 5px); its playing width still decides every hit.
  */
-export const PADDLE_DRAWN_SCALE = 1.5;
+export const PADDLE_DRAWN_SCALE = 2;
 
 /** A controlled half's own native control, over that half of the court. */
 function HalfControls(props: PaddleCourtProps): JSX.Element {

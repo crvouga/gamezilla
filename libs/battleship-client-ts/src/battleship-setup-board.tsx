@@ -37,9 +37,7 @@ function shipChoices(draft: Draft, testId: string): readonly GameChoice[] {
       value: id,
       title: shipName(id),
       detail:
-        placed === undefined
-          ? t`${length} cells, to place`
-          : t`${length} cells, placed at ${bow} ${direction}`,
+        placed === undefined ? t`${length} cells` : t`${bow}, ${direction}`,
       dataSet: { testid: `${testId}-ship-${id}` },
     };
   });
@@ -50,7 +48,8 @@ function SetupCommands(props: {
   testId: string;
 }): JSX.Element {
   const selected = (): ShipId | null => props.setup.selected();
-  const direction = () => orientationName(props.setup.orientation());
+  const direction = () =>
+    orientationName(props.setup.orientation() === 'h' ? 'v' : 'h');
   const placed = () => {
     const ship = selected();
     return ship !== null && props.setup.draft().has(ship);
@@ -58,7 +57,7 @@ function SetupCommands(props: {
   return (
     <StackHorizontal gap="sm" wrap>
       <Button
-        title={t`Rotate: ${direction()}`}
+        title={t`Rotate ${direction()}`}
         intent="neutral"
         variant="outline"
         size="sm"
@@ -93,7 +92,7 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
   const setup = createSetupController(props);
   const statusId = createUniqueId();
   return (
-    <StackVertical gap="md" align="center" testId={props.testId}>
+    <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
       <P
         id={statusId}
         variant="caption"
@@ -125,7 +124,8 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
       <Show when={setup.refusal()}>
         {(reason) => (
           <Notice tone="error" dataSet={{ testid: `${props.testId}-refusal` }}>
-            {reason()}
+            {reason()}{' '}
+            {t`Choose another bow cell or rotate the ship, then try again.`}
           </Notice>
         )}
       </Show>

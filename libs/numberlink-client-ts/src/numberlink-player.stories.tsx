@@ -3,7 +3,8 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { fn } from 'storybook/test';
+import { createSignal } from 'solid-js';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
@@ -85,3 +86,83 @@ export const Disabled: Story = { args: { disabled: true } };
 
 /** A puzzle this app cannot open points back to its overview. */
 export const Unreadable: Story = { args: { definition: '{}' } };
+
+function movementKey(
+  previous: { x: number; y: number },
+  current: { x: number; y: number }
+): string {
+  if (current.x > previous.x) return 'ArrowRight';
+  if (current.x < previous.x) return 'ArrowLeft';
+  return current.y > previous.y ? 'ArrowDown' : 'ArrowUp';
+}
+
+/** Actual rule application feeds each committed gesture back into the player. */
+export const CompleteWithKeyboard: Story = {
+  render: (args) => {
+    const [state, setState] = createSignal(progress([]));
+    return (
+      <StoryPackAttempt
+        puzzle={PUZZLE}
+        figures={figures(args.definition, state())}
+        player={
+          <NumberlinkPlayer
+            {...args}
+            state={state()}
+            onAction={(action) => {
+              const next = numberlinkPuzzleContent.rules.apply(
+                args.definition,
+                state(),
+                action
+              );
+              if (!next.accepted) throw new Error('Story gesture was refused');
+              setState(next.state);
+            }}
+          />
+        }
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const first = canvas.getByRole('button', { name: /^A1: endpoint 1/ });
+    first.focus();
+    await userEvent.keyboard('{Enter}{ArrowRight}{Escape}');
+    await expect(
+      canvas.getByRole('button', { name: 'B1: empty' })
+    ).toBeInTheDocument();
+    first.focus();
+    await userEvent.keyboard('{Enter}{ArrowRight}{Enter}{Delete}');
+    await expect(
+      canvas.getByRole('button', { name: 'B1: empty' })
+    ).toBeInTheDocument();
+    for (const path of SOLUTION) {
+      const start = path.cells[0];
+      if (!start) throw new Error('Missing path start');
+      const coordinate = `${String.fromCharCode(65 + start.x)}${start.y + 1}`;
+      canvas
+        .getByRole('button', { name: new RegExp(`^${coordinate}:`) })
+        .focus();
+      await userEvent.keyboard('{Enter}');
+      for (let index = 1; index < path.cells.length; index++) {
+        const previous = path.cells[index - 1];
+        const current = path.cells[index];
+        if (!previous || !current) throw new Error('Missing path cell');
+        const key = movementKey(previous, current);
+        await userEvent.keyboard(`{${key}}`);
+      }
+      await userEvent.keyboard('{Enter}');
+      await expect(
+        canvas.getByRole('button', {
+          name: new RegExp(`^${coordinate}: endpoint .* connected$`),
+        })
+      ).toBeInTheDocument();
+    }
+    // regression: numberlink-solved-keeps-drawing-hints
+    await expect(canvas.getByTestId('numberlink-solved')).toHaveTextContent(
+      'Puzzle solved'
+    );
+    await expect(
+      canvas.queryByText('Drag from a number to its match.')
+    ).not.toBeInTheDocument();
+  },
+};

@@ -80,7 +80,10 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
  * (keyboard first, so no pad is drawn there), by swipe or the pad beside it
  * on a phone. It also describes the arena to a listener.
  */
-function SteeringHint(props: { id: string }): JSX.Element {
+function SteeringHint(props: {
+  id: string;
+  sides: readonly GameSide[];
+}): JSX.Element {
   const mode = useLayoutMode();
   return (
     <P id={props.id} variant="caption" tone="secondary">
@@ -93,10 +96,21 @@ function SteeringHint(props: { id: string }): JSX.Element {
           </Trans>
         }
       >
-        <Trans>
-          Steer with the arrow keys or W, A, S and D. Avoid the edge and every
-          trail.
-        </Trans>
+        <Show
+          when={props.sides.length > 1}
+          fallback={
+            <Trans>
+              Steer with the arrow keys or W, A, S and D. Avoid the edge and
+              every trail.
+            </Trans>
+          }
+        >
+          <Trans>
+            Focus the arena. {riderName(props.sides[0]!)} uses arrow keys;{' '}
+            {riderName(props.sides[1]!)} uses W, A, S and D. Avoid the edge and
+            every trail.
+          </Trans>
+        </Show>
       </Show>
     </P>
   );
@@ -192,7 +206,9 @@ function Arena(props: {
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is, then how to steer. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
-      <SteeringHint id={instructionsId} />
+      <Show when={controlled().some(steerable)}>
+        <SteeringHint id={instructionsId} sides={controlled()} />
+      </Show>
     </StackVertical>
   );
 }

@@ -115,8 +115,8 @@ describe('game surfaces', () => {
   // then wrapped its "You" under its figure, so its avatar dropped below
   // its name while the other two chips kept one line. Every chip is the
   // same two lines: its name, then its swatch, figure and short facts on
-  // one line that never wraps, with no avatar to push them apart.
-  test('three players on a phone share one row of identical short chips', () => {
+  // wrapping facts, with no avatar to push them apart.
+  test('three players on a phone share a row with wrapping facts', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -135,7 +135,7 @@ describe('game surfaces', () => {
     expect(phone).toMatch(/\.chipAvatar \{\s*display: none;/);
     const facts = phone.slice(phone.indexOf('.chipFacts {'));
     expect(facts.slice(0, facts.indexOf('}'))).toMatch(
-      /flex-wrap: nowrap;[\s\S]*white-space: nowrap;/
+      /flex-wrap: wrap;[\s\S]*white-space: normal;/
     );
   });
 

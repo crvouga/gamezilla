@@ -23,6 +23,7 @@ import {
   GAME_SIDES,
   type GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
@@ -153,7 +154,21 @@ export const TrickTaken: Story = {
 };
 
 /** A seated player whose cards have not arrived is told so, not shown an empty hand. */
-export const CardsOnTheirWay: Story = { args: { hand: null } };
+// regression: hearts-phone-side-name-fragments
+export const CardsOnTheirWay: Story = {
+  args: { hand: null },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const name of ['jordan_plays', 'robin_42']) {
+      const label = await canvas.findByText(name);
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const lines = [...range.getClientRects()];
+      await expect(lines.length).toBe(1);
+      await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
+    }
+  },
+};
 
 /** A watcher sees the table and the trick, never a hand. */
 export const Watching: Story = {
@@ -222,5 +237,118 @@ export const PassSending: Story = {
       await within(canvasElement).findByTestId('custom-game-board-pass')
     );
     await expect(args.onAction).toHaveBeenCalledWith(writeCards(PASSED));
+  },
+};
+
+/** Four legal plays update the visible table and remove each played card. */
+export const CompleteTrick: Story = {
+  render: (args, context) => {
+    const [table, setTable] = createSignal(playing(0));
+    return renderGameTable(
+      heartsPresentation,
+      GAME_SIDES,
+      {
+        ...args,
+        get position() {
+          return encodeHearts(table().position);
+        },
+        get orientation() {
+          return seatToMove(table()).side;
+        },
+        get hand() {
+          return seatToMove(table()).hand;
+        },
+        onAction: (action) => {
+          const current = table();
+          const seat = seatToPlay(current.position);
+          if (seat === null) throw new Error('Nobody is to play');
+          const card = legalCards(
+            current.position,
+            seat,
+            heldBy(current.hands, seat)
+          ).find((candidate) => candidate === action);
+          if (card === undefined) throw new Error('Illegal story action');
+          setTable({
+            position: {
+              ...current.position,
+              plays: [...current.position.plays, card],
+            },
+            hands: current.hands.map((hand, index) =>
+              index === seat ? hand.filter((held) => held !== card) : hand
+            ),
+          });
+        },
+      },
+      context
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (let count = 0; count < 4; count++) {
+      const before = playing(count);
+      const seat = seatToPlay(before.position);
+      if (seat === null) throw new Error('Nobody is to play');
+      const card = legalCards(
+        before.position,
+        seat,
+        heldBy(before.hands, seat)
+      )[0];
+      if (card === undefined) throw new Error('No legal card');
+      await userEvent.click(
+        await canvas.findByTestId(`custom-game-board-card-${card}`)
+      );
+      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+        'data-position',
+        encodeHearts(playing(count + 1).position)
+      );
+      await expect(
+        canvas.queryByTestId(`custom-game-board-card-${card}`)
+      ).toBeNull();
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('took the trick');
+  },
+};
+
+/** Acknowledged passing preserves the chosen cards and closes the action. */
+export const PassAcknowledged: Story = {
+  render: (args, context) => {
+    const [commitment, setCommitment] = createSignal<string | null>(null);
+    return renderGameTable(
+      heartsPresentation,
+      GAME_SIDES,
+      {
+        ...args,
+        get commitment() {
+          return commitment();
+        },
+        get committed(): readonly GameSide[] {
+          return commitment() === null ? [] : ['white'];
+        },
+        get interactive() {
+          return commitment() === null;
+        },
+        onAction: setCommitment,
+      },
+      context
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await chooseThree(canvasElement);
+    await userEvent.click(await canvas.findByTestId('custom-game-board-pass'));
+    await expect(canvas.queryByTestId('custom-game-board-pass')).toBeNull();
+    for (const card of PASSED) {
+      await expect(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      ).toHaveAttribute('aria-disabled', 'true');
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('Waiting for every player to pass');
   },
 };

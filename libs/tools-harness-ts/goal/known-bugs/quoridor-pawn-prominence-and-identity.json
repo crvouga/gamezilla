@@ -1,0 +1,4 @@
+{
+  "summary": "Quoridor pawn glyphs were tiny on phones and the gold seat's diamond appeared teal on the board.",
+  "regressionTest": "libs/quoridor-client-ts/src/quoridor-board.stories.tsx: PawnIdentityAndKeyboard"
+}

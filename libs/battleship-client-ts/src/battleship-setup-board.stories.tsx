@@ -1,3 +1,4 @@
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
@@ -10,6 +11,19 @@ const meta = {
   title: 'Screens/Games/Battleship/Fleet setup',
   component: BattleshipSetupBoard,
   tags: ['autodocs'],
+  render: (args) => {
+    const [fleet, setFleet] = createSignal(args.setup);
+    return (
+      <BattleshipSetupBoard
+        {...args}
+        setup={fleet()}
+        onChange={(value) => {
+          setFleet(value);
+          args.onChange(value);
+        }}
+      />
+    );
+  },
   parameters: {
     appRouter: true,
     controls: { exclude: ['onChange'] },
@@ -61,5 +75,48 @@ export const PlaceAShip: Story = {
       await canvas.findByTestId('custom-game-setup-cell-b2')
     );
     await expect(args.onChange).toHaveBeenCalledWith('fleet:carrier@b2h');
+  },
+};
+
+/** Place every ship, recover an overlap, then rearrange the completed fleet. */
+export const ArrangeFullFleet: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const click = async (suffix: string) =>
+      userEvent.click(await canvas.findByTestId(`custom-game-setup-${suffix}`));
+    const progress = await canvas.findByTestId('custom-game-setup-progress');
+    await click('cell-a1');
+    await expect(progress).toHaveTextContent('1 of 5 ships placed');
+    await click('cell-a1');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-refusal')
+    ).toBeVisible();
+    await expect(progress).toHaveTextContent('1 of 5 ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-a1')
+    ).toHaveAccessibleName('A1: Carrier');
+    await click('rotate');
+    await click('cell-a3');
+    await expect(
+      canvas.queryByTestId('custom-game-setup-refusal')
+    ).not.toBeInTheDocument();
+    await click('cell-c3');
+    await click('cell-e3');
+    await click('cell-g3');
+    await expect(progress).toHaveTextContent('All five ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-g4')
+    ).toHaveAccessibleName('G4: Destroyer');
+    await click('ship-destroyer');
+    await click('remove');
+    await expect(progress).toHaveTextContent('4 of 5 ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-g4')
+    ).toHaveAccessibleName('G4: open water');
+    await click('cell-i7');
+    await expect(progress).toHaveTextContent('All five ships placed');
+    await expect(
+      await canvas.findByTestId('custom-game-setup-cell-i8')
+    ).toHaveAccessibleName('I8: Destroyer');
   },
 };

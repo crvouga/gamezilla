@@ -1,12 +1,11 @@
 /**
  * Chess's puzzle board: the platform's position, marks and suggestions on
  * chess's board. A move is reported in UCI, never auto-queened (§3:
- * underpromotion puzzles exist); a hint dots its piece, a wrong move is
+ * underpromotion puzzles exist); a hint outlines its square, a wrong move is
  * crossed, the shown solution and each suggestion are arrows.
  */
-import { chessPuzzleCellFeedback } from '@libs/chess-puzzle-shared-ts/cell-feedback';
+
 import { chessPuzzleLastMove } from '@libs/chess-puzzle-shared-ts/last-move';
-import { chessPuzzleArrows } from '@libs/chess-puzzle-shared-ts/recommendation-arrows';
 import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
@@ -16,6 +15,8 @@ import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
+import { puzzleBoardArrows } from './puzzle-board-arrows';
+import { puzzleBoardFeedback } from './puzzle-board-feedback';
 
 function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   // Chess's boards follow the app's sound preference themselves.
@@ -43,8 +44,8 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
         highlightLastMove
         lastMove={chessPuzzleLastMove(props.lastAction)}
         highlightLegalMoves
-        cellFeedback={chessPuzzleCellFeedback(props.marks)}
-        arrows={chessPuzzleArrows({
+        cellFeedback={puzzleBoardFeedback(props.marks)}
+        arrows={puzzleBoardArrows({
           solution: props.marks.solution,
           suggestions: props.suggestions,
         })}
@@ -83,7 +84,7 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
  * Chess's board for the platform's puzzle screens, its coordinates outside
  * the squares as a game's board reads them (`ChessBoardFrame`), filling the
  * well the screen measured: in `play` the solver's
- * moves (reported in UCI, never auto-queened), a hint's dot, a wrong
+ * moves (reported in UCI, never auto-queened), a hint's square outline, a wrong
  * move's cross and the solution and suggestions as arrows; in `review` a
  * read-only position stepping through the line.
  */

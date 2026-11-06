@@ -49,7 +49,7 @@ test('rotate turns the next placement down, and the five ships make the canonica
   const board = setupBoard();
   fireEvent.click(cell('a1'));
   fireEvent.click(byTestId('setup-rotate'));
-  expect(byTestId('setup-rotate').textContent).toContain('down');
+  expect(byTestId('setup-rotate').textContent).toBe('Rotate across');
   fireEvent.click(cell('a3'));
   expect(board.setup()).toBe('fleet:carrier@a1h;battleship@a3v');
   fireEvent.click(cell('c3'));
@@ -132,7 +132,7 @@ test('the keyboard selects a cell with arrows, rotates with R and places with En
   expect(document.activeElement).toBe(cell('b2'));
   expect(cell('b2').tabIndex).toBe(0);
   fireEvent.keyDown(cell('b2'), { key: 'r' });
-  expect(byTestId('setup-rotate').textContent).toContain('down');
+  expect(byTestId('setup-rotate').textContent).toBe('Rotate across');
   fireEvent.keyDown(cell('b2'), { key: 'End' });
   expect(document.activeElement).toBe(cell('j2'));
   fireEvent.keyDown(cell('j2'), { key: 'Home' });

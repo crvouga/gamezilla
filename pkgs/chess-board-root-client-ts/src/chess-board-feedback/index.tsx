@@ -13,7 +13,9 @@ import type {
 } from '@pkgs/chess-board-core-shared-ts/types';
 import {
   BOARD_VIEW_BOX,
+  CELL_UNITS,
   fmtUnits,
+  squareOrigin,
 } from '@pkgs/chess-board-root-shared-ts/board-units';
 import type { FeedbackBadge } from '@pkgs/chess-board-root-shared-ts/feedback-badge';
 import {
@@ -28,6 +30,7 @@ import {
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { PaintToken } from '../paint-token/index';
+import { FeedbackOutline } from './outline';
 
 export type ChessBoardFeedbackProps = {
   readonly boardTestId: string;
@@ -128,7 +131,19 @@ export function ChessBoardFeedback(
         data-testid={chessBoardLayerTestId(props.boardTestId, 'feedback')}
       >
         <For each={[...badges()]}>
-          {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}
+          {(badge) => (
+            <Show
+              when={badge.feedback.shape === 'outline'}
+              fallback={<FeedbackMark badge={badge} theme={props.theme} />}
+            >
+              <FeedbackOutline
+                badge={badge}
+                theme={props.theme}
+                origin={squareOrigin(badge.square, props.orientation)}
+                size={CELL_UNITS}
+              />
+            </Show>
+          )}
         </For>
       </svg>
     </Show>

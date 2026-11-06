@@ -1,0 +1,4 @@
+{
+  "summary": "Phone Word Tiles lacked an enlarged placement mode preserving the active coordinate and draft while returning to the whole-board overview.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board-enlarged.test.tsx"
+}

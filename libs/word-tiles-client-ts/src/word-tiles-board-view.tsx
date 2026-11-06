@@ -41,6 +41,9 @@ function SeatBoard(props: {
   );
   return (
     <StackVertical gap="sm">
+      <P variant="caption" tone="secondary">
+        {t`2L: double letter · 3L: triple letter · 2W: double word · 3W: triple word · ★: start, double word`}
+      </P>
       <WordTileBoard
         label={t`Word board, fifteen columns and fifteen rows`}
         testId={props.draft.props.testId}
@@ -59,6 +62,11 @@ function SeatBoard(props: {
           <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
         }
       >
+        <Show when={props.draft.candidate().placed.length > 0}>
+          <P variant="caption" role="status">
+            {t`Tap a placed tile to return it to your rack. Recall tiles returns the whole draft.`}
+          </P>
+        </Show>
         <TileRack
           label={t`Your rack`}
           testId={`${props.draft.props.testId}-rack`}
@@ -97,6 +105,12 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
       when={props.draft.props.hand !== null && props.draft.position() !== null}
     >
       <StackVertical gap="sm">
+        <Show when={!props.draft.props.interactive && props.draft.editable()}>
+          <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
+        </Show>
+        <Show when={props.draft.lexicon.state().status === 'unavailable'}>
+          <P role="status">{t`The word list could not load. Your draft is kept, but words cannot be played until checking is available. Load the word list again to continue.`}</P>
+        </Show>
         <Show when={props.draft.candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId={testId()}

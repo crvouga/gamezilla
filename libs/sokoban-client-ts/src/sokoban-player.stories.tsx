@@ -2,6 +2,9 @@ import {
   StoryPackAttempt,
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import { decodeSokobanAction } from '@libs/sokoban-shared-ts/sokoban-position';
+import type { SokobanDirection } from '@libs/sokoban-shared-ts/sokoban-types';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanPlayer } from './sokoban-player';
@@ -28,6 +31,7 @@ const meta = {
   render: (args) => (
     <StoryPackAttempt
       puzzle={PUZZLE}
+      complete={args.state === playedTwoCrates(SOLVING_MOVES)}
       disabled={args.disabled}
       player={<SokobanPlayer {...args} />}
     />
@@ -66,10 +70,68 @@ export const Unreadable: Story = { args: { definition: '{}' } };
 export const BlockedMove: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('sokoban-move-left'));
+    // regression: sokoban-desktop-blocked-move-pad
+    (await canvas.findByTestId('sokoban-board')).focus();
+    await userEvent.keyboard('{ArrowLeft}');
     await expect(
       await canvas.findByTestId('sokoban-refusal')
     ).toHaveTextContent("The worker's way is blocked.");
     await expect(args.onAction).not.toHaveBeenCalled();
+  },
+};
+
+/** Real rule transitions from the first push to every crate on a goal. */
+export const SolveWithKeyboard: Story = {
+  render: () => {
+    const [moves, setMoves] = createSignal<readonly SokobanDirection[]>([]);
+    return (
+      <StoryPackAttempt
+        puzzle={PUZZLE}
+        complete={moves().length === 7}
+        player={
+          <SokobanPlayer
+            definition={TWO_CRATES}
+            state={playedTwoCrates(moves())}
+            disabled={moves().length === 7}
+            onAction={(action) => {
+              const decoded = decodeSokobanAction(action);
+              if (!decoded.valid) throw new Error('Invalid story move');
+              setMoves((previous) => [...previous, decoded.value]);
+            }}
+          />
+        }
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    (await canvas.findByTestId('sokoban-board')).focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect(await canvas.findByTestId('sokoban-refusal')).toBeVisible();
+    for (const key of [
+      'ArrowRight',
+      'ArrowRight',
+      'ArrowLeft',
+      'ArrowLeft',
+      'ArrowUp',
+      'ArrowRight',
+      'ArrowRight',
+    ]) {
+      await userEvent.keyboard(`{${key}}`);
+    }
+    await expect(await canvas.findByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '7'
+    );
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-pushes',
+      '4'
+    );
+    await expect(canvas.getByTestId('sokoban-complete')).toHaveTextContent(
+      'Every crate is on a goal'
+    );
+    await expect(
+      canvas.queryByTestId('sokoban-refusal')
+    ).not.toBeInTheDocument();
   },
 };

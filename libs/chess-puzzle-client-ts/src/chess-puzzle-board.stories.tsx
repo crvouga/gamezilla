@@ -8,6 +8,11 @@ import {
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
+import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
+import {
+  completeChessPuzzle,
+  recoverChessPuzzle,
+} from './chess-puzzle-journey-play.example';
 import {
   StoryChessPuzzleBoard,
   withChessPuzzleBoardContext,
@@ -85,4 +90,16 @@ export const SolutionShown: Story = {
       marks: { wrong: null, hint: null, solution: { from: 'f3', to: 'e5' } },
     },
   },
+};
+
+/** Complete the recorded mating line through the real board's keyboard input. */
+export const SolveJourney: Story = {
+  render: () => <ChessPuzzleJourney />,
+  play: async ({ canvasElement }) => completeChessPuzzle(canvasElement),
+};
+
+/** A wrong move remains visible until Retry restores the position, then solve. */
+export const WrongMoveRecovery: Story = {
+  render: () => <ChessPuzzleJourney />,
+  play: async ({ canvasElement }) => recoverChessPuzzle(canvasElement),
 };

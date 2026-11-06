@@ -89,7 +89,13 @@ function QuoridorBoardView(
       />
       <P role="status" dataSet={{ testid: `${props.testId}-wall-status` }}>
         {message() ||
-          t`Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor.`}
+          (game().mode === 'classic'
+            ? tool() === 'move'
+              ? t`Choose a marked square to move your pawn.`
+              : tool() === 'h'
+                ? t`Horizontal wall: tap a square to place it above that square and its right neighbor.`
+                : t`Vertical wall: tap a square to place it beside that square and its upper neighbor.`
+            : t`Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor.`)}
       </P>
     </StackVertical>
   );

@@ -3,7 +3,10 @@ import type {
   PuzzlePreviewProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
-import { decodeSokobanPosition } from '@libs/sokoban-shared-ts/sokoban-position';
+import {
+  decodeSokobanPosition,
+  sokobanComplete,
+} from '@libs/sokoban-shared-ts/sokoban-position';
 import type {
   SokobanBoard,
   SokobanPosition,
@@ -40,6 +43,7 @@ function Steering(props: {
     disabled: () => props.disabled,
     onAction: (action) => props.onAction(action),
   });
+  const complete = () => sokobanComplete(props.board, props.position);
   const wide = () => mode() === 'wide';
   return (
     <StackVertical gap="md">
@@ -51,10 +55,20 @@ function Steering(props: {
         rows={props.board.height}
         tiles={sokobanTiles(props.board, positionPieces(props.position), words)}
         pieces={sokobanPieces(props.board, positionPieces(props.position))}
-        describedBy={help}
+        describedBy={complete() ? undefined : help}
         onDirection={steering.steer}
         onTile={steering.tap}
       />
+      <Show when={complete()}>
+        <Notice tone="success" dataSet={{ testid: 'sokoban-complete' }}>
+          <P role="status" variant="label">
+            <Trans>Puzzle solved. Every crate is on a goal.</Trans>
+          </P>
+          <P variant="caption">
+            <Trans>Return to the overview to choose another puzzle.</Trans>
+          </P>
+        </Notice>
+      </Show>
       {/* How to move and how far, beside the movement pad on a phone, so
           the board, the pad and the attempt's undo stay on one screen. */}
       <StackHorizontal gap="md" align="center" justify="between">
@@ -70,22 +84,24 @@ function Steering(props: {
           >
             {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
           </P>
-          <P id={help} variant="caption" tone="secondary">
-            <Show
-              when={wide()}
-              fallback={
-                <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
-              }
-            >
-              <Trans>
-                Move with the arrow keys or W A S D, or click a square beside
-                the worker.
-              </Trans>
-            </Show>
-          </P>
+          <Show when={!complete()}>
+            <P id={help} variant="caption" tone="secondary">
+              <Show
+                when={wide()}
+                fallback={
+                  <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
+                }
+              >
+                <Trans>
+                  Move with the arrow keys or W A S D, or click a square beside
+                  the worker.
+                </Trans>
+              </Show>
+            </P>
+          </Show>
         </StackVertical>
         {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
-        <Show when={!wide()}>
+        <Show when={!wide() && !complete()}>
           <DirectionPad
             size="sm"
             labels={{
@@ -101,6 +117,11 @@ function Steering(props: {
           />
         </Show>
       </StackHorizontal>
+      <Show when={props.disabled && !complete()}>
+        <P role="status" variant="caption" tone="secondary">
+          <Trans>Keeping your move. Your next directions will wait.</Trans>
+        </P>
+      </Show>
       <Show when={steering.refusal()}>
         {(refused) => (
           <Notice
@@ -108,6 +129,11 @@ function Steering(props: {
             dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
           >
             {words.refusal(refused().code, refused().message)}
+            <P variant="caption">
+              <Trans>
+                Try another direction, or undo your last move to make room.
+              </Trans>
+            </P>
           </Notice>
         )}
       </Show>

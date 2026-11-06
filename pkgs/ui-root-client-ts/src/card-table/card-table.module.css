@@ -435,7 +435,7 @@ button.card[aria-disabled="true"] {
    see-through. A card that is only waiting (another seat's turn, a pass on
    its way) keeps full contrast. */
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
-  filter: brightness(0.72);
+  border-style: dashed;
 }
 /* Chosen: lifted 8px out of its row and ringed 3px in the app's selection
    accent (the hand sits on the page, not the felt), so it reads at a
@@ -482,4 +482,36 @@ button.card:focus-visible {
   .card {
     transition: none;
   }
+}
+
+/* Side seats get half the phone width; feedback gets its own full row. */
+@container card-table not (min-width: 30rem) {
+  .table {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "top top"
+      "left right"
+      "center center"
+      "bottom bottom";
+  }
+  .seat {
+    width: 100%;
+  }
+  .center {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+.guidance {
+  margin: 0;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  text-align: center;
+}
+.unavailable {
+  position: absolute;
+  top: var(--ui-space-1);
+  right: var(--ui-space-1);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
 }

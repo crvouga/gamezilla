@@ -5,6 +5,7 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { withChessBoardContext } from './chess-board-story.example';
 import { ChessGameBoard, chessPresentation } from './chess-game-presentation';
@@ -58,7 +59,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A new game: White moves first, legal moves highlighted on pick-up. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const pawn = canvas.getByRole('button', { name: 'e2, White pawn' });
+    pawn.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(pawn).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      canvas.getByRole('button', {
+        name: 'e4, empty, Legal destination',
+      })
+    ).toBeVisible();
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}{Enter}');
+    await expect(
+      canvas.getByRole('button', { name: 'e4, White pawn' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('button', { name: 'e2, empty' })
+    ).toBeVisible();
+  },
+};
 
 /**
  * Mid-game on White's turn, seven moves each in the record, the last move
@@ -128,5 +149,23 @@ export const InsufficientMaterial: Story = {
     table: {
       ending: { winner: 'draw', reason: 'insufficient material' },
     } satisfies GameTableStory,
+  },
+};
+
+/** Choose an underpromotion through the real board, then observe the new piece. */
+export const PromotionChoice: Story = {
+  args: { position: '7k/P7/8/8/8/8/8/7K w - - 0 1' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    canvas.getByRole('button', { name: 'a7, White pawn' }).focus();
+    await userEvent.keyboard('{Enter}{ArrowUp}{Enter}');
+    await expect(canvas.getByRole('button', { name: 'Queen' })).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Knight' }));
+    await expect(
+      canvas.getByRole('button', { name: 'a8, White knight' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('button', { name: 'a7, empty' })
+    ).toBeVisible();
   },
 };

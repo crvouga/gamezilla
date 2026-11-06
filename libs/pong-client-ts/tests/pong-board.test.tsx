@@ -66,7 +66,10 @@ test('Pong exposes a labelled court and only the player’s normalized paddle co
 });
 
 test('a spectator sees the score without either input control and a malformed position offers a way out', () => {
+  // regression: pong-spectator-control-guidance
   const view = board([]);
+  expect(view.getByText(/Watching the rally/)).toBeDefined();
+  expect(view.queryByText(/Drag up and down/)).toBeNull();
   expect(view.queryAllByRole('slider')).toHaveLength(0);
   expect(view.getByText('Left 0')).toBeDefined();
   expect(view.getByText('Right 0')).toBeDefined();

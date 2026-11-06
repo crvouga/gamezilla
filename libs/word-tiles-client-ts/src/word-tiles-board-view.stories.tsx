@@ -212,3 +212,57 @@ export const CheckingWords: Story = {
     ).toHaveTextContent('Checking the words');
   },
 };
+
+/** Three seats keep all scores visible without exposing another rack. */
+export const ThreePlayers: Story = {
+  args: {
+    position: encodePosition({
+      ...newPosition(3, STORY_LEXICON_KEY),
+      board: CAT_AND_TOE,
+      scores: [10, 3, 0],
+      bag: 74,
+    }),
+    hand: LATER_RACK,
+  },
+};
+
+/** Draft recovery asserts real tile movement, not an action callback. */
+export const RecallAndRestore: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const cell = await canvas.findByTestId('custom-game-board-cell-h8');
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-rack-11')
+    );
+    await userEvent.click(cell);
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+    await expect(cell).toHaveAccessibleName('C 3, h8, your tentative tile');
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-recall')
+    );
+    await expect(cell).toHaveAttribute('data-state', 'empty');
+    await userEvent.click(await canvas.findByTestId('custom-game-board-undo'));
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(await canvas.findByTestId('custom-game-board-redo'));
+    await expect(cell).toHaveAttribute('data-state', 'empty');
+  },
+};
+
+/** Assigning a blank changes the tile on the board while retaining zero points. */
+export const AssignABlank: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-rack-98')
+    );
+    const cell = await canvas.findByTestId('custom-game-board-cell-h8');
+    await userEvent.click(cell);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-blank-E')
+    );
+    await expect(cell).toHaveAccessibleName(
+      'E 0, h8, your tentative blank as E'
+    );
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+  },
+};

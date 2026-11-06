@@ -79,10 +79,12 @@ export type GameTableStory = {
   /** The side to move. */
   readonly turn?: GameSide | null;
   /** How a finished game ended. */
-  readonly ending?: {
-    readonly winner: GameWinner;
-    readonly reason: string;
-  };
+  readonly ending?:
+    | {
+        readonly winner: GameWinner;
+        readonly reason: string;
+      }
+    | undefined;
   /** The moves played to reach the position, as the game writes them. */
   readonly moves?: readonly string[];
   /**

@@ -88,9 +88,6 @@
 .column[data-previewed="true"]::before {
   opacity: 0.12;
 }
-.column[data-full="true"] {
-  opacity: var(--ui-opacity-muted);
-}
 .column:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
@@ -188,13 +185,7 @@
 .cell[data-preview-disc="2"] {
   --disc-preview: var(--ui-color-warning);
 }
-/* Four connected: the rest of the board steps back, and the four keep
-   their full colour inside a ring in the board's ink. */
-.board[data-won="true"]
-  .cell[data-disc]:not([data-disc="0"]):not([data-winning="true"])
-  .disc {
-  opacity: var(--ui-opacity-muted);
-}
+/* Winning rings emphasize the connected four without fading the final position. */
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-text);
   outline-offset: 2px;

@@ -1,0 +1,4 @@
+{
+  "summary": "At 390px the Hearts waiting-for-cards center squeezed jordan_plays and robin_42 into fragmented side-seat names. Phone seats now share a separate full-width row.",
+  "regressionTest": "libs/hearts-client-ts/src/hearts-board.stories.tsx#CardsOnTheirWay"
+}

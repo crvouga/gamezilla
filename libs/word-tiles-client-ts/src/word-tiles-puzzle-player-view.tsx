@@ -122,6 +122,9 @@ function PuzzleBoard(props: {
           if (cell !== null) setCandidate((c) => pressCell(c, cell));
         }}
       />
+      <P variant="caption">
+        {t`Bonus squares: 2L doubles a letter, 3L triples a letter, 2W doubles the word, 3W triples the word.`}
+      </P>
       <TileRack
         label={t`Your rack`}
         testId="word-tiles-puzzle-rack"

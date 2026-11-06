@@ -3,7 +3,10 @@ import type {
   PuzzlePreviewProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { decodeNumberlinkDefinition } from '@libs/numberlink-shared-ts/numberlink-definition';
-import { decodeNumberlinkState } from '@libs/numberlink-shared-ts/numberlink-state';
+import {
+  decodeNumberlinkState,
+  numberlinkComplete,
+} from '@libs/numberlink-shared-ts/numberlink-state';
 import type {
   NumberlinkDefinition,
   NumberlinkState,
@@ -32,8 +35,23 @@ function Drawing(props: {
     disabled: () => props.disabled,
     onAction: (action) => props.onAction(JSON.stringify(action)),
   });
+  const solved = createMemo(() =>
+    numberlinkComplete(props.definition, props.state)
+  );
   return (
     <StackVertical gap="md">
+      <Show when={solved()}>
+        <Notice tone="success" dataSet={{ testid: 'numberlink-solved' }}>
+          <P variant="bodyBold">
+            <Trans>Puzzle solved</Trans>
+          </P>
+          <P variant="caption">
+            <Trans>
+              Every pair is connected. Your completed paths are shown below.
+            </Trans>
+          </P>
+        </Notice>
+      </Show>
       <NumberlinkBoard
         definition={props.definition}
         state={drawing.preview()}
@@ -46,24 +64,33 @@ function Drawing(props: {
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
       />
-      <Show
-        when={mode() === 'wide'}
-        fallback={
-          <P variant="caption" tone="secondary">
-            <Trans>Drag from a number to its match.</Trans>
-          </P>
-        }
-      >
-        <KeyHints
-          testId="numberlink-key-hints"
-          lead={t`Drag from a number to its match.`}
-          hints={[
-            { keys: [t`Enter`], label: t`start or end` },
-            { keys: [t`Arrows`], label: t`draw` },
-            { keys: ['Esc'], label: t`cancel` },
-            { keys: ['Del'], label: t`remove` },
-          ]}
-        />
+      <Show when={props.disabled && !solved()}>
+        <Notice>
+          <Trans>
+            Drawing is unavailable. You can still inspect the board.
+          </Trans>
+        </Notice>
+      </Show>
+      <Show when={!solved() && !props.disabled}>
+        <Show
+          when={mode() === 'wide'}
+          fallback={
+            <P variant="caption" tone="secondary">
+              <Trans>Drag from a number to its match.</Trans>
+            </P>
+          }
+        >
+          <KeyHints
+            testId="numberlink-key-hints"
+            lead={t`Drag from a number to its match.`}
+            hints={[
+              { keys: [t`Enter`], label: t`start or end` },
+              { keys: [t`Arrows`], label: t`draw` },
+              { keys: ['Esc'], label: t`cancel` },
+              { keys: ['Del'], label: t`remove` },
+            ]}
+          />
+        </Show>
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}

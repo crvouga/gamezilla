@@ -142,6 +142,11 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
         sending() ? { ...card, enabled: false } : card
       )}
       handLabel={t`Your hand`}
+      handInstruction={
+        !passing() && props.interactive && props.hand !== null
+          ? t`Your turn. Choose a card without a × to play. Cards marked × explain the rule here.`
+          : undefined
+      }
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}
       action={

@@ -140,8 +140,25 @@
   .letter {
     font-size: var(--ui-font-size-xs);
   }
-  .points,
-  .square {
+  .points {
     display: none;
   }
+}
+
+.viewport {
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.viewport[data-enlarged="true"] {
+  max-height: calc(var(--ui-control-size-lg) * 7);
+}
+.board[data-enlarged="true"] {
+  width: max-content;
+  max-width: none;
+  grid-template-columns: var(--ui-space-4) repeat(
+      var(--word-tile-columns),
+      var(--ui-control-size-lg)
+    );
 }

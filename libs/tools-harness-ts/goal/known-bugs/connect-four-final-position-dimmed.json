@@ -1,0 +1,4 @@
+{
+  "summary": "Full columns faded every disc in a drawn Connect Four board; after a win the remaining discs also faded. Keep all played discs at full opacity and emphasize wins with outlines, preserving inert completed columns. Literal draw 000000111111222222433333344444555555666666 and win 0101010 are pinned in the regression and browser stories.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-final-position-regression.test.tsx"
+}

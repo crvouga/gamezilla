@@ -1,7 +1,10 @@
+import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { StackVertical } from '../stack/index';
 import styles from './word-tile-board.module.css';
+import { WordTileViewControls } from './word-tile-view-controls';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
 export type WordTileSquare = 'DL' | 'TL' | 'DW' | 'TW' | 'start';
@@ -103,7 +106,12 @@ function range(count: number): readonly number[] {
  * activates. It fits its container, shrinking its squares on small screens.
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
-  const [focusIndex, setFocusIndex] = createSignal(112);
+  const [selectedIndex, setFocusIndex] = createSignal<number>();
+  const focusIndex = () =>
+    selectedIndex() ??
+    Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
+      Math.floor(props.columnLabels.length / 2);
+  const [enlarged, setEnlarged] = createSignal(false);
   // Read once per change: every square reads the list, and a caller that
   // computes it inline would otherwise rebuild it once per square.
   const cells = createMemo(() => props.cells);
@@ -120,46 +128,65 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     setFocusIndex(next);
     root?.querySelector<HTMLButtonElement>(`[data-index="${next}"]`)?.focus();
   };
+  const resize = (value: boolean): void => {
+    setEnlarged(value);
+    root
+      ?.querySelector<HTMLButtonElement>(`[data-index="${focusIndex()}"]`)
+      ?.focus();
+  };
   return (
-    <div
-      ref={root}
-      class={styles['board']}
-      {...dataAttrs({ component: 'WordTileBoard' })}
-      role="group"
-      aria-label={props.label}
-      aria-describedby={props.describedBy}
-      data-testid={props.testId}
-      style={{ '--word-tile-columns': props.columnLabels.length }}
-    >
-      <span class={styles['header']} aria-hidden="true" />
-      <For each={props.columnLabels}>
-        {(label) => (
-          <span class={styles['header']} aria-hidden="true">
-            {label}
-          </span>
-        )}
-      </For>
-      <For each={rows()}>
-        {(row) => (
-          <>
-            <span class={styles['header']} aria-hidden="true">
-              {props.rowLabels[row] ?? ''}
-            </span>
-            <For each={columns()}>
-              {(column) => (
-                <BoardCell
-                  board={props}
-                  cells={cells}
-                  index={row * columns().length + column}
-                  focusable={focusIndex() === row * columns().length + column}
-                  onFocusIndex={setFocusIndex}
-                  onKey={onKey}
-                />
-              )}
-            </For>
-          </>
-        )}
-      </For>
-    </div>
+    <StackVertical gap="xs">
+      <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+      <div
+        class={styles['viewport']}
+        data-enlarged={enlarged()}
+        role="region"
+        aria-label={t`Scrollable word board`}
+      >
+        <div
+          ref={root}
+          class={styles['board']}
+          data-enlarged={enlarged()}
+          {...dataAttrs({ component: 'WordTileBoard' })}
+          role="group"
+          aria-label={props.label}
+          aria-describedby={props.describedBy}
+          data-testid={props.testId}
+          style={{ '--word-tile-columns': props.columnLabels.length }}
+        >
+          <span class={styles['header']} aria-hidden="true" />
+          <For each={props.columnLabels}>
+            {(label) => (
+              <span class={styles['header']} aria-hidden="true">
+                {label}
+              </span>
+            )}
+          </For>
+          <For each={rows()}>
+            {(row) => (
+              <>
+                <span class={styles['header']} aria-hidden="true">
+                  {props.rowLabels[row] ?? ''}
+                </span>
+                <For each={columns()}>
+                  {(column) => (
+                    <BoardCell
+                      board={props}
+                      cells={cells}
+                      index={row * columns().length + column}
+                      focusable={
+                        focusIndex() === row * columns().length + column
+                      }
+                      onFocusIndex={setFocusIndex}
+                      onKey={onKey}
+                    />
+                  )}
+                </For>
+              </>
+            )}
+          </For>
+        </div>
+      </div>
+    </StackVertical>
   );
 }

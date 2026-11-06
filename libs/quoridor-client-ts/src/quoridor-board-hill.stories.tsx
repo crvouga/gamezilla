@@ -5,13 +5,23 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
+  decodeQuoridor,
   encodeQuoridor,
+  playQuoridor,
   replayQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { QUORIDOR_SIDES } from '@libs/quoridor-shared-ts/quoridor-rules';
+import { createMemo, createSignal } from 'solid-js';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
+
+function sideAt(index: number) {
+  const side = QUORIDOR_SIDES[index];
+  if (side === undefined) throw new Error('Unknown hill seat');
+  return side;
+}
 
 /** The King of the Hill position after `actions`, South first, then clockwise. */
 function hill(actions: readonly string[]): string {
@@ -116,5 +126,142 @@ export const Lost: Story = {
     table: {
       ending: { winner: 'white', reason: 'hill reached' },
     } satisfies GameTableStory,
+  },
+};
+
+/** Every accepted action goes through the production rules and paints a new position. */
+const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
+  const [game, setGame] = createSignal(decodeQuoridor(args.position));
+  const view = createMemo(() => {
+    const current = game();
+    const side = sideAt(current.turn);
+    return renderGameTable(
+      quoridorHillGameClient.presentation,
+      QUORIDOR_SIDES,
+      {
+        ...args,
+        position: encodeQuoridor(current),
+        orientation: side,
+        interactive: current.winner === null,
+        onAction: (action) => {
+          const next = playQuoridor(game(), action);
+          if (next === null) throw new Error(`Refused hill action: ${action}`);
+          setGame(next);
+        },
+      },
+      {
+        ...context,
+        parameters: {
+          ...context.parameters,
+          table: {
+            turn: side,
+            moves: current.actions,
+            ...(current.winner === null
+              ? {}
+              : {
+                  ending: {
+                    winner: sideAt(current.winner),
+                    reason: 'hill reached',
+                  },
+                }),
+          } satisfies GameTableStory,
+        },
+      }
+    );
+  });
+  return <>{view()}</>;
+};
+
+/** Passing changes the active pawn and removes the forced-pass action. */
+export const PassAndContinue: Story = {
+  args: { position: hill(BLOCKED) },
+  render: renderHillJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-pass')
+    );
+    await expect(
+      canvas.queryByTestId('custom-game-board-action-pass')
+    ).not.toBeInTheDocument();
+    await expect(
+      await canvas.findByTestId('custom-game-board-action-e5')
+    ).toBeEnabled();
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-e5')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-board-action-e5')
+    ).toHaveAccessibleName(/West gold diamond/);
+  },
+};
+
+/** Each of the four pawns moves, then South places a wall. */
+export const FourPlayerRound: Story = {
+  render: renderHillJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [square, pawn] of [
+      ['e2', 'South red circle'],
+      ['a4', 'West gold diamond'],
+      ['e8', 'North green triangle'],
+      ['i6', 'East black square'],
+    ] as const) {
+      await userEvent.click(
+        await canvas.findByTestId(`custom-game-board-action-${square}`)
+      );
+      await expect(
+        await canvas.findByTestId(`custom-game-board-action-${square}`)
+      ).toHaveAccessibleName(new RegExp(pawn));
+    }
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-mode-h')
+    );
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-e5h')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-board-action-a3')
+    ).toBeEnabled();
+  },
+};
+
+/** The final step onto the hill paints the pawn and displays the result. */
+export const ReachTheHill: Story = {
+  args: { position: hill(SOUTH_TAKES_THE_HILL.slice(0, -1)) },
+  render: renderHillJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-e5')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-board-action-e5')
+    ).toHaveAccessibleName(/South red circle/);
+    await expect(await canvas.findByText('avery wins')).toBeVisible();
+  },
+};
+
+/** An overlapping wall is refused; a different anchor completes the turn. */
+export const RecoverWallPlacement: Story = {
+  args: { position: hill(['e5h']) },
+  render: renderHillJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-mode-h')
+    );
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-e5h')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-board-wall-status')
+    ).toHaveTextContent(/overlaps/);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-action-a1h')
+    );
+    await expect(
+      await canvas.findByTestId('custom-game-board-action-e8')
+    ).toBeEnabled();
   },
 };

@@ -9,6 +9,7 @@ import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import {
   initialPongState,
   type PongState,
+  parsePongInput,
 } from '@libs/pong-shared-ts/pong-state';
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -17,10 +18,12 @@ import {
   type GameSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { fn } from 'storybook/test';
+import { createSignal } from 'solid-js';
+import { expect, fireEvent, fn, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PongBoardView } from './pong-board-view';
 import { pongGameClient } from './pong-game-client';
+import { PongJourney } from './pong-journey.example';
 
 /**
  * A game to three points played for `ticks` with nobody moving a paddle:
@@ -128,4 +131,129 @@ export const Finished: Story = {
 /** A position this app cannot read says so, with the way back. */
 export const Unreadable: Story = {
   args: { position: 'pong:not-a-position', simulation: undefined },
+};
+
+/** Keyboard input advances the real fixed-step mechanics and repaints the paddle. */
+export const PaddleMovement: Story = {
+  render: (args, context) => {
+    const config = pongConfig();
+    const step = createPongStep(config);
+    const [state, setState] = createSignal(initialPongState(config, () => 0));
+    let tick = 0;
+    const simulation = playing(['white'], {
+      onInput: (side, value) => {
+        const input = parsePongInput(value);
+        if (!input) throw new Error('Invalid paddle input');
+        tick += 1;
+        setState(
+          step(
+            state(),
+            [
+              {
+                tick,
+                sequence: tick,
+                playerId: side === 'white' ? 'left' : 'right',
+                value: input,
+              },
+            ],
+            {
+              tick,
+              deltaMs: 1000 / config.tickRate,
+              elapsedMs: (tick * 1000) / config.tickRate,
+              random: () => 0,
+            }
+          )
+        );
+      },
+    });
+    return renderGameTable(
+      presentation,
+      TWO_PLAYER_SIDES,
+      {
+        ...args,
+        simulation,
+        get position() {
+          return pongPositionCodec.encode(state());
+        },
+      },
+      context
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const court = canvas.getByRole('application', { name: 'Pong court' });
+    const paddle = canvasElement.querySelector(
+      '[data-side="first"][data-controlled="true"]'
+    );
+    if (!paddle) throw new Error('Missing controlled paddle');
+    const before = Number(paddle.getAttribute('y'));
+    await fireEvent.keyDown(court, { key: 'ArrowUp' });
+    await expect(
+      Number(
+        canvasElement
+          .querySelector('[data-side="first"][data-controlled="true"]')
+          ?.getAttribute('y')
+      )
+    ).toBeLessThan(before);
+    await fireEvent.keyUp(court, { key: 'ArrowUp' });
+  },
+};
+
+/** Return, interruption, restored input and a point, all using real fixed-step rules. */
+export const ReturnScoreAndReconnect: Story = {
+  render: (args, context) => (
+    <PongJourney>
+      {(position, simulation) =>
+        renderGameTable(
+          presentation,
+          TWO_PLAYER_SIDES,
+          {
+            ...args,
+            simulation,
+            get position() {
+              return position();
+            },
+          },
+          context
+        )
+      }
+    </PongJourney>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const court = canvas.getByRole('application', { name: 'Pong court' });
+    const paddle = () =>
+      canvasElement.querySelector(
+        'rect[data-side="first"][data-controlled="true"]'
+      );
+    const y = () => Number(paddle()?.getAttribute('y'));
+    const before = y();
+    await fireEvent.keyDown(court, { key: 'ArrowUp' });
+    await fireEvent.keyUp(court, { key: 'ArrowUp' });
+    await expect(y()).toBeLessThan(before);
+    await expect(canvas.getByTestId('pong-journey-returns')).toHaveTextContent(
+      '1 returns'
+    );
+    await fireEvent.click(canvas.getByRole('button', { name: /^Disconnect$/ }));
+    const stopped = y();
+    await fireEvent.keyDown(court, { key: 'ArrowDown' });
+    await expect(y()).toBe(stopped);
+    await expect(court).toHaveAttribute('data-interactive', 'false');
+    await fireEvent.click(
+      canvas.getByRole('button', { name: 'Restore connection' })
+    );
+    await expect(court).toHaveAttribute('data-interactive', 'true');
+    await fireEvent.keyDown(court, { key: 'ArrowDown' });
+    await fireEvent.keyUp(court, { key: 'ArrowDown' });
+    await expect(y()).toBeGreaterThan(stopped);
+    await fireEvent.click(
+      canvas.getByRole('button', { name: 'Advance three seconds' })
+    );
+    await expect(canvas.getByTestId('pong-journey-points')).toHaveTextContent(
+      '1 points'
+    );
+    await expect(
+      canvas.getByText('Left 1', { exact: true })
+    ).toBeInTheDocument();
+  },
 };

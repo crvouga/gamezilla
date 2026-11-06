@@ -243,6 +243,27 @@
   --ui-color-on-info: var(--ui-color-game-quoridor-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* Quoridor pawns keep the same identities as their seats in both variants.
+   Size only occupied glyphs; legal destinations remain quiet dots. */
+.board[data-board-theme="quoridor"] .cell {
+  container-type: inline-size;
+  --color-border: var(--ui-color-game-quoridor-muted);
+}
+.board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
+  font-size: 72cqw;
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="one"] {
+  color: var(--ui-color-player7);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="two"] {
+  color: var(--ui-color-player5);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="three"] {
+  color: var(--ui-color-player8);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="four"] {
+  color: var(--ui-color-player6);
+}
 /* A wooden board: squares meet edge to edge in the board's two tones, the
    glyph fills most of its square, and the labels sit in the corners of the
    edge squares in the other square's tone, as a chess board's coordinates
