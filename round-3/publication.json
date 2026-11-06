@@ -1,0 +1,15 @@
+{
+  "candidateSha": "897a7562d2fee9d4cec187281ac84119de322c05",
+  "evidence_code": "71631a78b947264a",
+  "mediaCommit": "83eb5031f5daca91f63c55d0801fb7326d371f23",
+  "mediaBranch": "overhaul-evidence/pr-280",
+  "manifestUrl": "https://github.com/crvouga/gamezilla/blob/83eb5031f5daca91f63c55d0801fb7326d371f23/round-3/manifest.json",
+  "handoffUrl": "https://github.com/crvouga/gamezilla/blob/83eb5031f5daca91f63c55d0801fb7326d371f23/round-3/HANDOFF.md",
+  "comments": [
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6690939198",
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6690939852"
+  ],
+  "reviewState": "pending two new independent Codex reviews",
+  "pixelState": "Ubuntu authoring passed; comparison pending; zero references accepted",
+  "merged": false
+}
