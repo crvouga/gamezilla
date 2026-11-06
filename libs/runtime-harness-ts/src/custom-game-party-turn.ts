@@ -37,6 +37,19 @@ function moveContext(view: PublicCustomGame | null): string {
   );
 }
 
+async function moveFailure(
+  ui: Driver,
+  view: PublicCustomGame,
+  action: string,
+  cause: unknown
+): Promise<Error> {
+  const latest = await readPublicCustomGame(ui).catch(() => null);
+  return new Error(
+    `Party action ${action.slice(0, 80)}; chosen ${moveContext(view)}; latest ${moveContext(latest)}`,
+    { cause }
+  );
+}
+
 async function performObservedMove(
   ui: Driver,
   game: PlayableGame,
@@ -46,11 +59,7 @@ async function performObservedMove(
   try {
     await game.shared.automation.turns.perform(ui, 'custom-game-board', action);
   } catch (cause) {
-    const latest = await readPublicCustomGame(ui).catch(() => null);
-    throw new Error(
-      `Party action ${action.slice(0, 80)}; chosen ${moveContext(view)}; latest ${moveContext(latest)}`,
-      { cause }
-    );
+    throw await moveFailure(ui, view, action, cause);
   }
 }
 
@@ -108,9 +117,14 @@ async function playOnSettledBoard(
         view = replaced;
         continue;
       }
-      if (!performed || last) throw error;
+      if (!performed) throw error;
+      if (last) throw await moveFailure(ui, view, action, error);
       // Not replaced, only slow: the move still has its full wait.
-      await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      try {
+        await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      } catch (cause) {
+        throw await moveFailure(ui, view, action, cause);
+      }
       return;
     }
   }
