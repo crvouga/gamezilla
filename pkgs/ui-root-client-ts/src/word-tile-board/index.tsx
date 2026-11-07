@@ -138,7 +138,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     focusCell(root, focusIndex());
   };
   return (
-    <StackVertical gap="xs">
+    <StackVertical gap="none">
       <Show when={props.purpose !== 'locator' && !enlarged()}>
         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
       </Show>

@@ -174,3 +174,16 @@ test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles
   if (!scenario) throw new Error('Missing literal phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
+
+// regression: word-tiles-blank-mode-hit-overlap
+test('screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-mode-hit-overlap', async ({
+  page,
+}) => {
+  const story = index.entries['screens-games-word-tiles-board--assign-a-blank'];
+  if (!story) throw new Error('Missing literal blank assignment story');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 1440 && item.theme === 'light'
+  );
+  if (!scenario) throw new Error('Missing desktop light scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});

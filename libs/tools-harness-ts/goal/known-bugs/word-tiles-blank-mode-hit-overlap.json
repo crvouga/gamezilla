@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844, Fit/Enlarge small-button hit extensions overlapped the bottom corners of blank letters O-S after the workspace gap was compacted. Use full 44px button faces and remove the redundant following gap; retain every letter's full bounds and corner-hit assertion.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}
