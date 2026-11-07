@@ -16,6 +16,7 @@
     "storybook:mcp:test": "playwright test -c storybook/mcp.config.ts",
     "storybook:publish": "chromatic --config-file chromatic.config.json",
     "storybook:test": "playwright test -c storybook/playwright.config.ts",
+    "storybook:video:install": "playwright install ffmpeg",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
