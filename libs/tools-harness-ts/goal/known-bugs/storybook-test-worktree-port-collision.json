@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook browser tests in concurrent worktrees used the same fixed server port, preventing isolated evidence capture.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-test-network.test.ts"
+}
