@@ -155,6 +155,41 @@ export const SolveWithKeyboard: Story = {
   },
 };
 
+/** Letter-key movement, a blocked push, and recovery use the same real rules. */
+export const LetterKeyRecovery: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const board = canvas.getByTestId('sokoban-board');
+    board.focus();
+    await userEvent.keyboard('a');
+    await expect(canvas.getByTestId('sokoban-refusal')).toBeVisible();
+    await userEvent.keyboard('dd');
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-pushes',
+      '2'
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Undo' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '1'
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Redo' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '2'
+    );
+    board.focus();
+    await userEvent.keyboard('aawdd');
+    await expect(canvas.getByTestId('sokoban-solved')).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Restart' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '0'
+    );
+    await expect(canvas.queryByTestId('sokoban-solved')).not.toBeInTheDocument();
+  },
+};
+
 const CORNER = JSON.stringify({
   format: 1,
   rows: ['######', '# $@.#', '#    #', '######'],
