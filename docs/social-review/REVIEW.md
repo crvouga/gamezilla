@@ -122,3 +122,14 @@ from a 100% piece footprint and older coordinate styling; accepting these images
 also reconciles that inherited drift. The production change in this round is
 84% to 80% only where coordinates remain inside squares. Promotion captures show
 the pre-choice board, not an open chooser; native contracts cover that behavior.
+
+## Round seven publication readiness
+
+The full gate next found a publication timeout. A pinned cold-screen River
+regression reproduced it: the harness waited for Publish to exist, then clicked
+while the saved-copy read still disabled it. The harness now waits for an enabled
+control before its single click, retaining the bounded result wait. Product and
+sync code are unchanged. All 13 package tests and 170 tests across the four
+puzzle spec shards pass, including "A valid draft becomes discoverable". The
+critic approved the correction without weakened assertions and retains
+10/9/9/10 pending full verification.
