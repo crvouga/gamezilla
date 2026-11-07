@@ -1,0 +1,62 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4",
+    "sha256": "9829098bd08a19af3d31756c2c73de56938b3be0adc6f2c84da59ad74f147458",
+    "contentType": "application/octet-stream",
+    "bytes": 139781
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4",
+    "sha256": "c84e10376474122de295c06afc5e57cd3ce26ebaed81d8d9b2491f6e1a4c200e",
+    "contentType": "application/octet-stream",
+    "bytes": 229477
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4",
+    "sha256": "ab765bf19ce6041132ac2337960be08aed472d2e81e8c2a550128222620d8ec5",
+    "contentType": "application/octet-stream",
+    "bytes": 320551
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4",
+    "sha256": "01bfa5d01ccad6b40ab403dba476c22ca347c9e2194e44a0709d4703f2b2279a",
+    "contentType": "application/octet-stream",
+    "bytes": 662866
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4",
+    "sha256": "948e604d88b79b5050e438a7a698889af080a4b35a5f638130780bdba17ce03e",
+    "contentType": "application/octet-stream",
+    "bytes": 126644
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4",
+    "sha256": "6cba06793d4ae6cdc490c4633b418ddca2940b0c6ee799ceaf80d4018ce3d8b0",
+    "contentType": "application/octet-stream",
+    "bytes": 264575
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/after/screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+    "sha256": "d9a4c9862b3b3e0cb88eac7335f9f780e38dcbe920fc0e4c0eed9a88be3ae4c0",
+    "contentType": "image/png",
+    "bytes": 41991
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/after/screens-games-numberlink-puzzle--next-puzzle--phone--light.png",
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8",
+    "contentType": "image/png",
+    "bytes": 61083
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/after/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+    "sha256": "01e0a85aba5d495de2488b8ef85b39d0d8ae4c489f38a9c598b5cf77d7a4cc23",
+    "contentType": "image/png",
+    "bytes": 71510
+  },
+  {
+    "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/manifest.json",
+    "sha256": "7dcc0c7ae455310a9812a6fbeb1b5718ce77da856b120deca9fdab98e5cc901d",
+    "contentType": "text/plain; charset=utf-8",
+    "bytes": 7568
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "mediaSha": "dfd0858c51105d461d74f79ea0a5e5bfe83ba894",
+  "results": [
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4",
+      "width": 390,
+      "height": 844,
+      "time": 0.119244,
+      "frames": 7,
+      "error": null
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4",
+      "width": 1440,
+      "height": 900,
+      "time": 0.121701,
+      "frames": 7,
+      "error": null
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4",
+      "width": 390,
+      "height": 844,
+      "time": 0.115586,
+      "frames": 7,
+      "error": null
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4",
+      "width": 1440,
+      "height": 900,
+      "time": 0.112295,
+      "frames": 7,
+      "error": null
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4",
+      "width": 390,
+      "height": 844,
+      "time": 0.111899,
+      "frames": 7,
+      "error": null
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4",
+      "width": 1440,
+      "height": 900,
+      "time": 0.110448,
+      "frames": 7,
+      "error": null
+    }
+  ]
+}

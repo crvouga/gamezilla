@@ -1,0 +1,12 @@
+{
+  "sourceSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+  "mediaSha": "dfd0858c51105d461d74f79ea0a5e5bfe83ba894",
+  "evidenceCode": "eab9af9bebde1e36",
+  "comment": "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6702862911",
+  "handoff": "https://github.com/crvouga/gamezilla/blob/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/HANDOFF.md",
+  "gallery": "https://github.com/crvouga/gamezilla/blob/dfd0858c51105d461d74f79ea0a5e5bfe83ba894/round-8/stopping-point/GALLERY.md",
+  "canonicalRun": null,
+  "requiredSafetyRun": "https://github.com/crvouga/gamezilla/actions/runs/42342271919",
+  "requiredSafety": "verify:end in progress at publication",
+  "inlineVideoLimitation": "GitHub issue renderer stripped video tags; pinned browser-verified playable links retained"
+}
