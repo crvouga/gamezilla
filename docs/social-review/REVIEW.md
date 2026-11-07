@@ -313,3 +313,25 @@ polish 8/10, design-contract fidelity 9/10 and displayed-content completeness
 The rejected examples must be corrected in the next round.
 
 All 82 approved-only screenshot comparisons passed without updates.
+
+## Round eighteen gallery and badge corrections
+
+BadgedIcon now retains intrinsic width under stretching parents, keeping its
+count attached to the icon. Account examples use Avatar placeholders. Icon,
+sparkline and text examples give on-primary content a primary-filled backing.
+Round image sizes wrap inside the phone viewport, and opaque artwork remains
+visible in both themes. The sign-in example now actually renders loading.
+
+Six registered literal regressions cover 18 theme/story cases, including
+badge geometry, foreground contrast, image bounds/artwork, avatar appearance
+and disabled/busy sign-in state. Red evidence precedes the changes; all six
+regressions now pass. Both packages' lint and typechecks, 139 client tests,
+783 harness tests and goals pass. The badge readiness row is updated.
+
+The independent critic approved all 16 before/after pairs, with bounded
+gallery scores of 10/10 for polish, design contract and displayed-state
+completeness. Overall social scores remain 10/9/9/10 until full verification.
+Only these 16 approved baseline reconciliations were adopted.
+
+The full ci:storybook task then passed all 380 checks without snapshot updates.
+The complete local catalog remains pending.
