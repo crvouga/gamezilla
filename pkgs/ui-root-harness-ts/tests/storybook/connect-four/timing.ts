@@ -10,7 +10,7 @@ export async function startTiming(page: Page): Promise<void> {
     const observer = new PerformanceObserver((list) => {
       const durations = JSON.parse(
         root.getAttribute('data-long-tasks') ?? '[]'
-      );
+      ) as number[];
       durations.push(...list.getEntries().map((entry) => entry.duration));
       root.setAttribute('data-long-tasks', JSON.stringify(durations));
     });
