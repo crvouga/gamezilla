@@ -353,3 +353,26 @@ All 87 tests in the affected product shard, lint, typechecks and goals pass.
 Cache sync changed no derived files. Four current Quoridor captures pass
 without updates; they are unchanged visual context for the bound journeys,
 not proof of the fixture correction. That proof is the red/green regression.
+
+## Round twenty publication confirmation
+
+The release journey opened the still-available previous edition after local
+Publication saved, before confirmation identified the current draft's edition.
+The harness now waits for exact Published before opening it. Existing final
+title, changed endpoint, revision identity and unchanged earlier-pack checks
+remain intact. Product behavior and UI are unchanged.
+
+The literal mw6tcjre ordering regression first received Valley instead of
+Canyon. It now passes and explicitly requires exact status matching. This is
+a harness ordering contract, not a simulated delayed-network test; the real
+release journey supplies integration evidence. All 12 release scenarios pass,
+including republication and offline recovery, along with 14 package tests,
+lint, typechecks and goals. The critic approved the source correction; overall
+scores remain 10/9/9/10 until full verification.
+
+The supplied trace belonged to the peer's ensureProfile call, not publication.
+The original request log records the host's saves and publication responses.
+
+The critic approved eight fresh pending/published captures against stale
+goldens. All eight then passed without snapshot updates. They show unchanged
+product states whose distinct meanings the harness now observes.
