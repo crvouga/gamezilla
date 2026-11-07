@@ -329,10 +329,36 @@ test('completed win and draw lead the final board with one real rematch and hist
       if (width === 390)
         expect(
           screen.getByTestId('custom-game-move-strip-place').textContent
-        ).toBe('Final');
+        ).toBe('Finished');
       fireEvent.click(screen.getByTestId('custom-game-rematch'));
       expect(onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
       cleanup();
     }
   }
+});
+
+// regression: completed-game-outcome-reason-missing
+test('completed game keeps the resignation reason in its completion header', () => {
+  const time = createHarnessClock();
+  const frame = props(false);
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameFrameScreenView
+          {...frame}
+          phase="completed"
+          status={{
+            ...frame.status!,
+            description: 'Black wins by resignation.',
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const status = screen.getByTestId('custom-game-status');
+  expect(status.textContent).toContain('Black wins by resignation.');
+  expect(screen.getByTestId('custom-game-outcome').contains(status)).toBe(true);
 });

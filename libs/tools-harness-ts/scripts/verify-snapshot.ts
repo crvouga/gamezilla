@@ -1,11 +1,13 @@
 // @io-wall-ok — copy a verification invocation's inputs into private scratch.
 import { execFile, execFileSync } from 'node:child_process';
 import {
+  closeSync,
   constants,
   cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readdirSync,
   readFileSync,
   readlinkSync,
@@ -25,6 +27,23 @@ function git(root: string, args: string[]): string {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   }).trim();
+}
+
+/** A repository's path inventory may exceed child_process's buffered output limit. */
+function inputPaths(source: string, container: string): string[] {
+  const inventory = join(container, 'input-paths');
+  const output = openSync(inventory, 'w');
+  try {
+    execFileSync(
+      'git',
+      ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+      { cwd: source, stdio: ['ignore', output, 'pipe'] }
+    );
+    return readFileSync(inventory, 'utf8').split('\0').filter(Boolean);
+  } finally {
+    closeSync(output);
+    rmSync(inventory, { force: true });
+  }
 }
 
 function copyInput(source: string, destination: string): void {
@@ -118,15 +137,7 @@ export async function createVerifySnapshot(source: string): Promise<string> {
   const destination = join(container, 'workspace');
   mkdirSync(destination);
   try {
-    const paths = git(source, [
-      'ls-files',
-      '--cached',
-      '--others',
-      '--exclude-standard',
-      '-z',
-    ])
-      .split('\0')
-      .filter(Boolean);
+    const paths = inputPaths(source, container);
     for (const path of new Set(paths))
       copyInput(join(source, path), join(destination, path));
     await copyGit(source, destination);

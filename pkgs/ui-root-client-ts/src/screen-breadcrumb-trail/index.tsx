@@ -104,7 +104,9 @@ export function ScreenBreadcrumbTrail(
           </Show>
           <Show when={trail().current}>
             {(current) => (
-              <h1 class="text textTitle line-clamp-1">{current().name}</h1>
+              <h1 class="text textTitle truncate min-w-0 max-w-full">
+                {current().name}
+              </h1>
             )}
           </Show>
         </nav>

@@ -79,6 +79,8 @@ export const SelectProfile: Story = {
  * it shows (WCAG 2.5.3).
  */
 export const SidebarSpacesCurrent: Story = {
+  tags: ['viewport-desktop'],
+  globals: { viewport: { value: 'desktop', isRotated: false } },
   parameters: { appFrame: 'rail' },
   args: { orientation: 'vertical' },
   render: (args) => (
@@ -96,23 +98,27 @@ export const SidebarSpacesCurrent: Story = {
 /** The sidebar on Search. */
 export const SidebarSearchCurrent: Story = {
   ...SidebarSpacesCurrent,
+  tags: ['viewport-desktop'],
   args: { orientation: 'vertical', pathname: '/search' },
 };
 
 /** The sidebar on the inbox. */
 export const SidebarNotificationsCurrent: Story = {
   ...SidebarSpacesCurrent,
+  tags: ['viewport-desktop'],
   args: { orientation: 'vertical', pathname: '/notifications' },
 };
 
 /** The sidebar on a profile sub-screen: Profile stays current. */
 export const SidebarProfileCurrent: Story = {
   ...SidebarSpacesCurrent,
+  tags: ['viewport-desktop'],
   args: { orientation: 'vertical', pathname: '/profile/friends' },
 };
 
 /** The sidebar on a page outside every tab (a missing page): none current. */
 export const SidebarNoneCurrent: Story = {
   ...SidebarSpacesCurrent,
+  tags: ['viewport-desktop'],
   args: { orientation: 'vertical', pathname: '/no-such-page' },
 };

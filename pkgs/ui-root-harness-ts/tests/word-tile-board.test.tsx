@@ -167,3 +167,71 @@ test('board map locates a committed intersection without placing the selected ra
     'false'
   );
 });
+
+// regression: compact-word-tile-values-unavailable
+test('square details show the center value, inspect committed tiles, and preserve editable taps', () => {
+  const actions: string[] = [];
+  const letters = ['Q', '', '', '', 'A', '', '', '', ''];
+  const [cells, setCells] = createSignal<readonly WordTileBoardCell[]>(
+    letters.map((letter, index) => ({
+      id: `cell-${index}`,
+      letter,
+      points: letter === '' ? null : index === 0 ? 10 : 0,
+      square: null,
+      state: letter === '' ? 'empty' : 'committed',
+      label:
+        index === 0
+          ? 'Q 10, a1, committed'
+          : index === 4
+            ? 'A 0, b2, blank played as A'
+            : `square ${index}, empty`,
+      enabled: letter === '',
+    }))
+  );
+  const time = createHarnessClock();
+  const view = render(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <WordTileBoard
+          label="Inspected board"
+          testId="inspected-board"
+          columnLabels={['a', 'b', 'c']}
+          rowLabels={['1', '2', '3']}
+          cells={cells()}
+          squareText={(square) => square}
+          onActivate={(id) => actions.push(id)}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const details = view.getByTestId('inspected-board-square-details');
+  expect(details.textContent).toBe('A 0, b2, blank played as A');
+  const committed = view.getByRole('button', { name: 'Q 10, a1, committed' });
+  fireEvent.click(committed);
+  expect(details.textContent).toBe('Q 10, a1, committed');
+  expect(actions).toEqual([]);
+  committed.focus();
+  fireEvent.keyDown(committed, { key: 'ArrowRight' });
+  expect(details.textContent).toBe('square 1, empty');
+  expect(actions).toEqual([]);
+  fireEvent.click(view.getByTestId('inspected-board-cell-cell-1'));
+  expect(actions).toEqual(['cell-1']);
+  setCells((previous) =>
+    previous.map((cell, index) =>
+      index === 1
+        ? {
+            ...cell,
+            letter: 'Z',
+            points: 10,
+            state: 'tentative',
+            label: 'Z 10, b1, your tentative tile',
+          }
+        : cell
+    )
+  );
+  expect(details.textContent).toBe('Z 10, b1, your tentative tile');
+  expect(actions).toEqual(['cell-1']);
+});

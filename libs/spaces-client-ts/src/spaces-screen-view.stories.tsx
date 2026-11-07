@@ -68,7 +68,7 @@ export const HostingSeveral: Story = {
 
 /** Long titles and names truncate to one line inside the card. */
 export const LongContent: Story = {
-  args: { spaces: [LONG_SPACE, JOINED_SPACE] },
+  args: { hostedCount: 0, spaces: [LONG_SPACE, JOINED_SPACE] },
 };
 
 /** A refused create / end / leave is told inline above the list. */

@@ -109,6 +109,7 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
 /** Live (not joined) preview: summary card and helper copy. */
 function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
+  readonly checkingHost: boolean;
 }): JSX.Element {
   return (
     <StackVertical gap="lg">
@@ -120,9 +121,19 @@ function SpaceJoinLiveBody(props: {
           </Card>
         )}
       </Show>
-      <P tone="secondary">
-        <Trans>Join to see who is here and hang out.</Trans>
-      </P>
+      <Show
+        when={props.checkingHost}
+        fallback={
+          <P tone="secondary">
+            <Trans>Join to see who is here and hang out.</Trans>
+          </P>
+        }
+      >
+        <LoadingState
+          variant="compact"
+          caption={<Trans>Checking the host’s connection…</Trans>}
+        />
+      </Show>
     </StackVertical>
   );
 }
@@ -159,7 +170,10 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <SpacesNeedConnectionNotice />
       </Match>
       <Match when={props.status === 'live'}>
-        <SpaceJoinLiveBody space={props.space} />
+        <SpaceJoinLiveBody
+          space={props.space}
+          checkingHost={props.connection === 'loading'}
+        />
       </Match>
     </Switch>
   );
@@ -188,7 +202,7 @@ export function SpaceJoinScreenView(
       }
     >
       <StackVertical grow gap="md">
-        <Show when={props.needsConnection}>
+        <Show when={props.needsConnection && props.status !== 'offline'}>
           <SpacesNeedConnectionNotice />
         </Show>
         <Show

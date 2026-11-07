@@ -9,10 +9,10 @@
  */
 
 import { readGroup, readPx } from './design-tokens';
-import { breakpoint as breakpointTokens } from './design-tokens.json';
+import designTokens from './design-tokens.json' with { type: 'json' };
 
 /** Minimum viewport width in px per `BreakpointToken`. */
-export const breakpoint = readGroup({}, breakpointTokens, readPx);
+export const breakpoint = readGroup({}, designTokens.breakpoint, readPx);
 
 /** Minimum width for tablet layout (sidebar, etc.): the `md` breakpoint. */
 export const BREAKPOINT_MIN_TABLET = breakpoint.md;

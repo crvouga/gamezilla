@@ -1,6 +1,8 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useParams } from '@solidjs/router';
 import type { JSX } from 'solid-js';
+import { usePrivacyActionAccess } from './privacy-action-access';
 import { PrivacyScreenView } from './privacy-screen-view';
 import { useAccountDeletion } from './use-account-deletion';
 import { useAccountPrivacy } from './use-account-privacy';
@@ -17,6 +19,14 @@ export function PrivacyScreen(): JSX.Element {
   const params = useParams();
   const myId = useMyId();
   const privacy = useAccountPrivacy();
+  const exportAccess = usePrivacyActionAccess(
+    PERMISSION.profileExportData,
+    'privacy-export-access'
+  );
+  const deletionAccess = usePrivacyActionAccess(
+    PERMISSION.profileDeleteAccount,
+    'privacy-delete-access'
+  );
   const exportChoice = useExportChoice(privacy.row);
   const download = useExportDownload(
     privacy.row,
@@ -41,6 +51,8 @@ export function PrivacyScreen(): JSX.Element {
       status={privacy.isLoading() ? 'loading' : 'ready'}
       row={privacy.row()}
       exportPhase={exportChoice.phase()}
+      exportAccess={exportAccess()}
+      deletionAccess={deletionAccess()}
       exportDenial={exportChoice.denial()}
       replacingExport={exportChoice.replacing()}
       download={download()}

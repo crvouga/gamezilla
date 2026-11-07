@@ -59,6 +59,8 @@
         "!tests/**",
         "!scripts/**",
         "!**/*.md",
+        "$TURBO_ROOT$/apps/product-ts/src/storybook-*.ts",
+        "$TURBO_ROOT$/apps/product-ts/src/storybook-*.tsx",
         "$TURBO_ROOT$/lingui.solid.config.ts",
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",

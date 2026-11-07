@@ -1,0 +1,4 @@
+{
+  "summary": "Local Verify failed before running checks when git ls-files emitted more than the default child-process output buffer. Write the NUL-separated inventory to the private snapshot container so repository size does not impose a subprocess buffer limit.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-snapshot.test.ts"
+}

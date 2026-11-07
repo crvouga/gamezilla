@@ -44,6 +44,7 @@ import {
   objectivesFor,
   syntheticFeatures,
 } from './spec-live';
+import { stepRegistrationGlobs } from './step-registration-globs';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/harness-ts/src';
@@ -404,9 +405,14 @@ function stepImports(
   const pending = [stepsEntry];
   const seen = new Set(pending);
   for (const entry of pending) {
-    for (const specifier of extractStepImports(
-      readFileSync(join(REPO_ROOT, entry), 'utf8')
-    )) {
+    const source = readFileSync(join(REPO_ROOT, entry), 'utf8');
+    const discovered = stepRegistrationGlobs(source).flatMap((pattern) =>
+      [...new Bun.Glob(pattern).scanSync(join(REPO_ROOT, posix.dirname(entry)))]
+        .filter((file) => file.endsWith('.steps.ts'))
+        .sort()
+        .map((file) => `./${slashPath(file).slice(0, -3)}`)
+    );
+    for (const specifier of [...extractStepImports(source), ...discovered]) {
       if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
       const file = resolveStepImport(specifier, byName, entry);
       if (file === null || seen.has(file)) continue;

@@ -1,0 +1,4 @@
+{
+  "summary": "Alone and members-open space fixtures rendered different people and counts in their header, body and members sheet.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

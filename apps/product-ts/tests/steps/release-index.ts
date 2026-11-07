@@ -16,6 +16,7 @@ const manifest = JSON.parse(
 useLiveWorld({
   webOrigin: manifest.webOrigin,
   apiOrigin: manifest.apiOrigin,
+  googleAuthorizationOrigin: manifest.idpOrigins.google,
   oauthCallbackOrigin: manifest.apiOrigin,
   http: createGlobalHttpClient(),
 });

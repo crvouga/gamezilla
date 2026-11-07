@@ -81,3 +81,27 @@ test('draining renews existing ownership, rejects new assignments, and force-sto
   expect(worker.status().active).toBe(0);
   expect(f.calls).not.toContain('release');
 });
+
+// regression: synthetic-realm-release-before-async-termination
+test('release waits for asynchronous realm termination', async () => {
+  const f = workerFixture();
+  const thread = new ControlledRealm();
+  const termination = Promise.withResolvers<void>();
+  const session = new ManagedSession(f.assignment, 'v2', {
+    ...f,
+    thread: {
+      post: (value) => thread.post(value),
+      subscribe: (listener) => thread.subscribe(listener),
+      onError: (listener) => thread.onError(listener),
+      terminate: () => termination.promise,
+    },
+    onClose: () => undefined,
+  });
+  session.start('http://localhost');
+  thread.emit({ type: 'closed' });
+  await settleWorker();
+  expect(f.calls).not.toContain('release');
+  termination.resolve();
+  await settleWorker();
+  expect(f.calls).toContain('release');
+});

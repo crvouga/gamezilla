@@ -13,6 +13,10 @@ import {
   requireDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
+import {
+  createJourneyStepRecorder,
+  type JourneyStepRecorder,
+} from '@apps/product-ts/live-journey-step-evidence';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
  * The world a live scenario (`@synthetic` features, `specs/journeys/`) runs in:
@@ -24,6 +28,7 @@ import {
 
 import type { Device, LiveTarget } from '@apps/product-ts/live-browser';
 import {
+  EVIDENCE_DIR,
   emulateOffline,
   journeyBrowser,
   openDevice,
@@ -52,6 +57,9 @@ import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
+import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { liveJourneyPeerDevice } from './live-peer-device';
 import { wallWait } from './wall-wait';
 
@@ -107,6 +115,7 @@ async function signIn(
 
 type Browsing = {
   readonly host: JourneyHost;
+  readonly record: JourneyStepRecorder;
   /** Save the open page's evidence, if a device is open. */
   evidence(id: string, cause: unknown): Promise<string | null>;
   /**
@@ -307,7 +316,11 @@ async function closeBrowsing(
   );
 }
 
-function browsing(target: LiveTarget): Browsing {
+function browsing(
+  target: LiveTarget,
+  scenarioId: string,
+  store: ObjectStore | null
+): Browsing {
   const devices: LiveDevices = {
     host: null,
     guest: null,
@@ -318,6 +331,11 @@ function browsing(target: LiveTarget): Browsing {
   const failureFlag: FailureFlag = { failed: false };
   return {
     host: liveJourneyHost(target, devices, cleanups),
+    record: createJourneyStepRecorder(
+      scenarioId,
+      store,
+      () => (devices.shown ?? devices.host)?.view ?? null
+    ),
     evidence: async (id, cause) => {
       failureFlag.failed = true;
       await printBrowserState(devices);
@@ -337,15 +355,26 @@ export function useLiveWorld(target?: LiveTarget): void {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
   const origins = envOrigins(env);
   const http = createGlobalHttpClient();
+  const store =
+    process.env['JOURNEY_CAPTURE_STEPS'] === '1'
+      ? createNodeFsObjectStore({
+          rootDir: EVIDENCE_DIR,
+          fs: wallNodeFs(),
+          layout: 'tree',
+        })
+      : null;
   setWorld<LiveScenario>({
     create: (ctx) => {
       const scenario = browsing(
         target ?? {
           webOrigin: origins.web,
           apiOrigin: origins.api,
+          googleAuthorizationOrigin: 'https://accounts.google.com',
           oauthCallbackOrigin: authRelayOrigin(),
           http,
-        }
+        },
+        ctx.testId,
+        store
       );
       return Promise.resolve({
         ctx,
@@ -361,6 +390,9 @@ export function useLiveWorld(target?: LiveTarget): void {
       const dir = await w.browsing.evidence(w.ctx.testId, cause);
       if (dir !== null) console.error(`evidence: ${dir}`);
     },
+    ...(store === null
+      ? {}
+      : { record: (w, step, run) => w.browsing.record(step, run) }),
     dispose: (w) => w.browsing.close(),
   });
 }

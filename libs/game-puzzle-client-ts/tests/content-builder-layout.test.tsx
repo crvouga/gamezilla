@@ -45,6 +45,7 @@ function publication(
 ): JSX.Element {
   return (
     <ContentPublicationControlsView
+      copyState={{ kind: 'draft' }}
       kind="pack"
       validation="unchecked"
       validationMessage=""
@@ -500,6 +501,7 @@ test('the playtest step stays mounted as the check changes, told when it is next
   const seen: boolean[] = [];
   mount(() => (
     <ContentPublicationControlsView
+      copyState={{ kind: 'draft' }}
       kind="puzzle"
       validation={validation()}
       validationMessage=""
@@ -538,6 +540,7 @@ test('in the steps, the playtest is drawn again only when its place changes', ()
   const seen: boolean[] = [];
   mount(() => (
     <ContentPublicationControlsView
+      copyState={{ kind: 'draft' }}
       layout="bar"
       kind="puzzle"
       validation={validation()}

@@ -1,0 +1,4 @@
+{
+  "summary": "The WithoutWayForward denial truncates Finish your current multiplayer game first, its only explanation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/denial-explanation/integration.checks.ts"
+}

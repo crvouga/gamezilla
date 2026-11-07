@@ -764,3 +764,53 @@ test('screens-games-battleship-board--correct-target-before-firing 1440 regressi
     1440
   );
 });
+
+// regression: light-cycles-steer-up-wide-story
+test('screens-games-light-cycles-arena--steer-up regression light-cycles-steer-up-wide-story', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-light-cycles-arena--steer-up',
+    1440
+  );
+});
+
+// regression: sokoban-blocked-move-wide-story
+test('screens-games-sokoban-puzzle--blocked-move regression sokoban-blocked-move-wide-story', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-sokoban-puzzle--blocked-move',
+    1440
+  );
+});
+
+// regression: solved-pack-story-completion
+test('screens-games-numberlink-puzzle--solved regression solved-pack-story-completion', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-numberlink-puzzle--solved',
+    1440
+  );
+  await verifyBoardRegression(
+    page,
+    'screens-games-sokoban-puzzle--solved',
+    1440
+  );
+});
+
+// regression: space-detail-fixture-roster-disagrees
+test('screens-spaces-detail--nobody-else regression space-detail-fixture-roster-disagrees', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-spaces-detail--nobody-else', 1440);
+  await verifyBoardRegression(
+    page,
+    'screens-spaces-detail--members-open',
+    1440
+  );
+});

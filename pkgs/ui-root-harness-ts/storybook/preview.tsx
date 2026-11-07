@@ -3,26 +3,18 @@ import { compileMessage } from '@lingui/message-utils/compileMessage';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
-import {
-  AppFrameChromeProvider,
-  GlobalTrailingInRail,
-  useSetAppFrameHeader,
-} from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import {
   type AppRouter,
   StaticAppRouterProvider,
 } from '@pkgs/ui-root-client-ts/app-router';
-import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { children, createEffect, type JSX, onCleanup, Show } from 'solid-js';
+import { createEffect, type JSX, onCleanup, Show } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
-import { STORY_ACCOUNT_FACE_SVG } from './account-face';
 import { backgrounds, chromaticModes, viewports } from './preview-options';
 import { loadStoryFonts } from './story-fonts';
 import { trackStoryReadiness } from './story-readiness';
@@ -44,98 +36,35 @@ function createStoryRouter(): AppRouter {
   };
 }
 
-/**
- * Product screen views opt in with `parameters: { appRouter: true }`; other
- * stories stay router-free so a component that wrongly needs one still fails.
- * A screen renders where the app renders it: inside `AppFrame`, filling the
- * viewport, so wide layouts get the app's centered column and page inset.
- * The frame's own chrome (header, tab bar, account menu) opts out with
- * `appFrame: false`; the sidebar renders as the frame's rail with
- * `appFrame: 'rail'`. The `sidebar` global shows a desktop screen beside
- * the sidebar that carries the account menu. The `frame` global shows a screen as it sits
- * inside an open space: a space's top bar takes the header slot (a blank
- * stand-in here) and the column narrows to the space measure.
- */
+/** Screen fixtures use the same navigation and space views as production. */
 function withOptionalRouter(
   parameters: Record<string, unknown>,
-  where: { readonly inSpace: boolean; readonly besideSidebar: boolean },
+  id: string,
   story: () => JSX.Element
 ): JSX.Element {
   if (parameters['appRouter'] !== true) return story();
+  const Shell = parameters['productShell'] as
+    | ((props: {
+        story: () => JSX.Element;
+        asRail: boolean;
+        id: string;
+        route: unknown;
+      }) => JSX.Element)
+    | undefined;
+  if (!Shell) throw new Error('Product shell preview annotation is missing');
   return (
     <StaticAppRouterProvider router={createStoryRouter()}>
       <Show when={parameters['appFrame'] !== false} fallback={story()}>
-        <StoryAppViewport
-          story={story}
-          asRail={parameters['appFrame'] === 'rail'}
-          inSpace={where.inSpace}
-          besideSidebar={where.besideSidebar}
-        />
+        <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
+          <Shell
+            story={story}
+            asRail={parameters['appFrame'] === 'rail'}
+            id={id}
+            route={parameters['storyRoute']}
+          />
+        </div>
       </Show>
     </StaticAppRouterProvider>
-  );
-}
-
-/** Holds the header slot the way an open space's top bar does. */
-function SpaceChromeStandIn(): JSX.Element {
-  useSetAppFrameHeader(
-    <div
-      class="box h-13"
-      aria-hidden="true"
-      data-component="StorySpaceChrome"
-    />
-  );
-  return null;
-}
-
-/** The account face the app's global chrome ends with (its menu trigger). */
-const STORY_ACCOUNT_FACE = 32;
-
-/** Fills the viewport with the app's chrome provider and frame. */
-function StoryAppViewport(props: {
-  story: () => JSX.Element;
-  asRail: boolean;
-  inSpace: boolean;
-  besideSidebar: boolean;
-}): JSX.Element {
-  return (
-    <div class="box h-dvh min-h-0" data-component="StoryAppViewport">
-      <AppFrameChromeProvider
-        globalTrailing={
-          <Avatar
-            size={STORY_ACCOUNT_FACE}
-            svg={STORY_ACCOUNT_FACE_SVG}
-            background="surface"
-            alt="avery"
-          />
-        }
-      >
-        <Show when={props.inSpace}>
-          <SpaceChromeStandIn />
-        </Show>
-        <GlobalTrailingInRail when={props.besideSidebar}>
-          <StoryFrame story={props.story} asRail={props.asRail} />
-        </GlobalTrailingInRail>
-      </AppFrameChromeProvider>
-    </div>
-  );
-}
-
-/**
- * Resolves the story inside the chrome provider, so a screen that replaces
- * the frame's header (an open space) reaches it. The story mounts once and
- * moves with the frame's compact / wide switch (a second `<Story />` would
- * render empty).
- */
-function StoryFrame(props: {
-  story: () => JSX.Element;
-  asRail: boolean;
-}): JSX.Element {
-  const screen = children(() => props.story());
-  return (
-    <Show when={props.asRail} fallback={<AppFrame>{screen()}</AppFrame>}>
-      <AppFrame rail={screen()}>{null}</AppFrame>
-    </Show>
   );
 }
 
@@ -174,16 +103,9 @@ const withProviders = createJSXDecorator((Story, context) => {
           transparent
         >
           <SurfaceStackProvider>
-            {withOptionalRouter(
-              context.parameters,
-              {
-                inSpace: context.globals['frame'] === 'space',
-                besideSidebar: context.globals['sidebar'] === 'beside',
-              },
-              () => (
-                <Story />
-              )
-            )}
+            {withOptionalRouter(context.parameters, context.id, () => (
+              <Story />
+            ))}
           </SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>
@@ -201,8 +123,6 @@ export default {
   ],
   initialGlobals: {
     theme: 'light',
-    frame: 'app',
-    sidebar: 'none',
     timeStep: '0',
     backgrounds: { value: 'canvas', grid: false },
     a11y: { manual: true },
@@ -224,27 +144,6 @@ export default {
     theme: {
       description: 'Production color scheme',
       toolbar: { icon: 'circlehollow', items: ['light', 'dark'] },
-    },
-    sidebar: {
-      description:
-        'Whether a desktop sidebar carries the account menu beside the screen',
-      toolbar: {
-        icon: 'sidebar',
-        items: [
-          { value: 'none', title: 'No sidebar' },
-          { value: 'beside', title: 'Beside the sidebar' },
-        ],
-      },
-    },
-    frame: {
-      description: 'Where a screen sits: the app, or inside an open space',
-      toolbar: {
-        icon: 'browser',
-        items: [
-          { value: 'app', title: 'In the app' },
-          { value: 'space', title: 'Inside a space' },
-        ],
-      },
     },
   },
   parameters: {

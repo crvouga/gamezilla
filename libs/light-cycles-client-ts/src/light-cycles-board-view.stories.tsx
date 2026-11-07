@@ -221,6 +221,7 @@ function interactiveRender(
   }) satisfies NonNullable<Story['render']>;
 }
 
+// regression: light-cycles-steer-up-wide-story
 // regression: light-cycles-desktop-steer-up
 export const SteerUp: Story = {
   render: (args, context) => interactiveRender(3, ['white'])(args, context),

@@ -1,209 +1,189 @@
 ---
 name: ui-ux-overhaul
-description: >-
-  Redesign an app's UI and UX in scored rounds until every Agent Council member
-  the user chose rates both design and UX at or above the user's minimum. Each
-  round captures before screenshots and journeys, improves the experience in
-  Storybook, captures after, gets every member's rating and posts the round in
-  a PR comment. It may move controls, reorganize screens, rewrite labels and
-  redo flows wherever that removes observed friction, and it verifies that
-  every primary task can still be completed. Use for a council-judged UX
-  redesign, flow overhaul or full experience rework. For polish that keeps
-  layout and flows, use ui-overhaul.
-metadata:
-  prerequisites: "Agent Council (github.com/yogirk/agent-council) with each roster member's CLI signed in; git; a PR host CLI (gh, glab); Storybook; Node 18+ with Playwright in the target repo; Python 3.9+; automated journey tests or a way to add them."
-  pr-title: "UI and UX overhaul"
+description: Redesign an app's whole experience (layout, controls, screen organization, labels and flows), in rounds judged by an Agent Council of user-chosen reviewers, wherever observed friction calls for it. Each round captures before and after screenshots and flow sequences from full-screen Storybook stories and the running app, makes the redesign in production components, proves every underlying user task still completes, gets independent design and UX ratings from every member, and posts the round as a PR comment. The loop repeats until every member rates both design and UX at or above the user's minimum on the same revision. Use for /ui-ux-overhaul, "redesign the app", "fix the UX", "rework this flow", or "get design and UX to 9/10 with the council". For a low-disruption visual polish that keeps every screen, control and label in place, use ui-overhaul instead.
 ---
 
-# ui-ux-overhaul
+# UI and UX overhaul
 
-Run this loop in the target app's repository until the stopping rule passes:
+Redesign the experience until every user-selected council member rates both design and UX at
+or above the user's minimum on one revision. The loop is: capture before → improve in Storybook
+→ capture after → council ratings → PR comment → repeat.
 
-**capture before → improve the UI and UX in Storybook → capture after → get every council member's rating → post the round in a PR comment → repeat.**
+The steps below are host-neutral. `hosts.md` gives the commands for each agent, code host and
+repository. `$SKILL_DIR` is this directory.
 
-You do the work and keep the record. The council members decide whether the work is good enough. This skill decides nothing by your own judgment of quality.
+| File                           | Use                                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `council-review-prompt.md`     | The fixed rubric and question every member receives                                             |
+| `pr-round-comment-template.md` | Opening, round, blocked and final PR comments, with flow sequences and task completion          |
+| `scripts/council-round.mjs`    | `init`, `manifest`, `prompt`, `verdict`: run record, evidence IDs, question file, stopping rule |
+| `scripts/validate.mjs`         | Self-test of the stopping rule (unanimous pass, below threshold, missing reviewer)              |
+| `hosts.md`                     | Commands per agent, code host and repository                                                    |
 
-## Scope
+## Scope: what this skill may change
 
-- **May change anything about the experience:**
-  - navigation and information architecture;
-  - screen composition;
-  - control placement;
-  - labels and copy;
-  - flows and their number of steps;
-  - plus everything `ui-overhaul` may polish.
-- **Every structural change must address observed friction.** That means a member's finding, or an entry in the friction log taken while walking the app (`F1`, `F2`, …). The round comment ties each change to the friction it removes.
-- **Every primary journey's underlying task stays completable** in the revised app, verified by an automated journey check on the candidate revision. No capability a journey needs is removed.
-- **Behavior the repository specifies stays specified.** If the repository keeps acceptance specs (Gherkin features, specs/ folders and the like) and a redesign changes specified behavior, the spec changes first, through the repository's own spec process. If you may not make that change, keep the redesign within the spec, or post a blocker.
-- The default PR title is **"UI and UX overhaul"**.
+Everything ui-overhaul may change, plus the structure of the experience: control placement
+and order, screen composition, merging, splitting or reordering screens, navigation, labels,
+messages and microcopy, and the steps of a flow. Each structural change must answer friction
+observed in the evidence: a council finding, a confusing or slow journey step, an error-prone
+input. Name that friction in the round comment.
 
-## Package
+Two constraints hold for every change. First, every **underlying user task** from the baseline
+must still be completable in the revised app, shown in the running app and not only in
+Storybook. Second, behavior the product promises (data, permissions, server contracts) does not
+change. If the repository keeps executable specs, update them with the flow change. Default PR
+title: **UI and UX overhaul**.
 
-| Path | What it is |
-| --- | --- |
-| `assets/council-review-prompt.md` | The question every member gets, including the fixed rubric and the journey assessment. |
-| `assets/pr-round-comment.md` | The copyable round comment, with the journey before/after table. |
-| `assets/pr-run-comments.md` | The opening (with the friction log), baseline, blocked and final comments. |
-| `scripts/council-round` | Run state, rating extraction, the stopping rule, comment blocks and resume. `self-test` runs the validation cases. |
-| `scripts/capture-stories.mjs` | Storybook screenshots, before/after pairs and journey strips (old and new sequences). |
-| `references/hosts.md` | Commands for each agent host, PR host, Storybook and git. Everything host-specific lives there. |
-| `tests/fixtures/` | Validation cases for the stopping rule, in Agent Council's real session format. |
+## 0. Start the run
 
-`$SKILL`, `$STATE`, `$EVID` and `$K` are defined at the top of `references/hosts.md`.
+1. Read the **council roster** and the **minimum rating out of 10** from the invocation (e.g.
+   "Use Claude, Codex and Gemini. Every member must give design and UX at least 9/10."). If
+   either is missing, ask for it and do not start. Agent Council can seat only `claude`, `codex`
+   and `gemini`. If the roster names anyone else, say so and ask for a supported roster.
+2. Resume or open the PR. Look for an open PR whose comments contain `<!-- ui-ux-overhaul:run -->`.
+   - Found: read every `<!-- ui-ux-overhaul:… -->` comment in order and rebuild
+     `.ui-ux-overhaul/run.json` and the last round's `round.json` from their hidden blocks.
+     Continue from the last round's state: rerun an INCOMPLETE round, start round n+1 after
+     ANOTHER_ROUND, stop after a final comment. If the invocation's roster or minimum differs from
+     the recorded run, ask whether the user means to change it. Change it only on an explicit yes,
+     then start a new baseline.
+   - Not found: branch from the trunk, open a draft PR titled "UI and UX overhaul" (or the user's
+     title), and continue.
+3. Keep working state in a git-ignored evidence root inside the repository (default
+   `.ui-ux-overhaul/`; add it to `.git/info/exclude`). Council members must be able to open its
+   files by relative path.
+4. Record the run: `node $SKILL_DIR/scripts/council-round.mjs init --skill ui-ux-overhaul --roster <a,b,c> --minimum <n> --product "<one-line description>" --out .ui-ux-overhaul/run.json`.
+   It refuses an empty or unsupported roster and a missing minimum. It also records the rubric's
+   hash: from then on the roster, minimum and rubric are fixed, and a round run under anything
+   else is INCOMPLETE.
+5. Preflight the council (`hosts.md` → Agent Council): find the runtime, check that every roster
+   CLI is installed and authenticated, and raise timeouts for long visual reviews. A roster member
+   that cannot run is a blocker: post the blocked comment (template 3) and stop.
+6. Post the opening comment (template 1): roster, minimum, rubric hash, scope, primary journeys
+   with the **underlying task** each serves (the user's goal, not today's screens), and the
+   screens and states under review.
 
-## Rules that hold for the whole run
+## 1. Establish the scored baseline (round 0)
 
-1. **Only council members rate.** A rating is a member's Stage-1 opinion from an Agent Council session on the candidate commit and its evidence, extracted by `council-round collect`. Never write, estimate, adjust or carry forward a score yourself. The chairman's synthesis is not a rating.
-2. **The roster, minimum and rubric are fixed.** Change them only when the user explicitly asks. Then post the change in the PR and take a new baseline.
-3. **Never average, mix or drop.** Never average scores across members. Never combine scores from different revisions. Never drop a member. `council-round decide` enforces all three; do not work around it.
-4. **Members never see the target.** The prompt does not state the minimum or any earlier score.
-5. **The PR comments are the record.** Post every round, including incomplete and failed rounds. Each comment carries a marker that another agent can resume from.
-6. **The repository's rules come first.** Its agent instructions (`AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` and the like) win wherever they are stricter: how to start servers, test policy, spec process, commit and PR rules, and the design system. Build screens from the repository's production components only.
-7. **Keep going.** Ask the user only for missing start inputs or an unsupported member. Otherwise run as many rounds as needed. Stop only on a pass or a blocker. Never merge the PR.
+1. **Walk the primary journeys in the running app.** For each journey, record its underlying
+   task, every step and screen, its loading, empty, error, success and long-content states, and
+   the friction you see: dead ends, unclear labels, extra steps, hidden controls, error-prone
+   inputs. Note the supported viewports and themes.
+2. **Map each screen to Storybook.** If Storybook is absent, set it up with the repository's
+   framework, its real providers, theme and global styles. Then **upsert full-screen stories**:
+   - Update an existing story that already covers a screen or state, and keep its title and
+     export name (its story ID) where practical. Add a story for each missing screen or meaningful
+     state, and one per journey step when a flow is under review.
+   - Use production components inside the real app shell (navigation chrome, layout, theme
+     provider). Use realistic, deterministic fixtures: fixed dates and IDs, seeded data, mocked
+     network at the boundary, no randomness. Use full-screen layout and the representative
+     viewports and themes.
+   - Compare each story with the running app at the same viewport and theme, and fix every
+     fidelity gap before capturing.
+3. **Capture the baseline** into `.ui-ux-overhaul/evidence/r0-<sha7>/`: an image per story ×
+   viewport × theme, a step-by-step sequence per journey (action, screen, screenshot), and a
+   task-completion table (each task, its step count, and whether it completed in the running
+   app). Write `index.md` listing every file with its screen, state, viewport, theme and story
+   ID, then run `council-round.mjs manifest --dir <that dir> --round 0 --sha <sha>`.
+4. **Write `.ui-ux-overhaul/rounds/0/round.json`** (fields below) with `kind: "baseline"` and
+   `startSha: null`, then `council-round.mjs prompt … --out .ui-ux-overhaul/rounds/0/question.txt`.
+5. **Convene the council** with the Agent Council skill on that question (`hosts.md` gives the
+   dispatch). Every member answers independently. Do not use peer review.
+6. `council-round.mjs verdict … --format markdown`, then post the baseline as a round comment
+   (template 2). These are the before scores and evidence for round 1. A baseline that already
+   passes ends the run with a final comment.
 
-## 1. Start or resume
+## 2. Run an overhaul round (n = 1, 2, …)
 
-1. **Read the roster and the minimum from the invocation.** For example: "Use Claude, Codex, and Gemini. Every member must give both design and UX at least 9/10."
-   - If either is missing, ask for it before doing anything else. Ask for both in one question if both are missing.
-   - Map names to Agent Council members: `claude`, `codex`, `gemini`. If a named agent is not one of these, ask the user before starting; see the Agent Council section of `references/hosts.md`.
-2. **Read the repository.** Read its agent instructions, its design-system docs, its acceptance specs for the journeys and its Storybook setup. Find how the app, Storybook and the end-to-end or journey tests run.
-3. **Look for an existing overhaul PR** with this skill's run marker (`references/hosts.md` › GitHub).
-   - **Found:** resume from it. Run `council-round markers --restore "$STATE"`. If the invocation gives a different roster or minimum, treat that as an explicit change (rule 2). Continue from the last fully scored revision.
-   - **Not found:**
-     1. Branch, then open a draft PR titled "UI and UX overhaul".
-     2. Run `council-round init-run --skill ui-ux-overhaul --roster … --minimum … --journey "<goal>" … --screen … --product … --out "$STATE/run.json"`. The journeys become `J1`, `J2`, … in that order.
-     3. Post the opening comment from `assets/pr-run-comments.md`, with its marker. It records the roster, minimum, scope, journeys, and the screens and states under review.
+1. **Choose the fixes.** Start from the last scored revision. From its findings and the observed
+   friction, pick the highest-impact changes: anything holding a member below the minimum first,
+   then shared deductions. A structural change (moving a control, merging screens, rewriting a
+   label, redoing a flow) is in scope when it addresses a named friction. Name the screen, state
+   or journey each change addresses and the finding behind it.
+2. **Work in Storybook.** Open or upsert the full-screen stories for every screen and step the
+   change touches. Build the new design in production components and routes, never a story-only
+   mock. Add stories for new screens and states, and play functions that walk each redesigned
+   flow. Then **exercise every affected journey in the running app** end to end.
+3. **Run the checks** that matter to the change on the candidate commit: formatting, lint, types,
+   unit, story and interaction tests, an accessibility scan, the repository's own gates
+   (`hosts.md`), and the specs or end-to-end tests for any flow that changed.
+   Then run the **task-completion audit**: for each underlying task, complete it in the running
+   app at the candidate and record the steps and the outcome. Any task that no longer completes
+   fails the audit (`scopeRespected: false`).
+4. **Commit and push the candidate**, then capture before and after:
+   - After: `.ui-ux-overhaul/evidence/r<n>-<sha7>/`, with the same data, viewports and themes.
+   - Before: reuse the previous round's after evidence when it is the same start revision and the
+     story set has not grown. Otherwise render the start revision in a temporary checkout (copy in
+     only new fixtures, so the data matches). Directory names carry the commit, so later pushes
+     never overwrite evidence.
+   - For a changed screen, make one readable before / after pair. For a redesigned flow, show the
+     old and new sequences for the same user goal side by side, step by step, even when the step
+     counts differ. Run `manifest` on both directories.
+5. **Write `round.json`** and render the question. Set `rescoreBefore: true` when the previous
+   ratings do not apply (different start revision, or a grown before set). Otherwise carry the
+   previous round's after scores in `carriedBefore`. If the redesign brings new screens or
+   journeys into review, the scope has grown materially. Capture their before state and set
+   `rescoreBefore: true`, so every member rates comparable baselines.
+6. **Convene the council again.** Every member gets the same candidate commit, screenshots, flow
+   sequences, interaction logs and task-completion table. Each returns design and UX scores with
+   cited deductions and a top fix.
+7. **Decide**: `council-round.mjs verdict … --format markdown`. Exit 0 is PASS, 2 is ANOTHER_ROUND,
+   3 is INCOMPLETE.
+8. **Post one complete round comment** (template 2): round number, before and after SHAs, what
+   changed and the friction behind it, Before / After images and flow sequences visible in the
+   comment with story IDs, the task-completion table, the ratings table exactly as `verdict`
+   printed it, each member's findings, check results, the verdict, and next fixes. Post it for
+   failed and incomplete rounds as well, and never edit an earlier one.
+9. **Continue.** After ANOTHER_ROUND, start round n+1 from this candidate. After INCOMPLETE, fix the
+   cause and rerun the whole council on the **same** candidate and evidence, with up to two
+   retries. After that, post a blocked comment (template 3) saying exactly what is needed to
+   resume. After PASS, post the final comment (template 4). Keep running rounds autonomously.
+   Stop only for PASS, a blocker, or the user.
 
-## 2. Baseline (round 0)
+### `round.json`
 
-1. **Walk every primary journey in the running app.**
-   - For each journey, write down every step: the screens, the decisions made and the controls used.
-   - Log every point of friction as `F1`, `F2`, …: a hidden action, unclear wording, a dead end, a needless step, a poor recovery from an error.
-   - List every in-scope screen and its meaningful states.
-   - Running the app is for discovery and fidelity. The checks that gate the run are automated.
-2. **Upsert full-screen stories** for every screen and state on the journeys.
-   - Where a story already covers the screen, update it and keep its id. Otherwise add a story.
-   - Every story uses production components, the real app shell and theme, realistic deterministic fixtures, and representative viewports.
-   - If Storybook is absent, set it up (`references/hosts.md` › Storybook).
-3. **Check fidelity.** Compare each story against the running app with the same data, viewport and theme, and fix every gap.
-4. **Make each journey's task checkable.** Find the automated test that completes each `Jn` (end-to-end, journey or story interaction test). Where none exists, add one that completes the task through the UI, the repository's way. It must pass on the baseline.
-5. **Commit.** That commit is the baseline revision.
-6. **Capture** the screens into `$EVID/round-0/after/`, each journey's current sequence into `journeys/Jn.png` (`capture-stories.mjs journey`, before frames only), and the journey test output into `interactions/`.
-7. **Convene the council** (§3) with `--kind baseline`.
-8. **Post the baseline comment.** It includes the screenshots, the journey strips, the friction log, every member's ratings and findings, and the round-1 plan. This is the "before" evidence for round one.
+```json
+{
+  "round": 1,
+  "kind": "round",
+  "configSha256": "<from run.json>",
+  "startSha": "<last scored candidate>",
+  "candidateSha": "<this round's pushed commit>",
+  "evidenceId": "<manifest of the after directory>",
+  "beforeEvidenceId": "<manifest of the before directory>",
+  "evidenceDir": ".ui-ux-overhaul/evidence/r1-<sha7>",
+  "beforeDir": ".ui-ux-overhaul/evidence/r0-<sha7>",
+  "journeys": ["<journey: underlying task>"],
+  "screens": ["<Screen / state>"],
+  "changes": "<one paragraph, with the friction each change addresses>",
+  "rescoreBefore": false,
+  "carriedBefore": {
+    "fromRound": 0,
+    "sha": "<startSha>",
+    "evidenceId": "<beforeEvidenceId>",
+    "scores": { "<member>": { "design": 7, "ux": 6 } }
+  },
+  "checks": [{ "name": "<check>", "status": "pass|fail|not-run", "url": "<link>" }],
+  "scopeRespected": true,
+  "scopeNotes": "<each underlying task and whether it completed in the running app>"
+}
+```
 
-If the baseline already passes the stopping rule, post the final comment. Tell the user that no change was needed.
+## Stopping rule
 
-## 3. Convene the council (every round, including the baseline)
+A revision **passes** only when all of these hold on that same candidate commit and evidence set:
 
-1. Commit and push the candidate. Leave no tracked changes. Members must see exactly this commit.
-2. Open the round:
+- every roster member returned a review that names that candidate and evidence ID,
+- each of them gave **design ≥ minimum and UX ≥ minimum**,
+- every relevant check passed (a check not run is not a pass),
+- the task-completion audit passed and no member reported a task that can no longer be done.
 
-   ```bash
-   council-round manifest --run "$STATE/run.json" --round $K --kind round \
-     --start-sha <last scored revision> --candidate-sha $(git rev-parse HEAD) \
-     --evidence "$EVID/round-$K" --before-manifest "$EVID/round-$((K-1))/manifest.json" \
-     --story <id> … --repo "$REPO" --out "$STATE/round-$K/round.json"
-   ```
+`verdict` enforces this. Never average across members, add up passing votes from different
+revisions or sessions, drop a reviewer, lower the minimum, or edit the rubric mid-run. With a
+9/10 minimum, a member who gives design 10 and UX 8 means another round. A missing review makes
+the round INCOMPLETE, never a pass. Every score comes from a member's own opinion file after it
+inspected the evidence. Never write, estimate or adjust one, even when you are a roster member
+yourself.
 
-3. Fill the prompt:
-
-   ```bash
-   council-round prompt --run … --round … --repo-root "$REPO" \
-     --notes "<what changed, and the friction each change addresses, stated neutrally>" \
-     --out "$STATE/round-$K/question.md"
-   ```
-
-4. **Invoke the Agent Council skill** with that question (`references/hosts.md` › Agent Council). Use fast mode, give it long timeouts, and finish its own steps. Every member gets the same commit, screenshots, journey sequences and interaction evidence.
-5. Collect the ratings:
-
-   ```bash
-   council-round collect --run … --round … --session "$SESSION_DIR" --out "$STATE/round-$K/ratings.json"
-   ```
-
-   A review is **missing** in any of these cases:
-   - the member was not convened, timed out or errored;
-   - it has no valid `ui-council-rating` block;
-   - it rated another revision or did not return this round's evidence code;
-   - a deduction has no citation, the top fix is missing, or any journey lacks a completable true/false assessment.
-6. **If a review is missing,** post the round comment marked INCOMPLETE. Then convene again on the same commit and evidence, with no changes in between. Collect with every session (`--session A --session B`).
-   - Retry up to three times.
-   - Then post the blocked comment with exactly what is needed.
-
-Members who are not on the roster are non-voting. Their opinions are listed in the comment, but the stopping rule ignores them.
-
-## 4. Run an overhaul round (K ≥ 1)
-
-1. **Choose the fixes.**
-   - Start from the last scored revision.
-   - From the members' findings and the friction log, pick the changes with the most impact on the lowest scores.
-   - For each change, name the journey, screen or state and the friction (finding or `Fn`) it addresses.
-   - Prefer one coherent redesign of a flow over scattered tweaks.
-   - If the last round lowered a member's score, consider reverting the change responsible.
-2. **Work in Storybook.**
-   - Open or upsert the full-screen stories for every screen of the redesigned flows, including new and merged screens.
-   - Build the production UI through them.
-   - Keep the old story ids for screens that still exist. Record a mapping for screens that were merged, split or replaced.
-   - Add realistic states and interaction coverage for the new flow.
-   - Exercise the affected journeys in the running app.
-3. **Verify the tasks.**
-   - Update each affected journey test to the new flow. It must still complete the same underlying task, with the same goal and outcome.
-   - Run every `Jn` check on the candidate.
-   - Record the results: `council-round record --round … --check J1=pass …`.
-4. **Run the other checks** the change touches: lint, type check and unit tests, the Storybook build, the stories' interaction and accessibility tests, the visual baselines (updated only where intended), and any acceptance specs. Record each check. A pending check keeps the round incomplete.
-5. **Audit the scope.**
-   - Confirm that every structural change in `git diff <start>..<candidate>` maps to a finding or `Fn`.
-   - Confirm that no capability a journey needs was removed.
-   - Confirm that every `Jn` check passed.
-   - Record the result: `council-round record --round … --scope respected|violated --scope-notes "<evidence>"`.
-6. **Capture before and after.**
-   - **After:** capture this revision into `$EVID/round-$K/after/`.
-   - **Before:** copy the previous round's `after/` into `before/`. Capture new stories at the start revision with identical flags, as well.
-   - **Pairs:** compose them into `pairs/`. A new screen pairs against "no screenshot", and the comment's story mapping names what it replaces.
-   - **Journeys:** for each changed journey, compose `journeys/Jn.png` with the old sequence and the new sequence for the same goal, even when their step counts differ:
-
-     ```bash
-     capture-stories.mjs journey --goal … --before-frames <old steps> --after-frames <new steps>
-     ```
-
-   - **Interactions:** save the journey test output under `interactions/`.
-   - **Expanded scope:** if the review scope expands materially (a new journey, or screens not yet rated), rate the start revision on the expanded evidence first. Use `--kind rebaseline`. Commit the work in progress, run `git switch --detach <start>`, convene, then switch back. Its ratings become this round's before scores.
-7. **Convene the council** (§3).
-8. **Post one complete PR comment for the round**, from `assets/pr-round-comment.md`. It includes:
-   - the round number, the before and after SHAs, and what changed, with the friction each change addresses;
-   - the story mapping;
-   - the journey table (steps before → after, and the task check);
-   - paired Before / After screenshots and journey strips shown in the comment, pinned by evidence commit;
-   - the story ids or links;
-   - the ratings table, with one row per member: Design before, Design after, UX before, UX after, Meets minimum?
-   - each member's findings and journey assessments, the checks, the verdict and the next changes.
-   - The before scores are the earlier ratings of this round's exact start revision and evidence. Otherwise they show as "—".
-9. **Apply the stopping rule:** `council-round decide`. Exit code 0 means PASS, 10 means ANOTHER_ROUND, 20 means INCOMPLETE.
-   - **PASS:** every roster member gave design **and** UX at or above the minimum on this same revision; every check, including every `Jn`, passes; every member reports every journey completable and the scope respected; and your scope audit agrees. Post the final comment with `council-round final`, which refuses unless the round passes. Then stop.
-   - **ANOTHER_ROUND:** this candidate is now the last scored revision. Go to step 1 with K+1. With a 9/10 minimum, a member giving design 10 and UX 8 means another round, and so does any member who finds a journey that can no longer be completed.
-   - **INCOMPLETE:** retry the missing reviews (§3.6). Do not start the next round.
-   - **Blocked:** if something you cannot fix prevents progress, such as a spec change you may not make or a member who cannot run, post the blocked comment with exactly what is needed to resume, and tell the user.
-
-## 5. Evidence conventions
-
-- **Layout.** `$EVID/round-K/` holds `manifest.json`, `after/`, `before/`, `pairs/`, `journeys/` and `interactions/`. Screens are named `<story-id>--<viewport>--<theme>.png`, and journeys `Jn.png`.
-- **Matching.** Capture the before and after sets with identical flags, fixtures, viewports and themes. Journey strips use one viewport and theme for both sequences.
-- **Viewports.** Use at least phone (390×844) and desktop (1440×900), unless the app targets other sizes. Capture every theme the app ships.
-- **Storage.** Run state (`$STATE`) stays outside the working tree, so members cannot read earlier scores. Evidence stays inside it, excluded from git, so members can open it.
-
-## Validation
-
-`scripts/council-round self-test` runs the stopping rule against `tests/fixtures/`, which are written in Agent Council's real session format. Only the passing cases may finish:
-
-| Case | Verdict | Finishes? |
-| --- | --- | --- |
-| Unanimous passage | PASS | yes |
-| One member below the minimum (design 10, UX 8 at a 9 minimum) | ANOTHER_ROUND | no |
-| One reviewer missing (timed out after quorum) | INCOMPLETE | no |
-| Missing reviewer retried on the same revision | PASS | yes |
-| Reviewer not installed; rating of another revision; wrong evidence code; deduction without a citation; journey not assessed | INCOMPLETE | no |
-| Scope violation reported; failing check; journey no longer completable | ANOTHER_ROUND | no |
-| Agent not on the roster gives a low score | PASS (non-voting) | yes |
-| Resume markers survive a round trip through PR comment text | — | — |
-
-Run the self-test after changing anything in `scripts/`. `scripts/` and `references/hosts.md` are identical in `ui-overhaul`, so change both copies.
+Run `node $SKILL_DIR/scripts/validate.mjs` after changing anything in this package. It must
+report every case as expected: only unanimous passage finishes.

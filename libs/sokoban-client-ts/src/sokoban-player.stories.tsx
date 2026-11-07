@@ -50,12 +50,16 @@ export const InProgress: Story = {
 };
 
 /** Every crate on a goal. */
+// regression: solved-pack-story-completion
 export const Solved: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES), disabled: false },
   play: async ({ canvasElement }) => {
     // regression: sokoban-solved-below-controls
     // Geometry is measured before a click can scroll the destination into view.
     const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId('content-attempt-complete')
+    ).toHaveTextContent('Puzzle completed');
     const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
     const counts = canvas.getByTestId('sokoban-counts').getBoundingClientRect();
     await expect(notice.height).toBeGreaterThan(0);

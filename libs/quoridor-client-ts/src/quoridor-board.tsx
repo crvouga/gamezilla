@@ -188,7 +188,10 @@ export function createQuoridorBoard(
     TOOLS.map((each) => ({
       id: `mode-${each}`,
       label: toolLabel(each),
-      enabled: live() && !quoridorMustPass(game()),
+      enabled:
+        live() &&
+        !quoridorMustPass(game()) &&
+        (each === 'move' || (game().remaining[game().turn] ?? 0) > 0),
       pressed: tool() === each,
       run: () => {
         setTool(each);

@@ -154,6 +154,22 @@ export const WordListUnavailable: Story = {
   },
 };
 
+/** Three seats: the third player's turn with all scores and rack counts visible. */
+export const ThreePlayers: Story = {
+  args: {
+    position: encodePosition({
+      ...newPosition(3, STORY_LEXICON_KEY),
+      board: CAT_AND_TOE,
+      scores: [10, 3, 0],
+      bag: 74,
+      turn: 2,
+    }),
+    hand: null,
+    interactive: false,
+  },
+  parameters: { table: { viewer: null, turn: 'red' } },
+};
+
 /** Four seats: every rack's count beside its seat, one board between them. */
 export const FourPlayers: Story = {
   args: {
@@ -246,19 +262,6 @@ export const CheckingWords: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-status')
     ).toHaveTextContent('Checking the words');
-  },
-};
-
-/** Three seats keep all scores visible without exposing another rack. */
-export const ThreePlayers: Story = {
-  args: {
-    position: encodePosition({
-      ...newPosition(3, STORY_LEXICON_KEY),
-      board: CAT_AND_TOE,
-      scores: [10, 3, 0],
-      bag: 74,
-    }),
-    hand: LATER_RACK,
   },
 };
 

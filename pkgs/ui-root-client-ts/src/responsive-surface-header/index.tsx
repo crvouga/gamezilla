@@ -23,7 +23,7 @@ export function hasSurfaceTitle(title: JSX.Element | undefined): boolean {
  * Shared header row for {@link ResponsiveSurface}: an optional `textSubtitle`
  * title, left-aligned, and the close control on the right, in a row at least
  * 44px tall. The title carries the surface title id so the dialog is named
- * by it.
+ * by it. Titles wrap in full because they may contain the only explanation.
  */
 export function ResponsiveSurfaceHeader(
   props: ResponsiveSurfaceHeaderProps
@@ -44,7 +44,7 @@ export function ResponsiveSurfaceHeader(
       >
         <Show when={hasTitle()}>
           <h2
-            class="text textSubtitle line-clamp-1 flex-1 min-w-0 text-text"
+            class="text textSubtitle break-words flex-1 min-w-0 text-text"
             id={titleId}
           >
             {props.title}

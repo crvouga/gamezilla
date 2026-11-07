@@ -119,6 +119,7 @@ export const Opening: Story = {
 /** No move or wall is legal: the pass is offered beside the tools. */
 export const MustPass: Story = {
   args: { position: hill(BLOCKED) },
+  parameters: { table: { moves: BLOCKED } satisfies GameTableStory },
   play: async ({ canvasElement }) => {
     // regression: quoridor-hill-forced-pass-clipped
     await expectHillPassVisible(canvasElement);

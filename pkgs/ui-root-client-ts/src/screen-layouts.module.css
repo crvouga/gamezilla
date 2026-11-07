@@ -31,6 +31,9 @@
   min-width: 0;
   gap: var(--ui-space-3);
 }
+.identity > * {
+  max-width: 100%;
+}
 /* An identity whose picture stands apart (a profile with a rail): on a
    phone the same centered column; in a wide band the picture, the words
    and the actions in one line. */

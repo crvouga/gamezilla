@@ -29,6 +29,7 @@ import {
 import {
   FrameFacts,
   FrameOutcomeView,
+  FrameRequiredActions,
   FrameStatusRow,
 } from './game-frame-outcome-view';
 import {
@@ -36,6 +37,7 @@ import {
   FrameRecordView,
   type FrameReviewHandlers,
   FrameReviewingView,
+  recordReviewing,
 } from './game-frame-record-view';
 import { FrameSetupSeatsView } from './game-frame-seats-view';
 import {
@@ -476,7 +478,9 @@ function FrameActions(
       onBack={props.onBack}
       onSeek={props.onSeek}
       width={props.width}
-      nextBesideOutcome={props.phase === 'completed' && props.result !== null}
+      nextBesideOutcome={
+        props.phase === 'completed' || props.phase === 'cancelled'
+      }
     />
   );
 }
@@ -567,6 +571,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             viewerSide={props.viewerSide}
             compact={mode() !== 'wide'}
           />
+          <FrameRequiredActions {...props} />
         </Show>
       }
       turn={
@@ -575,17 +580,24 @@ function FrameBoardStage(props: Props): JSX.Element {
             record={shownRecord(props)}
             onReturnLive={props.onReturnLive}
           />
-          <FrameStatusView
-            status={props.status}
-            arena={frameArena(props.phase, shownRecord(props))}
-            spokenOnly={
-              props.phase === 'completed' ||
-              plainArenaLine(props) ||
-              turnInSeats(props, mode) ||
-              railCaption(props, mode) !== undefined ||
-              stripCaption(props, mode) !== undefined
+          <Show
+            when={
+              props.phase !== 'completed' &&
+              props.phase !== 'cancelled' &&
+              !recordReviewing(shownRecord(props))
             }
-          />
+          >
+            <FrameStatusView
+              status={props.status}
+              arena={frameArena(props.phase, shownRecord(props))}
+              spokenOnly={
+                plainArenaLine(props) ||
+                turnInSeats(props, mode) ||
+                railCaption(props, mode) !== undefined ||
+                stripCaption(props, mode) !== undefined
+              }
+            />
+          </Show>
         </Show>
       }
       own={

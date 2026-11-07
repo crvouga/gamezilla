@@ -1,0 +1,4 @@
+{
+  "summary": "quoridor zero wall tools enabled: captured Hill MustPass controls obscure the sole legal action or offer exhausted walls.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}

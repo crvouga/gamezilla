@@ -1,11 +1,12 @@
+import { t } from '@lingui/core/macro';
+import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
+import { GameResultHeadline } from '@pkgs/ui-root-client-ts/game-result';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { FrameNextActionsView } from './game-frame-actions-view';
-import {
-  FrameResultHeadlineView,
-  FrameResultView,
-} from './game-frame-result-view';
+import { recordReviewing } from './game-frame-record-view';
+import { FrameResultView } from './game-frame-result-view';
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import {
   FrameFactsView,
@@ -37,19 +38,26 @@ export function FrameStatusRow(props: GameFrameScreenViewProps): JSX.Element {
 /** One result and one set of next actions, immediately before the final position. */
 export function FrameOutcomeView(props: GameFrameScreenViewProps): JSX.Element {
   return (
-    <Show when={props.phase === 'completed' ? props.result : null}>
-      {(result) => (
-        <StackVertical gap="sm" testId="custom-game-outcome">
-          <FrameResultHeadlineView result={result()} />
-          <FrameNextActionsView
-            next={props.next}
-            onChoose={props.onChoose}
-            onBack={props.onBack}
-            onSeek={props.onSeek}
-            width="content"
-          />
-        </StackVertical>
-      )}
+    <Show when={props.phase === 'completed' || props.phase === 'cancelled'}>
+      <StackVertical gap="sm" testId="custom-game-outcome">
+        <GameResultHeadline
+          title={
+            props.result?.headline ??
+            props.status?.description ??
+            t`Game finished`
+          }
+          caption={props.result?.note ?? undefined}
+          dataSet={{ testid: 'custom-game-result-headline' }}
+        />
+        <FrameStatusView status={props.status} />
+        <FrameNextActionsView
+          next={props.next}
+          onChoose={props.onChoose}
+          onBack={props.onBack}
+          onSeek={props.onSeek}
+          width="content"
+        />
+      </StackVertical>
     </Show>
   );
 }
@@ -67,5 +75,16 @@ export function FrameFacts(props: GameFrameScreenViewProps): JSX.Element {
         />
       </Show>
     </>
+  );
+}
+
+/** Required choices precede the board while its current position is live. */
+export function FrameRequiredActions(
+  props: GameFrameScreenViewProps
+): JSX.Element {
+  return (
+    <Show when={props.phase === 'active' && !recordReviewing(props.record)}>
+      <GameActionBar items={props.play.leadingBoardActions} />
+    </Show>
   );
 }

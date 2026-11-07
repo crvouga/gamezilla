@@ -1,0 +1,6 @@
+{
+  "roster": ["claude", "codex", "gemini"],
+  "minimum": 9,
+  "expectedVerdict": "ANOTHER_ROUND",
+  "why": "gemini gives design 10 and UX 8: one dimension below 9 fails the round, whatever the average"
+}

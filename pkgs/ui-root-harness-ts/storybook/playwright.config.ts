@@ -25,6 +25,7 @@ export default defineConfig({
     '**/integration.checks.ts',
     '**/font-readiness.checks.ts',
     '**/essentials.checks.ts',
+    '**/game-layout.checks.ts',
   ],
   outputDir: '../.cache/storybook-test-results',
   snapshotPathTemplate: '{testDir}/../../../../{arg}{ext}',

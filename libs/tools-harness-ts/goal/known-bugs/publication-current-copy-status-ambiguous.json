@@ -1,0 +1,4 @@
+{
+  "summary": "PublishPending and Published show Ready/Next Publish because document-level flags do not compose current-copy publication state.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

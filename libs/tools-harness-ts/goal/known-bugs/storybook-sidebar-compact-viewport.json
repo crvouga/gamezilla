@@ -1,0 +1,4 @@
+{
+  "summary": "Sidebar-only stories expected a visible account menu at phone and tablet widths where the production AppFrame deliberately omits its rail. Mark desktop-only surfaces in Storybook and derive capture eligibility from the production breakpoint, while retaining compact rail-absence coverage and ordinary screen coverage.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-scenarios.test.ts"
+}

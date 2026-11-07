@@ -177,6 +177,7 @@ function Arena(props: {
   board: GameBoardProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
+  const statusId = createUniqueId();
   const mode = useLayoutMode();
   const controlled = () => props.board.simulation?.sides ?? [];
   const steering = (side: GameSide | undefined) =>
@@ -187,10 +188,12 @@ function Arena(props: {
   const primary = () =>
     controlled()[0] ?? props.board.simulation?.elsewhere?.[0];
   const ownSteering = () => steering(primary());
+  const canSteerHere = () => controlled().some(steerable);
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
       <P
+        id={statusId}
         role="status"
         testId={`${props.board.testId}-status`}
         dataSet={{ steering: ownSteering() }}
@@ -234,7 +237,7 @@ function Arena(props: {
             ? arenaOverlay(props.state)
             : undefined
         }
-        enabled={controlled().some(steerable)}
+        enabled={canSteerHere()}
         onDirection={(heading, slot) => {
           const side = controlled()[slot];
           if (side !== undefined && steerable(side))
@@ -243,13 +246,13 @@ function Arena(props: {
         label={t`Light Cycles arena`}
         // A phone's cells are small: its heads are drawn larger.
         heads={mode() === 'wide' ? 'regular' : 'large'}
-        instructionsId={instructionsId}
+        instructionsId={canSteerHere() ? instructionsId : statusId}
         testId={`${props.board.testId}-arena`}
       />
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is, then how to steer. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
-      <Show when={controlled().some(steerable)}>
+      <Show when={canSteerHere()}>
         <SteeringHint id={instructionsId} sides={controlled()} />
       </Show>
     </StackVertical>

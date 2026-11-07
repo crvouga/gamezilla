@@ -1,8 +1,25 @@
 import { posix } from 'node:path';
+import { BREAKPOINT_MIN_DESKTOP } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { viewports } from './preview-options';
 
+type StoryEntry = {
+  readonly id: string;
+  readonly importPath: string;
+  readonly tags?: readonly string[];
+};
+
+/** A desktop-only surface is captured only where the production wide layout exists. */
+export function supportsStoryViewport(
+  story: Pick<StoryEntry, 'tags'>,
+  width: number
+): boolean {
+  return (
+    !story.tags?.includes('viewport-desktop') || width >= BREAKPOINT_MIN_DESKTOP
+  );
+}
+
 /** The shared responsive/theme matrix for canonical Storybook entries. */
-export function visualScenarios(story: { id: string; importPath: string }) {
+export function visualScenarios(story: StoryEntry) {
   const [component, name] = story.id.split('--');
   if (!component || !name)
     throw new Error(`Malformed Storybook story id: ${story.id}`);
@@ -16,17 +33,19 @@ export function visualScenarios(story: { id: string; importPath: string }) {
     ? [phone, desktop]
     : [phone];
   if (story.id.startsWith('layouts-appframe')) widths.push(tablet);
-  return widths.flatMap((width) =>
-    ['light', 'dark'].map((theme) => {
-      const suffix = width === 390 ? '' : `-${width}`;
-      return {
-        width,
-        theme,
-        suffix,
-        // Preserve the established screenshot height while sharing native widths.
-        height: Number.parseInt(viewports.phone.styles.height, 10),
-        baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
-      };
-    })
-  );
+  return widths
+    .filter((width) => supportsStoryViewport(story, width))
+    .flatMap((width) =>
+      ['light', 'dark'].map((theme) => {
+        const suffix = width === 390 ? '' : `-${width}`;
+        return {
+          width,
+          theme,
+          suffix,
+          // Preserve the established screenshot height while sharing native widths.
+          height: Number.parseInt(viewports.phone.styles.height, 10),
+          baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
+        };
+      })
+    );
 }

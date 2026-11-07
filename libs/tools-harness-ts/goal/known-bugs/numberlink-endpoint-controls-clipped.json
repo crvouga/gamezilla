@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink endpoint buttons overflowed the narrow tablet tool column, and frequent pair/endpoint choices followed the phone canvas instead of sitting with it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/editor/integration.checks.ts"
+}

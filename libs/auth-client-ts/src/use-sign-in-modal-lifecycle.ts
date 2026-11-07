@@ -124,13 +124,9 @@ function resolveSignInOutcome(args: {
     args.setPhase('error');
     return;
   }
-  // Resume path only (awaitingCallback): hydrated signed-out with no error means
-  // OAuth did not establish a session (cancel / handoff race). Do not hang.
-  if (!args.authState.isHydrated) return;
-  args.setAwaitingCallback(false);
-  void new SignInPendingStore(args.store).clear();
-  args.setError(null);
-  args.setPhase('error');
+  // Hydration can finish before the callback exchanges its code. A guest
+  // snapshot is not cancellation: await the session/token or the existing
+  // bounded resume timeout. Explicit provider failures still settle above.
 }
 
 function useSignInOutcomeEffect(args: {

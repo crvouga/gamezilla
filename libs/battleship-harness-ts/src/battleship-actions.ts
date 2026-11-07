@@ -92,9 +92,7 @@ async function press(
 
 async function setupBoard(s: ProductHarness, actor: string) {
   const ui = await actorUi(s, actor);
-  return (await ui.get(`${BATTLESHIP_SETUP_BOARD}-grid`).isVisible())
-    ? ui
-    : null;
+  return (await ui.get(BATTLESHIP_SETUP_BOARD).isVisible()) ? ui : null;
 }
 
 /** Choose `ship` on the setup board and turn the placing to `orientation`. */
@@ -252,7 +250,11 @@ export const shootBattleship = scenarioAction<
       `${CUSTOM_GAME_BOARD}-target-${cell}`
     );
     if (
-      (await target.isVisible()) &&
+      (await (
+        await actorUi(s, actor)
+      )
+        .get(`${CUSTOM_GAME_BOARD}-region`)
+        .isVisible()) &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
       await playOnCustomGameBoard(s, actor, async () => {

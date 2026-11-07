@@ -7,6 +7,7 @@ import type { SpaceDetailScreenViewProps } from './space-detail-screen-view';
 import { SpaceDetailScreenView } from './space-detail-screen-view';
 import { SpaceGamesScreenView } from './space-games-screen-view';
 import { SpaceMembersSheetView } from './space-members-sheet-view';
+import type { SpacePresenceFace } from './space-presence-strip-view';
 import { SpacePresenceStripView } from './space-presence-strip-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { GameAreaExample } from './space-story-game-area.example';
@@ -27,18 +28,21 @@ type Slots = {
   readonly overlays?: () => JSX.Element;
 };
 
-function gamesList(canSelectGame: boolean): JSX.Element {
+function gamesList(
+  canSelectGame: boolean,
+  people: readonly SpacePresenceFace[] = faces([AVERY, ...GUESTS])
+): JSX.Element {
   return (
     <SpaceGamesScreenView
       games={GAMES}
       shownGame={null}
       canSelectGame={canSelectGame}
-      present={1 + GUESTS.length}
+      present={people.length}
       hostChoosesNotice={false}
       onSelectGame={fn()}
       whoIsHere={
         <SpaceWhoIsHereView
-          faces={faces([AVERY, ...GUESTS])}
+          faces={people}
           host={AVERY}
           hostIsYou={canSelectGame}
           onInvite={fn()}
@@ -160,12 +164,24 @@ export const InsideAGame: Story = {
     }),
 };
 
-/** Alone in the space: the members button shows the people glyph. */
+/** Alone in the space: header and body both show only the host. */
 export const NobodyElse: Story = {
   args: {
-    presence: (size: number) => (
-      <SpacePresenceStripView faces={[]} size={size} />
+    presence: (size: number, compact: boolean) => (
+      <SpacePresenceStripView
+        faces={faces([AVERY])}
+        size={size}
+        compact={compact}
+      />
     ),
+  },
+  render: (args) =>
+    withSlots(args, { body: () => gamesList(true, faces([AVERY])) }),
+  // regression: space-detail-fixture-roster-disagrees
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText('Just you here')).resolves.toBeTruthy();
+    await expect(canvas.queryByText('5 here · you host')).toBeNull();
   },
 };
 
@@ -196,13 +212,24 @@ export const LongTitle: Story = {
 
 /** The members sheet open over the space. */
 export const MembersOpen: Story = {
+  args: {
+    presence: (size: number, compact: boolean) => (
+      <SpacePresenceStripView faces={MEMBERS} size={size} compact={compact} />
+    ),
+  },
   render: (args) =>
     withSlots(args, {
-      body: () => gamesList(true),
+      body: () => gamesList(true, MEMBERS),
       overlays: () => (
         <SpaceMembersSheetView visible onClose={fn()} members={MEMBERS} />
       ),
     }),
+  // regression: space-detail-fixture-roster-disagrees
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText('4 here · you host')).resolves.toBeTruthy();
+    await expect(canvas.queryByText('5 here · you host')).toBeNull();
+  },
 };
 
 /** The share sheet open as a guest: copy the link, see who has access. */

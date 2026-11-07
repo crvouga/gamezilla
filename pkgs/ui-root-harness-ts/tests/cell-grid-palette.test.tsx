@@ -109,12 +109,9 @@ test('every tool shows its name beside no other cue, at every width', () => {
 
 // regression: sokoban-palette-ragged-baselines — wide, "Remove crate"
 // wrapped to two lines and bare glyphs stretched their swatches, so the
-// swatches and names sat at different heights from tile to tile. Names
-// keep to one line under a top-aligned swatch, and a bare glyph is set
-// small enough not to stretch its square.
-test('tiles keep one height: names on one line under a top-aligned swatch', () => {
-  const name = paletteRule('.name');
-  expect(name).toMatch(/white-space:\s*nowrap/);
+// swatches and names sat at different heights from tile to tile. Swatches
+// remain aligned; browser geometry checks cover full labels and equal rows.
+test('wrapped tool labels retain top-aligned, consistently sized swatches', () => {
   expect(paletteRule('.tool')).toMatch(/justify-content:\s*flex-start/);
   const glyph = paletteRule(
     '.swatch[data-board-theme] [data-tone]:not([data-identity]) > .swatchGlyph'

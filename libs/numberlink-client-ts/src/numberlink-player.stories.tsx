@@ -50,6 +50,10 @@ const meta = {
       puzzle={PUZZLE}
       disabled={args.disabled}
       saving={args.disabled}
+      complete={numberlinkPuzzleContent.rules.complete(
+        args.definition,
+        args.state
+      )}
       figures={figures(args.definition, args.state)}
       player={<NumberlinkPlayer {...args} />}
     />
@@ -89,7 +93,13 @@ export const InProgress: Story = {
 };
 
 /** Every pair joined and every cell covered. */
+// regression: solved-pack-story-completion
 export const Solved: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByTestId('content-attempt-complete')
+    ).toHaveTextContent('Puzzle completed');
+  },
   args: { state: progress(SOLUTION), disabled: false },
   render: (args) => {
     const [next, setNext] = createSignal(false);

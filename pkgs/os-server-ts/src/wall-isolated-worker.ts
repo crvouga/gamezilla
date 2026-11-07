@@ -3,7 +3,7 @@ export type IsolatedWorker = {
   post(value: unknown): void;
   subscribe(listener: (value: unknown) => void): () => void;
   onError(listener: (message: string) => void): () => void;
-  terminate(): void;
+  terminate(): void | Promise<void>;
 };
 /** Each realm owns globals, module singletons, storage, timers and sockets. */
 export function createIsolatedWorker(

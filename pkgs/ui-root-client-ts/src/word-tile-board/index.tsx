@@ -202,6 +202,11 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           />
         </Show>
       </div>
+      <Show when={props.purpose !== 'locator'}>
+        <P variant="caption" testId={`${props.testId}-square-details`}>
+          {cells()[focusIndex()]?.label}
+        </P>
+      </Show>
     </StackVertical>
   );
 }

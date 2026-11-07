@@ -26,6 +26,7 @@ function BoardCell(props: {
       onFocus={() => props.onFocusIndex(props.index)}
       onKeyDown={(event) => props.onKey(event, props.index)}
       onClick={() => {
+        props.onFocusIndex(props.index);
         const id = cell()?.id;
         if (id !== undefined && cell()?.enabled === true)
           props.board.onActivate?.(id);

@@ -44,6 +44,10 @@ function tabletOnAppearance() {
   };
   const ui = {
     get: (id: string) => ({
+      attribute: async (name: string) =>
+        id === Handles.statusCurrentUser && name === 'aria-expanded'
+          ? String(menu)
+          : null,
       isVisible: async () => visible(id),
       tap: async () => {
         requireVisible(id);
