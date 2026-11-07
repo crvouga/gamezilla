@@ -5,7 +5,7 @@ Every published image, video, checkpoint, log and document is listed below; full
 | File | Bytes | SHA-256 |
 |---|---:|---|
 | [GALLERY.md](GALLERY.md) | 2964 | `a62389cd7e57e862f785fb63b110ffc7baf1914b8332b926920c316ee05a9524` |
-| [HANDOFF.md](HANDOFF.md) | 4991 | `2b34b8d304ea2248576dbf0c2541eba98e6ebe02f5583f2e8f37091db72d05d2` |
+| [HANDOFF.md](HANDOFF.md) | 4990 | `c1aaeadfa2977486cc198ea1ff7ea757a82f04622bf96924cdb5382c8f6c4cf0` |
 | [REVIEW_INPUTS.md](REVIEW_INPUTS.md) | 778 | `e2a0f820701ced9c70c36c7b147d14f3abfec131e4ab4132424fe00a64744d2e` |
 | [after/capture.json](after/capture.json) | 5425 | `3400a9520bf95318523c5d37ec784f0d90eb5619f59bf4da2dfbfee1565bf922` |
 | [after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png](after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png) | 60519 | `fb0826eaefa7ee34e31fbca640535377c7ad16377c9d1391a0ec1482d8de37a8` |
