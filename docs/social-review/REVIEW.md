@@ -264,3 +264,23 @@ All 58 Hearts scenarios, nine package tests, lint, typechecks and goals pass.
 Cache synchronization required no derived changes. The critic approved eight
 current result captures against older goldens; all eight then passed without
 snapshot updates. Ratings remain 10/9/9/10 pending full verification.
+
+## Round sixteen puzzle board translation context
+
+The full gate reached 70 successful tasks before two puzzle board contracts
+threw while rendering translated guidance. The conformance mount omitted
+I18nProvider. Each driver now owns an isolated English translation context,
+matching the providers its board reads in the app. Direct test dependencies
+are declared; product behavior and existing assertions are unchanged.
+
+The literal puzzle 01Xbe regression pins the original position, setup g3h4
+and solution g6g5. It reproduced the same missing-provider error before the
+correction, then passed readable-guidance and exact emitted-move assertions.
+All 241 package tests, 197 puzzle contracts, lint, typechecks and goals pass.
+Cache synchronization required no derived changes.
+
+The critic independently approved eight solving/hint captures against stale
+goldens. All eight comparisons then passed without snapshot updates. The
+screenshots document the current translated guidance and matching hint
+highlight; this round changes test setup, not the product screen. Scores
+remain 10/9/9/10 pending full verification.
