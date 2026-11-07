@@ -1,0 +1,18 @@
+[
+  {
+    "runId": "42342271919",
+    "headSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+    "job": "verify:start",
+    "conclusion": "success",
+    "log": "hosted-job-128312422394.log",
+    "logExitCode": 1
+  },
+  {
+    "runId": "42342271919",
+    "headSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+    "job": "verify:shards (1)",
+    "conclusion": "success",
+    "log": "hosted-job-128312842784.log",
+    "logExitCode": 1
+  }
+]

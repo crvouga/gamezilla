@@ -1,0 +1,63 @@
+{
+  "format": "Concatenate parts in listed order to reconstruct tar.gz",
+  "source": "/var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/verify-run-t0eAeg/diagnostics.tar.gz",
+  "sha256": "0ff027c51f951e6750eff5208a66f13d69bf4fb71da863d787ce957ea8d4d0aa",
+  "parts": [
+    {
+      "file": "verify-diagnostics.tar.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "caf2dc3ac17e58adc4e34d418d34c8c1b5c7df17b30a4da05bd18e817045cf10"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "3220c63496b7b168448aa22b9fe6760f9c514cf3800719ac927d7f9ed2c4ad4a"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-03",
+      "bytes": 50000000,
+      "sha256": "fef4e2763320e190cc23b76ad8a890d797e940a7818106ed025c18b03502d9db"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-04",
+      "bytes": 50000000,
+      "sha256": "f50512260d48dbcc1ca3654df424e354fbb5e80ec4d432078488d8116c609c36"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-05",
+      "bytes": 50000000,
+      "sha256": "d253c6d8d7f3e4fe4c553ad612650a972ac5a6841d59a622d0d745c398cd76cf"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-06",
+      "bytes": 50000000,
+      "sha256": "5e369a32e0d784bdd17c4d9ade74125f3cbb68aa814ddaef9d63ee3069d5e9c9"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-07",
+      "bytes": 50000000,
+      "sha256": "8e663b9ce2db01b2e01bff187fd06d63b75af86730949c3ea660ce14361b68ea"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-08",
+      "bytes": 50000000,
+      "sha256": "9eb28c91d8314be8f42e2a64eab10528dc44ffba07aae8ec9fe7b78533cc164b"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-09",
+      "bytes": 50000000,
+      "sha256": "01e36e6d84b2f6d6261c23251e70c0eeca34bc2c1d3eb03bf3f3d210bff62260"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-10",
+      "bytes": 50000000,
+      "sha256": "e19e287881f3291d3c13e0dce4c8473915bd0c624457d92e47ef297450f2578c"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-11",
+      "bytes": 18382813,
+      "sha256": "33c972421a0925f423ae17f557862e44a6979bbd60c17f6912726073986dc015"
+    }
+  ],
+  "memberInventory": "verify-diagnostics-inventory.json"
+}

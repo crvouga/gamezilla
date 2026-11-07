@@ -1,0 +1,50 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--next-puzzle [3] toBeVisible"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--next-puzzle [5] click"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--next-puzzle [8] toBeInTheDocument"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--next-puzzle [11] toHaveTextContent"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light--004.png",
+    "capturedFrame": true
+  }
+]

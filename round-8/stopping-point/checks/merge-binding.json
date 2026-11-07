@@ -1,0 +1,10 @@
+{
+  "initialHead": "b606946642616ea53bbf11e8b4fb23e08fb55c5f",
+  "checkpoint": "5b3a89b1d853063010b4b111f56dcc219b293e28",
+  "merge": "4faa3b59427bda8e51cba3f2cdfb4f81a23d4591",
+  "main": "1d915333c53d81fdc707888f1c087395ee3bc2cb",
+  "normalMerge": true,
+  "forcePush": false,
+  "conflictList": "conflict-paths.txt",
+  "resolutions": "merge-resolution-notes.md"
+}

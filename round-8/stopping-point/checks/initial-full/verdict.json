@@ -1,0 +1,13 @@
+{
+  "candidateSha": "5bfc1564a2f509fb81ea1c0d6d32684b245d4520",
+  "cases": 824,
+  "passes": 9,
+  "pixelFailures": 750,
+  "interactionOrAccessibilityFailures": 65,
+  "buildSha256": "cdff63fbb984a8302ff59dd340b31c5444547f9957a6e956f06f6a987decd102",
+  "duration": "27m0.328s",
+  "sourceEditsDuringRun": false,
+  "retries": 0,
+  "referencesAccepted": false,
+  "interpretation": "Initial integrated run, superseded only after repairs and a newly bound final run. Pixel classification uses the first error line, not code excerpts."
+}

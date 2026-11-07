@@ -1,0 +1,91 @@
+{
+  "stories": [
+    "screens-games-battleship-setup--spatial-region-selection",
+    "screens-games-word-tiles-board--assign-a-blank",
+    "screens-games-numberlink-puzzle--next-puzzle"
+  ],
+  "viewports": [
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "themes": [
+    "light"
+  ],
+  "globals": "",
+  "files": [
+    {
+      "file": "screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+      "story": "screens-games-battleship-setup--spatial-region-selection",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--spatial-region-selection&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-battleship-setup--spatial-region-selection--desktop--light.png",
+      "story": "screens-games-battleship-setup--spatial-region-selection",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-battleship-setup--spatial-region-selection&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+      "story": "screens-games-word-tiles-board--assign-a-blank",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--assign-a-blank&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light.png",
+      "story": "screens-games-word-tiles-board--assign-a-blank",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-word-tiles-board--assign-a-blank&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-numberlink-puzzle--next-puzzle--phone--light.png",
+      "story": "screens-games-numberlink-puzzle--next-puzzle",
+      "viewport": {
+        "name": "phone",
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-numberlink-puzzle--next-puzzle&viewMode=story&instrument=true&globals=theme:light"
+    },
+    {
+      "file": "screens-games-numberlink-puzzle--next-puzzle--desktop--light.png",
+      "story": "screens-games-numberlink-puzzle--next-puzzle",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "url": "<storybook>/iframe.html?id=screens-games-numberlink-puzzle--next-puzzle&viewMode=story&instrument=true&globals=theme:light"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/tools-harness-ts
+   • Running configure:brand-policy in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/tools-harness-ts:configure:identity: cache bypass, force executing 8ec2b1494d68aa74
+@libs/tools-harness-ts:configure:identity: $ bun run scripts/materialize-product-identity.ts
+@libs/tools-harness-ts:configure:identity: identity: materialized configured configuration (values omitted)
+@libs/tools-harness-ts:configure:brand-policy: cache bypass, force executing 3810094eb65b0e33
+@libs/tools-harness-ts:configure:brand-policy: $ bun run scripts/verify-brand-policy.ts
+@libs/tools-harness-ts:configure:brand-policy: brand policy: 17117 files, none spells the brand outside @libs/product-identity (8 verified generated artifacts)
+
+ Tasks:    2 successful, 2 total
+Cached:    0 cached, 2 total
+  Time:    1.807s 
+

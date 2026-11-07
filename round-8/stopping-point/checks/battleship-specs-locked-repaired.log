@@ -1,0 +1,15 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-harness-ts
+   • Running test:spec:0, test:spec:1, test:spec:2, test:spec:3, test:spec:4, test:spec:5, test:spec:6, test:spec:7, test:spec:8, test:spec:9 in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/battleship-harness-ts:prepare:spec: cache miss, executing 8a4f519043e9e649
+@libs/battleship-harness-ts:prepare:spec: $ bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts
+@libs/battleship-harness-ts:prepare:spec: quint: preparing battleship-fleet-setup.qnt
+@libs/battleship-harness-ts:prepare:spec: quint: preparing battleship-play.qnt
+
+ Tasks:    11 successful, 11 total
+Cached:    0 cached, 11 total
+  Time:    2m34.728s 
+

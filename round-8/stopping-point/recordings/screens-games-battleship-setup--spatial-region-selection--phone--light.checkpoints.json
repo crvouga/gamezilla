@@ -1,0 +1,920 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [2] toBeLessThanOrEqual"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [4] toBeLessThanOrEqual"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [6] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [10] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [12] toBeLessThanOrEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [14] toBe"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [16] toBe"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [18] toBeLessThan"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [20] toBeLessThanOrEqual"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [22] toBeLessThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [24] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [26] toBeLessThanOrEqual"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [28] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [30] toBeLessThanOrEqual"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [32] toBe"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [34] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [36] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [38] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [40] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [42] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [44] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [46] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [48] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [50] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [52] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [54] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [56] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [58] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [60] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [62] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [64] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [66] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [68] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [70] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [72] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [74] toBeLessThanOrEqual"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [76] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [80] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [82] toBeLessThanOrEqual"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [84] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 85,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [86] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 87,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [87] click"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [89] toHaveAttribute"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [91] toBeLessThanOrEqual"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [93] toBeLessThanOrEqual"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [95] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 96,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [97] toBeLessThanOrEqual"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [99] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [101] toBeLessThanOrEqual"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [103] toBe"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [105] toBe"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [107] toBeLessThan"
+    ],
+    "cursor": 108,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [109] toBeLessThanOrEqual"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [111] toBeLessThanOrEqual"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [113] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [115] toBeLessThanOrEqual"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [117] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [119] toBeLessThanOrEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [121] toBe"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [123] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 124,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [125] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [127] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [129] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 130,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [131] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 132,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [133] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [135] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [137] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [139] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [141] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [143] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [145] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [147] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 148,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [149] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [151] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 152,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [153] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [157] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [159] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [161] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [163] toBeLessThanOrEqual"
+    ],
+    "cursor": 164,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [165] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [168] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 169,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [170] toBeLessThanOrEqual"
+    ],
+    "cursor": 171,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [172] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 173,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [174] toBeLessThanOrEqual"
+    ],
+    "cursor": 175,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [176] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 177,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [178] toBeLessThanOrEqual"
+    ],
+    "cursor": 179,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [180] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 181,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [181] click"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--089.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--spatial-region-selection [184] toHaveAccessibleName"
+    ],
+    "cursor": 185,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--090.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 185,
+    "failures": [],
+    "file": "screens-games-battleship-setup--spatial-region-selection--phone--light--091.png",
+    "capturedFrame": true
+  }
+]

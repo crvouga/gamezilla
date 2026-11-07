@@ -1,0 +1,13 @@
+{
+  "candidateSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+  "buildSourceSha": "54ed1b515d1284887937e7073420b2ff0a315970",
+  "buildSha256": "0279a32ab2c3c7f756b3eaea2ab127dc2a3333f67d7be73ce241f66ff53386db",
+  "cases": 67,
+  "nativeReadinessPlayBrowserErrorAxePassed": 65,
+  "layoutOnlyPassed": 2,
+  "interactionAccessibilityFailures": 0,
+  "pixelFailures": 65,
+  "pixelReferencesAccepted": false,
+  "fullFinalMatrixRerun": false,
+  "reason": "User directed a stopping point; reran every previous functional failure plus four new literal regressions. Initial full 824-case run is preserved separately."
+}

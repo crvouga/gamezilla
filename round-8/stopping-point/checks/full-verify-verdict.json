@@ -1,0 +1,50 @@
+{
+  "candidateSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 TURBO_CONCURRENCY=1 bun verify",
+  "runs": 1,
+  "exitCode": 1,
+  "status": "failed",
+  "reportedTaskCounts": [
+    {
+      "successful": 13,
+      "total": 13
+    },
+    {
+      "successful": 20,
+      "total": 30
+    }
+  ],
+  "reportedFailedTasks": [
+    "@libs/tools-harness-ts#ci:goals"
+  ],
+  "knownOutsideBoardFindings": [
+    {
+      "task": "@libs/tools-harness-ts#ci:goals",
+      "registration": "account-connect-error-label-clipped",
+      "scope": "inherited upstream outside board scope; inspect exact log"
+    },
+    {
+      "task": "@libs/tools-harness-ts#ci:goals",
+      "registration": "denial-only-explanation-truncated",
+      "scope": "inherited upstream outside board scope; inspect exact log"
+    },
+    {
+      "task": "@libs/tools-harness-ts#ci:goals",
+      "registration": "friend-long-name-escapes-profile",
+      "scope": "inherited upstream outside board scope; inspect exact log"
+    },
+    {
+      "task": "@libs/tools-harness-ts#ci:goals",
+      "registration": "publication-denial-state-clipped",
+      "scope": "inherited upstream outside board scope; inspect exact log"
+    },
+    {
+      "task": "@libs/tools-harness-ts#ci:goals",
+      "registration": "synthetic-population-initial-state-fixture-saveable",
+      "scope": "inherited upstream outside board scope; inspect exact log"
+    }
+  ],
+  "log": "verify-final.log",
+  "diagnostics": "verify-diagnostics-parts.json",
+  "archiveMembers": 40120
+}

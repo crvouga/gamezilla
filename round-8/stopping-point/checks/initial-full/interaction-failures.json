@@ -1,0 +1,1107 @@
+[
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates regression quoridor-spatial-task-too-small",
+    "file": "board-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:68:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-five.checks.ts-002b5-idor-spatial-task-too-small-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4376
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players regression shared-board-metadata-height",
+    "file": "board-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts:95:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-five.checks.ts-f61e4-hared-board-metadata-height-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5267
+  },
+  {
+    "title": "games-battleship-target-layout--map-only light-1440",
+    "file": "board-round-four.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: Missing board-local reference\n\n  107 |     test(`${id} ${theme}-1440`, async ({ page }) => {\n  108 |       const story = index.entries[id];\n> 109 |       if (!story) throw new Error('Missing board-local reference');\n      |                         ^\n  110 |       const phone = visualScenarios(story).find((item) => item.theme === theme);\n  111 |       if (!phone) throw new Error('Missing theme scenario');\n  112 |       await verifyStoryScenario(page, id, {\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:109:25"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-b6e50-layout--map-only-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 132
+  },
+  {
+    "title": "games-battleship-target-layout--map-only dark-1440",
+    "file": "board-round-four.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: Missing board-local reference\n\n  107 |     test(`${id} ${theme}-1440`, async ({ page }) => {\n  108 |       const story = index.entries[id];\n> 109 |       if (!story) throw new Error('Missing board-local reference');\n      |                         ^\n  110 |       const phone = visualScenarios(story).find((item) => item.theme === theme);\n  111 |       if (!phone) throw new Error('Missing theme scenario');\n  112 |       await verifyStoryScenario(page, id, {\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:109:25"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-7743d--layout--map-only-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 142
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates regression quoridor-hill-precise-controls-below-viewport",
+    "file": "board-round-four.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:133:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-8e32e-ise-controls-below-viewport-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4363
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates regression quoridor-desktop-wall-confirmation-below-viewport",
+    "file": "board-round-four.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:147:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-fc722-confirmation-below-viewport-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4401
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-mode-hit-overlap",
+    "file": "board-round-four.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:188:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-b7614-iles-blank-mode-hit-overlap-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4409
+  },
+  {
+    "title": "storybook integration: screens-games-quoridor-hill--opening keeps complete commands inside the record",
+    "file": "game-layout.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#storybook-root')\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\">\u2026</div>\u001b[22m\n\u001b[2m    13 \u00d7 unexpected value \"null\"\u001b[22m\n\u001b[2m       - locator resolved to <div id=\"storybook-root\" data-story-status=\"error\" data-story-error=\"expected 'solid' to be 'none' // Object.is equality\">\u2026</div>\u001b[22m\n\u001b[2m    - unexpected value \"null\"\u001b[22m\n\n\n   6 |     `/iframe.html?id=${story}&viewMode=story&globals=theme:light`\n   7 |   );\n>  8 |   await expect(page.locator('#storybook-root')).toHaveAttribute(\n     |                                                 ^\n   9 |     'data-story-ready',\n  10 |     'true'\n  11 |   );\n    at openGame (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts:8:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts:81:5"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/game-layout.checks.ts-stor-1b169--commands-inside-the-record-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5177
+  },
+  {
+    "title": "storybook integration: screens-games-word-tiles-board--your-turn keeps complete commands inside the record",
+    "file": "game-layout.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-component=\"CustomGameReview\"]').getByRole('button', { name: 'Play word', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-component=\"CustomGameReview\"]').getByRole('button', { name: 'Play word', exact: true })\u001b[22m\n\n\n  87 |       await expect(\n  88 |         panel.getByRole('button', { name, exact: true })\n> 89 |       ).toBeVisible();\n     |         ^\n  90 |     expect(await containedItems(panel, 'button')).toEqual([]);\n  91 |   });\n  92 | }\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts:89:9"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/game-layout.checks.ts-stor-2ff5d--commands-inside-the-record-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5529
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--46e16-eometry--four-players-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5351
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--88bd1-geometry--four-players-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5266
+  },
+  {
+    "title": "screens-games-frame-geometry--win light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Final\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Finished\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-frame-geometry--win-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5384
+  },
+  {
+    "title": "screens-games-frame-geometry--win dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Final\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Finished\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-frame-geometry--win-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5244
+  },
+  {
+    "title": "screens-games-frame-geometry--drawn light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 445 to be less than 440\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-frame-geometry--drawn-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4367
+  },
+  {
+    "title": "screens-games-frame-geometry--drawn dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 445 to be less than 440\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-frame-geometry--drawn-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5268
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players-desktop light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--db6f3--four-players-desktop-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5278
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players-desktop dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e24bf---four-players-desktop-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5259
+  },
+  {
+    "title": "screens-games-frame-geometry--win-desktop light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Final\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Finished\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--911d6-geometry--win-desktop-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5274
+  },
+  {
+    "title": "screens-games-frame-geometry--win-desktop dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Final\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Finished\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--dcdef--geometry--win-desktop-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5259
+  },
+  {
+    "title": "screens-games-frame-geometry--drawn-desktop light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 445 to be less than 440\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--f31ff-ometry--drawn-desktop-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5273
+  },
+  {
+    "title": "screens-games-frame-geometry--drawn-desktop dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 445 to be less than 440\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--49d42-eometry--drawn-desktop-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5252
+  },
+  {
+    "title": "screens-games-quoridor-hill--opening light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-quoridor-hill--opening-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4522
+  },
+  {
+    "title": "screens-games-quoridor-hill--opening dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-quoridor-hill--opening-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4368
+  },
+  {
+    "title": "screens-games-quoridor-hill--opening light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--10a30-or-hill--opening-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4394
+  },
+  {
+    "title": "screens-games-quoridor-hill--opening dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--70f91-dor-hill--opening-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4390
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--18866---precise-coordinates-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4433
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--25d7d-l--precise-coordinates-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4366
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--0cea9-cise-coordinates-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4334
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--3dde7-ecise-coordinates-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4327
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: custom-game-board-wall-commit: expected [ 'outside initial viewport', \u2026(4) ] to deeply equal []\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4457
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: custom-game-board-wall-commit: expected [ 'outside initial viewport', \u2026(4) ] to deeply equal []\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4396
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ea79b-idor-classic--opening-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4362
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e8725-ridor-classic--opening-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4367
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--21ce9-classic--opening-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4378
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--2b693--classic--opening-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4317
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c6838---precise-coordinates-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4515
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--8d2cf-c--precise-coordinates-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4364
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--2435b-cise-coordinates-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4381
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ffde5-ecise-coordinates-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4384
+  },
+  {
+    "title": "screens-games-sokoban-puzzle--solved light",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Puzzle completed\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Completion savedYour completion is saved. You can keep playing or choose another puzzle.\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-sokoban-puzzle--solved-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5423
+  },
+  {
+    "title": "screens-games-sokoban-puzzle--solved dark",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Puzzle completed\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Completion savedYour completion is saved. You can keep playing or choose another puzzle.\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens-games-sokoban-puzzle--solved-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5249
+  },
+  {
+    "title": "screens-games-sokoban-puzzle--solved light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Puzzle completed\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Completion savedYour completion is saved. You can keep playing or choose another puzzle.\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--45a2b-n-puzzle--solved-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5245
+  },
+  {
+    "title": "screens-games-sokoban-puzzle--solved dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- success\u001b[39m\n\u001b[31m+ error: \\x1b[2mexpect(\\x1b[22m\\x1b[31melement\\x1b[39m\\x1b[2m).toHaveTextContent()\\x1b[22m\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+ Expected element to have text content:\u001b[39m\n\u001b[31m+ \\x1b[32m  Puzzle completed\\x1b[39m\u001b[39m\n\u001b[31m+ Received:\u001b[39m\n\u001b[31m+ \\x1b[31m  Completion savedYour completion is saved. You can keep playing or choose another puzzle.\\x1b[39m\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--3805d-an-puzzle--solved-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5271
+  },
+  {
+    "title": "screens-games-word-tiles-board--opening light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--06eae-s-board--opening-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4454
+  },
+  {
+    "title": "screens-games-word-tiles-board--opening dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--60137-es-board--opening-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4394
+  },
+  {
+    "title": "screens-games-word-tiles-board--your-turn light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ed4cb-board--your-turn-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4550
+  },
+  {
+    "title": "screens-games-word-tiles-board--your-turn dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--97fc9--board--your-turn-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4372
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4577
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4395
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--38248-rged-coordinates-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4582
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c61d3-arged-coordinates-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4401
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--reach-target light-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--bb851-le--reach-target-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4413
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--reach-target dark-1440",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--b7dbd-zle--reach-target-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5263
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening regression quoridor-intrinsic-action-clipping",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:170:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eaf51-r-intrinsic-action-clipping-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4555
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round regression quoridor-hill-four-seat-confirm-below-fold",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: custom-game-board-wall-commit: expected [ 'outside initial viewport', \u2026(4) ] to deeply equal []\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:376:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4506
+  },
+  {
+    "title": "screens-games-frame-geometry--four-players regression shared-board-four-seat-wrapped-name-height",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 52 to be less than 2\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:409:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1c499-ur-seat-wrapped-name-height-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 5341
+  },
+  {
+    "title": "screens-games-quoridor-classic--opening regression quoridor-competing-cell-chrome",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:585:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--81373-ridor-competing-cell-chrome-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4597
+  },
+  {
+    "title": "screens-games-quoridor-classic--precise-coordinates regression quoridor-wall-start-wording",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:618:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--3f93e-quoridor-wall-start-wording-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4367
+  },
+  {
+    "title": "screens-games-quoridor-hill--precise-coordinates regression quoridor-wall-start-wording",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected 'solid' to be 'none' // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:629:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--b7e9b-quoridor-wall-start-wording-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4334
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank 1440 regression word-tiles-blank-assignment-context",
+    "file": "stories.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:674:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--8b1c3-es-blank-assignment-context-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4395
+  },
+  {
+    "title": "screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window light-1440",
+    "file": "word-tiles-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-09ff9-precision-window-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4523
+  },
+  {
+    "title": "screens-games-word-tiles-board--your-turn regression word-tiles-cramped-precision-window dark-1440",
+    "file": "word-tiles-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-cb7ce--precision-window-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4399
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window light-1440",
+    "file": "word-tiles-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-7f341-precision-window-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4391
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window dark-1440",
+    "file": "word-tiles-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-85dfc--precision-window-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4448
+  },
+  {
+    "title": "screens-games-word-tiles-board--your-turn regression word-tiles-match-desktop-board-overflow",
+    "file": "word-tiles-round-five.checks.ts",
+    "status": "failed",
+    "kind": "interaction-or-accessibility",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"success\"\u001b[39m\nReceived: \u001b[31m\"error: expected false to be true // Object.is equality\"\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe('success');\n     |      ^\n  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:86:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-f6e81-atch-desktop-board-overflow-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 4520
+  }
+]

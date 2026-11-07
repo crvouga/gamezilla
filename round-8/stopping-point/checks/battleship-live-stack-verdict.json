@@ -1,0 +1,13 @@
+{
+  "candidateSha": "5bfc1564a2f509fb81ea1c0d6d32684b245d4520",
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 bun run own -- bunx turbo run test:stack --filter=@apps/product-ts --concurrency=1 -- specs/battleship/battleship-start.feature specs/battleship/battleship-shots.feature specs/battleship/battleship-accessibility.feature",
+  "passed": 0,
+  "failed": 24,
+  "runtime": "bun-webview against isolated localhost stack",
+  "blockingElement": "status-current-user",
+  "boardSetupReached": false,
+  "rootCause": "Not established. All retained reports fail the application identity readiness check before board setup; server traces contain startup requests only. No rerun without repair.",
+  "reports": 24,
+  "retries": 0,
+  "timeoutChanged": false
+}

@@ -1,0 +1,18 @@
+[
+  "docs/SELF_SERVICE_READINESS.md",
+  "libs/game-session-client-ts/src/game-frame-geometry.example.tsx",
+  "libs/game-session-client-ts/src/game-frame-geometry.stories.tsx",
+  "libs/sokoban-client-ts/src/sokoban-player.stories.tsx",
+  "pkgs/ui-root-client-ts/src/cell-grid-board/cell-grid-board.module.css",
+  "pkgs/ui-root-client-ts/src/game-move-list/game-move-list.module.css",
+  "pkgs/ui-root-client-ts/src/game-screen/game-precision.module.css",
+  "pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css",
+  "pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css",
+  "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts",
+  "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts",
+  "pkgs/ui-root-harness-ts/tests/storybook/board-round-eight.checks.ts",
+  "libs/tools-harness-ts/goal/known-bugs/quoridor-goal-marker-reset-border.json",
+  "libs/tools-harness-ts/goal/known-bugs/shared-frame-draw-board-below-bound.json",
+  "libs/tools-harness-ts/goal/known-bugs/word-tiles-desktop-seat-host-clipping.json",
+  "libs/tools-harness-ts/goal/known-bugs/word-tiles-fitted-cell-rounded-hit-gap.json"
+]

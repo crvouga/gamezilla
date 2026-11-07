@@ -1,0 +1,1527 @@
+[
+  {
+    "file": "GALLERY.md",
+    "bytes": 2964,
+    "sha256": "a62389cd7e57e862f785fb63b110ffc7baf1914b8332b926920c316ee05a9524"
+  },
+  {
+    "file": "HANDOFF.md",
+    "bytes": 4991,
+    "sha256": "2b34b8d304ea2248576dbf0c2541eba98e6ebe02f5583f2e8f37091db72d05d2"
+  },
+  {
+    "file": "REVIEW_INPUTS.md",
+    "bytes": 778,
+    "sha256": "e2a0f820701ced9c70c36c7b147d14f3abfec131e4ab4132424fe00a64744d2e"
+  },
+  {
+    "file": "after/capture.json",
+    "bytes": 5425,
+    "sha256": "3400a9520bf95318523c5d37ec784f0d90eb5619f59bf4da2dfbfee1565bf922"
+  },
+  {
+    "file": "after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png",
+    "bytes": 60519,
+    "sha256": "fb0826eaefa7ee34e31fbca640535377c7ad16377c9d1391a0ec1482d8de37a8"
+  },
+  {
+    "file": "after/screens-games-battleship-setup--spatial-region-selection--desktop--light.png",
+    "bytes": 61172,
+    "sha256": "3ca7fa9a2fa5fc2856986f933db6bdf976082bd025790412b4b0da50aed8f282"
+  },
+  {
+    "file": "after/screens-games-battleship-setup--spatial-region-selection--phone--dark.png",
+    "bytes": 41531,
+    "sha256": "c114c71931a0d39479a0a4dfcf114b02a73c49757811410137148813f73dd613"
+  },
+  {
+    "file": "after/screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+    "bytes": 41991,
+    "sha256": "d9a4c9862b3b3e0cb88eac7335f9f780e38dcbe920fc0e4c0eed9a88be3ae4c0"
+  },
+  {
+    "file": "after/screens-games-numberlink-puzzle--next-puzzle--desktop--dark.png",
+    "bytes": 83356,
+    "sha256": "36dff3ca90ed1b04e698db594233e33184276e55693aab1c508741e546cd9589"
+  },
+  {
+    "file": "after/screens-games-numberlink-puzzle--next-puzzle--desktop--light.png",
+    "bytes": 83219,
+    "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+  },
+  {
+    "file": "after/screens-games-numberlink-puzzle--next-puzzle--phone--dark.png",
+    "bytes": 61299,
+    "sha256": "9b687028c9ec760e26475f2655b7f58db05bbb653f8c4ba364066578718b3038"
+  },
+  {
+    "file": "after/screens-games-numberlink-puzzle--next-puzzle--phone--light.png",
+    "bytes": 61083,
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+  },
+  {
+    "file": "after/screens-games-word-tiles-board--assign-a-blank--desktop--dark.png",
+    "bytes": 97378,
+    "sha256": "6d182f07ce529bad601f6ddba2cbda9b3701024e72f158b2f300d65ddf7b4a50"
+  },
+  {
+    "file": "after/screens-games-word-tiles-board--assign-a-blank--desktop--light.png",
+    "bytes": 96643,
+    "sha256": "16ae62492962cbce25ad4881af8b9e0636587211923d1989f2e7be727e532c75"
+  },
+  {
+    "file": "after/screens-games-word-tiles-board--assign-a-blank--phone--dark.png",
+    "bytes": 72254,
+    "sha256": "a1fce2511ffea084df7da66b1751e7c38bf1ff6cd63f8c66794c69c92ce728e5"
+  },
+  {
+    "file": "after/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+    "bytes": 71510,
+    "sha256": "01e0a85aba5d495de2488b8ef85b39d0d8ae4c489f38a9c598b5cf77d7a4cc23"
+  },
+  {
+    "file": "audit-final-media.py",
+    "bytes": 2826,
+    "sha256": "63b44327ba2fb1cf91b628ef87b998d47deb738fac85bb8e9e866808d30b48b5"
+  },
+  {
+    "file": "before/screens-games-word-tiles-board--assign-a-blank--desktop--dark.png",
+    "bytes": 86518,
+    "sha256": "54795d93fa9c9ae119dc0d25ada2bb31751b9f4bded35782fd581c8ff7e4d084"
+  },
+  {
+    "file": "before/screens-games-word-tiles-board--assign-a-blank--desktop--light.png",
+    "bytes": 85624,
+    "sha256": "9a410ee26cf56a0e395f9a26c94eeb9d2b661390ec906ff3f0aef90361c92781"
+  },
+  {
+    "file": "before/screens-games-word-tiles-board--assign-a-blank--phone--dark.png",
+    "bytes": 66829,
+    "sha256": "720451400948f8c3e9140057fc339e61e865c3b6f33adad0cc76588b63457f3f"
+  },
+  {
+    "file": "before/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+    "bytes": 65958,
+    "sha256": "f3b05f9b0d35b95cf70735d16d6bcc14dc0234c67fd95c1406cc4d0462ff5c93"
+  },
+  {
+    "file": "before-binding.json",
+    "bytes": 205,
+    "sha256": "5757d7e3bf69dc4818ccb41e83dde23f6c559acc6590500b35778d864d97cd86"
+  },
+  {
+    "file": "build-provenance.json",
+    "bytes": 91182,
+    "sha256": "273b88e5989a73472be4edc88fb6d318b56ec0c28cee85df68508d0a45c30c89"
+  },
+  {
+    "file": "checks/FULL_NATIVE_DIAGNOSIS.md",
+    "bytes": 2530,
+    "sha256": "7f5875db8609934fcc1bce7c24e07f567ac4fc85a520f91e817b7f34534b9b15"
+  },
+  {
+    "file": "checks/aggregate-stopping-candidate.log",
+    "bytes": 143782,
+    "sha256": "84b7bb6777f4e61052bed1c590a12e81051557ecd5edd6dac0062e2edfa9ccfb"
+  },
+  {
+    "file": "checks/battleship-live-stack-verdict.json",
+    "bytes": 758,
+    "sha256": "ed2dece0866d783638898f507fb55067015f519141df221b772fc8a0f8e320cd"
+  },
+  {
+    "file": "checks/battleship-specs-locked-repaired.log",
+    "bytes": 863,
+    "sha256": "6e8a065ffc89a3ce12636a60143e074b1b66bb720635399e5603cb311b27bd8f"
+  },
+  {
+    "file": "checks/configured-brand-policy.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "file": "checks/configured-brand-policy.log",
+    "bytes": 899,
+    "sha256": "36bdd14c17e0dd924f920911a75d607d989e6f5d3e23bd94c17791ac378107c5"
+  },
+  {
+    "file": "checks/conflict-paths.txt",
+    "bytes": 1316,
+    "sha256": "c1a11264bb012b4b2e65d3e4caa155e133a9bb3185d75bc47c242903859b177b"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/.last-run.json",
+    "bytes": 243,
+    "sha256": "4b58e2f56b0df53e38183d0bd7ff1539f6c26b319c7939628c1e75c806bc3329"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6cb26--desktop-seat-host-clipping-chromium/error-context.md",
+    "bytes": 31040,
+    "sha256": "25cbe55b853dd4c39f40f4464f91b1b321325c7fe41c975d45d20d023988eb94"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6cb26--desktop-seat-host-clipping-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png",
+    "bytes": 96177,
+    "sha256": "61c6abfa72228f22b89c607ce816264896015097a388c441f5ced96ae1313e2e"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6cb26--desktop-seat-host-clipping-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png",
+    "bytes": 106069,
+    "sha256": "e5e9b1a2a13685860c46b9f6f1579a6d3c5fbaedb86dc857a004387b36159f23"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6cb26--desktop-seat-host-clipping-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-expected.png",
+    "bytes": 76418,
+    "sha256": "f263d384b4b43f7ae2e4185faa42e007e6eb5b58e83b146c811d5106db86c8d7"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6e452-fitted-cell-rounded-hit-gap-chromium/error-context.md",
+    "bytes": 24777,
+    "sha256": "4746ff458b675381b65745ff21572f969b39c72f8edfc16facad4d223639f5c5"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6e452-fitted-cell-rounded-hit-gap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-actual.png",
+    "bytes": 72849,
+    "sha256": "1c0bbaf0bd48e0d2299c1d66825cd8640f24ea5a46807821a392a2a43489bcce"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6e452-fitted-cell-rounded-hit-gap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-diff.png",
+    "bytes": 102191,
+    "sha256": "49641d65beb81d02137e618a9a78fc342e4703f18664026744f8bac0dcd361d5"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-6e452-fitted-cell-rounded-hit-gap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-expected.png",
+    "bytes": 74129,
+    "sha256": "6f5832825f80a9be736018f62f224264e84cb6607160bd24e3fa54b6ce43d486"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-7611f-rame-draw-board-below-bound-chromium/error-context.md",
+    "bytes": 8321,
+    "sha256": "7a9a2077a1e82da3ee4d50d09c39b032e9feaa6a551d812ea1c12e3b6aa63910"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-cce79-or-goal-marker-reset-border-chromium/error-context.md",
+    "bytes": 13614,
+    "sha256": "a90e6d153e27c81774833baf02757021e2c0f90d10f323ffc8880e91ed0dc0b6"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-cce79-or-goal-marker-reset-border-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-actual.png",
+    "bytes": 51666,
+    "sha256": "50616732d210432aa4e733258c3b552fac53252042f6e8a0a0057207e1f6c3a7"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-cce79-or-goal-marker-reset-border-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-diff.png",
+    "bytes": 58804,
+    "sha256": "74c2a80cc83d2d4cd6f74c0813f16515f3ad0b0acb9805047ce58ad158d708bf"
+  },
+  {
+    "file": "checks/final-four-native/artifacts/board-round-eight.checks.t-cce79-or-goal-marker-reset-border-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-expected.png",
+    "bytes": 52056,
+    "sha256": "f59b8406e826ea27bfbe4b15a16eb894644cd85a81270469ae643365fba51366"
+  },
+  {
+    "file": "checks/final-four-native/browser-classification.json",
+    "bytes": 15893,
+    "sha256": "969fd93516eccb52acc8f73f782a141f010f218cd806b3ce5fedbdf566124c22"
+  },
+  {
+    "file": "checks/final-four-native/browser-results.json",
+    "bytes": 42311,
+    "sha256": "2d49d419ddb6c42db0c8110ece9377caf4f4964a6d41bc51020509096847dbd0"
+  },
+  {
+    "file": "checks/final-four-native/browser.log",
+    "bytes": 82882,
+    "sha256": "bb9da0d8ea80677852107ecbe7afda9aa4f315a3c0f8f80c5887ad6d08047500"
+  },
+  {
+    "file": "checks/final-four-native/build-provenance.json",
+    "bytes": 91182,
+    "sha256": "273b88e5989a73472be4edc88fb6d318b56ec0c28cee85df68508d0a45c30c89"
+  },
+  {
+    "file": "checks/final-four-native/interaction-failures.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "file": "checks/final-four-native/pixel-failures.json",
+    "bytes": 15616,
+    "sha256": "638d41976dd1f7695430ababa9a7608919c430f6fe6661990b794b3a5cdd85b2"
+  },
+  {
+    "file": "checks/final-pr-mergeability.json",
+    "bytes": 257,
+    "sha256": "a8ea0a35e0ee53c938e193bb4147c840458a7360b097e17c17a5a2e2b8f2bf0b"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/.last-run.json",
+    "bytes": 3036,
+    "sha256": "baae75f111fe24584deb9340826c58b313f82d1d3f0457e381243f00c28271b8"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-five.checks.ts-002b5-idor-spatial-task-too-small-chromium/error-context.md",
+    "bytes": 14164,
+    "sha256": "ee4f17bb6a1267e47eff52442bdbbcddf678bb89852e2fd583cc8d5ffd320d5c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-five.checks.ts-f61e4-hared-board-metadata-height-chromium/error-context.md",
+    "bytes": 8857,
+    "sha256": "79e4d7c99eb214bd1a7b8edc6c3aec99f1a993af054b675ec71613b10a16c07d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-8e32e-ise-controls-below-viewport-chromium/error-context.md",
+    "bytes": 14179,
+    "sha256": "6cf5821777bc1e99988b790fa05a12a0f927fd92d4ebb8b748be0ed92044a556"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-b7614-iles-blank-mode-hit-overlap-chromium/error-context.md",
+    "bytes": 31035,
+    "sha256": "1cd32aeeaaa721fea3904b0768dcedd4c127126067eea08c8961885099a77ea2"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-b7614-iles-blank-mode-hit-overlap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png",
+    "bytes": 96177,
+    "sha256": "61c6abfa72228f22b89c607ce816264896015097a388c441f5ced96ae1313e2e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-b7614-iles-blank-mode-hit-overlap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png",
+    "bytes": 106069,
+    "sha256": "e5e9b1a2a13685860c46b9f6f1579a6d3c5fbaedb86dc857a004387b36159f23"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-b7614-iles-blank-mode-hit-overlap-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-expected.png",
+    "bytes": 76418,
+    "sha256": "f263d384b4b43f7ae2e4185faa42e007e6eb5b58e83b146c811d5106db86c8d7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/board-round-four.checks.ts-fc722-confirmation-below-viewport-chromium/error-context.md",
+    "bytes": 13965,
+    "sha256": "97d694c2514ab15e84784e8c49575cb0dd83a3a37e37737db2a939c0c9c95618"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--06eae-s-board--opening-light-1440-chromium/error-context.md",
+    "bytes": 30988,
+    "sha256": "ce127b8ef3b60821bc5554d4b275c70f5f9436e1585982679d8aec1e574ea34e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--06eae-s-board--opening-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light-1440-actual.png",
+    "bytes": 95285,
+    "sha256": "e57a8e697e026ec78350eafca5428f7f2272b26da79a81f2414077e31b5ff9fe"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--06eae-s-board--opening-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light-1440-diff.png",
+    "bytes": 120525,
+    "sha256": "cac707d05f91183f96d471b9323d2041cb8befa47ca1b96ac39bcb600c9f9f05"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--06eae-s-board--opening-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-light-1440-expected.png",
+    "bytes": 94752,
+    "sha256": "82f242ab4c1d0947fb8bca7b26d3ca57ee7459d7d2d4adf77e26c9a729d88271"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--0cea9-cise-coordinates-light-1440-chromium/error-context.md",
+    "bytes": 16576,
+    "sha256": "18a7fa05ee6d2407576ca0a734a6a100c7419264bb2a20284dfc32fa8b75ab8a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--10a30-or-hill--opening-light-1440-chromium/error-context.md",
+    "bytes": 15389,
+    "sha256": "8ef5dbb58a37ef3869f8cc6097890222c7468b9f69bc43ee54f5bb2b73528f3a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--10a30-or-hill--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-1440-actual.png",
+    "bytes": 81327,
+    "sha256": "d9768f8720537ca9fb039e48770668336395ba9b6e4fff3c52bfa2f1ec0f50ed"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--10a30-or-hill--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-1440-diff.png",
+    "bytes": 88318,
+    "sha256": "b8df851e4d382bd91b05667cae902d138540fa746a578f8741fe0f7bde72e6f7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--10a30-or-hill--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-1440-expected.png",
+    "bytes": 70911,
+    "sha256": "8e331a58cb48060f4b59f32611003e99f20e9c4fd063a1518e9bab1cf26d6d3c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/error-context.md",
+    "bytes": 14907,
+    "sha256": "7adf9744841211fe84c1e6d386c81ce2daf007966b4eaee7c958f6e980138f87"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-actual.png",
+    "bytes": 57533,
+    "sha256": "61f52563424ac1e1bdacf162423fe938cf47b602e3d3d164eb872c67d32514fe"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-diff.png",
+    "bytes": 71038,
+    "sha256": "879c2f57b3f0d4aff540f3dd7564eb7f92dc1ae621a786849458e6f6cc877b23"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-expected.png",
+    "bytes": 63365,
+    "sha256": "b73107e95c2e6afafeef98729e5db5402e674168848bcfaec42b54948f12e7fb"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--18866---precise-coordinates-light-chromium/error-context.md",
+    "bytes": 14109,
+    "sha256": "83be4db8e4fd0dc27ce939173dfbfc31f68e9ed9bcc29a32787246b3da85ba0e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--1c499-ur-seat-wrapped-name-height-chromium/error-context.md",
+    "bytes": 8854,
+    "sha256": "9358e9d9a06ce2b2cfbd828579b0abe312c0928c61574415c6ebb77e00348781"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--21ce9-classic--opening-light-1440-chromium/error-context.md",
+    "bytes": 14574,
+    "sha256": "b642d3ac2edd7ce2f438042d91e0f7d06c07f2910ba5d0b37685f8e9cbb853de"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--21ce9-classic--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-1440-actual.png",
+    "bytes": 72920,
+    "sha256": "f67026c320733162ef521a1be00829b9db47eaaa4b2e95c9324a5ce9518ad3a0"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--21ce9-classic--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-1440-diff.png",
+    "bytes": 79095,
+    "sha256": "9f35874ae392e1d442492f891cb6e9aff5036a5005e9b5b7817f1cad0dd9ee2a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--21ce9-classic--opening-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-1440-expected.png",
+    "bytes": 60564,
+    "sha256": "99d783d1c951ae9bd6f3eff5676a6fe3899f1a3d83b370252217dc26229a0876"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--2435b-cise-coordinates-light-1440-chromium/error-context.md",
+    "bytes": 13896,
+    "sha256": "aae2330953f29ee960023a7c02dbf98ea6aa6b023806f5261f4e36d8992c5796"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--25d7d-l--precise-coordinates-dark-chromium/error-context.md",
+    "bytes": 14106,
+    "sha256": "51796266569b21e20edbb4de81776ea0abc342b99fe76b9fd162304a714e38c7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--2b693--classic--opening-dark-1440-chromium/error-context.md",
+    "bytes": 14574,
+    "sha256": "4f206c68c8d9dd8066a9f8ec1bd684bd84d72668b08228b4c07c20d6cec680d1"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--2b693--classic--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-1440-actual.png",
+    "bytes": 73153,
+    "sha256": "d6d636f11b9f4b0aaec673b78de53cfb9c2286e21194256522bbccb8ad70b7d9"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--2b693--classic--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-1440-diff.png",
+    "bytes": 81425,
+    "sha256": "d9ad202ec23bffe4dd46259f164c31eccce5ef8e1153292ff5e384c0454841d7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--2b693--classic--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-1440-expected.png",
+    "bytes": 60862,
+    "sha256": "4c62bb0eed9341a98bb9f1ad0596f2335dbfc040ac2833688de1a0e3be835e3a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3805d-an-puzzle--solved-dark-1440-chromium/error-context.md",
+    "bytes": 9957,
+    "sha256": "3f8c320a865889d755b4622acfac8dfab72b8877a4091734700b100827756b2b"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3805d-an-puzzle--solved-dark-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-1440-actual.png",
+    "bytes": 81053,
+    "sha256": "d43661e5b1bb66c191e6192732ada9a6d963abbee53c386f0ea82565fb7f7a97"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3805d-an-puzzle--solved-dark-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-1440-diff.png",
+    "bytes": 64483,
+    "sha256": "4922206839ee9b2dbce7212989e6e2c23b03352dceb40f35f9a422b73e5b53d6"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3805d-an-puzzle--solved-dark-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-1440-expected.png",
+    "bytes": 51238,
+    "sha256": "7ee1392d20cc3196542a6fe7505a15908c44a28dac4f5f63e95b7d2b25da62fa"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--38248-rged-coordinates-light-1440-chromium/error-context.md",
+    "bytes": 31690,
+    "sha256": "f029eb83de0f77788b6e633b5ed47eb43e920a238621aaf8b6bf260339fa93ea"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3dde7-ecise-coordinates-dark-1440-chromium/error-context.md",
+    "bytes": 16573,
+    "sha256": "c06e25202637a288936da2bb8be90365588289ec2911a70e71400adf44b25402"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--3f93e-quoridor-wall-start-wording-chromium/error-context.md",
+    "bytes": 12911,
+    "sha256": "51b8cb06c9b379f52996906683a666a13b66d197afbdecf8d2ec29eafb7eadef"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--45a2b-n-puzzle--solved-light-1440-chromium/error-context.md",
+    "bytes": 9960,
+    "sha256": "6af0e47f39f8c1cf730fb61670c71cd30411361f01111ab08bd1254f92fe6622"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--45a2b-n-puzzle--solved-light-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-1440-actual.png",
+    "bytes": 81523,
+    "sha256": "63381ad1678e168bd6a3c90f83fa3c747b961abb5269a09069818812a88770f2"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--45a2b-n-puzzle--solved-light-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-1440-diff.png",
+    "bytes": 59884,
+    "sha256": "9476d0adcb178d098b311fcb7bd683ba6eff2d8c422856bcecb01ca8a3639f81"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--45a2b-n-puzzle--solved-light-1440-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-1440-expected.png",
+    "bytes": 51474,
+    "sha256": "93d0ccbb5acdd1ef3e65ba3f8232d8a0924ccd807c04790f3ebe27bb8f2e337c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--46e16-eometry--four-players-light-chromium/error-context.md",
+    "bytes": 8805,
+    "sha256": "3117dd88654af47a44737e5471e10d5a16d8c46b3a5e80b73a5f8ef3021ae636"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--49d42-eometry--drawn-desktop-dark-chromium/error-context.md",
+    "bytes": 8281,
+    "sha256": "7af6e15bd1b21e63395c305b65a11d72c9d5ef203985e049a673674219e20431"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--60137-es-board--opening-dark-1440-chromium/error-context.md",
+    "bytes": 30985,
+    "sha256": "98d4ebbcd3c9d37eaad863417b1c194e3bbee5062b9e17b34e70174dd4482a6d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--60137-es-board--opening-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark-1440-actual.png",
+    "bytes": 95946,
+    "sha256": "e5c897c6863bfb53341ac86f9042d7ce5dbb8b9ed220955f00c1a5256a839a0c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--60137-es-board--opening-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark-1440-diff.png",
+    "bytes": 121962,
+    "sha256": "ea7c8988fc11ad56391eefb6a654be56801d8baa9cae03b123fe92974f669342"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--60137-es-board--opening-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/opening-dark-1440-expected.png",
+    "bytes": 95578,
+    "sha256": "bcc065ee5301c2e6d81d02c210e6599c55ee06c60e2cb9628acc014b029b08b2"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--70f91-dor-hill--opening-dark-1440-chromium/error-context.md",
+    "bytes": 15389,
+    "sha256": "2d8fc4033cf62eb242404fbe98aef3290c359b1cd5894b31b50dae36e4b60811"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--70f91-dor-hill--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-1440-actual.png",
+    "bytes": 81869,
+    "sha256": "c18a36299d659252f65f08eac6c4724d8a072be14e4cd3c7867860124670c6f2"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--70f91-dor-hill--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-1440-diff.png",
+    "bytes": 91765,
+    "sha256": "058ea49c18ef23a89de0330da8a4eca0d498dcd0c8596aa3ea5852cbc61ed8a7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--70f91-dor-hill--opening-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-1440-expected.png",
+    "bytes": 71258,
+    "sha256": "c314b21aaf4c2672c5d6ffdc28f5303516d03f39d4e716a4735b04ea2981e989"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/error-context.md",
+    "bytes": 30982,
+    "sha256": "38bf4cdf82a1c041ec7a922b8be28c571f9dd7d2a6a427e663648163ae9906ae"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png",
+    "bytes": 96177,
+    "sha256": "61c6abfa72228f22b89c607ce816264896015097a388c441f5ced96ae1313e2e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png",
+    "bytes": 106069,
+    "sha256": "e5e9b1a2a13685860c46b9f6f1579a6d3c5fbaedb86dc857a004387b36159f23"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-expected.png",
+    "bytes": 76418,
+    "sha256": "f263d384b4b43f7ae2e4185faa42e007e6eb5b58e83b146c811d5106db86c8d7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--81373-ridor-competing-cell-chrome-chromium/error-context.md",
+    "bytes": 13592,
+    "sha256": "c1921d2029156a7dbd3521c31e4589b95fa713adf0375b110e558e0b2b9d4e07"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--81373-ridor-competing-cell-chrome-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-actual.png",
+    "bytes": 51666,
+    "sha256": "50616732d210432aa4e733258c3b552fac53252042f6e8a0a0057207e1f6c3a7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--81373-ridor-competing-cell-chrome-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-diff.png",
+    "bytes": 58804,
+    "sha256": "74c2a80cc83d2d4cd6f74c0813f16515f3ad0b0acb9805047ce58ad158d708bf"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--81373-ridor-competing-cell-chrome-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-expected.png",
+    "bytes": 52056,
+    "sha256": "f59b8406e826ea27bfbe4b15a16eb894644cd85a81270469ae643365fba51366"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/error-context.md",
+    "bytes": 30979,
+    "sha256": "37bd11efc9c221e49d8804f7c69a7481da372722be75aee01b8329c9c4387c04"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-actual.png",
+    "bytes": 96903,
+    "sha256": "55c3d218b394793c515f0d56139f2983bbf107a8ca14c764055d5fbfadae9916"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-diff.png",
+    "bytes": 107338,
+    "sha256": "2789b5c5136eafbadf20e3d935405eda3c3c817d4a88484d888effcbfe3d0a0e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-expected.png",
+    "bytes": 77162,
+    "sha256": "d054c53abffce876ec7202787bd0fe9a719c0c97c12073aa4ac9bfe3ea7a5eb4"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--88bd1-geometry--four-players-dark-chromium/error-context.md",
+    "bytes": 8802,
+    "sha256": "26eae1fdddc4ecb4750488589118ce5e9768132f8bb296033052e61f8d60094a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--8b1c3-es-blank-assignment-context-chromium/error-context.md",
+    "bytes": 31024,
+    "sha256": "d7b8b44073b982c3b734e3baa6bc1fcae89d2c8a8c40262ebba015ce94984ce6"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--8b1c3-es-blank-assignment-context-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png",
+    "bytes": 96177,
+    "sha256": "61c6abfa72228f22b89c607ce816264896015097a388c441f5ced96ae1313e2e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--8b1c3-es-blank-assignment-context-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png",
+    "bytes": 106069,
+    "sha256": "e5e9b1a2a13685860c46b9f6f1579a6d3c5fbaedb86dc857a004387b36159f23"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--8b1c3-es-blank-assignment-context-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-expected.png",
+    "bytes": 76418,
+    "sha256": "f263d384b4b43f7ae2e4185faa42e007e6eb5b58e83b146c811d5106db86c8d7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--8d2cf-c--precise-coordinates-dark-chromium/error-context.md",
+    "bytes": 12874,
+    "sha256": "8c76fb5347c459acd447d89a672d7aa7ee43e27112660fe16fac5aba12bb13e1"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--911d6-geometry--win-desktop-light-chromium/error-context.md",
+    "bytes": 8326,
+    "sha256": "42933fee86b2bee8a301fd8bcba415badcd44ab03624a2573920fc2e663b0452"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--97fc9--board--your-turn-dark-1440-chromium/error-context.md",
+    "bytes": 31085,
+    "sha256": "7e8efd16aa793fbce3c6a33c970e6cf5342d4cb489a63f96e0c20802c0196bbf"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--97fc9--board--your-turn-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-actual.png",
+    "bytes": 93606,
+    "sha256": "a49f76cfb63d774103e0e3362685120a8716b929bd70dfcc6208ef009d5f4ef0"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--97fc9--board--your-turn-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-diff.png",
+    "bytes": 121861,
+    "sha256": "1b4717741c862af6b0e9de28281a241eb746c0ed09a291083c1c97dd3375d2da"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--97fc9--board--your-turn-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-expected.png",
+    "bytes": 96675,
+    "sha256": "bab8877e94d081d7c8a8f3c95b6baf21ca1a61b95513455fb6dba73d8ef29084"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--b7dbd-zle--reach-target-dark-1440-chromium/error-context.md",
+    "bytes": 24715,
+    "sha256": "5901b1f265a6059b8027401ee64ebc403dc9482e924c588afed8dcf43f2e9e27"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--b7dbd-zle--reach-target-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark-1440-actual.png",
+    "bytes": 73408,
+    "sha256": "2e4f39e985c32e9744843cd841d5c7205642316c4d11fe50e04ad34a33f96500"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--b7dbd-zle--reach-target-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark-1440-diff.png",
+    "bytes": 99932,
+    "sha256": "8c6490ccd4ef3431e5ed5cce041b5a9b4dcb7e6b914500badd5f436fbe3fbfb9"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--b7dbd-zle--reach-target-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-dark-1440-expected.png",
+    "bytes": 74639,
+    "sha256": "68839e505917851302a4b6ab559470fb1ee34b56eb0c4536a9ba2450ad8bab06"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--b7e9b-quoridor-wall-start-wording-chromium/error-context.md",
+    "bytes": 14143,
+    "sha256": "1d99df135258ef4611267f6f7e0dc4bdaafedbc187fd266731cb8b77f81aa711"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--bb851-le--reach-target-light-1440-chromium/error-context.md",
+    "bytes": 24718,
+    "sha256": "6f74d60b97fe1075498285bbf9832b9d5d8424594e751567a501f98503afe34e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--bb851-le--reach-target-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-actual.png",
+    "bytes": 72849,
+    "sha256": "1c0bbaf0bd48e0d2299c1d66825cd8640f24ea5a46807821a392a2a43489bcce"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--bb851-le--reach-target-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-diff.png",
+    "bytes": 102191,
+    "sha256": "49641d65beb81d02137e618a9a78fc342e4703f18664026744f8bac0dcd361d5"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--bb851-le--reach-target-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/reach-target-light-1440-expected.png",
+    "bytes": 74129,
+    "sha256": "6f5832825f80a9be736018f62f224264e84cb6607160bd24e3fa54b6ce43d486"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--c61d3-arged-coordinates-dark-1440-chromium/error-context.md",
+    "bytes": 31687,
+    "sha256": "dd7289631861f0223bf8897a51d9360c5f6d77049046ee4d19ff9c29a97ced4a"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--c6838---precise-coordinates-light-chromium/error-context.md",
+    "bytes": 12877,
+    "sha256": "876a4f8681f9d2c8eb9ae0bc854e16a071b4fb2f16b285e8086781ef17987da4"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--db6f3--four-players-desktop-light-chromium/error-context.md",
+    "bytes": 8829,
+    "sha256": "3202d2b6e043da6901fb8f106498a42c7c92c06e1bcf579409af5795e5f5e8da"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--dcdef--geometry--win-desktop-dark-chromium/error-context.md",
+    "bytes": 8323,
+    "sha256": "87e7992471d10b865cc3dbc8baccf8194520e40dcaa4cf757ab905df7ee547d9"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--e24bf---four-players-desktop-dark-chromium/error-context.md",
+    "bytes": 8826,
+    "sha256": "6b81bdd200b67abe8bb119c36d3bff54905816e96623374fdb05b3439c12a179"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--e8725-ridor-classic--opening-dark-chromium/error-context.md",
+    "bytes": 13552,
+    "sha256": "003c6110ace26c4246c4c4bc7b89a3df1f9ef2414db6d2095066f7d9ec547036"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--e8725-ridor-classic--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-actual.png",
+    "bytes": 52547,
+    "sha256": "eaf6dfba7bed4ee9cd7d4f1388513d4b7e638c07ab82b46bd6e90f471ec58dd7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--e8725-ridor-classic--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-diff.png",
+    "bytes": 61830,
+    "sha256": "374baf7bf7a310ce81d36498cfde9208179475e965a6828aaf34ff005e4c48e9"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--e8725-ridor-classic--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-dark-expected.png",
+    "bytes": 52899,
+    "sha256": "334b53802939c90bde8d05ec194d9fbf7aba0cae47a3a23bcb12ee90c50120f7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ea79b-idor-classic--opening-light-chromium/error-context.md",
+    "bytes": 13555,
+    "sha256": "632173bf35766a175668e02a2071b565e7d8e9f79b8004f086e37ba401cd63ca"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ea79b-idor-classic--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-actual.png",
+    "bytes": 51666,
+    "sha256": "50616732d210432aa4e733258c3b552fac53252042f6e8a0a0057207e1f6c3a7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ea79b-idor-classic--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-diff.png",
+    "bytes": 58804,
+    "sha256": "74c2a80cc83d2d4cd6f74c0813f16515f3ad0b0acb9805047ce58ad158d708bf"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ea79b-idor-classic--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-expected.png",
+    "bytes": 52056,
+    "sha256": "f59b8406e826ea27bfbe4b15a16eb894644cd85a81270469ae643365fba51366"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--eaf51-r-intrinsic-action-clipping-chromium/error-context.md",
+    "bytes": 13596,
+    "sha256": "30bbb550d51d1bf0c7074d2d777c46091197dcbf1edf5df3ca5a90ddfd9efa84"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--eaf51-r-intrinsic-action-clipping-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-actual.png",
+    "bytes": 51666,
+    "sha256": "50616732d210432aa4e733258c3b552fac53252042f6e8a0a0057207e1f6c3a7"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--eaf51-r-intrinsic-action-clipping-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-diff.png",
+    "bytes": 58804,
+    "sha256": "74c2a80cc83d2d4cd6f74c0813f16515f3ad0b0acb9805047ce58ad158d708bf"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--eaf51-r-intrinsic-action-clipping-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/opening-light-expected.png",
+    "bytes": 52056,
+    "sha256": "f59b8406e826ea27bfbe4b15a16eb894644cd85a81270469ae643365fba51366"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/error-context.md",
+    "bytes": 14959,
+    "sha256": "3b0721562a32ff5077ef952134ee7f853bb80c506be6698316d8f51f2de70239"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png",
+    "bytes": 56641,
+    "sha256": "e17378fedecde35b8375b93144d99182a93e16b9538e6edfe6ad186e16d9f32f"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png",
+    "bytes": 66463,
+    "sha256": "0f197a022409604fc97d432307a8a6197a90c948c65bc16be7ad8b7ffaca7293"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-expected.png",
+    "bytes": 62387,
+    "sha256": "69c78cfb3f0a368c3a33ac5e461eb1643b4ebe25be28639f48e9c9b554f7b05d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed4cb-board--your-turn-light-1440-chromium/error-context.md",
+    "bytes": 31088,
+    "sha256": "7b7fc30c4ce5198e827d2d3d379d83c9b8613ae54996ce690e1014c6bda2f98d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed4cb-board--your-turn-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-actual.png",
+    "bytes": 93011,
+    "sha256": "6b413158f3f1e087f45fc28c9706f3eadb43c2eb4245f55ba8614bcc850caa38"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed4cb-board--your-turn-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-diff.png",
+    "bytes": 119983,
+    "sha256": "49d83e54da1385d7f8ff2ffaedd335626f9f62182b38a8f02402cf96eacfb4f3"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ed4cb-board--your-turn-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-expected.png",
+    "bytes": 95888,
+    "sha256": "c9265085a1bde40c03ce9dc62b9e03be1e37306c9430ac29c8fd36c3e59e76bd"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--f31ff-ometry--drawn-desktop-light-chromium/error-context.md",
+    "bytes": 8284,
+    "sha256": "f09771b19f9a1f5a715ed9ff82b4fa094fe469255ad3f7508667e720658fb6eb"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/error-context.md",
+    "bytes": 14910,
+    "sha256": "f510f1f21d9bd557c5a85f263779cf99540014d08ebe9b54cb82a50d58ae3398"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png",
+    "bytes": 56641,
+    "sha256": "e17378fedecde35b8375b93144d99182a93e16b9538e6edfe6ad186e16d9f32f"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png",
+    "bytes": 66463,
+    "sha256": "0f197a022409604fc97d432307a8a6197a90c948c65bc16be7ad8b7ffaca7293"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-expected.png",
+    "bytes": 62387,
+    "sha256": "69c78cfb3f0a368c3a33ac5e461eb1643b4ebe25be28639f48e9c9b554f7b05d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens--ffde5-ecise-coordinates-dark-1440-chromium/error-context.md",
+    "bytes": 13893,
+    "sha256": "e788197a38b589c505a11f684da9ae88fd77d1295337915c06f84f348a8bd91f"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-frame-geometry--drawn-dark-chromium/error-context.md",
+    "bytes": 8257,
+    "sha256": "ccb04b490f939da8f467013f3311b0e8c8acea2e5f0cc89938eb391dc522e8f8"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-frame-geometry--drawn-light-chromium/error-context.md",
+    "bytes": 8260,
+    "sha256": "a6d407944c7c59ad11e684e2356097ad78ef064968a01dac4a8430882bcbc5ef"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-frame-geometry--win-dark-chromium/error-context.md",
+    "bytes": 8299,
+    "sha256": "1840213dce7dc3879b129e1ed7231f34b3c6dd14c297883af4cc21b2e019cb6c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-frame-geometry--win-light-chromium/error-context.md",
+    "bytes": 8302,
+    "sha256": "3b2a00f1518da4ada4142cf0a8c9430d7a65a1fd4776dfa8c3432ff8734a9f56"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-dark-chromium/error-context.md",
+    "bytes": 14494,
+    "sha256": "b11205b637c90d50665309a4c38d9223754fc9c8bcc6add6fb3531be3758bdf0"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-actual.png",
+    "bytes": 57350,
+    "sha256": "acc8c09403570b3d0a5d0ab79834b72f3a0ee1af69ba20c81e570f7486ed530d"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-diff.png",
+    "bytes": 74226,
+    "sha256": "c46340bfeae62b2bd932b14a3df7386249af510f6942672c12c94861f4b2b83f"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-dark-expected.png",
+    "bytes": 62012,
+    "sha256": "e668afd3dd0f71204e5a61f3949abb52158a7887ca0e59aa289bab597165188c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-light-chromium/error-context.md",
+    "bytes": 14497,
+    "sha256": "b52d976bbbd411a3b220e50c4a0ac97daaf8562ebd06e334e252383a5090e3a0"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-actual.png",
+    "bytes": 56735,
+    "sha256": "46c797ba0904d46d39d694f4a590c4b6c9da17dd4d1409d78e4be6d9fb18ceb3"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-diff.png",
+    "bytes": 69482,
+    "sha256": "921e3cfdba182ee2b9b71b6da885aa31f7d333b5ace93b07654be5f79c7b9600"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-quoridor-hill--opening-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/opening-light-expected.png",
+    "bytes": 61057,
+    "sha256": "f51c49481b049a7e279da5aac2b675d357b6b3adcee45f684a7e6837cd03beaa"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-dark-chromium/error-context.md",
+    "bytes": 9301,
+    "sha256": "5c465e6a094507e415300aaaa0836ab79590955421bf65b33268031a3a778920"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-dark-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-actual.png",
+    "bytes": 45307,
+    "sha256": "dcb0e88bab8a7c9a951937c7608283d4b9ce0c87a1f424adbbfa63e3bd42baa4"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-dark-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-diff.png",
+    "bytes": 42375,
+    "sha256": "88c05c826994cbc7b3097bedb8c4cf7b3955c7c9a372fbe39b458b6222c98452"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-dark-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-dark-expected.png",
+    "bytes": 43522,
+    "sha256": "d9777026e852471ddeac95127f841208b003f031aa7e63118ef88fbbcabeb2c9"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-light-chromium/error-context.md",
+    "bytes": 9304,
+    "sha256": "9176b9fe13ee9f605d0006b3be8f491c8392de586ea4d64e7a8b29f51b7920d4"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-light-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-actual.png",
+    "bytes": 44603,
+    "sha256": "f32f7143310a4339b476765cc2e71275a2eca06849f0583ab870d8e83b18dedd"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-light-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-diff.png",
+    "bytes": 39843,
+    "sha256": "674dea46329a4fad5681130e7547ed4020ad27da73069170c66927bb6cf13b3e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/stories.checks.ts-screens-games-sokoban-puzzle--solved-light-chromium/libs/sokoban-client-ts/src/baselines/chromium/screens-games-sokoban-puzzle/solved-light-expected.png",
+    "bytes": 43071,
+    "sha256": "6c530b44ad6de3f619220d762402bb118738596210acbc951992b683da10ddc1"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-09ff9-precision-window-light-1440-chromium/error-context.md",
+    "bytes": 31163,
+    "sha256": "6d44b382d37d0b105456955441023b115d90df027aa5997232e40bbac081983b"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-09ff9-precision-window-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-actual.png",
+    "bytes": 93011,
+    "sha256": "6b413158f3f1e087f45fc28c9706f3eadb43c2eb4245f55ba8614bcc850caa38"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-09ff9-precision-window-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-diff.png",
+    "bytes": 119983,
+    "sha256": "49d83e54da1385d7f8ff2ffaedd335626f9f62182b38a8f02402cf96eacfb4f3"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-09ff9-precision-window-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-expected.png",
+    "bytes": 95888,
+    "sha256": "c9265085a1bde40c03ce9dc62b9e03be1e37306c9430ac29c8fd36c3e59e76bd"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-7f341-precision-window-light-1440-chromium/error-context.md",
+    "bytes": 31765,
+    "sha256": "6fd7a77ab4ee8ce864499b3eeaf505a44d0dc735e77549a993ecbcb9e6adbee3"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-85dfc--precision-window-dark-1440-chromium/error-context.md",
+    "bytes": 31762,
+    "sha256": "332169f7e7ba967708a9d4aeee4c326b628eefb5b0754cc1264715506c3bbbed"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-cb7ce--precision-window-dark-1440-chromium/error-context.md",
+    "bytes": 31160,
+    "sha256": "11bd560a3098a1f2f3719c3e8e353fb7e0d279cc30669c4f7ceb6eff46edef6e"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-cb7ce--precision-window-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-actual.png",
+    "bytes": 93606,
+    "sha256": "a49f76cfb63d774103e0e3362685120a8716b929bd70dfcc6208ef009d5f4ef0"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-cb7ce--precision-window-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-diff.png",
+    "bytes": 121861,
+    "sha256": "1b4717741c862af6b0e9de28281a241eb746c0ed09a291083c1c97dd3375d2da"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-cb7ce--precision-window-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-dark-1440-expected.png",
+    "bytes": 96675,
+    "sha256": "bab8877e94d081d7c8a8f3c95b6baf21ca1a61b95513455fb6dba73d8ef29084"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-f6e81-atch-desktop-board-overflow-chromium/error-context.md",
+    "bytes": 31156,
+    "sha256": "9a7fc731f411f69564a0d0a589fc511d6b20e523bf14ad0eb4156186124de58c"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-f6e81-atch-desktop-board-overflow-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-actual.png",
+    "bytes": 93011,
+    "sha256": "6b413158f3f1e087f45fc28c9706f3eadb43c2eb4245f55ba8614bcc850caa38"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-f6e81-atch-desktop-board-overflow-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-diff.png",
+    "bytes": 119983,
+    "sha256": "49d83e54da1385d7f8ff2ffaedd335626f9f62182b38a8f02402cf96eacfb4f3"
+  },
+  {
+    "file": "checks/final-repair-native/artifacts/word-tiles-round-five.chec-f6e81-atch-desktop-board-overflow-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/your-turn-light-1440-expected.png",
+    "bytes": 95888,
+    "sha256": "c9265085a1bde40c03ce9dc62b9e03be1e37306c9430ac29c8fd36c3e59e76bd"
+  },
+  {
+    "file": "checks/final-repair-native/browser-classification.json",
+    "bytes": 181441,
+    "sha256": "078572b2b94bff74b1f03525e8b1510e483707fe2724f55ec202953e8b8771ee"
+  },
+  {
+    "file": "checks/final-repair-native/browser-results.json",
+    "bytes": 487698,
+    "sha256": "4dda9c843a1941256d6cbdb2a4adf178cd31267528964e85c74f8170cc4b5d16"
+  },
+  {
+    "file": "checks/final-repair-native/browser.log",
+    "bytes": 957811,
+    "sha256": "251b8867803b8adb91ce38a7e6b21e603f2abb7ecf662ab412920df03f65adfb"
+  },
+  {
+    "file": "checks/final-repair-native/build-provenance.json",
+    "bytes": 90707,
+    "sha256": "1f9bfe0852999bdeae09b87ae8d60ab8365f9ff7eb565d401a2c87d2d66ca776"
+  },
+  {
+    "file": "checks/final-repair-native/interaction-failures.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "file": "checks/final-repair-native/pixel-failures.json",
+    "bytes": 177799,
+    "sha256": "fa87c9ecc678fa4e77c6f8ecce2c8ba3b290258b89031179bbdb6a148ddf9893"
+  },
+  {
+    "file": "checks/focused-native-verdict.json",
+    "bytes": 610,
+    "sha256": "23ecd2c48ac1969a1e6ab88d00de052d8b2118e9b94a2d49f1346f13ea71f726"
+  },
+  {
+    "file": "checks/full-verify-verdict.json",
+    "bytes": 1554,
+    "sha256": "986af85ad664dde04e6b5726c86c7fdb744da593b1df68afd6d6b9bf748f95c7"
+  },
+  {
+    "file": "checks/goals-full-native-repairs.log",
+    "bytes": 2064,
+    "sha256": "cbcde4613c9d508b4475c4316704759fea6c1c28a5b19274c8284359df6d480a"
+  },
+  {
+    "file": "checks/hosted-log-inventory.json",
+    "bytes": 438,
+    "sha256": "99032d5b41db3dfc53142e69f47964b236b07f9c2d5f291d8d088a4600bef121"
+  },
+  {
+    "file": "checks/hosted-run-42342271919.json",
+    "bytes": 13660,
+    "sha256": "2ae532a7bb953e869144f31dab526e9f43eec315d4163fb8b732c370b54dcc12"
+  },
+  {
+    "file": "checks/initial-full/browser-classification.json",
+    "bytes": 5188682,
+    "sha256": "82bfa0e1ef6337f5640b063a0f43c59f446ddb9676161b6403496c81167592b9"
+  },
+  {
+    "file": "checks/initial-full/browser.log",
+    "bytes": 17150025,
+    "sha256": "f0d39fd6ad3df4c738b6a3d45123c7c4955da54003f89f5cd7446dc4a710ad8e"
+  },
+  {
+    "file": "checks/initial-full/build-provenance.json",
+    "bytes": 90831,
+    "sha256": "4efc6dbf047e6b503081e66161355fb54a1909bea89e2a74ecb4eaca1c3cf9f5"
+  },
+  {
+    "file": "checks/initial-full/interaction-failures.json",
+    "bytes": 104413,
+    "sha256": "bd4dc479631e5dc6adf9aabeac7b973241661bcec08d3725bc57fb12f1f1e02c"
+  },
+  {
+    "file": "checks/initial-full/verdict.json",
+    "bytes": 529,
+    "sha256": "f251eb4349183e0027428275ffce816877036675005df580748e608e40a3d5b5"
+  },
+  {
+    "file": "checks/merge-binding.json",
+    "bytes": 364,
+    "sha256": "5816849e5369baf2189bcce4b3736bae494cfbf5dcbaa870a96488b7aa55b7b0"
+  },
+  {
+    "file": "checks/merge-resolution-notes.md",
+    "bytes": 1983,
+    "sha256": "16f672c47413512018be86a3d3512a0cbcf166252f7d22ee8e2ec7fa26c32875"
+  },
+  {
+    "file": "checks/native-registration-checks.log",
+    "bytes": 260,
+    "sha256": "c3bcd722804e4460b47721e49dfe34224b20ad58c917966d721be98c17a15e3a"
+  },
+  {
+    "file": "checks/pr-final-status.json",
+    "bytes": 1572,
+    "sha256": "9bbf1d5300f73bf994ef917e5624b7b1f966fe7ad171e2fc1f597a89f96db999"
+  },
+  {
+    "file": "checks/verify-diagnostics-parts.json",
+    "bytes": 2222,
+    "sha256": "921504d61750ce8f6b405a50e9bf825e1739a4d07e0da5a06e042334f23af3dd"
+  },
+  {
+    "file": "checks/verify-final.exit",
+    "bytes": 2,
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  {
+    "file": "checks/verify-final.log",
+    "bytes": 72181,
+    "sha256": "4baf6d15c23bccc2bfde9c4cd50db11a03d62b0029f1e5b755ddadeda35351ec"
+  },
+  {
+    "file": "classify-results.py",
+    "bytes": 2020,
+    "sha256": "cff027800f51f910c5e18db376c86b38220e3701bdd79d99c3e66eeb4d5f6c69"
+  },
+  {
+    "file": "collect-verify.py",
+    "bytes": 2946,
+    "sha256": "35551b4c14f8495ea080148bfca6a474c2c950ee5f32263e4046641944e73de7"
+  },
+  {
+    "file": "final-repair-paths.json",
+    "bytes": 1163,
+    "sha256": "4d8f2113dcf5fc4210fbb5e8e816371b74baf51c4757bcf9f93f714b8c0edde6"
+  },
+  {
+    "file": "manifest.json",
+    "bytes": 6011,
+    "sha256": "9d69ea1e1d7d10e10bcc1b929a9fd1b5aba30e4b2374ee8ec6a34d569b9485f0"
+  },
+  {
+    "file": "recordings/capture.json",
+    "bytes": 3028,
+    "sha256": "64db353b0fb52e2f53e4e89b0728aaadb28897a9dda66e8fadafaf789369e3d8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--000.png",
+    "bytes": 60167,
+    "sha256": "64b3c98e536c7c0e428803f488f802fe748aa44acf503ac39b74c4b0c2e4b23a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--042.png",
+    "bytes": 60167,
+    "sha256": "64b3c98e536c7c0e428803f488f802fe748aa44acf503ac39b74c4b0c2e4b23a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--043.png",
+    "bytes": 61099,
+    "sha256": "86dc141fb3209e592bf10ecc9f4a996bbf16c9bdc1c3bb8997e2d5a6cf6eb9e0"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--089.png",
+    "bytes": 61099,
+    "sha256": "86dc141fb3209e592bf10ecc9f4a996bbf16c9bdc1c3bb8997e2d5a6cf6eb9e0"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--090.png",
+    "bytes": 61661,
+    "sha256": "62254ff363565254877cc6101ad5b56c3d65706271150d56cb6691195dbd156c"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--091.png",
+    "bytes": 61661,
+    "sha256": "62254ff363565254877cc6101ad5b56c3d65706271150d56cb6691195dbd156c"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--000.png",
+    "bytes": 40764,
+    "sha256": "dc8da6a3c56a8d45e0a801f6ee2846e94e8756c079d2a79bef381b20f5fab3fe"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--042.png",
+    "bytes": 40764,
+    "sha256": "dc8da6a3c56a8d45e0a801f6ee2846e94e8756c079d2a79bef381b20f5fab3fe"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--043.png",
+    "bytes": 41544,
+    "sha256": "60cae8d7de663bc085ec7ddc30ca9c8e0f26a1ea0f5e85c6a74c1ff8dea29c07"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--089.png",
+    "bytes": 41544,
+    "sha256": "60cae8d7de663bc085ec7ddc30ca9c8e0f26a1ea0f5e85c6a74c1ff8dea29c07"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--090.png",
+    "bytes": 42212,
+    "sha256": "29a578fcede5402dad39d3fe79137b21a6ac5f8c1144f0f90fff38844d29bcf9"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--phone--light--091.png",
+    "bytes": 42212,
+    "sha256": "29a578fcede5402dad39d3fe79137b21a6ac5f8c1144f0f90fff38844d29bcf9"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--desktop--light--000.png",
+    "bytes": 91382,
+    "sha256": "7a8f8399b11bb49da85d7a9c213ee76e2c45a942126ebde4f69a39d5fb859974"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--desktop--light--001.png",
+    "bytes": 91382,
+    "sha256": "7a8f8399b11bb49da85d7a9c213ee76e2c45a942126ebde4f69a39d5fb859974"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--desktop--light--002.png",
+    "bytes": 83219,
+    "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--desktop--light--003.png",
+    "bytes": 83219,
+    "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--desktop--light--004.png",
+    "bytes": 83219,
+    "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--phone--light--000.png",
+    "bytes": 55888,
+    "sha256": "eaa68851b446b3bf0b598eeca317eb495ab1ffdd43f12c477701400ce26550c5"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--phone--light--001.png",
+    "bytes": 55888,
+    "sha256": "eaa68851b446b3bf0b598eeca317eb495ab1ffdd43f12c477701400ce26550c5"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--phone--light--002.png",
+    "bytes": 61083,
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--phone--light--003.png",
+    "bytes": 61083,
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-numberlink-puzzle--next-puzzle--phone--light--004.png",
+    "bytes": 61083,
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--000.png",
+    "bytes": 95745,
+    "sha256": "c21f854093e913b4339a7f55cc088dffdffc175b04d73764d60a15771aa0916a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--001.png",
+    "bytes": 95745,
+    "sha256": "c21f854093e913b4339a7f55cc088dffdffc175b04d73764d60a15771aa0916a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--054.png",
+    "bytes": 95745,
+    "sha256": "c21f854093e913b4339a7f55cc088dffdffc175b04d73764d60a15771aa0916a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--055.png",
+    "bytes": 95745,
+    "sha256": "c21f854093e913b4339a7f55cc088dffdffc175b04d73764d60a15771aa0916a"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--056.png",
+    "bytes": 96195,
+    "sha256": "48e85a0f89397464f3c84d3066b798e1d492ccf521987aadea1cd6f6766f27e1"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--057.png",
+    "bytes": 96195,
+    "sha256": "48e85a0f89397464f3c84d3066b798e1d492ccf521987aadea1cd6f6766f27e1"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--058.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--069.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--070.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--071.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--072.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--724.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--725.png",
+    "bytes": 99730,
+    "sha256": "1e0b1db6df6e64871736dd93000a234ea407969e3b0f86c388d5c34945de9fe8"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--726.png",
+    "bytes": 96652,
+    "sha256": "536c88ca04e218edda10bf0c9c3208131654de28dab07a23f39bff6ef525e576"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--727.png",
+    "bytes": 96652,
+    "sha256": "536c88ca04e218edda10bf0c9c3208131654de28dab07a23f39bff6ef525e576"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--desktop--light--728.png",
+    "bytes": 96652,
+    "sha256": "536c88ca04e218edda10bf0c9c3208131654de28dab07a23f39bff6ef525e576"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--000.png",
+    "bytes": 71200,
+    "sha256": "5a3393241ba6636fd7de15488ec03c3df4918d7bbd35017d4fbb4009481697fb"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--001.png",
+    "bytes": 71200,
+    "sha256": "5a3393241ba6636fd7de15488ec03c3df4918d7bbd35017d4fbb4009481697fb"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--054.png",
+    "bytes": 71200,
+    "sha256": "5a3393241ba6636fd7de15488ec03c3df4918d7bbd35017d4fbb4009481697fb"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--055.png",
+    "bytes": 71200,
+    "sha256": "5a3393241ba6636fd7de15488ec03c3df4918d7bbd35017d4fbb4009481697fb"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--056.png",
+    "bytes": 71495,
+    "sha256": "c18319e510bc9fc55ce7692e08c6a5c8b2e2a53311a1e94b67df4305664b59ba"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--057.png",
+    "bytes": 71495,
+    "sha256": "c18319e510bc9fc55ce7692e08c6a5c8b2e2a53311a1e94b67df4305664b59ba"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--058.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--069.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--070.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--071.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--072.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--724.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--725.png",
+    "bytes": 70480,
+    "sha256": "65dc32d444dd9b23b4f80040746620fa5c5a3a8215542c6d6c7ace1ec4e2aa4d"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--726.png",
+    "bytes": 71512,
+    "sha256": "93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--727.png",
+    "bytes": 71512,
+    "sha256": "93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836"
+  },
+  {
+    "file": "recordings/checkpoints/screens-games-word-tiles-board--assign-a-blank--phone--light--728.png",
+    "bytes": 71512,
+    "sha256": "93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836"
+  },
+  {
+    "file": "recordings/screens-games-battleship-setup--spatial-region-selection--desktop--light.checkpoints.json",
+    "bytes": 28400,
+    "sha256": "6acb9ee1eb873da7a3a6e0ee5f7b6bdbe0681ef8886f346a18a6ce42234abb70"
+  },
+  {
+    "file": "recordings/screens-games-battleship-setup--spatial-region-selection--desktop--light.png",
+    "bytes": 61661,
+    "sha256": "62254ff363565254877cc6101ad5b56c3d65706271150d56cb6691195dbd156c"
+  },
+  {
+    "file": "recordings/screens-games-battleship-setup--spatial-region-selection--phone--light.checkpoints.json",
+    "bytes": 28260,
+    "sha256": "aeee1d810e782c6e6481a03821b238cc251a590d5d476934ebaf9ea2212d3f81"
+  },
+  {
+    "file": "recordings/screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+    "bytes": 42212,
+    "sha256": "29a578fcede5402dad39d3fe79137b21a6ac5f8c1144f0f90fff38844d29bcf9"
+  },
+  {
+    "file": "recordings/screens-games-numberlink-puzzle--next-puzzle--desktop--light.checkpoints.json",
+    "bytes": 1308,
+    "sha256": "788ddf47715903e2640696984d6bda471cbf1d2177bb6e590085a6f317277216"
+  },
+  {
+    "file": "recordings/screens-games-numberlink-puzzle--next-puzzle--desktop--light.png",
+    "bytes": 83219,
+    "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+  },
+  {
+    "file": "recordings/screens-games-numberlink-puzzle--next-puzzle--phone--light.checkpoints.json",
+    "bytes": 1298,
+    "sha256": "a8df2e4f6d31ab6981f0b5d87c2ec7936bc85784a4ad0501194f95f6f3f1a19e"
+  },
+  {
+    "file": "recordings/screens-games-numberlink-puzzle--next-puzzle--phone--light.png",
+    "bytes": 61083,
+    "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+  },
+  {
+    "file": "recordings/screens-games-word-tiles-board--assign-a-blank--desktop--light.checkpoints.json",
+    "bytes": 205719,
+    "sha256": "c82e78d607abd637b6c8b18945a43d3a7559701ccde3c5ee51e180394d681b09"
+  },
+  {
+    "file": "recordings/screens-games-word-tiles-board--assign-a-blank--desktop--light.png",
+    "bytes": 96652,
+    "sha256": "536c88ca04e218edda10bf0c9c3208131654de28dab07a23f39bff6ef525e576"
+  },
+  {
+    "file": "recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.checkpoints.json",
+    "bytes": 204261,
+    "sha256": "6b44e202a29488f670faf719f6b22c27c027f1ef6d16706c8bf050b0640cd34d"
+  },
+  {
+    "file": "recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+    "bytes": 71512,
+    "sha256": "93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836"
+  },
+  {
+    "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm",
+    "bytes": 244685,
+    "sha256": "69643f241a0703f999edc9a9e016a882c29576514b39c98df7374ec96f51b545"
+  },
+  {
+    "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm",
+    "bytes": 146219,
+    "sha256": "32d6cd21d774c6632a96de78f0f370d366400ef4c536a6e8f922afa412e13dcd"
+  },
+  {
+    "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm",
+    "bytes": 225973,
+    "sha256": "578aed4f70f4b48c1a2fb1a682f1c194517dee9b5c9be65df8595db946d84c91"
+  },
+  {
+    "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm",
+    "bytes": 123976,
+    "sha256": "66f8b2f0f04cfe1d994a68946f97c57d7ce3a27e5ed1d3113f06004bf0898800"
+  },
+  {
+    "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm",
+    "bytes": 827777,
+    "sha256": "f37c037b5984e48a1fdd0a982e9a362761c28009b34f7888279510ebe79bba39"
+  },
+  {
+    "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",
+    "bytes": 427561,
+    "sha256": "42f4dc0494b138026cdb8b04549a0ecb78806cc5e19b1b38d731a4c525b33443"
+  },
+  {
+    "file": "source-working-tree.json",
+    "bytes": 127,
+    "sha256": "d84c0663fc01ceffd5914a2b7bcb4401bf878a9c597b8a6de85ec67d18413187"
+  },
+  {
+    "file": "story-ids.txt",
+    "bytes": 149,
+    "sha256": "6b6352e3f55a6261da6b5e3bd9d99277974c99f95f890cb56ace473fcbb8c252"
+  }
+]

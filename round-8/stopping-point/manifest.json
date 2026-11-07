@@ -1,0 +1,149 @@
+{
+  "candidateSha": "0e6f06190addaf9cf7610f9ba106d8be6d10fdc0",
+  "buildSha256": "0279a32ab2c3c7f756b3eaea2ab127dc2a3333f67d7be73ce241f66ff53386db",
+  "buildSourceSha": "54ed1b515d1284887937e7073420b2ff0a315970",
+  "sourceDifference": [
+    "pkgs/ui-root-harness-ts/storybook/playwright.config.ts"
+  ],
+  "scope": "Three final-candidate journeys only; full-gallery regeneration stopped by user",
+  "beforeMediaSha": "f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d",
+  "beforeSourceSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f",
+  "absentBefore": [
+    "after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png",
+    "after/screens-games-battleship-setup--spatial-region-selection--desktop--light.png",
+    "after/screens-games-battleship-setup--spatial-region-selection--phone--dark.png",
+    "after/screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+    "after/screens-games-numberlink-puzzle--next-puzzle--desktop--dark.png",
+    "after/screens-games-numberlink-puzzle--next-puzzle--desktop--light.png",
+    "after/screens-games-numberlink-puzzle--next-puzzle--phone--dark.png",
+    "after/screens-games-numberlink-puzzle--next-puzzle--phone--light.png"
+  ],
+  "images": [
+    {
+      "file": "after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "fb0826eaefa7ee34e31fbca640535377c7ad16377c9d1391a0ec1482d8de37a8"
+    },
+    {
+      "file": "after/screens-games-battleship-setup--spatial-region-selection--desktop--light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3ca7fa9a2fa5fc2856986f933db6bdf976082bd025790412b4b0da50aed8f282"
+    },
+    {
+      "file": "after/screens-games-battleship-setup--spatial-region-selection--phone--dark.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "c114c71931a0d39479a0a4dfcf114b02a73c49757811410137148813f73dd613"
+    },
+    {
+      "file": "after/screens-games-battleship-setup--spatial-region-selection--phone--light.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d9a4c9862b3b3e0cb88eac7335f9f780e38dcbe920fc0e4c0eed9a88be3ae4c0"
+    },
+    {
+      "file": "after/screens-games-numberlink-puzzle--next-puzzle--desktop--dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "36dff3ca90ed1b04e698db594233e33184276e55693aab1c508741e546cd9589"
+    },
+    {
+      "file": "after/screens-games-numberlink-puzzle--next-puzzle--desktop--light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "135e1a65fb4cc0f6a58720aa6f5ce46874aa21e9c64b5e467cf1f4e0ec3b9196"
+    },
+    {
+      "file": "after/screens-games-numberlink-puzzle--next-puzzle--phone--dark.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "9b687028c9ec760e26475f2655b7f58db05bbb653f8c4ba364066578718b3038"
+    },
+    {
+      "file": "after/screens-games-numberlink-puzzle--next-puzzle--phone--light.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "2725c61de6ed294f5c73d1ddde6d11da88ab72eefe6bf46ced68bce4f225d8b8"
+    },
+    {
+      "file": "after/screens-games-word-tiles-board--assign-a-blank--desktop--dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6d182f07ce529bad601f6ddba2cbda9b3701024e72f158b2f300d65ddf7b4a50"
+    },
+    {
+      "file": "after/screens-games-word-tiles-board--assign-a-blank--desktop--light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "16ae62492962cbce25ad4881af8b9e0636587211923d1989f2e7be727e532c75"
+    },
+    {
+      "file": "after/screens-games-word-tiles-board--assign-a-blank--phone--dark.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "a1fce2511ffea084df7da66b1751e7c38bf1ff6cd63f8c66794c69c92ce728e5"
+    },
+    {
+      "file": "after/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "01e0a85aba5d495de2488b8ef85b39d0d8ae4c489f38a9c598b5cf77d7a4cc23"
+    }
+  ],
+  "videos": [
+    {
+      "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm",
+      "sha256": "32d6cd21d774c6632a96de78f0f370d366400ef4c536a6e8f922afa412e13dcd",
+      "seconds": 3.08,
+      "checkpoints": 92,
+      "distinctFrames": 3,
+      "failures": 0
+    },
+    {
+      "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm",
+      "sha256": "69643f241a0703f999edc9a9e016a882c29576514b39c98df7374ec96f51b545",
+      "seconds": 3.12,
+      "checkpoints": 92,
+      "distinctFrames": 3,
+      "failures": 0
+    },
+    {
+      "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",
+      "sha256": "42f4dc0494b138026cdb8b04549a0ecb78806cc5e19b1b38d731a4c525b33443",
+      "seconds": 11.92,
+      "checkpoints": 729,
+      "distinctFrames": 4,
+      "failures": 0
+    },
+    {
+      "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm",
+      "sha256": "f37c037b5984e48a1fdd0a982e9a362761c28009b34f7888279510ebe79bba39",
+      "seconds": 11.72,
+      "checkpoints": 729,
+      "distinctFrames": 4,
+      "failures": 0
+    },
+    {
+      "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm",
+      "sha256": "66f8b2f0f04cfe1d994a68946f97c57d7ce3a27e5ed1d3113f06004bf0898800",
+      "seconds": 2.44,
+      "checkpoints": 5,
+      "distinctFrames": 2,
+      "failures": 0
+    },
+    {
+      "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm",
+      "sha256": "578aed4f70f4b48c1a2fb1a682f1c194517dee9b5c9be65df8595db946d84c91",
+      "seconds": 2.48,
+      "checkpoints": 5,
+      "distinctFrames": 2,
+      "failures": 0
+    }
+  ],
+  "pacing": "Automated assertion replay, not natural user timing",
+  "numberlinkLimit": "Next Puzzle and saving are fixture fidelity, not a persisted-navigation repair",
+  "referencesAccepted": false,
+  "evidenceCode": "f429d223ba49c72f"
+}
