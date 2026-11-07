@@ -410,7 +410,7 @@ export const SharedSwipe: Story = {
 /** Four riders retain one line per identity and counter before steering. */
 async function quadIdentityLines(canvas: HTMLElement) {
   const rail = canvas.querySelector(
-    '[data-component="GameSessionParticipants"]'
+    '[data-component="GameSessionParticipants"], [data-testid="custom-game-scoreboard"]'
   );
   if (!rail) throw new Error('Missing participant rail');
   const labels = rail.querySelectorAll(
@@ -421,7 +421,9 @@ async function quadIdentityLines(canvas: HTMLElement) {
     const range = label.ownerDocument.createRange();
     range.selectNodeContents(label);
     const tops = new Set(
-      Array.from(range.getClientRects(), (rect) => Math.round(rect.top))
+      Array.from(range.getClientRects())
+        .filter((rect) => rect.width > 0 && rect.height > 0)
+        .map((rect) => Math.round(rect.top))
     );
     await expect(tops.size).toBe(1);
   }

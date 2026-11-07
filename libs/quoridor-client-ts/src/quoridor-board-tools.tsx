@@ -49,12 +49,15 @@ export function QuoridorTargetPicker(props: {
 }): JSX.Element {
   return (
     <Select
-      label={
+      aria-label={
         props.tool === 'move'
           ? t`Move to a coordinate`
           : props.tool === 'h'
             ? t`Wall starts above a square`
             : t`Wall starts to the right of a square`
+      }
+      placeholder={
+        props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
       }
       value={props.selected ?? ''}
       searchable={props.tool !== 'move'}

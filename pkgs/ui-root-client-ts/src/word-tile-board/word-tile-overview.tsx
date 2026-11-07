@@ -50,16 +50,21 @@ export function WordTileOverview(props: {
         onLocate={props.onLocate}
       />
       <div class={styles['tools']}>
-        {props.controls}
-        <P variant="caption">{t`Current square: ${props.position}`}</P>
+        <div class={styles['commands']}>
+          {props.controls}
+          <button
+            type="button"
+            class={styles['locator']}
+            aria-label={t`Board map: locate a square`}
+            aria-haspopup="dialog"
+            onClick={() => setOpen(true)}
+          >{t`Find a square`}</button>
+        </div>
+        <P variant="caption">{t`View an area`}</P>
+        <P variant="caption" testId={`${props.board.testId}-square-details`}>
+          {props.position}
+        </P>
         <P variant="caption">{t`Outline shows viewing area.`}</P>
-        <button
-          type="button"
-          class={styles['locator']}
-          aria-label={t`Board map: locate a square`}
-          aria-haspopup="dialog"
-          onClick={() => setOpen(true)}
-        >{t`Find a square`}</button>
       </div>
       <Show when={open()}>
         <ResponsiveSurface

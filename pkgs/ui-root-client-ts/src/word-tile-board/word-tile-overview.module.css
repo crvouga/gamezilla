@@ -89,11 +89,6 @@
   outline-offset: -2px;
 }
 
-.region-purpose {
-  margin: 0;
-  font-size: var(--ui-font-size-xs);
-  color: var(--ui-color-text);
-}
 .direction {
   display: inline-grid;
   place-items: center;
@@ -103,4 +98,11 @@
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
   font-size: var(--ui-font-size-xs);
+}
+
+.commands {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  flex-wrap: wrap;
 }

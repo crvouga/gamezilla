@@ -12,14 +12,16 @@ export function WordTileViewControls(props: {
     <>
       <StackHorizontal gap="xs" wrap>
         <Button
-          title={t`Fit board`}
+          title={props.enlarged ? t`Fit` : t`Fit board`}
+          aria-label={t`Fit board`}
           size={props.enlarged ? 'sm' : 'md'}
           variant={props.enlarged ? 'outline' : 'solid'}
           aria-pressed={!props.enlarged}
           onClick={() => props.onChange(false)}
         />
         <Button
-          title={t`Enlarge board`}
+          title={props.enlarged ? t`Enlarge` : t`Enlarge board`}
+          aria-label={t`Enlarge board`}
           size={props.enlarged ? 'sm' : 'md'}
           variant={props.enlarged ? 'solid' : 'outline'}
           aria-pressed={props.enlarged}

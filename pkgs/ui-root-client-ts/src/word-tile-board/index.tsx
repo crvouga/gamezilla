@@ -182,7 +182,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             controls={
               <WordTileViewControls enlarged={enlarged()} onChange={resize} />
             }
-            position={`${cells()[focusIndex()]?.id ?? ''} — ${cells()[focusIndex()]?.letter ? t`letter ${cells()[focusIndex()]?.letter}` : t`empty`}`}
+            position={cells()[focusIndex()]?.label ?? ''}
             locator={(onChoose) => (
               <WordTileBoard
                 {...props}
@@ -202,7 +202,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           />
         </Show>
       </div>
-      <Show when={props.purpose !== 'locator'}>
+      <Show when={props.purpose !== 'locator' && !enlarged()}>
         <P variant="caption" testId={`${props.testId}-square-details`}>
           {cells()[focusIndex()]?.label}
         </P>

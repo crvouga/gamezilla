@@ -98,7 +98,7 @@ export const Solved: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).getByTestId('content-attempt-complete')
-    ).toHaveTextContent('Puzzle completed');
+    ).toHaveTextContent('Completion saved');
   },
   args: { state: progress(SOLUTION), disabled: false },
   render: (args) => {

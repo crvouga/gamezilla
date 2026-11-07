@@ -50,6 +50,7 @@ test('a mistaken edge target can be corrected before spending the shot', () => {
 });
 
 test('keyboard selection previews a shot before confirmation', async () => {
+  // regression: battleship-working-confirmation-keyboard-order
   const actions = mount();
   const cell = byTestId('precision-aim-a1');
   cell.focus();

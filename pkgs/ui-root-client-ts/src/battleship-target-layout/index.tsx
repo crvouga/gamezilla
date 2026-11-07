@@ -61,8 +61,8 @@ export function BattleshipTargetLayout(props: {
     >
       {props.overview}
       <div class={styles['workspace']}>
-        <div class={styles['controls']}>{props.controls}</div>
         <div class={styles['working']}>{props.working}</div>
+        <div class={styles['controls']}>{props.controls}</div>
       </div>
     </div>
   );

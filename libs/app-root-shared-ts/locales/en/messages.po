@@ -1834,6 +1834,10 @@ msgstr "Choose any puzzle"
 msgid "Choose continuation"
 msgstr "Choose continuation"
 
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Choose destination"
+msgstr "Choose destination"
+
 #. placeholder {0}: min()
 #. placeholder {1}: max()
 #: libs/game-session-client-ts/src/game-frame-options.tsx
@@ -1863,6 +1867,10 @@ msgstr "Choose the tiles to exchange."
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Choose this setup"
 msgstr "Choose this setup"
+
+#: libs/quoridor-client-ts/src/quoridor-board-tools.tsx
+msgid "Choose wall anchor"
+msgstr "Choose wall anchor"
 
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
@@ -2413,11 +2421,6 @@ msgstr "Current game"
 msgid "Current route"
 msgstr "Current route"
 
-#. placeholder {0}: props.position
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
-msgid "Current square: {0}"
-msgstr "Current square: {0}"
-
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Custom"
@@ -2837,10 +2840,6 @@ msgstr "Email address"
 msgid "Email me a link"
 msgstr "Email me a link"
 
-#: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
-msgid "empty"
-msgstr "empty"
-
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "Empty"
@@ -2885,6 +2884,10 @@ msgstr "Endpoint to move"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+msgid "Enlarge"
+msgstr "Enlarge"
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
 msgid "Enlarge board"
@@ -3186,6 +3189,10 @@ msgstr "First seen"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "First to {0}"
 msgstr "First to {0}"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+msgid "Fit"
+msgstr "Fit"
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
 msgid "Fit board"
@@ -3987,11 +3994,6 @@ msgstr "Left wins."
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Left: {0}"
 msgstr "Left: {0}"
-
-#. placeholder {0}: cells()[focusIndex()]?.letter
-#: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
-msgid "letter {0}"
-msgstr "letter {0}"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
@@ -8657,7 +8659,7 @@ msgstr "View {0} to {1}"
 msgid "View a board region"
 msgstr "View a board region"
 
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "View an area"
 msgstr "View an area"
 

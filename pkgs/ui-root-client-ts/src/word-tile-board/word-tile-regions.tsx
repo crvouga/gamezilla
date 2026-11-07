@@ -25,7 +25,6 @@ export function WordTileRegions(props: {
   };
   return (
     <div>
-      <p class={styles['region-purpose']}>{t`View an area`}</p>
       <div
         class={styles['regions']}
         data-testid={`${props.board.testId}-overview`}

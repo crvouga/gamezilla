@@ -310,6 +310,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
         {(seat) => (
           <FrameSeatStripView
             seat={seat()}
+            quietStat={props.compact}
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
@@ -363,6 +364,7 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
         <StackVertical testId="custom-game-seat-near">
           <FrameSeatStripView
             seat={seat()}
+            quietStat={props.compact}
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}

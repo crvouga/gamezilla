@@ -3,7 +3,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-1);
   width: 100%;
 }
 .navigator {
@@ -68,7 +68,7 @@
 .workspace {
   flex: 0 1 22.75rem;
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
   gap: 0;
 }
@@ -92,4 +92,9 @@
       var(--ui-space-6) +
       var(--ui-space-4)
     );
+}
+
+/* In the placement column, basis is vertical; the map alone sets its height. */
+.navigator[data-placement="true"] {
+  flex: none;
 }

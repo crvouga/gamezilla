@@ -667,6 +667,7 @@ test('screens-games-word-tiles-board--assign-a-blank 390 regression word-tiles-b
 });
 
 // regression: word-tiles-blank-assignment-context
+// regression: round8-word-tiles-desktop-workspace-overflow
 test('screens-games-word-tiles-board--assign-a-blank 1440 regression word-tiles-blank-assignment-context', async ({
   page,
 }) => {
@@ -811,6 +812,39 @@ test('screens-spaces-detail--nobody-else regression space-detail-fixture-roster-
   await verifyBoardRegression(
     page,
     'screens-spaces-detail--members-open',
+    1440
+  );
+});
+
+// regression: round8-merged-phone-workspace-overflow
+test('screens-games-word-tiles-board--assign-a-blank regression round8-merged-phone-workspace-overflow', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--assign-a-blank',
+    390
+  );
+});
+
+// regression: round8-placement-overview-flex-height
+test('screens-games-battleship-setup--spatial-region-selection regression round8-placement-overview-flex-height', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--spatial-region-selection',
+    1440
+  );
+});
+
+// regression: round8-quad-desktop-participant-assertion
+test('screens-games-light-cycles-arena--quad-steering regression round8-quad-desktop-participant-assertion', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-light-cycles-arena--quad-steering',
     1440
   );
 });
