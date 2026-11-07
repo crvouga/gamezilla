@@ -196,3 +196,23 @@ the obsolete combined explanation. The catalog freshness gate and strict
 compilation pass. The independent critic approved the correction with no new
 findings; scores remain 10/9/9/10 pending full verification. Round eleven's
 approved automated captures still show the current interface.
+
+## Round thirteen visible Light Cycles results
+
+The next full gate reached a Light Cycles scenario whose recorded screen
+already showed Nova winning round three. Its harness read only the empty
+arena overlay; result text now lives in the status line. The read follows the
+visible result when present and otherwise retains the countdown overlay.
+Product rules, scenario wording and winner assertions are unchanged.
+
+A registered seed-one reproduction failed on the original empty read, then
+passed with the correction. It uses the package's integration-test outer
+budget while keeping the two-second virtual result deadline. All 15 package
+tests, 115 scenarios, lint, typechecks and the regression registry gate pass.
+The critic approved the guarded read after rejecting an initial unguarded
+lookup of a conditionally rendered element. Full verification remains pending.
+
+Eight result-screen comparisons exposed older goldens. The critic inspected
+each current capture against its golden and approved both result states in
+both themes at phone and desktop widths. Only those eight were replaced;
+all eight then passed without snapshot updates. Ratings remain 10/9/9/10.
