@@ -256,6 +256,12 @@ export const CompleteWithKeyboard: Story = {
   },
 };
 
+/** A fresh, rule-backed attempt for automated native pointer and touch journeys. */
+export const DrawPaths: Story = {
+  ...CompleteWithKeyboard,
+  play: undefined,
+};
+
 /** Cancel, shorten, redraw and remove a path through pointer input and real rules. */
 export const RecoverWithPointer: Story = {
   ...CompleteWithKeyboard,
