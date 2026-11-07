@@ -1,6 +1,7 @@
 import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
 import type {
   QueryRequestItem,
   QueryResponse,
@@ -36,6 +37,10 @@ export type SubscriptionSweepContext = {
   readonly queryRegistry?: QueryRegistry;
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
+  readonly onQueryNotice?: (
+    scope: string,
+    notice: QueryRetryNotice | null
+  ) => void;
   readonly onScopeSettled?: (scope: string) => void;
   readonly ensureBusWatch: () => void;
   readonly cleanScopes: Set<string>;
@@ -84,6 +89,7 @@ export async function buildSweepRequests(
     });
     requests.push({
       name: entry.spec.name,
+      supportsRetryableErrors: true,
       params: entry.spec.params,
       ...cache,
     });
@@ -100,6 +106,14 @@ async function handleSweepResponse(
   const isCurrent = () =>
     capturedGen === entry.generation && ctx.isRunning() && !entry.stopped;
   if (!isCurrent()) return false;
+  if (response.status === 'retry_later') {
+    ctx.onQueryNotice?.(entry.scope, {
+      code: response.code,
+      retryAfterMs: response.retryAfterMs,
+    });
+    return false;
+  }
+  ctx.onQueryNotice?.(entry.scope, null);
   if (response.status === 'denied') {
     await detachScope(ctx.getMergeDeps(), entry.scope);
     // A denial clears its cache position, not the subscription. Identity or

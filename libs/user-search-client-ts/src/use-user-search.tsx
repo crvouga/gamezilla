@@ -14,6 +14,7 @@ import {
   USER_SEARCH_DEBOUNCE_MS,
   USER_SEARCH_MAX_RESULTS,
 } from '@libs/user-search-shared-ts/user-search-types';
+import { usernamePrefix } from '@libs/user-search-shared-ts/username-prefix';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -53,7 +54,7 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
   if (myId.length === 0 || query.length === 0) {
     return emptySearchSql();
   }
-  const likeQuery = `${query.toLowerCase()}%`;
+  const likeQuery = usernamePrefix(query);
   return sql<SearchHitRow>`
     SELECT
       p.id,
@@ -63,7 +64,7 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
     WHERE p.id <> ${myId}
       AND p.deleted_at IS NULL
       AND p.username_norm <> ''
-      AND p.username_norm LIKE ${likeQuery}
+      AND p.username_norm LIKE ${likeQuery} ESCAPE '!'
       AND NOT EXISTS (
         -- Someone who blocked me cannot be found by me. Someone I blocked
         -- still can: their row is where I unblock them (there is no other).
@@ -86,19 +87,13 @@ function mapSearchHit(row: SearchHitRow): UserSearchResult {
   };
 }
 
-export function useDebouncedUserSearchEffect(
+function useDebouncedSearchQuery(
   query: Accessor<string>,
-  onCompleted?: (query: string) => void
-) {
-  const canSearch = useCan(PERMISSION.peopleSearch);
-  const myId = useMyId();
+  canSearch: Accessor<boolean>,
+  setAwaitingSync: (value: boolean) => void
+): Accessor<string> {
   const timers = useTimers();
-  const sync = useSyncEngineInstance();
-  const engine = useSyncEngine();
-  const moderation = useModeration();
   const [debouncedQuery, setDebouncedQuery] = createSignal('');
-  const [awaitingSync, setAwaitingSync] = createSignal(false);
-
   createEffect(() => {
     const trimmed = query().trim();
     if (!canSearch() || trimmed.length === 0) {
@@ -121,8 +116,29 @@ export function useDebouncedUserSearchEffect(
     });
   });
 
+  return debouncedQuery;
+}
+
+export function useDebouncedUserSearchEffect(
+  query: Accessor<string>,
+  onCompleted?: (query: string) => void
+) {
+  const canSearch = useCan(PERMISSION.peopleSearch);
+  const myId = useMyId();
+  const sync = useSyncEngineInstance();
+  const engine = useSyncEngine();
+  const moderation = useModeration();
+  const [awaitingSync, setAwaitingSync] = createSignal(false);
+  const [rateLimited, setRateLimited] = createSignal(false);
+  const debouncedQuery = useDebouncedSearchQuery(
+    query,
+    canSearch,
+    setAwaitingSync
+  );
+
   createEffect(() => {
     const initialQuery = debouncedQuery();
+    setRateLimited(false);
     if (!canSearch() || initialQuery.length === 0) {
       setAwaitingSync(false);
       return;
@@ -130,9 +146,18 @@ export function useDebouncedUserSearchEffect(
 
     let cancelled = false;
     setAwaitingSync(true);
-    const sub = sync.subscribeQuery('searchProfiles', {
-      query: initialQuery,
-    });
+    const sub = sync.subscribeQuery(
+      'searchProfiles',
+      {
+        query: initialQuery,
+      },
+      {
+        onQueryNotice: (notice) => {
+          if (!cancelled)
+            setRateLimited(notice?.code === 'people_search_rate_limited');
+        },
+      }
+    );
     void sub.waitForFirstSync().then(() => {
       if (cancelled) return;
       setAwaitingSync(false);
@@ -171,13 +196,16 @@ export function useDebouncedUserSearchEffect(
       // The people already on this device are part of every answer.
       if (local.isLoading()) return true;
       // Offline the server cannot answer: not "Searching…" forever.
-      return awaitingSync() && online();
+      return awaitingSync() && online() && !rateLimited();
     },
     /**
      * The search went out offline and is waiting on a server it cannot
      * reach. Results shown meanwhile are only the people already on this
      * device.
      */
+    get rateLimited() {
+      return rateLimited();
+    },
     get needsConnection() {
       return canSearch() && awaitingSync() && !online();
     },

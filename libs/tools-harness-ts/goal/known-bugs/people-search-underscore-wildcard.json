@@ -1,0 +1,4 @@
+{
+  "summary": "Valid username underscores matched unrelated people as SQL wildcards.",
+  "regressionTest": "libs/friends-shared-ts/tests/people-search-literal-prefix.test.ts"
+}

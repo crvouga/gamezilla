@@ -183,3 +183,52 @@ export const RemoveFailed: Story = {
     await expect(args.onRemove).toHaveBeenCalledOnce();
   },
 };
+
+/** Removal is acknowledged in place until the person chooses Done. */
+export const RemoveSucceeded: Story = {
+  args: { status: 'friends', confirming: 'remove', onRemove: resolved() },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveConfirm('morgan'))
+    );
+    await expect(await body.findByText('Friend removed')).toBeVisible();
+    await expect(args.onRemove).toHaveBeenCalledOnce();
+    await expect(args.onCancelConfirm).not.toHaveBeenCalled();
+  },
+};
+
+/** Blocking is acknowledged in place, preserving the route to unblock later. */
+export const BlockSucceeded: Story = {
+  args: { confirming: 'block', onBlock: resolved() },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await expect(await body.findByText('User blocked')).toBeVisible();
+    await expect(args.onBlock).toHaveBeenCalledOnce();
+    await expect(args.onCancelConfirm).not.toHaveBeenCalled();
+  },
+};
+
+/** A failed block offers a retry without leaving the person's profile. */
+export const BlockFailed: Story = {
+  args: {
+    confirming: 'block',
+    onBlock: fn(() => Promise.reject(new Error('offline'))),
+  },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await expect(
+      await body.findByText('This user could not be blocked. Try again.')
+    ).toBeVisible();
+    await expect(
+      await body.findByRole('button', { name: 'Try again' })
+    ).toBeEnabled();
+    await expect(args.onBlock).toHaveBeenCalledOnce();
+  },
+};

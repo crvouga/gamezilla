@@ -137,3 +137,24 @@ export const SelectRecent: Story = {
     await expect(args.onSelectRecent).toHaveBeenCalledWith('morgan');
   },
 };
+
+/** The search quota pauses only search; it never claims the device is offline. */
+export const RateLimited: Story = {
+  args: { query: 'jor', search: { ...IDLE, rateLimited: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('search-rate-limited')).toBeVisible();
+    await expect(canvas.queryByText(/No people found/)).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Search needs a connection')
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** Cached matches remain usable while the server asks this search to wait. */
+export const RateLimitedWithLocalResults: Story = {
+  args: {
+    query: 'jor',
+    search: { ...IDLE, rateLimited: true, results: RESULTS.slice(0, 1) },
+  },
+};

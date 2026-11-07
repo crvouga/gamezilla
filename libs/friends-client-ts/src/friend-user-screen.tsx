@@ -2,15 +2,10 @@ import type { FriendActionMutations } from '@libs/friends-shared-ts/friend-actio
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useFirstSyncError } from '@libs/profile-client-ts/use-first-sync-error';
-import {
-  useLocalSearchParams,
-  useRouter,
-} from '@pkgs/ui-root-client-ts/app-router';
+import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
 import { createSignal, Show } from 'solid-js';
-import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import type { FriendUserPresence } from './friend-user-screen-content';
 import {
   type FriendUserConfirming,
@@ -32,30 +27,22 @@ import { useRemoveFriend } from './use-remove-friend';
 function useFriendUserPresence(
   userProfile: ReturnType<typeof useFriendUserProfile>
 ): () => FriendUserPresence {
-  const firstSyncError = useFirstSyncError();
   return () => {
+    if (userProfile.unreachable()) return 'unreachable';
     if (userProfile.loading()) return 'loading';
     if (!userProfile.unavailable()) return 'shown';
-    return firstSyncError() ? 'unreachable' : 'unavailable';
+    return 'unavailable';
   };
 }
 
 function useFriendUserDanger(userId: () => string) {
-  const router = useRouter();
   const [confirming, setConfirming] = createSignal<FriendUserConfirming>(null);
   const removeFriend = useRemoveFriend();
   const blockUser = useBlockUser();
-  const openSetter = (kind: 'remove' | 'block') => (open: boolean) => {
-    if (open) setConfirming(kind);
-    else setConfirming((current) => (current === kind ? null : current));
+  const handlers = {
+    onRemove: () => removeFriend(userId()),
+    onBlock: () => blockUser(userId()),
   };
-  const handlers = createFriendUserDangerHandlers({
-    removeFriend: () => removeFriend(userId()),
-    blockUser: () => blockUser(userId()),
-    setRemoveOpen: openSetter('remove'),
-    setBlockOpen: openSetter('block'),
-    routerBack: () => router.back(),
-  });
   return { confirming, setConfirming, handlers };
 }
 

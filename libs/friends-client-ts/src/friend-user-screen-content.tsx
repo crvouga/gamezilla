@@ -63,8 +63,8 @@ export function FriendUserIdentity(props: {
           title={<Trans>Profile unavailable</Trans>}
           body={
             <Trans>
-              This profile is no longer available because the account was
-              deleted.
+              This profile is no longer available. Return to Friends to find
+              someone else.
             </Trans>
           }
           dataSet={{ testid: 'friend-profile-unavailable' }}

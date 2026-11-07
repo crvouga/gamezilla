@@ -1,0 +1,4 @@
+{
+  "summary": "A temporary people-search quota refusal aborted the query batch, marked the whole app offline and showed a false connection failure.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/scoped-query-retry.test.ts"
+}

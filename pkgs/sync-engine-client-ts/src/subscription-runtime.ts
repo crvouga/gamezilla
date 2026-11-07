@@ -7,6 +7,7 @@ import type {
 import { alwaysOnLifecycle } from '@pkgs/sync-engine-shared-ts/app-lifecycle';
 import { scopeHash } from '@pkgs/sync-engine-shared-ts/canonical';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
 import type {
   QueryRequestItem,
   QueryResponse,
@@ -14,6 +15,7 @@ import type {
 import type { MergeApplierDeps } from './merge';
 import { detachScope } from './merge';
 import { createQueryNetworkRetry } from './query-network-retry';
+import { createQueryRetryOutcomes } from './query-retry-outcomes';
 import { raceUntilAborted } from './race-until-aborted';
 import {
   QUERY_COALESCE_MS,
@@ -33,6 +35,7 @@ export type QuerySubscriptionSpec = {
   readonly params: Readonly<Record<string, unknown>>;
   /** Session startup can paint its cache after a failed network attempt. */
   readonly settleOnNetworkError?: boolean;
+  readonly onQueryNotice?: (notice: QueryRetryNotice | null) => void;
 };
 
 export type QuerySubscription = {
@@ -131,6 +134,7 @@ function resolveFlushWaiters(waiters: FlushWaiter[], sweepsDone: number): void {
 
 /** Owns event-driven query scopes; applies responses to local SQLite. */
 export class SubscriptionRuntime {
+  private readonly queryOutcomes: ReturnType<typeof createQueryRetryOutcomes>;
   private readonly entries = new Map<string, Entry>();
   private readonly changeListeners = new Set<() => void>();
   private afterSweep: ((scopes: readonly string[]) => void) | null = null;
@@ -164,6 +168,9 @@ export class SubscriptionRuntime {
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
     this.timers = options.timers;
+    this.queryOutcomes = createQueryRetryOutcomes(this.timers, (scope) =>
+      this.enqueue([scope])
+    );
     this.queryRetry = createQueryNetworkRetry(this.timers, () =>
       this.wakeAll()
     );
@@ -192,6 +199,7 @@ export class SubscriptionRuntime {
         : {}),
       onError: this.options.onError,
       onSynced: this.options.onSynced,
+      onQueryNotice: (scope, notice) => this.queryOutcomes.set(scope, notice),
       onScopeSettled: (scope) => this.options.onScopeSettled?.(scope),
       ensureBusWatch: () => this.ensureBusWatch(),
       cleanScopes: this.cleanScopes,
@@ -234,6 +242,7 @@ export class SubscriptionRuntime {
     this.requestAbort.abort();
     this.clearCoalesceTimer();
     this.queryRetry.reset();
+    this.queryOutcomes.stop();
     this.clearReconcileTick();
     this.pending = null;
     this.cleanScopes.clear();
@@ -350,9 +359,16 @@ export class SubscriptionRuntime {
       this.enqueue([entry.scope]);
     }
     this.emitSubscriptionsChange();
+    const stopNotice =
+      spec.onQueryNotice === undefined
+        ? () => {}
+        : this.queryOutcomes.subscribe(entry.scope, spec.onQueryNotice);
     return {
       waitForFirstSync: () => entry.firstSync,
-      unsubscribe: () => this.unsubscribe(entry),
+      unsubscribe: () => {
+        stopNotice();
+        this.unsubscribe(entry);
+      },
     };
   }
 
@@ -411,6 +427,7 @@ export class SubscriptionRuntime {
     if (entry.refs > 0) return;
     entry.generation += 1;
     this.entries.delete(entry.scope);
+    this.queryOutcomes.remove(entry.scope);
     this.emitSubscriptionsChange();
     void detachScope(this.options.getMergeDeps(), entry.scope).catch(
       this.options.onError
@@ -469,7 +486,11 @@ export class SubscriptionRuntime {
       if (ctx.isRunning()) {
         // An unrelated scope answering must not cancel recovery of a failed link.
         if (pending === 'all') this.queryRetry.reset();
-        this.afterSweep?.(active.map((e) => e.scope));
+        this.afterSweep?.(
+          active
+            .filter((e) => !this.queryOutcomes.failed(e.scope))
+            .map((e) => e.scope)
+        );
       }
     } catch (error) {
       if (error !== STOPPED_QUERY) {

@@ -47,9 +47,9 @@ export type FriendUserScreenViewProps = {
   readonly onRequestRemove: () => void;
   readonly onRequestBlock: () => void;
   readonly onCancelConfirm: () => void;
-  /** Removes the friend and leaves; rejects to keep the confirm open. */
+  /** Removes the friend; the dialog shows dismissible success or a retryable error. */
   readonly onRemove: () => Promise<void>;
-  /** Blocks the person and leaves; rejects to keep the confirm open. */
+  /** Blocks the person; the dialog shows dismissible success or a retryable error. */
   readonly onBlock: () => Promise<void>;
 };
 

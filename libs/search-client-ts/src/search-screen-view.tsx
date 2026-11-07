@@ -34,6 +34,8 @@ export type PeopleSearchState = {
   readonly needsConnection: boolean;
   /** The server reported why it could not answer. */
   readonly failed: boolean;
+  /** Temporary search quota; the current search retries automatically. */
+  readonly rateLimited?: boolean;
   readonly results: readonly UserSearchResult[];
 };
 
@@ -102,76 +104,92 @@ function SearchResults(props: {
       resultCount: props.search.results.length,
     });
   return (
-    <Switch>
-      <Match when={phase() === 'needs-connection' && props.search.failed}>
-        <ErrorState
-          variant="compact"
-          title={<Trans>Search needs a connection</Trans>}
-          body={
-            <Trans>
-              We couldn't reach the server. Search again once you're back
-              online.
-            </Trans>
-          }
-          dataSet={{ testid: Handles.searchNeedsConnection }}
-        />
-      </Match>
-      <Match when={phase() === 'needs-connection'}>
-        <EmptyState
-          variant="compact"
-          icon={SearchIcon}
-          title={<Trans>Search needs a connection</Trans>}
-          body={
-            <Trans>You're offline. Search again once you're back online.</Trans>
-          }
-          dataSet={{ testid: Handles.searchNeedsConnection }}
-        />
-      </Match>
-      <Match when={phase() === 'searching'}>
-        <LoadingState
-          variant="compact"
-          caption={t`Searching…`}
-          dataSet={{ testid: Handles.searchLoading }}
-        />
-      </Match>
-      <Match when={phase() === 'empty'}>
-        <EmptyState
-          variant="compact"
-          icon={SearchIcon}
-          title={<Trans>No people found for “{props.query}”</Trans>}
-          body={<Trans>Check the spelling or try a different username.</Trans>}
-          dataSet={{ testid: Handles.searchEmpty }}
-        />
-      </Match>
-      <Match when={phase() === 'results'}>
-        <Show when={props.search.needsConnection}>
-          <Notice
-            tone="info"
-            icon={WifiOffIcon}
-            dataSet={{ testid: Handles.searchOfflineResults }}
-          >
-            <Trans>
-              You're offline, so some people may not show up until you're back
-              online.
-            </Trans>
-          </Notice>
-        </Show>
-        <ScreenBodyVirtualList
-          dataSet={{ testid: Handles.searchResults }}
-          items={props.search.results}
-          keyExtractor={(user) => user.userId}
-          estimateSize={60}
-          panel
-          renderItem={(user) => (
-            <SearchResultRow
-              user={user}
-              query={props.query.trim()}
-              render={props.renderUserRow}
+    <>
+      <Show when={props.search.rateLimited}>
+        <Notice tone="info" dataSet={{ testid: 'search-rate-limited' }}>
+          <Trans>
+            Too many searches. Please wait a minute; this search will retry
+            automatically.
+          </Trans>
+        </Notice>
+      </Show>
+      <Show when={!props.search.rateLimited || props.search.results.length > 0}>
+        <Switch>
+          <Match when={phase() === 'needs-connection' && props.search.failed}>
+            <ErrorState
+              variant="compact"
+              title={<Trans>Search needs a connection</Trans>}
+              body={
+                <Trans>
+                  We couldn't reach the server. Search again once you're back
+                  online.
+                </Trans>
+              }
+              dataSet={{ testid: Handles.searchNeedsConnection }}
             />
-          )}
-        />
-      </Match>
-    </Switch>
+          </Match>
+          <Match when={phase() === 'needs-connection'}>
+            <EmptyState
+              variant="compact"
+              icon={SearchIcon}
+              title={<Trans>Search needs a connection</Trans>}
+              body={
+                <Trans>
+                  You're offline. Search again once you're back online.
+                </Trans>
+              }
+              dataSet={{ testid: Handles.searchNeedsConnection }}
+            />
+          </Match>
+          <Match when={phase() === 'searching'}>
+            <LoadingState
+              variant="compact"
+              caption={t`Searching…`}
+              dataSet={{ testid: Handles.searchLoading }}
+            />
+          </Match>
+          <Match when={phase() === 'empty'}>
+            <EmptyState
+              variant="compact"
+              icon={SearchIcon}
+              title={<Trans>No people found for “{props.query}”</Trans>}
+              body={
+                <Trans>Check the spelling or try a different username.</Trans>
+              }
+              dataSet={{ testid: Handles.searchEmpty }}
+            />
+          </Match>
+          <Match when={phase() === 'results'}>
+            <Show when={props.search.needsConnection}>
+              <Notice
+                tone="info"
+                icon={WifiOffIcon}
+                dataSet={{ testid: Handles.searchOfflineResults }}
+              >
+                <Trans>
+                  You're offline, so some people may not show up until you're
+                  back online.
+                </Trans>
+              </Notice>
+            </Show>
+            <ScreenBodyVirtualList
+              dataSet={{ testid: Handles.searchResults }}
+              items={props.search.results}
+              keyExtractor={(user) => user.userId}
+              estimateSize={60}
+              panel
+              renderItem={(user) => (
+                <SearchResultRow
+                  user={user}
+                  query={props.query.trim()}
+                  render={props.renderUserRow}
+                />
+              )}
+            />
+          </Match>
+        </Switch>
+      </Show>
+    </>
   );
 }
 
