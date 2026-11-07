@@ -42,7 +42,9 @@ export const openPrivacy = scenarioAction({
     const handle = s.actors.get(actor);
     if (handle === undefined) throw new Error('Privacy actor missing');
     await handle.openLink('/profile/privacy');
-    await handle.ui.get('privacy-delete-review').expect.visible();
+    // Opening the screen also serves signed-out people reading a deletion receipt.
+    // The destructive action is permission-gated and is not a readiness marker.
+    await handle.ui.get('privacy-deletion-task').expect.visible();
   },
 });
 

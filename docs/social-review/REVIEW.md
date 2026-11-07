@@ -133,3 +133,14 @@ sync code are unchanged. All 13 package tests and 170 tests across the four
 puzzle spec shards pass, including "A valid draft becomes discoverable". The
 critic approved the correction without weakened assertions and retains
 10/9/9/10 pending full verification.
+
+## Round eight deletion receipt readiness
+
+The next full run stopped while reopening Privacy after account deletion. The
+harness incorrectly waited for the permission-gated Delete account action after
+the person had been signed out. A paid-account regression reproduced the timeout.
+Opening Privacy now waits for the privacy section; reviewing deletion still taps
+the actual gated control. Product code is unchanged. The regression and all six
+deleted-account payment scenarios pass, including the pending cancellation case;
+lint, typechecks and goals pass. The critic found no weakened assertion and
+retains 10/9/9/10 until full verification succeeds.
