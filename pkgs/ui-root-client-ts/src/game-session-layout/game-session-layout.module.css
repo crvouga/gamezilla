@@ -13,7 +13,7 @@
 
 /* Outcome precedes the final position, never the standings and player stack. */
 .outcome {
-  padding: var(--ui-space-3);
+  padding: var(--ui-space-2);
   background: var(--ui-color-surface);
   border-radius: var(--ui-radius-card);
 }
@@ -89,6 +89,7 @@
 }
 
 /* The rack and precision navigator already separate a compact board's content. */
-.session[data-board-focus="true"]:has([data-measure="compact"]) {
+.session[data-board-focus="true"]:has([data-measure="compact"]),
+.session[data-board-focus="true"]:has([data-board-theme="quoridor"]) {
   gap: 0;
 }

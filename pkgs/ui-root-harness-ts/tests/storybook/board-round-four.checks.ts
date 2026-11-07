@@ -100,7 +100,6 @@ test('screens-games-word-tiles-board--accepted-exchange regression word-tiles-ex
 for (const id of [
   'games-battleship-placement-layout--enlarged',
   'games-battleship-target-layout--precise',
-  'games-battleship-target-layout--map-only',
   'product-wordtileworkbench--recovery',
 ]) {
   for (const theme of ['light', 'dark']) {

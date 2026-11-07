@@ -59,7 +59,7 @@ export const Solved: Story = {
     const canvas = within(canvasElement);
     await expect(
       canvas.getByTestId('content-attempt-complete')
-    ).toHaveTextContent('Puzzle completed');
+    ).toHaveTextContent('Completion saved');
     const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
     const counts = canvas.getByTestId('sokoban-counts').getBoundingClientRect();
     await expect(notice.height).toBeGreaterThan(0);

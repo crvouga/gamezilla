@@ -79,7 +79,7 @@
   min-width: 0;
   padding: 0;
   border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-sm);
+  border-radius: 0;
   background: var(--ui-color-background);
   color: var(--ui-color-text);
   cursor: pointer;
@@ -209,7 +209,7 @@
 
 /* A complete fitted puzzle board alongside its rack and target at desktop height. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: 24rem;
+  max-width: 23rem;
   margin-inline: auto;
 }
 
@@ -223,6 +223,6 @@
 
 /* The fitted overview leaves room for rack, scores and the enlargement action. */
 .board[data-measure="full"][data-enlarged="false"] {
-  max-width: 24rem;
+  max-width: 23rem;
   margin-inline: auto;
 }

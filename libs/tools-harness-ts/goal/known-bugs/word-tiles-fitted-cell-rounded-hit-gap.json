@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the fitted a1 cell corner at 526.265625,426.265625 hit the board instead of the cell because its rounded corner consumed the target.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-eight.checks.ts"
+}

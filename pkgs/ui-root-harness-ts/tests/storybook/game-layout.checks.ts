@@ -75,14 +75,16 @@ for (const sample of [
   },
 ]) {
   // regression: desktop-game-record-command-clipping
-  test(`storybook integration: ${sample.story} keeps complete commands inside the record`, async ({
+  test(`storybook integration: ${sample.story} keeps complete commands inside the board workspace`, async ({
     page,
   }) => {
     await openGame(page, sample.story, 1440);
     const panel = sample.story.includes('quoridor')
       ? page.getByTestId('custom-game-board-tools')
-      : page.locator('[data-component="CustomGameReview"]');
+      : page.locator('[data-component="WordTileActions"]');
     await expect(panel).toHaveCount(1);
+    if (sample.story.includes('word-tiles'))
+      await page.getByTestId('custom-game-board-more').click();
     for (const name of sample.commands)
       await expect(
         panel.getByRole('button', { name, exact: true })

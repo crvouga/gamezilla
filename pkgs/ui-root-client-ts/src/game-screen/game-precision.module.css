@@ -17,3 +17,9 @@
 .board:has([data-board-theme="battleship"]) {
   gap: var(--ui-space-2);
 }
+
+/* Keep the four-seat turn record and wall confirmation in the initial view. */
+.column:has([data-board-theme="quoridor"]),
+.stage:has([data-board-theme="quoridor"]) {
+  gap: 0;
+}

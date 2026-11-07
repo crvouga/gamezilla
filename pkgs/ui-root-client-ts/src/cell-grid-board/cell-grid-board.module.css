@@ -504,6 +504,7 @@
 }
 /* A small corner diamond identifies goals without tracing every cell again. */
 .board[data-board-theme="quoridor"] .cell[data-goal="true"]::before {
+  border: none;
   content: "";
   position: absolute;
   top: var(--ui-space-1);

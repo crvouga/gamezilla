@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import {
   expectBoardFirst,
+  expectFourSeatRail,
   expectTerminalVisible,
 } from './game-frame-geometry.example';
 import { GameFrameScreenView } from './game-frame-screen-view';
@@ -74,10 +75,7 @@ export const FourPlayers: Story = {
     );
     for (const player of seats)
       await expect(player.getBoundingClientRect().height).toBeLessThan(112);
-    if (view.innerWidth < 880) {
-      const tops = seats.map((player) => player.getBoundingClientRect().top);
-      await expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(2);
-    }
+    if (view.innerWidth < 880) await expectFourSeatRail(seats);
     await expect(canvas.getByTestId('custom-game-white')).toHaveAttribute(
       'aria-current',
       'step'
