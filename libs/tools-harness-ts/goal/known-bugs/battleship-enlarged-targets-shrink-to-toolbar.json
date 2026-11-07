@@ -1,0 +1,4 @@
+{
+  "summary": "The bounded enlarged targeting board inherited a shrink-to-content width inside centered PairedPanels, producing 23.796875px cells. Make the owning stack span its panel and retain the 44\u201364px target assertions through correction, cancellation and firing.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

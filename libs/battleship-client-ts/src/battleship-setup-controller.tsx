@@ -37,6 +37,7 @@ export type SetupController = {
   readonly refusal: Accessor<string | null>;
   readonly cells: Accessor<readonly CellGridCell[]>;
   readonly status: Accessor<string>;
+  readonly instruction: Accessor<string>;
   readonly choose: (ship: ShipId) => void;
   readonly place: (cell: string) => void;
   readonly rotate: () => void;
@@ -91,7 +92,7 @@ function setupCell(cell: string, view: SetupView): CellGridCell {
 function statusText(
   draft: Draft,
   selected: ShipId | null,
-  orientation: Orientation
+  _orientation: Orientation
 ): string {
   if (unplacedShips(draft).length === 0)
     return t`All five ships placed. Your fleet is ready.`;
@@ -99,11 +100,17 @@ function statusText(
   const total = SHIPS.length;
   const count = t`${placed} of ${total} ships placed.`;
   if (selected === null) return count;
+  return count;
+}
+function placementInstruction(
+  selected: ShipId | null,
+  orientation: Orientation
+): string {
+  if (selected === null) return t`Choose a placed ship to move or remove it.`;
   const name = shipName(selected);
   const length = shipLength(selected);
   const direction = orientationName(orientation);
-  const hint = t`Choose the bow cell for the ${name}: ${length} cells, ${direction}. Press R to rotate.`;
-  return `${count} ${hint}`;
+  return t`${name}: ${length} cells ${direction}. Tap its first cell to place it; use Rotate to change direction.`;
 }
 
 /** Commits an accepted change; a refused one only says why. */
@@ -207,6 +214,7 @@ export function createSetupController(
     refusal,
     cells,
     status,
+    instruction: () => placementInstruction(selected(), orientation()),
     preview: setHovered,
   };
 }

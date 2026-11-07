@@ -1,0 +1,4 @@
+{
+  "summary": "Sticky history occluded accepted-exchange confirmation after phone scrolling.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

@@ -14,6 +14,7 @@ fingerprints.
 | Position and parent authority | Authority scenarios, lifecycle model, canonical move callback contracts |
 | Selection, input and promotion | Interaction, accessibility and promotion scenarios; promotion model |
 | Appearance and continuous sizing | Options scenarios/model; generated geometry and native resize contracts |
+| Outside coordinate placement | `public-coordinates.contract.test.ts` drives the public board through its example app; puzzle play/review stories exercise the same frame |
 | Personal and supplied markings | Annotation scenarios/model; native alignment; pure arrow geometry |
 | Waiting-side moves | Premove scenarios/model; canonical ordered callback contracts |
 | Motion and interruptions | Motion scenarios/lifecycle model; real abandoned-handle completion; native capture and special-move frames |

@@ -1,0 +1,4 @@
+{
+  "summary": "Completed seven-drop Connect Four still said Live and hid the result and rematch below the participant and board stack.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

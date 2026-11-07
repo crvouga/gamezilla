@@ -11,6 +11,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import {
   TrailArena,
   type TrailHeading,
@@ -80,23 +81,46 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
  * (keyboard first, so no pad is drawn there), by swipe or the pad beside it
  * on a phone. It also describes the arena to a listener.
  */
-function SteeringHint(props: { id: string }): JSX.Element {
+function SteeringHint(props: {
+  id: string;
+  sides: readonly GameSide[];
+}): JSX.Element {
   const mode = useLayoutMode();
   return (
     <P id={props.id} variant="caption" tone="secondary">
       <Show
         when={mode() === 'wide'}
         fallback={
-          <Trans>
-            Swipe the arena or use the pad to steer. Avoid the edge and every
-            trail.
-          </Trans>
+          <Show
+            when={props.sides.length > 1}
+            fallback={
+              <Trans>
+                Swipe the arena or use the pad to steer. Avoid the edge and
+                every trail.
+              </Trans>
+            }
+          >
+            <Trans>
+              Swipe your half or use your pad. Avoid edges and trails.
+            </Trans>
+          </Show>
         }
       >
-        <Trans>
-          Steer with the arrow keys or W, A, S and D. Avoid the edge and every
-          trail.
-        </Trans>
+        <Show
+          when={props.sides.length > 1}
+          fallback={
+            <Trans>
+              Steer with the arrow keys or W, A, S and D. Avoid the edge and
+              every trail.
+            </Trans>
+          }
+        >
+          <Trans>
+            Focus the arena. {riderName(props.sides[0]!)} uses arrow keys;{' '}
+            {riderName(props.sides[1]!)} uses W, A, S and D. Avoid the edge and
+            every trail.
+          </Trans>
+        </Show>
       </Show>
     </P>
   );
@@ -111,7 +135,11 @@ function Pads(props: {
   return (
     <Show when={mode() !== 'wide'}>
       <StackHorizontal gap="lg" justify="center" wrap>
-        <For each={props.board.simulation?.sides ?? []}>
+        <For
+          each={(props.board.simulation?.sides ?? [])
+            .filter(props.steerable)
+            .reverse()}
+        >
           {(side) => (
             <StackVertical gap="xs" align="center">
               {/* One pad is the person's own rider, named above the arena;
@@ -149,6 +177,7 @@ function Arena(props: {
   board: GameBoardProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
+  const statusId = createUniqueId();
   const mode = useLayoutMode();
   const controlled = () => props.board.simulation?.sides ?? [];
   const steering = (side: GameSide | undefined) =>
@@ -159,25 +188,56 @@ function Arena(props: {
   const primary = () =>
     controlled()[0] ?? props.board.simulation?.elsewhere?.[0];
   const ownSteering = () => steering(primary());
+  const canSteerHere = () => controlled().some(steerable);
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
       <P
+        id={statusId}
         role="status"
         testId={`${props.board.testId}-status`}
         dataSet={{ steering: ownSteering() }}
       >
-        {steeringText(ownSteering(), primary())}
+        <Show
+          when={
+            props.state.phase === 'round-over' ||
+            props.state.phase === 'completed'
+          }
+          fallback={
+            controlled().length > 1
+              ? controlled()
+                  .map((side) => steeringText(steering(side), side))
+                  .join(' ')
+              : steeringText(ownSteering(), primary())
+          }
+        >
+          <Text variant="bodyBold" testId={`${props.board.testId}-result`}>
+            {arenaOverlay(props.state)?.title}
+          </Text>{' '}
+          <Text variant="caption">{arenaOverlay(props.state)?.detail}</Text>
+        </Show>
       </P>
       <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
       <TrailArena
+        touchRegions={
+          controlled().length === 2 && controlled().some(steerable)
+            ? [
+                t`Left: ${riderName(controlled()[1]!)}`,
+                t`Right: ${riderName(controlled()[0]!)}`,
+              ]
+            : undefined
+        }
         width={props.state.width}
         height={props.state.height}
         cells={props.state.trails}
         riders={trailRiders(props.state, controlled())}
         crashes={trailCrashes(props.state)}
-        overlay={arenaOverlay(props.state)}
-        enabled={controlled().some(steerable)}
+        overlay={
+          props.state.phase === 'countdown'
+            ? arenaOverlay(props.state)
+            : undefined
+        }
+        enabled={canSteerHere()}
         onDirection={(heading, slot) => {
           const side = controlled()[slot];
           if (side !== undefined && steerable(side))
@@ -186,13 +246,15 @@ function Arena(props: {
         label={t`Light Cycles arena`}
         // A phone's cells are small: its heads are drawn larger.
         heads={mode() === 'wide' ? 'regular' : 'large'}
-        instructionsId={instructionsId}
+        instructionsId={canSteerHere() ? instructionsId : statusId}
         testId={`${props.board.testId}-arena`}
       />
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is, then how to steer. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
-      <SteeringHint id={instructionsId} />
+      <Show when={canSteerHere()}>
+        <SteeringHint id={instructionsId} sides={controlled()} />
+      </Show>
     </StackVertical>
   );
 }
@@ -228,12 +290,21 @@ export function LightCyclesBoardView(props: GameBoardProps): JSX.Element {
     <Show
       when={state()}
       fallback={
-        <P role="alert">
-          <Trans>
-            Light Cycles could not be opened. Return to the game choices and
-            open it again.
-          </Trans>
-        </P>
+        <StackVertical gap="sm">
+          <P role="alert">
+            <Trans>
+              This game cannot be shown by this app. Check your app version,
+              install an available update, then reopen this game.
+            </Trans>
+          </P>
+          <TextLink
+            href="/more/about"
+            variant="standalone"
+            testId={`${props.testId}-app-info`}
+          >
+            <Trans>Check app version</Trans>
+          </TextLink>
+        </StackVertical>
       }
     >
       {(game) => <Arena state={game()} board={props} />}

@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440\u00d7844 target overview cells stretch shallow, with disconnected region buttons and a Map toggle; spatial region selection preserves all outcomes and comfortable precise input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -12,6 +12,7 @@ import {
   type GameSide,
   requireTwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import {
   type CourtSide,
   PaddleCourt,
@@ -19,6 +20,7 @@ import {
 import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import {
@@ -96,12 +98,27 @@ function PaddleSlider(props: {
 }
 
 /**
- * Both scores and the points that win, for a listener: the eye reads the
- * points in each half of the court and the target under it.
+ * Scores and the active rally for a listener. Countdown, pause and result
+ * remain on court; the rally summary never obscures the moving ball.
  */
-function CourtScores(props: { state: PongState; testId: string }): JSX.Element {
+function CourtSummary(props: {
+  state: PongState;
+  testId: string;
+  controls: GameSimulationControls | undefined;
+}): JSX.Element {
   return (
     <VisuallyHidden>
+      <Show
+        when={
+          props.state.phase === 'playing' &&
+          !props.controls?.paused &&
+          !props.controls?.stale
+        }
+      >
+        <Text variant="inherit" testId={`${props.testId}-status`}>
+          {t`Keep the ball in play.`}
+        </Text>
+      </Show>
       <Text variant="inherit" testId={`${props.testId}-score-left`}>
         {t`Left ${props.state.score.left}`}
       </Text>{' '}
@@ -109,32 +126,6 @@ function CourtScores(props: { state: PongState; testId: string }): JSX.Element {
         {t`Right ${props.state.score.right}`}
       </Text>
     </VisuallyHidden>
-  );
-}
-
-/**
- * The court's own line, shown only when it says more than the game's turn
- * line does (paused, reconnecting); a listener always hears it.
- */
-function CourtStatus(props: {
-  state: PongState;
-  board: GameBoardProps;
-}): JSX.Element {
-  const text = () => pongStatus(props.state, props.board.simulation);
-  const own = () => text() !== pongStatus(props.state, undefined);
-  return (
-    <Show
-      when={own()}
-      fallback={
-        <VisuallyHidden role="status" testId={`${props.board.testId}-status`}>
-          {text()}
-        </VisuallyHidden>
-      }
-    >
-      <P role="status" testId={`${props.board.testId}-status`}>
-        {text()}
-      </P>
-    </Show>
   );
 }
 
@@ -152,23 +143,54 @@ function CourtHint(props: {
   const mode = useLayoutMode();
   const shared = () => (props.board.simulation?.sides.length ?? 0) > 1;
   return (
-    <P id={props.id} variant="caption" tone="secondary">
+    <P id={props.id} variant="body">
       <Text variant="inherit" testId={`${props.board.testId}-target`}>
         {t`First to ${props.state.targetScore}`}
       </Text>
       {' · '}
       <Show
-        when={mode() === 'wide'}
-        fallback={<Trans>Drag up and down along your edge of the court.</Trans>}
+        when={!props.board.simulation?.stale && !props.board.simulation?.paused}
+        fallback={<Trans>Controls are unavailable until play resumes.</Trans>}
       >
-        <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
-          <Match when={shared()}>
-            <Trans>W and S move Left; the arrow keys move Right.</Trans>
-          </Match>
-          <Match when={props.board.simulation?.sides[0] === 'white'}>
-            <Trans>W and S or the arrow keys move your paddle.</Trans>
-          </Match>
-        </Switch>
+        <Show
+          when={props.state.phase !== 'completed'}
+          fallback={<Trans>Match finished.</Trans>}
+        >
+          <Show
+            when={(props.board.simulation?.sides.length ?? 0) > 0}
+            fallback={<Trans>Watching the rally.</Trans>}
+          >
+            <Show
+              when={mode() === 'wide'}
+              fallback={
+                <Show
+                  when={shared()}
+                  fallback={
+                    <Trans>
+                      Drag up and down along your edge of the court.
+                    </Trans>
+                  }
+                >
+                  <Trans>
+                    Left player: drag the left half. Right player: drag the
+                    right half.
+                  </Trans>
+                </Show>
+              }
+            >
+              <Switch
+                fallback={<Trans>The arrow keys move your paddle.</Trans>}
+              >
+                <Match when={shared()}>
+                  <Trans>W and S move Left; the arrow keys move Right.</Trans>
+                </Match>
+                <Match when={props.board.simulation?.sides[0] === 'white'}>
+                  <Trans>W and S or the arrow keys move your paddle.</Trans>
+                </Match>
+              </Switch>
+            </Show>
+          </Show>
+        </Show>
       </Show>
     </P>
   );
@@ -192,9 +214,13 @@ function sideLabels(
   controlled: readonly CourtSide[]
 ): Partial<Record<CourtSide, string | undefined>> {
   const label = (side: CourtSide): string | undefined =>
-    controlled.includes(side)
-      ? t`You`
-      : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
+    controlled.length > 1
+      ? side === 'first'
+        ? t`Left player`
+        : t`Right player`
+      : controlled.includes(side)
+        ? t`You`
+        : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
   return { first: label('first'), second: label('second') };
 }
 
@@ -203,6 +229,7 @@ function PongScene(props: {
   board: PongBoardViewProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
+  const mode = useLayoutMode();
   const controlled = (): CourtSide[] =>
     (props.board.simulation?.sides ?? []).map((side) =>
       side === 'white' ? 'first' : 'second'
@@ -214,11 +241,23 @@ function PongScene(props: {
     props.state.phase !== 'completed';
   return (
     <StackVertical gap="md">
-      <CourtScores state={props.state} testId={props.board.testId} />
-      <CourtStatus state={props.state} board={props.board} />
+      <CourtSummary
+        state={props.state}
+        testId={props.board.testId}
+        controls={props.board.simulation}
+      />
+
       {/* On a phone each controlled half holds its own slider, so the
           court (its shape fixed) takes the whole width. */}
       <PaddleCourt
+        status={
+          props.state.phase !== 'playing' ||
+          props.board.simulation?.paused ||
+          props.board.simulation?.stale
+            ? pongStatus(props.state, props.board.simulation)
+            : undefined
+        }
+        touchHint={mode() !== 'wide' ? t`Drag` : undefined}
         sideLabels={sideLabels(props.board, controlled())}
         halfControl={(side) => (
           <PaddleSlider
@@ -302,12 +341,16 @@ export function PongBoardView(props: PongBoardViewProps): JSX.Element {
     <Show
       when={state()}
       fallback={
-        <P role="alert">
-          <Trans>
-            Pong could not be opened. Return to the game choices and open it
-            again.
-          </Trans>
-        </P>
+        <ErrorState
+          variant="compact"
+          title={t`Pong could not be opened`}
+          body={t`Return to your spaces to choose a game.`}
+          details={
+            <TextLink href="/" variant="standalone">
+              <Trans>Back to spaces</Trans>
+            </TextLink>
+          }
+        />
       }
     >
       {(game) => <PongScene state={game()} board={props} />}

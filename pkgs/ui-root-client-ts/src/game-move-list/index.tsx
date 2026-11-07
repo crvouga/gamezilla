@@ -169,6 +169,7 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
       ref={root}
       class={styles['list']}
       data-layout={props.layout}
+      data-many-seats={columns() > 2}
       data-wrap={props.layout === 'turn' && props.wrap === true}
       style={{ '--move-columns': String(columns()) }}
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}

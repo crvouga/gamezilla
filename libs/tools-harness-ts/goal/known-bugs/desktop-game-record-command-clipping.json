@@ -1,0 +1,4 @@
+{
+  "summary": "At a 1440px viewport, Quoridor King of the Hill clips Vertical wall and Word Tiles clips Redo at the record panel's right edge. The browser regression requires complete game command buttons to fit inside the record panel.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts"
+}

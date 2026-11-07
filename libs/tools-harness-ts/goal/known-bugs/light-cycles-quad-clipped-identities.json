@@ -1,0 +1,4 @@
+{
+  "summary": "Four-player phone chips truncate Jordan and overflow Comet wins 0.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship required precise selection on a ten-column phone grid with no enlarged aiming option. Four bounded five-column areas now cover every coordinate without firing until confirmed.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

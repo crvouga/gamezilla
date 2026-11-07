@@ -5,6 +5,7 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { withChessBoardContext } from './chess-board-story.example';
 import { ChessGameBoard, chessPresentation } from './chess-game-presentation';
@@ -58,7 +59,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A new game: White moves first, legal moves highlighted on pick-up. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const pawn = canvas.getByRole('button', { name: 'e2, White pawn' });
+    pawn.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(pawn).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      canvas.getByRole('button', {
+        name: 'e4, empty, Legal destination',
+      })
+    ).toBeVisible();
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}{Enter}');
+    await expect(
+      canvas.getByRole('button', { name: 'e4, White pawn' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('button', { name: 'e2, empty' })
+    ).toBeVisible();
+  },
+};
 
 /**
  * Mid-game on White's turn, seven moves each in the record, the last move
@@ -90,6 +111,13 @@ export const WaitingForOpponent: Story = {
 export const InCheck: Story = {
   args: { position: CHECK, lastAction: 'f1b5', orientation: 'black' },
   parameters: { table: { turn: 'black' } satisfies GameTableStory },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Black pieces nearest you/)).toBeVisible();
+    await expect(canvas.getByText(/Black is in check/)).toBeVisible();
+    await userEvent.click(canvas.getByText('Keyboard controls'));
+    await expect(canvas.getByText(/Escape to cancel/)).toBeVisible();
+  },
 };
 
 /** A watcher follows from White's side; nothing can be moved. */
@@ -128,5 +156,38 @@ export const InsufficientMaterial: Story = {
     table: {
       ending: { winner: 'draw', reason: 'insufficient material' },
     } satisfies GameTableStory,
+  },
+};
+
+/** Choose an underpromotion through the real board, then observe the new piece. */
+export const PromotionChoice: Story = {
+  args: { position: '7k/P7/8/8/8/8/8/7K w - - 0 1' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    canvas.getByRole('button', { name: 'a7, White pawn' }).focus();
+    await userEvent.keyboard('{Enter}{ArrowUp}{Enter}');
+    await expect(
+      canvas.getByRole('heading', { name: 'Promote pawn' })
+    ).toBeVisible();
+    // regression: chess-promotion-silhouette-only
+    // Measure before userEvent.click can scroll a hidden choice into view.
+    for (const name of ['Queen', 'Rook', 'Bishop', 'Knight']) {
+      const choice = canvas.getByRole('button', { name });
+      await expect(choice).toHaveTextContent(name);
+      const rect = choice.getBoundingClientRect();
+      await expect(rect.width).toBeGreaterThanOrEqual(44);
+      await expect(rect.height).toBeGreaterThanOrEqual(44);
+      await expect(rect.left).toBeGreaterThanOrEqual(0);
+      await expect(rect.right).toBeLessThanOrEqual(window.innerWidth);
+      await expect(rect.top).toBeGreaterThanOrEqual(0);
+      await expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
+    }
+    await userEvent.click(canvas.getByRole('button', { name: 'Knight' }));
+    await expect(
+      canvas.getByRole('button', { name: 'a8, White knight' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('button', { name: 'a7, empty' })
+    ).toBeVisible();
   },
 };

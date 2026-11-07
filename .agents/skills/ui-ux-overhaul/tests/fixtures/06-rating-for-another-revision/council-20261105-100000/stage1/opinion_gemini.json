@@ -1,9 +1,0 @@
-{
-  "agent": "gemini",
-  "status": "ok",
-  "structured": true,
-  "response": "### Recommendation\nShip after the top fix.\n\n### Reasoning\n- Hierarchy is clear.\n\n### Assumptions\n- Fixtures are representative.\n\n### Trade-offs\nNone.\n\n### Confidence\nHigh.\n\n### What Would Change My Mind\nA broken state.\n\n### Dissent Points\nNone.\n\n```ui-council-rating\n{\n  \"member\": \"gemini\",\n  \"revision\": \"a1b2c3d4e5f60718293a4b5c6d7e8f9012345678\",\n  \"evidence_code\": \"5e1f0c2a9b7d3e64\",\n  \"design\": 9,\n  \"ux\": 9,\n  \"scope\": \"respected\",\n  \"scope_notes\": \"\",\n  \"design_deductions\": [\n    {\n      \"where\": \"screens-friends-list--populated @ phone/dark\",\n      \"issue\": \"design: secondary text contrast is low on row subtitles\",\n      \"cost\": 1\n    }\n  ],\n  \"ux_deductions\": [\n    {\n      \"where\": \"screens-friends-list--populated @ phone/dark\",\n      \"issue\": \"ux: secondary text contrast is low on row subtitles\",\n      \"cost\": 1\n    }\n  ],\n  \"top_fix\": \"Raise row subtitle contrast to 4.5:1 in both themes.\",\n  \"journeys\": [\n    {\n      \"id\": \"J1\",\n      \"completable\": true,\n      \"steps_before\": 4,\n      \"steps_after\": 2,\n      \"notes\": \"two steps, down from four\"\n    }\n  ]\n}\n```\n",
-  "recommendation": "Ship after the top fix.",
-  "duration_ms": 91234,
-  "timestamp": "2026-11-05T10:00:00.000Z"
-}

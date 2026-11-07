@@ -46,14 +46,21 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
       choose: (position, random) =>
         quoridorBots.choose(position, 'medium', random, null),
       async perform(ui, board, action) {
-        const mode = ui.get(
-          `${board}-mode-${action.length === 3 ? action[2] : 'move'}`
-        );
-        await mode.wait('enabled');
-        await mode.key('enter');
+        if (action !== 'pass') {
+          const mode = ui.get(
+            `${board}-mode-${action.length === 3 ? action[2] : 'move'}`
+          );
+          await mode.wait('enabled');
+          await mode.key('enter');
+        }
         const target = ui.get(`${board}-action-${action}`);
         await target.wait('enabled');
         await target.key('enter');
+        if (action.length === 3) {
+          const commit = ui.get(`${board}-wall-commit`);
+          await commit.wait('enabled');
+          await commit.key('enter');
+        }
       },
     },
   });

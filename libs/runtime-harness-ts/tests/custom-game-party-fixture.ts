@@ -11,7 +11,7 @@ const rules = game.shared.turnGame.rules;
 
 /** The peer sees both bot replies before its previous move reaches the host. */
 export function delayedPartyHost(
-  mode: 'ordinary' | 'reviewed' | 'rebased' = 'ordinary'
+  mode: 'ordinary' | 'reviewed' | 'rebased' | 'rollback' = 'ordinary'
 ) {
   const moves: string[] = [];
   const players: string[] = [];
@@ -28,6 +28,8 @@ export function delayedPartyHost(
   let returnsLive = 0;
   let rebased = false;
   let ready = true;
+  let proposedWall: string | null = null;
+  let rejected = false;
   const read = (actor: 'white' | 'black'): string => {
     const shown = actor === 'white' ? hostView : view;
     if (mode === 'reviewed' && !reviewed && shown.ply === 16) {
@@ -98,6 +100,24 @@ export function delayedPartyHost(
     if (!rules.legal(view.position).includes(action))
       throw new Error(`${action} is disabled on the current board`);
   };
+  const rollBack = (actor: string, ply: number): void => {
+    if (mode === 'rollback' && actor === 'black' && ply === 17) {
+      moves.splice(15);
+      const position = rules.replay(moves, moves.length);
+      const next = rules.play(position, 'f5', moves.join(','), moves);
+      if (next === null) throw new Error('The recorded bot move is illegal');
+      moves.push('f5');
+      view = {
+        position: next.position,
+        status: 'active',
+        turn: 'white',
+        outcome: '',
+        ply: 16,
+      };
+      hostView = view;
+      rejected = true;
+    }
+  };
   const driver = (actor: 'white' | 'black'): Driver => ({
     kind: 'delayed-party',
     launch: unused,
@@ -114,14 +134,28 @@ export function delayedPartyHost(
         },
         wait: () => waitFor(actor, id),
         key: () => {
-          if (id.startsWith('custom-game-board-action-'))
-            play(actor, id.slice('custom-game-board-action-'.length));
+          if (id === 'custom-game-board-wall-commit') {
+            if (proposedWall === null) throw new Error('No wall proposed');
+            play(actor, proposedWall);
+            proposedWall = null;
+          } else if (id.startsWith('custom-game-board-action-')) {
+            const action = id.slice('custom-game-board-action-'.length);
+            if (action.length === 3) proposedWall = action;
+            else play(actor, action);
+          }
         },
         // The record beside a wide board always shows its steps.
-        shown: () => id === 'custom-game-review-live',
+        shown: () =>
+          id === 'custom-game-review-live' ||
+          (id === 'custom-game-error' && rejected),
+        text: () =>
+          id === 'custom-game-error' && rejected
+            ? 'That move is not legal in this position.'
+            : '',
         visible: () => {
           if (!id.startsWith('custom-game-review-move-')) return;
           const ply = Number(id.slice('custom-game-review-move-'.length));
+          rollBack(actor, ply);
           if (ply > view.ply) throw new Error(`Move ${ply} has not arrived`);
           if (actor === 'white' && ply > hostView.ply) hostView = view;
         },
@@ -137,6 +171,7 @@ export function delayedPartyHost(
     moves,
     returnsLive: () => returnsLive,
     rebased: () => rebased,
+    rejected: () => rejected,
     setReady: (value: boolean) => {
       ready = value;
     },
@@ -159,6 +194,7 @@ function partyNode(
     wait(): void;
     key(): void;
     shown(): boolean;
+    text(): string;
     visible(): void;
   }
 ): DriverNode {
@@ -184,6 +220,6 @@ function partyNode(
       text: unused,
     },
     isVisible: async () => actions.shown(),
-    text: unused,
+    text: async () => actions.text(),
   };
 }

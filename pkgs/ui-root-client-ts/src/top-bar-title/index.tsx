@@ -19,7 +19,7 @@ export type TopBarTitleProps = {
 export function TopBarTitle(props: TopBarTitleProps): JSX.Element {
   return (
     <h1
-      class="text line-clamp-1 min-w-0 max-w-full"
+      class="text truncate min-w-0 max-w-full"
       classList={{
         textHeading: props.size !== 'large',
         textTitle: props.size === 'large',

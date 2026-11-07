@@ -215,15 +215,17 @@ test('one roving tab stop follows focus; previews report the focused cell; other
 
 test('paired panels keep both panels mounted and switch which one shows', () => {
   const view = example();
-  const pair = at('example-grids');
-  expect(pair?.getAttribute('data-selected')).toBe('left');
+  // regression: paired-panels-duplicate-view-identifier
+  expect(view.getAllByTestId('example-grids')).toHaveLength(1);
+  const pair = view.getByTestId('example-grids-panels');
+  expect(pair.getAttribute('data-selected')).toBe('left');
   const second = at('example-second');
   expect(second).not.toBeNull();
   expect(second?.closest('[data-panel]')?.getAttribute('data-shown')).toBe(
     'false'
   );
   fireEvent.click(view.getByRole('radio', { name: 'Second grid' }));
-  expect(pair?.getAttribute('data-selected')).toBe('right');
+  expect(pair.getAttribute('data-selected')).toBe('right');
   expect(at('example-second')).toBe(second);
   expect(second?.closest('[data-panel]')?.getAttribute('data-shown')).toBe(
     'true'

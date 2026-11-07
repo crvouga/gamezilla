@@ -4,6 +4,7 @@ import {
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSignal } from 'solid-js';
+import { createBrowserNavigation } from './browser-navigation';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
  */
@@ -14,7 +15,6 @@ import {
   executeSqlStatements,
   type SqlStatement,
 } from '@pkgs/sql-client-root-shared-ts/statements';
-import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared-ts/recording-driver';
 import type { StepRecorder } from '@pkgs/ui-testing-root-shared-ts/step-recorder';
@@ -136,7 +136,12 @@ async function launchWebview(
   if (args.browserStorage === undefined)
     throw new Error('Browser devices require persistent device storage');
   const { dataStore } = args.browserStorage;
-  const view = new Bun.WebView({ width: 390, height: 844, dataStore });
+  const browser = await args.browserStorage.browser.open({
+    webOrigin,
+    actorId: args.id,
+    dataStore,
+  });
+  const view = browser.view;
   const device = webviewDevice(view);
   const sessionToken = async () => {
     const value = await view.evaluate(
@@ -150,16 +155,10 @@ async function launchWebview(
     );
     return typeof value === 'string' ? value : null;
   };
-  const raw = new BunWebviewDriver({
-    view,
-    baseUrl: webOrigin,
-    actorId: args.id,
-    popupOptions: { dataStore },
-    timers: wallTimers,
-  });
+  const raw = browser.driver;
   const pageSql = webviewLocalSql(view);
   const localSql = () => pageSql;
-  const closeResources = () => Promise.resolve();
+  const closeResources = browser.close;
   const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
   const currentPath = async () =>
     String(await view.evaluate('location.pathname + location.search'));
@@ -178,6 +177,12 @@ async function launchWebview(
   return {
     raw,
     localSql,
+    browser: createBrowserNavigation({
+      readUrl: async () => String(await view.evaluate('location.href')),
+      clock: wallClock,
+      timers: wallTimers,
+    }),
+    screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
     closeResources,

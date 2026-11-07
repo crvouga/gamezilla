@@ -1,0 +1,4 @@
+{
+  "summary": "The thin f3-e5 instructional arrow was hard to distinguish; outline both endpoints while leaving pieces readable.",
+  "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Phone touch guidance always showed the full keyboard grammar above the board.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx"
+}

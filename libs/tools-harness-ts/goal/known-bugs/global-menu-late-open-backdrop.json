@@ -1,0 +1,4 @@
+{
+  "summary": "During Sokoban cross-device sign-in, a late-open account menu covered the avatar after the visibility read. The menu gesture tapped the covered trigger again. It now honors aria-expanded and waits for the already-open menu item within the existing timeout.",
+  "regressionTest": "libs/harness-ts/tests/global-menu-gesture.test.ts"
+}

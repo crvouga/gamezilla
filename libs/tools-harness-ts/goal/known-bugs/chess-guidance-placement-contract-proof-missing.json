@@ -1,0 +1,4 @@
+{
+  "summary": "The public ChessBoardProps guidancePlacement option lacked its required contract-proof entry, causing hosted shard 4 typechecking to fail. Literal before and after placement examples verify help order and retained board identity without weakening the exhaustive proof type.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/puzzle-first-rank.test.tsx"
+}

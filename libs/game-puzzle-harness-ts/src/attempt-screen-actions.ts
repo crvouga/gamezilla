@@ -43,7 +43,7 @@ export const playTwoStepsThroughScreen = defineAction({
       await waitForContent(s, () =>
         Promise.resolve(
           view.queryByText(
-            attempt.mode === 'playtest' ? 'Playtest solved' : 'Puzzle completed'
+            attempt.mode === 'playtest' ? 'Playtest solved' : 'Completion saved'
           ) !== null
         )
       );

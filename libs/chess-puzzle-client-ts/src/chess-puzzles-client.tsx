@@ -42,6 +42,7 @@ function ChessPuzzleCompanion(props: {
 
 export const chessPuzzlesClient: GamePuzzlesClient = {
   Board: ChessPuzzleBoard,
+  boardSizing: 'width',
   coach: (attempt) =>
     puzzleCommentary({
       puzzleId: attempt.puzzleId(),

@@ -134,7 +134,7 @@ function moreWidth(
   return widths.width(ACTION_BAR_MORE_KEY) ?? resolved.slotWidth;
 }
 
-/** Inline text actions, with the gap that separates them from the icons. */
+/** Width of inline text actions; their separator is reserved by the caller. */
 function textRowWidth(
   widths: KeyedWidths,
   inlineText: readonly ActionBarTextAction[],
@@ -142,7 +142,7 @@ function textRowWidth(
 ): number {
   const known = inlineText.map((a) => widths.width(textKey(a.id)) ?? 0);
   const row = actionBarRowWidth(known, gap);
-  return row > 0 ? row + gap : 0;
+  return row;
 }
 
 /**
@@ -201,12 +201,26 @@ export function useActionBarController(
     input.hasEndSlot && endSlotWidth() > 0
       ? endSlotWidth() + resolved().gap
       : 0;
-  const textReserve = (): number =>
-    textRowWidth(
-      widths,
-      partitionTextActions(resolved().textActions, resolved().overflow).inline,
-      resolved().gap
+  // A lone text-only overflow action is rendered inline by computeLayout.
+  // Reserve that same content rather than the empty pre-combination partition.
+  const textPartition = () => {
+    const text = partitionTextActions(
+      resolved().textActions,
+      resolved().overflow
     );
+    if (input.items.length > 0) return text;
+    const combined = resolveCombinedOverflow(
+      { visible: [], overflow: [] },
+      text
+    );
+    return { inline: combined.inlineText, overflow: combined.overflowText };
+  };
+  const textReserve = (): number => {
+    const text = textPartition();
+    const row = textRowWidth(widths, text.inline, resolved().gap);
+    const hasOtherControls = input.items.length > 0 || text.overflow.length > 0;
+    return row > 0 && hasOtherControls ? row + resolved().gap : row;
+  };
   const reservedWidth = (): number => endReserve() + textReserve();
   const layout = createMemo(() =>
     computeLayout({
@@ -244,12 +258,15 @@ export function useActionBarController(
     widths,
     naturalWidth: natural,
     minWidth: () =>
-      actionBarMinWidth({
-        items: input.holdPinned === true ? input.items : [],
-        widthOf: (item) =>
-          widths.width(itemKey(item.id)) ?? resolved().slotWidth,
-        moreWidth: moreWidth(widths, resolved()),
-        gap: resolved().gap,
-      }),
+      reservedWidth() +
+      (input.items.length === 0 && textPartition().overflow.length === 0
+        ? 0
+        : actionBarMinWidth({
+            items: input.holdPinned === true ? input.items : [],
+            widthOf: (item) =>
+              widths.width(itemKey(item.id)) ?? resolved().slotWidth,
+            moreWidth: moreWidth(widths, resolved()),
+            gap: resolved().gap,
+          })),
   };
 }

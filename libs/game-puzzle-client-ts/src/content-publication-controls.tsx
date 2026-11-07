@@ -13,6 +13,7 @@ import { ContentPublicationControlsView } from './content-publication-controls-v
 import { useContentPublicationStatus } from './content-publication-status';
 import type { useContentDraftSave } from './use-content-draft-save';
 import { useContentPublication } from './use-content-publication';
+import { useContentPublicationCopyState } from './use-content-publication-copy-state';
 import { useDeniedView } from './use-denied-view';
 
 function validationMessage(draft: ContentDraft | undefined): string {
@@ -64,6 +65,7 @@ export function ContentPublicationControls(props: {
   before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
 }): JSX.Element {
   const tools = useContentPublication(props);
+  const copyState = useContentPublicationCopyState(props);
   const game = useContentGame();
   const status = useContentPublicationStatus(() => props.document.id);
   const withdraw = useWithdraw(() => props.document.id);
@@ -85,6 +87,7 @@ export function ContentPublicationControls(props: {
       proven={tools.proven()}
       waitingOn={tools.waitingOn()}
       pending={status.pending()}
+      copyState={copyState()}
       refusal={status.refusal()}
       publishDenial={publishDenial()}
       published={props.document.published_revision_id !== null}

@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle boards imported private framing and motion modules instead of expressing outside coordinates and still story motion through the public board contract.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/public-coordinates.contract.test.ts"
+}

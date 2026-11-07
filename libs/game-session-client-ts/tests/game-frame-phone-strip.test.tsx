@@ -1,6 +1,6 @@
 /** A phone's turn game: one status strip pinned under the top bar, above the board. */
 
-import { afterEach, expect, test } from 'bun:test';
+import { afterEach, expect, mock, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -20,7 +20,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
@@ -103,12 +103,16 @@ function props(plainTurn: boolean): GameFrameScreenViewProps {
   };
 }
 
-function mount(width: number, plainTurn = false): void {
+function mount(
+  width: number,
+  plainTurn = false,
+  over: Partial<GameFrameScreenViewProps> = {}
+): void {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-        <GameFrameScreenView {...props(plainTurn)} />
+        <GameFrameScreenView {...props(plainTurn)} {...over} />
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -283,4 +287,78 @@ test('phone: a two-move turn keeps one line in the strip’s well', () => {
   expect(body('.list[data-layout="turn"][data-wrap="true"] .turn')).toMatch(
     /column-gap: var\(--ui-space-2\);/
   );
+});
+
+// regression: shared-board-terminal-buried
+// Literal completed seven-drop Connect Four state formerly labelled Live,
+// with the outcome and rematch below the final board and both participants.
+test('completed win and draw lead the final board with one real rematch and history', async () => {
+  for (const width of [390, 1440]) {
+    for (const headline of ['You win', 'Draw']) {
+      const onChoose = mock(async () => undefined);
+      mount(width, true, {
+        phase: 'completed',
+        record: {
+          ...RECORD,
+          moves: ['1', '2', '1', '2', '1', '2', '1'],
+          displayedPly: 7,
+        },
+        result: {
+          headline,
+          note: 'Host starts the rematch',
+          scoreLabel: null,
+          standings: [],
+        },
+        next: { plays: true, canCreate: true, reviewable: true },
+        onChoose,
+      });
+      const outcome = screen.getByTestId('custom-game-outcome');
+      const board = screen.getByTestId('board');
+      expect(
+        outcome.compareDocumentPosition(board) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+      expect(outcome.textContent).toContain(headline);
+      expect(screen.getAllByTestId('custom-game-rematch')).toHaveLength(1);
+      expect(outcome.contains(screen.getByTestId('custom-game-rematch'))).toBe(
+        true
+      );
+      expect(screen.getAllByTestId('custom-game-history-stats')).toHaveLength(
+        1
+      );
+      if (width === 390)
+        expect(
+          screen.getByTestId('custom-game-move-strip-place').textContent
+        ).toBe('Finished');
+      fireEvent.click(screen.getByTestId('custom-game-rematch'));
+      expect(onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+      cleanup();
+    }
+  }
+});
+
+// regression: completed-game-outcome-reason-missing
+test('completed game keeps the resignation reason in its completion header', () => {
+  const time = createHarnessClock();
+  const frame = props(false);
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameFrameScreenView
+          {...frame}
+          phase="completed"
+          status={{
+            ...frame.status!,
+            description: 'Black wins by resignation.',
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const status = screen.getByTestId('custom-game-status');
+  expect(status.textContent).toContain('Black wins by resignation.');
+  expect(screen.getByTestId('custom-game-outcome').contains(status)).toBe(true);
 });

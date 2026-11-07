@@ -1,0 +1,4 @@
+{
+  "summary": "North to play requires the local player to map their identity back to a compass seat.",
+  "regressionTest": "libs/hearts-client-ts/tests/turn-guidance.test.ts"
+}

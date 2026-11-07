@@ -10,13 +10,16 @@ import {
 import { dirname, join } from 'node:path';
 import { decodeBaselineLog, encodeBaselineLog } from './storybook-baseline-log';
 
-const BASELINES = ':(glob)pkgs/*/src/**/baselines/chromium/**';
+const BASELINES = [
+  ':(glob)pkgs/*/src/**/baselines/chromium/**',
+  ':(glob)libs/*/src/**/baselines/chromium/**',
+];
 
 /** Include new PNGs while preserving modified and deleted reference diffs. */
 export function writeBaselinePatch(root: string, patch: string): void {
   const added = execFileSync(
     'git',
-    ['ls-files', '--others', '--exclude-standard', '-z', '--', BASELINES],
+    ['ls-files', '--others', '--exclude-standard', '-z', '--', ...BASELINES],
     { cwd: root }
   );
   if (added.length)
@@ -34,7 +37,7 @@ export function writeBaselinePatch(root: string, patch: string): void {
   mkdirSync(dirname(patch), { recursive: true });
   const output = openSync(patch, 'w');
   try {
-    execFileSync('git', ['diff', '--binary', '--', BASELINES], {
+    execFileSync('git', ['diff', '--binary', '--', ...BASELINES], {
       cwd: root,
       stdio: ['ignore', output, 'pipe'],
     });

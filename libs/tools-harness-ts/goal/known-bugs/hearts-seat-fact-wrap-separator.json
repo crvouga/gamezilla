@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts seat facts wrapped with a leading separator on phones; independent facts now use spacing without punctuation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

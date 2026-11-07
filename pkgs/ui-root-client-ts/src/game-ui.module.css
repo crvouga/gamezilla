@@ -199,6 +199,7 @@
 }
 .playerRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-3);
   min-width: 0;
@@ -224,6 +225,10 @@
   gap: var(--ui-space-1);
   flex: 1;
   min-width: 0;
+}
+.playerName {
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .playerTags {
   display: flex;

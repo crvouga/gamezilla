@@ -1,0 +1,20 @@
+/* Guidance has its natural height. The board plus its equal coordinate
+   gutters remains square and fits both remaining dimensions. */
+.square {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--ui-space-xs);
+  min-width: 0;
+  min-height: 0;
+}
+.available {
+  container-type: size;
+  min-width: 0;
+  min-height: 0;
+}
+.fitted {
+  width: min(100cqw, 100cqh);
+  margin-inline: auto;
+}

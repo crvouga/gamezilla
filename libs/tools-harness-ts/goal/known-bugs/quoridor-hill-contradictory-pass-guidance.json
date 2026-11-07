@@ -1,0 +1,4 @@
+{
+  "summary": "The literal blocked Hill position instructed the player to move a pawn and retained unusable wall modes when passing was the only legal action.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-hill-pass-guidance.test.tsx"
+}

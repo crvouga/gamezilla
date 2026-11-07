@@ -1,0 +1,4 @@
+{
+  "summary": "Guidance added above the width-sized puzzle board exceeded the fixed square well, clipping rank 1 and file labels before interaction.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -61,6 +61,7 @@
   right: 0;
 }
 .court {
+  position: relative;
   width: 100%;
   overflow: hidden;
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
@@ -179,4 +180,36 @@
   font-weight: var(--ui-font-weight-bold);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+}
+
+/* State feedback belongs to the court, but never intercepts paddle input. */
+.status {
+  position: absolute;
+  inset: 24% 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--ui-space-3);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-game-pong-canvas);
+  color: var(--ui-color-game-pong-ink);
+  font-size: var(--ui-font-size-xl);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: var(--ui-line-height-tight);
+  pointer-events: none;
+}
+.gesture {
+  position: absolute;
+  bottom: var(--ui-space-3);
+  color: var(--ui-color-game-pong-ink);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
+  pointer-events: none;
+}
+.gesture[data-side="first"] {
+  left: var(--ui-space-3);
+}
+.gesture[data-side="second"] {
+  right: var(--ui-space-3);
 }

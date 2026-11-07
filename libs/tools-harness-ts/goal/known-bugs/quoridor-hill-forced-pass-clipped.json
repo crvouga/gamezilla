@@ -1,0 +1,4 @@
+{
+  "summary": "The Hill forced-pass button existed in the accessibility tree but was clipped outside the visible action row, concealing the only legal continuation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

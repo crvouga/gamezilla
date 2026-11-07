@@ -3,6 +3,7 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import {
   WordTileBoard,
@@ -20,7 +21,9 @@ function example() {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <WordTileBoardExample />
+        <SurfaceStackProvider>
+          <WordTileBoardExample />
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -102,4 +105,133 @@ test('the board reads its squares once per change, however a caller computes the
     2,
     'B 1',
   ]);
+});
+
+// regression: word-tiles-enlarged-context-loss
+test('enlargement retains all squares in an overview and announces the chosen mode', () => {
+  const view = example();
+  const enlarge = view.getByRole('button', { name: 'Enlarge board' });
+  fireEvent.click(enlarge);
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('true');
+  const overview = view.getByRole('img', {
+    name: 'Whole board overview; outline shows the enlarged area',
+  });
+  expect(overview.querySelectorAll('[data-state]')).toHaveLength(25);
+  const indicator = overview.querySelector('[data-viewport-indicator]');
+  expect(indicator).not.toBeNull();
+  const viewport = view.getByRole('region', { name: 'Scrollable word board' });
+  Object.defineProperties(viewport, {
+    scrollWidth: { value: 800 },
+    scrollHeight: { value: 800 },
+    clientWidth: { value: 320 },
+    clientHeight: { value: 260 },
+    scrollLeft: { value: 240 },
+    scrollTop: { value: 320 },
+  });
+  fireEvent.scroll(viewport);
+  expect(indicator?.getAttribute('x')).toBe('1.5');
+  expect(indicator?.getAttribute('y')).toBe('2');
+  expect(indicator?.getAttribute('width')).toBe('2');
+  expect(indicator?.getAttribute('height')).toBe('1.625');
+  fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
+  expect(view.queryByRole('img')).toBeNull();
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('false');
+});
+
+// regression: word-tiles-overview-unreadable-context
+test('board map locates a committed intersection without placing the selected rack tile', () => {
+  const view = example();
+  fireEvent.click(view.getByRole('button', { name: 'S, 1 point' }));
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  fireEvent.click(
+    view.getByRole('button', { name: 'Board map: locate a square' })
+  );
+  const locator = view.getByRole('group', { name: 'Whole board locator' });
+  const cell = locator.querySelector<HTMLButtonElement>('[data-cell="c3"]');
+  expect(cell?.getAttribute('aria-disabled')).toBe('false');
+  expect(cell?.textContent).toContain('A');
+  if (!cell) throw new Error('Missing locator intersection');
+  fireEvent.click(cell);
+  expect(view.queryByRole('dialog')).toBeNull();
+  const original = view.getByRole('button', { name: 'A 1, c3' });
+  expect(document.activeElement).toBe(original);
+  expect(view.getByTestId('example-rack-0').getAttribute('data-placed')).toBe(
+    'false'
+  );
+});
+
+// regression: compact-word-tile-values-unavailable
+test('square details show the center value, inspect committed tiles, and preserve editable taps', () => {
+  const actions: string[] = [];
+  const letters = ['Q', '', '', '', 'A', '', '', '', ''];
+  const [cells, setCells] = createSignal<readonly WordTileBoardCell[]>(
+    letters.map((letter, index) => ({
+      id: `cell-${index}`,
+      letter,
+      points: letter === '' ? null : index === 0 ? 10 : 0,
+      square: null,
+      state: letter === '' ? 'empty' : 'committed',
+      label:
+        index === 0
+          ? 'Q 10, a1, committed'
+          : index === 4
+            ? 'A 0, b2, blank played as A'
+            : `square ${index}, empty`,
+      enabled: letter === '',
+    }))
+  );
+  const time = createHarnessClock();
+  const view = render(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <WordTileBoard
+          label="Inspected board"
+          testId="inspected-board"
+          columnLabels={['a', 'b', 'c']}
+          rowLabels={['1', '2', '3']}
+          cells={cells()}
+          squareText={(square) => square}
+          onActivate={(id) => actions.push(id)}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const details = view.getByTestId('inspected-board-square-details');
+  expect(details.textContent).toBe('A 0, b2, blank played as A');
+  const committed = view.getByRole('button', { name: 'Q 10, a1, committed' });
+  fireEvent.click(committed);
+  expect(details.textContent).toBe('Q 10, a1, committed');
+  expect(actions).toEqual([]);
+  committed.focus();
+  fireEvent.keyDown(committed, { key: 'ArrowRight' });
+  expect(details.textContent).toBe('square 1, empty');
+  expect(actions).toEqual([]);
+  fireEvent.click(view.getByTestId('inspected-board-cell-cell-1'));
+  expect(actions).toEqual(['cell-1']);
+  setCells((previous) =>
+    previous.map((cell, index) =>
+      index === 1
+        ? {
+            ...cell,
+            letter: 'Z',
+            points: 10,
+            state: 'tentative',
+            label: 'Z 10, b1, your tentative tile',
+          }
+        : cell
+    )
+  );
+  expect(details.textContent).toBe('Z 10, b1, your tentative tile');
+  expect(actions).toEqual(['cell-1']);
 });

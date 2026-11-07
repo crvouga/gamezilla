@@ -1,7 +1,9 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
+import { onBoard } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import { GameFrameScreenView } from './game-frame-screen-view';
@@ -19,28 +21,11 @@ import {
   record,
   seat,
   status,
-  WON_LINE,
   WON_MOVES,
   WON_RECORD,
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-/** The frame with Connect Four's board at the position `moves` reach. */
-function onBoard(moves: readonly number[]) {
-  return (args: GameFrameScreenViewProps) => (
-    <GameFrameScreenView
-      {...args}
-      board={
-        <ConnectFourStoryBoard
-          moves={moves}
-          interactive
-          winning={moves === WON_MOVES ? WON_LINE : undefined}
-        />
-      }
-    />
-  );
-}
 
 const PLAYING: Partial<GameFrameScreenViewProps> = {
   phase: 'active',
@@ -368,6 +353,15 @@ export const YouWin: Story = {
   },
 };
 
+/** A frame-only long completed record keeps next choices ahead of the record. */
+export const FinishedLongRecord: Story = {
+  ...YouWin,
+  args: {
+    ...YouWin.args,
+    record: record(Array.from({ length: 52 }, (_, index) => `m${index + 1}`)),
+  },
+};
+
 /** The viewer lost at a scored table: their place, everyone's points and readiness. */
 export const YouPlacedSecond: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
@@ -399,9 +393,18 @@ export const YouPlacedSecond: Story = {
 
 /** A drawn game: everyone shares first place. */
 export const Draw: Story = {
+  render: (args) =>
+    onBoard('000000111111222222433333344444555555666666'.split('').map(Number))(
+      args
+    ),
   args: {
     ...OVER,
     status: status({ description: 'Game drawn.', emphasis: 'neutral' }),
+    record: record(
+      '000000111111222222433333344444555555666666'
+        .split('')
+        .map((column) => String(Number(column) + 1))
+    ),
     result: {
       headline: 'Draw',
       note: 'Host starts the rematch',
@@ -432,6 +435,7 @@ export const Cancelled: Story = {
   args: {
     ...OVER,
     phase: 'cancelled',
+    record: record(MID_GAME_RECORD),
     status: status({ description: 'Game cancelled.', emphasis: 'neutral' }),
     next: { plays: true, canCreate: true, reviewable: false },
   },
@@ -489,5 +493,62 @@ export const ConfirmResign: Story = {
       await canvas.findByTestId('custom-game-resign-confirm')
     );
     await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'resign' });
+  },
+};
+
+/** A real frame transition preserves the confirmation and then supports review. */
+export const FinishAndReview: Story = {
+  args: PLAYING,
+  render: (args) => {
+    const [finished, setFinished] = createSignal(false);
+    const [ply, setPly] = createSignal(MID_GAME_RECORD.length);
+    return (
+      <GameFrameScreenView
+        {...args}
+        phase={finished() ? 'completed' : 'active'}
+        play={finished() ? FRAME_NO_PLAY : args.play}
+        status={status({
+          description: finished()
+            ? 'Yellow diamond wins by resignation.'
+            : 'Yellow diamond to move.',
+          emphasis: 'neutral',
+        })}
+        table={{
+          shape: 'strip',
+          near: playSeat(AVERY),
+          others: [playSeat(JORDAN, { deciding: !finished() })],
+        }}
+        next={{ plays: true, canCreate: true, reviewable: true }}
+        result={
+          finished()
+            ? {
+                headline: 'You came 2nd',
+                note: 'You resigned.',
+                scoreLabel: null,
+                standings: [
+                  { ...STANDINGS[1], place: 1 },
+                  { ...STANDINGS[0], place: 2 },
+                ],
+              }
+            : null
+        }
+        record={
+          finished()
+            ? { ...record(MID_GAME_RECORD), displayedPly: ply() }
+            : args.record
+        }
+        onChoose={async (input) => {
+          if (input.operation === 'resign') setFinished(true);
+        }}
+        onSeek={setPly}
+        onReturnLive={() => setPly(MID_GAME_RECORD.length)}
+        board={
+          <ConnectFourStoryBoard
+            moves={finished() ? MID_GAME_MOVES.slice(0, ply()) : MID_GAME_MOVES}
+            interactive={false}
+          />
+        }
+      />
+    );
   },
 };

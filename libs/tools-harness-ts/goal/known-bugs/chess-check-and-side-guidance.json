@@ -1,0 +1,4 @@
+{
+  "summary": "The checked black king had only a glow, with no visible side or keyboard guidance.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx"
+}

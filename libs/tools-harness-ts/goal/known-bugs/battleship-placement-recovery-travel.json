@@ -1,0 +1,4 @@
+{
+  "summary": "At 390\u00d7844, placing Battleship at A1 over Carrier A1\u2013E1 in enlarged setup put refusal below the overview and outside the viewport, detached from Rotate. Keep controls and reserved feedback with the active grid.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-precision.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The Hill center used a small concentric target competing with goal rings; the distinct star must preserve the arriving e5 pawn and never become a wall outline.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-hill-destination-regression.test.tsx"
+}

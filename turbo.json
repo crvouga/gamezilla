@@ -2939,6 +2939,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-board-contract.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/board-import-contract.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/board-sound-contract.ts"
       ],
       "outputs": [],
@@ -3316,6 +3317,7 @@
     },
     "@apps/product-ts#test:stack": {
       "cache": false,
+      "env": ["JOURNEY_CAPTURE_STEPS"],
       "passThroughEnv": ["*"]
     },
     "@apps/product-ts#test:release-journeys": {
@@ -3326,7 +3328,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3338,7 +3340,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3350,7 +3352,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
@@ -3362,7 +3364,7 @@
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },

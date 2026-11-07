@@ -1,0 +1,4 @@
+{
+  "summary": "The centered hint dot obscured the knight on f3 in chess puzzles.",
+  "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts"
+}

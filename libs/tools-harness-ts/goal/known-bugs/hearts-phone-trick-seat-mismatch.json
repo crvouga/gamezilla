@@ -1,0 +1,4 @@
+{
+  "summary": "Phone two-by-two seats did not match the separate compass trick; each named seat now shares its row with its card.",
+  "regressionTest": "libs/hearts-client-ts/tests/hand-bounds.test.ts"
+}

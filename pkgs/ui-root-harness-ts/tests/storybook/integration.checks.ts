@@ -254,3 +254,34 @@ for (const story of [
     await page.evaluate(() => document.fonts.ready);
     expect(await builderPhoneFirstScreen(page)).toEqual([]);
   });
+
+// regression: storybook-sidebar-compact-viewport
+test('storybook integration: sidebar entries declare desktop eligibility without restricting header stories', async ({
+  request,
+}) => {
+  const response = await request.get('/index.json');
+  expect(response.ok()).toBe(true);
+  const index = (await response.json()) as {
+    entries: Record<string, { tags: string[] }>;
+  };
+  for (const name of [
+    'sidebar-spaces-current',
+    'sidebar-search-current',
+    'sidebar-notifications-current',
+    'sidebar-profile-current',
+    'sidebar-none-current',
+  ]) {
+    const entry = index.entries[`screens-shell-header-island--${name}`];
+    expect(entry).toBeDefined();
+    expect(entry?.tags).toContain('viewport-desktop');
+  }
+  for (const name of [
+    'spaces-current',
+    'select-profile',
+    'with-account-menu',
+  ]) {
+    const entry = index.entries[`screens-shell-header-island--${name}`];
+    expect(entry).toBeDefined();
+    expect(entry?.tags).not.toContain('viewport-desktop');
+  }
+});

@@ -12,11 +12,13 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { setWorkOfflineFromCurrentPlace } from '@libs/runtime-harness-ts/app-settings';
+import { harnessJourneyBrowser } from '@libs/runtime-harness-ts/harness-journey-browser';
 import { confirmSignedIn } from '@libs/runtime-harness-ts/journey-gestures';
 import type {
+  JourneyBrowser,
   JourneyGestures,
   JourneyHost,
 } from '@libs/runtime-harness-ts/journey-types';
@@ -67,6 +69,15 @@ async function actorSpaceLink(
 
 export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
   let guestId = GUEST;
+  let browser: JourneyBrowser | null = null;
+  const readBrowser = async () => {
+    browser = await w.s.read((s) =>
+      harnessJourneyBrowser({
+        http: productExtra(s).http,
+        navigation: s.actors.get(HOST)?.browser,
+      })
+    );
+  };
   const act = async (name: string, gestures: JourneyGestures) => {
     // The guest's last gesture parks Alice. An instant visibility check then
     // reads her game as gone and the journey tries to host another space.
@@ -81,17 +92,21 @@ export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
     runId: 'harness',
     now: () => w.s.read((s) => s.session.ports.clock.now()),
     elapse: (milliseconds) => w.s.advanceTime(milliseconds),
-    browser: null,
+    get browser() {
+      return browser;
+    },
     // The harness runs the test build: the puzzle board carries its answers.
     showsPuzzleAnswers: true,
     open: async (access) => {
       if (access === 'anonymous') {
         await w.s.apply(spawnActor, HOST);
+        await readBrowser();
         return;
       }
       await w.s.apply(signInWithGoogle, HOST);
       // The production runner's post-sign-in check, proven on the harness's session.
       await act('confirmSignedIn', confirmSignedIn);
+      await readBrowser();
     },
     act,
     peerDevice: harnessJourneyPeerDevice(w, {
@@ -126,7 +141,10 @@ export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
       await w.s.advanceTime(1000);
     },
     online: () => w.s.apply(setWorkOfflineFromCurrentPlace, HOST, false),
-    reopen: () => w.s.apply(restartApp, HOST),
+    reopen: async () => {
+      await w.s.apply(restartApp, HOST);
+      await readBrowser();
+    },
     defer: () => undefined,
     settle: () => undefined,
   };

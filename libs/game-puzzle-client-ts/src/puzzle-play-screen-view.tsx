@@ -8,6 +8,7 @@ import { Trans } from '@lingui/solid/macro';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
 import { CircleCheckIcon, FlameIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import { createMeasure } from '@pkgs/ui-root-client-ts/measure';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import {
   SpeakingAvatar,
@@ -61,6 +62,8 @@ export type PuzzlePlayCoach = {
 
 export type PuzzlePlayScreenViewProps = {
   readonly pick: PuzzlePlayPick;
+  /** Opt-in width-driven board, with coaching and help after it on phones. */
+  readonly boardSizing?: 'fit' | 'width' | undefined;
   readonly statusKind: PuzzleStatusKind;
   /** The solver's side as the game names it, once a position is shown. */
   readonly solverSide?: string | null | undefined;
@@ -147,6 +150,7 @@ function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
       header={
         <PuzzleStatusHeader
           kind={props.statusKind}
+          solutionShown={props.status === 'revealed'}
           solverSide={props.solverSide ?? null}
           correct={props.correct}
           trailing={
@@ -278,6 +282,7 @@ function PlayProgress(props: {
 export function PuzzlePlayScreenView(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
+  const boardMeasure = createMeasure();
   const playing = (): boolean => props.pick === 'playing';
   const mode = useLayoutMode();
   const feedAbove = (): boolean => !props.spectator && mode() === 'wide';
@@ -287,6 +292,7 @@ export function PuzzlePlayScreenView(
       <Show when={playing()}>{props.probe}</Show>
       <PuzzleScreen
         screenId="chess-puzzle-play"
+        boardSizing={props.boardSizing}
         title={<Trans>Puzzles</Trans>}
         facts={
           <Show when={!props.spectator}>
@@ -320,9 +326,22 @@ export function PuzzlePlayScreenView(
           </Show>
         }
       >
-        <BoardFit testId={Handles.chessPuzzleBoardFrame}>
-          {(size) => <BoardWell view={props} size={size} />}
-        </BoardFit>
+        <Show
+          when={props.boardSizing === 'width'}
+          fallback={
+            <BoardFit testId={Handles.chessPuzzleBoardFrame}>
+              {(size) => <BoardWell view={props} size={size} />}
+            </BoardFit>
+          }
+        >
+          <StackVertical
+            self="stretch"
+            measureTarget={boardMeasure.target}
+            testId={Handles.chessPuzzleBoardFrame}
+          >
+            <BoardWell view={props} size={boardMeasure.width()} />
+          </StackVertical>
+        </Show>
       </PuzzleScreen>
     </StackVertical>
   );

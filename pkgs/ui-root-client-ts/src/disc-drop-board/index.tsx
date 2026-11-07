@@ -194,7 +194,7 @@ function Column(props: {
  * still under reduced motion), and the prompt names the column (`Drop in
  * column 6`).
  * The last disc played falls into place (not under reduced motion), and
- * once four connect the rest of the board steps back behind them. As a
+ * once four connect their outlines emphasize the win while every disc stays readable. As a
  * `GameBoardStage` preview (a game still being set up) it draws only its
  * discs: no prompt or numbers.
  */

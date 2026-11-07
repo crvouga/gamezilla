@@ -11,7 +11,7 @@ import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 
-function board(sides: readonly GameSide[]) {
+function board(sides: readonly GameSide[], testId = 'pong') {
   const [paused, setPaused] = createSignal(false);
   const [position, setPosition] = createSignal(
     pongPositionCodec.encode(initialPongState(pongConfig(), () => 0))
@@ -28,7 +28,7 @@ function board(sides: readonly GameSide[]) {
         interactive={true}
         sound={false}
         syncKey={0}
-        testId="pong"
+        testId={testId}
         setup={null}
         hand={null}
         committed={[]}
@@ -66,13 +66,16 @@ test('Pong exposes a labelled court and only the player’s normalized paddle co
 });
 
 test('a spectator sees the score without either input control and a malformed position offers a way out', () => {
+  // regression: pong-spectator-control-guidance
   const view = board([]);
+  expect(view.getByText(/Watching the rally/)).toBeDefined();
+  expect(view.queryByText(/Drag up and down/)).toBeNull();
   expect(view.queryAllByRole('slider')).toHaveLength(0);
   expect(view.getByText('Left 0')).toBeDefined();
   expect(view.getByText('Right 0')).toBeDefined();
   view.setPosition('pong:broken');
   expect(view.getByRole('alert').textContent).toContain(
-    'Return to the game choices'
+    'Return to your spaces'
   );
 });
 
@@ -85,4 +88,74 @@ test('leaving the board releases held normalized paddle input', () => {
     ['white', { kind: 'direction', direction: -1 }],
     ['white', { kind: 'direction', direction: 0 }],
   ]);
+});
+
+// regression: pong-court-state-and-touch-cues
+// Literal round-4 shared phone state: first serve, both paddles controlled.
+test('serve and pause remain on court with explicit cues for both touch edges', () => {
+  const view = board(['white', 'black']);
+  const court = view.getByRole('application');
+  expect(court.contains(view.getByRole('status'))).toBe(true);
+  expect(view.getByRole('status').textContent).toBe('Serve in 3.');
+  for (const side of ['first', 'second'])
+    expect(view.getByTestId(`pong-${side}-gesture`).textContent).toContain(
+      'Drag'
+    );
+  view.setPaused(true);
+  expect(court.contains(view.getByRole('status'))).toBe(true);
+  expect(view.queryByTestId('pong-first-gesture')).toBeNull();
+  view.setPaused(false);
+  expect(view.getByTestId('pong-first-gesture')).toBeDefined();
+  const state = initialPongState(pongConfig(), () => 0);
+  view.setPosition(
+    pongPositionCodec.encode({
+      ...state,
+      phase: 'playing',
+      countdown: 0,
+      ball: { ...state.ball, vx: pongConfig().ballSpeed },
+    })
+  );
+  expect(view.queryByRole('status')).toBeNull();
+});
+
+// regression: pong-unreadable-recovery-destination
+test('literal unreadable story offers the existing Spaces destination', () => {
+  const view = board([]);
+  view.setPosition('pong:not-a-position');
+  const recovery = view.getByRole('link', { name: 'Back to spaces' });
+  expect(recovery.getAttribute('href')).toBe('/');
+  expect(view.getByRole('alert').contains(recovery)).toBe(true);
+  expect(view.queryByRole('application')).toBeNull();
+});
+
+// regression: pong-playing-status-disappears
+test('the multiplayer court retains one readable status through the live rally and pause', () => {
+  const view = board(['white'], 'multiplayer-board');
+  const state = initialPongState(pongConfig(), () => 0);
+  view.setPosition(
+    pongPositionCodec.encode({
+      ...state,
+      phase: 'playing',
+      countdown: 0,
+      ball: { ...state.ball, vx: pongConfig().ballSpeed },
+    })
+  );
+  const status = view.getByTestId('multiplayer-board-status');
+  expect(status.textContent).toBe('Keep the ball in play.');
+  expect(view.getByRole('application').contains(status)).toBe(false);
+  expect(view.queryByRole('status')).toBeNull();
+  fireEvent.input(view.getByTestId('multiplayer-board-white-control'), {
+    target: { value: '750' },
+  });
+  expect(view.inputs).toEqual([['white', { kind: 'target', target: 0.75 }]]);
+  view.setPaused(true);
+  expect(view.getAllByTestId('multiplayer-board-status')).toHaveLength(1);
+  expect(view.getByTestId('multiplayer-board-status').textContent).toBe(
+    'Paused while a player returns.'
+  );
+  expect(
+    view
+      .getByRole('application')
+      .contains(view.getByTestId('multiplayer-board-status'))
+  ).toBe(true);
 });

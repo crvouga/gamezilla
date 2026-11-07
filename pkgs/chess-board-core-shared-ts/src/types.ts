@@ -61,6 +61,8 @@ export type CellFeedbackCorner =
 
 export type CellFeedback = {
   kind: CellFeedbackKind;
+  /** Outline frames the entire square and leaves its piece uncovered. */
+  shape?: 'badge' | 'outline';
   /** Activity-supplied annotation text, replacing the kind's usual glyph. */
   label?: string;
   /** Override default palette color (theme.feedback.<kind> by default). */

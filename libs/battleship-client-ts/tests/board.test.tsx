@@ -47,6 +47,13 @@ function board(options: {
 }
 const own = (cell: string) => byTestId(`board-own-${cell}`);
 const target = (cell: string) => byTestId(`board-target-${cell}`);
+const aim = (cell: string) => {
+  const area =
+    Number(cell.charAt(0) >= 'f') +
+    Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+  fireEvent.click(byTestId(`board-area-${area}`));
+  fireEvent.click(byTestId(`board-aim-${cell}`));
+};
 
 test('the own grid shows the viewer’s fleet from its setup and the shots fired at it', () => {
   expect(acceptFleet(FLEET)).toBe(FLEET);
@@ -60,7 +67,7 @@ test('the own grid shows the viewer’s fleet from its setup and the shots fired
   expect(own('d3').getAttribute('data-tone')).toBe('occupied');
   expect(own('d3').getAttribute('aria-label')).toBe('D3: your Carrier');
   expect(own('e5').getAttribute('data-tone')).toBe('quiet');
-  expect(own('e5').textContent).toBe('•');
+  expect(own('e5').textContent).toBe('○');
   expect(own('e5').getAttribute('aria-label')).toBe('E5: open water, missed');
   expect(own('a1').getAttribute('data-tone')).toBe('open');
 });
@@ -98,18 +105,24 @@ test('the targeting grid shows only the public shots, never a ship that was not 
 });
 
 test('interactive targets fire through onAction and wait, aiming, for the outcome', () => {
+  // regression: battleship-preview-overrides-pending-shot
   const view = board({ setup: FLEET, interactive: true });
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('target');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'target'
+  );
   expect(target('e5').getAttribute('aria-disabled')).toBe('false');
   expect(target('e5').getAttribute('aria-label')).toBe('Fire at E5');
   expect(target('a1').getAttribute('aria-disabled')).toBe('true');
-  fireEvent.click(target('a1'));
+  aim('a1');
   expect(view.actions).toEqual([]);
-  fireEvent.click(target('e5'));
+  aim('e5');
+  expect(view.actions).toEqual([]);
+  expect(byTestId('board-fire').textContent).toContain('Fire at E5');
+  fireEvent.click(byTestId('board-fire'));
   expect(view.actions).toEqual(['e5']);
   expect(target('e5').getAttribute('data-emphasis')).toBe('pending');
   expect(target('e5').getAttribute('aria-disabled')).toBe('true');
-  fireEvent.click(target('e5'));
+  aim('e5');
   expect(view.actions).toEqual(['e5']);
   view.setPosition(
     encodeBattleshipPosition([
@@ -126,22 +139,28 @@ test('interactive targets fire through onAction and wait, aiming, for the outcom
 
 test('read-only boards refuse every target, and the switch keeps both grids mounted', () => {
   const view = board({ setup: FLEET });
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('own');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'own'
+  );
   const before = target('e5');
   expect(before.getAttribute('aria-disabled')).toBe('true');
   fireEvent.click(before);
   expect(view.actions).toEqual([]);
   fireEvent.click(byTestId('board-view-target'));
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('target');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'target'
+  );
   expect(target('e5')).toBe(before);
   fireEvent.click(byTestId('board-view-own'));
-  expect(byTestId('board-view').getAttribute('data-selected')).toBe('own');
+  expect(byTestId('board-view-panels').getAttribute('data-selected')).toBe(
+    'own'
+  );
 });
 
 test("the frame's turn line announces the latest shot and whose turn it is", () => {
   board({ setup: FLEET });
   expect(document.querySelector('[data-testid="board-status"]')).toBeNull();
-  expect(battleshipFrame.turnStatus(POSITION, 'white', [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, 'white', [], () => null)).toBe(
     'Red fleet fired at C3 and hit. Your turn to fire.'
   );
 });
@@ -158,7 +177,7 @@ test('the other side sees its own fleet and shots from its orientation', () => {
   expect(own('a3').getAttribute('aria-label')).toBe('A3: your Carrier');
   expect(target('c3').getAttribute('data-tone')).toBe('alert');
   expect(target('e5').getAttribute('data-tone')).toBe('quiet');
-  expect(battleshipFrame.turnStatus(POSITION, 'black', [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, 'black', [], () => null)).toBe(
     'You fired at C3 and hit. Blue fleet is firing.'
   );
 });
@@ -174,7 +193,7 @@ test('a watcher sees two public shot boards named by side, with no ships', () =>
   expect(document.querySelectorAll('[data-tone="occupied"]')).toHaveLength(0);
   expect(own('c3').getAttribute('aria-label')).toBe('C3: hit, latest shot');
   expect(own('d3').getAttribute('data-tone')).toBe('open');
-  expect(battleshipFrame.turnStatus(POSITION, null, [])).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, null, [], () => null)).toBe(
     'Red fleet fired at C3 and hit. Blue fleet to fire.'
   );
 });

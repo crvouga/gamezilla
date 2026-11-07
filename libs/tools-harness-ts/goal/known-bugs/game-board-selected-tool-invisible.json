@@ -1,0 +1,4 @@
+{
+  "summary": "Selected board tools exposed aria-pressed but kept the same outline appearance as unselected tools.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-frame.test.tsx"
+}

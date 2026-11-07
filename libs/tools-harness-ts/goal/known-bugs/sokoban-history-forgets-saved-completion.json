@@ -1,0 +1,4 @@
+{
+  "summary": "Solving the corner fixture then restarting clears the current solved notice but must retain its saved completion.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

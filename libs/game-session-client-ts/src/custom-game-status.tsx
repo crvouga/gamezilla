@@ -19,6 +19,7 @@ import { t } from '@lingui/core/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
+import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
@@ -89,7 +90,8 @@ function drawnDescription(reason: string): string {
 function gameStateDescription(
   game: CustomGame,
   presentation: GamePresentation,
-  viewer: CustomGameSide | null
+  viewer: CustomGameSide | null,
+  nameOf: GamePlayerName
 ): string {
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
@@ -110,7 +112,7 @@ function gameStateDescription(
     if (game.standIns.includes(game.turn))
       return t`${player} to move, played by a stand-in bot.`;
     return (
-      presentation.frame.turnStatus(game.fen, viewer, game.committed) ??
+      presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ??
       t`${player} to move.`
     );
   }
@@ -245,14 +247,16 @@ export function useSideClocks(
 function plainTurnLine(
   game: CustomGame,
   presentation: GamePresentation,
-  viewer: CustomGameSide | null
+  viewer: CustomGameSide | null,
+  nameOf: GamePlayerName
 ): boolean {
   return (
     game.status === 'active' &&
     game.awaiting.length === 0 &&
     game.execution?.phase !== 'paused' &&
     !game.standIns.includes(game.turn) &&
-    presentation.frame.turnStatus(game.fen, viewer, game.committed) === null
+    presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ===
+      null
   );
 }
 
@@ -261,6 +265,8 @@ export function useFrameStatus(
   model: CustomGameScreenModel
 ): Accessor<FrameStatus | null> {
   const lineup = useLineupDescription(model);
+  const names = useSeatNames(model);
+  const nameOf: GamePlayerName = (side) => names[side]() || null;
   const presentation = useGamePresentation();
   return createMemo(() => {
     const game = model.current();
@@ -270,9 +276,15 @@ export function useFrameStatus(
       description: gameStateDescription(
         game,
         presentation(game.fen),
-        model.mySide()
+        model.mySide(),
+        nameOf
       ),
-      plainTurn: plainTurnLine(game, presentation(game.fen), model.mySide()),
+      plainTurn: plainTurnLine(
+        game,
+        presentation(game.fen),
+        model.mySide(),
+        nameOf
+      ),
       emphasis: statusEmphasis(game, model.mySide()),
       tone: statusTone(game),
       sending: model.submitting(),

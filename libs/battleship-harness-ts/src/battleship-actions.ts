@@ -12,6 +12,10 @@ import {
   type ShipId,
 } from '@libs/battleship-shared-ts/battleship-board';
 import type { Orientation } from '@libs/battleship-shared-ts/battleship-fleet';
+import {
+  chooseSetupShip,
+  placeSetupBow,
+} from '@libs/battleship-shared-ts/battleship-setup-gestures';
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
 import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
@@ -88,7 +92,8 @@ async function press(
 
 async function setupBoard(s: ProductHarness, actor: string) {
   const ui = await actorUi(s, actor);
-  return (await ui.get(`${BATTLESHIP_SETUP_BOARD}-grid`).isVisible())
+  return (await ui.get(BATTLESHIP_SETUP_BOARD).isVisible()) &&
+    !(await ui.get(`${BATTLESHIP_SETUP_BOARD}-locked`).isVisible())
     ? ui
     : null;
 }
@@ -101,11 +106,7 @@ async function chooseShip(
   keyboard: boolean | undefined
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  await press(
-    ui.get(`${BATTLESHIP_SETUP_BOARD}-ship-${ship}`),
-    keyboard,
-    'space'
-  );
+  await chooseSetupShip(ui, BATTLESHIP_SETUP_BOARD, ship, keyboard);
   await s.session.waitForIdle();
 }
 
@@ -152,7 +153,7 @@ export const placeBattleshipShip = scenarioAction<
       (await rotate.attribute('data-orientation')) !== orientation &&
       (await rotate.attribute('disabled')) === null;
     if (turned) await rotateChosen(s, actor, keyboard);
-    await press(ui.get(`${BATTLESHIP_SETUP_BOARD}-cell-${cell}`), keyboard);
+    await placeSetupBow(ui, BATTLESHIP_SETUP_BOARD, cell, keyboard);
     await s.session.waitForIdle();
     if (!turned || (await battleshipSetupRefusal(s, actor)) === null) return;
     const now = shipCells((await battleshipView(s, actor)).setup, ship);
@@ -252,11 +253,23 @@ export const shootBattleship = scenarioAction<
       `${CUSTOM_GAME_BOARD}-target-${cell}`
     );
     if (
-      (await target.isVisible()) &&
+      (await (
+        await actorUi(s, actor)
+      )
+        .get(`${CUSTOM_GAME_BOARD}-region`)
+        .isVisible()) &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
       await playOnCustomGameBoard(s, actor, async () => {
-        await press(target, keyboard);
+        const ui = await actorUi(s, actor);
+        const area =
+          Number(cell.charAt(0) >= 'f') +
+          Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+        await press(ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`), keyboard);
+        await press(ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`), keyboard);
+        const fire = ui.get(`${CUSTOM_GAME_BOARD}-fire`);
+        await fire.wait('enabled');
+        await press(fire, keyboard);
         return 'made';
       });
       return;
@@ -274,7 +287,11 @@ export const chooseBattleshipTarget = scenarioAction({
   name: 'chooseBattleshipTarget',
   act: async (s, actor: string, cell: string) => {
     const ui = await actorUi(s, actor);
-    await ui.get(`${CUSTOM_GAME_BOARD}-target-${cell}`).key('enter');
+    const area =
+      Number(cell.charAt(0) >= 'f') +
+      Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+    await ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`).key('enter');
+    await ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`).key('enter');
     await s.session.waitForIdle();
   },
 });

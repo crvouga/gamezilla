@@ -64,10 +64,10 @@ export const quoridorGameClient = defineGameClient({
 export const quoridorHillGameClient = defineGameClient({
   shared: quoridorHillGameShared,
   title: 'Quoridor: King of the Hill',
-  caption: 'Four players. First to the central hill wins.',
+  caption: 'Four players. First to the center hill (e5) wins.',
   tile: 'walls',
   subtitle: () => (
-    <Trans>Four sides. One hill. First to e5 wins immediately.</Trans>
+    <Trans>Move your pawn to the center hill (e5) first to win.</Trans>
   ),
   instructions: () => (
     <Trans>
@@ -75,9 +75,9 @@ export const quoridorHillGameClient = defineGameClient({
       South starts at e1, West at a5, North at e9 and East at i5. Turns run in
       that clockwise order. Move or place a wall; jump one pawn, never a chain.
       A blocked landing allows a side-step. Walls must keep everyone's path to
-      e5 open. Reaching e5 wins immediately; no holding period. A withdrawal or
-      expired clock ends the round as a draw. If no pawn move or wall is legal,
-      pass when offered; you cannot pass otherwise.
+      the center hill (e5) open. Reaching the hill wins immediately; no holding
+      period. A withdrawal or expired clock ends the round as a draw. If no pawn
+      move or wall is legal, pass when offered; you cannot pass otherwise.
     </Trans>
   ),
   presentation: presentation(true),

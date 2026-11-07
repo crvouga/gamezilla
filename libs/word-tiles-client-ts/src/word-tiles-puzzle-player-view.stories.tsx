@@ -1,15 +1,28 @@
+import { evaluatePlacement } from '@libs/word-tiles-shared-ts/word-tiles-placement';
 import {
   encodePuzzle,
+  placementOf,
+  rackTileIds,
   type WordTilesPuzzle,
 } from '@libs/word-tiles-shared-ts/word-tiles-puzzle';
 import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import type { LexiconState } from './use-word-tiles-lexicon';
+import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
   CAT_AND_TOE,
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { assertClear } from './word-tiles-geometry.example';
+import { expectBoardMap } from './word-tiles-map.example';
+import {
+  expectPrecisionDefault,
+  viewPrecisionRegion,
+} from './word-tiles-precision.example';
+import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
 
 const PUZZLE: WordTilesPuzzle = {
@@ -35,13 +48,18 @@ const meta = {
     disabled: false,
     lexicon: STORY_LEXICON,
     onAction: fn(),
+    onReturnToLibrary: fn(),
+    onRetryLexicon: fn(),
   },
 } satisfies Meta<typeof WordTilesPuzzlePlayerView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A fresh attempt: the target, the frozen board and the rack. */
-export const Ready: Story = {};
+export const Ready: Story = {
+  play: async ({ canvasElement }) =>
+    expectPrecisionDefault(canvasElement, 'word-tiles-puzzle'),
+};
 
 /** The last move fell short: its score against the target. */
 export const AfterAMove: Story = {
@@ -53,8 +71,18 @@ export const AfterAMove: Story = {
 /** The attempt is over: the board shows, but no tile can be placed. */
 export const Disabled: Story = { args: { disabled: true } };
 
-/** The word list did not load: moves are scored, not checked. */
+/** The word list did not load: retry makes placement available again. */
 export const WordListUnavailable: Story = {
+  render: (args) => {
+    const [lexicon, setLexicon] = createSignal(args.lexicon);
+    return (
+      <WordTilesPuzzlePlayerView
+        {...args}
+        lexicon={lexicon()}
+        onRetryLexicon={() => setLexicon(STORY_LEXICON)}
+      />
+    );
+  },
   args: {
     lexicon: {
       status: 'unavailable',
@@ -63,13 +91,44 @@ export const WordListUnavailable: Story = {
   },
 };
 
-/** A definition this app cannot read says to update the app. */
-export const Unreadable: Story = { args: { definition: '{}' } };
+/** Retry resolves the unavailable word list without replacing the player. */
+export const RetryWordList: Story = {
+  ...WordListUnavailable,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Retry word list' })
+    );
+    await expect(
+      canvas.queryByRole('button', { name: 'Retry word list' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-status')
+    ).toHaveTextContent('Choose a tile');
+    await expect(canvas.getByTestId('word-tiles-puzzle-rack-0')).toBeEnabled();
+  },
+};
+
+/** A definition this app cannot read offers the real library destination. */
+export const Unreadable: Story = {
+  args: { definition: '{}' },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('alert')).toHaveTextContent(
+      'This puzzle cannot be opened.'
+    );
+    const recovery = canvas.getByRole('button', { name: 'Puzzle library' });
+    await expect(recovery).toBeVisible();
+    await userEvent.click(recovery);
+    await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
+  },
+};
 
 /** E and A placed under TOE spell a word the list lacks: the preview says so. */
 export const PlaceAWord: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await viewPrecisionRegion(canvasElement, 'View f11 to j15');
     for (const [tile, cell] of [
       ['17', 'i11'],
       ['0', 'i12'],
@@ -84,5 +143,121 @@ export const PlaceAWord: Story = {
     await expect(
       await canvas.findByTestId('word-tiles-puzzle-status')
     ).toHaveTextContent('Not in the word list');
+    await expect(canvas.getByRole('alert')).toHaveTextContent('Recall tiles');
+    await expect(canvas.getByTestId('word-tiles-puzzle-recall')).toBeEnabled();
+  },
+};
+
+/** A real placement is scored by the domain evaluator and fed back into the player. */
+export const ReachTarget: Story = {
+  args: { definition: encodePuzzle({ ...PUZZLE, target: 6 }) },
+  render: (args) => {
+    const [state, setState] = createSignal(args.state);
+    const [lexicon, setLexicon] = createSignal<LexiconState>({
+      status: 'unavailable',
+      reason: 'offline',
+    });
+    return (
+      <WordTilesPuzzlePlayerView
+        {...args}
+        state={state()}
+        lexicon={lexicon()}
+        onRetryLexicon={() => setLexicon(STORY_LEXICON)}
+        onAction={(action) => {
+          const placed = placementOf(PUZZLE, action);
+          if (placed === null) throw new Error('Invalid puzzle action');
+          const result = evaluatePlacement(PUZZLE.board, placed);
+          if (!result.ok) throw new Error('Invalid puzzle placement');
+          setState(
+            JSON.stringify({ v: 1, played: action, score: result.score.total })
+          );
+        }}
+      />
+    );
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await viewPrecisionRegion(canvasElement, 'View a1 to e5');
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
+    // Try a disconnected tile, then recover using the player's own recall action.
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-rack-0'));
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-recall'));
+    await viewPrecisionRegion(canvasElement, 'View f6 to j10');
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    // Extend CAT to CATS on the triple-letter square at j8.
+    await userEvent.click(
+      canvas.getByTestId(
+        `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[2]}`
+      )
+    );
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    // regression: word-tiles-puzzle-retry-keeps-draft
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Retry word list' })
+    );
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveTextContent('S');
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-submit'));
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-score')
+    ).toHaveTextContent('8 of 6');
+    // regression: word-tiles-puzzle-completion-remains-editable
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-complete')
+    ).toHaveTextContent('Puzzle solved');
+    await expect(
+      canvas.queryByTestId('word-tiles-puzzle-submit')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveAccessibleName(/committed/);
+    const next = canvas.getByRole('button', { name: 'Puzzle library' });
+    await expect(next).toBeVisible();
+    await userEvent.click(next);
+    await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
+  },
+};
+
+/** Assign a blank through the enlarged board and retain its chosen letter. */
+export const EnlargedBlank: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Check initial controls before userEvent can scroll to its first target.
+    await expectPuzzlePlacementContext(canvasElement);
+    const enlarge = canvas.getByRole('button', { name: 'Enlarge board' });
+    if (enlarge.getAttribute('aria-pressed') !== 'true')
+      await userEvent.click(enlarge);
+    await expectPuzzlePlacementContext(canvasElement);
+    await userEvent.click(
+      canvas.getByTestId(
+        `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[4]}`
+      )
+    );
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    // Assignment is modal: assert its real board/target context and all letters before input.
+    await expectBlankTargets(canvasElement, 'word-tiles-puzzle');
+    await expect(canvas.getByTestId('word-tiles-puzzle-blank-A')).toHaveFocus();
+    // regression: word-tiles-blank-direct-letter-entry
+    await userEvent.keyboard('s');
+    await expect(canvas.getByTestId('word-tiles-puzzle-cell-j8')).toHaveFocus();
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-cell-j8')
+    ).toHaveAccessibleName(/blank as S/);
+    await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
+    // regression: word-tiles-puzzle-preview-shortfall
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-shortfall')
+    ).toHaveTextContent('15 more points');
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-bonus')
+    ).toHaveTextContent('j8: 3L triples this letter. Blank tiles score 0.');
+    await expectPuzzlePlacementContext(canvasElement);
+    await expectBoardMap(canvasElement, 'word-tiles-puzzle');
   },
 };

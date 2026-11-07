@@ -4,7 +4,7 @@ import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
@@ -48,9 +48,9 @@ const GAMES_LIST_FADE_KEY = 'games-list';
 
 function HostChoosesNotice(): JSX.Element {
   return (
-    <P variant="caption" testId={Handles.spaceHostChoosesGame}>
+    <Text variant="caption" testId={Handles.spaceHostChoosesGame}>
       <Trans>The host picks the game for this space.</Trans>
-    </P>
+    </Text>
   );
 }
 
@@ -77,13 +77,8 @@ function ListHelper(props: SpaceGamesScreenViewProps): JSX.Element {
   const here = (): JSX.Element | undefined =>
     mode() === 'wide' ? undefined : props.whoIsHere;
   return (
-    <Show when={here() !== undefined || !props.canSelectGame}>
-      <StackVertical gap="sm">
-        {here()}
-        <Show when={!props.canSelectGame}>
-          <HostChoosesNotice />
-        </Show>
-      </StackVertical>
+    <Show when={here() !== undefined}>
+      <StackVertical gap="sm">{here()}</StackVertical>
     </Show>
   );
 }
@@ -123,13 +118,15 @@ function GameListMenu(props: SpaceGamesScreenViewProps): JSX.Element {
       wideLayout="tiles"
       title={<Trans>Games</Trans>}
       subtitle={
-        <Show
-          when={someoneWatches(props)}
-          fallback={<Trans>Pick a game to play.</Trans>}
-        >
-          <Trans>
-            Choose a game, then its players; everyone else here can watch.
-          </Trans>
+        <Show when={props.canSelectGame} fallback={<HostChoosesNotice />}>
+          <Show
+            when={someoneWatches(props)}
+            fallback={<Trans>Pick a game to play.</Trans>}
+          >
+            <Trans>
+              Choose a game, then its players; everyone else here can watch.
+            </Trans>
+          </Show>
         </Show>
       }
       helper={<ListHelper {...props} />}

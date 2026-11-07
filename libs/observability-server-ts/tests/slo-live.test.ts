@@ -437,12 +437,15 @@ describe('one broken game among the journeys', () => {
     'journeys.connect-four-game',
     'journeys.critical-journeys',
     'journeys.custom-game',
+    'journeys.hearts-start',
     'journeys.join-and-offline',
+    'journeys.light-cycles-start',
     'journeys.multiplayer-game',
     'journeys.numberlink-packs',
     'journeys.pong-game',
     'journeys.quoridor-game',
     'journeys.sokoban-packs',
+    'journeys.word-tiles-start',
     'quoridor.quoridor-health',
   ];
   /** Every game's check every hour for a week; pong fails from `brokenFor` hours ago. */
@@ -474,7 +477,7 @@ describe('one broken game among the journeys', () => {
     expect(checked.results[0]?.evaluation.met).toBe(false);
   });
 
-  test('pages after a few hours, though twelve of thirteen checks still pass', async () => {
+  test('pages after a few hours, though fifteen of sixteen checks still pass', async () => {
     const parsed = parseOpenSlo(JOURNEYS);
     if (!parsed.ok) throw new Error(parsed.issues.join('\n'));
     const [slo] = parsed.doc.slos;
@@ -496,7 +499,7 @@ describe('one broken game among the journeys', () => {
       });
     const quietBefore = await alert(0);
     expect(quietBefore.every((r) => r.ok)).toBe(true);
-    // Pooled, one game in thirteen is 7.7% of samples: a 2.6x burn that never
+    // Pooled, one game in sixteen is 6.25% of samples: a 2.1x burn that never
     // reaches the 10x page. Judged by run, every run since it broke is bad.
     const broken = await alert(4);
     expect(broken.find((r) => r.policy.endsWith('fast-burn'))?.ok).toBe(false);

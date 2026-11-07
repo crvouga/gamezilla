@@ -1,0 +1,4 @@
+{
+  "summary": "At 390\u00d7844 the 104px overview reduced precision play to about four columns; desktop precision height stayed five rows. Retain simultaneous context in at most one fifth of the available width and grow the viewport responsively.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts"
+}

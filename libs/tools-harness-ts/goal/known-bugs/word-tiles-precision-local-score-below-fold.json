@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 CAT/TOE YourTurn must keep the local seat and score visible before precision navigation or input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

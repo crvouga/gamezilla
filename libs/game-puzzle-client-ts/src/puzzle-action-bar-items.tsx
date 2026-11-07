@@ -30,16 +30,20 @@ type Slot<Id extends PuzzleActionBarSlot['id']> = Extract<
 /** One escalating help button: Hint, then Solution. */
 function HintButton(props: {
   slot: Slot<'hint'>;
+  hintStage: HintStage;
   onHint: () => void;
 }): JSX.Element {
   return (
     <Button
       title={
-        props.slot.hintLabel === 'solution' ? (
-          <Trans>Solution</Trans>
-        ) : (
-          <Trans>Hint</Trans>
-        )
+        <Switch fallback={<Trans>Reveal move</Trans>}>
+          <Match when={props.slot.hintLabel === 'hint'}>
+            <Trans>Hint</Trans>
+          </Match>
+          <Match when={props.hintStage === 'solution'}>
+            <Trans>Reveal and end attempt</Trans>
+          </Match>
+        </Switch>
       }
       intent="neutral"
       variant="outline"
@@ -79,12 +83,18 @@ export function PuzzleActionButton(props: {
   return (
     <Switch>
       <Match when={props.slot.id === 'hint' && props.slot} keyed>
-        {(slot) => <HintButton slot={slot} onHint={props.model.onHint} />}
+        {(slot) => (
+          <HintButton
+            slot={slot}
+            hintStage={props.model.hintStage}
+            onHint={props.model.onHint}
+          />
+        )}
       </Match>
       <Match when={props.slot.id === 'solution' && props.slot} keyed>
         {(slot) => (
           <Button
-            title={<Trans>Solution</Trans>}
+            title={<Trans>Reveal and end attempt</Trans>}
             intent="neutral"
             variant="outline"
             icon={LightbulbIcon}

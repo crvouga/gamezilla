@@ -1,0 +1,4 @@
+{
+  "summary": "Bot-start observation assumed every game layout exposed a separate person label. Three- and four-seat Word Tiles render names inside the seat wrapper. The journey checks each visible seat wrapper for its bot name.",
+  "regressionTest": "libs/runtime-harness-ts/tests/bot-game-journey-seats.test.ts"
+}

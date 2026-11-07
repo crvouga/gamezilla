@@ -11,15 +11,16 @@
   },
   "scripts": {
     "apply:alerting": "bun run scripts/tofu.ts apply --stack bootstrap --alerting",
-    "drift:alerting": "bun run scripts/tofu.ts drift --stack bootstrap --alerting",
-    "plan:alerting": "bun run scripts/tofu.ts plan --stack bootstrap --alerting",
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
     "apply:fleet": "bun run scripts/tofu.ts apply --stack fleet",
     "apply:foundation": "bun run scripts/tofu.ts apply --stack foundation",
     "apply:repository-policy": "bun run scripts/tofu.ts apply --stack bootstrap --repository-policy",
+    "check:alert-delivery": "bun run scripts/check-alert-delivery.ts",
+    "drift:alerting": "bun run scripts/tofu.ts drift --stack bootstrap --alerting",
     "drift:repository-policy": "bun run scripts/tofu.ts drift --stack bootstrap --repository-policy",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "plan:alerting": "bun run scripts/tofu.ts plan --stack bootstrap --alerting",
     "plan:bootstrap": "bun run scripts/tofu.ts plan --stack bootstrap",
     "plan:edge": "bun run scripts/tofu.ts plan --stack edge",
     "plan:fleet": "bun run scripts/tofu.ts plan --stack fleet",
@@ -28,8 +29,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
     "unlock:repository-policy": "bun run scripts/unlock-repository-policy.ts",
-    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts",
-    "check:alert-delivery": "bun run scripts/check-alert-delivery.ts"
+    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -40,6 +40,7 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/emqx-shared-ts": "workspace:*",
     "@pkgs/fs-server-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/secret-provider-server-ts": "workspace:*",
@@ -47,8 +48,7 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "catalog:",
-    "@pkgs/http-client-shared-ts": "workspace:*"
+    "wrangler": "catalog:"
   },
   "category": "server",
   "language": "typescript"

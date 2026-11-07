@@ -1,0 +1,4 @@
+{
+  "summary": "Classic opening d4 wall search matched neighboring boundary descriptions and duplicated coordinate prose; rotation discarded the visual proposal.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

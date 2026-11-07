@@ -1,0 +1,4 @@
+{
+  "summary": "Moving to a distant board region requires opening a map and selecting a tiny intersection.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

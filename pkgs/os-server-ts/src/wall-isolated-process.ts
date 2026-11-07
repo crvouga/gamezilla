@@ -9,6 +9,9 @@ export function createIsolatedProcess(moduleUrl: URL): IsolatedWorker {
     execArgv: [],
     stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
   });
+  const exited = new Promise<void>((resolve) =>
+    child.once('close', () => resolve())
+  );
   return {
     post: (value) => {
       child.send(value as Parameters<typeof child.send>[0]);
@@ -29,9 +32,10 @@ export function createIsolatedProcess(moduleUrl: URL): IsolatedWorker {
         child.off('exit', exit);
       };
     },
-    terminate: () => {
+    terminate: async () => {
       if (child.connected) child.disconnect();
       child.kill('SIGTERM');
+      await exited;
     },
   };
 }

@@ -15,6 +15,8 @@ export type JourneyAccess = 'anonymous' | 'signed-in';
  * to the identity provider.
  */
 export type JourneyBrowser = {
+  /** Exact provider boundary supplied by host configuration, never by the observed page. */
+  readonly googleAuthorizationOrigin: string;
   /**
    * Origin Google sends people back to (`<origin>/api/auth/callback/google`):
    * the one OAuth callback relay every environment shares.

@@ -47,6 +47,8 @@ export type TrailControls = {
 };
 
 export type TrailArenaProps = TrailControls & {
+  /** Left and right touch ownership, in spatial order. Labels sit outside the trails. */
+  readonly touchRegions?: readonly [string, string] | undefined;
   /** Columns of cells. */
   readonly width: number;
   /** Rows of cells. */

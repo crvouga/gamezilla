@@ -10,15 +10,28 @@ import type {
   GameFrameBoardSession,
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, createMemo, createSignal, type JSX } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  Show,
+} from 'solid-js';
 import {
   type QuoridorTool,
   quoridorBoardCells,
+  quoridorBoundary,
   quoridorWallMessage,
 } from './quoridor-board-cells';
+import {
+  QuoridorBoardTools,
+  QuoridorTargetPicker,
+} from './quoridor-board-tools';
 
 const TOOLS: readonly QuoridorTool[] = ['move', 'h', 'v'];
 
@@ -31,19 +44,35 @@ type BoardState = {
   readonly game: Accessor<Quoridor>;
   readonly tool: Accessor<QuoridorTool>;
   readonly refusal: Accessor<string>;
+  readonly actions: Accessor<readonly GameFrameAction[]>;
   readonly setRefusal: (message: string) => void;
 };
 
-function QuoridorBoardView(
-  props: GameBoardProps & { readonly state: BoardState }
-): JSX.Element {
+type BoardViewProps = GameBoardProps & { readonly state: BoardState };
+
+function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
   const [preview, setPreview] = createSignal<string | null>(null);
+  const [chosen, setChosen] = createSignal<{
+    cell: string;
+    position: string;
+  } | null>(null);
+  createEffect(() => {
+    if (tool() === 'move') setChosen(null);
+  });
+  const selected = () => {
+    const value = chosen();
+    return tool() !== 'move' && value?.position === props.position
+      ? value.cell
+      : null;
+  };
   const previewAction = () =>
-    !props.interactive || preview() === null || tool() === 'move'
+    !props.interactive ||
+    (selected() ?? preview()) === null ||
+    tool() === 'move'
       ? null
-      : `${preview()}${tool()}`;
+      : `${selected() ?? preview()}${tool()}`;
   // Memoized: each square reads the list, so computing it inline would
   // rebuild the whole board once per square on every change.
   const cells = createMemo(() =>
@@ -54,54 +83,100 @@ function QuoridorBoardView(
       return t`Game finished. Use the game controls to review earlier moves.`;
     if (!props.interactive)
       return t`This board is read-only. Follow the game or review earlier moves.`;
+    if (quoridorMustPass(game()))
+      return t`No legal move or wall. Pass to continue.`;
     const action = previewAction();
     return action === null
       ? props.state.refusal()
-      : quoridorWallMessage(wallRefusal(game(), action));
+      : `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action))}`;
   };
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
     if (tool() !== 'move') {
-      const reason = wallRefusal(game(), action);
-      if (reason !== null) {
-        props.state.setRefusal(quoridorWallMessage(reason));
-        return;
-      }
+      setChosen({ cell, position: props.position });
+      return;
     }
     props.state.setRefusal('');
     setPreview(null);
     props.onAction(action);
   };
+  const cancel = () => {
+    setChosen(null);
+    setPreview(null);
+  };
+  const commit = () => {
+    const action = `${selected()}${tool()}`;
+    if (wallRefusal(game(), action) !== null) return;
+    cancel();
+    props.state.setRefusal('');
+    props.onAction(action);
+  };
+  return { cells, selected, message, activate, setPreview, cancel, commit };
+}
+
+function QuoridorBoardView(props: BoardViewProps): JSX.Element {
+  const game = (): Quoridor => props.state.game();
+  const tool = (): QuoridorTool => props.state.tool();
+  const selection = createBoardSelection(props);
   return (
-    <StackVertical gap="sm">
+    <StackVertical gap="xs">
+      <Show when={game().winner === null && quoridorMustPass(game())}>
+        <QuoridorBoardTools
+          testId={props.testId}
+          actions={props.state.actions()}
+        />
+      </Show>
       <CellGridBoard
         boardTheme="quoridor"
+        fill
         label={t`Quoridor board, nine columns and nine rows`}
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
         rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
-        cells={cells()}
+        cells={selection.cells()}
         cellTestId={(cell) =>
           `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
         }
-        onActivate={activate}
-        onPreview={setPreview}
+        onActivate={selection.activate}
+        onPreview={selection.setPreview}
       />
+      <Show
+        when={
+          props.interactive &&
+          game().winner === null &&
+          !quoridorMustPass(game())
+        }
+      >
+        <QuoridorBoardTools
+          testId={props.testId}
+          actions={props.state.actions()}
+        />
+        <QuoridorTargetPicker
+          testId={props.testId}
+          tool={tool()}
+          cells={selection.cells()}
+          selected={selection.selected()}
+          onActivate={selection.activate}
+        />
+      </Show>
+      <Show when={selection.selected() !== null && props.interactive}>
+        <WallConfirmation
+          testId={props.testId}
+          enabled={
+            wallRefusal(game(), `${selection.selected()}${tool()}`) === null
+          }
+          cancel={selection.cancel}
+          commit={selection.commit}
+        />
+      </Show>
       <P role="status" dataSet={{ testid: `${props.testId}-wall-status` }}>
-        {message() ||
-          t`Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor.`}
+        {selection.message() || toolGuidance(tool())}
       </P>
     </StackVertical>
   );
 }
 
-/**
- * The Quoridor board and its tools. The tool chosen (move the pawn, or a
- * horizontal or vertical wall) is shared by the board, which places what it
- * says, and the frame's action bar, which offers each tool (`mode-move`,
- * `mode-h`, `mode-v`) and, when no move or wall is legal, the pass
- * (`action-pass`).
- */
+/** Board-local tools keep mode, precise target selection and confirmation together. */
 export function createQuoridorBoard(
   props: GameBoardProps
 ): GameFrameBoardSession<JSX.Element> {
@@ -109,12 +184,14 @@ export function createQuoridorBoard(
   const [tool, setTool] = createSignal<QuoridorTool>('move');
   const [refusal, setRefusal] = createSignal('');
   const live = (): boolean => props.interactive && game().winner === null;
-  const state: BoardState = { game, tool, refusal, setRefusal };
   const toolActions = (): readonly GameFrameAction[] =>
     TOOLS.map((each) => ({
       id: `mode-${each}`,
       label: toolLabel(each),
-      enabled: live(),
+      enabled:
+        live() &&
+        !quoridorMustPass(game()) &&
+        (each === 'move' || (game().remaining[game().turn] ?? 0) > 0),
       pressed: tool() === each,
       run: () => {
         setTool(each);
@@ -124,17 +201,55 @@ export function createQuoridorBoard(
   const pass = (): GameFrameAction => ({
     id: 'action-pass',
     label: t`No legal move or wall — pass turn`,
+    emphasis: 'primary',
     enabled: props.interactive,
     run: () => props.onAction('pass'),
   });
+  const state: BoardState = {
+    game,
+    tool,
+    refusal,
+    setRefusal,
+    actions: () => (quoridorMustPass(game()) ? [pass()] : toolActions()),
+  };
   return {
     Board: () => <QuoridorBoardView {...props} state={state} />,
-    actions: () =>
-      quoridorMustPass(game()) ? [...toolActions(), pass()] : toolActions(),
+    actions: () => [],
   };
 }
 
-/** The board alone, its tools left to whoever mounts it with its actions. */
+/** The board with its adjacent tools and precise coordinate picker. */
 export function QuoridorBoard(props: GameBoardProps): JSX.Element {
   return createQuoridorBoard(props).Board();
+}
+
+function WallConfirmation(props: {
+  testId: string;
+  enabled: boolean;
+  cancel: () => void;
+  commit: () => void;
+}): JSX.Element {
+  return (
+    <StackHorizontal gap="sm" wrap>
+      <Button
+        title={t`Place wall`}
+        disabled={!props.enabled}
+        dataSet={{ testid: `${props.testId}-wall-commit` }}
+        onClick={props.commit}
+      />
+      <Button
+        title={t`Cancel`}
+        variant="outline"
+        dataSet={{ testid: `${props.testId}-wall-cancel` }}
+        onClick={props.cancel}
+      />
+    </StackHorizontal>
+  );
+}
+
+function toolGuidance(tool: QuoridorTool): string {
+  if (tool === 'move') return t`Move to a marked square.`;
+  return tool === 'h'
+    ? t`Tap a square: preview a wall above it.`
+    : t`Tap a square: preview a wall to its right.`;
 }

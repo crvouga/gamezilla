@@ -86,7 +86,7 @@ export async function keepSokobanWorkOffline(
     await SOKOBAN_JOURNEY_BOARD.solve(device(ui));
     await ui
       .get('content-attempt-complete')
-      .expect.text('Puzzle completed', { ...device(ui), exact: false });
+      .expect.text('Completion saved', { ...device(ui), exact: false });
   });
   return { documentId, title, revisionId: '' };
 }

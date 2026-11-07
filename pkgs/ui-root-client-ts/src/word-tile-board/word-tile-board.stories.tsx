@@ -1,3 +1,4 @@
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { WordTileBoard } from './index';
 import Example from './word-tile-board.example';
@@ -14,4 +15,24 @@ export default meta;
 export const States: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,
+};
+
+/** Enlarge the same board, place a tile, then retain it in the overview. */
+export const EnlargedPlacement: StoryObj = {
+  render: () => <Example />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'S, 1 point' }));
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enlarge board' })
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'e3, empty' }));
+    await expect(
+      canvas.getByRole('button', { name: 'S 1, e3, tentative' })
+    ).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(canvas.getByRole('button', { name: 'Fit board' }));
+    await expect(
+      canvas.getByRole('button', { name: 'S 1, e3, tentative' })
+    ).toHaveFocus();
+  },
 };

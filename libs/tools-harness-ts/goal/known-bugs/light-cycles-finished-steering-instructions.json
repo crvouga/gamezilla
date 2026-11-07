@@ -1,0 +1,4 @@
+{
+  "summary": "Finished Light Cycles games retain instructions to steer using a pad or keyboard even though play has ended. The browser regression requires the winner and Rematch to remain visible without active steering instructions at compact and desktop widths.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Unreadable Word Tiles position offered update advice without an actionable recovery link.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx"
+}

@@ -100,7 +100,7 @@ test('metrics aggregate isolated users and report virtual durations without iden
     ).not.toContainEqual(
       expect.objectContaining({ privateUser: 'private-account-id' })
     );
-    f.realm.terminate();
+    await f.realm.terminate();
     await f.runtime.forceFlush();
     expect(
       f.readings().find((m) => m.descriptor.name === 'population_online')!

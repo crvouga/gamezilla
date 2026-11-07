@@ -1,0 +1,4 @@
+{
+  "summary": "The AEST?RN blank chooser at j8 and match blank at h8 gave 43px scroll width inside a 42px client box through its redundant expanded hit pseudo-element despite a 44px outer target. Keep all letter content and four corners within each disjoint 44px control.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

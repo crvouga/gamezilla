@@ -1,0 +1,4 @@
+{
+  "summary": "Phone Numberlink guidance omitted redraw and shortening, and path removal required a keyboard.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

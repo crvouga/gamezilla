@@ -1,0 +1,4 @@
+{
+  "summary": "Rotating Hearts orientation moved cached player DOM between index-owned seats, nesting identities and detaching facts. Key entire seat sections by stable seat ID.",
+  "regressionTest": "libs/hearts-client-ts/tests/seat-rotation.test.tsx"
+}

@@ -1,0 +1,108 @@
+.locator {
+  display: grid;
+  justify-items: center;
+  gap: var(--ui-space-1);
+
+  min-width: var(--ui-control-size-md);
+  min-height: var(--ui-control-size-md);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-xs);
+  cursor: pointer;
+}
+.locator:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.overview {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--ui-radius-sm);
+  overflow: hidden;
+}
+.square {
+  fill: var(--ui-color-game-word-tiles-canvas);
+  stroke: var(--ui-color-game-word-tiles-muted);
+  stroke-width: 0.04;
+}
+.square[data-square="DL"],
+.square[data-square="TL"] {
+  fill: var(--ui-color-game-word-tiles-two);
+}
+.square[data-square="DW"],
+.square[data-square="start"] {
+  fill: var(--ui-color-game-word-tiles-accent);
+}
+.square[data-square="TW"] {
+  fill: var(--ui-color-game-word-tiles-one);
+}
+.square[data-state="committed"],
+.square[data-state="recent"],
+.square[data-state="tentative"] {
+  fill: var(--ui-color-board-card-face);
+}
+.window {
+  fill: none;
+  stroke: var(--ui-color-board-card-face);
+  stroke-width: 0.4;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
+}
+
+.context {
+  display: flex;
+  gap: var(--ui-space-2);
+  align-items: start;
+}
+.tools {
+  display: grid;
+  gap: var(--ui-space-1);
+  flex: 1;
+  min-width: 0;
+}
+.regions {
+  position: relative;
+  width: calc(var(--ui-control-size-md) * 3);
+  height: calc(var(--ui-control-size-md) * 3);
+  flex-shrink: 0;
+}
+.region-buttons {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.region {
+  min-width: var(--ui-control-size-md);
+  min-height: var(--ui-control-size-md);
+  border: 1px solid var(--ui-color-board-card-face);
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.region:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: -2px;
+}
+
+.direction {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ui-space-4);
+  height: var(--ui-space-4);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-board-card-face);
+  color: var(--ui-color-board-card-ink);
+  font-size: var(--ui-font-size-xs);
+}
+
+.commands {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  flex-wrap: wrap;
+}

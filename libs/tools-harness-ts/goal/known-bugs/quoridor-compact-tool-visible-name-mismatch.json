@@ -1,0 +1,4 @@
+{
+  "summary": "The compact Horizontal wall button visibly said Wall across, so its visible words were absent from its spoken control name; the Vertical wall button had the same mismatch.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

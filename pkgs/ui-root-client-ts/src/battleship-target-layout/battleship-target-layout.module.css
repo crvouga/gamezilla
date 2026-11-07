@@ -1,0 +1,100 @@
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  width: 100%;
+}
+.navigator {
+  flex: 0 0 15.5rem;
+  width: 15.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+}
+.map {
+  position: relative;
+  width: 15.5rem;
+  aspect-ratio: 1;
+}
+.overview
+  [data-component="CellGridBoard"][data-board-theme="battleship"][data-fill] {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1;
+  grid-template-columns: var(--ui-space-5) repeat(10, minmax(0, 1fr));
+  grid-template-rows: var(--ui-space-5) repeat(10, minmax(0, 1fr));
+  padding: var(--ui-space-1);
+  gap: 0;
+}
+.overview [data-cell] span {
+  font-size: var(--ui-text-label-size);
+}
+.regions {
+  position: absolute;
+  inset: var(--ui-space-6) var(--ui-space-1) var(--ui-space-1) var(--ui-space-6);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+}
+.region {
+  position: relative;
+  min-height: var(--ui-control-size-md);
+  padding: 0;
+  background: transparent;
+  border: 2px solid var(--ui-color-text-secondary);
+  border-radius: var(--ui-radius-sm);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.region[aria-pressed="true"] {
+  border-color: var(--ui-color-tint);
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: -4px;
+}
+.region:focus-visible {
+  outline: var(--ui-space-1) solid var(--ui-color-tint);
+  outline-offset: var(--ui-space-1);
+  z-index: 1;
+}
+.regionName {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.workspace {
+  flex: 0 1 22.75rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+}
+.controls,
+.working {
+  min-width: 0;
+}
+
+.navigator[data-placement="true"],
+.navigator[data-placement="true"] .map {
+  width: 14rem;
+}
+.controls {
+  flex: 1 1 5.5rem;
+}
+.working {
+  flex: 0 0
+    calc(
+      5 *
+      (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+      var(--ui-space-6) +
+      var(--ui-space-4)
+    );
+}
+
+/* In the placement column, basis is vertical; the map alone sets its height. */
+.navigator[data-placement="true"] {
+  flex: none;
+}

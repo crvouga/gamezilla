@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 completed enlarged setup left a large blank space between selected-ship guidance and bow targets.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

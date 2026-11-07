@@ -1,0 +1,4 @@
+{
+  "summary": "The current record was labeled Live independently of completion, cancellation, connection loss or stopped execution.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}

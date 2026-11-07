@@ -1,0 +1,4 @@
+{
+  "summary": "Hill instructions named e5 without explaining it as the center hill; its introduction now pairs the spatial destination with its coordinate. The shared turn-status copy still needs the frame owner's corresponding change.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-hill-goal-wording.test.tsx"
+}

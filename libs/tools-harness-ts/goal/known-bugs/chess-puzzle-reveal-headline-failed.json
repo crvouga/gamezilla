@@ -1,0 +1,4 @@
+{
+  "summary": "Revealing the f3-e5 lesson retained a Failed headline and failure badge.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-phone-layout.test.tsx"
+}
