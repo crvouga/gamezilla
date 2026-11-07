@@ -6,6 +6,7 @@ import {
 export type QueryBatchItem = {
   readonly name: string;
   readonly params: unknown;
+  readonly supportsRetryableErrors?: boolean;
   readonly lastHash?: string;
   readonly checkpoint?: string;
 };
@@ -54,6 +55,9 @@ function parseQueryItem(value: unknown): QueryBatchItem | null {
   if (!checkpoint.ok) return null;
   const item: QueryBatchItem = {
     name,
+    ...(value['supportsRetryableErrors'] === true
+      ? { supportsRetryableErrors: true }
+      : {}),
     params: value['params'] === undefined ? {} : value['params'],
     ...(lastHash.value !== undefined ? { lastHash: lastHash.value } : {}),
     ...(checkpoint.value !== undefined ? { checkpoint: checkpoint.value } : {}),

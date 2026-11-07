@@ -97,8 +97,15 @@ Every routed screen and distinct full-screen state is split in two, and the
 
 `bun storybook:coverage` requires a story and source JSDoc for every exported
 `*ScreenView`; other `libs/` exports are inventoried for discovery only.
-Screen stories get phone and desktop baselines, like templates. When adding a
-story-owning `libs/` package, name it in the brace lists of this package's and
+Screen stories get phone and desktop baselines, like templates. Other component
+stories opt into that same two-theme responsive matrix with the story-level
+`tags: ['viewport-responsive']`; use it when a component's layout or interaction
+needs both phone and desktop evidence. The shared `visualScenarios` function
+owns the browser cases and coverage inventory, so explicit regression captures
+must use the same matrix. `viewport-desktop` filters out viewports below the
+production desktop boundary; combining the tags captures only desktop. Keep
+these tags on individual states unless every state needs that coverage.
+When adding a story-owning `libs/` package, name it in the brace lists of this package's and
 `ui-codegen-server-ts`'s `turbo.json`, like `pkgs/` owners.
 
 For each changed surface, choose meaningful states from its contract: loading,

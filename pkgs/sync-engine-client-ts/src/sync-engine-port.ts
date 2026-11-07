@@ -1,3 +1,4 @@
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/define-query';
 /**
  * Interface describing the sync engine client.
  */
@@ -90,7 +91,10 @@ export type SyncEngine = {
   /** Starts a parameterized API query subscription. */
   readonly subscribeQuery: (
     queryName: string,
-    parameters: Readonly<Record<string, unknown>>
+    parameters: Readonly<Record<string, unknown>>,
+    options?: {
+      readonly onQueryNotice?: (notice: QueryRetryNotice | null) => void;
+    }
   ) => QuerySubscription;
   /**
    * Subscribe many parameterized queries for an effect lifetime.

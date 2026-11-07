@@ -952,6 +952,11 @@ msgstr "Accepting…"
 msgid "Account"
 msgstr "Account"
 
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
+msgid "Account deleted"
+msgstr "Account deleted"
+
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "account deletion"
 msgstr "account deletion"
@@ -1425,6 +1430,14 @@ msgstr "Block"
 #: libs/friends-client-ts/src/friend-user-danger-modals.tsx
 msgid "Block this user?"
 msgstr "Block this user?"
+
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Blocking ends any friendship or friend request between you. They won't be able to find you or send you friend requests. You can unblock them from their profile later."
+msgstr "Blocking ends any friendship or friend request between you. They won't be able to find you or send you friend requests. You can unblock them from their profile later."
+
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Blocking user…"
+msgstr "Blocking user…"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Blue"
@@ -3278,6 +3291,10 @@ msgstr "Free plan"
 msgid "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Friend removed"
+msgstr "Friend removed"
+
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Friend request"
 msgstr "Friend request"
@@ -4713,14 +4730,10 @@ msgstr "No passing this deal."
 msgid "No pawn move or wall is legal. Pass your turn."
 msgstr "No pawn move or wall is legal. Pass your turn."
 
+#: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "No people found"
 msgstr "No people found"
-
-#. placeholder {0}: props.query
-#: libs/search-client-ts/src/search-screen-view.tsx
-msgid "No people found for “{0}”"
-msgstr "No people found for “{0}”"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "No published puzzles loaded"
@@ -5585,6 +5598,7 @@ msgid "Profile"
 msgstr "Profile"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
 msgid "Profile unavailable"
 msgstr "Profile unavailable"
 
@@ -6141,6 +6155,10 @@ msgstr "Removes your account for good; you confirm first"
 msgid "Removing a method stops it signing in to this account. You can connect it again later."
 msgstr "Removing a method stops it signing in to this account. You can connect it again later."
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Removing friend…"
+msgstr "Removing friend…"
+
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Removing…"
@@ -6305,6 +6323,10 @@ msgstr "Return to editing"
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Return to editing to add a published puzzle or create a new draft."
 msgstr "Return to editing to add a published puzzle or create a new draft."
+
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "Return to Friends"
+msgstr "Return to Friends"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
@@ -7968,10 +7990,6 @@ msgstr "They will be removed from your friends list."
 msgid "They will leave this space. They can choose to join again through the space link."
 msgstr "They will leave this space. They can choose to join again through the space link."
 
-#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
-msgid "They won't be able to send you friend requests."
-msgstr "They won't be able to send you friend requests."
-
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 msgid "This account already has a membership, so nothing was charged. Looking for it now."
 msgstr "This account already has a membership, so nothing was charged. Looking for it now."
@@ -7983,6 +8001,10 @@ msgstr "This account already has a sign-in method from that provider. Remove it 
 #: libs/account-privacy-client-ts/src/use-account-deletion.tsx
 msgid "This account was already deleted. Sign in again to start a new account."
 msgstr "This account was already deleted. Sign in again to start a new account."
+
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "This account was deleted."
+msgstr "This account was deleted."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This attempt"
@@ -8146,8 +8168,8 @@ msgid "This profile could not be loaded"
 msgstr "This profile could not be loaded"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
-msgid "This profile is no longer available because the account was deleted."
-msgstr "This profile is no longer available because the account was deleted."
+msgid "This profile is no longer available."
+msgstr "This profile is no longer available."
 
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "This publication is withdrawn. You can continue saved attempts from your library."
@@ -8310,6 +8332,10 @@ msgstr "to play"
 #: libs/notifications-client-ts/src/use-notifications.tsx
 msgid "Today"
 msgstr "Today"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Too many searches. Please wait a minute; this search will retry automatically."
+msgstr "Too many searches. Please wait a minute; this search will retry automatically."
 
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Tool"
@@ -8594,6 +8620,10 @@ msgstr "Use system theme"
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
+
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "User blocked"
+msgstr "User blocked"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
