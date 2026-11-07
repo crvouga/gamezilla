@@ -216,3 +216,31 @@ Eight result-screen comparisons exposed older goldens. The critic inspected
 each current capture against its golden and approved both result states in
 both themes at phone and desktop widths. Only those eight were replaced;
 all eight then passed without snapshot updates. Ratings remain 10/9/9/10.
+
+## Round fourteen spectator move refusals
+
+Full verification next found a Quoridor harness action clicking a player-only
+tool on a spectator's read-only board. Pawn and wall actions now check whether
+their mode selector is visible before using it. Missing tools reach the
+existing acknowledged product-command path, so the product still decides and
+reports the refusal. No game rule or scenario assertion changes.
+
+The seed-one reproduction pins Eve's e2 pawn attempt and d2 horizontal wall
+attempt, requiring the non-player denial and unchanged game state after each.
+The package test command now loads the shared product-harness preload needed
+by this integration test. With that setup in place, the new test reproduced
+the missing-selector failure before the action correction.
+
+The broader suite then exposed a visible-but-disabled wall tool at zero
+inventory. A second seed-one regression reproduced the missing explanation
+(only generic move guidance was shown). The board now uses its existing
+no-walls explanation with a next action, preserving finished, spectator and
+mandatory-pass messages. Disabled wall attempts follow the acknowledged
+refusal path. The new NoWallsLeft story asserts disabled wall selectors,
+an enabled pawn selector and the recovery text.
+
+All 58 Quoridor scenarios and 20 package tests, both packages' lint and
+typechecks, goals and localization pass. Coverage reports zero violations.
+The critic approved all eight new/existing spectator and no-walls captures
+across themes and widths; eight comparisons then passed without snapshot
+updates. Scores remain 10/9/9/10 pending the full gate.
