@@ -58,7 +58,8 @@ export const ChooseReviseAndPass: Story = {
       await userEvent.tab();
       await expect(canvas.getByTestId('custom-game-board-pass')).toHaveFocus();
       await userEvent.keyboard('{Enter}');
-      await expect(args.onAction).toHaveBeenCalledExactlyOnceWith('2C3CAC');
+      await expect(args.onAction).toHaveBeenCalledTimes(1);
+      await expect(args.onAction).toHaveBeenCalledWith('2C3CAC');
       await expect(
         canvas.getByTestId('custom-game-board-pass')
       ).toHaveAttribute('aria-busy', 'true');

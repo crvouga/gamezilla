@@ -10,7 +10,7 @@ type MeasuredWindow = Window & { heartsSamples: Samples };
 export async function startHeartsMetrics(page: Page) {
   await page.evaluate(() => {
     const samples: Samples = { inputs: [], longTasks: [] };
-    (window as MeasuredWindow).heartsSamples = samples;
+    (window as unknown as MeasuredWindow).heartsSamples = samples;
     const observer = new PerformanceObserver((entries) => {
       for (const entry of entries.getEntries())
         samples.longTasks.push({
@@ -48,7 +48,7 @@ export async function saveHeartsMetrics(
       )
   );
   const samples = await page.evaluate(
-    () => (window as MeasuredWindow).heartsSamples
+    () => (window as unknown as MeasuredWindow).heartsSamples
   );
   expect(samples.inputs.length).toBeGreaterThan(0);
   const sorted = samples.inputs
