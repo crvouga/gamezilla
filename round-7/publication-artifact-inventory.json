@@ -1,0 +1,87 @@
+[
+  {
+    "path": "ARTIFACT_INDEX.md",
+    "bytes": 1120,
+    "sha256": "a3a5ab7e37a3a58cc5e55bec1860041888d5241a57c13e0fc4945d630bf9dab6"
+  },
+  {
+    "path": "HANDOFF.md",
+    "bytes": 6799,
+    "sha256": "5d263ccf9a4aeaff3f821bbe13bd1d7ddad7cadd8c391432d4ce038f89f01b30"
+  },
+  {
+    "path": "artifact-inventory.json",
+    "bytes": 3116117,
+    "sha256": "a90afdae34ae9b1a4993a6fb347efed99415f831d6bf053f7cd8f5266179c961"
+  },
+  {
+    "path": "cleanup-receipt.json",
+    "bytes": 284,
+    "sha256": "325f12d7a4247279d0f2c7ba8f15c5f897ac709d59b6721967ee404da5646bc7"
+  },
+  {
+    "path": "comment-payload-1.json",
+    "bytes": 30328,
+    "sha256": "4d063a5834b0ef4345ded4e9f3e5311fda7cf82da77e1158aa904c64d0c125dd"
+  },
+  {
+    "path": "comment-payload-2.json",
+    "bytes": 37897,
+    "sha256": "23ea74e0178444f55da5ebf971a5a58d90156ac8bd0d454d5f3afe8772521c95"
+  },
+  {
+    "path": "comment-payload-3.json",
+    "bytes": 3300,
+    "sha256": "0712d052ad1e275d4ffdeee7de08e759796249d769c40e8344527eb99385117b"
+  },
+  {
+    "path": "comment-receipt-1.json",
+    "bytes": 32146,
+    "sha256": "a8c8044d3c6ac9e6100676e98a9dbd05847338ff3a26e07cd49e1c113e27058d"
+  },
+  {
+    "path": "comment-receipt-2.json",
+    "bytes": 39715,
+    "sha256": "cfc66d48d7a795b67652007844dbdab783382ff0f6e5c3336c12eaee85f7d48c"
+  },
+  {
+    "path": "comment-receipt-3.json",
+    "bytes": 5118,
+    "sha256": "7b6264985d1fc9f65eeb59aee33817035ccd825e2c06885e34343e72f82fa890"
+  },
+  {
+    "path": "manifest.json",
+    "bytes": 2765691,
+    "sha256": "0f805f1fea00710650be2a663b9d34324556ae72ee8a2bc69a62063e44638ee8"
+  },
+  {
+    "path": "media-comment-1.md",
+    "bytes": 29897,
+    "sha256": "95c402a6a9a031842c6dd9d02399567d5a36791521bbf1a9e9806e473789740b"
+  },
+  {
+    "path": "media-comment-2.md",
+    "bytes": 37378,
+    "sha256": "b47f0697037d5cf0d78d76fa704c783235dab511344469bde04fe1fede3160a7"
+  },
+  {
+    "path": "media-comment-3.md",
+    "bytes": 3244,
+    "sha256": "93b40329c6496b9dd3e6424ad271fcc043afe0fb637d257ac49867a3aa0a2fab"
+  },
+  {
+    "path": "media-commit.txt",
+    "bytes": 41,
+    "sha256": "1354cd4276608811d2c267bf832816f7b617a0f1c38b508ce7c1d019f54adbd2"
+  },
+  {
+    "path": "publication-verification.json",
+    "bytes": 1992,
+    "sha256": "e464944617c5b0cbff186b6b97e53e3a22e7ca57364ec1f5c5abb2b283de2b63"
+  },
+  {
+    "path": "publication.json",
+    "bytes": 733,
+    "sha256": "c1520ac84534878f8d27b7c115858cba199e21ad7947fcf2a03105d209813547"
+  }
+]

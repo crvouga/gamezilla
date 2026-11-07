@@ -1,0 +1,48 @@
+{
+  "source": {
+    "headRefOid": "b606946642616ea53bbf11e8b4fb23e08fb55c5f",
+    "isDraft": true,
+    "state": "OPEN"
+  },
+  "mediaSha": "f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d",
+  "checks": [
+    {
+      "comment": "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414273",
+      "exactBodyMatches": true
+    },
+    {
+      "comment": "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414461",
+      "exactBodyMatches": true
+    },
+    {
+      "comment": "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414688",
+      "exactBodyMatches": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/manifest.json",
+      "bytes": 2765691,
+      "sha256": "0f805f1fea00710650be2a663b9d34324556ae72ee8a2bc69a62063e44638ee8",
+      "matches": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/after/screens-games-word-tiles-board--assign-a-blank--phone--light.png",
+      "bytes": 65958,
+      "sha256": "f3b05f9b0d35b95cf70735d16d6bcc14dc0234c67fd95c1406cc4d0462ff5c93",
+      "matches": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/journeys/recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.gif",
+      "bytes": 958045,
+      "sha256": "8ca502676a8394472173fed91fe774526c9e465fff99bf485a101eebdefa1019",
+      "matches": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/crvouga/gamezilla/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/journeys/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",
+      "bytes": 344499,
+      "sha256": "62b88feb9bc83484dbc38c44f3d5427d501f9e36b304d46c4f089571b62423ed",
+      "matches": true
+    }
+  ],
+  "reviews": "two new independent parent reviews pending",
+  "referencesAccepted": false
+}

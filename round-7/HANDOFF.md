@@ -1,6 +1,6 @@
 # Round-seven integrated evidence handoff
 
-Source: `b606946642616ea53bbf11e8b4fb23e08fb55c5f`. Media: `This immutable media commit; exact SHA added in the publication receipt commit.`. Evidence code: `46d72c8321c65c53`.
+Source: `b606946642616ea53bbf11e8b4fb23e08fb55c5f`. Media: `f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d`. Evidence code: `46d72c8321c65c53`.
 
 No scores or acceptance assigned. Two NEW independent reviews remain parent-owned. No manual QA, subagents, merge, PR watch or reference acceptance.
 
@@ -30,8 +30,15 @@ The classifier audit corrected earlier axe failures mislabeled as pixel-only due
 
 Two new independent parent reviews, reference acceptance decision, and any outstanding hosted/canonical outcomes remain separate gates. The known outside-board troubleshooting chart ownership failure remains. On superseded head 4e6fa4c19, hosted Quoridor Hill party/health stalled after a refused move; the preserved diagnosis distinguishes move progression from record visibility and documents unchanged round-six ownership. See interactions/outside-scope/QUORIDOR_HILL_HOSTED_DIAGNOSIS.md; exact attempted action and rebase order remain unknown. Numberlink republication was not rerun without a repair; the round-six diagnosis is retained under interactions/outside-scope. Board fixtures establish no live persistence, transport, full-match, lexicon-service or app-update recovery claim.
 
+All 9967 recorded assertion checkpoints finished without a failed checkpoint. Cleanup receipt confirms clean source/media checkouts before the receipt-only commit and no remaining owned capture/native processes.
+
 ## Publication receipts
 
-Publication receipt is written after this media commit is pushed; no unpublished URL is claimed as live.
+[Manifest](https://github.com/crvouga/gamezilla/blob/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/manifest.json) · [Gallery](https://github.com/crvouga/gamezilla/blob/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/GALLERY.md)
+https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414273
+https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414461
+https://github.com/crvouga/gamezilla/pull/280#issuecomment-6701414688
+
+publication-verification.json verifies exact comment bodies and pinned PNG/GIF/WebM bytes. publication-artifact-inventory.json indexes the receipt supplement; the original immutable manifest and media remain unchanged.
 
 PR https://github.com/crvouga/gamezilla/pull/280, head b606946642616ea53bbf11e8b4fb23e08fb55c5f, checks and reviews verify:start: SUCCESS; verify:shards (0): SUCCESS; verify:shards (1): SUCCESS; verify:shards (2): SUCCESS; verify:shards (3): SUCCESS; verify:shards (4): SUCCESS; verify:shards (5): SUCCESS; verify:shards (6): SUCCESS; verify:end: SUCCESS; GitGuardian Security Checks: SUCCESS; two NEW independent reviews parent-owned.
