@@ -253,7 +253,9 @@ cache inputs; the current discovery includes only the Start here guide.
 ## Browser checks and baselines
 
 `bun storybook:test` starts a test-owned static server on 6007 and stops it at the
-end. Playwright visits real stories in both themes with local fonts, fixed locale,
+end. Concurrent checkouts set `STORYBOOK_TEST_PORT` to distinct ports; the server
+and browser use that port together, independently of the development server's
+`STORYBOOK_PORT`. Playwright visits real stories in both themes with local fonts, fixed locale,
 time zone, scale factor and viewport. External requests are blocked. Rendering
 errors and serious/critical axe violations fail. Screenshot comparisons never
 update baselines implicitly. Install the existing pinned renderer with `mise install http:chrome-for-testing`.
