@@ -124,8 +124,8 @@ test('an occupied endpoint placement leaves the draft and the chosen endpoint un
   expect(f.definition()).toBe(initial);
   expect(
     f.view
-      .getByRole('button', { name: 'Move first endpoint' })
-      .getAttribute('aria-pressed')
+      .getByRole('radio', { name: 'First endpoint' })
+      .getAttribute('aria-checked')
   ).toBe('true');
   fireEvent.click(f.view.getByRole('button', { name: 'B1: empty' }));
   expect(f.board().pairs[0]?.endpoints[0]).toEqual({ x: 1, y: 0 });
@@ -141,5 +141,28 @@ test('endpoint removal keeps the confirmed identity when incoming content change
   );
   fireEvent.click(f.view.getByRole('button', { name: 'Remove endpoints' }));
   expect(f.board().pairs.map((pair) => pair.id)).toEqual(['pair-2', 'pair-3']);
+  f.view.unmount();
+});
+
+// regression: numberlink-endpoint-controls-clipped
+test('endpoint picker preserves its handles, changes only the chosen endpoint and advances selection', () => {
+  const f = editorFixture();
+  const first = f.view.getByTestId('numberlink-move-first');
+  const second = f.view.getByTestId('numberlink-move-second');
+  expect(first.getAttribute('role')).toBe('radio');
+  fireEvent.click(second);
+  expect(second.getAttribute('aria-checked')).toBe('true');
+  fireEvent.click(f.view.getByRole('button', { name: 'B1: empty' }));
+  expect(f.board().pairs[0]?.endpoints).toEqual([
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+  ]);
+  expect(f.changes).toHaveLength(1);
+  expect(first.getAttribute('aria-checked')).toBe('true');
+  first.focus();
+  fireEvent.keyDown(first, { key: 'ArrowRight' });
+  expect(document.activeElement).toBe(second);
+  expect(second.getAttribute('aria-checked')).toBe('true');
+  expect(f.changes).toHaveLength(1);
   f.view.unmount();
 });

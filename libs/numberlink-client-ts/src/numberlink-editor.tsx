@@ -7,6 +7,7 @@ import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
+import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -59,22 +60,46 @@ function PairTools(props: {
           props.editor.editPair({ ...props.pair, color })
         }
       />
-      <StackHorizontal gap="sm">
-        <Button
-          title={t`Move first endpoint`}
-          dataSet={{ testid: 'numberlink-move-first' }}
-          aria-pressed={props.editor.endpoint() === 0}
+    </StackVertical>
+  );
+}
+
+/** Pair and endpoint are chosen at the board; the pair's settings stay in tools. */
+function PairPlacement(props: {
+  editor: Editor;
+  disabled: boolean;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackVertical gap="sm" testId="numberlink-placement">
+      <Select
+        label={t`Pair`}
+        value={props.editor.selected()}
+        options={(props.editor.board()?.pairs ?? []).map((pair) => ({
+          value: pair.id,
+          label: pair.label,
+        }))}
+        disabled={props.disabled}
+        onValueChange={props.editor.setSelected}
+      />
+      <Show when={props.editor.pair()}>
+        <P variant="label">
+          <Trans>Endpoint to move</Trans>
+        </P>
+        <SegmentedControl
+          aria-label={t`Endpoint to move`}
+          dataSet={{ testid: 'numberlink-move' }}
+          segments={[
+            { key: 'first' as const, label: t`First endpoint` },
+            { key: 'second' as const, label: t`Second endpoint` },
+          ]}
+          selected={props.editor.endpoint() === 0 ? 'first' : 'second'}
+          onSelect={(endpoint) =>
+            props.editor.setEndpoint(endpoint === 'first' ? 0 : 1)
+          }
           disabled={props.disabled}
-          onClick={() => props.editor.setEndpoint(0)}
         />
-        <Button
-          title={t`Move second endpoint`}
-          dataSet={{ testid: 'numberlink-move-second' }}
-          aria-pressed={props.editor.endpoint() === 1}
-          disabled={props.disabled}
-          onClick={() => props.editor.setEndpoint(1)}
-        />
-      </StackHorizontal>
+      </Show>
     </StackVertical>
   );
 }
@@ -88,7 +113,7 @@ function RemoveEndpoints(props: {
   >(null);
   return (
     <>
-      <StackHorizontal gap="sm">
+      <StackHorizontal gap="sm" wrap>
         <Button
           title={<Trans>Remove pair</Trans>}
           disabled={props.disabled || props.editor.pair() === undefined}
@@ -165,12 +190,15 @@ export function NumberlinkEditorView(
       }
     >
       {(board) => (
-        // The board leads, its tools beside it when there is room; on a
-        // phone its size and coverage, changed rarely, follow it.
+        // Frequent placement choices lead the board. Pair details, size
+        // and coverage stay beside it, or follow it on a phone.
         <EditorWorkbench
           narrowOrder="canvas-first"
           canvas={
             <>
+              <Show when={board().pairs.length > 0}>
+                <PairPlacement editor={editor} disabled={props.disabled} />
+              </Show>
               <NumberlinkBoard
                 definition={board()}
                 state={{ paths: [] }}
@@ -190,18 +218,6 @@ export function NumberlinkEditorView(
           }
           tools={
             <>
-              <Show when={board().pairs.length > 0}>
-                <Select
-                  label={t`Pair`}
-                  value={editor.selected()}
-                  options={board().pairs.map((pair) => ({
-                    value: pair.id,
-                    label: pair.label,
-                  }))}
-                  disabled={props.disabled}
-                  onValueChange={editor.setSelected}
-                />
-              </Show>
               <Show when={editor.pair()}>
                 {(pair) => (
                   <PairTools

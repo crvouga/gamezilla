@@ -33,7 +33,10 @@ test.each([false, true])(
       snapshotHtml: unused,
       get: (id): DriverNode => ({
         get: unused,
-        attribute: unused,
+        attribute: async (name) =>
+          id === Handles.statusCurrentUser && name === 'aria-expanded'
+            ? String(menu)
+            : null,
         tapAt: unused,
         drag: unused,
         layout: unused,

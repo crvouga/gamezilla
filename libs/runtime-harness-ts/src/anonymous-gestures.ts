@@ -30,13 +30,16 @@ export async function startGoogleSignIn(ui: Driver): Promise<void> {
   await tap(ui, Handles.authMethodGoogle);
 }
 
-function googleAuthorizationUrl(url: string): URL | null {
+function googleAuthorizationUrl(
+  url: string,
+  expectedOrigin: string
+): URL | null {
   try {
     let parsed = new URL(url);
     // Google can replace the authorization endpoint with its account chooser.
     // That page carries the original request directly or in `continue`.
     for (let hop = 0; hop < 4; hop += 1) {
-      if (parsed.hostname !== 'accounts.google.com') return null;
+      if (parsed.origin !== expectedOrigin) return null;
       if (parsed.searchParams.has('redirect_uri')) return parsed;
       const next = parsed.searchParams.get('continue');
       if (next === null) return null;
@@ -50,14 +53,16 @@ function googleAuthorizationUrl(url: string): URL | null {
 
 /**
  * The current tab hands the person to Google with our callback. It stops at
- * Google's door: a real Google account cannot be scripted.
+ * the configured provider's door; signing in with an external account is not needed.
  */
 export async function expectGoogleHandOff(
   browser: JourneyBrowser
 ): Promise<void> {
-  const authorize = googleAuthorizationUrl(
+  const parse = (url: string) =>
+    googleAuthorizationUrl(url, browser.googleAuthorizationOrigin);
+  const authorize = parse(
     await browser.waitForNavigation(
-      (url) => googleAuthorizationUrl(url) !== null,
+      (url) => parse(url) !== null,
       JOURNEY_WAIT_MS
     )
   );

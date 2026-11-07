@@ -4,6 +4,7 @@ import type { AudioPlayerStatus } from '@pkgs/sounds-shared-ts/ports';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { ExecuteSqlStatements } from '@pkgs/sql-client-root-shared-ts/statements';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import type { BrowserNavigation } from './browser-navigation';
 import type { ActorCheckpointPort } from './client-checkpoint';
 import type { Harness } from './create-harness';
 import type { ProductExtra } from './ports';
@@ -18,6 +19,8 @@ export type HarnessDevice = {
 };
 
 export type HarnessActor = {
+  /** Native document URL capability; absent in the in-process DOM host. */
+  readonly browser?: BrowserNavigation;
   readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;
   readonly id: string;

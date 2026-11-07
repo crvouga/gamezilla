@@ -1,0 +1,4 @@
+{
+  "summary": "Compact Word Tiles boards hid tile values without a visual way to inspect them, including zero-point blanks played as letters.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}

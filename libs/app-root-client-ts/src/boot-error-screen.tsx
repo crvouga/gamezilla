@@ -42,27 +42,26 @@ export function LocalDatabaseBootErrorScreen(props: {
   const log = useLogger('local-database-boot');
   const kind = (): LocalDatabaseBootErrorKind => bootErrorKind(props.error);
 
-  const onRetry = (): void => {
-    if (kind() !== 'otherTab') {
-      reloadApp();
-      return;
-    }
-    void runWebOpfsRecoveryAndReload({
-      timers,
-      wipeChannel: OPFS_WIPE_CHANNEL,
-    }).catch((wipeError: unknown) => {
-      log.error('local wipe failed', {
-        error:
-          wipeError instanceof Error ? wipeError.message : String(wipeError),
+  const onReset = async (): Promise<void> => {
+    try {
+      await runWebOpfsRecoveryAndReload({
+        timers,
+        wipeChannel: OPFS_WIPE_CHANNEL,
       });
-    });
+    } catch (error) {
+      log.error('local wipe failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
   };
 
   return (
     <LocalDatabaseBootErrorScreenView
       kind={kind()}
       message={props.error.message}
-      onRetry={onRetry}
+      onReload={reloadApp}
+      onReset={onReset}
     />
   );
 }

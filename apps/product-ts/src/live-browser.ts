@@ -1,3 +1,4 @@
+import { createBrowserNavigation } from '@libs/harness-ts/browser-navigation';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 // @io-wall-ok — live health: a real browser drives the deployed web client.
 /**
@@ -20,7 +21,6 @@ import {
   nativeHealthEvidence,
 } from './browser-network-evidence';
 
-const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
 const CHROME_BACKEND = { type: 'chrome', url: false } as const;
@@ -30,6 +30,7 @@ export const EVIDENCE_DIR =
   join(import.meta.dir, '../.cache/critical-journeys');
 
 export type LiveTarget = {
+  readonly googleAuthorizationOrigin: string;
   readonly webOrigin: string;
   readonly apiOrigin: string;
   /** The OAuth callback relay's origin (`authRelayOrigin`). */
@@ -105,12 +106,6 @@ export async function openDevice(
   };
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    wallTimers.setTimeout(resolve, ms);
-  });
-}
-
 export async function readLocation(
   view: Pick<Bun.WebView, 'evaluate'>
 ): Promise<string> {
@@ -156,25 +151,13 @@ export function journeyBrowser(
   target: LiveTarget
 ): JourneyBrowser {
   return {
+    googleAuthorizationOrigin: target.googleAuthorizationOrigin,
     oauthCallbackOrigin: target.oauthCallbackOrigin,
-    waitForNavigation: async (match, timeoutMs) => {
-      const deadline = wallClock.now() + timeoutMs;
-      let lastUrl = '';
-      for (;;) {
-        try {
-          lastUrl = await readLocation(device.view);
-          if (match(lastUrl)) return lastUrl;
-        } catch {
-          // A document replacement can briefly make evaluation unavailable.
-        }
-        if (wallClock.now() >= deadline) {
-          throw new Error(
-            `no matching navigation within ${String(timeoutMs)}ms (current URL: ${lastUrl})`
-          );
-        }
-        await delay(NAVIGATION_POLL_MS);
-      }
-    },
+    ...createBrowserNavigation({
+      readUrl: () => readLocation(device.view),
+      clock: wallClock,
+      timers: wallTimers,
+    }),
   };
 }
 

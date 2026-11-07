@@ -97,8 +97,8 @@ function Swatch(props: {
  * over the tool's name. One tool is chosen at a time (`role="radiogroup"`):
  * the chosen tile takes the selection tint and edge, as a segmented
  * control's chosen segment does. Tiles sit four to a row, each a swatch
- * over its name on one line, at every width, so no tool is a bare icon to
- * tell apart from its neighbours and every tile is the same height;
+ * over its full name, wrapping at narrow widths, so no tool is a bare icon
+ * to tell apart from its neighbours; equal grid rows keep every tile the same height;
  * narrower than 400px (a phone) the swatches are smaller.
  * Keyboard: one tab stop; the arrow keys choose the next or previous
  * tool, wrapping.

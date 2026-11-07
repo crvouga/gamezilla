@@ -54,6 +54,8 @@ function QuoridorBoardView(
       return t`Game finished. Use the game controls to review earlier moves.`;
     if (!props.interactive)
       return t`This board is read-only. Follow the game or review earlier moves.`;
+    if (quoridorMustPass(game()))
+      return t`No pawn move or wall is legal. Choose Pass turn.`;
     const action = previewAction();
     return action === null
       ? props.state.refusal()
@@ -114,7 +116,10 @@ export function createQuoridorBoard(
     TOOLS.map((each) => ({
       id: `mode-${each}`,
       label: toolLabel(each),
-      enabled: live(),
+      enabled:
+        live() &&
+        !quoridorMustPass(game()) &&
+        (each === 'move' || (game().remaining[game().turn] ?? 0) > 0),
       pressed: tool() === each,
       run: () => {
         setTool(each);
@@ -123,14 +128,16 @@ export function createQuoridorBoard(
     }));
   const pass = (): GameFrameAction => ({
     id: 'action-pass',
-    label: t`No legal move or wall — pass turn`,
-    enabled: props.interactive,
+    label: t`Pass turn`,
+    placement: 'before-board',
+    emphasis: 'primary',
+    enabled: live(),
     run: () => props.onAction('pass'),
   });
   return {
     Board: () => <QuoridorBoardView {...props} state={state} />,
     actions: () =>
-      quoridorMustPass(game()) ? [...toolActions(), pass()] : toolActions(),
+      quoridorMustPass(game()) ? [pass(), ...toolActions()] : toolActions(),
   };
 }
 

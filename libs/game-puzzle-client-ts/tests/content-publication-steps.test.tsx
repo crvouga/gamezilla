@@ -7,12 +7,13 @@ import {
   ContentPublicationControlsView,
   type ContentPublicationControlsViewProps,
 } from '@libs/game-puzzle-client-ts/content-publication-controls-view';
+import type { ContentPublicationCopyState } from '@libs/game-puzzle-client-ts/content-publication-copy-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import { cleanup, fireEvent, screen, waitFor } from '@solidjs/testing-library';
+import { createSignal, type JSX } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -39,6 +40,7 @@ function publication(
 ): JSX.Element {
   return (
     <ContentPublicationControlsView
+      copyState={{ kind: 'draft' }}
       layout="bar"
       kind="puzzle"
       validation="unchecked"
@@ -306,3 +308,160 @@ test('wide, publishing is the last step, after the stage, its lead inside it', (
     document.querySelector('[data-component="ScreenIntroActions"]')
   ).toBeNull();
 });
+
+// regression: publication-current-copy-status-ambiguous
+// State inputs match the existing PublishPending/Published fixtures.
+test('pending becomes an edition then an edited draft without duplicate publication leads', () => {
+  const [state, setState] = createSignal<ContentPublicationCopyState>({
+    kind: 'pending',
+    connection: 'online',
+  });
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      published: true,
+      get copyState() {
+        return state();
+      },
+      get pending() {
+        return state().kind === 'pending' ? 'online' : null;
+      },
+    })
+  );
+  expect(screen.getByTestId('content-publish')).toHaveTextContent('Send again');
+  expect(screen.getAllByTestId('content-publication-status')).toHaveLength(1);
+  expect(
+    screen.getAllByText('Awaiting confirmation', { exact: true })
+  ).toHaveLength(1);
+  expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
+    'Awaiting confirmation'
+  );
+  expect(
+    screen.queryByText('Ready: publish to share it with everyone who plays.')
+  ).toBeNull();
+  setState({ kind: 'edition', current: true });
+  expect(screen.getByTestId('content-publish')).toHaveTextContent('Send again');
+  expect(screen.getAllByTestId('content-view-publication')).toHaveLength(1);
+  expect(screen.getAllByTestId('content-publication-status')).toHaveLength(1);
+  expect(screen.getAllByText('Published', { exact: true })).toHaveLength(1);
+  expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
+    'Published'
+  );
+  setState({ kind: 'draft' });
+  expect(screen.getByTestId('content-publish')).toHaveTextContent('Publish');
+  expect(screen.getAllByTestId('content-view-publication')).toHaveLength(1);
+});
+
+test('a newer draft keeps Publish while an earlier publication waits', () => {
+  // regression: publication-current-copy-status-ambiguous
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      copyState: { kind: 'draft' },
+      pending: 'offline',
+      published: true,
+    })
+  );
+  expect(screen.getByTestId('content-publish')).toHaveTextContent('Publish');
+  expect(screen.getByTestId('content-publish')).toBeEnabled();
+  expect(screen.getByTestId('content-publication-pending')).toHaveTextContent(
+    'waits for your connection'
+  );
+  expect(screen.getByTestId('content-view-publication')).toBeInTheDocument();
+});
+
+test('receipt hydration is explicit and does not announce optimistic publication as complete', () => {
+  // regression: publication-current-copy-status-ambiguous
+  const [state, setState] = createSignal<ContentPublicationCopyState>({
+    kind: 'reading',
+  });
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      get copyState() {
+        return state();
+      },
+    })
+  );
+  expect(screen.getByTestId('content-publish')).toBeDisabled();
+  expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
+    'Checking publication'
+  );
+  setState({ kind: 'pending', connection: 'offline' });
+  expect(screen.getByTestId('content-publish')).toBeEnabled();
+  expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
+    'Waiting for connection'
+  );
+});
+
+test('repeating a waiting publication still invokes the existing operation once', async () => {
+  let calls = 0;
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      pending: 'offline',
+      copyState: { kind: 'pending', connection: 'offline' },
+      onPublish: async () => {
+        calls += 1;
+      },
+    })
+  );
+  expect(calls).toBe(0);
+  fireEvent.click(screen.getByTestId('content-publish'));
+  await waitFor(() => expect(calls).toBe(1));
+});
+
+test('a refused publication retains the retry callback and refusal explanation', async () => {
+  let calls = 0;
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      copyState: { kind: 'draft' },
+      refusal: <span>Earlier publication was refused.</span>,
+      onPublish: async () => {
+        calls += 1;
+        if (calls === 1) throw new Error('The pack puzzle is unavailable.');
+      },
+    })
+  );
+  fireEvent.click(screen.getByTestId('content-publish'));
+  await waitFor(() =>
+    expect(screen.getByTestId('content-publish')).toHaveTextContent(
+      'Try publishing again'
+    )
+  );
+  expect(
+    screen.getByText('Earlier publication was refused.')
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByTestId('content-publish'));
+  await waitFor(() => expect(calls).toBe(2));
+});
+
+for (const current of [true, false]) {
+  test(`an unchanged edition keeps the idempotent repeat action, current=${current}`, async () => {
+    let calls = 0;
+    mount(() =>
+      publication({
+        validation: 'valid',
+        proven: true,
+        published: true,
+        copyState: { kind: 'edition', current },
+        onPublish: async () => {
+          calls += 1;
+        },
+      })
+    );
+    const repeat = screen.getByTestId('content-publish');
+    expect(repeat).toHaveTextContent('Send again');
+    expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
+      current ? 'Published' : 'Previously published'
+    );
+    fireEvent.click(repeat);
+    await waitFor(() => expect(calls).toBe(1));
+  });
+}

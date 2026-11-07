@@ -369,6 +369,7 @@ export function useLiveWorld(target?: LiveTarget): void {
         target ?? {
           webOrigin: origins.web,
           apiOrigin: origins.api,
+          googleAuthorizationOrigin: 'https://accounts.google.com',
           oauthCallbackOrigin: authRelayOrigin(),
           http,
         },

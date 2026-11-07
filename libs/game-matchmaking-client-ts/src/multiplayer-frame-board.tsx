@@ -18,6 +18,13 @@ export function MultiplayerFrameBoard(props: {
   });
   return (
     <StackVertical gap="sm">
+      <GameActionBar
+        items={frameActionItems(
+          session().actions(),
+          props.board.testId,
+          'before-board'
+        )}
+      />
       <Dynamic component={session().Board} />
       <GameActionBar
         items={frameActionItems(session().actions(), props.board.testId)}

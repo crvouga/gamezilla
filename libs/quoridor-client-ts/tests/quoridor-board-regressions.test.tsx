@@ -188,3 +188,108 @@ test('the tools are the board’s actions, one pressed, and choosing one keeps t
   expect(view.container.textContent).not.toContain('walls');
   view.unmount();
 });
+
+// regression: quoridor-forced-pass-buried
+// Literal MustPass story trace from the frozen baseline.
+const FORCED_PASS = (
+  'e2 a4 e8 i6 e1 b4 e7 i5 e2 c4 f7 i6 a1h d4 f6 i5 ' +
+  'c7h d3 f5 a3h f7h e3 f4 c5h a7v d2v e4 g3h g1h e2v d1h a5v'
+).split(' ');
+
+test('mandatory pass leads the tools and updates when the position changes', () => {
+  // regression: quoridor-forced-pass-buried
+  const [position, setPosition] = createSignal(
+    encodeQuoridor(replayQuoridor('hill', FORCED_PASS))
+  );
+  const [interactive, setInteractive] = createSignal(true);
+  const actions: string[] = [];
+  const { clock, timers } = createHarnessClock();
+  let session: GameFrameBoardSession<JSX.Element> | undefined;
+  const view = render(() => {
+    session = createQuoridorBoard({
+      ...BOARD,
+      get position() {
+        return position();
+      },
+      get interactive() {
+        return interactive();
+      },
+      testId: 'forced-pass',
+      onAction: (action) => {
+        actions.push(action);
+      },
+    });
+    return (
+      <ClockProvider clock={clock} timers={timers}>
+        <ThemeProvider colorScheme="light">{session.Board()}</ThemeProvider>
+      </ClockProvider>
+    );
+  });
+  expect(session!.actions()[0]?.id).toBe('action-pass');
+  expect(
+    session!
+      .actions()
+      .filter((action) => action.enabled)
+      .map((action) => action.id)
+  ).toEqual(['action-pass']);
+  expect(view.getByTestId('forced-pass-wall-status').textContent).toContain(
+    'Choose Pass turn'
+  );
+  expect(quoridorFrame(true).turnStatus(position(), 'white', [])).toBe(
+    'No pawn move or wall is legal. Pass your turn.'
+  );
+  run(session!, 'action-pass');
+  expect(actions).toEqual(['pass']);
+  setInteractive(false);
+  expect(session!.actions().every((action) => !action.enabled)).toBe(true);
+  expect(view.getByTestId('forced-pass-wall-status').textContent).toContain(
+    'read-only'
+  );
+  setPosition(encodeQuoridor(newQuoridor('hill')));
+  setInteractive(true);
+  expect(session!.actions().map((action) => action.id)).toEqual([
+    'mode-move',
+    'mode-h',
+    'mode-v',
+  ]);
+  expect(session!.actions().every((action) => action.enabled)).toBe(true);
+  view.unmount();
+});
+
+test('zero inventory disables both wall tools even when pawn moves remain', () => {
+  // regression: quoridor-zero-wall-tools-enabled
+  // Modeled continuation, not claimed as the observed replay.
+  // Encoding records actions, so changing remaining directly would not survive decode.
+  const game = replayQuoridor('hill', [
+    ...FORCED_PASS.slice(0, 30),
+    'd4',
+    'i4',
+  ]);
+  const { clock, timers } = createHarnessClock();
+  let session: GameFrameBoardSession<JSX.Element> | undefined;
+  const view = render(() => {
+    session = createQuoridorBoard({
+      ...BOARD,
+      position: encodeQuoridor(game),
+      interactive: true,
+      testId: 'zero-walls',
+      onAction: () => undefined,
+    });
+    return (
+      <ClockProvider clock={clock} timers={timers}>
+        <ThemeProvider colorScheme="light">{session.Board()}</ThemeProvider>
+      </ClockProvider>
+    );
+  });
+  expect(game.remaining[game.turn]).toBe(0);
+  expect(
+    session!.actions().find((action) => action.id === 'mode-move')?.enabled
+  ).toBe(true);
+  expect(
+    session!.actions().find((action) => action.id === 'mode-h')?.enabled
+  ).toBe(false);
+  expect(
+    session!.actions().find((action) => action.id === 'mode-v')?.enabled
+  ).toBe(false);
+  view.unmount();
+});

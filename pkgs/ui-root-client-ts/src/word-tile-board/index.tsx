@@ -1,6 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
@@ -64,6 +65,7 @@ function BoardCell(props: {
       onFocus={() => props.onFocusIndex(props.index)}
       onKeyDown={(event) => props.onKey(event, props.index)}
       onClick={() => {
+        props.onFocusIndex(props.index);
         const id = cell()?.id;
         if (id !== undefined && cell()?.enabled === true)
           props.board.onActivate?.(id);
@@ -100,13 +102,24 @@ function range(count: number): readonly number[] {
  * value, a tentative tile dashed and a last-turn tile ringed (each also in
  * its label, so colour never carries a state alone). One cell is the tab
  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
- * activates. It fits its container, shrinking its squares on small screens.
+ * activates. The focused or tapped square's full label stays visible beneath
+ * the board, including values that cannot fit inside compact tiles. Before
+ * interaction, that readout describes the center. It fits its container,
+ * shrinking its squares on small screens.
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [focusIndex, setFocusIndex] = createSignal(112);
+  const [inspectedIndex, setInspectedIndex] = createSignal<number | null>(null);
   // Read once per change: every square reads the list, and a caller that
   // computes it inline would otherwise rebuild it once per square.
   const cells = createMemo(() => props.cells);
+  const inspected = createMemo(
+    () => cells()[inspectedIndex() ?? Math.floor(cells().length / 2)]
+  );
+  const inspect = (index: number): void => {
+    setFocusIndex(index);
+    setInspectedIndex(index);
+  };
   const rows = createMemo(() => range(props.rowLabels.length));
   const columns = createMemo(() => range(props.columnLabels.length));
   let root: HTMLDivElement | undefined;
@@ -121,45 +134,53 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     root?.querySelector<HTMLButtonElement>(`[data-index="${next}"]`)?.focus();
   };
   return (
-    <div
-      ref={root}
-      class={styles['board']}
-      {...dataAttrs({ component: 'WordTileBoard' })}
-      role="group"
-      aria-label={props.label}
-      aria-describedby={props.describedBy}
-      data-testid={props.testId}
-      style={{ '--word-tile-columns': props.columnLabels.length }}
-    >
-      <span class={styles['header']} aria-hidden="true" />
-      <For each={props.columnLabels}>
-        {(label) => (
-          <span class={styles['header']} aria-hidden="true">
-            {label}
-          </span>
-        )}
-      </For>
-      <For each={rows()}>
-        {(row) => (
-          <>
+    <div class={styles['frame']} {...dataAttrs({ component: 'WordTileBoard' })}>
+      <div
+        ref={root}
+        class={styles['board']}
+        role="group"
+        aria-label={props.label}
+        aria-describedby={props.describedBy}
+        data-testid={props.testId}
+        style={{ '--word-tile-columns': props.columnLabels.length }}
+      >
+        <span class={styles['header']} aria-hidden="true" />
+        <For each={props.columnLabels}>
+          {(label) => (
             <span class={styles['header']} aria-hidden="true">
-              {props.rowLabels[row] ?? ''}
+              {label}
             </span>
-            <For each={columns()}>
-              {(column) => (
-                <BoardCell
-                  board={props}
-                  cells={cells}
-                  index={row * columns().length + column}
-                  focusable={focusIndex() === row * columns().length + column}
-                  onFocusIndex={setFocusIndex}
-                  onKey={onKey}
-                />
-              )}
-            </For>
-          </>
+          )}
+        </For>
+        <For each={rows()}>
+          {(row) => (
+            <>
+              <span class={styles['header']} aria-hidden="true">
+                {props.rowLabels[row] ?? ''}
+              </span>
+              <For each={columns()}>
+                {(column) => (
+                  <BoardCell
+                    board={props}
+                    cells={cells}
+                    index={row * columns().length + column}
+                    focusable={focusIndex() === row * columns().length + column}
+                    onFocusIndex={inspect}
+                    onKey={onKey}
+                  />
+                )}
+              </For>
+            </>
+          )}
+        </For>
+      </div>
+      <Show when={inspected()}>
+        {(cell) => (
+          <P variant="caption" testId={`${props.testId}-square-details`}>
+            {cell().label}
+          </P>
         )}
-      </For>
+      </Show>
     </div>
   );
 }

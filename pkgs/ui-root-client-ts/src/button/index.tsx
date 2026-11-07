@@ -82,7 +82,7 @@ function buttonClass(args: {
   return [
     // `hitTarget` grows a short (`sm`) pill to 44px; it needs the button
     // unclipped, so the label row clips its own overflow instead.
-    'hitTarget flex-row items-center justify-center select-none',
+    'hitTarget max-w-full flex-row items-center justify-center select-none',
     args.fullWidth && 'self-stretch w-full',
     args.flex === 1 && 'flex-1',
   ]

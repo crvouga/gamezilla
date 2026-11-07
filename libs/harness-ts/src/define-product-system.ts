@@ -24,6 +24,7 @@ import { inProcessRuntime } from './in-process';
 import { anyActor } from './observations';
 import type { ProductExtra, ProductUi } from './ports';
 import { captureSnapshot } from './probes';
+import { atConfiguredGoogleHandoff } from './provider-handoff';
 import { harnessReportTopology } from './report-topology';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
@@ -92,7 +93,13 @@ export const globalActionMenuAlwaysVisible = defineProperty({
     const missing: string[] = [];
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;
-      if (!(await menuVisible(handle.ui, extra.ui.kind))) {
+      const handoff = () =>
+        atConfiguredGoogleHandoff(handle.browser, extra.http);
+      if (await handoff()) continue;
+      if (
+        !(await menuVisible(handle.ui, extra.ui.kind)) &&
+        !(await handoff())
+      ) {
         missing.push(id);
       }
     }

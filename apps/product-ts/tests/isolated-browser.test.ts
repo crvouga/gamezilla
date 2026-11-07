@@ -18,6 +18,7 @@ test('a link guest uses an isolated process and keeps it across navigations', as
   const target = {
     webOrigin: 'https://web.example',
     apiOrigin: 'https://api.example',
+    googleAuthorizationOrigin: 'https://accounts.google.com',
     oauthCallbackOrigin: 'https://api.example',
     http: {
       fetch: async () => {

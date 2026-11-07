@@ -84,7 +84,13 @@ export function useFramePlay(
       board.session()?.actions() ?? [],
       BOARD_TEST_ID
     );
-    if (game === null) return { ...FRAME_NO_PLAY, boardActions };
+    const leadingBoardActions = frameActionItems(
+      board.session()?.actions() ?? [],
+      BOARD_TEST_ID,
+      'before-board'
+    );
+    if (game === null)
+      return { ...FRAME_NO_PLAY, boardActions, leadingBoardActions };
     const person = away();
     const twoSided = game.sides.length === 2;
     const unfinished =
@@ -101,6 +107,7 @@ export function useFramePlay(
         model.canCancel() &&
         customGameCancelRefusal(game, model.myId()) === '',
       boardActions,
+      leadingBoardActions,
     };
   });
 }

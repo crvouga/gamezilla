@@ -4,11 +4,12 @@ import {
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSignal } from 'solid-js';
+import { createBrowserNavigation } from './browser-navigation';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
  */
 
-import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared-ts/system-snapshot';
 import {
   executeSqlStatements,
@@ -176,6 +177,11 @@ async function launchWebview(
   return {
     raw,
     localSql,
+    browser: createBrowserNavigation({
+      readUrl: async () => String(await view.evaluate('location.href')),
+      clock: wallClock,
+      timers: wallTimers,
+    }),
     screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),

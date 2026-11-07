@@ -81,7 +81,7 @@ describe('TopBar', () => {
     expect(center.className).toMatch(/\bmin-w-0\b/);
     expect(center.className).toMatch(/\bshrink\b/);
     expect(screen.getByRole('heading', { level: 1 }).className).toMatch(
-      /line-clamp-1/
+      /truncate/
     );
   });
 });

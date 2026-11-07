@@ -1,0 +1,4 @@
+{
+  "summary": "Privacy receipts and deletion refusals appeared below long consequence text and were outside the initial phone viewport. Persisted receipt copy also incorrectly asserted the current device was signed out.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/privacy/integration.checks.ts"
+}
