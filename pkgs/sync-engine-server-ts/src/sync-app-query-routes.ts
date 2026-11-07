@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { RetryableQueryError } from '@pkgs/sync-engine-shared-ts/define-query';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
-import { RetryableQueryError } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
 
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared-ts/v2';
 import { MAX_QUERY_BODY_BYTES } from '@pkgs/sync-engine-shared-ts/v2';

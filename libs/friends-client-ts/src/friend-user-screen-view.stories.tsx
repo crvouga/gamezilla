@@ -7,6 +7,7 @@ import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendUserScreenView } from './friend-user-screen-view';
+import { FriendUserSuccessExample } from './friend-user-success.example';
 
 /** Morgan's id in the space fixtures (`spaces-story.example.tsx`): one face everywhere. */
 const MORGAN_ID = '5a1e0000-0000-4000-8000-000000000003';
@@ -137,13 +138,24 @@ export const RefusedChange: Story = {
   },
 };
 
-/** Long names truncate to one line. */
+/** A valid maximum-length identity must remain readable on a phone. */
+// regression: friend-profile-valid-username-clipped
 export const LongName: Story = {
   args: {
     profile: {
       ...PROFILE,
-      username: 'a_really_long_username_that_keeps_going_and_going',
+      username: 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
     },
+  },
+  play: async ({ canvasElement }) => {
+    const heading = await within(canvasElement).findByTestId(
+      Handles.friendUserUsername
+    );
+    await canvasElement.ownerDocument.fonts.ready;
+    await expect(heading.scrollWidth).toBeLessThanOrEqual(heading.clientWidth);
+    await expect(heading.scrollHeight).toBeLessThanOrEqual(
+      heading.clientHeight
+    );
   },
 };
 
@@ -186,6 +198,7 @@ export const RemoveFailed: Story = {
 
 /** Removal is acknowledged in place until the person chooses Done. */
 export const RemoveSucceeded: Story = {
+  render: (args) => <FriendUserSuccessExample {...args} />,
   args: { status: 'friends', confirming: 'remove', onRemove: resolved() },
   play: async ({ args, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -200,6 +213,7 @@ export const RemoveSucceeded: Story = {
 
 /** Blocking is acknowledged in place, preserving the route to unblock later. */
 export const BlockSucceeded: Story = {
+  render: (args) => <FriendUserSuccessExample {...args} />,
   args: { confirming: 'block', onBlock: resolved() },
   play: async ({ args, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -230,5 +244,53 @@ export const BlockFailed: Story = {
       await body.findByRole('button', { name: 'Try again' })
     ).toBeEnabled();
     await expect(args.onBlock).toHaveBeenCalledOnce();
+  },
+};
+
+/** After acknowledging removal, the same profile offers Add friend. */
+export const RemoveDismissed: Story = {
+  ...RemoveSucceeded,
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveConfirm('morgan'))
+    );
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveDone('morgan'))
+    );
+    await expect(
+      body.queryByTestId(Handles.friendRemoveSuccess('morgan'))
+    ).not.toBeInTheDocument();
+    await expect(
+      await body.findByTestId(Handles.friendAdd('morgan'))
+    ).toBeVisible();
+    await expect(
+      await body.findByTestId(Handles.friendUserUsername)
+    ).toHaveTextContent('@morgan');
+    await expect(args.onCancelConfirm).toHaveBeenCalledOnce();
+  },
+};
+
+/** After acknowledging a block, the same profile offers Unblock. */
+export const BlockDismissed: Story = {
+  ...BlockSucceeded,
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockDone('morgan'))
+    );
+    await expect(
+      body.queryByTestId(Handles.friendBlockSuccess('morgan'))
+    ).not.toBeInTheDocument();
+    await expect(
+      await body.findByTestId(Handles.friendUnblock('morgan'))
+    ).toBeVisible();
+    await expect(
+      await body.findByTestId(Handles.friendUserUsername)
+    ).toHaveTextContent('@morgan');
+    await expect(args.onCancelConfirm).toHaveBeenCalledOnce();
   },
 };

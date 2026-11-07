@@ -1,4 +1,4 @@
-import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/define-query';
 /**
  * Interface describing the sync engine client.
  */

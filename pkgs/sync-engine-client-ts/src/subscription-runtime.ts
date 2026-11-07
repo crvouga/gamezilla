@@ -6,8 +6,8 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/app-lifecycle';
 import { alwaysOnLifecycle } from '@pkgs/sync-engine-shared-ts/app-lifecycle';
 import { scopeHash } from '@pkgs/sync-engine-shared-ts/canonical';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/define-query';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
-import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
 import type {
   QueryRequestItem,
   QueryResponse,

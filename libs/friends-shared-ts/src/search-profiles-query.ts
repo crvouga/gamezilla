@@ -7,8 +7,10 @@ import {
 } from '@libs/user-search-shared-ts/user-search-types';
 import { usernamePrefix } from '@libs/user-search-shared-ts/username-prefix';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { defineQuery } from '@pkgs/sync-engine-shared-ts/define-query';
-import { RetryableQueryError } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
+import {
+  defineQuery,
+  RetryableQueryError,
+} from '@pkgs/sync-engine-shared-ts/define-query';
 import { z } from 'zod';
 
 type SearchStamp = { readonly at: number; readonly query: string };

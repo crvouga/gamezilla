@@ -152,7 +152,7 @@ function SearchResults(props: {
             <EmptyState
               variant="compact"
               icon={SearchIcon}
-              title={<Trans>No people found for “{props.query}”</Trans>}
+              title={<Trans>No people found</Trans>}
               body={
                 <Trans>Check the spelling or try a different username.</Trans>
               }

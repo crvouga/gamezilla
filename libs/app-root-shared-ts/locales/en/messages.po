@@ -4725,14 +4725,10 @@ msgstr "No passing this deal."
 msgid "No pawn move or wall is legal. Pass your turn."
 msgstr "No pawn move or wall is legal. Pass your turn."
 
+#: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "No people found"
 msgstr "No people found"
-
-#. placeholder {0}: props.query
-#: libs/search-client-ts/src/search-screen-view.tsx
-msgid "No people found for “{0}”"
-msgstr "No people found for “{0}”"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "No published puzzles loaded"

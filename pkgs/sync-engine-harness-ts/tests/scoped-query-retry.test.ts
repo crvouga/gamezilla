@@ -6,12 +6,12 @@ import { createLocalSyncEngine } from '@pkgs/sync-engine-client-ts/create-local-
 import { createSyncHttpClient } from '@pkgs/sync-engine-client-ts/sync-http-client';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness-ts/local-schema';
 import { createSyncApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
-import { defineQuery } from '@pkgs/sync-engine-shared-ts/define-query';
-import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
 import {
+  defineQuery,
   type QueryRetryNotice,
   RetryableQueryError,
-} from '@pkgs/sync-engine-shared-ts/retryable-query-error';
+} from '@pkgs/sync-engine-shared-ts/define-query';
+import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
 import { z } from 'zod';
 
 async function settle(): Promise<void> {

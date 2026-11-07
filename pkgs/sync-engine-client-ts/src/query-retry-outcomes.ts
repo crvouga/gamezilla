@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock-shared-ts/types';
-import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/define-query';
 
 type Listener = (notice: QueryRetryNotice | null) => void;
 /** Scoped retry notices and their owned wakeups; no global connection changes. */

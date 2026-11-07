@@ -1,7 +1,7 @@
 import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/define-query';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
-import type { QueryRetryNotice } from '@pkgs/sync-engine-shared-ts/retryable-query-error';
 import type {
   QueryRequestItem,
   QueryResponse,
