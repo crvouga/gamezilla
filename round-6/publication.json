@@ -5,11 +5,13 @@
   "comments": [
     "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699238532",
     "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699238994",
-    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699239407"
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699239407",
+    "https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699266953"
   ],
   "manifest": "https://github.com/crvouga/gamezilla/blob/60ff27e35a1a772884b05d9e64141fbebc42c73c/round-6/manifest.json",
   "gallery": "https://github.com/crvouga/gamezilla/blob/60ff27e35a1a772884b05d9e64141fbebc42c73c/round-6/GALLERY.md",
   "canonicalRun": "https://github.com/crvouga/gamezilla/actions/runs/42309542538",
   "canonicalFinalStatus": "completed success",
-  "canonicalFinalStatusFile": "canonical-publication-status.json"
+  "canonicalFinalStatusFile": "canonical-publication-status.json",
+  "handoffCommit": "a7541e2d074027b3808c5684b01338f4a41b8e89"
 }

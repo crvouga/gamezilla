@@ -75,3 +75,5 @@ No manual QA, subagents, merge, watch or unwatch. Source checkout is clean; owne
 ## Publication-time canonical result
 
 The workflow subsequently completed **successfully**, including the Storybook and final diagnostic jobs. Both authoring and comparison reported **767 passed**. See `canonical-publication-status.json`; the immutable media manifest intentionally preserves its earlier observed workflow-pending status. No references were accepted.
+
+Final verification comment: https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699266953

@@ -1,0 +1,12 @@
+<!-- overhaul-loop:round-6-verification-handoff -->
+Round-six verification handoff: candidate `863c687fae76c57527d495ec436afcf0ea99539a`, media `60ff27e35a1a772884b05d9e64141fbebc42c73c`, evidence `95e2cf5e91b0fcee`.
+
+[Final handoff](https://github.com/crvouga/gamezilla/blob/a7541e2d074027b3808c5684b01338f4a41b8e89/round-6/HANDOFF.md) · [Review inputs](https://github.com/crvouga/gamezilla/blob/a7541e2d074027b3808c5684b01338f4a41b8e89/round-6/REVIEW_INPUTS.md) · [Complete artifact inventory](https://github.com/crvouga/gamezilla/blob/a7541e2d074027b3808c5684b01338f4a41b8e89/round-6/ARTIFACT_INDEX.md)
+
+- Aggregate 96/96 passed; native interactions/browser errors/serious-critical axe passed for all 758 visual cases, plus eight font checks and one instrumented regression.
+- [Hosted safety](https://github.com/crvouga/gamezilla/actions/runs/42309514784) passed on this candidate.
+- [Canonical Ubuntu](https://github.com/crvouga/gamezilla/actions/runs/42309542538) completed successfully: 767 author cases and 767 compare cases passed. No references accepted. The media manifest preserves the earlier pending observation; the final status receipt is in the handoff commit.
+- Media: 692 after screenshots, 692 before/after pairs, 78 complete automated recordings, all 14 board families. All artifacts are indexed, including prior failed/interrupted diagnostics.
+- Full local `bun verify` ran once and failed on outside-board `/more/troubleshooting` chart ownership. Old-reference macOS pixels failed (640 differences, 118 missing references); coverage retains 328 violations. Extra tools diagnostic failures and unresolved Numberlink republication are documented separately. No waiver or full-green claim.
+
+Two NEW independent parent reviews remain pending. No scores or acceptance assigned; no merge. Source checkout clean and owned capture/test processes stopped.
