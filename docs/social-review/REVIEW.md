@@ -396,3 +396,29 @@ Pong's original victory/rematch assertions. The critic approved the correction
 and retained overall scores of 10/9/9/10 pending full verification. Four
 request-received social screenshot comparisons also pass without updates;
 they are unchanged visual context, not evidence of the harness fix.
+
+## Round twenty-two Word Tiles disclosure automation
+
+Full verification passed all three release-journey partitions before the
+shared Word Tiles turn scenario waited for an unmounted Pass control. Pass
+and Exchange are secondary actions behind the board's tools disclosure.
+Automation now waits for the enabled disclosure and opens it only when it
+is not already expanded; placement and blank paths are unchanged.
+
+The actual Solid DOM board regression pins the archived seed-one Alice rack
+and covers collapsed/open tools, reopening after Pass, Exchange, ordinary
+placement and blank assignment. Red was 31 passes and two failures; corrected
+client tests pass 33/33. Shared tests pass 46/46, Word Tiles specs 30/30, and
+all 27 shared partition-115 tests pass, including the original failure. Owning
+lint/typechecks, goals and cache sync pass. The critic approved the source
+without finding weakened assertions. Overall ratings remain 10/9/9/10 until
+the full catalog passes.
+
+An initial visualization command triggered an extra build and exhausted Node
+heap. The parent restored the successful fresh build and ran the browser
+task without rebuilding. No failed build was counted as verification.
+
+The critic inspected and approved all 12 unique Your turn, Accepted pass and
+Accepted exchange capture pairs. All 21 browser checks then passed without
+snapshot updates. Existing UI behavior is unchanged; automation now reaches
+its secondary actions through the disclosure.
