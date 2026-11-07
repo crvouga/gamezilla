@@ -376,3 +376,23 @@ The original request log records the host's saves and publication responses.
 The critic approved eight fresh pending/published captures against stale
 goldens. All eight then passed without snapshot updates. They show unchanged
 product states whose distinct meanings the harness now observes.
+
+## Round twenty-one mounted matchmaking readiness
+
+The failed Pong release journey left Alice searching and Bob with a connection
+refusal. The trace confirms Alice's persisted search. Source inspection found
+that an absent offline notice could satisfy the harness before the multiplayer
+screen mounted; the subsequent auto-waiting tap could then issue Find offline.
+This timing is inferred, not established by the original server trace.
+
+The harness now waits for Find to be visible before checking the offline
+notice. Its existing refusal handling, attempt limit, timeouts and downstream
+match assertions are unchanged. The literal driver-order regression failed
+before the fix (97 pass, one fail) and passes after it (98 pass). It is an
+ordering contract, not a simulation of the original network timing.
+
+Lint, typechecks, goals and all 10 real release scenarios pass, including
+Pong's original victory/rematch assertions. The critic approved the correction
+and retained overall scores of 10/9/9/10 pending full verification. Four
+request-received social screenshot comparisons also pass without updates;
+they are unchanged visual context, not evidence of the harness fix.
