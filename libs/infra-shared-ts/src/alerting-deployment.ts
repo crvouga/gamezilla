@@ -12,6 +12,8 @@ const RESOURCES = [
   'grafana_synthetic_monitoring_installation.this',
   'grafana_cloud_stack_service_account.alerting',
   'grafana_cloud_stack_service_account_token.alerting',
+  'grafana_cloud_stack_service_account.alerting_provisioner',
+  'grafana_cloud_stack_service_account_token.alerting_provisioner',
 ] as const;
 const MODULES = [
   'module.alert_routing',

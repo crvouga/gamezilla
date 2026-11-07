@@ -25,6 +25,7 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { openCommit } from '@crvouga/atlas/reports/publish';
+import { reportsStoreUnconfigured } from '@libs/harness-ts/report-store-configuration';
 import { compileFrameCss } from '@libs/harness-ts/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
@@ -40,25 +41,6 @@ import { reportsStore } from './report-store';
 import { publishReportTask } from './report-task-publish';
 
 export const REPO_ROOT = resolve(import.meta.dirname, '../../..');
-const REPORTS_ENV = [
-  'REPORTS_BUCKET',
-  'REPORTS_ENDPOINT',
-  'REPORTS_WRITE_ACCESS_KEY_ID',
-  'REPORTS_WRITE_SECRET_ACCESS_KEY',
-] as const;
-
-/**
- * True when none of the reports credentials exist: the environment's
- * foundation stack has not been applied since it gained the reports bucket
- * (Release applies it), so there is no store to publish to yet. A partly set
- * credential is a misconfiguration and still fails in `required`.
- */
-export function reportsStoreUnconfigured(
-  env: Readonly<Record<string, string | undefined>>
-): boolean {
-  return REPORTS_ENV.every((name) => (env[name]?.trim() ?? '') === '');
-}
-
 function git(args: readonly string[]): string {
   const result = Bun.spawnSync(['git', ...args], { cwd: REPO_ROOT });
   return result.stdout.toString().trim();

@@ -1,9 +1,6 @@
 #!/usr/bin/env bun
 // @io-wall-ok — maintenance entry: injected reports store and GitHub CLI.
-import {
-  planReportRetention,
-  pruneReports,
-} from '@crvouga/atlas/reports/retention';
+import { cleanupReportObjects } from '@libs/harness-ts/report-retention';
 import { capture } from '@pkgs/os-server-ts/command';
 import type {
   BranchCleanupPort,
@@ -105,10 +102,13 @@ async function main(): Promise<void> {
       `Branches ${apply ? 'deleted' : 'eligible'}: ${JSON.stringify(await cleanupBranches(githubPort(repo), apply))}`
     );
   }
-  const store = reportsStore();
-  const plan = apply
-    ? await pruneReports(store)
-    : await planReportRetention(store);
+  const plan = await cleanupReportObjects(process.env, apply, reportsStore);
+  if (plan === null) {
+    console.log(
+      'Reports store is not configured; no report objects to maintain.'
+    );
+    return;
+  }
   console.log(
     JSON.stringify({
       apply,

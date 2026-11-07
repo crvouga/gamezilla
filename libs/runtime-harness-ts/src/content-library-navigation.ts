@@ -16,7 +16,21 @@ export async function openContentLibrary(
   if (await ui.get('content-create-puzzle').isVisible()) return;
   if (!(await ui.get(Handles.gameChoice('puzzle-library')).isVisible()))
     await tap(ui, Handles.gameMenu(gameId));
-  await tap(ui, Handles.gameChoice('puzzle-library'));
+  // Selecting the game can coincide with hydration restoring its saved library.
+  // Observe that destination before sending a gesture to the replaced menu.
+  await ui.get('content-create-puzzle').wait('visible', {
+    timeoutMs: JOURNEY_WAIT_MS,
+    visibleOr: [Handles.gameChoice('puzzle-library')],
+  });
+  if (!(await ui.get('content-create-puzzle').isVisible())) {
+    try {
+      await tap(ui, Handles.gameChoice('puzzle-library'));
+    } catch (error) {
+      // Restoration can replace the menu between the read and the gesture.
+      // Only the observed destination establishes success; other errors fail.
+      if (!(await ui.get('content-create-puzzle').isVisible())) throw error;
+    }
+  }
   await ui
     .get('content-create-puzzle')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });

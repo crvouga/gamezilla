@@ -1,0 +1,4 @@
+{
+  "summary": "A reopened Numberlink space can restore its library while the journey selects the game. The journey then taps the removed puzzle-library choice and times out instead of observing the restored library.",
+  "regressionTest": "libs/runtime-harness-ts/tests/numberlink-journey-navigation.test.ts"
+}

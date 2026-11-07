@@ -1,0 +1,4 @@
+{
+  "summary": "Health reports perpetual repository drift because provider defaults for disabled squash commit metadata differ from the PR_TITLE and PR_BODY values GitHub retains.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

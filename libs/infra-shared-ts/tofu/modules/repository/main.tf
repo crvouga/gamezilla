@@ -53,18 +53,22 @@ resource "github_repository" "this" {
   # (422 Allow forks setting can only be changed on org-owned private
   # repositories). Leave it unset so the refresh value stays put; an
   # organization still applies var.settings.allow_forking.
-  allow_forking               = var.owner_is_organization ? var.settings.allow_forking : null
-  archive_on_destroy          = true
-  archived                    = false
-  is_template                 = false
-  allow_auto_merge            = true
-  allow_update_branch         = true
-  delete_branch_on_merge      = true
-  allow_merge_commit          = true
-  allow_squash_merge          = false
-  allow_rebase_merge          = false
-  merge_commit_title          = "PR_TITLE"
-  merge_commit_message        = "PR_BODY"
+  allow_forking          = var.owner_is_organization ? var.settings.allow_forking : null
+  archive_on_destroy     = true
+  archived               = false
+  is_template            = false
+  allow_auto_merge       = true
+  allow_update_branch    = true
+  delete_branch_on_merge = true
+  allow_merge_commit     = true
+  allow_squash_merge     = false
+  allow_rebase_merge     = false
+  merge_commit_title     = "PR_TITLE"
+  merge_commit_message   = "PR_BODY"
+  # GitHub retains these values when squash is disabled; provider defaults
+  # otherwise produce a plan that an apply cannot reconcile.
+  squash_merge_commit_title   = "PR_TITLE"
+  squash_merge_commit_message = "PR_BODY"
   web_commit_signoff_required = false
 
   # A public repository gets GitHub's secret scanning of every push and the
