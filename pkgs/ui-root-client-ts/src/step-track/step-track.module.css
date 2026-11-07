@@ -81,6 +81,16 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .step {
+    display: grid;
+    grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
+  }
+  .step > * {
+    min-width: 0;
+  }
+  .name {
+    overflow-wrap: anywhere;
+  }
   .step + .step::before {
     content: none;
   }

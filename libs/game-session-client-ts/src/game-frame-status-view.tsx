@@ -99,7 +99,10 @@ export function FrameStatusView(props: {
             </>
           }
           detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
-          spokenOnly={props.spokenOnly === true && !status().sending}
+          spokenOnly={
+            (props.spokenOnly === true || status().description.trim() === '') &&
+            !status().sending
+          }
           look={
             props.arena === true &&
             status().tone === 'neutral' &&

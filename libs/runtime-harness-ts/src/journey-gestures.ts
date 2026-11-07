@@ -182,11 +182,7 @@ const LEFTOVER_HOST_LIMIT = 20;
 async function showSpaces(ui: Driver): Promise<void> {
   await atTabShell(ui);
   if (!(await ui.get(Handles.spaceCreate).isVisible())) {
-    if (await ui.get(Handles.tabSpaces).isVisible()) {
-      await tap(ui, Handles.tabSpaces);
-    } else {
-      await pressBackUntilVisible(ui, Handles.spaceCreate, JOURNEY_WAIT_MS);
-    }
+    await openTab(ui, Handles.tabSpaces);
   }
   await expectVisible(ui, Handles.spacesListReady);
 }
@@ -229,5 +225,6 @@ export async function hostSpace(ui: Driver): Promise<void> {
   await releaseLeftoverHostedSpaces(ui);
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
-  await expectVisible(ui, Handles.spaceClose);
+  // Minimize can collapse into More; members never leave the space bar.
+  await expectVisible(ui, Handles.spaceMembersButton);
 }

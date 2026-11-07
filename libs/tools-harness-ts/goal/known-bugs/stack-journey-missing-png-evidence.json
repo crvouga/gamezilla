@@ -1,0 +1,4 @@
+{
+  "summary": "Real-browser stack journeys recorded HTML but no native screen images. Opt-in screenshot capture now records per-actor PNG frames in the existing Atlas step report; disabled and in-process runs perform no screenshot work.",
+  "regressionTest": "libs/harness-ts/tests/actor-screenshots.test.ts"
+}

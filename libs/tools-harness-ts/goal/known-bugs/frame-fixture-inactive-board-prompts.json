@@ -1,0 +1,4 @@
+{
+  "summary": "Shared-frame stories hardcoded an interactive board while cancelled, disconnected, stopped or reviewing.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}

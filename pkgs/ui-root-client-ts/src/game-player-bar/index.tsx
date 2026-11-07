@@ -125,14 +125,14 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         </Show>
       </span>
       <span class={styles['playerIdentity']}>
-        <span class="box flex-row items-center gap-2 min-w-0">
+        <span class="box flex-row flex-wrap items-center gap-2 min-w-0">
           <Show when={props.swatch}>
             {(look) => (
               <GameSeatSwatch look={look()} label={props.swatchLabel} />
             )}
           </Show>
           <span
-            class="text textLabel line-clamp-1 min-w-0"
+            class={`text textLabel min-w-0 ${styles['playerName']}`}
             classList={{ 'text-on-primary-soft': props.active === true }}
           >
             {props.name}

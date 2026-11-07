@@ -1,0 +1,4 @@
+{
+  "summary": "A live space invitation hid Join while checking the host but gave no progress or explanation.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-entry-feedback.test.tsx"
+}

@@ -178,17 +178,20 @@ export function useFrameBoard(
  */
 export function frameActionItems(
   actions: readonly GameFrameAction[],
-  testId: string
+  testId: string,
+  placement: 'before-board' | 'after-board' = 'after-board'
 ): readonly GameActionItem[] {
-  return actions.map((action) => ({
-    id: action.id,
-    label: action.label,
-    testId: `${testId}-${action.id}`,
-    onPress: action.run,
-    disabled: !action.enabled,
-    emphasis: action.emphasis,
-    pressed: action.pressed,
-  }));
+  return actions
+    .filter((action) => (action.placement ?? 'after-board') === placement)
+    .map((action) => ({
+      id: action.id,
+      label: action.label,
+      testId: `${testId}-${action.id}`,
+      onPress: action.run,
+      disabled: !action.enabled,
+      emphasis: action.emphasis,
+      pressed: action.pressed,
+    }));
 }
 
 /** The board the frame mounted and, under it, the board's own controls. */

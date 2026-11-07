@@ -50,11 +50,10 @@ export const pongFrame: GameFrame<JSX.Element> = {
     out: () => false,
   },
   createBoard: boardOnly(PongBoard),
-  // The serve and the result; while play simply goes on, the hint under
-  // the court says how to play, so the game has no line of its own.
+  // The court owns serve timing and interruptions. The frame keeps the result.
   turnStatus: (position) => {
     const state = pongPositionCodec.decode(position);
-    return state === null || state.phase === 'playing'
+    return state === null || state.phase !== 'completed'
       ? null
       : pongStatus(state, undefined);
   },

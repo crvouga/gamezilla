@@ -1,0 +1,4 @@
+{
+  "summary": "The AEST?RN puzzle hid j8's triple-letter bonus under the placed blank and left its explanation below the board, away from the rack.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx"
+}

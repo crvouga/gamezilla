@@ -1,0 +1,4 @@
+{
+  "summary": "The no-hooks repository regression failed with a null Git status once its file listing exceeded the default one MiB subprocess buffer.",
+  "regressionTest": "libs/tools-harness-ts/scripts/git-hooks.test.ts"
+}

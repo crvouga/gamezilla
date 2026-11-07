@@ -1,0 +1,4 @@
+{
+  "summary": "The nine of diamonds was unavailable when following spades but depended on brightness until pressed; expose the rule and a non-color marker before activation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table-availability.test.tsx"
+}

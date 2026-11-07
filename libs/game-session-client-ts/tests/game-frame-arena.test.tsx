@@ -164,7 +164,9 @@ test('phone: every player shows above the arena, the person first and marked as 
   ) as HTMLElement;
   expect(rail.getAttribute('role')).toBe('list');
   const near = screen.getByTestId('custom-game-seat-near');
-  expect(rail.firstElementChild).toBe(near);
+  // The first chip now has a full-name tooltip wrapper; seat order is unchanged.
+  expect(rail.firstElementChild?.contains(near)).toBe(true);
+  expect(rail.firstElementChild?.getAttribute('title')).toBe('avery');
   expect(
     near.querySelector('[data-testid="custom-game-white"]')
   ).not.toBeNull();
@@ -270,7 +272,11 @@ test('a board that seats its players is lent each player and no seat is drawn ar
   const time = createHarnessClock();
   const Seated = () => {
     const lend = useGameTableSeat();
-    return <>{lend?.('black')}</>;
+    // regression: hearts-named-opponent-watcher-guidance
+    const player = lend?.('black');
+    expect(player?.name).toBe('jordan');
+    expect(lend?.('blue').name).toBeNull();
+    return <>{player?.content}</>;
   };
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>

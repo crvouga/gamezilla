@@ -1,0 +1,4 @@
+{
+  "summary": "The 390x844 opening board required selecting mid-30px pawn destinations and wall anchors without a precise touch alternative.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

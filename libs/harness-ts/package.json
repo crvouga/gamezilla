@@ -104,7 +104,7 @@
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/tts-root-server-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
-    "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",

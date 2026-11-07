@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 the Move pawn / Horizontal wall / Vertical wall toolbar measures 362.2px in a 358px column, placing the Hill precise picker below the viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

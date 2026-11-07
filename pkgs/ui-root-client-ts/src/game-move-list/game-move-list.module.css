@@ -145,3 +145,18 @@
     transition: none;
   }
 }
+
+/* Four-seat records keep each coordinate whole below its seat marker. */
+.list[data-layout="table"][data-many-seats="true"] .move {
+  flex-direction: column;
+  align-items: center;
+}
+.list[data-layout="table"][data-many-seats="true"] .moveButton {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* Four short coordinates fit the phone strip without a second move row. */
+.list[data-layout="turn"][data-wrap="true"][data-many-seats="true"] .turn {
+  column-gap: var(--ui-space-1);
+}

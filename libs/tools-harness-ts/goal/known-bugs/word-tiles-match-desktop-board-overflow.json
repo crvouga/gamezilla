@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the your-turn fitted WordTiles board reaches 970.453125px below the initial viewport after the compact shared rail allocates more board width. Keep fitted workbench boards bounded while enlarged cells retain their precision size.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts"
+}

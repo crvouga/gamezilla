@@ -1,0 +1,4 @@
+{
+  "summary": "The literal multiplayer-board playing state removed its status node after countdown, preventing the real ball-following journey from reading the rally. Preserve an accessible playing summary without painting an overlay or changing physics.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board.test.tsx"
+}

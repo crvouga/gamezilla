@@ -51,11 +51,14 @@ const STILL = {
   },
 };
 
-function mount(width: number): void {
+function mount(
+  width: number,
+  overrides: Partial<PuzzlePlayScreenViewProps> = {}
+): void {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-        <PuzzlePlayScreenView {...VIEW} />
+        <PuzzlePlayScreenView {...VIEW} {...overrides} />
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -84,4 +87,45 @@ test('wide: the feed heads the panel beside the board, over the prompt', () => {
   expect(region('PuzzleHeader').contains(screen.getByTestId('feed'))).toBe(
     true
   );
+});
+
+// regression: chess-puzzle-reveal-headline-failed
+test('the revealed f3-e5 lesson says Solution shown and keeps retry and next', () => {
+  mount(390, {
+    statusKind: 'failed',
+    status: 'revealed',
+    hintStage: 'solution',
+    coach: { message: 'Knight takes e5, even with the queen pinned.' },
+  });
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
+    'Solution shown'
+  );
+  expect(screen.queryByText('Failed')).toBeNull();
+  expect(screen.getByRole('button', { name: /Retry/ })).toBeTruthy();
+  expect(screen.getByRole('button', { name: /Next/ })).toBeTruthy();
+  expect(
+    screen.getByText('Knight takes e5, even with the queen pinned.')
+  ).toBeTruthy();
+});
+
+test('a wrong move still reports failure with retry', () => {
+  mount(390, { statusKind: 'failed', status: 'wrong' });
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
+    'Failed'
+  );
+  expect(screen.getByRole('button', { name: /Retry/ })).toBeTruthy();
+});
+
+// regression: chess-puzzle-phone-board-too-small
+test('width-driven chess bypasses height fitting without changing the default puzzle layout', () => {
+  mount(390, { boardSizing: 'width' });
+  expect(region('PuzzleScreen').getAttribute('data-board-sizing')).toBe(
+    'width'
+  );
+  expect(document.querySelector('[data-component="BoardFit"]')).toBeNull();
+  expect(screen.getByTestId('board')).toBeTruthy();
+  cleanup();
+  mount(390);
+  expect(region('PuzzleScreen').getAttribute('data-board-sizing')).toBe('fit');
+  expect(document.querySelector('[data-component="BoardFit"]')).not.toBeNull();
 });

@@ -277,19 +277,19 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
 }
 
 /**
- * Keep the idle label's width while feedback content (spinner / check) is
- * shorter — otherwise success collapses to an icon-only square.
+ * Preserve the idle label's width when feedback is shorter, but let longer
+ * feedback establish its own width so a failure or retry label stays readable.
  */
 function ButtonFeedbackWidthLock(props: ButtonContentProps): JSX.Element {
   return (
-    <div class={`relative box ${rowClass()}`}>
+    <div class="box grid min-w-0">
       <div
-        class={`opacity-0 pointer-events-none box ${rowClass()}`}
+        class={`opacity-0 pointer-events-none box col-start-1 row-start-1 ${rowClass()}`}
         aria-hidden="true"
       >
         <ButtonIdleContent {...props} />
       </div>
-      <div class={`absolute inset-0 box ${rowClass()}`}>
+      <div class={`box col-start-1 row-start-1 ${rowClass()}`}>
         <ButtonFeedbackFace {...props} />
       </div>
     </div>

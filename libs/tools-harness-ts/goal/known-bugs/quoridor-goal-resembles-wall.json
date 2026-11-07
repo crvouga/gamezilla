@@ -1,0 +1,4 @@
+{
+  "summary": "Classic goal row and Hill center used heavy rectangular outlines resembling physical wall barriers.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

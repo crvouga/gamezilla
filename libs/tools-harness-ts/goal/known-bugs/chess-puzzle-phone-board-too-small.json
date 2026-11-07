@@ -1,0 +1,4 @@
+{
+  "summary": "The cited 390px solving phone has approximately 34px chess squares due to preboard guidance consuming its square well.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

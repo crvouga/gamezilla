@@ -1,0 +1,4 @@
+{
+  "summary": "The drawn frame placed the board at y445, beyond the existing y440 terminal bound, before any user input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-eight.checks.ts"
+}

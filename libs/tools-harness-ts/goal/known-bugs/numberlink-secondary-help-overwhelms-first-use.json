@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink first-use guidance mixed recovery and keyboard methods into a dense block. Secondary help is disclosed explicitly on both phone and desktop.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-key-hints.test.tsx"
+}

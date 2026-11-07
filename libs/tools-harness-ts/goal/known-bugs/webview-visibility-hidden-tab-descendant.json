@@ -1,0 +1,4 @@
+{
+  "summary": "The WebView driver reported a Numberlink draft visible inside an inactive hidden tab because it checked only the target's computed style. Visibility now rejects display-none and transparent ancestors and checks associated choice labels by the same rule.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/visibility.test.ts"
+}

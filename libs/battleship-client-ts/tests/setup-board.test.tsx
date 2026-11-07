@@ -49,7 +49,7 @@ test('rotate turns the next placement down, and the five ships make the canonica
   const board = setupBoard();
   fireEvent.click(cell('a1'));
   fireEvent.click(byTestId('setup-rotate'));
-  expect(byTestId('setup-rotate').textContent).toContain('down');
+  expect(byTestId('setup-rotate').textContent).toBe('Rotate across');
   fireEvent.click(cell('a3'));
   expect(board.setup()).toBe('fleet:carrier@a1h;battleship@a3v');
   fireEvent.click(cell('c3'));
@@ -132,7 +132,7 @@ test('the keyboard selects a cell with arrows, rotates with R and places with En
   expect(document.activeElement).toBe(cell('b2'));
   expect(cell('b2').tabIndex).toBe(0);
   fireEvent.keyDown(cell('b2'), { key: 'r' });
-  expect(byTestId('setup-rotate').textContent).toContain('down');
+  expect(byTestId('setup-rotate').textContent).toBe('Rotate across');
   fireEvent.keyDown(cell('b2'), { key: 'End' });
   expect(document.activeElement).toBe(cell('j2'));
   fireEvent.keyDown(cell('j2'), { key: 'Home' });
@@ -146,9 +146,12 @@ test('the keyboard selects a cell with arrows, rotates with R and places with En
   expect(board.setup()).toBe('fleet:carrier@b2v;battleship@d2h');
 });
 
+// regression: battleship-locked-editing-guidance
 test('a locked setup disables every control and says why', () => {
   const board = setupBoard('fleet:carrier@a1h', true);
   expect(byTestId('setup-locked').textContent).toContain('locked in');
+  expect(document.body.textContent).not.toContain('Tap its first cell');
+  expect(document.body.textContent).not.toContain('Choose a placed ship');
   expect(cell('a5').getAttribute('aria-disabled')).toBe('true');
   expect(byTestId('setup-rotate').hasAttribute('disabled')).toBe(true);
   expect(
@@ -166,4 +169,28 @@ test("the placing progress has its own id, leaving `<testId>-status` to the scre
   setupBoard();
   expect(document.querySelector('[data-testid="setup-status"]')).toBeNull();
   expect(byTestId('setup-progress').getAttribute('role')).toBe('status');
+});
+
+test('enlarged completed fleet names its fields and offers repositioning instead of Select', () => {
+  // regression: battleship-placement-unlabeled-complete-selection
+  setupBoard(
+    'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v'
+  );
+  fireEvent.click(byTestId('setup-enlarge'));
+  const board = byTestId('setup');
+  expect(board.querySelector('[aria-label="Ship to place"]')).not.toBeNull();
+  expect(board.textContent).toContain('Choose region');
+  expect(
+    board.querySelector('[aria-label="Ship to place"]')?.textContent
+  ).toContain('Choose a ship to reposition');
+  expect(board.textContent).not.toContain('Select...');
+  expect(
+    board.querySelectorAll('[data-component="CellGridBoard"]').length
+  ).toBe(2);
+  expect(byTestId('setup-grid').closest('[inert]')).not.toBeNull();
+  fireEvent.click(byTestId('setup-enlarge'));
+  expect(byTestId('setup-grid').closest('[inert]')).toBeNull();
+  fireEvent.click(byTestId('setup-ship-destroyer'));
+  fireEvent.click(byTestId('setup-remove'));
+  expect(byTestId('setup-progress').textContent).toContain('4 of 5');
 });

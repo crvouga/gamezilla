@@ -1,0 +1,4 @@
+{
+  "summary": "Enlarging an aimed J10 opened A1\u2013E5, hiding the aim and forcing a separate region decision.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

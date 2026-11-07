@@ -1,6 +1,5 @@
-/* A grid editor's tools: a segmented track of tiles, four to a row, each a
-   swatch over its name on one line, so no tool is a bare icon and every
-   tile is the same height. */
+/* Four tools per row, each a swatch over its full name. Equal grid rows
+   keep every tile the same height when a label needs another line. */
 .palette {
   container: cell-grid-palette / inline-size;
   display: flex;
@@ -11,6 +10,7 @@
 .track {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: var(--ui-space-1);
   padding: var(--ui-space-1);
   border: 1px solid var(--ui-color-outline);
@@ -20,8 +20,8 @@
   opacity: var(--ui-opacity-disabled);
 }
 .tool {
-  /* The swatch at the top, its name one line under it: the swatches share
-     a row line and the names a baseline, whatever their length. */
+  /* Top-aligned swatches and first text lines stay aligned while full
+     names wrap within the equal-height tiles. */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,9 +46,8 @@
 }
 .name {
   max-width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
   text-align: center;
 }
 /* A one-square board: its padding a frame round the square, as the

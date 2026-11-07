@@ -11,7 +11,8 @@ const meta = {
   args: {
     kind: 'failed',
     message: 'SQLITE_CANTOPEN: unable to open database file',
-    onRetry: fn(),
+    onReload: fn(),
+    onReset: fn(async () => undefined),
   },
 } satisfies Meta<typeof LocalDatabaseBootErrorScreenView>;
 export default meta;
@@ -39,9 +40,26 @@ export const ResetAndReload: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const reset = await canvas.findByRole('button', {
-      name: 'Reset local data and reload',
+      name: 'Reset local data',
     });
     await userEvent.click(reset);
-    await expect(args.onRetry).toHaveBeenCalledOnce();
+    await expect(args.onReset).not.toHaveBeenCalled();
+    const confirm = await within(canvasElement.ownerDocument.body).findByRole(
+      'button',
+      { name: 'Reset and reload' }
+    );
+    await userEvent.click(confirm);
+    await expect(args.onReset).toHaveBeenCalledOnce();
+  },
+};
+
+/** The destructive choice names the local work at risk before it can run. */
+export const ResetConfirmation: Story = {
+  args: { kind: 'otherTab' },
+  play: async ({ canvasElement }) => {
+    const reset = await within(canvasElement).findByRole('button', {
+      name: 'Reset local data',
+    });
+    await userEvent.click(reset);
   },
 };

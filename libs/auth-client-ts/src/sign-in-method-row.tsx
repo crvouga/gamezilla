@@ -53,7 +53,7 @@ function ConnectableMethodRow(props: {
       idle: t`Connect`,
       loading: t`Connecting…`,
       success: t`Connected`,
-      error: t`Couldn't connect`,
+      error: t`Try again`,
     },
   });
   return (

@@ -1,0 +1,4 @@
+{
+  "summary": "A misplaced tap on the small Battleship phone grid immediately spent the shot; targeting now previews and requires confirmation.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

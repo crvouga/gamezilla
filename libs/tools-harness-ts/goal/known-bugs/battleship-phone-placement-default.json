@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 empty setup required discovering enlarged mode before using 44px bow cells.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-precision.test.tsx"
+}

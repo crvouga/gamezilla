@@ -33,6 +33,19 @@ export type ChessBoardProps = {
   /** Parent-owned board audio (default on). Disabling cancels pending playback. */
   sound?: boolean | undefined;
   showCoordinates?: boolean | undefined;
+  /** Visible side, check and keyboard guidance beside a full playing board. */
+  showGuidance?: boolean | undefined;
+  /** Fit guidance and coordinates inside a square host, rather than adding height. */
+  fitSquare?: boolean | undefined;
+  /** Put expandable help after a width-driven puzzle board. Matches default to before. */
+  guidancePlacement?: 'before' | 'after' | undefined;
+  /**
+   * Coordinate placement: `inside` (default) uses square corners;
+   * `outside-start` / `outside-end` adds the responsive frame with ranks
+   * on that edge and files below. Thumbnails retain corner labels.
+   * The outside frame is shown only when `showCoordinates` is enabled.
+   */
+  coordinatePlacement?: 'inside' | 'outside-start' | 'outside-end' | undefined;
   highlightLastMove?: boolean | undefined;
   /**
    * The move that reached `fen`, when the parent knows it and the board

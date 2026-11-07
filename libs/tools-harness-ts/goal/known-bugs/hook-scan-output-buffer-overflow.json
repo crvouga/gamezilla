@@ -1,0 +1,4 @@
+{
+  "summary": "The no-hook check exhausted spawnSync's output buffer listing all repository paths. Restrict git's output to every prohibited hook basename at any depth.",
+  "regressionTest": "libs/tools-harness-ts/scripts/git-hooks.test.ts"
+}

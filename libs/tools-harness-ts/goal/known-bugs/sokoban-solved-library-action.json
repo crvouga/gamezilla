@@ -1,0 +1,4 @@
+{
+  "summary": "Solved Sokoban described choosing another puzzle without providing a library action.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-player-recovery.test.tsx"
+}

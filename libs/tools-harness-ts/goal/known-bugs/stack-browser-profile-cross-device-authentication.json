@@ -1,0 +1,4 @@
+{
+  "summary": "Critical stack journeys reused alice.559006d7@gmail.com on a later fresh device. Bun's Chrome backend shares the first profile across all views in one process, so per-view dataStore paths did not isolate actors. Each real harness device now owns an isolated process for its storage lifetime, retaining its own profile across app/tab restarts. Browser-process crash durability is not asserted.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/isolated-browser.test.ts"
+}

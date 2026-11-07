@@ -1,11 +1,13 @@
 // @io-wall-ok — live browser process transport with a bounded request lifetime.
-import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
-import type { LiveTarget } from './live-browser';
 import type { BrowserCall } from './remote-browser-driver';
 
 const BROWSER_REQUEST_MS = 90_000;
-export function browserProcessChannel(process: IsolatedWorker) {
+export function browserProcessChannel<Open>(
+  process: IsolatedWorker,
+  timers: Timers
+) {
   const pending = new Map<
     number,
     { resolve: (value: unknown) => void; reject: (error: Error) => void }
@@ -36,22 +38,22 @@ export function browserProcessChannel(process: IsolatedWorker) {
   });
   const unwatch = process.onError((message) => fail(new Error(message)));
   const request = <T>(payload: {
-    open?: Pick<LiveTarget, 'webOrigin' | 'apiOrigin'>;
+    open?: Open;
     call?: BrowserCall;
   }): Promise<T> =>
     new Promise((resolve, reject) => {
       const id = ++sequence;
-      const timer = wallTimers.setTimeout(() => {
+      const timer = timers.setTimeout(() => {
         pending.delete(id);
         reject(new Error('The isolated browser did not answer'));
       }, BROWSER_REQUEST_MS);
       pending.set(id, {
         resolve: (value) => {
-          wallTimers.clearTimeout(timer);
+          timers.clearTimeout(timer);
           resolve(value as T);
         },
         reject: (error) => {
-          wallTimers.clearTimeout(timer);
+          timers.clearTimeout(timer);
           const call = payload.call;
           reject(
             call === undefined
@@ -86,11 +88,11 @@ export function browserProcessChannel(process: IsolatedWorker) {
     request,
     consoleLines,
     networkLines,
-    close: () => {
+    close: async () => {
       unsubscribe();
       unwatch();
       fail(new Error('The browser closed'));
-      process.terminate();
+      await process.terminate();
     },
   };
 }

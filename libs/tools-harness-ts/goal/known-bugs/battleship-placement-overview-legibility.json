@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 enlarged setup reduced the ten-column fleet overview to 112px, crushing A–J coordinate labels.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

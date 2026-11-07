@@ -1,0 +1,4 @@
+{
+  "summary": "The accepted CAT story selected every visible 10, including board coordinates and Q tile points, instead of the local player's score.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The global action menu monitor required application chrome on the configured Google authorization page, aborting the native handoff journey before callback/state verification. Only a valid exact configured stack provider request exempts chrome; unexpected external navigation still fails.",
+  "regressionTest": "libs/harness-ts/tests/google-provider-handoff.test.ts"
+}

@@ -108,12 +108,15 @@ test("each paddle takes its seat's color and each half names who plays it", () =
   ]);
 });
 
-test('the scores and a plain status are said to a listener only', () => {
+test('scores have spoken labels and the serve is visible on the court', () => {
   mount(1440);
-  for (const id of ['pong-score-left', 'pong-score-right', 'pong-status'])
+  for (const id of ['pong-score-left', 'pong-score-right'])
     expect(
       screen.getByTestId(id).closest('[data-component="VisuallyHidden"]')
     ).not.toBeNull();
+  expect(
+    screen.getByTestId('pong').contains(screen.getByTestId('pong-status'))
+  ).toBe(true);
 });
 
 // regression: pong-score-off-court — the score sat only in the players'
@@ -160,7 +163,7 @@ function rule(file: string, selector: string): string {
 // whole width, and the digits keep most of their colour.
 // regression: pong-phone-court-small-again — the court then still shared
 // its row with a slider lane, and its paddles were 5px wide. Nothing
-// shares its row; each paddle is drawn 1.5 times its playing width.
+// shares its row; each paddle is drawn 2 times its playing width.
 test('phone: the court takes the whole width, its paddles and score readable', () => {
   mount(390);
   // The court's stage holds the court and its slider, and no lane beside.
@@ -172,7 +175,7 @@ test('phone: the court takes the whole width, its paddles and score readable', (
   ).toHaveLength(1);
   const paddle = screen.getByTestId('pong-first-paddle');
   expect(Number(paddle.getAttribute('width'))).toBe(
-    pongConfig().paddleWidth * 1.5
+    pongConfig().paddleWidth * 2
   );
   const opacity = /opacity: ([\d.]+)/.exec(
     rule('paddle-court/paddle-court.module.css', '.score')
@@ -246,14 +249,15 @@ test("phone: the paddle's slider draws only a focus ring around its half", () =>
 });
 
 // regression: pong-ball-tiny — the ball was a 20-unit square on a
-// 1200-unit court, about 5px across on a phone. It is drawn round and 1.8
+// 1200-unit court, about 5px across on a phone. It is drawn round and 2.4
 // times its playing size, centred where it plays.
+// regression: pong-phone-marker-legibility
 test('the ball is drawn round, larger than it plays, centred where it plays', () => {
   mount(390);
   const config = pongConfig();
   const ball = screen.getByTestId('pong-ball');
   expect(ball.tagName.toLowerCase()).toBe('circle');
-  expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 1.8);
+  expect(Number(ball.getAttribute('r'))).toBe(config.ballRadius * 2.4);
   expect(Number(ball.getAttribute('cx'))).toBe(config.width / 2);
 });
 

@@ -57,14 +57,35 @@
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
+/* Include the coordinate gutter, gaps and padding in the bounded target size. */
+.board[data-fill="false"][data-board-theme="battleship"] {
+  grid-template-columns:
+    var(--ui-space-6)
+    repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  max-width: calc(
+    var(--cell-grid-columns) *
+    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+    var(--ui-space-6) +
+    var(--ui-space-4)
+  );
+}
 /* A game's board fills its column, edge to edge with its seats. */
 .board[data-fill="true"] {
   max-width: none;
+}
+/* Keep the whole Quoridor board above its precise picker and confirmation. */
+.board[data-fill="true"][data-board-theme="quoridor"] {
+  max-width: calc(var(--ui-control-size-lg) * 9);
 }
 /* On a phone a Battleship grid's ten targets are as large as its frame
    allows: a narrow label column, hairline gaps and slim padding give the
    room to the targets, each about 32px instead of 30px. */
 @container game-column (max-width: 879px) {
+  /* Use the phone column for the spatial task. Concise controls preserve
+     room for confirmation; the precise picker retains 44px alternatives. */
+  .board[data-fill="true"][data-board-theme="quoridor"] {
+    max-width: calc(var(--ui-control-size-lg) * 7);
+  }
   .board[data-fill="true"][data-board-theme="battleship"] {
     grid-template-columns:
       minmax(1rem, 0.5fr)
@@ -242,6 +263,28 @@
   --color-on-warning: var(--ui-color-on-warning);
   --ui-color-on-info: var(--ui-color-game-quoridor-canvas);
   --color-on-info: var(--ui-color-on-info);
+}
+/* Quoridor pawns keep the same identities as their seats in both variants.
+   Keep flat square boundaries distinct from heavier walls and destination rings. */
+.board[data-board-theme="quoridor"] .cell {
+  container-type: inline-size;
+  border-radius: 0;
+  --color-border: var(--ui-color-game-quoridor-muted);
+}
+.board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
+  font-size: 72cqw;
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="one"] {
+  color: var(--ui-color-player7);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="two"] {
+  color: var(--ui-color-player5);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="three"] {
+  color: var(--ui-color-player8);
+}
+.board[data-board-theme="quoridor"] .cell[data-identity="four"] {
+  color: var(--ui-color-player6);
 }
 /* A wooden board: squares meet edge to edge in the board's two tones, the
    glyph fills most of its square, and the labels sit in the corners of the
@@ -444,4 +487,58 @@
 }
 .legendMark .glyph {
   font-size: var(--ui-font-size-sm);
+}
+
+/* Board boundaries must remain visible against dark water. */
+.board[data-board-theme="battleship"] .cell[data-tone="open"] {
+  border-color: var(--ui-color-game-battleship-muted);
+}
+/* Keep bright seat fills, with the board's dark ink defining every pawn. */
+.board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
+  -webkit-text-stroke: 0.08em var(--ui-color-game-quoridor-ink);
+  paint-order: stroke fill;
+}
+
+.board[data-board-theme="quoridor"] .cell[data-goal="true"] {
+  position: relative;
+}
+/* A small corner diamond identifies goals without tracing every cell again. */
+.board[data-board-theme="quoridor"] .cell[data-goal="true"]::before {
+  border: none;
+  content: "";
+  position: absolute;
+  top: var(--ui-space-1);
+  left: var(--ui-space-1);
+  width: var(--ui-space-1);
+  height: var(--ui-space-1);
+  background: var(--ui-color-game-quoridor-ink);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.board[data-board-theme="quoridor"]
+  .cell[data-goal="true"][data-tone="open"]
+  .glyph {
+  font-size: 72cqw;
+}
+
+/* A proposed wall is a continuous accent bar, distinct from committed ink.
+   Its location persists while the player reaches the confirmation controls. */
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-top="true"] {
+  border-top-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-right="true"] {
+  border-right-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-bottom="true"] {
+  border-bottom-style: solid;
+}
+.board[data-board-theme="quoridor"] .cell[data-preview-edge-left="true"] {
+  border-left-style: solid;
+}
+
+/* Legal destinations are large open rings, never tiny dots lost in the grid. */
+.board[data-board-theme="quoridor"] .cell[data-emphasis="preview"] .glyph {
+  font-size: 72cqw;
+  font-weight: 700;
+  color: var(--ui-color-game-quoridor-accent);
 }

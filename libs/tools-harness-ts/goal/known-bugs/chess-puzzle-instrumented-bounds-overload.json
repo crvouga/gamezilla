@@ -1,0 +1,4 @@
+{
+  "summary": "Instrumenting the literal chess wrong-move recovery story expanded repeated 64-square/ancestor checks into more than 13,000 calls and prevented completion within 120 seconds. Collect every unchanged numeric boundary comparison and assert the detailed violation list together; the instrumented recovery must finish under the normal browser expectation budget.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

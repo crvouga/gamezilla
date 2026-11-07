@@ -27,8 +27,8 @@ export type ChessBoardPromotionProps = {
   readonly onCancel: () => void;
 };
 
-/** One square of the painted board, never below a 44px touch target. */
-const CELL = 'max(12.5%, 44px)';
+/** A named choice panel stays inside even the narrowest board. */
+const CELL = 'min(100%, max(37.5%, 144px))';
 
 type StackLayout = {
   readonly style: JSX.CSSProperties;
@@ -38,8 +38,8 @@ type StackLayout = {
 };
 
 /**
- * The stack sits on the promotion file, the queen on the promotion square,
- * growing away from the board edge. Percentages resolve against the host's
+ * The named stack anchors to the promotion file and grows away from the
+ * board edge. Percentages resolve against the host's
  * content box (the painted board), so no pixel measurement is involved.
  */
 function stackLayout(args: {
@@ -71,18 +71,17 @@ function CancelChip(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint items-center justify-center text textBodyBold w-full"
+      class="clickable clickableTint items-center justify-center text textBodyBold w-full min-h-11"
       style={{
         'background-color': props.theme.promotion.cancel,
         color: props.theme.promotion.ink,
-        'aspect-ratio': '1 / 0.45',
       }}
       type="button"
       aria-label="Cancel promotion"
       data-testid={chessBoardPromotionTestId(props.boardTestId, 'cancel')}
       onClick={() => props.onCancel()}
     >
-      <Trans>✕</Trans>
+      <Trans>Cancel</Trans>
     </button>
   );
 }
@@ -104,8 +103,11 @@ function PromotionChoice(props: {
   return (
     <button
       ref={button}
-      class="clickable clickableTint p-0 w-full aspect-square"
-      style={{ 'background-color': props.theme.promotion.surface }}
+      class="clickable clickableTint flex-row items-center gap-2 px-2 w-full min-h-11"
+      style={{
+        'background-color': props.theme.promotion.surface,
+        color: 'var(--ui-color-board-card-ink)',
+      }}
       type="button"
       aria-label={name()}
       data-testid={chessBoardPromotionTestId(props.boardTestId, props.kind)}
@@ -114,7 +116,9 @@ function PromotionChoice(props: {
       <span
         class={`${styles['piece']} ${styles['promotionPiece']}`}
         data-piece={`${props.color}${props.kind}`}
+        aria-hidden="true"
       />
+      <span class="text textCaption text-board-card-ink">{name()}</span>
     </button>
   );
 }
@@ -136,7 +140,7 @@ function PromotionStack(props: {
   );
   return (
     <div
-      class="box absolute flex-col"
+      class="box absolute flex-col max-h-full overflow-y-auto"
       role="presentation"
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
@@ -148,6 +152,9 @@ function PromotionStack(props: {
         }
       }}
     >
+      <h3 class="text textCaption p-2 bg-surface">
+        <Trans>Promote pawn</Trans>
+      </h3>
       <Show when={props.layout.cancelFirst}>{cancel()}</Show>
       <For each={[...props.layout.kinds]}>
         {(kind) => (

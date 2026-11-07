@@ -1,0 +1,4 @@
+{
+  "summary": "Rider instructions lacked matching roster names and round outcomes were repeated below the arena.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

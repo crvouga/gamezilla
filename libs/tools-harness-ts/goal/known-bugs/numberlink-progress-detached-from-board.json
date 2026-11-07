@@ -1,0 +1,4 @@
+{
+  "summary": "The five-pair phone board kept connected-pair and coverage counts below instructions and recovery. Counts now sit directly after the board.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-recovery.test.tsx"
+}

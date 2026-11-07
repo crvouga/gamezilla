@@ -1,0 +1,4 @@
+{
+  "summary": "Content author PublishDenied at phone width crops Locked beside the verified-account denial.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/publication-step/integration.checks.ts"
+}

@@ -64,6 +64,7 @@ export function wordTilesActions(
       label: t`Play word`,
       enabled:
         interactive &&
+        candidate.exchange === null &&
         (draft.preview()?.playable ?? false) &&
         candidateProposal(candidate) !== null,
       // While tiles are chosen to exchange, confirming is the next step.

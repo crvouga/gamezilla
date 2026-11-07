@@ -1,0 +1,4 @@
+{
+  "summary": "The browser driver reported draft buttons inside hidden library tabs as visible, so Numberlink and Sokoban journeys skipped selecting My creations and timed out tapping a zero-size button. Visibility now checks ancestor display and opacity, including choice labels.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/visibility-script.test.ts"
+}

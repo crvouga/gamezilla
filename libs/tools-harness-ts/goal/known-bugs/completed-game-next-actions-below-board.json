@@ -1,0 +1,4 @@
+{
+  "summary": "Completed games placed the outcome and next actions below a compact final board or after a long wide record.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}

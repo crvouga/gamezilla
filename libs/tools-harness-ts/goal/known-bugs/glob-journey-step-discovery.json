@@ -1,0 +1,4 @@
+{
+  "summary": "Static step discovery missed Numberlink and Sokoban registered by the shared journey entry's literal sibling glob.",
+  "regressionTest": "libs/tools-harness-ts/scripts/step-registration-globs.test.ts"
+}

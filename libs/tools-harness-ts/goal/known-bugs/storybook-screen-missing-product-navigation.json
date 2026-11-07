@@ -1,0 +1,4 @@
+{
+  "summary": "Full-screen stories omitted the production sidebar, compact tab navigation, and active-space header, so layout evidence did not represent the running app. Product-owned preview composition now supplies the real views at their route placements.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
+}

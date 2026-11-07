@@ -1,4 +1,7 @@
-import { decodeQuoridor } from '@libs/quoridor-shared-ts/quoridor';
+import {
+  decodeQuoridor,
+  quoridorMustPass,
+} from '@libs/quoridor-shared-ts/quoridor';
 import { QUORIDOR_SIDES } from '@libs/quoridor-shared-ts/quoridor-rules';
 import { t } from '@lingui/core/macro';
 import {
@@ -30,10 +33,14 @@ function quoridorTurnStatus(
   if (game.winner !== null) return null;
   const yours = viewer !== null && playerOf(viewer) === game.turn;
   const name = quoridorPlayerName(game, game.turn);
+  if (quoridorMustPass(game))
+    return yours
+      ? t`No pawn move or wall is legal. Pass your turn.`
+      : t`${name} must pass: no pawn move or wall is legal.`;
   if (game.mode === 'hill')
     return yours
-      ? t`Your turn. First to e5 wins.`
-      : t`${name} to move. First to e5 wins.`;
+      ? t`Your turn. Reach the center hill (e5) first.`
+      : t`${name} to move. First to the center hill (e5) wins.`;
   const row = game.turn === 0 ? '9' : '1';
   return yours
     ? t`Your turn. Reach row ${row}.`

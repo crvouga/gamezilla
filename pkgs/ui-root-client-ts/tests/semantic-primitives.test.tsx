@@ -119,7 +119,12 @@ describe('text', () => {
       'whitespace-nowrap',
       'select-text',
     ]);
-    expect(classes('clamped')).toEqual(['text', 'textBody', 'line-clamp-1']);
+    expect(classes('clamped')).toEqual([
+      'text',
+      'textBody',
+      'block',
+      'truncate',
+    ]);
     expect(classes('unselectable')).toEqual([
       'text',
       'textBody',
@@ -193,7 +198,8 @@ describe('headings', () => {
       'textLabel',
       'text-text-secondary',
       'text-center',
-      'line-clamp-1',
+      'block',
+      'truncate',
     ]);
   });
 });

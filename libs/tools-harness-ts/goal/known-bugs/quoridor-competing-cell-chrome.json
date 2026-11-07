@@ -1,0 +1,4 @@
+{
+  "summary": "Classic opening repeats inset goal rings and rounded cell chrome; Hill four-player legal targets are tiny dots.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

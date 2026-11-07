@@ -1,0 +1,4 @@
+{
+  "summary": "Unreadable Pong directed players to game choices without a recovery link.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board.test.tsx"
+}

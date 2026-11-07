@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
+import precision from '../game-screen/game-precision.module.css';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import { GameBoardPreviewContext } from './board-preview';
@@ -36,7 +37,7 @@ export function GameBoardStage(props: {
   const preview = (): boolean => props.preview === true;
   return (
     <div
-      class={styles['boardStage']}
+      class={`${styles['boardStage']} ${precision['board']}`}
       data-preview={props.preview === true}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >

@@ -10,7 +10,7 @@
 /* Three players on a phone: one row of three short chips, so no chip is
    left alone on a second row and the board keeps its height. Every chip
    has the same two lines and so the same height: its name, then its
-   swatch, figure and any short fact (`You`) on one line that never wraps.
+   swatch, figure and status facts wrapping within each seat.
    The swatch names the player's piece on the board, the name the person,
    so the avatar steps aside and the chips stay short. */
 @container game-column (max-width: 879px) {
@@ -37,8 +37,19 @@
     justify-self: stretch;
   }
   .playerRail:has(> :nth-child(3):last-child) .chipFacts {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: center;
-    white-space: nowrap;
+    width: 100%;
+    white-space: normal;
   }
+}
+
+.chipName {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: visible;
+}
+.chipFacts {
+  row-gap: var(--game-player-facts-row-gap, var(--ui-space-1));
+  max-width: 100%;
 }

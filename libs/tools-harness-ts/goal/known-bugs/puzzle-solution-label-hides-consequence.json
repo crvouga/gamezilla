@@ -1,0 +1,4 @@
+{
+  "summary": "The same Solution label concealed the difference between revealing a move and ending the puzzle attempt.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/reveal-label.test.tsx"
+}

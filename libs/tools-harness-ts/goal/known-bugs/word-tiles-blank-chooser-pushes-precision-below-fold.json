@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the AEST?RN blank-at-j8 chooser pushed the enlarged precision viewport to y466..882. Compact workbenches reserve seven full 52px rows so target, all 44px letters, rack, actions, bonus and at least 308x308 placement remain visible.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

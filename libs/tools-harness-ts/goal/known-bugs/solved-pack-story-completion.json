@@ -1,0 +1,4 @@
+{
+  "summary": "Solved Numberlink and Sokoban story boards omitted the production attempt completion feedback. Story completion now follows each game's actual puzzle rules and solved plays assert the success message.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

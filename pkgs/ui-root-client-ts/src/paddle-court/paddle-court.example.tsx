@@ -16,6 +16,10 @@ export default function PaddleCourtExample() {
         <For each={[true, false]}>
           {(enabled) => (
             <PaddleCourt
+              status={
+                enabled ? 'Serve in 3.' : 'Paused while a player returns.'
+              }
+              touchHint={enabled ? 'Drag' : undefined}
               width={1200}
               height={800}
               controlled={enabled ? ['first'] : []}

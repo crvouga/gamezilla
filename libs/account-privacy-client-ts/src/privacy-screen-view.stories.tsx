@@ -1,7 +1,9 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PrivacyScreenView } from './privacy-screen-view';
+import type { PrivacyActionAccess } from './privacy-action-access';
+import { type DeletionReceipt, PrivacyScreenView } from './privacy-screen-view';
 import type { AccountPrivacyRow } from './use-account-privacy';
 
 const OWNER = '7b1e2c3d-0000-4000-8000-000000000001';
@@ -66,6 +68,8 @@ const meta = {
   },
   args: {
     status: 'ready',
+    exportAccess: { kind: 'allowed' },
+    deletionAccess: { kind: 'allowed' },
     row: NO_EXPORT,
     exportPhase: 'none',
     replacingExport: false,
@@ -232,5 +236,117 @@ export const ReviewDeletion: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('privacy-delete-review'));
     await expect(args.onReviewDelete).toHaveBeenCalledOnce();
+  },
+};
+
+/** The persisted device receipt is not evidence that a later account has no actions. */
+export const ReceiptWithCurrentAccountActions: Story = {
+  args: { ...ReadyToDownload.args, ...DeletionConfirmed.args },
+};
+
+/** Receipt updates must not remount or prematurely dismiss the deletion confirmation. */
+export const ConfirmThenReceipt: Story = {
+  render: (args) => {
+    const [confirming, setConfirming] = createSignal(false);
+    const [receipt, setReceipt] = createSignal<DeletionReceipt | null>(null);
+    const [access, setAccess] = createSignal<PrivacyActionAccess>({
+      kind: 'allowed',
+    });
+    return (
+      <PrivacyScreenView
+        {...args}
+        exportAccess={access()}
+        deletionAccess={access()}
+        deletionConfirming={confirming()}
+        deletionReceipt={receipt()}
+        onReviewDelete={() => {
+          args.onReviewDelete();
+          setConfirming(true);
+        }}
+        onCancelDelete={() => {
+          args.onCancelDelete();
+          setConfirming(false);
+        }}
+        onConfirmDelete={async () => {
+          await args.onConfirmDelete();
+          setAccess({
+            kind: 'denied',
+            denial: {
+              ...PROOF_REQUIRED,
+              dataSet: { testid: 'privacy-current-access' },
+            },
+          });
+          setReceipt({
+            eraseBy: '2026-12-02T12:00:00.000Z',
+            cancellationComplete: false,
+          });
+        }}
+      />
+    );
+  },
+};
+
+/** Live permission denial after deletion/sign-out; receipt is history, not the gate. */
+export const ReceiptWithUnavailableActions: Story = {
+  args: {
+    ...DeletionConfirmed.args,
+    exportAccess: {
+      kind: 'denied',
+      denial: {
+        icon: KeyRoundIcon,
+        title: 'Sign in to continue',
+        action: { label: 'Sign in', onPress: fn() },
+        dataSet: {
+          testid: 'privacy-export-access',
+          reason: 'requires_account',
+        },
+      },
+    },
+    deletionAccess: {
+      kind: 'denied',
+      denial: {
+        icon: KeyRoundIcon,
+        title: 'Sign in to continue',
+        action: { label: 'Sign in', onPress: fn() },
+        dataSet: {
+          testid: 'privacy-delete-access',
+          reason: 'requires_account',
+        },
+      },
+    },
+  },
+};
+
+/** Current permission needs fresh proof, unlike the attempted-refusal stories above. */
+export const AccessNeedsProof: Story = {
+  args: {
+    exportAccess: {
+      kind: 'denied',
+      denial: {
+        ...PROOF_REQUIRED,
+        dataSet: { testid: 'privacy-export-access' },
+      },
+    },
+    deletionAccess: {
+      kind: 'denied',
+      denial: {
+        ...PROOF_REQUIRED,
+        dataSet: { testid: 'privacy-delete-access' },
+      },
+    },
+  },
+};
+
+/** Current permission waits for connection; there is no invented reconnect callback. */
+export const AccessOffline: Story = {
+  args: {
+    exportAccess: {
+      kind: 'denied',
+      denial: { ...OFFLINE, dataSet: { testid: 'privacy-export-access' } },
+    },
+    deletionAccess: {
+      kind: 'denied',
+      denial: { ...OFFLINE, dataSet: { testid: 'privacy-delete-access' } },
+    },
   },
 };

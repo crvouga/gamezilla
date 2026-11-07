@@ -6,6 +6,7 @@ import styles from './paired-panels.module.css';
 export type PairedPanelsProps<K extends string> = {
   /** The name of the pair, and of the switch that chooses between them. */
   readonly label: string;
+  /** Switch identifier; the panel root uses `${testId}-panels`. */
   readonly testId: string;
   /** The two panels' keys, in reading order; the switch's segments are `${testId}-${key}`. */
   readonly keys: readonly [K, K];
@@ -60,7 +61,7 @@ export function PairedPanels<K extends string>(
     <div
       class={styles['frame']}
       {...dataAttrs({ component: 'PairedPanels' })}
-      data-testid={props.testId}
+      data-testid={`${props.testId}-panels`}
       data-selected={props.selected}
       data-paired-panels="true"
     >

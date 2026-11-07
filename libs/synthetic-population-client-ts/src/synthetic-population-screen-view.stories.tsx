@@ -55,9 +55,9 @@ export const ViewOnly: Story = {
   args: { canConfigure: false, directory: directory({ canInspect: false }) },
 };
 
-/** The first read has not finished; only the activity indicator and Refresh. */
+/** The first read has not finished; the activity indicator, Refresh and unavailable Save. */
 export const Loading: Story = {
-  args: { loading: true, overview: undefined },
+  args: { loading: true, overview: undefined, canSave: false },
 };
 
 /** A live update is rereading; the last overview stays under the indicator. */
@@ -65,7 +65,7 @@ export const Refreshing: Story = { args: { loading: true } };
 
 /** The first read failed; Refresh is the way to try again. */
 export const Failed: Story = {
-  args: { failed: true, overview: undefined },
+  args: { failed: true, overview: undefined, canSave: false },
 };
 
 /** Nothing is running yet: empty directory, no workers, no events. */

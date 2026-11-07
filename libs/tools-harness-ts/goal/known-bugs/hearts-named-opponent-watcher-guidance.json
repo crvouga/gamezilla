@@ -1,0 +1,4 @@
+{
+  "summary": "Deal 4, lead South, plays 2C/3C told opponents and watchers North to play despite a resolved Mei Chen identity; completed 2C/3C/4C/5C trick similarly named East instead of Zoë Martin.",
+  "regressionTest": "libs/hearts-client-ts/tests/named-turn-guidance.test.tsx"
+}

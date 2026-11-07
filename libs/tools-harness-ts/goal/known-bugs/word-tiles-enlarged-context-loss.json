@@ -1,0 +1,4 @@
+{
+  "summary": "Enlarged Word Tiles lost whole-board context and did not visually distinguish its active mode.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

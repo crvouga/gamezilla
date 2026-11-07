@@ -6,6 +6,7 @@ import styles from '../game-ui.module.css';
 import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
 import heading from './game-heading.module.css';
+import precision from './game-precision.module.css';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
@@ -53,7 +54,10 @@ export function GameScreen(props: {
       width="full"
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
-      <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
+      <div
+        class={`${styles['column']} ${precision['column']}`}
+        {...dataAttrs({ component: 'GameColumn' })}
+      >
         <Show
           when={facts.present()}
           fallback={
@@ -157,7 +161,9 @@ export function GameLayout(props: {
         <Show when={setup.present()}>
           <div class={styles['setup']}>{setup.content()}</div>
         </Show>
-        <div class={styles['stage']}>{stage.content()}</div>
+        <div class={`${styles['stage']} ${precision['stage']}`}>
+          {stage.content()}
+        </div>
         <Show when={controls.present()}>
           <div
             class={styles['controls']}

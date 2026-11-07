@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 the lower card row started at y801 and extended below the viewport; require complete visible, nonoverlapping 44px card targets before browser interaction can scroll.",
+  "regressionTest": "libs/hearts-client-ts/tests/hand-bounds.test.ts"
+}

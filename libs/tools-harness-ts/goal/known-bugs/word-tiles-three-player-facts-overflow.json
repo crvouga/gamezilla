@@ -1,0 +1,4 @@
+{
+  "summary": "At a 390px viewport, three Word Tiles player chips force score, seat color, You, and tile-count facts onto nonwrapping rows wider than their cards, spilling outside the page. The browser regression requires each fact to remain visible inside its player chip.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts"
+}

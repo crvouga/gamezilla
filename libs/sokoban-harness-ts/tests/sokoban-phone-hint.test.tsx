@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { expect, test } from 'bun:test';
-import { SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
+import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -25,6 +25,9 @@ test("on a phone the board's hint is one short sentence", () => {
         fixedLayout={{ width: 390, height: 844 }}
       >
         <SokobanPlayer
+          onReturnToLibrary={() => {
+            throw new Error('Unexpected navigation');
+          }}
           definition={CORRIDOR}
           state={start.state}
           disabled={false}

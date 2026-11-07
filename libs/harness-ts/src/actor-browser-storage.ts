@@ -1,6 +1,8 @@
 // @io-wall-ok
+import { createIsolatedBrowserProcess } from '@pkgs/ui-testing-bun-webview-server-ts/wall-io';
 /** Browser devices retain cookies and local SQLite across application restarts. */
 export type ActorBrowserStorage = {
+  readonly browser: ReturnType<typeof createIsolatedBrowserProcess>;
   readonly dataStore: { readonly directory: string };
   readonly cleanup: () => Promise<void>;
 };
@@ -13,11 +15,13 @@ export async function createActorBrowserStorage(
   const { join } = await import('node:path');
   const { removeTree } = await import('@pkgs/fs-server-ts/remove-tree');
   const directory = await mkdtemp(join(tmpdir(), `harness-webview-${id}-`));
+  const browser = createIsolatedBrowserProcess();
   return {
+    browser,
     dataStore: { directory },
-    cleanup: () => {
+    cleanup: async () => {
+      await browser.close();
       removeTree(directory, { whenLocked: 'leave' });
-      return Promise.resolve();
     },
   };
 }

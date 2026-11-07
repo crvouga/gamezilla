@@ -1,0 +1,4 @@
+{
+  "summary": "Following spades, unavailable diamonds and hearts look too similar to legal 2S and 8S; use a hatched foot and inverse refusal marker without selecting legal cards.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

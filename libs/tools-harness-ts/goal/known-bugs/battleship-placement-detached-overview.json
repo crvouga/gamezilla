@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 and 1440x844 enlarged fleet setup stacked two tall boards below a full-width toolbar; overview and fleet controls fell below the working area.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

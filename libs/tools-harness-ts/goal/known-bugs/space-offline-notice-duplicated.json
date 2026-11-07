@@ -1,0 +1,4 @@
+{
+  "summary": "An offline invitation rendered the same connection explanation twice.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-entry-feedback.test.tsx"
+}
