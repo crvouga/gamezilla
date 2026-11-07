@@ -2,6 +2,7 @@ import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { isCell, SHIPS } from './battleship-board';
 import { battleshipBots } from './battleship-bot';
 import { parseFleet } from './battleship-fleet';
+import { chooseSetupShip, placeSetupBow } from './battleship-setup-gestures';
 
 export const battleshipAutomation: TurnGame['turnAutomation'] = {
   choose: (position, random) =>
@@ -25,16 +26,16 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     if (fleet === null) throw new Error('Invalid automated Battleship fleet');
     // regression: battleship-arrange-over-fleet
     for (const { id } of SHIPS) {
-      await ui.get(`${board}-ship-${id}`).tap();
+      await chooseSetupShip(ui, board, id);
       const remove = ui.get(`${board}-remove`);
       if ((await remove.attribute('disabled')) === null) await remove.tap();
     }
     for (const ship of fleet) {
-      await ui.get(`${board}-ship-${ship.ship}`).tap();
+      await chooseSetupShip(ui, board, ship.ship);
       const rotate = ui.get(`${board}-rotate`);
       if ((await rotate.attribute('data-orientation')) !== ship.orientation)
         await rotate.tap();
-      await ui.get(`${board}-cell-${ship.bow}`).tap();
+      await placeSetupBow(ui, board, ship.bow);
     }
   },
 };

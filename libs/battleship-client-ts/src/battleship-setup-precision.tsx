@@ -14,17 +14,43 @@ import {
 } from './battleship-copy';
 import type { SetupController } from './battleship-setup-controller';
 
-function shipOptions(setup: SetupController) {
+function shipOptions(setup: SetupController, testId: string) {
   return SHIPS.map(({ id, length }) => {
     const placed = setup.draft().get(id);
     return {
       value: id,
+      dataSet: { testid: `${testId}-ship-${id}` },
       label:
         placed === undefined
           ? `${shipName(id)} · ${length}`
           : `${shipName(id)} · ${placed.bow.toUpperCase()}, ${orientationName(placed.orientation)}`,
     };
   });
+}
+
+function regionOptions(testId: string) {
+  return [
+    {
+      value: 'nw',
+      dataSet: { testid: `${testId}-region-nw` },
+      label: 'A–E / 1–5',
+    },
+    {
+      value: 'ne',
+      dataSet: { testid: `${testId}-region-ne` },
+      label: 'F–J / 1–5',
+    },
+    {
+      value: 'sw',
+      dataSet: { testid: `${testId}-region-sw` },
+      label: 'A–E / 6–10',
+    },
+    {
+      value: 'se',
+      dataSet: { testid: `${testId}-region-se` },
+      label: 'F–J / 6–10',
+    },
+  ];
 }
 
 /** A magnified bow picker; placement still validates against the full fleet. */
@@ -86,7 +112,8 @@ export function SetupPrecision(props: {
                   if (isShipId(value)) props.setup.choose(value);
                 }}
                 disabled={props.locked}
-                options={shipOptions(props.setup)}
+                triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
+                options={shipOptions(props.setup, props.testId)}
               />
               {props.commands}
             </>
@@ -95,15 +122,11 @@ export function SetupPrecision(props: {
             <Select
               label={t`Region`}
               aria-label={t`Placement area`}
+              triggerDataSet={{ testid: `${props.testId}-region-picker` }}
               value={area()}
               onValueChange={setArea}
               disabled={props.locked}
-              options={[
-                { value: 'nw', label: 'A–E / 1–5' },
-                { value: 'ne', label: 'F–J / 1–5' },
-                { value: 'sw', label: 'A–E / 6–10' },
-                { value: 'se', label: 'F–J / 6–10' },
-              ]}
+              options={regionOptions(props.testId)}
             />
           }
           working={
