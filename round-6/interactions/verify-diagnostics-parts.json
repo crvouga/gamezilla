@@ -1,0 +1,26 @@
+{
+  "format": "Concatenate parts in listed order to reconstruct tar.gz",
+  "sha256": "b7da7f68bd4403be324d5dad7fcafe21cb5312978c2e8b2276db70494e900fd0",
+  "parts": [
+    {
+      "file": "verify-diagnostics.tar.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "e1c83be75bbfc732bb49e5c8e973a8d6cb0f8e44f56b23ceafd12c79b7ea1001"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "637bb1ee39d71eeb496c9eb8d5e1df3f848fbb559534177931bfd4294c44d1be"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-03",
+      "bytes": 50000000,
+      "sha256": "11d6f2cee9f893abe53f163a91be45011d7f4e496f2fec9ed09e54e2014b4c44"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-04",
+      "bytes": 8936955,
+      "sha256": "1a1e5741a4a96cd01128cbc72b1bd5bb1070974d9e6f58c59e4b1ae0a820d844"
+    }
+  ]
+}

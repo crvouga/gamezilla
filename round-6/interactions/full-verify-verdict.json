@@ -1,0 +1,19 @@
+{
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 TURBO_CONCURRENCY=1 bun verify",
+  "runs": 1,
+  "exitCode": 1,
+  "setupTasks": {
+    "successful": 13,
+    "total": 13
+  },
+  "gateTasksReported": {
+    "successful": 17,
+    "total": 20
+  },
+  "blockingTask": "@libs/tools-harness-ts#ci:statecharts",
+  "message": "/more/troubleshooting: no chart state owns the public route from libs/app-root-client-ts/src/route-table.ts",
+  "scope": "outside game boards; specs not edited",
+  "log": "verify-final.log",
+  "diagnostics": "verify-diagnostics-parts.json"
+}

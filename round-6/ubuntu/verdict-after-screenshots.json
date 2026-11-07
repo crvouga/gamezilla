@@ -1,0 +1,14 @@
+{
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "status": "in_progress: pending",
+  "runUrl": "https://github.com/crvouga/gamezilla/actions/runs/42309542538",
+  "runId": "42309542538",
+  "authorAndCompareRequested": true,
+  "referencesAccepted": false,
+  "observedAt": "2026-11-06T23:46:15.471809+00:00",
+  "authorStatus": "success",
+  "compareStatus": "in_progress",
+  "jobId": 128207277487,
+  "priorRounds": "No prior references or patches applied; superseded source runs are diagnostic only.",
+  "log": "Final job log unavailable while job is running; pending is not a pass."
+}

@@ -1,0 +1,1982 @@
+[
+  {
+    "card": {
+      "x": 16,
+      "y": 135,
+      "width": 86.5,
+      "height": 84,
+      "top": 135,
+      "right": 102.5,
+      "bottom": 219,
+      "left": 16
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" aria-current=\"step\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-white\" data-active=\"true\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-tint-subtle border-primary-strong\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%22kqlsz33p%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%23kqlsz33p)%22%3E%3Crect%20fill%3D%22%2371cf62%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M87%2013.04C87%205.84%2081.18%200%2074%200S61%205.84%2061%2013.04v3.92C61%2024.16%2066.82%2030%2074%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M69.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M74.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M26%2013.04C26%205.84%2020.18%200%2013%200S0%205.84%200%2013.04v3.92C0%2024.16%205.82%2030%2013%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M8.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36 text-on-primary-soft\">avery</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-connect-four-one\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"disc-one\" data-mark=\"●\"><span class=\"text textLabel whitespace-nowrap text-game-connect-four-canvas\">●</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"info\" data-tone=\"subtle\" data-size=\"md\"><span class=\"text whitespace-nowrap truncate\">You</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"neutral\" data-tone=\"subtle\" data-size=\"md\"><span class=\"text whitespace-nowrap truncate\">Choosing</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "avery●YouChoosing",
+        "box": {
+          "x": 21,
+          "y": 140,
+          "width": 76.5,
+          "height": 74,
+          "top": 140,
+          "right": 97.5,
+          "bottom": 214,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 140,
+            "width": 39.5,
+            "height": 22,
+            "top": 140,
+            "right": 60.5,
+            "bottom": 162,
+            "left": 21
+          },
+          {
+            "x": 21,
+            "y": 140,
+            "width": 39.5,
+            "height": 21,
+            "top": 140,
+            "right": 60.5,
+            "bottom": 161,
+            "left": 21
+          },
+          {
+            "x": 21,
+            "y": 166,
+            "width": 76.5,
+            "height": 48,
+            "top": 166,
+            "right": 97.5,
+            "bottom": 214,
+            "left": 21
+          },
+          {
+            "x": 23.96875,
+            "y": 167,
+            "width": 14.046875,
+            "height": 21,
+            "top": 167,
+            "right": 38.015625,
+            "bottom": 188,
+            "left": 23.96875
+          },
+          {
+            "x": 53,
+            "y": 169,
+            "width": 21.3125,
+            "height": 17,
+            "top": 169,
+            "right": 74.3125,
+            "bottom": 186,
+            "left": 53
+          },
+          {
+            "x": 29,
+            "y": 193,
+            "width": 55.8125,
+            "height": 17,
+            "top": 193,
+            "right": 84.8125,
+            "bottom": 210,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "avery",
+        "box": {
+          "x": 21,
+          "y": 140,
+          "width": 39.5,
+          "height": 22,
+          "top": 140,
+          "right": 60.5,
+          "bottom": 162,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 140,
+            "width": 39.5,
+            "height": 21,
+            "top": 140,
+            "right": 60.5,
+            "bottom": 161,
+            "left": 21
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "●YouChoosing",
+        "box": {
+          "x": 21,
+          "y": 166,
+          "width": 76.5,
+          "height": 48,
+          "top": 166,
+          "right": 97.5,
+          "bottom": 214,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 168,
+            "width": 20,
+            "height": 20,
+            "top": 168,
+            "right": 41,
+            "bottom": 188,
+            "left": 21
+          },
+          {
+            "x": 23.96875,
+            "y": 167,
+            "width": 14.046875,
+            "height": 21,
+            "top": 167,
+            "right": 38.015625,
+            "bottom": 188,
+            "left": 23.96875
+          },
+          {
+            "x": 45,
+            "y": 166,
+            "width": 37.3125,
+            "height": 24,
+            "top": 166,
+            "right": 82.3125,
+            "bottom": 190,
+            "left": 45
+          },
+          {
+            "x": 53,
+            "y": 169,
+            "width": 21.3125,
+            "height": 17,
+            "top": 169,
+            "right": 74.3125,
+            "bottom": 186,
+            "left": 53
+          },
+          {
+            "x": 21,
+            "y": 190,
+            "width": 71.8125,
+            "height": 24,
+            "top": 190,
+            "right": 92.8125,
+            "bottom": 214,
+            "left": 21
+          },
+          {
+            "x": 29,
+            "y": 193,
+            "width": 55.8125,
+            "height": 17,
+            "top": 193,
+            "right": 84.8125,
+            "bottom": 210,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "●",
+        "box": {
+          "x": 21,
+          "y": 168,
+          "width": 20,
+          "height": 20,
+          "top": 168,
+          "right": 41,
+          "bottom": 188,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 23.96875,
+            "y": 167,
+            "width": 14.046875,
+            "height": 22,
+            "top": 167,
+            "right": 38.015625,
+            "bottom": 189,
+            "left": 23.96875
+          },
+          {
+            "x": 23.96875,
+            "y": 167,
+            "width": 14.046875,
+            "height": 21,
+            "top": 167,
+            "right": 38.015625,
+            "bottom": 188,
+            "left": 23.96875
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "●",
+        "box": {
+          "x": 23.96875,
+          "y": 167,
+          "width": 14.046875,
+          "height": 22,
+          "top": 167,
+          "right": 38.015625,
+          "bottom": 189,
+          "left": 23.96875
+        },
+        "range": [
+          {
+            "x": 23.96875,
+            "y": 167,
+            "width": 14.046875,
+            "height": 21,
+            "top": 167,
+            "right": 38.015625,
+            "bottom": 188,
+            "left": 23.96875
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "You",
+        "box": {
+          "x": 45,
+          "y": 166,
+          "width": 37.3125,
+          "height": 24,
+          "top": 166,
+          "right": 82.3125,
+          "bottom": 190,
+          "left": 45
+        },
+        "range": [
+          {
+            "x": 53,
+            "y": 170,
+            "width": 21.3125,
+            "height": 16,
+            "top": 170,
+            "right": 74.3125,
+            "bottom": 186,
+            "left": 53
+          },
+          {
+            "x": 53,
+            "y": 169,
+            "width": 21.3125,
+            "height": 17,
+            "top": 169,
+            "right": 74.3125,
+            "bottom": 186,
+            "left": 53
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "You",
+        "box": {
+          "x": 53,
+          "y": 170,
+          "width": 21.3125,
+          "height": 16,
+          "top": 170,
+          "right": 74.3125,
+          "bottom": 186,
+          "left": 53
+        },
+        "range": [
+          {
+            "x": 53,
+            "y": 169,
+            "width": 21.3125,
+            "height": 17,
+            "top": 169,
+            "right": 74.3125,
+            "bottom": 186,
+            "left": 53
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "Choosing",
+        "box": {
+          "x": 21,
+          "y": 190,
+          "width": 71.8125,
+          "height": 24,
+          "top": 190,
+          "right": 92.8125,
+          "bottom": 214,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 29,
+            "y": 194,
+            "width": 55.8125,
+            "height": 16,
+            "top": 194,
+            "right": 84.8125,
+            "bottom": 210,
+            "left": 29
+          },
+          {
+            "x": 29,
+            "y": 193,
+            "width": 55.8125,
+            "height": 17,
+            "top": 193,
+            "right": 84.8125,
+            "bottom": 210,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Choosing",
+        "box": {
+          "x": 29,
+          "y": 194,
+          "width": 55.8125,
+          "height": 16,
+          "top": 194,
+          "right": 84.8125,
+          "bottom": 210,
+          "left": 29
+        },
+        "range": [
+          {
+            "x": 29,
+            "y": 193,
+            "width": 55.8125,
+            "height": 17,
+            "top": 193,
+            "right": 84.8125,
+            "bottom": 210,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 106.5,
+      "y": 135,
+      "width": 86.5,
+      "height": 122,
+      "top": 135,
+      "right": 193,
+      "bottom": 257,
+      "left": 106.5
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-black\" data-active=\"false\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%226hunz06h%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%236hunz06h)%22%3E%3Crect%20fill%3D%22%23fcbc34%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M16.41%2026.96H9.82c-9.7%200-9.7.08-9.7-9.7v-4.09A12.2%2012.2%200%200%201%2012.32.97h1.6a12.2%2012.2%200%200%201%2012.2%2012.2v4.16c-.03%209.7-.03%209.63-9.7%209.63Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M8.87%2010.5a2.29%202.29%200%201%200%200-4.58%202.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.11%2019.31a5.32%205.32%200%201%200%200-10.64%205.32%205.32%200%200%200%200%2010.64Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M62.7%2019.96a1.68%201.68%200%200%201-1.5-.93%201.75%201.75%200%200%201-.12-1.32%2013.54%2013.54%200%200%201%204.85-7.09A13.1%2013.1%200%200%201%2074%207.97c2.9-.03%205.73.9%208.06%202.66a13.63%2013.63%200%200%201%204.87%207.08c.13.44.08.92-.13%201.32a1.72%201.72%200%200%201-2.3.73%201.69%201.69%200%200%201-.83-1.03c-.63-2.13-1.91-4-3.66-5.32a9.92%209.92%200%200%200-6.07-2c-2.17%200-4.28.7-6.02%202.02a10.26%2010.26%200%200%200-3.64%205.3c-.1.35-.32.66-.6.88a1.7%201.7%200%200%201-.98.35Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">jordan_plays</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-connect-four-two\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"disc-two\" data-mark=\"◆\"><span class=\"text textLabel whitespace-nowrap text-game-connect-four-canvas\">◆</span></span><span class=\"text textCaption whitespace-nowrap\" data-component=\"GameSeatStat\" data-value=\"12\">Points <span class=\"textNumeral font-semibold\">12</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"success\" data-tone=\"subtle\" data-size=\"md\" data-testid=\"custom-game-black-committed\"><span class=\"text whitespace-nowrap truncate\">Chosen</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "jordan_plays◆Points 12Chosen",
+        "box": {
+          "x": 111.5,
+          "y": 140,
+          "width": 76.5,
+          "height": 112,
+          "top": 140,
+          "right": 188,
+          "bottom": 252,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 140,
+            "width": 76.5,
+            "height": 44,
+            "top": 140,
+            "right": 188,
+            "bottom": 184,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 140,
+            "width": 70.0625,
+            "height": 21,
+            "top": 140,
+            "right": 181.5625,
+            "bottom": 161,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 162,
+            "width": 24.71875,
+            "height": 21,
+            "top": 162,
+            "right": 136.21875,
+            "bottom": 183,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 188,
+            "width": 76.5,
+            "height": 64,
+            "top": 188,
+            "right": 188,
+            "bottom": 252,
+            "left": 111.5
+          },
+          {
+            "x": 116.078125,
+            "y": 187,
+            "width": 10.84375,
+            "height": 21,
+            "top": 187,
+            "right": 126.921875,
+            "bottom": 208,
+            "left": 116.078125
+          },
+          {
+            "x": 111.5,
+            "y": 208,
+            "width": 42.09375,
+            "height": 19,
+            "top": 208,
+            "right": 153.59375,
+            "bottom": 227,
+            "left": 111.5
+          },
+          {
+            "x": 153.59375,
+            "y": 208,
+            "width": 2.8125,
+            "height": 19,
+            "top": 208,
+            "right": 156.40625,
+            "bottom": 227,
+            "left": 153.59375
+          },
+          {
+            "x": 156.40625,
+            "y": 208,
+            "width": 17.375,
+            "height": 19,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 227,
+            "left": 156.40625
+          },
+          {
+            "x": 119.5,
+            "y": 231,
+            "width": 44.6875,
+            "height": 17,
+            "top": 231,
+            "right": 164.1875,
+            "bottom": 248,
+            "left": 119.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "jordan_plays",
+        "box": {
+          "x": 111.5,
+          "y": 140,
+          "width": 76.5,
+          "height": 44,
+          "top": 140,
+          "right": 188,
+          "bottom": 184,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 140,
+            "width": 70.0625,
+            "height": 21,
+            "top": 140,
+            "right": 181.5625,
+            "bottom": 161,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 162,
+            "width": 24.71875,
+            "height": 21,
+            "top": 162,
+            "right": 136.21875,
+            "bottom": 183,
+            "left": 111.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "◆Points 12Chosen",
+        "box": {
+          "x": 111.5,
+          "y": 188,
+          "width": 76.5,
+          "height": 64,
+          "top": 188,
+          "right": 188,
+          "bottom": 252,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 188,
+            "width": 20,
+            "height": 20,
+            "top": 188,
+            "right": 131.5,
+            "bottom": 208,
+            "left": 111.5
+          },
+          {
+            "x": 116.078125,
+            "y": 187,
+            "width": 10.84375,
+            "height": 21,
+            "top": 187,
+            "right": 126.921875,
+            "bottom": 208,
+            "left": 116.078125
+          },
+          {
+            "x": 111.5,
+            "y": 208,
+            "width": 62.28125,
+            "height": 20,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 228,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 208,
+            "width": 42.09375,
+            "height": 19,
+            "top": 208,
+            "right": 153.59375,
+            "bottom": 227,
+            "left": 111.5
+          },
+          {
+            "x": 153.59375,
+            "y": 208,
+            "width": 2.8125,
+            "height": 19,
+            "top": 208,
+            "right": 156.40625,
+            "bottom": 227,
+            "left": 153.59375
+          },
+          {
+            "x": 156.40625,
+            "y": 208,
+            "width": 17.375,
+            "height": 19,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 227,
+            "left": 156.40625
+          },
+          {
+            "x": 111.5,
+            "y": 228,
+            "width": 60.6875,
+            "height": 24,
+            "top": 228,
+            "right": 172.1875,
+            "bottom": 252,
+            "left": 111.5
+          },
+          {
+            "x": 119.5,
+            "y": 231,
+            "width": 44.6875,
+            "height": 17,
+            "top": 231,
+            "right": 164.1875,
+            "bottom": 248,
+            "left": 119.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "◆",
+        "box": {
+          "x": 111.5,
+          "y": 188,
+          "width": 20,
+          "height": 20,
+          "top": 188,
+          "right": 131.5,
+          "bottom": 208,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 116.078125,
+            "y": 187,
+            "width": 10.84375,
+            "height": 22,
+            "top": 187,
+            "right": 126.921875,
+            "bottom": 209,
+            "left": 116.078125
+          },
+          {
+            "x": 116.078125,
+            "y": 187,
+            "width": 10.84375,
+            "height": 21,
+            "top": 187,
+            "right": 126.921875,
+            "bottom": 208,
+            "left": 116.078125
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "◆",
+        "box": {
+          "x": 116.078125,
+          "y": 187,
+          "width": 10.84375,
+          "height": 22,
+          "top": 187,
+          "right": 126.921875,
+          "bottom": 209,
+          "left": 116.078125
+        },
+        "range": [
+          {
+            "x": 116.078125,
+            "y": 187,
+            "width": 10.84375,
+            "height": 21,
+            "top": 187,
+            "right": 126.921875,
+            "bottom": 208,
+            "left": 116.078125
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Points 12",
+        "box": {
+          "x": 111.5,
+          "y": 208,
+          "width": 62.28125,
+          "height": 20,
+          "top": 208,
+          "right": 173.78125,
+          "bottom": 228,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 208,
+            "width": 42.09375,
+            "height": 19,
+            "top": 208,
+            "right": 153.59375,
+            "bottom": 227,
+            "left": 111.5
+          },
+          {
+            "x": 153.59375,
+            "y": 208,
+            "width": 2.8125,
+            "height": 19,
+            "top": 208,
+            "right": 156.40625,
+            "bottom": 227,
+            "left": 153.59375
+          },
+          {
+            "x": 156.40625,
+            "y": 208,
+            "width": 17.375,
+            "height": 19,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 227,
+            "left": 156.40625
+          },
+          {
+            "x": 156.40625,
+            "y": 208,
+            "width": 17.375,
+            "height": 19,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 227,
+            "left": 156.40625
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "12",
+        "box": {
+          "x": 156.40625,
+          "y": 208,
+          "width": 17.375,
+          "height": 19,
+          "top": 208,
+          "right": 173.78125,
+          "bottom": 227,
+          "left": 156.40625
+        },
+        "range": [
+          {
+            "x": 156.40625,
+            "y": 208,
+            "width": 17.375,
+            "height": 19,
+            "top": 208,
+            "right": 173.78125,
+            "bottom": 227,
+            "left": 156.40625
+          }
+        ],
+        "style": {
+          "display": "inline",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Chosen",
+        "box": {
+          "x": 111.5,
+          "y": 228,
+          "width": 60.6875,
+          "height": 24,
+          "top": 228,
+          "right": 172.1875,
+          "bottom": 252,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 119.5,
+            "y": 232,
+            "width": 44.6875,
+            "height": 16,
+            "top": 232,
+            "right": 164.1875,
+            "bottom": 248,
+            "left": 119.5
+          },
+          {
+            "x": 119.5,
+            "y": 231,
+            "width": 44.6875,
+            "height": 17,
+            "top": 231,
+            "right": 164.1875,
+            "bottom": 248,
+            "left": 119.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Chosen",
+        "box": {
+          "x": 119.5,
+          "y": 232,
+          "width": 44.6875,
+          "height": 16,
+          "top": 232,
+          "right": 164.1875,
+          "bottom": 248,
+          "left": 119.5
+        },
+        "range": [
+          {
+            "x": 119.5,
+            "y": 231,
+            "width": 44.6875,
+            "height": 17,
+            "top": 231,
+            "right": 164.1875,
+            "bottom": 248,
+            "left": 119.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 197,
+      "y": 135,
+      "width": 86.5,
+      "height": 122,
+      "top": 135,
+      "right": 283.5,
+      "bottom": 257,
+      "left": 197
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-red\" data-active=\"false\" data-state=\"reconnecting\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%22p6vxzl9l%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%23p6vxzl9l)%22%3E%3Crect%20fill%3D%22%23d9915b%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M87.22%2013.98c0-7.2-5.82-13.04-13-13.04s-13%205.84-13%2013.04v3.92c0%207.2%205.82%2013.04%2013%2013.04s13-5.83%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M70%2010.48a2.29%202.29%200%201%200%200-4.58%202.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M74.24%2019.3a5.32%205.32%200%201%200%200-10.66%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M26.22%2013.98c0-7.2-5.82-13.04-13-13.04s-13%205.84-13%2013.04v3.92c0%207.2%205.82%2013.04%2013%2013.04s13-5.83%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M9%2010.48A2.29%202.29%200%201%200%209%205.9a2.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.24%2019.3a5.32%205.32%200%201%200%200-10.66%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M84.33-5.7H65.45C58.63-5.7%2053.1-.2%2053.1%206.6v18.8c0%206.79%205.52%2012.3%2012.34%2012.3h18.88c6.81%200%2012.34-5.51%2012.34-12.3V6.6c0-6.8-5.53-12.3-12.34-12.3Z%22%20fill%3D%22url(%236joeibd9)%22%2F%3E%3Cpath%20d%3D%22M21.3-5.7H2.42C-4.4-5.7-9.92-.2-9.92%206.6v18.8c0%206.79%205.52%2012.3%2012.34%2012.3H21.3c6.81%200%2012.34-5.51%2012.34-12.3V6.6c0-6.8-5.53-12.3-12.34-12.3Z%22%20fill%3D%22url(%23misz60ci)%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Cpath%20d%3D%22M21.06%2040.12H2.18A14.83%2014.83%200%200%201-8.2%2035.81a14.71%2014.71%200%200%201-4.33-10.34V6.6c.02-3.87%201.58-7.59%204.34-10.34A14.85%2014.85%200%200%201%202.18-8.06h18.88c3.92.02%207.66%201.58%2010.42%204.35%202.76%202.76%204.31%206.5%204.31%2010.4v18.7A14.62%2014.62%200%200%201%2026.71%2039c-1.79.74-3.7%201.12-5.65%201.12ZM2.18-3.26A9.96%209.96%200%200%200-7%202.83a9.85%209.85%200%200%200-.76%203.78v18.8a9.85%209.85%200%200%200%209.9%209.86h18.92a9.93%209.93%200%200%200%209.9-9.86V6.6a9.87%209.87%200%200%200-9.9-9.86H2.18ZM84.33%2040.12H65.46a14.83%2014.83%200%200%201-10.39-4.31%2014.71%2014.71%200%200%201-4.33-10.34V6.6c.02-3.87%201.58-7.59%204.34-10.34a14.85%2014.85%200%200%201%2010.38-4.32h18.87c3.9.03%207.65%201.59%2010.41%204.35s4.31%206.5%204.32%2010.4v18.7c0%203.9-1.56%207.64-4.32%2010.4a14.83%2014.83%200%200%201-10.41%204.33ZM65.46-3.26a9.93%209.93%200%200%200-9.9%209.87v18.8a9.85%209.85%200%200%200%209.9%209.86h18.87a9.93%209.93%200%200%200%209.9-9.86V6.6a9.85%209.85%200%200%200-9.9-9.86H65.46Z%22%2F%3E%3Cpath%20d%3D%22M53.1%2010.64H33.4v4.89h19.7v-4.89Z%22%2F%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%226joeibd9%22%20x1%3D%222332.67%22%20y1%3D%221561.82%22%20x2%3D%223621.21%22%20y2%3D%221561.82%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%23969696%22%20stop-opacity%3D%22.2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22misz60ci%22%20x1%3D%222269.64%22%20y1%3D%221561.82%22%20x2%3D%223558.18%22%20y2%3D%221561.82%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%23969696%22%20stop-opacity%3D%22.2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">morgan</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-player2\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"player2\" data-mark=\"▲\"><span class=\"text textLabel whitespace-nowrap text-background\">▲</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full gap-1\" data-component=\"GamePlayerState\" data-intent=\"warning\" data-tone=\"subtle\" data-size=\"md\" data-state=\"reconnecting\"><span class=\"statusDot inline-block shrink-0 rounded-full\" data-component=\"StatusDot\" data-status=\"pending\" aria-hidden=\"true\" style=\"width: 6px; height: 6px;\"></span><span class=\"text whitespace-nowrap truncate\">Reconnecting</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"success\" data-tone=\"subtle\" data-size=\"md\" data-testid=\"custom-game-red-committed\"><span class=\"text whitespace-nowrap truncate\">Chosen</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "morgan▲ReconnectingChosen",
+        "box": {
+          "x": 202,
+          "y": 149,
+          "width": 76.5,
+          "height": 94,
+          "top": 149,
+          "right": 278.5,
+          "bottom": 243,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 149,
+            "width": 55.578125,
+            "height": 22,
+            "top": 149,
+            "right": 257.578125,
+            "bottom": 171,
+            "left": 202
+          },
+          {
+            "x": 202,
+            "y": 149,
+            "width": 55.578125,
+            "height": 21,
+            "top": 149,
+            "right": 257.578125,
+            "bottom": 170,
+            "left": 202
+          },
+          {
+            "x": 202,
+            "y": 175,
+            "width": 76.5,
+            "height": 68,
+            "top": 175,
+            "right": 278.5,
+            "bottom": 243,
+            "left": 202
+          },
+          {
+            "x": 206.265625,
+            "y": 174,
+            "width": 11.453125,
+            "height": 21,
+            "top": 174,
+            "right": 217.71875,
+            "bottom": 195,
+            "left": 206.265625
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 81.796875,
+            "height": 17,
+            "top": 198,
+            "right": 301.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 36.796875,
+            "height": 17,
+            "top": 198,
+            "right": 256.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 210,
+            "y": 222,
+            "width": 44.6875,
+            "height": 17,
+            "top": 222,
+            "right": 254.6875,
+            "bottom": 239,
+            "left": 210
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "morgan",
+        "box": {
+          "x": 202,
+          "y": 149,
+          "width": 55.578125,
+          "height": 22,
+          "top": 149,
+          "right": 257.578125,
+          "bottom": 171,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 149,
+            "width": 55.578125,
+            "height": 21,
+            "top": 149,
+            "right": 257.578125,
+            "bottom": 170,
+            "left": 202
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "▲ReconnectingChosen",
+        "box": {
+          "x": 202,
+          "y": 175,
+          "width": 76.5,
+          "height": 68,
+          "top": 175,
+          "right": 278.5,
+          "bottom": 243,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 175,
+            "width": 20,
+            "height": 20,
+            "top": 175,
+            "right": 222,
+            "bottom": 195,
+            "left": 202
+          },
+          {
+            "x": 206.265625,
+            "y": 174,
+            "width": 11.453125,
+            "height": 21,
+            "top": 174,
+            "right": 217.71875,
+            "bottom": 195,
+            "left": 206.265625
+          },
+          {
+            "x": 202,
+            "y": 195,
+            "width": 76.5,
+            "height": 24,
+            "top": 195,
+            "right": 278.5,
+            "bottom": 219,
+            "left": 202
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 81.796875,
+            "height": 17,
+            "top": 198,
+            "right": 301.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 36.796875,
+            "height": 17,
+            "top": 198,
+            "right": 256.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 202,
+            "y": 219,
+            "width": 60.6875,
+            "height": 24,
+            "top": 219,
+            "right": 262.6875,
+            "bottom": 243,
+            "left": 202
+          },
+          {
+            "x": 210,
+            "y": 222,
+            "width": 44.6875,
+            "height": 17,
+            "top": 222,
+            "right": 254.6875,
+            "bottom": 239,
+            "left": 210
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "▲",
+        "box": {
+          "x": 202,
+          "y": 175,
+          "width": 20,
+          "height": 20,
+          "top": 175,
+          "right": 222,
+          "bottom": 195,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 206.265625,
+            "y": 174,
+            "width": 11.453125,
+            "height": 22,
+            "top": 174,
+            "right": 217.71875,
+            "bottom": 196,
+            "left": 206.265625
+          },
+          {
+            "x": 206.265625,
+            "y": 174,
+            "width": 11.453125,
+            "height": 21,
+            "top": 174,
+            "right": 217.71875,
+            "bottom": 195,
+            "left": 206.265625
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "▲",
+        "box": {
+          "x": 206.265625,
+          "y": 174,
+          "width": 11.453125,
+          "height": 22,
+          "top": 174,
+          "right": 217.71875,
+          "bottom": 196,
+          "left": 206.265625
+        },
+        "range": [
+          {
+            "x": 206.265625,
+            "y": 174,
+            "width": 11.453125,
+            "height": 21,
+            "top": 174,
+            "right": 217.71875,
+            "bottom": 195,
+            "left": 206.265625
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Reconnecting",
+        "box": {
+          "x": 202,
+          "y": 195,
+          "width": 76.5,
+          "height": 24,
+          "top": 195,
+          "right": 278.5,
+          "bottom": 219,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 210,
+            "y": 204,
+            "width": 6,
+            "height": 6,
+            "top": 204,
+            "right": 216,
+            "bottom": 210,
+            "left": 210
+          },
+          {
+            "x": 220,
+            "y": 199,
+            "width": 50.5,
+            "height": 16,
+            "top": 199,
+            "right": 270.5,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 81.796875,
+            "height": 17,
+            "top": 198,
+            "right": 301.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 36.796875,
+            "height": 17,
+            "top": 198,
+            "right": 256.796875,
+            "bottom": 215,
+            "left": 220
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 210,
+          "y": 204,
+          "width": 6,
+          "height": 6,
+          "top": 204,
+          "right": 216,
+          "bottom": 210,
+          "left": 210
+        },
+        "range": [],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Reconnecting",
+        "box": {
+          "x": 220,
+          "y": 199,
+          "width": 50.5,
+          "height": 16,
+          "top": 199,
+          "right": 270.5,
+          "bottom": 215,
+          "left": 220
+        },
+        "range": [
+          {
+            "x": 220,
+            "y": 198,
+            "width": 81.796875,
+            "height": 17,
+            "top": 198,
+            "right": 301.796875,
+            "bottom": 215,
+            "left": 220
+          },
+          {
+            "x": 220,
+            "y": 198,
+            "width": 36.796875,
+            "height": 17,
+            "top": 198,
+            "right": 256.796875,
+            "bottom": 215,
+            "left": 220
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "Chosen",
+        "box": {
+          "x": 202,
+          "y": 219,
+          "width": 60.6875,
+          "height": 24,
+          "top": 219,
+          "right": 262.6875,
+          "bottom": 243,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 210,
+            "y": 223,
+            "width": 44.6875,
+            "height": 16,
+            "top": 223,
+            "right": 254.6875,
+            "bottom": 239,
+            "left": 210
+          },
+          {
+            "x": 210,
+            "y": 222,
+            "width": 44.6875,
+            "height": 17,
+            "top": 222,
+            "right": 254.6875,
+            "bottom": 239,
+            "left": 210
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Chosen",
+        "box": {
+          "x": 210,
+          "y": 223,
+          "width": 44.6875,
+          "height": 16,
+          "top": 223,
+          "right": 254.6875,
+          "bottom": 239,
+          "left": 210
+        },
+        "range": [
+          {
+            "x": 210,
+            "y": 222,
+            "width": 44.6875,
+            "height": 17,
+            "top": 222,
+            "right": 254.6875,
+            "bottom": 239,
+            "left": 210
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 287.5,
+      "y": 135,
+      "width": 86.5,
+      "height": 122,
+      "top": 135,
+      "right": 374,
+      "bottom": 257,
+      "left": 287.5
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" aria-current=\"step\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-blue\" data-active=\"true\" data-state=\"out\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-tint-subtle border-primary-strong\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33 opacity-disabled\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"bot\" role=\"img\" aria-label=\"Bot\" style=\"background-color: var(--ui-color-surface-muted); width: 32px; height: 32px;\"><span class=\"box inline-flex items-center justify-center shrink-0\" aria-hidden=\"true\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"var(--ui-color-icon)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bot lucide-icon\" aria-hidden=\"true\"><path d=\"M12 8V4H8\" key=\"hb8ula\"></path><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" key=\"enze0r\"></rect><path d=\"M2 14h2\" key=\"vft8re\"></path><path d=\"M20 14h2\" key=\"4cs60a\"></path><path d=\"M15 13v2\" key=\"1xurst\"></path><path d=\"M9 13v2\" key=\"rq6x2g\"></path></svg></span></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36 text-on-primary-soft\">Bot</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-player3\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"player3\" data-mark=\"■\"><span class=\"text textLabel whitespace-nowrap text-background\">■</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"GamePlayerState\" data-intent=\"neutral\" data-tone=\"subtle\" data-size=\"md\" data-state=\"out\"><span class=\"text whitespace-nowrap truncate\">Out</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"neutral\" data-tone=\"subtle\" data-size=\"md\"><span class=\"text whitespace-nowrap truncate\">Choosing</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Bot■OutChoosing",
+        "box": {
+          "x": 292.5,
+          "y": 159,
+          "width": 76.5,
+          "height": 74,
+          "top": 159,
+          "right": 369,
+          "bottom": 233,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 159,
+            "width": 25.234375,
+            "height": 22,
+            "top": 159,
+            "right": 317.734375,
+            "bottom": 181,
+            "left": 292.5
+          },
+          {
+            "x": 292.5,
+            "y": 159,
+            "width": 25.234375,
+            "height": 21,
+            "top": 159,
+            "right": 317.734375,
+            "bottom": 180,
+            "left": 292.5
+          },
+          {
+            "x": 292.5,
+            "y": 185,
+            "width": 76.5,
+            "height": 48,
+            "top": 185,
+            "right": 369,
+            "bottom": 233,
+            "left": 292.5
+          },
+          {
+            "x": 295.609375,
+            "y": 186,
+            "width": 13.765625,
+            "height": 21,
+            "top": 186,
+            "right": 309.375,
+            "bottom": 207,
+            "left": 295.609375
+          },
+          {
+            "x": 324.5,
+            "y": 188,
+            "width": 21.703125,
+            "height": 17,
+            "top": 188,
+            "right": 346.203125,
+            "bottom": 205,
+            "left": 324.5
+          },
+          {
+            "x": 300.5,
+            "y": 212,
+            "width": 55.8125,
+            "height": 17,
+            "top": 212,
+            "right": 356.3125,
+            "bottom": 229,
+            "left": 300.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Bot",
+        "box": {
+          "x": 292.5,
+          "y": 159,
+          "width": 25.234375,
+          "height": 22,
+          "top": 159,
+          "right": 317.734375,
+          "bottom": 181,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 159,
+            "width": 25.234375,
+            "height": 21,
+            "top": 159,
+            "right": 317.734375,
+            "bottom": 180,
+            "left": 292.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "■OutChoosing",
+        "box": {
+          "x": 292.5,
+          "y": 185,
+          "width": 76.5,
+          "height": 48,
+          "top": 185,
+          "right": 369,
+          "bottom": 233,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 187,
+            "width": 20,
+            "height": 20,
+            "top": 187,
+            "right": 312.5,
+            "bottom": 207,
+            "left": 292.5
+          },
+          {
+            "x": 295.609375,
+            "y": 186,
+            "width": 13.765625,
+            "height": 21,
+            "top": 186,
+            "right": 309.375,
+            "bottom": 207,
+            "left": 295.609375
+          },
+          {
+            "x": 316.5,
+            "y": 185,
+            "width": 37.703125,
+            "height": 24,
+            "top": 185,
+            "right": 354.203125,
+            "bottom": 209,
+            "left": 316.5
+          },
+          {
+            "x": 324.5,
+            "y": 188,
+            "width": 21.703125,
+            "height": 17,
+            "top": 188,
+            "right": 346.203125,
+            "bottom": 205,
+            "left": 324.5
+          },
+          {
+            "x": 292.5,
+            "y": 209,
+            "width": 71.8125,
+            "height": 24,
+            "top": 209,
+            "right": 364.3125,
+            "bottom": 233,
+            "left": 292.5
+          },
+          {
+            "x": 300.5,
+            "y": 212,
+            "width": 55.8125,
+            "height": 17,
+            "top": 212,
+            "right": 356.3125,
+            "bottom": 229,
+            "left": 300.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "■",
+        "box": {
+          "x": 292.5,
+          "y": 187,
+          "width": 20,
+          "height": 20,
+          "top": 187,
+          "right": 312.5,
+          "bottom": 207,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 295.609375,
+            "y": 186,
+            "width": 13.765625,
+            "height": 22,
+            "top": 186,
+            "right": 309.375,
+            "bottom": 208,
+            "left": 295.609375
+          },
+          {
+            "x": 295.609375,
+            "y": 186,
+            "width": 13.765625,
+            "height": 21,
+            "top": 186,
+            "right": 309.375,
+            "bottom": 207,
+            "left": 295.609375
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "■",
+        "box": {
+          "x": 295.609375,
+          "y": 186,
+          "width": 13.765625,
+          "height": 22,
+          "top": 186,
+          "right": 309.375,
+          "bottom": 208,
+          "left": 295.609375
+        },
+        "range": [
+          {
+            "x": 295.609375,
+            "y": 186,
+            "width": 13.765625,
+            "height": 21,
+            "top": 186,
+            "right": 309.375,
+            "bottom": 207,
+            "left": 295.609375
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Out",
+        "box": {
+          "x": 316.5,
+          "y": 185,
+          "width": 37.703125,
+          "height": 24,
+          "top": 185,
+          "right": 354.203125,
+          "bottom": 209,
+          "left": 316.5
+        },
+        "range": [
+          {
+            "x": 324.5,
+            "y": 189,
+            "width": 21.703125,
+            "height": 16,
+            "top": 189,
+            "right": 346.203125,
+            "bottom": 205,
+            "left": 324.5
+          },
+          {
+            "x": 324.5,
+            "y": 188,
+            "width": 21.703125,
+            "height": 17,
+            "top": 188,
+            "right": 346.203125,
+            "bottom": 205,
+            "left": 324.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Out",
+        "box": {
+          "x": 324.5,
+          "y": 189,
+          "width": 21.703125,
+          "height": 16,
+          "top": 189,
+          "right": 346.203125,
+          "bottom": 205,
+          "left": 324.5
+        },
+        "range": [
+          {
+            "x": 324.5,
+            "y": 188,
+            "width": 21.703125,
+            "height": 17,
+            "top": 188,
+            "right": 346.203125,
+            "bottom": 205,
+            "left": 324.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "Choosing",
+        "box": {
+          "x": 292.5,
+          "y": 209,
+          "width": 71.8125,
+          "height": 24,
+          "top": 209,
+          "right": 364.3125,
+          "bottom": 233,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 300.5,
+            "y": 213,
+            "width": 55.8125,
+            "height": 16,
+            "top": 213,
+            "right": 356.3125,
+            "bottom": 229,
+            "left": 300.5
+          },
+          {
+            "x": 300.5,
+            "y": 212,
+            "width": 55.8125,
+            "height": 17,
+            "top": 212,
+            "right": 356.3125,
+            "bottom": 229,
+            "left": 300.5
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "Choosing",
+        "box": {
+          "x": 300.5,
+          "y": 213,
+          "width": 55.8125,
+          "height": 16,
+          "top": 213,
+          "right": 356.3125,
+          "bottom": 229,
+          "left": 300.5
+        },
+        "range": [
+          {
+            "x": 300.5,
+            "y": 212,
+            "width": 55.8125,
+            "height": 17,
+            "top": 212,
+            "right": 356.3125,
+            "bottom": 229,
+            "left": 300.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  }
+]

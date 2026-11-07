@@ -1,0 +1,813 @@
+[
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-enlarged-context-loss",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts:82:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/board-round-four.checks.ts-5a30a-tiles-enlarged-context-loss-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1578
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  16705 pixels (ratio 0.06 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 16705 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 16705 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1197
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  16482 pixels (ratio 0.06 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 16482 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 16482 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1198
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  9446 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 9446 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 9446 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1304
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  9328 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 9328 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 9328 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1318
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  34003 pixels (ratio 0.11 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 34003 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 34003 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ff6e3-ll--four-player-round-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1730
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  45304 pixels (ratio 0.14 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 45304 pixels (ratio 0.14 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 45304 pixels (ratio 0.14 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--13452-ill--four-player-round-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1747
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  55878 pixels (ratio 0.05 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 55878 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 55878 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--25d93-our-player-round-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--25d93-our-player-round-light-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--25d93-our-player-round-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1874
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  132578 pixels (ratio 0.11 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 132578 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 132578 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eee29-four-player-round-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eee29-four-player-round-dark-1440-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-dark-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eee29-four-player-round-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1887
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  90414 pixels (ratio 0.28 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 90414 pixels (ratio 0.28 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 90414 pixels (ratio 0.28 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--888da-board--assign-a-blank-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--888da-board--assign-a-blank-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--888da-board--assign-a-blank-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1289
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  59276 pixels (ratio 0.19 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 59276 pixels (ratio 0.19 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 59276 pixels (ratio 0.19 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--f3810--board--assign-a-blank-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--f3810--board--assign-a-blank-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--f3810--board--assign-a-blank-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1288
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  262057 pixels (ratio 0.22 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 262057 pixels (ratio 0.22 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 262057 pixels (ratio 0.22 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--76dd4---assign-a-blank-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1442
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  136391 pixels (ratio 0.12 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 136391 pixels (ratio 0.12 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 136391 pixels (ratio 0.12 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-dark-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--851d8-d--assign-a-blank-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1421
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ef805--enlarged-coordinates-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1519
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--720f9---enlarged-coordinates-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1514
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light-1440.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--38248-rged-coordinates-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1504
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark-1440.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c61d3-arged-coordinates-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1505
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--enlarged-blank light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  81518 pixels (ratio 0.25 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--54272-uzzle--enlarged-blank-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--54272-uzzle--enlarged-blank-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--54272-uzzle--enlarged-blank-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1687
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--enlarged-blank dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  66632 pixels (ratio 0.21 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 66632 pixels (ratio 0.21 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 66632 pixels (ratio 0.21 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--fb248-puzzle--enlarged-blank-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--fb248-puzzle--enlarged-blank-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--fb248-puzzle--enlarged-blank-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1668
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round regression quoridor-four-seat-record-split-notation",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  55878 pixels (ratio 0.05 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 55878 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 55878 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:354:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c48c9--seat-record-split-notation-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c48c9--seat-record-split-notation-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--c48c9--seat-record-split-notation-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1847
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering regression light-cycles-quad-clipped-identities",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  16705 pixels (ratio 0.06 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 16705 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 16705 pixels (ratio 0.06 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:365:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1196
+  },
+  {
+    "title": "screens-games-quoridor-hill--four-player-round regression quoridor-hill-four-seat-confirm-below-fold",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  34003 pixels (ratio 0.11 of all image pixels) are different.\n\n  Snapshot: libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 34003 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 34003 pixels (ratio 0.11 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:376:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-actual.png"
+      },
+      {
+        "name": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/four-player-round-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--ed09c-our-seat-confirm-below-fold-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1733
+  },
+  {
+    "title": "screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-letter-content-overflow",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  90414 pixels (ratio 0.28 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 90414 pixels (ratio 0.28 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 90414 pixels (ratio 0.28 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:387:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--b18c3-ank-letter-content-overflow-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--b18c3-ank-letter-content-overflow-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/assign-a-blank-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--b18c3-ank-letter-content-overflow-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1289
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-7e4fb-mped-precision-window-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1530
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-0d146-amped-precision-window-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1526
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light-1440.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-7f341-precision-window-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1478
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-cramped-precision-window dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark-1440.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-85dfc--precision-window-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1474
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cramped-precision-window light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  81518 pixels (ratio 0.25 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-15996-mped-precision-window-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-15996-mped-precision-window-light-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-15996-mped-precision-window-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1695
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cramped-precision-window dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  66632 pixels (ratio 0.21 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 66632 pixels (ratio 0.21 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 66632 pixels (ratio 0.21 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:29:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-05187-amped-precision-window-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-05187-amped-precision-window-dark-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-05187-amped-precision-window-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1665
+  },
+  {
+    "title": "screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cramped-precision-window",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  81518 pixels (ratio 0.25 of all image pixels) are different.\n\n  Snapshot: libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81518 pixels (ratio 0.25 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:45:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-3275d-es-cramped-precision-window-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-actual.png"
+      },
+      {
+        "name": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-3275d-es-cramped-precision-window-chromium/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-3275d-es-cramped-precision-window-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1693
+  },
+  {
+    "title": "screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-rack-corner-hit-gap",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: A snapshot doesn't exist at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png.\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts:59:3"
+    ],
+    "attachments": [
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/word-tiles-round-five.chec-a9cc8-d-tiles-rack-corner-hit-gap-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1525
+  }
+]

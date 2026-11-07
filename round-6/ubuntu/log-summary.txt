@@ -1,0 +1,127 @@
+2026-11-06T23:07:22.2632733Z ##[start-action display=Restore generation artifacts;id=__self.generation]
+2026-11-06T23:07:28.9559380Z $ turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources @libs/tools-harness-ts#generate:brand-artifacts @libs/observability-server-ts#generate:slo @libs/tools-harness-ts#generate:identity-agents
+2026-11-06T23:07:29.1129252Z    • Running //#task:tokens:generate, //#task:sounds:generate, @pkgs/object-store-s3-server-ts#generate:browser, @libs/infra-shared-ts#generate:infra-map, //#task:i18n:compile, //#task:spec:catalog, //#task:spec:inputs, @libs/tools-harness-ts#generate:ui-quality-sources, @libs/tools-harness-ts#generate:brand-artifacts, @libs/observability-server-ts#generate:slo, @libs/tools-harness-ts#generate:identity-agents in 5 packages
+2026-11-06T23:07:29.4145001Z ##[group]@libs/tools-harness-ts:generate:brand-artifacts
+2026-11-06T23:07:29.4146071Z $ bun run scripts/generate-brand-artifacts.ts
+2026-11-06T23:07:38.8657369Z  Tasks:    13 successful, 13 total
+2026-11-06T23:07:38.8826399Z ##[start-action display=Save generation artifacts;id=__self.__actions_cache_2]
+2026-11-06T23:07:40.6757247Z   echo "::error::No OIDC token is available to this run (a pull request from a fork or Dependabot, or a job without id-token: write). The gate needs the dev secrets; push the change to a branch of this repository to verify it."
+2026-11-06T23:07:41.5593545Z [36;***m  echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"
+2026-11-06T23:07:41.5667117Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.5667927Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.5668898Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.5669670Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.5670669Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.5912700Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.5913524Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.5914537Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.5915298Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.5916238Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.6228551Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.6229342Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.6230287Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.6231059Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.6231946Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.7003473Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.7004134Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.7004831Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.7005332Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.7006024Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.7113278Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.7113916Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.7114607Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.7115158Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.7115825Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.7647358Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.7647904Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.7648704Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.7649189Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.7649855Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.8158544Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.8159355Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.8160040Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.8160589Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.8161423Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.8391160Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:41.8391695Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:41.8392344Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:41.8392834Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:41.8393500Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:07:41.9343520Z [30***9:3039:***06/23074***.933953:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:41.9348271Z [30***9:3039:***06/23074***.934670:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.1271032Z [30***9:3039:***06/230742.***26876:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.1606536Z [30***9:3039:***06/230742.***60400:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.1820683Z [30***9:30***9:***06/230742.***8027***:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.1845628Z [30***9:30***9:***06/230742.***80320:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.1847394Z [30***9:3039:***06/230742.***80343:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.1849116Z [30***9:3039:***06/230742.***80359:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.1855115Z [30***9:30***9:***06/230742.***80938:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.1865734Z [30***9:30***9:***06/230742.***86***8:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.1867990Z [30***9:3039:***06/230742.***86***84:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.2674733Z [30***9:30***9:***06/230742.264679:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.2709420Z [30***9:30***9:***06/230742.266536:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.2714450Z [30***9:30***9:***06/230742.267544:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.2741101Z [30***9:3039:***06/230742.27***068:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.2949856Z [30***9:30***9:***06/230742.294643:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.2955356Z [30***9:30***9:***06/230742.294692:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
+2026-11-06T23:07:42.2987338Z [30***9:3039:***06/230742.2947***0:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.3162088Z [30***9:30***9:***06/230742.3***4732:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.3192210Z [30***9:3039:***06/230742.3***5***84:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+2026-11-06T23:07:42.3306081Z [30***9:30***9:***06/230742.330365:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+2026-11-06T23:07:42.3486207Z [30***9:30***9:***06/230742.347725:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.NetworkManager.GetDevices: object_path= /org/freedesktop/NetworkManager: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.NetworkManager was not provided by any .service files
+2026-11-06T23:07:42.4142692Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:07:42.4143212Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:07:42.4144103Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:07:42.4144682Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:07:42.4145372Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:08:41.1671144Z  Tasks:    4 successful, 4 total
+2026-11-06T23:08:41.3892935Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:08:41.3893473Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:08:41.3894361Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:08:41.3894871Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:08:41.3895555Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:16:04.2236466Z ▲  Vite [plugin builtin:vite-reporter]
+2026-11-06T23:16:04.2238306Z │  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+2026-11-06T23:16:04.2246203Z │  See ]8;;https://rolldown.rs/reference/InputOptions.checks#bundlertimingshttps://rolldown.rs/reference/InputOptions.checks#bundlertimings]8;;
+2026-11-06T23:16:04.2248955Z  Tasks:    *** successful, *** total
+2026-11-06T23:16:05.1926912Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:16:05.1927456Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:16:05.1928115Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:16:05.1928601Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:16:05.1929261Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:23:17.8213317Z ▲  Vite [plugin builtin:vite-reporter]
+2026-11-06T23:23:17.8215589Z │  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+2026-11-06T23:23:17.8223532Z │  See ]8;;https://rolldown.rs/reference/InputOptions.checks#bundlertimingshttps://rolldown.rs/reference/InputOptions.checks#bundlertimings]8;;
+2026-11-06T23:38:38.6839814Z ·/home/runner/work/gamezilla/gamezilla/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-light.png is re-generated, writing actual.
+2026-11-06T23:38:38.6841346Z ·/home/runner/work/gamezilla/gamezilla/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-dark.png is re-generated, writing actual.
+2026-11-06T23:38:38.6842971Z ·/home/runner/work/gamezilla/gamezilla/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-light-***440.png is re-generated, writing actual.
+2026-11-06T23:38:38.6844629Z ·/home/runner/work/gamezilla/gamezilla/libs/hearts-client-ts/src/baselines/chromium/screens-games-hearts-board/passed-waiting-for-others-dark-***440.png is re-generated, writing actual.
+2026-11-06T23:38:38.7494226Z   767 passed (***5.3m)
+2026-11-06T23:38:38.7495559Z  Tasks:    2 successful, 2 total
+2026-11-06T23:38:38.8618152Z ##[group]Run bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
+2026-11-06T23:38:38.8619072Z [36;***mbun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
+2026-11-06T23:38:38.8672698Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:38:38.8673294Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:38:38.8674072Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:38:38.8674758Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:38:38.8675443Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:38:43.2689184Z STORYBOOK_BASELINES_PATCH_BEGIN
+2026-11-06T23:39:34.5041846Z STORYBOOK_BASELINES_PATCH_END
+2026-11-06T23:39:34.5137713Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-06T23:39:34.5137956Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-06T23:39:34.5138342Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-06T23:39:34.5138549Z   CI_ARTIFACTS_REGION: ***
+2026-11-06T23:39:34.5138946Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-06T23:46:47.0613047Z ▲  Vite [plugin builtin:vite-reporter]
+2026-11-06T23:46:47.0615432Z │  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+2026-11-06T23:46:47.0625531Z │  See ]8;;https://rolldown.rs/reference/InputOptions.checks#bundlertimingshttps://rolldown.rs/reference/InputOptions.checks#bundlertimings]8;;
+2026-11-07T00:00:01.6138539Z   767 passed (***3.2m)
+2026-11-07T00:00:01.6140164Z  Tasks:    2 successful, 2 total
+2026-11-07T00:00:01.8277283Z ##[group]Run bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-storybook-"${GITHUB_RUN_ID}" pkgs/ui-root-harness-ts/.cache/storybook-test-results .cache/verify-nightly/storybook-baselines.patch
+2026-11-07T00:00:01.8279011Z [36;***mbun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-storybook-"${GITHUB_RUN_ID}" pkgs/ui-root-harness-ts/.cache/storybook-test-results .cache/verify-nightly/storybook-baselines.patch
+2026-11-07T00:00:01.8333642Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T00:00:01.8334623Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T00:00:01.8335310Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T00:00:01.8335799Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T00:00:01.8336479Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T00:00:05.0132835Z Uploaded 23 files as CI artifact verify-nightly-storybook-42309542538

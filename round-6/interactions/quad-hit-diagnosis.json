@@ -1,0 +1,1774 @@
+[
+  {
+    "card": {
+      "x": 16,
+      "y": 65,
+      "width": 86.5,
+      "height": 100,
+      "top": 65,
+      "right": 102.5,
+      "bottom": 165,
+      "left": 16
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-white\" data-active=\"false\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%221xg4rldf%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%231xg4rldf)%22%3E%3Crect%20fill%3D%22%2371cf62%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M87%2013.04C87%205.84%2081.18%200%2074%200S61%205.84%2061%2013.04v3.92C61%2024.16%2066.82%2030%2074%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M69.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M74.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M26%2013.04C26%205.84%2020.18%200%2013%200S0%205.84%200%2013.04v3.92C0%2024.16%205.82%2030%2013%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M8.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">avery</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-light-cycles-accent\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"trail-one\" data-mark=\"C\"><span class=\"text textLabel whitespace-nowrap text-game-light-cycles-canvas\">C</span></span><span class=\"text textCaption whitespace-nowrap\" data-component=\"GameSeatStat\" data-value=\"0\">Comet wins <span class=\"textNumeral font-semibold\">0</span></span><span class=\"badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full\" data-component=\"Badge\" data-intent=\"info\" data-tone=\"subtle\" data-size=\"md\"><span class=\"text whitespace-nowrap truncate\">You</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "averyCComet wins 0You",
+        "box": {
+          "x": 21,
+          "y": 70,
+          "width": 76.5,
+          "height": 90,
+          "top": 70,
+          "right": 97.5,
+          "bottom": 160,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 70,
+            "width": 39.5,
+            "height": 22,
+            "top": 70,
+            "right": 60.5,
+            "bottom": 92,
+            "left": 21
+          },
+          {
+            "x": 21,
+            "y": 70,
+            "width": 39.5,
+            "height": 21,
+            "top": 70,
+            "right": 60.5,
+            "bottom": 91,
+            "left": 21
+          },
+          {
+            "x": 21,
+            "y": 96,
+            "width": 76.5,
+            "height": 64,
+            "top": 96,
+            "right": 97.5,
+            "bottom": 160,
+            "left": 21
+          },
+          {
+            "x": 25.453125,
+            "y": 95,
+            "width": 11.078125,
+            "height": 21,
+            "top": 95,
+            "right": 36.53125,
+            "bottom": 116,
+            "left": 25.453125
+          },
+          {
+            "x": 21,
+            "y": 116,
+            "width": 77.6875,
+            "height": 19,
+            "top": 116,
+            "right": 98.6875,
+            "bottom": 135,
+            "left": 21
+          },
+          {
+            "x": 98.6875,
+            "y": 116,
+            "width": 2.8125,
+            "height": 19,
+            "top": 116,
+            "right": 101.5,
+            "bottom": 135,
+            "left": 98.6875
+          },
+          {
+            "x": 101.5,
+            "y": 116,
+            "width": 8.6875,
+            "height": 19,
+            "top": 116,
+            "right": 110.1875,
+            "bottom": 135,
+            "left": 101.5
+          },
+          {
+            "x": 29,
+            "y": 139,
+            "width": 21.3125,
+            "height": 17,
+            "top": 139,
+            "right": 50.3125,
+            "bottom": 156,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "avery",
+        "box": {
+          "x": 21,
+          "y": 70,
+          "width": 39.5,
+          "height": 22,
+          "top": 70,
+          "right": 60.5,
+          "bottom": 92,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 70,
+            "width": 39.5,
+            "height": 21,
+            "top": 70,
+            "right": 60.5,
+            "bottom": 91,
+            "left": 21
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "CComet wins 0You",
+        "box": {
+          "x": 21,
+          "y": 96,
+          "width": 76.5,
+          "height": 64,
+          "top": 96,
+          "right": 97.5,
+          "bottom": 160,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 96,
+            "width": 20,
+            "height": 20,
+            "top": 96,
+            "right": 41,
+            "bottom": 116,
+            "left": 21
+          },
+          {
+            "x": 25.453125,
+            "y": 95,
+            "width": 11.078125,
+            "height": 21,
+            "top": 95,
+            "right": 36.53125,
+            "bottom": 116,
+            "left": 25.453125
+          },
+          {
+            "x": 21,
+            "y": 116,
+            "width": 76.5,
+            "height": 20,
+            "top": 116,
+            "right": 97.5,
+            "bottom": 136,
+            "left": 21
+          },
+          {
+            "x": 21,
+            "y": 116,
+            "width": 77.6875,
+            "height": 19,
+            "top": 116,
+            "right": 98.6875,
+            "bottom": 135,
+            "left": 21
+          },
+          {
+            "x": 98.6875,
+            "y": 116,
+            "width": 2.8125,
+            "height": 19,
+            "top": 116,
+            "right": 101.5,
+            "bottom": 135,
+            "left": 98.6875
+          },
+          {
+            "x": 101.5,
+            "y": 116,
+            "width": 8.6875,
+            "height": 19,
+            "top": 116,
+            "right": 110.1875,
+            "bottom": 135,
+            "left": 101.5
+          },
+          {
+            "x": 21,
+            "y": 136,
+            "width": 37.3125,
+            "height": 24,
+            "top": 136,
+            "right": 58.3125,
+            "bottom": 160,
+            "left": 21
+          },
+          {
+            "x": 29,
+            "y": 139,
+            "width": 21.3125,
+            "height": 17,
+            "top": 139,
+            "right": 50.3125,
+            "bottom": 156,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "C",
+        "box": {
+          "x": 21,
+          "y": 96,
+          "width": 20,
+          "height": 20,
+          "top": 96,
+          "right": 41,
+          "bottom": 116,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 25.453125,
+            "y": 95,
+            "width": 11.078125,
+            "height": 22,
+            "top": 95,
+            "right": 36.53125,
+            "bottom": 117,
+            "left": 25.453125
+          },
+          {
+            "x": 25.453125,
+            "y": 95,
+            "width": 11.078125,
+            "height": 21,
+            "top": 95,
+            "right": 36.53125,
+            "bottom": 116,
+            "left": 25.453125
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "C",
+        "box": {
+          "x": 25.453125,
+          "y": 95,
+          "width": 11.078125,
+          "height": 22,
+          "top": 95,
+          "right": 36.53125,
+          "bottom": 117,
+          "left": 25.453125
+        },
+        "range": [
+          {
+            "x": 25.453125,
+            "y": 95,
+            "width": 11.078125,
+            "height": 21,
+            "top": 95,
+            "right": 36.53125,
+            "bottom": 116,
+            "left": 25.453125
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Comet wins 0",
+        "box": {
+          "x": 21,
+          "y": 116,
+          "width": 76.5,
+          "height": 20,
+          "top": 116,
+          "right": 97.5,
+          "bottom": 136,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 21,
+            "y": 116,
+            "width": 77.6875,
+            "height": 19,
+            "top": 116,
+            "right": 98.6875,
+            "bottom": 135,
+            "left": 21
+          },
+          {
+            "x": 98.6875,
+            "y": 116,
+            "width": 2.8125,
+            "height": 19,
+            "top": 116,
+            "right": 101.5,
+            "bottom": 135,
+            "left": 98.6875
+          },
+          {
+            "x": 101.5,
+            "y": 116,
+            "width": 8.6875,
+            "height": 19,
+            "top": 116,
+            "right": 110.1875,
+            "bottom": 135,
+            "left": 101.5
+          },
+          {
+            "x": 101.5,
+            "y": 116,
+            "width": 8.6875,
+            "height": 19,
+            "top": 116,
+            "right": 110.1875,
+            "bottom": 135,
+            "left": 101.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "0",
+        "box": {
+          "x": 101.5,
+          "y": 116,
+          "width": 8.6875,
+          "height": 19,
+          "top": 116,
+          "right": 110.1875,
+          "bottom": 135,
+          "left": 101.5
+        },
+        "range": [
+          {
+            "x": 101.5,
+            "y": 116,
+            "width": 8.6875,
+            "height": 19,
+            "top": 116,
+            "right": 110.1875,
+            "bottom": 135,
+            "left": 101.5
+          }
+        ],
+        "style": {
+          "display": "inline",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "You",
+        "box": {
+          "x": 21,
+          "y": 136,
+          "width": 37.3125,
+          "height": 24,
+          "top": 136,
+          "right": 58.3125,
+          "bottom": 160,
+          "left": 21
+        },
+        "range": [
+          {
+            "x": 29,
+            "y": 140,
+            "width": 21.3125,
+            "height": 16,
+            "top": 140,
+            "right": 50.3125,
+            "bottom": 156,
+            "left": 29
+          },
+          {
+            "x": 29,
+            "y": 139,
+            "width": 21.3125,
+            "height": 17,
+            "top": 139,
+            "right": 50.3125,
+            "bottom": 156,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "You",
+        "box": {
+          "x": 29,
+          "y": 140,
+          "width": 21.3125,
+          "height": 16,
+          "top": 140,
+          "right": 50.3125,
+          "bottom": 156,
+          "left": 29
+        },
+        "range": [
+          {
+            "x": 29,
+            "y": 139,
+            "width": 21.3125,
+            "height": 17,
+            "top": 139,
+            "right": 50.3125,
+            "bottom": 156,
+            "left": 29
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 106.5,
+      "y": 65,
+      "width": 86.5,
+      "height": 100,
+      "top": 65,
+      "right": 193,
+      "bottom": 165,
+      "left": 106.5
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-black\" data-active=\"false\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%22w0hexk3t%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%23w0hexk3t)%22%3E%3Crect%20fill%3D%22%23fcbc34%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M16.41%2026.96H9.82c-9.7%200-9.7.08-9.7-9.7v-4.09A12.2%2012.2%200%200%201%2012.32.97h1.6a12.2%2012.2%200%200%201%2012.2%2012.2v4.16c-.03%209.7-.03%209.63-9.7%209.63Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M8.87%2010.5a2.29%202.29%200%201%200%200-4.58%202.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.11%2019.31a5.32%205.32%200%201%200%200-10.64%205.32%205.32%200%200%200%200%2010.64Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M62.7%2019.96a1.68%201.68%200%200%201-1.5-.93%201.75%201.75%200%200%201-.12-1.32%2013.54%2013.54%200%200%201%204.85-7.09A13.1%2013.1%200%200%201%2074%207.97c2.9-.03%205.73.9%208.06%202.66a13.63%2013.63%200%200%201%204.87%207.08c.13.44.08.92-.13%201.32a1.72%201.72%200%200%201-2.3.73%201.69%201.69%200%200%201-.83-1.03c-.63-2.13-1.91-4-3.66-5.32a9.92%209.92%200%200%200-6.07-2c-2.17%200-4.28.7-6.02%202.02a10.26%2010.26%200%200%200-3.64%205.3c-.1.35-.32.66-.6.88a1.7%201.7%200%200%201-.98.35Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">jordan_plays</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-light-cycles-one\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"trail-two\" data-mark=\"E\"><span class=\"text textLabel whitespace-nowrap text-game-light-cycles-canvas\">E</span></span><span class=\"text textCaption whitespace-nowrap\" data-component=\"GameSeatStat\" data-value=\"0\">Ember wins <span class=\"textNumeral font-semibold\">0</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "jordan_playsEEmber wins 0",
+        "box": {
+          "x": 111.5,
+          "y": 71,
+          "width": 76.5,
+          "height": 88,
+          "top": 71,
+          "right": 188,
+          "bottom": 159,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 71,
+            "width": 76.5,
+            "height": 44,
+            "top": 71,
+            "right": 188,
+            "bottom": 115,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 71,
+            "width": 70.0625,
+            "height": 21,
+            "top": 71,
+            "right": 181.5625,
+            "bottom": 92,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 93,
+            "width": 24.71875,
+            "height": 21,
+            "top": 93,
+            "right": 136.21875,
+            "bottom": 114,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 119,
+            "width": 76.5,
+            "height": 40,
+            "top": 119,
+            "right": 188,
+            "bottom": 159,
+            "left": 111.5
+          },
+          {
+            "x": 117.109375,
+            "y": 118,
+            "width": 8.78125,
+            "height": 21,
+            "top": 118,
+            "right": 125.890625,
+            "bottom": 139,
+            "left": 117.109375
+          },
+          {
+            "x": 111.5,
+            "y": 139,
+            "width": 75.140625,
+            "height": 19,
+            "top": 139,
+            "right": 186.640625,
+            "bottom": 158,
+            "left": 111.5
+          },
+          {
+            "x": 186.640625,
+            "y": 139,
+            "width": 2.8125,
+            "height": 19,
+            "top": 139,
+            "right": 189.453125,
+            "bottom": 158,
+            "left": 186.640625
+          },
+          {
+            "x": 189.453125,
+            "y": 139,
+            "width": 8.6875,
+            "height": 19,
+            "top": 139,
+            "right": 198.140625,
+            "bottom": 158,
+            "left": 189.453125
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "jordan_plays",
+        "box": {
+          "x": 111.5,
+          "y": 71,
+          "width": 76.5,
+          "height": 44,
+          "top": 71,
+          "right": 188,
+          "bottom": 115,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 71,
+            "width": 70.0625,
+            "height": 21,
+            "top": 71,
+            "right": 181.5625,
+            "bottom": 92,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 93,
+            "width": 24.71875,
+            "height": 21,
+            "top": 93,
+            "right": 136.21875,
+            "bottom": 114,
+            "left": 111.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "EEmber wins 0",
+        "box": {
+          "x": 111.5,
+          "y": 119,
+          "width": 76.5,
+          "height": 40,
+          "top": 119,
+          "right": 188,
+          "bottom": 159,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 119,
+            "width": 20,
+            "height": 20,
+            "top": 119,
+            "right": 131.5,
+            "bottom": 139,
+            "left": 111.5
+          },
+          {
+            "x": 117.109375,
+            "y": 118,
+            "width": 8.78125,
+            "height": 21,
+            "top": 118,
+            "right": 125.890625,
+            "bottom": 139,
+            "left": 117.109375
+          },
+          {
+            "x": 111.5,
+            "y": 139,
+            "width": 76.5,
+            "height": 20,
+            "top": 139,
+            "right": 188,
+            "bottom": 159,
+            "left": 111.5
+          },
+          {
+            "x": 111.5,
+            "y": 139,
+            "width": 75.140625,
+            "height": 19,
+            "top": 139,
+            "right": 186.640625,
+            "bottom": 158,
+            "left": 111.5
+          },
+          {
+            "x": 186.640625,
+            "y": 139,
+            "width": 2.8125,
+            "height": 19,
+            "top": 139,
+            "right": 189.453125,
+            "bottom": 158,
+            "left": 186.640625
+          },
+          {
+            "x": 189.453125,
+            "y": 139,
+            "width": 8.6875,
+            "height": 19,
+            "top": 139,
+            "right": 198.140625,
+            "bottom": 158,
+            "left": 189.453125
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "E",
+        "box": {
+          "x": 111.5,
+          "y": 119,
+          "width": 20,
+          "height": 20,
+          "top": 119,
+          "right": 131.5,
+          "bottom": 139,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 117.109375,
+            "y": 118,
+            "width": 8.78125,
+            "height": 22,
+            "top": 118,
+            "right": 125.890625,
+            "bottom": 140,
+            "left": 117.109375
+          },
+          {
+            "x": 117.109375,
+            "y": 118,
+            "width": 8.78125,
+            "height": 21,
+            "top": 118,
+            "right": 125.890625,
+            "bottom": 139,
+            "left": 117.109375
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "E",
+        "box": {
+          "x": 117.109375,
+          "y": 118,
+          "width": 8.78125,
+          "height": 22,
+          "top": 118,
+          "right": 125.890625,
+          "bottom": 140,
+          "left": 117.109375
+        },
+        "range": [
+          {
+            "x": 117.109375,
+            "y": 118,
+            "width": 8.78125,
+            "height": 21,
+            "top": 118,
+            "right": 125.890625,
+            "bottom": 139,
+            "left": 117.109375
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Ember wins 0",
+        "box": {
+          "x": 111.5,
+          "y": 139,
+          "width": 76.5,
+          "height": 20,
+          "top": 139,
+          "right": 188,
+          "bottom": 159,
+          "left": 111.5
+        },
+        "range": [
+          {
+            "x": 111.5,
+            "y": 139,
+            "width": 75.140625,
+            "height": 19,
+            "top": 139,
+            "right": 186.640625,
+            "bottom": 158,
+            "left": 111.5
+          },
+          {
+            "x": 186.640625,
+            "y": 139,
+            "width": 2.8125,
+            "height": 19,
+            "top": 139,
+            "right": 189.453125,
+            "bottom": 158,
+            "left": 186.640625
+          },
+          {
+            "x": 189.453125,
+            "y": 139,
+            "width": 8.6875,
+            "height": 19,
+            "top": 139,
+            "right": 198.140625,
+            "bottom": 158,
+            "left": 189.453125
+          },
+          {
+            "x": 189.453125,
+            "y": 139,
+            "width": 8.6875,
+            "height": 19,
+            "top": 139,
+            "right": 198.140625,
+            "bottom": 158,
+            "left": 189.453125
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "0",
+        "box": {
+          "x": 189.453125,
+          "y": 139,
+          "width": 8.6875,
+          "height": 19,
+          "top": 139,
+          "right": 198.140625,
+          "bottom": 158,
+          "left": 189.453125
+        },
+        "range": [
+          {
+            "x": 189.453125,
+            "y": 139,
+            "width": 8.6875,
+            "height": 19,
+            "top": 139,
+            "right": 198.140625,
+            "bottom": 158,
+            "left": 189.453125
+          }
+        ],
+        "style": {
+          "display": "inline",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 197,
+      "y": 65,
+      "width": 86.5,
+      "height": 100,
+      "top": 65,
+      "right": 283.5,
+      "bottom": 165,
+      "left": 197
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-red\" data-active=\"false\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%2226m36ssa%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%2326m36ssa)%22%3E%3Crect%20fill%3D%22%23d9915b%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M75.08%2012a1.37%201.37%200%200%201%201.26.83%2015.26%2015.26%200%200%201-15.67%2022.03%2015.2%2015.2%200%200%201-9.53-5.26%201.48%201.48%200%200%201%201.15-2.09c.3-.04.61.02.88.17a12.52%2012.52%200%200%200%2016.54%202.35c4.01-2.7%207.51-8.54%204.1-16.07a1.48%201.48%200%200%201%20.77-1.83c.16-.08.34-.12.51-.13Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M87.22%2013.98c0-7.2-5.82-13.04-13-13.04s-13%205.84-13%2013.04v3.92c0%207.2%205.82%2013.04%2013%2013.04s13-5.83%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M70%2010.48a2.29%202.29%200%201%200%200-4.58%202.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M74.24%2019.3a5.32%205.32%200%201%200%200-10.66%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M26.22%2013.98c0-7.2-5.82-13.04-13-13.04s-13%205.84-13%2013.04v3.92c0%207.2%205.82%2013.04%2013%2013.04s13-5.83%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M9%2010.48A2.29%202.29%200%201%200%209%205.9a2.29%202.29%200%200%200%200%204.58Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.24%2019.3a5.32%205.32%200%201%200%200-10.66%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M84.33-5.7H65.45C58.63-5.7%2053.1-.2%2053.1%206.6v18.8c0%206.79%205.52%2012.3%2012.34%2012.3h18.88c6.81%200%2012.34-5.51%2012.34-12.3V6.6c0-6.8-5.53-12.3-12.34-12.3Z%22%20fill%3D%22url(%23lylskixk)%22%2F%3E%3Cpath%20d%3D%22M21.3-5.7H2.42C-4.4-5.7-9.92-.2-9.92%206.6v18.8c0%206.79%205.52%2012.3%2012.34%2012.3H21.3c6.81%200%2012.34-5.51%2012.34-12.3V6.6c0-6.8-5.53-12.3-12.34-12.3Z%22%20fill%3D%22url(%23wlcwp5ap)%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Cpath%20d%3D%22M21.06%2040.12H2.18A14.83%2014.83%200%200%201-8.2%2035.81a14.71%2014.71%200%200%201-4.33-10.34V6.6c.02-3.87%201.58-7.59%204.34-10.34A14.85%2014.85%200%200%201%202.18-8.06h18.88c3.92.02%207.66%201.58%2010.42%204.35%202.76%202.76%204.31%206.5%204.31%2010.4v18.7A14.62%2014.62%200%200%201%2026.71%2039c-1.79.74-3.7%201.12-5.65%201.12ZM2.18-3.26A9.96%209.96%200%200%200-7%202.83a9.85%209.85%200%200%200-.76%203.78v18.8a9.85%209.85%200%200%200%209.9%209.86h18.92a9.93%209.93%200%200%200%209.9-9.86V6.6a9.87%209.87%200%200%200-9.9-9.86H2.18ZM84.33%2040.12H65.46a14.83%2014.83%200%200%201-10.39-4.31%2014.71%2014.71%200%200%201-4.33-10.34V6.6c.02-3.87%201.58-7.59%204.34-10.34a14.85%2014.85%200%200%201%2010.38-4.32h18.87c3.9.03%207.65%201.59%2010.41%204.35s4.31%206.5%204.32%2010.4v18.7c0%203.9-1.56%207.64-4.32%2010.4a14.83%2014.83%200%200%201-10.41%204.33ZM65.46-3.26a9.93%209.93%200%200%200-9.9%209.87v18.8a9.85%209.85%200%200%200%209.9%209.86h18.87a9.93%209.93%200%200%200%209.9-9.86V6.6a9.85%209.85%200%200%200-9.9-9.86H65.46Z%22%2F%3E%3Cpath%20d%3D%22M53.1%2010.64H33.4v4.89h19.7v-4.89Z%22%2F%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22lylskixk%22%20x1%3D%222332.67%22%20y1%3D%221561.82%22%20x2%3D%223621.21%22%20y2%3D%221561.82%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%23969696%22%20stop-opacity%3D%22.2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22wlcwp5ap%22%20x1%3D%222269.64%22%20y1%3D%221561.82%22%20x2%3D%223558.18%22%20y2%3D%221561.82%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%23969696%22%20stop-opacity%3D%22.2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">morgan</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-light-cycles-two\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"trail-three\" data-mark=\"N\"><span class=\"text textLabel whitespace-nowrap text-game-light-cycles-canvas\">N</span></span><span class=\"text textCaption whitespace-nowrap\" data-component=\"GameSeatStat\" data-value=\"0\">Nova wins <span class=\"textNumeral font-semibold\">0</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "morganNNova wins 0",
+        "box": {
+          "x": 202,
+          "y": 82,
+          "width": 76.5,
+          "height": 66,
+          "top": 82,
+          "right": 278.5,
+          "bottom": 148,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 82,
+            "width": 55.578125,
+            "height": 22,
+            "top": 82,
+            "right": 257.578125,
+            "bottom": 104,
+            "left": 202
+          },
+          {
+            "x": 202,
+            "y": 82,
+            "width": 55.578125,
+            "height": 21,
+            "top": 82,
+            "right": 257.578125,
+            "bottom": 103,
+            "left": 202
+          },
+          {
+            "x": 202,
+            "y": 108,
+            "width": 76.5,
+            "height": 40,
+            "top": 108,
+            "right": 278.5,
+            "bottom": 148,
+            "left": 202
+          },
+          {
+            "x": 206.609375,
+            "y": 107,
+            "width": 10.78125,
+            "height": 21,
+            "top": 107,
+            "right": 217.390625,
+            "bottom": 128,
+            "left": 206.609375
+          },
+          {
+            "x": 202,
+            "y": 128,
+            "width": 65.734375,
+            "height": 19,
+            "top": 128,
+            "right": 267.734375,
+            "bottom": 147,
+            "left": 202
+          },
+          {
+            "x": 267.734375,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 270.546875,
+            "bottom": 147,
+            "left": 267.734375
+          },
+          {
+            "x": 270.546875,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 279.234375,
+            "bottom": 147,
+            "left": 270.546875
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "morgan",
+        "box": {
+          "x": 202,
+          "y": 82,
+          "width": 55.578125,
+          "height": 22,
+          "top": 82,
+          "right": 257.578125,
+          "bottom": 104,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 82,
+            "width": 55.578125,
+            "height": 21,
+            "top": 82,
+            "right": 257.578125,
+            "bottom": 103,
+            "left": 202
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "NNova wins 0",
+        "box": {
+          "x": 202,
+          "y": 108,
+          "width": 76.5,
+          "height": 40,
+          "top": 108,
+          "right": 278.5,
+          "bottom": 148,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 108,
+            "width": 20,
+            "height": 20,
+            "top": 108,
+            "right": 222,
+            "bottom": 128,
+            "left": 202
+          },
+          {
+            "x": 206.609375,
+            "y": 107,
+            "width": 10.78125,
+            "height": 21,
+            "top": 107,
+            "right": 217.390625,
+            "bottom": 128,
+            "left": 206.609375
+          },
+          {
+            "x": 202,
+            "y": 128,
+            "width": 76.5,
+            "height": 20,
+            "top": 128,
+            "right": 278.5,
+            "bottom": 148,
+            "left": 202
+          },
+          {
+            "x": 202,
+            "y": 128,
+            "width": 65.734375,
+            "height": 19,
+            "top": 128,
+            "right": 267.734375,
+            "bottom": 147,
+            "left": 202
+          },
+          {
+            "x": 267.734375,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 270.546875,
+            "bottom": 147,
+            "left": 267.734375
+          },
+          {
+            "x": 270.546875,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 279.234375,
+            "bottom": 147,
+            "left": 270.546875
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "N",
+        "box": {
+          "x": 202,
+          "y": 108,
+          "width": 20,
+          "height": 20,
+          "top": 108,
+          "right": 222,
+          "bottom": 128,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 206.609375,
+            "y": 107,
+            "width": 10.78125,
+            "height": 22,
+            "top": 107,
+            "right": 217.390625,
+            "bottom": 129,
+            "left": 206.609375
+          },
+          {
+            "x": 206.609375,
+            "y": 107,
+            "width": 10.78125,
+            "height": 21,
+            "top": 107,
+            "right": 217.390625,
+            "bottom": 128,
+            "left": 206.609375
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "N",
+        "box": {
+          "x": 206.609375,
+          "y": 107,
+          "width": 10.78125,
+          "height": 22,
+          "top": 107,
+          "right": 217.390625,
+          "bottom": 129,
+          "left": 206.609375
+        },
+        "range": [
+          {
+            "x": 206.609375,
+            "y": 107,
+            "width": 10.78125,
+            "height": 21,
+            "top": 107,
+            "right": 217.390625,
+            "bottom": 128,
+            "left": 206.609375
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Nova wins 0",
+        "box": {
+          "x": 202,
+          "y": 128,
+          "width": 76.5,
+          "height": 20,
+          "top": 128,
+          "right": 278.5,
+          "bottom": 148,
+          "left": 202
+        },
+        "range": [
+          {
+            "x": 202,
+            "y": 128,
+            "width": 65.734375,
+            "height": 19,
+            "top": 128,
+            "right": 267.734375,
+            "bottom": 147,
+            "left": 202
+          },
+          {
+            "x": 267.734375,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 270.546875,
+            "bottom": 147,
+            "left": 267.734375
+          },
+          {
+            "x": 270.546875,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 279.234375,
+            "bottom": 147,
+            "left": 270.546875
+          },
+          {
+            "x": 270.546875,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 279.234375,
+            "bottom": 147,
+            "left": 270.546875
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "0",
+        "box": {
+          "x": 270.546875,
+          "y": 128,
+          "width": 8.6875,
+          "height": 19,
+          "top": 128,
+          "right": 279.234375,
+          "bottom": 147,
+          "left": 270.546875
+        },
+        "range": [
+          {
+            "x": 270.546875,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 279.234375,
+            "bottom": 147,
+            "left": 270.546875
+          }
+        ],
+        "style": {
+          "display": "inline",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  },
+  {
+    "card": {
+      "x": 287.5,
+      "y": 65,
+      "width": 86.5,
+      "height": 100,
+      "top": 65,
+      "right": 374,
+      "bottom": 165,
+      "left": 287.5
+    },
+    "html": "<div class=\"box min-w-0 flex-1\" role=\"listitem\" data-component=\"GamePlayerChip\" data-testid=\"custom-game-blue\" data-active=\"false\"><div class=\"box flex-row items-center gap-2 rounded-control border px-2 py-1 min-h-11 w-full min-w-0 flex-1 _chipFrame_fkt83_20 bg-surface border-border\"><span aria-hidden=\"true\" class=\"box shrink-0 _chipAvatar_fkt83_33\"><span class=\"box inline-flex shrink-0 rounded-full items-center justify-center border border-border\" data-component=\"Avatar\" data-kind=\"person\" style=\"background-color: var(--ui-color-surface); width: 32px; height: 32px;\"><img alt=\"\" draggable=\"false\" class=\"_image_1nhnf_5\" src=\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20fill%3D%22none%22%20shape-rendering%3D%22auto%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EFun%20Emoji%20Set%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDavis%20Uche%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3ERemix%20of%20%E2%80%9EFun%20Emoji%20Set%E2%80%9D%20(https%3A%2F%2Fwww.figma.com%2Fcommunity%2Ffile%2F968125295144990435)%20by%20%E2%80%9EDavis%20Uche%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC%20BY%204.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%22t5irjnra%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%23t5irjnra)%22%3E%3Crect%20fill%3D%22%2371cf62%22%20width%3D%22200%22%20height%3D%22200%22%20x%3D%220%22%20y%3D%220%22%20%2F%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2037.5%20110.94)%22%3E%3Cpath%20d%3D%22M40.77%2031C24.27%2031%205.8%2021.8%204%201.63A1.4%201.4%200%200%201%205.21.07a1.38%201.38%200%200%201%201.55%201.21c1.6%2018.47%2018.74%2026.89%2034%2026.89%2021.58%200%2032.38-13.53%2033.52-26.89A1.38%201.38%200%200%201%2075.73%200%201.45%201.45%200%200%201%2077%201.47C75.34%2021.84%2057.08%2031%2040.8%2031h-.03Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1.5625%200%200%201.5625%2031.25%2059.38)%22%3E%3Cpath%20d%3D%22M87%2013.04C87%205.84%2081.18%200%2074%200S61%205.84%2061%2013.04v3.92C61%2024.16%2066.82%2030%2074%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M69.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M74.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M26%2013.04C26%205.84%2020.18%200%2013%200S0%205.84%200%2013.04v3.92C0%2024.16%205.82%2030%2013%2030s13-5.84%2013-13.04v-3.92Z%22%20fill%3D%22%23000%22%2F%3E%3Cpath%20d%3D%22M8.79%209.53a2.29%202.29%200%201%200%200-4.57%202.29%202.29%200%200%200%200%204.57Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20opacity%3D%22.1%22%20d%3D%22M13.02%2018.35a5.32%205.32%200%201%200%200-10.65%205.32%205.32%200%200%200%200%2010.65Z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\" width=\"32\" height=\"32\"></span></span><span class=\"box flex-1 min-w-0 items-start gap-1 _chipText_fkt83_30\"><span class=\"text textLabel min-w-0 max-w-full _chipName_fkt83_36\">robin_42</span><span class=\"box flex-row flex-wrap items-center gap-1 min-w-0 _chipFacts_fkt83_39\"><span class=\"box inline-flex flex-row shrink-0 items-center justify-center size-5 rounded-full bg-game-light-cycles-ink\" aria-hidden=\"true\" data-component=\"GameSeatSwatch\" data-seat-color=\"trail-four\" data-mark=\"V\"><span class=\"text textLabel whitespace-nowrap text-game-light-cycles-canvas\">V</span></span><span class=\"text textCaption whitespace-nowrap\" data-component=\"GameSeatStat\" data-value=\"0\">Volt wins <span class=\"textNumeral font-semibold\">0</span></span></span></span></div></div>",
+    "texts": [
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "none",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "range": [],
+        "style": {
+          "display": "inline-flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "robin_42VVolt wins 0",
+        "box": {
+          "x": 292.5,
+          "y": 82,
+          "width": 76.5,
+          "height": 66,
+          "top": 82,
+          "right": 369,
+          "bottom": 148,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 82,
+            "width": 65.90625,
+            "height": 22,
+            "top": 82,
+            "right": 358.40625,
+            "bottom": 104,
+            "left": 292.5
+          },
+          {
+            "x": 292.5,
+            "y": 82,
+            "width": 65.90625,
+            "height": 21,
+            "top": 82,
+            "right": 358.40625,
+            "bottom": 103,
+            "left": 292.5
+          },
+          {
+            "x": 292.5,
+            "y": 108,
+            "width": 76.5,
+            "height": 40,
+            "top": 108,
+            "right": 369,
+            "bottom": 148,
+            "left": 292.5
+          },
+          {
+            "x": 297.6875,
+            "y": 107,
+            "width": 9.609375,
+            "height": 21,
+            "top": 107,
+            "right": 307.296875,
+            "bottom": 128,
+            "left": 297.6875
+          },
+          {
+            "x": 292.5,
+            "y": 128,
+            "width": 58.53125,
+            "height": 19,
+            "top": 128,
+            "right": 351.03125,
+            "bottom": 147,
+            "left": 292.5
+          },
+          {
+            "x": 351.03125,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 353.84375,
+            "bottom": 147,
+            "left": 351.03125
+          },
+          {
+            "x": 353.84375,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 147,
+            "left": 353.84375
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "robin_42",
+        "box": {
+          "x": 292.5,
+          "y": 82,
+          "width": 65.90625,
+          "height": 22,
+          "top": 82,
+          "right": 358.40625,
+          "bottom": 104,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 82,
+            "width": 65.90625,
+            "height": 21,
+            "top": 82,
+            "right": 358.40625,
+            "bottom": 103,
+            "left": 292.5
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "VVolt wins 0",
+        "box": {
+          "x": 292.5,
+          "y": 108,
+          "width": 76.5,
+          "height": 40,
+          "top": 108,
+          "right": 369,
+          "bottom": 148,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 108,
+            "width": 20,
+            "height": 20,
+            "top": 108,
+            "right": 312.5,
+            "bottom": 128,
+            "left": 292.5
+          },
+          {
+            "x": 297.6875,
+            "y": 107,
+            "width": 9.609375,
+            "height": 21,
+            "top": 107,
+            "right": 307.296875,
+            "bottom": 128,
+            "left": 297.6875
+          },
+          {
+            "x": 292.5,
+            "y": 128,
+            "width": 70.03125,
+            "height": 20,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 148,
+            "left": 292.5
+          },
+          {
+            "x": 292.5,
+            "y": 128,
+            "width": 58.53125,
+            "height": 19,
+            "top": 128,
+            "right": 351.03125,
+            "bottom": 147,
+            "left": 292.5
+          },
+          {
+            "x": 351.03125,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 353.84375,
+            "bottom": 147,
+            "left": 351.03125
+          },
+          {
+            "x": 353.84375,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 147,
+            "left": 353.84375
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "V",
+        "box": {
+          "x": 292.5,
+          "y": 108,
+          "width": 20,
+          "height": 20,
+          "top": 108,
+          "right": 312.5,
+          "bottom": 128,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 297.6875,
+            "y": 107,
+            "width": 9.609375,
+            "height": 22,
+            "top": 107,
+            "right": 307.296875,
+            "bottom": 129,
+            "left": 297.6875
+          },
+          {
+            "x": 297.6875,
+            "y": 107,
+            "width": 9.609375,
+            "height": 21,
+            "top": 107,
+            "right": 307.296875,
+            "bottom": 128,
+            "left": 297.6875
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      },
+      {
+        "text": "V",
+        "box": {
+          "x": 297.6875,
+          "y": 107,
+          "width": 9.609375,
+          "height": 22,
+          "top": 107,
+          "right": 307.296875,
+          "bottom": 129,
+          "left": 297.6875
+        },
+        "range": [
+          {
+            "x": 297.6875,
+            "y": 107,
+            "width": 9.609375,
+            "height": 21,
+            "top": 107,
+            "right": 307.296875,
+            "bottom": 128,
+            "left": 297.6875
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "normal",
+          "overflowWrap": "anywhere"
+        }
+      },
+      {
+        "text": "Volt wins 0",
+        "box": {
+          "x": 292.5,
+          "y": 128,
+          "width": 70.03125,
+          "height": 20,
+          "top": 128,
+          "right": 362.53125,
+          "bottom": 148,
+          "left": 292.5
+        },
+        "range": [
+          {
+            "x": 292.5,
+            "y": 128,
+            "width": 58.53125,
+            "height": 19,
+            "top": 128,
+            "right": 351.03125,
+            "bottom": 147,
+            "left": 292.5
+          },
+          {
+            "x": 351.03125,
+            "y": 128,
+            "width": 2.8125,
+            "height": 19,
+            "top": 128,
+            "right": 353.84375,
+            "bottom": 147,
+            "left": 351.03125
+          },
+          {
+            "x": 353.84375,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 147,
+            "left": 353.84375
+          },
+          {
+            "x": 353.84375,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 147,
+            "left": 353.84375
+          }
+        ],
+        "style": {
+          "display": "block",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      },
+      {
+        "text": "0",
+        "box": {
+          "x": 353.84375,
+          "y": 128,
+          "width": 8.6875,
+          "height": 19,
+          "top": 128,
+          "right": 362.53125,
+          "bottom": 147,
+          "left": 353.84375
+        },
+        "range": [
+          {
+            "x": 353.84375,
+            "y": 128,
+            "width": 8.6875,
+            "height": 19,
+            "top": 128,
+            "right": 362.53125,
+            "bottom": 147,
+            "left": 353.84375
+          }
+        ],
+        "style": {
+          "display": "inline",
+          "whiteSpace": "nowrap",
+          "overflowWrap": "break-word"
+        }
+      }
+    ]
+  }
+]

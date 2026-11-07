@@ -1,0 +1,57 @@
+[
+  {
+    "card": {
+      "x": 64,
+      "y": 522.4375,
+      "width": 44,
+      "height": 44,
+      "top": 522.4375,
+      "right": 108,
+      "bottom": 566.4375,
+      "left": 64
+    },
+    "html": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"idle\" data-face=\"neutral-outline\" data-testid=\"custom-game-board-blank-W\" type=\"button\"><span class=\"box shrink min-w-0 flex-row items-center justify-center overflow-hidden\"><div class=\"box flex-row items-center justify-center gap-2\"><p class=\"text textBodyBold whitespace-nowrap\">W</p></div></span></button>",
+    "texts": [
+      {
+        "text": "W",
+        "box": {
+          "x": 79.25,
+          "y": 534.4375,
+          "width": 13.484375,
+          "height": 20,
+          "top": 534.4375,
+          "right": 92.734375,
+          "bottom": 554.4375,
+          "left": 79.25
+        },
+        "range": [
+          {
+            "x": 79.25,
+            "y": 534.4375,
+            "width": 13.484375,
+            "height": 20,
+            "top": 534.4375,
+            "right": 92.734375,
+            "bottom": 554.4375,
+            "left": 79.25
+          },
+          {
+            "x": 79.25,
+            "y": 534.4375,
+            "width": 13.484375,
+            "height": 19,
+            "top": 534.4375,
+            "right": 92.734375,
+            "bottom": 553.4375,
+            "left": 79.25
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "whiteSpace": "normal",
+          "overflowWrap": "normal"
+        }
+      }
+    ]
+  }
+]

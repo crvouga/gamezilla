@@ -1,0 +1,21 @@
+{
+  "format": "Concatenate parts in listed order, then gzip decompress",
+  "compressedSha256": "11bc7b2dcd7020227b40743f3a8fbd35d555585fe63a65e68f5980ca577b327f",
+  "parts": [
+    {
+      "file": "canonical-job-api.log.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "ffd8c505f19d89020b8f3b13bd403cae16d6e36ebe2f608ffc14569bc67419dc"
+    },
+    {
+      "file": "canonical-job-api.log.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "93dc6eaa2db5d06911523fb353980338f785b9f7ca52b29f2deadd5d3be7a5e1"
+    },
+    {
+      "file": "canonical-job-api.log.gz.part-03",
+      "bytes": 4821562,
+      "sha256": "898331455a9874a5951c0c2d2b6b307fb7d0cc1a3070b40a2f8176e4e2d8e49b"
+    }
+  ]
+}

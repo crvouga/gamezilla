@@ -1,0 +1,50 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "product-wordtileworkbench--secondary-tools [3] toHaveAttribute"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "product-wordtileworkbench--secondary-tools--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "product-wordtileworkbench--secondary-tools [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "product-wordtileworkbench--secondary-tools--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "product-wordtileworkbench--secondary-tools [7] toBeVisible"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "product-wordtileworkbench--secondary-tools--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "product-wordtileworkbench--secondary-tools [9] toHaveAttribute"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "product-wordtileworkbench--secondary-tools--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 10,
+    "failures": [],
+    "file": "product-wordtileworkbench--secondary-tools--desktop--light--004.png",
+    "capturedFrame": true
+  }
+]

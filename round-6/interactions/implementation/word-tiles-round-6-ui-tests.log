@@ -1,0 +1,235 @@
+$ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --parallel tests
+bun test v1.4.3 (c6da4a4d3) 10x PARALLEL
+
+tests/action-bar-logic.test.ts:
+(pass) action-bar budget math > budget never goes negative; a row is its widths plus the gaps between [0.05ms]
+(pass) partitionActionBarItems > everything fits → no overflow [0.10ms]
+(pass) partitionActionBarItems > before measure keeps auto items inline and always-overflow out [0.03ms]
+(pass) partitionActionBarItems > reserves a More slot when two or more overflow [0.01ms]
+(pass) partitionActionBarItems > priority and never/always policies drive placement [0.02ms]
+(pass) partitionActionBarItems > a budget too small for any item leaves only the More trigger [0.03ms]
+(pass) partitionActionBarItems > a lone item that does not fit collapses rather than spilling [0.01ms]
+(pass) partitionActionBarItems > measured widths, not slot counts, decide what fits [0.04ms]
+(pass) partitionActionBarItems > every inline row fits its budget, More included [0.65ms]
+(pass) partitionActionBarItems > empty input is a no-op
+(pass) text actions + combined overflow > partitionTextActions honours always/never modes [0.03ms]
+(pass) text actions + combined overflow > a lone text action is pulled back inline; icon overflow is kept [0.03ms]
+(pass) adapters > isActionBarAvatarItem / screenBaseActionToActionBarItem [0.04ms]
+(pass) adapters > actionBarHasContent [0.01ms]
+(pass) actionBarMinWidth > keeps room for every never item beside the More trigger [0.03ms]
+(pass) actionBarMinWidth > is the More trigger alone when nothing is pinned
+
+tests/command-registry.test.ts:
+(pass) CommandRegistryStore > upsert / remove notify subscribers and bump the snapshot [0.86ms]
+(pass) CommandRegistryStore > remove only affects the registering owner; upsert overwrites [0.30ms]
+(pass) CommandRegistryStore > getSnapshot is stable between mutations [0.04ms]
+
+tests/resize-delivery.test.ts:
+(pass) measurement publishes outside resize delivery and cancels a pending update on disposal [0.59ms]
+
+tests/command-registry.test.ts:
+(pass) HistoryStore > touch moves ids to the front, dedupes, and caps at the limit [0.27ms]
+(pass) HistoryStore > default limit applies without options [0.14ms]
+(pass) HistoryStore > persists to Kv and hydrates from it [0.67ms]
+(pass) HistoryStore > hydrate merges ids touched before the load completes [0.37ms]
+
+tests/interaction-primitives.test.tsx:
+(pass) Pressable > a button by default: press, toggle and current state as ARIA [2.60ms]
+(pass) Pressable > disabled swallows presses and drops the tint [0.22ms]
+(pass) Pressable > href makes it a link; onPress takes a plain click, not a modified one [1.30ms]
+(pass) Pressable > focus changes are reported, and tabStop false leaves the tab order [1.48ms]
+(pass) focus targets > focus moves to whichever component holds the target [3.14ms]
+(pass) scroll targets > an effect reveals the component the target moves to [0.64ms]
+(pass) scroll targets > a scroller-scoped reveal moves only the nearest scroller, on the axes it names [1.68ms]
+(pass) scroll targets > scrolling an unheld target does nothing
+(pass) measure > reports the held component in whole px and follows layout events [0.34ms]
+
+tests/command-palette-logic.test.ts:
+(pass) fuzzyMatch > empty query matches everything with zero score [0.09ms]
+(pass) fuzzyMatch > subsequence match returns inclusive ranges; non-match is null [0.14ms]
+(pass) fuzzyMatch > contiguous and word-start matches score higher [0.03ms]
+(pass) fuzzyMatch > mergeRanges collapses overlapping and adjacent ranges [0.03ms]
+
+tests/interaction-primitives.test.tsx:
+(pass) mountApplication > renders into the mount element, replacing the boot markup [0.40ms]
+(pass) mountApplication > a missing mount element is an error, not a silent blank page [0.03ms]
+
+tests/command-palette-logic.test.ts:
+(pass) fuzzyMatch > highlightSegments splits text around merged ranges [0.07ms]
+(pass) fuzzyMatch > rangesOfMatch emphasises what was typed, not what follows it [0.07ms]
+(pass) command types > normalizeShortcut accepts strings and objects [0.04ms]
+(pass) command types > commandSearchText joins title / subtitle / category / keywords lowercased [0.05ms]
+(pass) command types > enabled / visible defaults and function form [0.04ms]
+(pass) buildPaletteRows > empty query lists Recent first, then categories sorted with a default bucket [0.53ms]
+(pass) buildPaletteRows > no history means no Recent section; uncategorised commands lead under the default bucket [0.04ms]
+(pass) buildPaletteRows > query fuzzy-filters, ranks within category, and exposes match ranges [0.12ms]
+(pass) buildPaletteRows > keywords participate in search [0.04ms]
+(pass) buildPaletteRows > groupPaletteRows folds rows back into sections [0.06ms]
+(pass) palette keyboard math > nextPaletteSelection wraps arrows / Tab and jumps Home / End [0.06ms]
+(pass) palette keyboard math > clampPaletteSelection [0.02ms]
+(pass) shortcuts > matchOpenShortcut resolves mod to the platform modifier [0.24ms]
+(pass) shortcuts > findCommandForShortcut skips disabled, hidden, and non-web bindings [0.06ms]
+(pass) shortcuts > shortcutTokens renders human key caps [0.05ms]
+
+tests/no-toast.test.ts:
+(pass) no toast > no module is a toast or a snackbar [8.32ms]
+
+tests/floating-menu-logic.test.ts:
+(pass) computeFloatingMenuPosition > opens below the anchor, right-aligned (bottom-end) [0.06ms]
+(pass) computeFloatingMenuPosition > honors bottom-start and top-end without flipping [0.01ms]
+(pass) computeFloatingMenuPosition > clamps to edges when placement would overflow [0.01ms]
+(pass) computeFloatingMenuPosition > never goes above the top inset
+(pass) estimateFloatingMenuHeight > sums panel inset, header, items and dividers (subtitle is trailing) [0.03ms]
+(pass) nextMenuItemIndex > arrows wrap, Home/End jump, other keys are ignored [0.03ms]
+
+tests/theme-nested.test.tsx:
+(pass) nested ThemeProvider > tokens.css rebinds Tailwind --color-* on every scheme host [0.53ms]
+(pass) nested ThemeProvider > independent transparent roots leave the document theme under its owner [2.54ms]
+
+tests/mini-player.test.tsx:
+(pass) compact: the bar runs flush and square above the tab bar [2.84ms]
+(pass) wide: the bar keeps a gap above it and the card radius [0.48ms]
+
+tests/theme-nested.test.tsx:
+(pass) nested ThemeProvider > outer mirrors document; inner keeps its own host + JS scheme [0.88ms]
+
+tests/direction-pad.test.tsx:
+(pass) four named buttons, each with its own test id [15.37ms]
+(pass) a touch steers on pointer-down and its click does not steer again [1.37ms]
+(pass) keyboard and assistive-technology clicks steer on click [0.66ms]
+(pass) a cancelled touch does not swallow the next click [0.42ms]
+(pass) a disabled pad steers nothing [0.48ms]
+
+tests/theme-nested.test.tsx:
+(pass) nested ThemeProvider > nested dark host redefines --color-surface for Tailwind utilities [20.54ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) text > each component is its element, in its default role [3.42ms]
+
+tests/theme-nested.test.tsx:
+(pass) nested ThemeProvider > unmounting a nested provider does not change document theme [1.34ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) text > variant picks the role class; inherit adds none [0.68ms]
+
+tests/theme-nested.test.tsx:
+(pass) nested ThemeProvider > root restore leaves a pre-existing document theme intact [0.83ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) text > style props map to one class each; a clamped run is a block [1.76ms]
+
+tests/compact-number.test.ts:
+(pass) formatCompactNumber > below 1,000 a count is the plain number [1.00ms]
+(pass) formatCompactNumber > from 1,000 a count is compact with at most one decimal [0.02ms]
+(pass) formatCompactNumber > rounding up to the next unit moves to that unit
+(pass) formatCompactNumber > each locale writes its own short form [0.09ms]
+(pass) formatCompactNumber > an invalid locale tag falls back to English instead of throwing [0.01ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) text > every tone is the text utility of the palette role it aliases [11.09ms]
+(pass) text > a status paragraph announces itself [1.15ms]
+(pass) headings > the component is the level, with a default size per level [2.65ms]
+(pass) headings > size is independent of the level [0.69ms]
+
+tests/layout-primitives.test.tsx:
+(pass) responsive class tables > a plain value takes the base class, a map one class per breakpoint [0.04ms]
+(pass) responsive class tables > a row must name a class for every breakpoint [0.01ms]
+(pass) responsive class tables > every spacing prop renders the utility bound to its token [0.10ms]
+(pass) Stack > vertical and horizontal stacks are boxes on one axis [0.85ms]
+(pass) Stack > direction and spacing follow breakpoint tokens [0.17ms]
+(pass) Stack > item props: grow, shrink, self, size, overflow, position [0.15ms]
+(pass) Stack > props stay reactive after mount [0.17ms]
+(pass) Stack > identity and accessibility pass through by name, nothing else does [0.16ms]
+(pass) Grid > columns are a count per breakpoint [0.24ms]
+(pass) Surface > paints a tone, a radius and a border from tokens [0.12ms]
+(pass) Surface > every tone is the fill utility of the palette role it aliases [0.44ms]
+(pass) Surface > every radius token has a class [0.34ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) landmarks and lists > each landmark is its element and has no box of its own [5.99ms]
+(pass) landmarks and lists > list entries are direct children of their list inside a stack [1.26ms]
+(pass) small hosts > VisuallyHidden keeps text for assistive technology only [0.28ms]
+(pass) small hosts > Divider is a separator along the stack it divides [0.17ms]
+(pass) small hosts > FieldLabel points at its control and marks required and hint [0.47ms]
+(pass) small hosts > CodeBlock keeps whitespace, scrolls or wraps, and can drop its frame [0.23ms]
+(pass) small hosts > Sparkline spans its series and draws nothing for one point [0.65ms]
+
+tests/empty-state-align.test.tsx:
+(pass) an empty state is centered by default [4.58ms]
+
+tests/semantic-primitives.test.tsx:
+(pass) small hosts > Icon draws a held icon at a token size [3.17ms]
+
+tests/empty-state-align.test.tsx:
+(pass) aligned to start, it lines up on its column edge, copy and actions alike [1.05ms]
+
+tests/no-toast.test.ts:
+(pass) no toast > no source names, exports or imports a toast or a snackbar [65.64ms]
+
+tests/screen-base-logic.test.ts:
+(pass) screenBaseActionIntent > maps action types to button intents [0.03ms]
+(pass) partitionScreenBaseActions > icon actions become ActionBar items, others become text actions [0.07ms]
+(pass) breadcrumb helpers > lastBreadcrumbTitle / splitBreadcrumbTrail [0.03ms]
+(pass) breadcrumb helpers > isNavigableBreadcrumb accepts onClick or href
+(pass) breadcrumb helpers > deriveHeaderLayout shows back only for a navigable parent crumb [0.02ms]
+(pass) breadcrumb helpers > Settings → Components trail shows Back to Settings (UI explorer)
+(pass) body helpers > buildBodyContentProps flexes non-scroll bodies and forwards titleScroll [0.01ms]
+(pass) body helpers > bodyNeedsSafeBottom only without pinned chrome
+(pass) bodyScrolledPastTop > a vertical scroller reports whether it has left its top [0.01ms]
+(pass) bodyScrolledPastTop > a scroller with nothing to scroll vertically says nothing
+
+tests/paddle-court.test.tsx:
+(pass) focused court keys control separate paddles and release on blur [3.37ms]
+(pass) a single player can use arrow keys on either side without moving the opponent [0.69ms]
+(pass) simultaneous touches stay assigned to their own side and cancellation stops movement [0.74ms]
+
+tests/mutation-observation-regression.test.tsx:
+(pass) an uncertain choice stops spinning and checking it does not submit again [0.86ms]
+
+tests/paddle-court.test.tsx:
+(pass) a spectator cannot focus controls, move either paddle or capture scrolling [0.46ms]
+
+tests/trail-arena.test.tsx:
+(pass) riders, trails and crashes expose their state as data attributes [6.01ms]
+(pass) the viewBox is fixed in cells and each rider has its own trail pattern [1.31ms]
+
+tests/inspection-workspace.test.tsx:
+computations created outside a `createRoot` or `render` will never be disposed
+computations created outside a `createRoot` or `render` will never be disposed
+computations created outside a `createRoot` or `render` will never be disposed
+computations created outside a `createRoot` or `render` will never be disposed
+computations created outside a `createRoot` or `render` will never be disposed
+computations created outside a `createRoot` or `render` will never be disposed
+(pass) all inspection panes are reachable on a narrow phone [13.25ms]
+
+tests/trail-arena.test.tsx:
+(pass) a single steered rider takes both arrows and WASD, and repeats are ignored [1.60ms]
+
+tests/theme-artifacts.test.ts:
+(pass) theme.css > every palette role has a var-backed @theme color [0.56ms]
+
+tests/inspection-workspace.test.tsx:
+computations created outside a `createRoot` or `render` will never be disposed
+(pass) wide inspection keeps the primary surface while switching tools [2.00ms]
+
+tests/theme-artifacts.test.ts:
+(pass) theme.css > breakpoints are the token breakpoints [0.21ms]
+(pass) theme.css > every stock Tailwind namespace is cleared [0.23ms]
+(pass) theme.css > there is one shadow, and it is the float token [0.18ms]
+
+tests/trail-arena.test.tsx:
+(pass) two riders on one keyboard: arrows steer slot 0 and WASD steers slot 1 [1.12ms]
+
+tests/theme-artifacts.test.ts:
+(pass) hosts.css > is layered so Tailwind utilities can override host defaults [0.14ms]
+(pass) hosts.css > type roles read only the type tokens [0.17ms]
+
+tests/trail-arena.test.tsx:
+(pass) a swipe steers the rider on its side once it travels far enough [1.28ms]
+(pass) a watched or disabled arena cannot be focused, steered or capture scrolling [1.57ms]
+(pass) the arena is named and described, and the overlay is announced in place [1.41ms]
+
+ 139 pass
+ 0 fail
+ 1145 expect() calls
+Ran 139 tests across 20 files. [386.00ms]

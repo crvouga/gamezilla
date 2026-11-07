@@ -1,0 +1,1657 @@
+{
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "status": "failed",
+  "count": 328,
+  "byScope": {
+    "pre-existing chess shared-screen demonstration contract": 1,
+    "other or retired baseline family": 246,
+    "selected board/component family": 81
+  },
+  "byRule": {
+    "CSF component must reference an exported production component, never a demonstration implementation.": 1,
+    "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.": 255,
+    "orphan baseline. Remove it or restore its canonical story.": 72
+  },
+  "violations": [
+    {
+      "path": "libs/chess-puzzle-client-ts/src/puzzle-play-screen-view.stories.tsx",
+      "message": "CSF component must reference an exported production component, never a demonstration implementation.",
+      "scope": "pre-existing chess shared-screen demonstration contract"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/monogram-tile/baselines/chromium/components-data-display-monogramtile/states-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/monogram-tile/baselines/chromium/components-data-display-monogramtile/states-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/preview-thumbnail/baselines/chromium/components-data-display-previewthumbnail/sizes-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/preview-thumbnail/baselines/chromium/components-data-display-previewthumbnail/sizes-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/sokoban-tools-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/sokoban-tools-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/disabled-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-palette/baselines/chromium/components-inputs-cellgridpalette/disabled-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/chrome-breadcrumb/baselines/chromium/components-navigation-chromebreadcrumb/states-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/chrome-breadcrumb/baselines/chromium/components-navigation-chromebreadcrumb/states-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/closed-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/closed-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/open-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/disclosure-card/baselines/chromium/components-layout-disclosurecard/open-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/editor-workbench/baselines/chromium/components-layout-editorworkbench/tools-beside-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/editor-workbench/baselines/chromium/components-layout-editorworkbench/tools-beside-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/key-hints/baselines/chromium/components-display-keyhints/board-keys-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/key-hints/baselines/chromium/components-display-keyhints/board-keys-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/preview-card-grid/baselines/chromium/components-data-previewcardgrid/boards-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/preview-card-grid/baselines/chromium/components-data-previewcardgrid/boards-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/step-footer/baselines/chromium/components-inputs-stepfooter/publish-step-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/step-footer/baselines/chromium/components-inputs-stepfooter/publish-step-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/step-track/baselines/chromium/components-inputs-steptrack/states-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/step-track/baselines/chromium/components-inputs-steptrack/states-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/default-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-menu-screen/baselines/chromium/templates-game-menu/choose-a-choice-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/search-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/notifications-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-spaces-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-search-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-notifications-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-profile-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-header-island/sidebar-none-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/search-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-shell-tab-bar/notifications-current-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-index/open-troubleshooting-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/default-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/monitor-on-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/app-root-client-ts/src/baselines/chromium/screens-settings-troubleshooting/open-connection-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/keyboard-help-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/keyboard-help-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/keyboard-help-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-chess-play/keyboard-help-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/chess-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-desktop-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-desktop-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-desktop-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/two-players-desktop-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-desktop-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-desktop-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-desktop-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/four-players-desktop-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-desktop-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-desktop-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-desktop-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/win-desktop-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-desktop-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-desktop-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-desktop-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/drawn-desktop-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-desktop-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-desktop-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-desktop-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame-geometry/long-name-rail-desktop-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/baselines/chromium/screens-games-frame/early-turn-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/drawing-help-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/drawing-help-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/drawing-help-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/drawing-help-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/choose-path-to-remove-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/choose-path-to-remove-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/choose-path-to-remove-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/numberlink-client-ts/src/baselines/chromium/screens-games-numberlink-puzzle/choose-path-to-remove-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-hill/precise-coordinates-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/precise-coordinates-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/precise-coordinates-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/precise-coordinates-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/precise-coordinates-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/rotate-wall-preview-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/rotate-wall-preview-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/rotate-wall-preview-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/baselines/chromium/screens-games-quoridor-classic/rotate-wall-preview-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-detail/inside-a-game-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/spaces-client-ts/src/baselines/chromium/screens-spaces-games/full-room-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recall-and-restore-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/recover-and-submit-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-board/enlarged-coordinates-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/retry-word-list-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/retry-word-list-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/retry-word-list-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/retry-word-list-dark-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/word-tiles-client-ts/src/baselines/chromium/screens-games-word-tiles-puzzle/enlarged-blank-light-1440.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-move-list/baselines/chromium/games-shared-gamemovelist/states-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-move-list/baselines/chromium/games-shared-gamemovelist/states-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-tile/baselines/chromium/games-shared-game-tile/motifs-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/game-tile/baselines/chromium/games-shared-game-tile/motifs-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/battleship-placement-layout/baselines/chromium/games-battleship-placement-layout/enlarged-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/battleship-placement-layout/baselines/chromium/games-battleship-placement-layout/enlarged-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/organisms-games-checkeredboard/states-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/cell-grid-board/baselines/chromium/organisms-games-checkeredboard/states-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/word-tile-workbench/baselines/chromium/product-wordtileworkbench/recovery-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/word-tile-workbench/baselines/chromium/product-wordtileworkbench/recovery-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/word-tile-workbench/baselines/chromium/product-wordtileworkbench/secondary-tools-light.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "pkgs/ui-root-client-ts/src/word-tile-workbench/baselines/chromium/product-wordtileworkbench/secondary-tools-dark.png",
+      "message": "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.",
+      "scope": "selected board/component family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/ask-for-hint-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/correct-move-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/empty-no-failed-yet-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/failed-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/hint-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/loading-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/long-coach-line-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/offline-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-allowance-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/rated-limit-denied-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solution-shown-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solved-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/solving-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/spectating-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/unrated-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/waiting-for-host-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-dark.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light-1440.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    },
+    {
+      "path": "libs/game-puzzle-client-ts/src/baselines/chromium/screens-puzzles-play/wrong-move-light.png",
+      "message": "orphan baseline. Remove it or restore its canonical story.",
+      "scope": "other or retired baseline family"
+    }
+  ]
+}

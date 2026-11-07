@@ -1,0 +1,227 @@
+{
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "aggregate": {
+    "status": "passed",
+    "successful": 96,
+    "total": 96,
+    "log": "aggregate-final.log",
+    "provenance": "Final source content before final commit; no source content changed by committing."
+  },
+  "knownBugRegistry": {
+    "status": "passed",
+    "log": "frame-goals.log"
+  },
+  "i18n": {
+    "status": "passed",
+    "log": "i18n.log"
+  },
+  "staticBuild": {
+    "status": "passed",
+    "log": "build-final.log"
+  },
+  "generatedContracts": {
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "manifestHash": "9e2e4cc794ba391e12c795a4368945e5a77da2b3ff4d9cb1c8246938c9e1cb53",
+    "contracts": {
+      "screens-games-frame-geometry": [
+        "board",
+        "people",
+        "result",
+        "next",
+        "onPlayBot"
+      ],
+      "games-battleship-placement-layout": [
+        "controls",
+        "working",
+        "feedback",
+        "overview"
+      ],
+      "components-inputs-paddlecourt": [
+        "status",
+        "touchHint",
+        "halfControl",
+        "onTarget"
+      ],
+      "components-inputs-trailarena": [
+        "touchRegions",
+        "onDirection"
+      ],
+      "product-wordtileworkbench": [
+        "children"
+      ],
+      "product-wordtileboard": [
+        "purpose",
+        "measure",
+        "onActivate",
+        "cells"
+      ],
+      "screens-games-sokoban-puzzle": [
+        "definition",
+        "state",
+        "onAction"
+      ]
+    },
+    "sharedFrameStories": 10,
+    "status": "passed"
+  },
+  "coverage": {
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "status": "failed",
+    "count": 328,
+    "byScope": {
+      "pre-existing chess shared-screen demonstration contract": 1,
+      "other or retired baseline family": 246,
+      "selected board/component family": 81
+    },
+    "byRule": {
+      "CSF component must reference an exported production component, never a demonstration implementation.": 1,
+      "missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.": 255,
+      "orphan baseline. Remove it or restore its canonical story.": 72
+    }
+  },
+  "native": {
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "cases": 767,
+    "visualCases": 758,
+    "fontCases": 8,
+    "nativeReadinessPlayBrowserErrorsAxe": {
+      "passed": 758,
+      "failed": 0
+    },
+    "fontChecks": {
+      "passed": 8,
+      "failed": 0
+    },
+    "instrumentedGeometryRegression": {
+      "passed": 1,
+      "failed": 0
+    },
+    "pixels": {
+      "pixel": 758,
+      "failureKinds": {
+        "pixel difference": 640,
+        "missing reference": 118
+      }
+    },
+    "sharedReferencesAcceptedOnMacOS": false,
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844
+      },
+      {
+        "width": 1440,
+        "height": 844
+      }
+    ],
+    "command": "sh .overhaul-evidence/ui-ux-overhaul/round-6/test.sh",
+    "publicStatus": "All 758 visual cases passed native readiness/play, browser-error and serious/critical axe stages. Eight font checks and the instrumented chess regression passed. Pixel comparisons, full bun verify, hosted safety and Ubuntu reference decisions are reported separately; no macOS references were accepted."
+  },
+  "fullVerify": {
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "command": "NODE_OPTIONS=--max-old-space-size=8192 TURBO_CONCURRENCY=1 bun verify",
+    "runs": 1,
+    "exitCode": 1,
+    "setupTasks": {
+      "successful": 13,
+      "total": 13
+    },
+    "gateTasksReported": {
+      "successful": 17,
+      "total": 20
+    },
+    "blockingTask": "@libs/tools-harness-ts#ci:statecharts",
+    "message": "/more/troubleshooting: no chart state owns the public route from libs/app-root-client-ts/src/route-table.ts",
+    "scope": "outside game boards; specs not edited",
+    "log": "verify-final.log",
+    "diagnostics": "verify-diagnostics-parts.json"
+  },
+  "hostedSafety": {
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "status": "passed",
+    "runId": "42309514784",
+    "runUrl": "https://github.com/crvouga/gamezilla/actions/runs/42309514784",
+    "jobs": [
+      {
+        "name": "verify:start",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207208557"
+      },
+      {
+        "name": "verify:shards (3)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865807"
+      },
+      {
+        "name": "verify:shards (5)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865831"
+      },
+      {
+        "name": "verify:shards (2)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865866"
+      },
+      {
+        "name": "verify:shards (1)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865873"
+      },
+      {
+        "name": "verify:shards (0)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865892"
+      },
+      {
+        "name": "verify:shards (4)",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207866028"
+      },
+      {
+        "name": "verify:end",
+        "conclusion": "success",
+        "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128210822172"
+      }
+    ],
+    "logsRead": [
+      "hosted-run-42309514784.log"
+    ],
+    "storybookPublication": {
+      "status": "published",
+      "uiTestsRun": false,
+      "uiReviewEnabled": false,
+      "limit": "billed snapshot limit reached",
+      "url": "Publication URL partially masked in public job log; no URL invented"
+    },
+    "reviewAcceptance": false
+  },
+  "extraToolsDiagnostic": {
+    "status": "failed",
+    "passed": 1083,
+    "failed": 53,
+    "scope": "brand-artifact and agent-configuration checks outside board scope; not repaired",
+    "log": "integration-final-checks.log"
+  },
+  "numberlinkRepublication": {
+    "status": "unresolved",
+    "rerun": false,
+    "diagnosis": "outside-scope/NUMBERLINK_REPUBLICATION_DIAGNOSIS.md"
+  },
+  "media": {
+    "status": "passed",
+    "screenshots": 692,
+    "beforeScreenshots": 692,
+    "pairs": 692,
+    "recordings": 78,
+    "checkpointFailures": 0,
+    "minimumDistinctFrames": 2,
+    "recordingCeiling": 2000,
+    "preservedRecordings": 48,
+    "assertionsSkipped": 0,
+    "outcomes": "media-outcomes.json"
+  },
+  "reviews": {
+    "status": "two new independent parent reviews pending",
+    "ratingsAssigned": false
+  }
+}

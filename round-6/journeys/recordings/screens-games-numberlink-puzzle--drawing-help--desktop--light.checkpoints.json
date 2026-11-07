@@ -1,0 +1,240 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [7] toBeGreaterThan"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [9] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [11] toBeLessThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [13] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [15] toBeLessThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [17] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [25] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [27] toBeLessThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [29] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [31] toBeLessThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [33] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [35] toBeLessThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [37] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [41] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [43] toBeLessThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [45] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [47] click"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [50] toBeVisible"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--drawing-help [53] toBeVisible"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--drawing-help--desktop--light--023.png",
+    "capturedFrame": true
+  }
+]

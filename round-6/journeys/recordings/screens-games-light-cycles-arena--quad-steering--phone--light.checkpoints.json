@@ -1,0 +1,4680 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [1] toBeGreaterThan"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [3] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [5] toBeLessThanOrEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [7] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [9] toBeLessThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [11] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [13] toBeLessThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [15] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [17] toBeLessThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [19] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [21] toBeLessThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [23] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [25] toBeLessThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [27] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [29] toBeLessThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [31] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [33] toBeLessThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [35] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [37] toBeLessThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [39] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [41] toBeLessThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [43] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [45] toBeLessThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [47] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [49] toBeLessThanOrEqual"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [51] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [53] toBeLessThanOrEqual"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [55] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [57] toBeLessThanOrEqual"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [59] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 60,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [61] toBeLessThanOrEqual"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [63] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [65] toBeLessThanOrEqual"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [67] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [69] toBeLessThanOrEqual"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [71] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [73] toBeLessThanOrEqual"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [75] toBeLessThanOrEqual"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [77] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [79] toBeLessThanOrEqual"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [81] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [83] toBeLessThanOrEqual"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [87] toBeLessThanOrEqual"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [89] toBeLessThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [91] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [93] toBeLessThanOrEqual"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [95] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 96,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [97] toBeLessThanOrEqual"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [99] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [101] toBeLessThanOrEqual"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [103] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [105] toBeLessThanOrEqual"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [107] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 108,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [109] toBeLessThanOrEqual"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [111] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [113] toBeLessThanOrEqual"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [115] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [117] toBeLessThanOrEqual"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [119] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [121] toBeLessThanOrEqual"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [123] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 124,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [125] toBeLessThanOrEqual"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [127] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [129] toBeLessThanOrEqual"
+    ],
+    "cursor": 130,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [131] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 132,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [133] toBeLessThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [135] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [137] toBeLessThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [139] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [141] toBeLessThanOrEqual"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [143] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [145] toBeLessThanOrEqual"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [147] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 148,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [149] toBeLessThanOrEqual"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [151] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 152,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [153] toBeLessThanOrEqual"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [157] toBeLessThanOrEqual"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [159] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [161] toBeLessThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [163] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 164,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [165] toBeLessThanOrEqual"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [167] toBeLessThanOrEqual"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [169] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 170,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [171] toBeLessThanOrEqual"
+    ],
+    "cursor": 172,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [173] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 174,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [175] toBeLessThanOrEqual"
+    ],
+    "cursor": 176,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [177] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 178,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [179] toBeLessThanOrEqual"
+    ],
+    "cursor": 180,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [181] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [183] toBeLessThanOrEqual"
+    ],
+    "cursor": 184,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [185] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 186,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [187] toBeLessThanOrEqual"
+    ],
+    "cursor": 188,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [189] toBeLessThanOrEqual"
+    ],
+    "cursor": 190,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [191] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 192,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [193] toBeLessThanOrEqual"
+    ],
+    "cursor": 194,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [195] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 196,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [197] toBeLessThanOrEqual"
+    ],
+    "cursor": 198,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [199] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 200,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [201] toBeLessThanOrEqual"
+    ],
+    "cursor": 202,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [203] toBeLessThanOrEqual"
+    ],
+    "cursor": 204,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [205] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 206,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [207] toBeLessThanOrEqual"
+    ],
+    "cursor": 208,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [209] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 210,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [211] toBeLessThanOrEqual"
+    ],
+    "cursor": 212,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [213] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 214,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [215] toBeLessThanOrEqual"
+    ],
+    "cursor": 216,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [217] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 218,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [219] toBeLessThanOrEqual"
+    ],
+    "cursor": 220,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [221] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 222,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [223] toBeLessThanOrEqual"
+    ],
+    "cursor": 224,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [225] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 226,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [227] toBeLessThanOrEqual"
+    ],
+    "cursor": 228,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [229] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 230,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [231] toBeLessThanOrEqual"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [233] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 234,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [235] toBeLessThanOrEqual"
+    ],
+    "cursor": 236,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [237] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [239] toBeLessThanOrEqual"
+    ],
+    "cursor": 240,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [241] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 242,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [243] toBeLessThanOrEqual"
+    ],
+    "cursor": 244,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [245] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 246,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [247] toBeLessThanOrEqual"
+    ],
+    "cursor": 248,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [249] toBeLessThanOrEqual"
+    ],
+    "cursor": 250,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [251] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 252,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [253] toBeLessThanOrEqual"
+    ],
+    "cursor": 254,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [255] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 256,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [257] toBeLessThanOrEqual"
+    ],
+    "cursor": 258,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [259] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 260,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [261] toBeLessThanOrEqual"
+    ],
+    "cursor": 262,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [263] toBeLessThanOrEqual"
+    ],
+    "cursor": 264,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [265] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 266,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [267] toBeLessThanOrEqual"
+    ],
+    "cursor": 268,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [269] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 270,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [271] toBeLessThanOrEqual"
+    ],
+    "cursor": 272,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [273] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 274,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [275] toBeLessThanOrEqual"
+    ],
+    "cursor": 276,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [277] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 278,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [279] toBeLessThanOrEqual"
+    ],
+    "cursor": 280,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [281] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 282,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [283] toBeLessThanOrEqual"
+    ],
+    "cursor": 284,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [285] toBeLessThanOrEqual"
+    ],
+    "cursor": 286,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [287] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 288,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [289] toBeLessThanOrEqual"
+    ],
+    "cursor": 290,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [291] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 292,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [293] toBeLessThanOrEqual"
+    ],
+    "cursor": 294,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [295] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 296,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [297] toBeLessThanOrEqual"
+    ],
+    "cursor": 298,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [299] toBeLessThanOrEqual"
+    ],
+    "cursor": 300,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [301] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 302,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [303] toBeLessThanOrEqual"
+    ],
+    "cursor": 304,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [305] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 306,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [307] toBeLessThanOrEqual"
+    ],
+    "cursor": 308,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [309] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 310,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [311] toBeLessThanOrEqual"
+    ],
+    "cursor": 312,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [313] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 314,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [315] toBeLessThanOrEqual"
+    ],
+    "cursor": 316,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [317] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 318,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [319] toBeLessThanOrEqual"
+    ],
+    "cursor": 320,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [321] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 322,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [323] toBeLessThanOrEqual"
+    ],
+    "cursor": 324,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [325] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 326,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [327] toBeLessThanOrEqual"
+    ],
+    "cursor": 328,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [329] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 330,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [331] toBeLessThanOrEqual"
+    ],
+    "cursor": 332,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [333] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 334,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [335] toBeLessThanOrEqual"
+    ],
+    "cursor": 336,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [337] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 338,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [339] toBeLessThanOrEqual"
+    ],
+    "cursor": 340,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [341] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 342,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [343] toBeLessThanOrEqual"
+    ],
+    "cursor": 344,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [345] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 346,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [347] toBeLessThanOrEqual"
+    ],
+    "cursor": 348,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [349] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 350,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [351] toBeLessThanOrEqual"
+    ],
+    "cursor": 352,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [353] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 354,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [355] toBeLessThanOrEqual"
+    ],
+    "cursor": 356,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [357] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 358,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [359] toBeLessThanOrEqual"
+    ],
+    "cursor": 360,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [361] toBeLessThanOrEqual"
+    ],
+    "cursor": 362,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [363] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 364,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [365] toBeLessThanOrEqual"
+    ],
+    "cursor": 366,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [367] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 368,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [369] toBeLessThanOrEqual"
+    ],
+    "cursor": 370,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [371] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 372,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [373] toBeLessThanOrEqual"
+    ],
+    "cursor": 374,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [375] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 376,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [377] toBeLessThanOrEqual"
+    ],
+    "cursor": 378,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [379] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 380,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [381] toBeLessThanOrEqual"
+    ],
+    "cursor": 382,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [383] toBeLessThanOrEqual"
+    ],
+    "cursor": 384,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [385] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 386,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [387] toBeLessThanOrEqual"
+    ],
+    "cursor": 388,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [389] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 390,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [391] toBeLessThanOrEqual"
+    ],
+    "cursor": 392,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [393] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 394,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [395] toBeLessThanOrEqual"
+    ],
+    "cursor": 396,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [397] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 398,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [399] toBeLessThanOrEqual"
+    ],
+    "cursor": 400,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [401] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 402,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [403] toBeLessThanOrEqual"
+    ],
+    "cursor": 404,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [405] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 406,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [407] toBeLessThanOrEqual"
+    ],
+    "cursor": 408,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [409] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 410,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [411] toBeLessThanOrEqual"
+    ],
+    "cursor": 412,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [413] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 414,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [415] toBeLessThanOrEqual"
+    ],
+    "cursor": 416,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [417] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 418,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [419] toBeLessThanOrEqual"
+    ],
+    "cursor": 420,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [421] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 422,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [423] toBeLessThanOrEqual"
+    ],
+    "cursor": 424,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [425] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 426,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [427] toBeLessThanOrEqual"
+    ],
+    "cursor": 428,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [429] toBeLessThanOrEqual"
+    ],
+    "cursor": 430,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [431] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 432,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [433] toBeLessThanOrEqual"
+    ],
+    "cursor": 434,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [435] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 436,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [437] toBeLessThanOrEqual"
+    ],
+    "cursor": 438,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [439] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 440,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [441] toBeLessThanOrEqual"
+    ],
+    "cursor": 442,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [443] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 444,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [445] toBeLessThanOrEqual"
+    ],
+    "cursor": 446,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [447] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 448,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [449] toBeLessThanOrEqual"
+    ],
+    "cursor": 450,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [451] toBeLessThanOrEqual"
+    ],
+    "cursor": 452,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [453] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 454,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [455] toBeLessThanOrEqual"
+    ],
+    "cursor": 456,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [457] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 458,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [459] toBeLessThanOrEqual"
+    ],
+    "cursor": 460,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [461] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 462,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [463] toBeLessThanOrEqual"
+    ],
+    "cursor": 464,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [465] toBeLessThanOrEqual"
+    ],
+    "cursor": 466,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [467] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 468,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [469] toBeLessThanOrEqual"
+    ],
+    "cursor": 470,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [471] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 472,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [473] toBeLessThanOrEqual"
+    ],
+    "cursor": 474,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [475] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 476,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [477] toBeLessThanOrEqual"
+    ],
+    "cursor": 478,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [479] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 480,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [481] toBeLessThanOrEqual"
+    ],
+    "cursor": 482,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [483] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 484,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [485] toBeLessThanOrEqual"
+    ],
+    "cursor": 486,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [487] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 488,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [489] toBeLessThanOrEqual"
+    ],
+    "cursor": 490,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [491] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 492,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [493] toBeLessThanOrEqual"
+    ],
+    "cursor": 494,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [495] toBeLessThanOrEqual"
+    ],
+    "cursor": 496,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [497] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 498,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [499] toBeLessThanOrEqual"
+    ],
+    "cursor": 500,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [501] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 502,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [503] toBeLessThanOrEqual"
+    ],
+    "cursor": 504,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [505] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 506,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [507] toBeLessThanOrEqual"
+    ],
+    "cursor": 508,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [509] toBeLessThanOrEqual"
+    ],
+    "cursor": 510,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [511] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 512,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [513] toBeLessThanOrEqual"
+    ],
+    "cursor": 514,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [515] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 516,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [517] toBeLessThanOrEqual"
+    ],
+    "cursor": 518,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [519] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 520,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [521] toBeLessThanOrEqual"
+    ],
+    "cursor": 522,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [523] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 524,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [525] toBeLessThanOrEqual"
+    ],
+    "cursor": 526,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [527] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 528,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [529] toBeLessThanOrEqual"
+    ],
+    "cursor": 530,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [531] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 532,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [533] toBeLessThanOrEqual"
+    ],
+    "cursor": 534,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [535] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 536,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [537] toBeLessThanOrEqual"
+    ],
+    "cursor": 538,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [539] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 540,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [541] toBeLessThanOrEqual"
+    ],
+    "cursor": 542,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [543] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 544,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [545] toBeLessThanOrEqual"
+    ],
+    "cursor": 546,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [547] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 548,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [549] toBeLessThanOrEqual"
+    ],
+    "cursor": 550,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [551] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 552,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [553] toBeLessThanOrEqual"
+    ],
+    "cursor": 554,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [555] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 556,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [557] toBeLessThanOrEqual"
+    ],
+    "cursor": 558,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [559] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 560,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [561] toBeLessThanOrEqual"
+    ],
+    "cursor": 562,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [563] toBeLessThanOrEqual"
+    ],
+    "cursor": 564,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [565] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 566,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [567] toBeLessThanOrEqual"
+    ],
+    "cursor": 568,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [569] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 570,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [571] toBeLessThanOrEqual"
+    ],
+    "cursor": 572,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [573] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 574,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [575] toBeLessThanOrEqual"
+    ],
+    "cursor": 576,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [577] toBeLessThanOrEqual"
+    ],
+    "cursor": 578,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [579] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 580,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [581] toBeLessThanOrEqual"
+    ],
+    "cursor": 582,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [583] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 584,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [585] toBeLessThanOrEqual"
+    ],
+    "cursor": 586,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [587] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 588,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [589] toBeLessThanOrEqual"
+    ],
+    "cursor": 590,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [591] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 592,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [593] toBeLessThanOrEqual"
+    ],
+    "cursor": 594,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [595] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 596,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [597] toBeLessThanOrEqual"
+    ],
+    "cursor": 598,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [599] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 600,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [601] toBeLessThanOrEqual"
+    ],
+    "cursor": 602,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [603] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 604,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [605] toBeLessThanOrEqual"
+    ],
+    "cursor": 606,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [607] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 608,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [609] toBeLessThanOrEqual"
+    ],
+    "cursor": 610,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [611] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 612,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [613] toBeLessThanOrEqual"
+    ],
+    "cursor": 614,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [615] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 616,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [617] toBeLessThanOrEqual"
+    ],
+    "cursor": 618,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [619] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 620,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [621] toBeLessThanOrEqual"
+    ],
+    "cursor": 622,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [623] toBeLessThanOrEqual"
+    ],
+    "cursor": 624,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [625] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 626,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [627] toBeLessThanOrEqual"
+    ],
+    "cursor": 628,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [629] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 630,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [631] toBeLessThanOrEqual"
+    ],
+    "cursor": 632,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [633] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 634,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [635] toBeLessThanOrEqual"
+    ],
+    "cursor": 636,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [637] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 638,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [639] toBeLessThanOrEqual"
+    ],
+    "cursor": 640,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [641] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 642,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [643] toBeLessThanOrEqual"
+    ],
+    "cursor": 644,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [645] toBeLessThanOrEqual"
+    ],
+    "cursor": 646,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [647] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 648,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [649] toBeLessThanOrEqual"
+    ],
+    "cursor": 650,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [651] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 652,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [653] toBeLessThanOrEqual"
+    ],
+    "cursor": 654,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [655] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 656,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [657] toBeLessThanOrEqual"
+    ],
+    "cursor": 658,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [659] toBeLessThanOrEqual"
+    ],
+    "cursor": 660,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [661] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 662,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [663] toBeLessThanOrEqual"
+    ],
+    "cursor": 664,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [665] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 666,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [667] toBeLessThanOrEqual"
+    ],
+    "cursor": 668,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [669] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 670,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [671] toBeLessThanOrEqual"
+    ],
+    "cursor": 672,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [673] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 674,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [675] toBeLessThanOrEqual"
+    ],
+    "cursor": 676,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [677] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 678,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [679] toBeLessThanOrEqual"
+    ],
+    "cursor": 680,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [681] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 682,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [683] toBeLessThanOrEqual"
+    ],
+    "cursor": 684,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [685] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 686,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [687] toBeLessThanOrEqual"
+    ],
+    "cursor": 688,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [689] toBeLessThanOrEqual"
+    ],
+    "cursor": 690,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [691] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 692,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [693] toBeLessThanOrEqual"
+    ],
+    "cursor": 694,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [695] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 696,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [697] toBeLessThanOrEqual"
+    ],
+    "cursor": 698,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [699] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 700,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [701] toBeLessThanOrEqual"
+    ],
+    "cursor": 702,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [703] toBeLessThanOrEqual"
+    ],
+    "cursor": 704,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [705] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 706,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [707] toBeLessThanOrEqual"
+    ],
+    "cursor": 708,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [709] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 710,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [711] toBeLessThanOrEqual"
+    ],
+    "cursor": 712,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [713] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 714,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [715] toBeLessThanOrEqual"
+    ],
+    "cursor": 716,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [717] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 718,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [719] toBeLessThanOrEqual"
+    ],
+    "cursor": 720,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [721] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 722,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [723] toBeLessThanOrEqual"
+    ],
+    "cursor": 724,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [725] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 726,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [727] toBeLessThanOrEqual"
+    ],
+    "cursor": 728,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [729] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 730,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [731] toBeLessThanOrEqual"
+    ],
+    "cursor": 732,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [733] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 734,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [735] toBeLessThanOrEqual"
+    ],
+    "cursor": 736,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [737] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 738,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [739] toBeLessThanOrEqual"
+    ],
+    "cursor": 740,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [741] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 742,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [743] toBeLessThanOrEqual"
+    ],
+    "cursor": 744,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [745] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 746,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [747] toBeLessThanOrEqual"
+    ],
+    "cursor": 748,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [749] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 750,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [751] toBeLessThanOrEqual"
+    ],
+    "cursor": 752,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [753] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 754,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [755] toBeLessThanOrEqual"
+    ],
+    "cursor": 756,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [757] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 758,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [759] toBeLessThanOrEqual"
+    ],
+    "cursor": 760,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [761] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 762,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [763] toBeLessThanOrEqual"
+    ],
+    "cursor": 764,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [765] toBeLessThanOrEqual"
+    ],
+    "cursor": 766,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [767] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 768,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [769] toBeLessThanOrEqual"
+    ],
+    "cursor": 770,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [771] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 772,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [773] toBeLessThanOrEqual"
+    ],
+    "cursor": 774,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [775] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 776,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [777] toBeLessThanOrEqual"
+    ],
+    "cursor": 778,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [779] toBeLessThanOrEqual"
+    ],
+    "cursor": 780,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [781] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 782,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [783] toBeLessThanOrEqual"
+    ],
+    "cursor": 784,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [785] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 786,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [787] toBeLessThanOrEqual"
+    ],
+    "cursor": 788,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [789] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 790,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [791] toBeLessThanOrEqual"
+    ],
+    "cursor": 792,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [793] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 794,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [795] toBeLessThanOrEqual"
+    ],
+    "cursor": 796,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [797] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 798,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [799] toBeLessThanOrEqual"
+    ],
+    "cursor": 800,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [801] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 802,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [803] toBeLessThanOrEqual"
+    ],
+    "cursor": 804,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [805] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 806,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [807] toBeLessThanOrEqual"
+    ],
+    "cursor": 808,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [809] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 810,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [811] toBeLessThanOrEqual"
+    ],
+    "cursor": 812,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [813] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 814,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [815] toBeLessThanOrEqual"
+    ],
+    "cursor": 816,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [817] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 818,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [819] toBeLessThanOrEqual"
+    ],
+    "cursor": 820,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [821] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 822,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [823] toBeLessThanOrEqual"
+    ],
+    "cursor": 824,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [825] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 826,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [827] toBeLessThanOrEqual"
+    ],
+    "cursor": 828,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [829] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 830,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [831] toBeLessThanOrEqual"
+    ],
+    "cursor": 832,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [833] toBeLessThanOrEqual"
+    ],
+    "cursor": 834,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [835] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 836,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [837] toBeLessThanOrEqual"
+    ],
+    "cursor": 838,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [839] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 840,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [841] toBeLessThanOrEqual"
+    ],
+    "cursor": 842,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [843] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 844,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [845] toBeLessThanOrEqual"
+    ],
+    "cursor": 846,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [847] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 848,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [849] toBeLessThanOrEqual"
+    ],
+    "cursor": 850,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [851] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 852,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [853] toBeLessThanOrEqual"
+    ],
+    "cursor": 854,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [855] toBeLessThanOrEqual"
+    ],
+    "cursor": 856,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [857] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 858,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [859] toBeLessThanOrEqual"
+    ],
+    "cursor": 860,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [861] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 862,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [863] toBeLessThanOrEqual"
+    ],
+    "cursor": 864,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [865] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 866,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [867] toBeLessThanOrEqual"
+    ],
+    "cursor": 868,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [869] toBeLessThanOrEqual"
+    ],
+    "cursor": 870,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [871] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 872,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [873] toBeLessThanOrEqual"
+    ],
+    "cursor": 874,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [875] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 876,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [877] toBeLessThanOrEqual"
+    ],
+    "cursor": 878,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [879] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 880,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [881] toBeLessThanOrEqual"
+    ],
+    "cursor": 882,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [883] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 884,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [885] toBeLessThanOrEqual"
+    ],
+    "cursor": 886,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [887] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 888,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [889] toBeLessThanOrEqual"
+    ],
+    "cursor": 890,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [891] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 892,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [893] toBeLessThanOrEqual"
+    ],
+    "cursor": 894,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [895] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 896,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [897] toBeLessThanOrEqual"
+    ],
+    "cursor": 898,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [899] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 900,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [901] toBeLessThanOrEqual"
+    ],
+    "cursor": 902,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [903] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 904,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [905] toBeLessThanOrEqual"
+    ],
+    "cursor": 906,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [907] toBeLessThanOrEqual"
+    ],
+    "cursor": 908,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [909] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 910,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [911] toBeLessThanOrEqual"
+    ],
+    "cursor": 912,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [913] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 914,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [915] toBeLessThanOrEqual"
+    ],
+    "cursor": 916,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [917] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 918,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [919] toBeLessThanOrEqual"
+    ],
+    "cursor": 920,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [921] toBeLessThanOrEqual"
+    ],
+    "cursor": 922,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [923] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 924,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [925] toBeLessThanOrEqual"
+    ],
+    "cursor": 926,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [929] click"
+    ],
+    "cursor": 930,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--463.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [930] keyboard"
+    ],
+    "cursor": 931,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--464.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [932] toHaveAttribute"
+    ],
+    "cursor": 933,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--465.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--quad-steering [934] toHaveAttribute"
+    ],
+    "cursor": 935,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--466.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 935,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--quad-steering--phone--light--467.png",
+    "capturedFrame": true
+  }
+]

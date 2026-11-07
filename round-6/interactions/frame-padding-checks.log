@@ -1,0 +1,51 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running tc, lint, test in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-client-ts:lint: cache miss, executing ae6a0a477d917695
+@pkgs/ui-root-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts && bun run scripts/generate-tokens-css.ts --check
+@pkgs/ui-root-client-ts:lint: Found 0 warnings and 0 errors.
+@pkgs/ui-root-client-ts:lint: Finished in 1.8s on 670 files with 147 rules using 10 threads.
+@pkgs/ui-root-client-ts:lint: pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css format ━━━━━━━━━━━━━━━
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint:   × Formatter would have printed the following content:
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint:     46 46 │       padding-inline: var(--ui-space-1);
+@pkgs/ui-root-client-ts:lint:     47 47 │     }
+@pkgs/ui-root-client-ts:lint:     48    │ - ··.participants·>·[role="list"]:has(>·:nth-child(4):last-child)
+@pkgs/ui-root-client-ts:lint:     49    │ - ····[data-active]·>·:is(div,·button)·{
+@pkgs/ui-root-client-ts:lint:        48 │ + ··.participants
+@pkgs/ui-root-client-ts:lint:        49 │ + ····>·[role="list"]:has(>·:nth-child(4):last-child)
+@pkgs/ui-root-client-ts:lint:        50 │ + ····[data-active]
+@pkgs/ui-root-client-ts:lint:        51 │ + ····>·:is(div,·button)·{
+@pkgs/ui-root-client-ts:lint:     50 52 │       padding-block: 0;
+@pkgs/ui-root-client-ts:lint:     51 53 │     }
+@pkgs/ui-root-client-ts:lint:     52    │ - ··.participants·>·[role="list"]:has(>·:nth-child(4):last-child)
+@pkgs/ui-root-client-ts:lint:     53    │ - ····[data-active]·>·:is(div,·button)·>·span:not([aria-hidden])·{
+@pkgs/ui-root-client-ts:lint:        54 │ + ··.participants
+@pkgs/ui-root-client-ts:lint:        55 │ + ····>·[role="list"]:has(>·:nth-child(4):last-child)
+@pkgs/ui-root-client-ts:lint:        56 │ + ····[data-active]
+@pkgs/ui-root-client-ts:lint:        57 │ + ····>·:is(div,·button)
+@pkgs/ui-root-client-ts:lint:        58 │ + ····>·span:not([aria-hidden])·{
+@pkgs/ui-root-client-ts:lint:     54 59 │       row-gap: 0;
+@pkgs/ui-root-client-ts:lint:     55 60 │     }
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint: Checked 742 files in 1800ms. No fixes applied.
+@pkgs/ui-root-client-ts:lint: Found 1 error.
+@pkgs/ui-root-client-ts:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint:   × Some errors were emitted while running checks.
+@pkgs/ui-root-client-ts:lint:   
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    4 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    6.516s 
+Failed:    @pkgs/ui-root-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

@@ -1,0 +1,200 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [1] toBe"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [3] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [5] toEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [9] pointer"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [11] toHaveAttribute"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [14] toBeVisible"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [15] keyboard"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [17] toHaveAttribute"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [20] keyboard"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [23] toBeVisible"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [25] keyboard"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [28] toBeVisible"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [30] keyboard"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [32] toBeLessThanOrEqual"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [34] toBeLessThanOrEqual"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [36] toBeLessThanOrEqual"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [38] toBeLessThanOrEqual"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [41] toBeVisible"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-puzzles-chess-play--solve-journey [44] toBeVisible"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-puzzles-chess-play--solve-journey--desktop--light--019.png",
+    "capturedFrame": true
+  }
+]

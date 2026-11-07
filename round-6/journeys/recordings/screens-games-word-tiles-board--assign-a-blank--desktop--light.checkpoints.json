@@ -1,0 +1,6460 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1] findByTestId"
+    ],
+    "cursor": 2,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [3] findByTestId"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [8] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [10] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [12] toBeGreaterThan"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [14] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [16] toBeLessThanOrEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [18] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [20] toBeLessThanOrEqual"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [22] toBeLessThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [24] toBe"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [26] toBe"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [28] toBe"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [30] toBe"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [33] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [35] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [37] toBeGreaterThan"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [39] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [41] toBeLessThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [43] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [45] toBeLessThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [47] toBeLessThanOrEqual"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [49] toBe"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [51] toBe"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [53] toBe"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [55] toBe"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [57] toBe"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [60] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [62] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [64] toBeGreaterThan"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [66] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [68] toBeLessThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [70] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [72] toBeLessThanOrEqual"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [74] toBeLessThanOrEqual"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [76] toBe"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [78] toBe"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [80] toBe"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [82] toBe"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [84] toBe"
+    ],
+    "cursor": 85,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [86] toBe"
+    ],
+    "cursor": 87,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [89] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [91] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [93] toBeGreaterThan"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [95] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 96,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [97] toBeLessThanOrEqual"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [99] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [101] toBeLessThanOrEqual"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [103] toBeLessThanOrEqual"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [105] toBe"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [107] toBe"
+    ],
+    "cursor": 108,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [109] toBe"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [111] toBe"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [113] toBe"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [115] toBe"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [117] toBe"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [120] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 121,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [122] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 123,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [124] toBeGreaterThan"
+    ],
+    "cursor": 125,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [126] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 127,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [128] toBeLessThanOrEqual"
+    ],
+    "cursor": 129,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [130] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 131,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [132] toBeLessThanOrEqual"
+    ],
+    "cursor": 133,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [134] toBeLessThanOrEqual"
+    ],
+    "cursor": 135,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [136] toBe"
+    ],
+    "cursor": 137,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [138] toBe"
+    ],
+    "cursor": 139,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [140] toBe"
+    ],
+    "cursor": 141,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [142] toBe"
+    ],
+    "cursor": 143,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [144] toBe"
+    ],
+    "cursor": 145,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [146] toBe"
+    ],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [148] toBe"
+    ],
+    "cursor": 149,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [150] toBe"
+    ],
+    "cursor": 151,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [153] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [157] toBeGreaterThan"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [159] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [161] toBeLessThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [163] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 164,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [165] toBeLessThanOrEqual"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [167] toBeLessThanOrEqual"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [169] toBe"
+    ],
+    "cursor": 170,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [171] toBe"
+    ],
+    "cursor": 172,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [173] toBe"
+    ],
+    "cursor": 174,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [175] toBe"
+    ],
+    "cursor": 176,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [177] toBe"
+    ],
+    "cursor": 178,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [179] toBe"
+    ],
+    "cursor": 180,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [181] toBe"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [183] toBe"
+    ],
+    "cursor": 184,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [185] toBe"
+    ],
+    "cursor": 186,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [188] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 189,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [190] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 191,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [192] toBeGreaterThan"
+    ],
+    "cursor": 193,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [194] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 195,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [196] toBeLessThanOrEqual"
+    ],
+    "cursor": 197,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [198] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 199,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [200] toBeLessThanOrEqual"
+    ],
+    "cursor": 201,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [202] toBeLessThanOrEqual"
+    ],
+    "cursor": 203,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [204] toBe"
+    ],
+    "cursor": 205,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [206] toBe"
+    ],
+    "cursor": 207,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [208] toBe"
+    ],
+    "cursor": 209,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [210] toBe"
+    ],
+    "cursor": 211,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [212] toBe"
+    ],
+    "cursor": 213,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [214] toBe"
+    ],
+    "cursor": 215,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [216] toBe"
+    ],
+    "cursor": 217,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [218] toBe"
+    ],
+    "cursor": 219,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [220] toBe"
+    ],
+    "cursor": 221,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [222] toBe"
+    ],
+    "cursor": 223,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [225] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 226,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [227] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 228,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [229] toBeGreaterThan"
+    ],
+    "cursor": 230,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [231] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [233] toBeLessThanOrEqual"
+    ],
+    "cursor": 234,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [235] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 236,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [237] toBeLessThanOrEqual"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [239] toBeLessThanOrEqual"
+    ],
+    "cursor": 240,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [241] toBe"
+    ],
+    "cursor": 242,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [243] toBe"
+    ],
+    "cursor": 244,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [245] toBe"
+    ],
+    "cursor": 246,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [247] toBe"
+    ],
+    "cursor": 248,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [249] toBe"
+    ],
+    "cursor": 250,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [251] toBe"
+    ],
+    "cursor": 252,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [253] toBe"
+    ],
+    "cursor": 254,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [255] toBe"
+    ],
+    "cursor": 256,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [257] toBe"
+    ],
+    "cursor": 258,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [259] toBe"
+    ],
+    "cursor": 260,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [261] toBe"
+    ],
+    "cursor": 262,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [264] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 265,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [266] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 267,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [268] toBeGreaterThan"
+    ],
+    "cursor": 269,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [270] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 271,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [272] toBeLessThanOrEqual"
+    ],
+    "cursor": 273,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [274] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 275,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [276] toBeLessThanOrEqual"
+    ],
+    "cursor": 277,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [278] toBeLessThanOrEqual"
+    ],
+    "cursor": 279,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [280] toBe"
+    ],
+    "cursor": 281,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [282] toBe"
+    ],
+    "cursor": 283,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [284] toBe"
+    ],
+    "cursor": 285,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [286] toBe"
+    ],
+    "cursor": 287,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [288] toBe"
+    ],
+    "cursor": 289,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [290] toBe"
+    ],
+    "cursor": 291,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [292] toBe"
+    ],
+    "cursor": 293,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [294] toBe"
+    ],
+    "cursor": 295,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [296] toBe"
+    ],
+    "cursor": 297,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [298] toBe"
+    ],
+    "cursor": 299,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [300] toBe"
+    ],
+    "cursor": 301,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [302] toBe"
+    ],
+    "cursor": 303,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [305] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 306,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [307] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 308,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [309] toBeGreaterThan"
+    ],
+    "cursor": 310,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [311] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 312,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [313] toBeLessThanOrEqual"
+    ],
+    "cursor": 314,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [315] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 316,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [317] toBeLessThanOrEqual"
+    ],
+    "cursor": 318,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [319] toBeLessThanOrEqual"
+    ],
+    "cursor": 320,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [321] toBe"
+    ],
+    "cursor": 322,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [323] toBe"
+    ],
+    "cursor": 324,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [325] toBe"
+    ],
+    "cursor": 326,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [327] toBe"
+    ],
+    "cursor": 328,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [329] toBe"
+    ],
+    "cursor": 330,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [331] toBe"
+    ],
+    "cursor": 332,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [333] toBe"
+    ],
+    "cursor": 334,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [335] toBe"
+    ],
+    "cursor": 336,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [337] toBe"
+    ],
+    "cursor": 338,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [339] toBe"
+    ],
+    "cursor": 340,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [341] toBe"
+    ],
+    "cursor": 342,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [343] toBe"
+    ],
+    "cursor": 344,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [345] toBe"
+    ],
+    "cursor": 346,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [348] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 349,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [350] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 351,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [352] toBeGreaterThan"
+    ],
+    "cursor": 353,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [354] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 355,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [356] toBeLessThanOrEqual"
+    ],
+    "cursor": 357,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [358] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 359,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [360] toBeLessThanOrEqual"
+    ],
+    "cursor": 361,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [362] toBeLessThanOrEqual"
+    ],
+    "cursor": 363,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [364] toBe"
+    ],
+    "cursor": 365,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [366] toBe"
+    ],
+    "cursor": 367,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [368] toBe"
+    ],
+    "cursor": 369,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [370] toBe"
+    ],
+    "cursor": 371,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [372] toBe"
+    ],
+    "cursor": 373,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [374] toBe"
+    ],
+    "cursor": 375,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [376] toBe"
+    ],
+    "cursor": 377,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [378] toBe"
+    ],
+    "cursor": 379,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [380] toBe"
+    ],
+    "cursor": 381,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [382] toBe"
+    ],
+    "cursor": 383,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [384] toBe"
+    ],
+    "cursor": 385,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [386] toBe"
+    ],
+    "cursor": 387,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [388] toBe"
+    ],
+    "cursor": 389,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [390] toBe"
+    ],
+    "cursor": 391,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [393] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 394,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [395] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 396,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [397] toBeGreaterThan"
+    ],
+    "cursor": 398,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [399] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 400,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [401] toBeLessThanOrEqual"
+    ],
+    "cursor": 402,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [403] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 404,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [405] toBeLessThanOrEqual"
+    ],
+    "cursor": 406,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [407] toBeLessThanOrEqual"
+    ],
+    "cursor": 408,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [409] toBe"
+    ],
+    "cursor": 410,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [411] toBe"
+    ],
+    "cursor": 412,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [413] toBe"
+    ],
+    "cursor": 414,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [415] toBe"
+    ],
+    "cursor": 416,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [417] toBe"
+    ],
+    "cursor": 418,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [419] toBe"
+    ],
+    "cursor": 420,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [421] toBe"
+    ],
+    "cursor": 422,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [423] toBe"
+    ],
+    "cursor": 424,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [425] toBe"
+    ],
+    "cursor": 426,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [427] toBe"
+    ],
+    "cursor": 428,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [429] toBe"
+    ],
+    "cursor": 430,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [431] toBe"
+    ],
+    "cursor": 432,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [433] toBe"
+    ],
+    "cursor": 434,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [435] toBe"
+    ],
+    "cursor": 436,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [437] toBe"
+    ],
+    "cursor": 438,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [440] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 441,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [442] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 443,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [444] toBeGreaterThan"
+    ],
+    "cursor": 445,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [446] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 447,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [448] toBeLessThanOrEqual"
+    ],
+    "cursor": 449,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [450] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 451,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [452] toBeLessThanOrEqual"
+    ],
+    "cursor": 453,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [454] toBeLessThanOrEqual"
+    ],
+    "cursor": 455,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [456] toBe"
+    ],
+    "cursor": 457,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [458] toBe"
+    ],
+    "cursor": 459,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [460] toBe"
+    ],
+    "cursor": 461,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [462] toBe"
+    ],
+    "cursor": 463,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [464] toBe"
+    ],
+    "cursor": 465,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [466] toBe"
+    ],
+    "cursor": 467,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [468] toBe"
+    ],
+    "cursor": 469,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [470] toBe"
+    ],
+    "cursor": 471,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [472] toBe"
+    ],
+    "cursor": 473,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [474] toBe"
+    ],
+    "cursor": 475,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [476] toBe"
+    ],
+    "cursor": 477,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [478] toBe"
+    ],
+    "cursor": 479,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [480] toBe"
+    ],
+    "cursor": 481,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [482] toBe"
+    ],
+    "cursor": 483,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [484] toBe"
+    ],
+    "cursor": 485,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [486] toBe"
+    ],
+    "cursor": 487,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [489] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 490,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [491] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 492,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [493] toBeGreaterThan"
+    ],
+    "cursor": 494,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [495] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 496,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [497] toBeLessThanOrEqual"
+    ],
+    "cursor": 498,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [499] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 500,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [501] toBeLessThanOrEqual"
+    ],
+    "cursor": 502,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [503] toBeLessThanOrEqual"
+    ],
+    "cursor": 504,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [505] toBe"
+    ],
+    "cursor": 506,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [507] toBe"
+    ],
+    "cursor": 508,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [509] toBe"
+    ],
+    "cursor": 510,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [511] toBe"
+    ],
+    "cursor": 512,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [513] toBe"
+    ],
+    "cursor": 514,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [515] toBe"
+    ],
+    "cursor": 516,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [517] toBe"
+    ],
+    "cursor": 518,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [519] toBe"
+    ],
+    "cursor": 520,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [521] toBe"
+    ],
+    "cursor": 522,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [523] toBe"
+    ],
+    "cursor": 524,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [525] toBe"
+    ],
+    "cursor": 526,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [527] toBe"
+    ],
+    "cursor": 528,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [529] toBe"
+    ],
+    "cursor": 530,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [531] toBe"
+    ],
+    "cursor": 532,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [533] toBe"
+    ],
+    "cursor": 534,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [535] toBe"
+    ],
+    "cursor": 536,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [537] toBe"
+    ],
+    "cursor": 538,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [540] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 541,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [542] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 543,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [544] toBeGreaterThan"
+    ],
+    "cursor": 545,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [546] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 547,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [548] toBeLessThanOrEqual"
+    ],
+    "cursor": 549,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [550] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 551,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [552] toBeLessThanOrEqual"
+    ],
+    "cursor": 553,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [554] toBeLessThanOrEqual"
+    ],
+    "cursor": 555,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [556] toBe"
+    ],
+    "cursor": 557,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [558] toBe"
+    ],
+    "cursor": 559,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [560] toBe"
+    ],
+    "cursor": 561,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [562] toBe"
+    ],
+    "cursor": 563,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [564] toBe"
+    ],
+    "cursor": 565,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [566] toBe"
+    ],
+    "cursor": 567,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [568] toBe"
+    ],
+    "cursor": 569,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [570] toBe"
+    ],
+    "cursor": 571,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [572] toBe"
+    ],
+    "cursor": 573,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [574] toBe"
+    ],
+    "cursor": 575,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [576] toBe"
+    ],
+    "cursor": 577,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [578] toBe"
+    ],
+    "cursor": 579,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [580] toBe"
+    ],
+    "cursor": 581,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [582] toBe"
+    ],
+    "cursor": 583,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [584] toBe"
+    ],
+    "cursor": 585,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [586] toBe"
+    ],
+    "cursor": 587,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [588] toBe"
+    ],
+    "cursor": 589,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [590] toBe"
+    ],
+    "cursor": 591,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [593] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 594,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [595] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 596,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [597] toBeGreaterThan"
+    ],
+    "cursor": 598,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [599] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 600,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [601] toBeLessThanOrEqual"
+    ],
+    "cursor": 602,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [603] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 604,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [605] toBeLessThanOrEqual"
+    ],
+    "cursor": 606,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [607] toBeLessThanOrEqual"
+    ],
+    "cursor": 608,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [609] toBe"
+    ],
+    "cursor": 610,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [611] toBe"
+    ],
+    "cursor": 612,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [613] toBe"
+    ],
+    "cursor": 614,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [615] toBe"
+    ],
+    "cursor": 616,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [617] toBe"
+    ],
+    "cursor": 618,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [619] toBe"
+    ],
+    "cursor": 620,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [621] toBe"
+    ],
+    "cursor": 622,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [623] toBe"
+    ],
+    "cursor": 624,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [625] toBe"
+    ],
+    "cursor": 626,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [627] toBe"
+    ],
+    "cursor": 628,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [629] toBe"
+    ],
+    "cursor": 630,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [631] toBe"
+    ],
+    "cursor": 632,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [633] toBe"
+    ],
+    "cursor": 634,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [635] toBe"
+    ],
+    "cursor": 636,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [637] toBe"
+    ],
+    "cursor": 638,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [639] toBe"
+    ],
+    "cursor": 640,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [641] toBe"
+    ],
+    "cursor": 642,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [643] toBe"
+    ],
+    "cursor": 644,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [645] toBe"
+    ],
+    "cursor": 646,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [648] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 649,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [650] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 651,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [652] toBeGreaterThan"
+    ],
+    "cursor": 653,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [654] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 655,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [656] toBeLessThanOrEqual"
+    ],
+    "cursor": 657,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [658] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 659,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [660] toBeLessThanOrEqual"
+    ],
+    "cursor": 661,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [662] toBeLessThanOrEqual"
+    ],
+    "cursor": 663,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [664] toBe"
+    ],
+    "cursor": 665,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [666] toBe"
+    ],
+    "cursor": 667,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [668] toBe"
+    ],
+    "cursor": 669,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [670] toBe"
+    ],
+    "cursor": 671,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [672] toBe"
+    ],
+    "cursor": 673,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [674] toBe"
+    ],
+    "cursor": 675,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [676] toBe"
+    ],
+    "cursor": 677,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [678] toBe"
+    ],
+    "cursor": 679,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [680] toBe"
+    ],
+    "cursor": 681,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [682] toBe"
+    ],
+    "cursor": 683,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [684] toBe"
+    ],
+    "cursor": 685,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [686] toBe"
+    ],
+    "cursor": 687,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [688] toBe"
+    ],
+    "cursor": 689,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [690] toBe"
+    ],
+    "cursor": 691,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [692] toBe"
+    ],
+    "cursor": 693,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [694] toBe"
+    ],
+    "cursor": 695,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [696] toBe"
+    ],
+    "cursor": 697,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [698] toBe"
+    ],
+    "cursor": 699,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [700] toBe"
+    ],
+    "cursor": 701,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [702] toBe"
+    ],
+    "cursor": 703,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [705] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 706,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [707] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 708,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [709] toBeGreaterThan"
+    ],
+    "cursor": 710,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [711] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 712,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [713] toBeLessThanOrEqual"
+    ],
+    "cursor": 714,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [715] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 716,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [717] toBeLessThanOrEqual"
+    ],
+    "cursor": 718,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [719] toBeLessThanOrEqual"
+    ],
+    "cursor": 720,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [721] toBe"
+    ],
+    "cursor": 722,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [723] toBe"
+    ],
+    "cursor": 724,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [725] toBe"
+    ],
+    "cursor": 726,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [727] toBe"
+    ],
+    "cursor": 728,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [729] toBe"
+    ],
+    "cursor": 730,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [731] toBe"
+    ],
+    "cursor": 732,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [733] toBe"
+    ],
+    "cursor": 734,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [735] toBe"
+    ],
+    "cursor": 736,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [737] toBe"
+    ],
+    "cursor": 738,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [739] toBe"
+    ],
+    "cursor": 740,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [741] toBe"
+    ],
+    "cursor": 742,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [743] toBe"
+    ],
+    "cursor": 744,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [745] toBe"
+    ],
+    "cursor": 746,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [747] toBe"
+    ],
+    "cursor": 748,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [749] toBe"
+    ],
+    "cursor": 750,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [751] toBe"
+    ],
+    "cursor": 752,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [753] toBe"
+    ],
+    "cursor": 754,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [755] toBe"
+    ],
+    "cursor": 756,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [757] toBe"
+    ],
+    "cursor": 758,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [759] toBe"
+    ],
+    "cursor": 760,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [761] toBe"
+    ],
+    "cursor": 762,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [764] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 765,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [766] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 767,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [768] toBeGreaterThan"
+    ],
+    "cursor": 769,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [770] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 771,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [772] toBeLessThanOrEqual"
+    ],
+    "cursor": 773,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [774] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 775,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [776] toBeLessThanOrEqual"
+    ],
+    "cursor": 777,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [778] toBeLessThanOrEqual"
+    ],
+    "cursor": 779,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [780] toBe"
+    ],
+    "cursor": 781,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [782] toBe"
+    ],
+    "cursor": 783,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [784] toBe"
+    ],
+    "cursor": 785,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [786] toBe"
+    ],
+    "cursor": 787,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [788] toBe"
+    ],
+    "cursor": 789,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [790] toBe"
+    ],
+    "cursor": 791,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [792] toBe"
+    ],
+    "cursor": 793,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [794] toBe"
+    ],
+    "cursor": 795,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [796] toBe"
+    ],
+    "cursor": 797,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [798] toBe"
+    ],
+    "cursor": 799,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [800] toBe"
+    ],
+    "cursor": 801,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [802] toBe"
+    ],
+    "cursor": 803,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [804] toBe"
+    ],
+    "cursor": 805,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [806] toBe"
+    ],
+    "cursor": 807,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [808] toBe"
+    ],
+    "cursor": 809,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [810] toBe"
+    ],
+    "cursor": 811,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [812] toBe"
+    ],
+    "cursor": 813,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [814] toBe"
+    ],
+    "cursor": 815,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [816] toBe"
+    ],
+    "cursor": 817,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [818] toBe"
+    ],
+    "cursor": 819,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [820] toBe"
+    ],
+    "cursor": 821,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [822] toBe"
+    ],
+    "cursor": 823,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [825] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 826,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [827] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 828,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [829] toBeGreaterThan"
+    ],
+    "cursor": 830,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [831] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 832,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [833] toBeLessThanOrEqual"
+    ],
+    "cursor": 834,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [835] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 836,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [837] toBeLessThanOrEqual"
+    ],
+    "cursor": 838,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [839] toBeLessThanOrEqual"
+    ],
+    "cursor": 840,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [841] toBe"
+    ],
+    "cursor": 842,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [843] toBe"
+    ],
+    "cursor": 844,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [845] toBe"
+    ],
+    "cursor": 846,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [847] toBe"
+    ],
+    "cursor": 848,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [849] toBe"
+    ],
+    "cursor": 850,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [851] toBe"
+    ],
+    "cursor": 852,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [853] toBe"
+    ],
+    "cursor": 854,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [855] toBe"
+    ],
+    "cursor": 856,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [857] toBe"
+    ],
+    "cursor": 858,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [859] toBe"
+    ],
+    "cursor": 860,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [861] toBe"
+    ],
+    "cursor": 862,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [863] toBe"
+    ],
+    "cursor": 864,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [865] toBe"
+    ],
+    "cursor": 866,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [867] toBe"
+    ],
+    "cursor": 868,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [869] toBe"
+    ],
+    "cursor": 870,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [871] toBe"
+    ],
+    "cursor": 872,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [873] toBe"
+    ],
+    "cursor": 874,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [875] toBe"
+    ],
+    "cursor": 876,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [877] toBe"
+    ],
+    "cursor": 878,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [879] toBe"
+    ],
+    "cursor": 880,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [881] toBe"
+    ],
+    "cursor": 882,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [883] toBe"
+    ],
+    "cursor": 884,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [885] toBe"
+    ],
+    "cursor": 886,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [888] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 889,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [890] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 891,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [892] toBeGreaterThan"
+    ],
+    "cursor": 893,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [894] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 895,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [896] toBeLessThanOrEqual"
+    ],
+    "cursor": 897,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [898] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 899,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [900] toBeLessThanOrEqual"
+    ],
+    "cursor": 901,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [902] toBeLessThanOrEqual"
+    ],
+    "cursor": 903,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [904] toBe"
+    ],
+    "cursor": 905,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [906] toBe"
+    ],
+    "cursor": 907,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [908] toBe"
+    ],
+    "cursor": 909,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [910] toBe"
+    ],
+    "cursor": 911,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [912] toBe"
+    ],
+    "cursor": 913,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [914] toBe"
+    ],
+    "cursor": 915,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [916] toBe"
+    ],
+    "cursor": 917,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [918] toBe"
+    ],
+    "cursor": 919,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [920] toBe"
+    ],
+    "cursor": 921,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [922] toBe"
+    ],
+    "cursor": 923,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [924] toBe"
+    ],
+    "cursor": 925,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [926] toBe"
+    ],
+    "cursor": 927,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [928] toBe"
+    ],
+    "cursor": 929,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [930] toBe"
+    ],
+    "cursor": 931,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [932] toBe"
+    ],
+    "cursor": 933,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [934] toBe"
+    ],
+    "cursor": 935,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [936] toBe"
+    ],
+    "cursor": 937,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [938] toBe"
+    ],
+    "cursor": 939,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [940] toBe"
+    ],
+    "cursor": 941,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [942] toBe"
+    ],
+    "cursor": 943,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [944] toBe"
+    ],
+    "cursor": 945,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [946] toBe"
+    ],
+    "cursor": 947,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [948] toBe"
+    ],
+    "cursor": 949,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [950] toBe"
+    ],
+    "cursor": 951,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [953] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 954,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [955] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 956,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [957] toBeGreaterThan"
+    ],
+    "cursor": 958,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [959] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 960,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [961] toBeLessThanOrEqual"
+    ],
+    "cursor": 962,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [963] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 964,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [965] toBeLessThanOrEqual"
+    ],
+    "cursor": 966,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [967] toBeLessThanOrEqual"
+    ],
+    "cursor": 968,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [969] toBe"
+    ],
+    "cursor": 970,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [971] toBe"
+    ],
+    "cursor": 972,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [973] toBe"
+    ],
+    "cursor": 974,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [975] toBe"
+    ],
+    "cursor": 976,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [977] toBe"
+    ],
+    "cursor": 978,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [979] toBe"
+    ],
+    "cursor": 980,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [981] toBe"
+    ],
+    "cursor": 982,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [983] toBe"
+    ],
+    "cursor": 984,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [985] toBe"
+    ],
+    "cursor": 986,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [987] toBe"
+    ],
+    "cursor": 988,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [989] toBe"
+    ],
+    "cursor": 990,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [991] toBe"
+    ],
+    "cursor": 992,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [993] toBe"
+    ],
+    "cursor": 994,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [995] toBe"
+    ],
+    "cursor": 996,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [997] toBe"
+    ],
+    "cursor": 998,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [999] toBe"
+    ],
+    "cursor": 1000,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1001] toBe"
+    ],
+    "cursor": 1002,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1003] toBe"
+    ],
+    "cursor": 1004,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1005] toBe"
+    ],
+    "cursor": 1006,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1007] toBe"
+    ],
+    "cursor": 1008,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1009] toBe"
+    ],
+    "cursor": 1010,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1011] toBe"
+    ],
+    "cursor": 1012,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1013] toBe"
+    ],
+    "cursor": 1014,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1015] toBe"
+    ],
+    "cursor": 1016,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1017] toBe"
+    ],
+    "cursor": 1018,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1020] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1021,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1022] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1023,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1024] toBeGreaterThan"
+    ],
+    "cursor": 1025,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1026] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1027,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1028] toBeLessThanOrEqual"
+    ],
+    "cursor": 1029,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1030] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1031,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1032] toBeLessThanOrEqual"
+    ],
+    "cursor": 1033,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1034] toBeLessThanOrEqual"
+    ],
+    "cursor": 1035,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1036] toBe"
+    ],
+    "cursor": 1037,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1038] toBe"
+    ],
+    "cursor": 1039,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1040] toBe"
+    ],
+    "cursor": 1041,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1042] toBe"
+    ],
+    "cursor": 1043,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1044] toBe"
+    ],
+    "cursor": 1045,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1046] toBe"
+    ],
+    "cursor": 1047,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1048] toBe"
+    ],
+    "cursor": 1049,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1050] toBe"
+    ],
+    "cursor": 1051,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1052] toBe"
+    ],
+    "cursor": 1053,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1054] toBe"
+    ],
+    "cursor": 1055,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1056] toBe"
+    ],
+    "cursor": 1057,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1058] toBe"
+    ],
+    "cursor": 1059,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1060] toBe"
+    ],
+    "cursor": 1061,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1062] toBe"
+    ],
+    "cursor": 1063,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1064] toBe"
+    ],
+    "cursor": 1065,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1066] toBe"
+    ],
+    "cursor": 1067,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1068] toBe"
+    ],
+    "cursor": 1069,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1070] toBe"
+    ],
+    "cursor": 1071,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1072] toBe"
+    ],
+    "cursor": 1073,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1074] toBe"
+    ],
+    "cursor": 1075,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1076] toBe"
+    ],
+    "cursor": 1077,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1078] toBe"
+    ],
+    "cursor": 1079,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1080] toBe"
+    ],
+    "cursor": 1081,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1082] toBe"
+    ],
+    "cursor": 1083,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1084] toBe"
+    ],
+    "cursor": 1085,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1086] toBe"
+    ],
+    "cursor": 1087,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1089] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1090,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1091] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1092,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1093] toBeGreaterThan"
+    ],
+    "cursor": 1094,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1095] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1096,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1097] toBeLessThanOrEqual"
+    ],
+    "cursor": 1098,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1099] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1100,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1101] toBeLessThanOrEqual"
+    ],
+    "cursor": 1102,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1103] toBeLessThanOrEqual"
+    ],
+    "cursor": 1104,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1105] toBe"
+    ],
+    "cursor": 1106,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1107] toBe"
+    ],
+    "cursor": 1108,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1109] toBe"
+    ],
+    "cursor": 1110,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1111] toBe"
+    ],
+    "cursor": 1112,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1113] toBe"
+    ],
+    "cursor": 1114,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1115] toBe"
+    ],
+    "cursor": 1116,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1117] toBe"
+    ],
+    "cursor": 1118,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1119] toBe"
+    ],
+    "cursor": 1120,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1121] toBe"
+    ],
+    "cursor": 1122,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1123] toBe"
+    ],
+    "cursor": 1124,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1125] toBe"
+    ],
+    "cursor": 1126,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1127] toBe"
+    ],
+    "cursor": 1128,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1129] toBe"
+    ],
+    "cursor": 1130,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1131] toBe"
+    ],
+    "cursor": 1132,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1133] toBe"
+    ],
+    "cursor": 1134,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1135] toBe"
+    ],
+    "cursor": 1136,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1137] toBe"
+    ],
+    "cursor": 1138,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1139] toBe"
+    ],
+    "cursor": 1140,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1141] toBe"
+    ],
+    "cursor": 1142,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1143] toBe"
+    ],
+    "cursor": 1144,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1145] toBe"
+    ],
+    "cursor": 1146,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1147] toBe"
+    ],
+    "cursor": 1148,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1149] toBe"
+    ],
+    "cursor": 1150,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1151] toBe"
+    ],
+    "cursor": 1152,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1153] toBe"
+    ],
+    "cursor": 1154,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1155] toBe"
+    ],
+    "cursor": 1156,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1157] toBe"
+    ],
+    "cursor": 1158,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1160] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1161,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1162] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1163,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1164] toBeGreaterThan"
+    ],
+    "cursor": 1165,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1166] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1167,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1168] toBeLessThanOrEqual"
+    ],
+    "cursor": 1169,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1170] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1171,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1172] toBeLessThanOrEqual"
+    ],
+    "cursor": 1173,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1174] toBeLessThanOrEqual"
+    ],
+    "cursor": 1175,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1176] toBe"
+    ],
+    "cursor": 1177,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1178] toBe"
+    ],
+    "cursor": 1179,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1180] toBe"
+    ],
+    "cursor": 1181,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1182] toBe"
+    ],
+    "cursor": 1183,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1184] toBe"
+    ],
+    "cursor": 1185,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1186] toBe"
+    ],
+    "cursor": 1187,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1188] toBe"
+    ],
+    "cursor": 1189,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1190] toBe"
+    ],
+    "cursor": 1191,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1192] toBe"
+    ],
+    "cursor": 1193,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1194] toBe"
+    ],
+    "cursor": 1195,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1196] toBe"
+    ],
+    "cursor": 1197,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1198] toBe"
+    ],
+    "cursor": 1199,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1200] toBe"
+    ],
+    "cursor": 1201,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1202] toBe"
+    ],
+    "cursor": 1203,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1204] toBe"
+    ],
+    "cursor": 1205,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1206] toBe"
+    ],
+    "cursor": 1207,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1208] toBe"
+    ],
+    "cursor": 1209,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1210] toBe"
+    ],
+    "cursor": 1211,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1212] toBe"
+    ],
+    "cursor": 1213,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1214] toBe"
+    ],
+    "cursor": 1215,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1216] toBe"
+    ],
+    "cursor": 1217,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1218] toBe"
+    ],
+    "cursor": 1219,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1220] toBe"
+    ],
+    "cursor": 1221,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1222] toBe"
+    ],
+    "cursor": 1223,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1224] toBe"
+    ],
+    "cursor": 1225,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1226] toBe"
+    ],
+    "cursor": 1227,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1228] toBe"
+    ],
+    "cursor": 1229,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1230] toBe"
+    ],
+    "cursor": 1231,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1233] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1234,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1235] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1236,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1237] toBeGreaterThan"
+    ],
+    "cursor": 1238,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1239] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1240,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1241] toBeLessThanOrEqual"
+    ],
+    "cursor": 1242,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1243] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 1244,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1245] toBeLessThanOrEqual"
+    ],
+    "cursor": 1246,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1247] toBeLessThanOrEqual"
+    ],
+    "cursor": 1248,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1249] toBe"
+    ],
+    "cursor": 1250,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1251] toBe"
+    ],
+    "cursor": 1252,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1253] toBe"
+    ],
+    "cursor": 1254,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1255] toBe"
+    ],
+    "cursor": 1256,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1257] toBe"
+    ],
+    "cursor": 1258,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1259] toBe"
+    ],
+    "cursor": 1260,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1261] toBe"
+    ],
+    "cursor": 1262,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1263] toBe"
+    ],
+    "cursor": 1264,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1265] toBe"
+    ],
+    "cursor": 1266,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1267] toBe"
+    ],
+    "cursor": 1268,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1269] toBe"
+    ],
+    "cursor": 1270,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1271] toBe"
+    ],
+    "cursor": 1272,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1273] toBe"
+    ],
+    "cursor": 1274,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1275] toBe"
+    ],
+    "cursor": 1276,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1277] toBe"
+    ],
+    "cursor": 1278,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1279] toBe"
+    ],
+    "cursor": 1280,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1281] toBe"
+    ],
+    "cursor": 1282,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1283] toBe"
+    ],
+    "cursor": 1284,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1285] toBe"
+    ],
+    "cursor": 1286,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1287] toBe"
+    ],
+    "cursor": 1288,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1289] toBe"
+    ],
+    "cursor": 1290,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1291] toBe"
+    ],
+    "cursor": 1292,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1293] toBe"
+    ],
+    "cursor": 1294,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1295] toBe"
+    ],
+    "cursor": 1296,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1297] toBe"
+    ],
+    "cursor": 1298,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1299] toBe"
+    ],
+    "cursor": 1300,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1301] toBe"
+    ],
+    "cursor": 1302,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1303] toBe"
+    ],
+    "cursor": 1304,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1305] toBe"
+    ],
+    "cursor": 1306,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1306] findByTestId"
+    ],
+    "cursor": 1307,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--641.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1307] click"
+    ],
+    "cursor": 1308,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--642.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1309] toHaveAccessibleName"
+    ],
+    "cursor": 1310,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--643.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--assign-a-blank [1311] toHaveAttribute"
+    ],
+    "cursor": 1312,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--644.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 1312,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--assign-a-blank--desktop--light--645.png",
+    "capturedFrame": true
+  }
+]

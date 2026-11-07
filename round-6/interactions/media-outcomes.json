@@ -1,0 +1,60 @@
+[
+  {
+    "name": "capture",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/capture.sh"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  },
+  {
+    "name": "compose",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/compose.sh"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  },
+  {
+    "name": "videos-resumed",
+    "command": [
+      "sh",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/videos.sh"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  },
+  {
+    "name": "audit-media",
+    "command": [
+      "python3",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/audit-media.py"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  },
+  {
+    "name": "video-previews",
+    "command": [
+      "uv",
+      "run",
+      "--with",
+      "pillow",
+      "python",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/video-previews.py"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  },
+  {
+    "name": "gallery",
+    "command": [
+      "python3",
+      "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/gallery.py"
+    ],
+    "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+    "exitCode": 0
+  }
+]

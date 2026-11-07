@@ -1,0 +1,157 @@
+[
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering light",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  16036 pixels (ratio 0.05 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 16036 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 16036 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--1f0c1--arena--quad-steering-light-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1208
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering dark",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  15666 pixels (ratio 0.05 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 15666 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 15666 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--4caaa-s-arena--quad-steering-dark-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1222
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering light-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  9446 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 9446 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 9446 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--eeb2a-a--quad-steering-light-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1317
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering dark-1440",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  9328 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 9328 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 9328 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-dark-1440-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--e59bc-na--quad-steering-dark-1440-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 1288
+  },
+  {
+    "title": "screens-games-light-cycles-arena--quad-steering regression light-cycles-quad-clipped-identities",
+    "status": "failed",
+    "kind": "pixel",
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#storybook-root')\n  16036 pixels (ratio 0.05 of all image pixels) are different.\n\n  Snapshot: libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - 16036 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - waiting for locator('#storybook-root')\u001b[22m\n\u001b[2m    - locator resolved to <div id=\"storybook-root\" data-story-ready=\"true\" data-story-status=\"success\">\u2026</div>\u001b[22m\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 16036 pixels (ratio 0.05 of all image pixels) are different.\u001b[22m\n\n\n   at verify-story-scenario.ts:51\n\n  49 |   expect(violations).toEqual([]);\n  50 |   expect(failures).toEqual([]);\n> 51 |   await expect(page.locator('#storybook-root')).toHaveScreenshot(\n     |                                                 ^\n  52 |     scenario.baseline.split('/'),\n  53 |     { animations: 'disabled' }\n  54 |   );\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:51:49)\n    at verifyBoardRegression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:56:3)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:365:3"
+    ],
+    "attachments": [
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-expected.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-actual.png"
+      },
+      {
+        "name": "libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png",
+        "contentType": "image/png",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/libs/light-cycles-client-ts/src/baselines/chromium/screens-games-light-cycles-arena/quad-steering-light-diff.png"
+      },
+      {
+        "name": "error-context",
+        "contentType": "text/markdown",
+        "path": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results/stories.checks.ts-screens--a8039-les-quad-clipped-identities-chromium/error-context.md"
+      }
+    ],
+    "durationMs": 933
+  }
+]

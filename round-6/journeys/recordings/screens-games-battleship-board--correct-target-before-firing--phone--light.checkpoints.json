@@ -1,0 +1,760 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [5] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [7] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [9] toBeLessThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [11] toBeLessThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [13] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [15] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [17] toBeLessThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [23] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [25] toBeLessThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [27] toBeLessThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [29] click"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [31] click"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [34] click"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [42] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [44] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [46] toBeLessThanOrEqual"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [48] toBeLessThanOrEqual"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [50] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [52] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [54] toBeLessThanOrEqual"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [56] toBeLessThanOrEqual"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [58] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [60] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [62] toBeLessThanOrEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [64] toBeLessThanOrEqual"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [66] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [68] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [70] toBeLessThanOrEqual"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [72] toBeLessThanOrEqual"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [74] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [76] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--014.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [78] toBe"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [80] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 81,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--033.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [82] toHaveAttribute"
+    ],
+    "cursor": 83,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [87] toBeLessThanOrEqual"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [89] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--035.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [91] pointer"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [94] toHaveAccessibleName"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [96] pointer"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [99] toHaveTextContent"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [107] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 108,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [109] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [111] toBeLessThanOrEqual"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [113] toBeLessThanOrEqual"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [115] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [117] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [119] toBeLessThanOrEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [121] toBeLessThanOrEqual"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [123] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 124,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [125] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [127] toBeLessThanOrEqual"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [129] toBeLessThanOrEqual"
+    ],
+    "cursor": 130,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [131] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 132,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [133] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [135] toBeLessThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [137] toBeLessThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [139] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [141] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [143] toBe"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--061.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [145] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--061.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [147] toHaveAttribute"
+    ],
+    "cursor": 148,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--063.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [150] toHaveAttribute"
+    ],
+    "cursor": 151,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--064.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [152] toHaveAttribute"
+    ],
+    "cursor": 153,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--065.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [154] toHaveTextContent"
+    ],
+    "cursor": 155,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--066.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [156] toBe"
+    ],
+    "cursor": 157,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--067.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [158] toBeLessThanOrEqual"
+    ],
+    "cursor": 159,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--067.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [160] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 161,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--067.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [162] click"
+    ],
+    "cursor": 163,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--070.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [165] toBeDisabled"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--071.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [167] click"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--072.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [169] click"
+    ],
+    "cursor": 170,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--073.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--correct-target-before-firing [172] toHaveAccessibleName"
+    ],
+    "cursor": 173,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--074.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 173,
+    "failures": [],
+    "file": "screens-games-battleship-board--correct-target-before-firing--phone--light--075.png",
+    "capturedFrame": true
+  }
+]

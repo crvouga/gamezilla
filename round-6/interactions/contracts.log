@@ -1,0 +1,45 @@
+{
+  "candidateSha": "d9cd3a41c005efdaf6f226518a0fffa55f357258",
+  "manifestHash": "c335ef2ced433cc55e004016615c2e04ad6d023674a35458be677894d999853a",
+  "contracts": {
+    "screens-games-frame-geometry": [
+      "board",
+      "people",
+      "result",
+      "next",
+      "onPlayBot"
+    ],
+    "games-battleship-placement-layout": [
+      "controls",
+      "working",
+      "feedback",
+      "overview"
+    ],
+    "components-inputs-paddlecourt": [
+      "status",
+      "touchHint",
+      "halfControl",
+      "onTarget"
+    ],
+    "components-inputs-trailarena": [
+      "touchRegions",
+      "onDirection"
+    ],
+    "product-wordtileworkbench": [
+      "children"
+    ],
+    "product-wordtileboard": [
+      "purpose",
+      "measure",
+      "onActivate",
+      "cells"
+    ],
+    "screens-games-sokoban-puzzle": [
+      "definition",
+      "state",
+      "onAction"
+    ]
+  },
+  "sharedFrameStories": 10,
+  "status": "passed"
+}

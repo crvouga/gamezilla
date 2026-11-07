@@ -1,0 +1,59 @@
+{
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "status": "passed",
+  "runId": "42309514784",
+  "runUrl": "https://github.com/crvouga/gamezilla/actions/runs/42309514784",
+  "jobs": [
+    {
+      "name": "verify:start",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207208557"
+    },
+    {
+      "name": "verify:shards (3)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865807"
+    },
+    {
+      "name": "verify:shards (5)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865831"
+    },
+    {
+      "name": "verify:shards (2)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865866"
+    },
+    {
+      "name": "verify:shards (1)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865873"
+    },
+    {
+      "name": "verify:shards (0)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207865892"
+    },
+    {
+      "name": "verify:shards (4)",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128207866028"
+    },
+    {
+      "name": "verify:end",
+      "conclusion": "success",
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42309514784/job/128210822172"
+    }
+  ],
+  "logsRead": [
+    "hosted-run-42309514784.log"
+  ],
+  "storybookPublication": {
+    "status": "published",
+    "uiTestsRun": false,
+    "uiReviewEnabled": false,
+    "limit": "billed snapshot limit reached",
+    "url": "Publication URL partially masked in public job log; no URL invented"
+  },
+  "reviewAcceptance": false
+}

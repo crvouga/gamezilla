@@ -1,0 +1,250 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [7] toBeGreaterThan"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [9] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [11] toBeLessThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [13] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [15] toBeLessThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [17] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [25] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [27] toBeLessThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [29] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [31] toBeLessThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [33] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [35] toBeLessThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [37] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [41] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [43] toBeLessThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [45] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [47] click"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [51] toBeVisible"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [54] toBeVisible"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--choose-path-to-remove [57] toBeVisible"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--choose-path-to-remove--phone--light--024.png",
+    "capturedFrame": true
+  }
+]

@@ -1,0 +1,30 @@
+
+   • turbo 2.11.10
+   • Packages in scope: //
+   • Running //#task:i18n:extract, //#task:i18n:compile in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/tools-harness-ts:generate:identity: cache hit, replaying logs 03a9e7c9fe5e3a6b
+@libs/tools-harness-ts:generate:identity: $ bun run scripts/materialize-product-identity.ts --development
+@libs/tools-harness-ts:generate:identity: identity: materialized fixture configuration (values omitted)
+//:task:i18n:extract: cache bypass, force executing cbea9180a50417a7
+//:task:i18n:extract: $ lingui extract --clean --overwrite
+//:task:i18n:extract: ✔ Done in 881ms
+//:task:i18n:extract: Catalog statistics for libs/app-root-shared-ts/locales/{locale}/messages: 
+//:task:i18n:extract: ┌─────────────┬─────────────┬─────────┐
+//:task:i18n:extract: │[32m Language    [39m│[32m Total count [39m│[32m Missing [39m│
+//:task:i18n:extract: ├─────────────┼─────────────┼─────────┤
+//:task:i18n:extract: │ en (source) │    2164     │    -    │
+//:task:i18n:extract: └─────────────┴─────────────┴─────────┘
+//:task:i18n:extract: 
+//:task:i18n:extract: (Use "npm run task:i18n:extract" to update catalogs with new messages.)
+//:task:i18n:extract: (Use "npm run task:i18n:compile" to compile catalogs for production. Alternatively, use bundler plugins: https://lingui.dev/ref/cli#compiling-catalogs-in-ci)
+//:task:i18n:compile: cache hit, replaying logs 550039b6bfa27210
+//:task:i18n:compile: $ lingui compile --typescript --strict && bun run libs/tools-harness-ts/scripts/ensure-trailing-newline.ts libs/app-root-shared-ts/locales/en/messages.ts
+//:task:i18n:compile: Compiling message catalogs…
+//:task:i18n:compile: Done in 177ms
+
+ Tasks:    3 successful, 3 total
+Cached:    2 cached, 3 total
+  Time:    3.115s 
+

@@ -1,0 +1,43 @@
+diff --git a/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css b/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
+index 4ff34a941..31f7e6fe5 100644
+--- a/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
++++ b/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
+@@ -45,6 +45,19 @@
+   .participants [data-active] > :is(div, button) {
+     padding-inline: var(--ui-space-1);
+   }
++  .participants
++    > [role="list"]:has(> :nth-child(4):last-child)
++    [data-active]
++    > :is(div, button) {
++    padding-block: 0;
++  }
++  .participants
++    > [role="list"]:has(> :nth-child(4):last-child)
++    [data-active]
++    > :is(div, button)
++    > span:not([aria-hidden]) {
++    row-gap: 0;
++  }
+   .participants [data-active] > :is(div, button) > span[aria-hidden="true"] {
+     display: none;
+   }
+diff --git a/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts b/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
+index 9418cefbf..6796798ca 100644
+--- a/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
++++ b/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
+@@ -401,3 +401,14 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blan
+     1440
+   );
+ });
++
++// regression: shared-board-four-seat-wrapped-name-height
++test('screens-games-frame-geometry--four-players regression shared-board-four-seat-wrapped-name-height', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-frame-geometry--four-players',
++    390
++  );
++});

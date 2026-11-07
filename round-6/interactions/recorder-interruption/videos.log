@@ -1,0 +1,187 @@
+captured screens-games-battleship-board--sink-the-fleet
+captured screens-games-battleship-setup--arrange-full-fleet
+captured screens-puzzles-chess-play--solve-journey
+captured screens-games-chess-board--promotion-choice
+captured screens-games-connect-four-board--connect-four-to-win
+captured screens-games-hearts-board--pass-through-first-trick
+captured screens-games-light-cycles-arena--collision-through-next-round
+captured screens-games-numberlink-puzzle--recover-with-pointer
+captured screens-games-pong-court--return-score-and-reconnect
+captured screens-games-quoridor-hill--reach-the-hill
+captured screens-games-quoridor-classic--reach-opposite-edge
+captured screens-games-sokoban-puzzle--corner-recovery
+captured screens-games-word-tiles-board--recover-and-submit
+captured screens-games-word-tiles-puzzle--reach-target
+captured screens-games-light-cycles-arena--resumed-steering
+captured screens-games-battleship-board--correct-target-before-firing
+captured screens-games-word-tiles-board--accepted-pass
+captured screens-games-word-tiles-board--accepted-exchange
+captured screens-puzzles-chess-play--wrong-move-recovery
+captured screens-games-battleship-setup--enlarged-placement
+captured screens-games-quoridor-classic--place-a-wall
+captured screens-games-quoridor-hill--four-player-round
+captured screens-games-quoridor-hill--pass-and-continue
+captured screens-games-quoridor-hill--recover-wall-placement
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+browserContext.newPage: Target page, context or browser has been closed
+Browser logs:
+
+[pid=84858][err] [84866:15518484:1106/164646.572002:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164646.572073:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164646.572111:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164646.572197:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164646.572235:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164701.155652:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164701.155665:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/164701.188497:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164701.188561:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164701.189030:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164701.189070:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164701.189477:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164701.189515:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164701.189595:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164701.189632:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164701.189703:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164701.190023:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164716.092685:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164716.092699:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/164716.124770:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164716.124822:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164716.125232:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164716.125273:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164716.125501:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164716.125536:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164716.125616:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164716.125650:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164716.125722:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164716.125755:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164738.224959:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164738.224973:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518353:1106/164738.255793:ERROR:chrome/browser/ui/views/user_education/impl/browser_user_education_interface_impl.cc:186] Attempting to show IPH IPH_ExtensionsZeroStatePromo before browser initialization complete; IPH will not be shown.
+[pid=84858][err] [84866:15518411:1106/164738.257804:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164738.257854:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164738.258610:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164738.258649:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164738.258964:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164738.259003:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164738.259086:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164738.259121:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164738.259193:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164738.259228:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164804.248986:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164804.249001:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/164804.299180:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164804.299232:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164804.299788:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164804.299841:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164804.300356:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164804.300396:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164804.300486:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164804.300523:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164804.300599:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164804.300634:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164822.091673:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164822.091688:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/164822.127657:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164822.127707:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164822.128214:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164822.128255:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164822.128556:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164822.128596:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164822.128688:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164822.128737:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164822.128820:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164822.128860:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/164840.505307:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/164840.505340:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/164840.539043:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164840.539089:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164840.539548:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164840.539589:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164840.539850:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164840.539892:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164840.539978:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164840.540013:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164840.540079:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164840.540115:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164933.219664:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164933.219713:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164933.220166:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164933.220205:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164933.220563:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164933.220602:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164933.220680:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164933.220712:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/164933.220786:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/164933.220818:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518353:1106/165029.791133:ERROR:chrome/browser/ui/views/user_education/impl/browser_user_education_interface_impl.cc:186] Attempting to show IPH IPH_ExtensionsZeroStatePromo before browser initialization complete; IPH will not be shown.
+[pid=84858][err] [84866:15518411:1106/165029.794229:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165029.794281:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165029.794999:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165029.795040:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165029.795462:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165029.795501:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165029.795595:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165029.795632:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165029.795717:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165029.795754:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/165047.067486:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/165047.067500:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/165047.126022:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165047.126081:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165047.126715:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165047.126758:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165047.127423:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165047.127464:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165047.127544:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165047.127580:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165047.127673:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165047.127706:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/165105.144648:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/165105.144685:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/165105.188583:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165105.188638:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165105.189214:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165105.189255:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165105.189568:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165105.189604:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165105.189692:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165105.189731:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165105.189822:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165105.189858:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/165125.389494:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/165125.389510:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/165125.427918:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165125.427968:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165125.428471:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165125.428511:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165125.428907:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165125.428943:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165125.429031:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165125.429068:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165125.429152:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165125.429192:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84858:15518409:1106/165146.407252:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/165146.407266:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84866:15518411:1106/165146.444976:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165146.445026:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165146.445552:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165146.445591:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165146.445991:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165146.446033:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165146.446120:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165146.446187:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518411:1106/165146.446275:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858][err] [84866:15518484:1106/165146.446329:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=84858] <gracefully close start>
+[pid=84858][err] [84858:15518409:1106/165154.908809:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[pid=84858][err] [84858:15518409:1106/165154.908825:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+    at Object.capture (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/capture-videos.mjs:296:32)
+    at async file:///Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-6/capture-videos.mjs:429:1 {
+  log: []
+}
+
+Node.js v26.12.0

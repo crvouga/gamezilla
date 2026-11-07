@@ -1,0 +1,35 @@
+{
+  "candidateSha": "0e138cb21a70b5edbfa046f298721fd37bc8a8c9",
+  "initialRun": {
+    "total": 34,
+    "pixelOnlyFailures": 5,
+    "nativeFailures": 29
+  },
+  "findings": [
+    {
+      "id": "word-tiles-blank-letter-content-overflow",
+      "kind": "product geometry",
+      "observed": "44px button outer bounds, 42px client box, 43px scroll width from hitTarget::before expansion; glyph itself fits",
+      "repair": "Bound the redundant pseudo hit target to the face, preserving disjoint 44px target, corner tests and text containment. Letter inner padding uses space-1."
+    },
+    {
+      "id": "quoridor-hill-four-seat-confirm-below-fold",
+      "kind": "product geometry",
+      "observed": "390x844 wall commit y818.75..862.75; participant band120px",
+      "repair": "Keep a single participant band and wrap complete identity and named stat text; native pre-input range checks remain strict."
+    },
+    {
+      "id": "hill-notation-box",
+      "kind": "incorrect assertion",
+      "observed": "32px minimum button height vs line-height+padding30px",
+      "repair": "Measure actual notation range in both phone strip and desktop table; require nonempty selection, exactly one text line and no overflow."
+    },
+    {
+      "id": "map-rounded-corners",
+      "kind": "incorrect assertion",
+      "observed": "rounded decorative board corners hit enclosing viewport",
+      "repair": "Check same full map viewport geometry and corner occlusion; actual trigger and selected cell retain hit tests."
+    }
+  ],
+  "observability": "obs last found no recent activity in checkout .observability, 2026-11-06T22:27:29.458Z..22:37:29.458Z; native static browser failure artifacts used."
+}

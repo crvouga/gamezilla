@@ -1,0 +1,60 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--unreadable [3] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--unreadable [5] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--unreadable [7] toBeLessThanOrEqual"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--unreadable [8] click"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--unreadable [10] toHaveBeenCalledTimes"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--unreadable--desktop--light--005.png",
+    "capturedFrame": true
+  }
+]

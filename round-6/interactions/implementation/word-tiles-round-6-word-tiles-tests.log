@@ -1,0 +1,50 @@
+$ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+bun test v1.4.3 (c6da4a4d3)
+
+tests/word-tiles-candidate.test.ts:
+(pass) the candidate > placing tiles makes one atomic proposal, in cell order [0.26ms]
+(pass) the candidate > a tentative tile pressed again goes back to the rack [0.03ms]
+(pass) the candidate > a blank waits for its letter, which can change before submitting [0.04ms]
+(pass) the candidate > two rack tiles pressed in turn swap places, without placing anything [0.03ms]
+(pass) the candidate > shuffling only reorders the rack [0.04ms]
+(pass) the candidate > undo and redo change only the uncommitted candidate [0.04ms]
+(pass) the candidate > an exchange chooses rack tiles instead of placing them [0.02ms]
+(pass) the candidate > a candidate never carries stale tiles into a later position [0.07ms]
+
+tests/word-tiles-map.test.tsx:
+(pass) fifteen-column CAT/TOE board map locates a remote intersection without consuming a selected tile [86.66ms]
+
+tests/word-tiles-board.test.tsx:
+(pass) placing tiles from the rack and playing sends one proposal [18.57ms]
+(pass) a placement the rules refuse cannot be played and says why [9.72ms]
+(pass) a watcher sees the board but no rack, actions or preview [4.44ms]
+(pass) the frame shows the turn, the bag, each score and each rack [0.15ms]
+(pass) the board, its actions and its controls share one draft [17.52ms]
+(pass) passing is available through more actions [6.48ms]
+(pass) CAT editing and exchange share the rack work area before the grid [6.30ms]
+(pass) wt2 unreadable input links to the public app version screen [0.85ms]
+(pass) literal CAT rack keeps primary exposed and secondary tools discoverable with focus recovery [28.31ms]
+
+tests/word-tiles-puzzle-recovery.test.tsx:
+(pass) the unavailable puzzle offers recovery and reports loading after retry [0.98ms]
+
+tests/word-tiles-puzzle-refusal.test.tsx:
+(pass) TOEEA is a grouped refusal with recall restoring the retained rack [15.06ms]
+
+tests/word-tiles-puzzle-bonus-context.test.tsx:
+(pass) AEST?RN at j8 explains the covered triple-letter square beside the rack [35.60ms]
+
+tests/word-tiles-blank-targets.test.tsx:
+(pass) all 26 blank letters use full medium controls and native keyboard-focusable buttons [6.66ms]
+
+tests/word-tiles-puzzle-next-action.test.tsx:
+(pass) an unreadable definition offers the puzzle library without a move [4.46ms]
+(pass) the solved eight-point move against target six offers a library action [0.91ms]
+
+tests/word-tiles-exchange-settlement.test.ts:
+(pass) accepted exchange settles selection; refusal keeps the chosen tiles [0.09ms]
+
+ 25 pass
+ 0 fail
+ 183 expect() calls
+Ran 25 tests across 9 files. [465.00ms]

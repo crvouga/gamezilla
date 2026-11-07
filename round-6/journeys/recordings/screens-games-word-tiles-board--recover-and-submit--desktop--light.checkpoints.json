@@ -1,0 +1,460 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [3] toBeVisible"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [5] click"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [7] click"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [9] click"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [11] click"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [13] click"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [15] click"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [20] toBeVisible"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [23] toBeEnabled"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [26] toBeVisible"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [30] toHaveTextContent"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [32] toHaveTextContent"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [34] toBeLessThanOrEqual"
+    ],
+    "cursor": 35,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [36] toBeLessThanOrEqual"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--012.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [38] toBeGreaterThan"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [40] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 41,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [42] toBeLessThanOrEqual"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [44] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [46] toBeLessThanOrEqual"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [48] toBeLessThanOrEqual"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--015.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [50] toBe"
+    ],
+    "cursor": 51,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [52] toBe"
+    ],
+    "cursor": 53,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [54] toBe"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [56] toBe"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [58] toBeGreaterThan"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [60] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [62] toBeLessThanOrEqual"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [64] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [66] toBeLessThanOrEqual"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [68] toBeLessThanOrEqual"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [70] toBe"
+    ],
+    "cursor": 71,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [72] toBe"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [74] toBe"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [76] toBe"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [78] click"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [81] toHaveAttribute"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [83] click"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [86] toHaveAttribute"
+    ],
+    "cursor": 87,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [89] toBeInTheDocument"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [92] toBeDisabled"
+    ],
+    "cursor": 93,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [97] toBeVisible"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [100] toHaveTextContent"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [105] toBeVisible"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--043.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--recover-and-submit [108] toBeVisible"
+    ],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--044.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--recover-and-submit--desktop--light--045.png",
+    "capturedFrame": true
+  }
+]
