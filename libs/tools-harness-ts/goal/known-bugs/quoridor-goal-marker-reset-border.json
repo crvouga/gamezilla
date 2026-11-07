@@ -1,0 +1,4 @@
+{
+  "summary": "The universal reset gave the Quoridor goal diamond a solid border; the opening hierarchy requires a borderless goal marker.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-eight.checks.ts"
+}

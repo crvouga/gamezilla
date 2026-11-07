@@ -18,13 +18,17 @@ export const CHESSBOARD_CONTRACT_PROOFS = {
     'board-options.qnt',
     'resize.contract.test.ts',
   ],
+  fitSquare: ['puzzle-first-rank.test.tsx', 'stories.checks.ts'],
   interactive: ['board-authority.feature', 'board-options.qnt'],
   sound: [
     'board-sound.feature',
     'board-lifecycle.qnt',
     'sound-lifecycle.contract.test.tsx',
   ],
+  coordinatePlacement: ['public-coordinates.contract.test.ts'],
   showCoordinates: ['board-options.feature', 'board-options.qnt'],
+  showGuidance: ['board-guidance.test.tsx'],
+  guidancePlacement: ['puzzle-first-rank.test.tsx', 'board-guidance.test.tsx'],
   highlightLastMove: ['board-options.feature', 'board-options.qnt'],
   lastMove: ['last-move-supplied.contract.test.ts'],
   highlightLegalMoves: [

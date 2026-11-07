@@ -60,7 +60,7 @@ function firedCell(
   return shot.outcome === 'miss'
     ? {
         id,
-        glyph: GLYPHS.miss,
+        glyph: '○',
         tone: 'quiet',
         enabled: false,
         label: t`${label}: miss`,
@@ -146,7 +146,7 @@ function ownWaterCell(cell: string, missed: boolean): CellGridCell {
   return missed
     ? {
         id: cell,
-        glyph: GLYPHS.miss,
+        glyph: '○',
         tone: 'quiet',
         enabled: false,
         label: t`${label}: open water, missed`,

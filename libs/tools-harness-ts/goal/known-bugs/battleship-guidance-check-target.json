@@ -1,0 +1,4 @@
+{
+  "summary": "The enlarged setup geometry check selected the Ship label rather than the actual placement instruction, reporting a false 386px guidance gap.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

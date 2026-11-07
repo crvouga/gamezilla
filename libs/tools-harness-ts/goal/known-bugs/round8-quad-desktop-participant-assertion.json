@@ -1,0 +1,4 @@
+{
+  "summary": "Quad Light Cycles story searched for a phone participant rail on desktop instead of verifying the actual desktop scoreboard.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

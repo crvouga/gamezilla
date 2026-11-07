@@ -1,0 +1,4 @@
+{
+  "summary": "Promotion from a7 to a8 showed silhouettes without visible piece names.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/promotion-names.test.tsx"
+}

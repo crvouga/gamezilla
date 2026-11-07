@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop local seat at y781.984375..839.984375 lay inside the viewport but its lower corners were clipped by the host content area before any input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-eight.checks.ts"
+}

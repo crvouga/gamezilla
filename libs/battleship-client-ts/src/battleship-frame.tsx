@@ -40,10 +40,12 @@ export const battleshipFrame: GameFrame<JSX.Element> = {
     facts: (position, side) => {
       const incoming =
         battle(position).shots[otherSide(requireTwoPlayerSide(side))];
-      return [...sunkShipCells(incoming).keys()].map((ship) => {
-        const name = shipName(ship);
-        return t`${name} sunk`;
-      });
+      const ships = [...sunkShipCells(incoming).keys()];
+      const first = ships[0];
+      if (first === undefined) return [];
+      if (ships.length === 1) return [t`${shipName(first)} sunk`];
+      const count = ships.length;
+      return [t`${count} ships sunk`];
     },
     out: () => false,
   },

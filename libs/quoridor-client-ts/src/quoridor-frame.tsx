@@ -39,8 +39,8 @@ function quoridorTurnStatus(
       : t`${name} must pass: no pawn move or wall is legal.`;
   if (game.mode === 'hill')
     return yours
-      ? t`Your turn. First to e5 wins.`
-      : t`${name} to move. First to e5 wins.`;
+      ? t`Your turn. Reach the center hill (e5) first.`
+      : t`${name} to move. First to the center hill (e5) wins.`;
   const row = game.turn === 0 ? '9' : '1';
   return yours
     ? t`Your turn. Reach row ${row}.`

@@ -134,6 +134,9 @@ export type GameOutlineStep = {
   readonly current: boolean;
 };
 
+/** A resolved public display name; null means the identity is not known. */
+export type GamePlayerName = (side: GameSide) => string | null;
+
 /** One seat of the game, as the frame shows it. */
 export type GameFrameSeat = {
   readonly side: GameSide;
@@ -211,12 +214,13 @@ export type GameFrame<View> = {
   /**
    * The game's own line about the turn (`Your turn to fire.`), for `viewer`
    * (`null` for a watcher), given the sides that have committed in the
-   * phase open now; `null` leaves the frame's `<Side> to move.`.
+   * phase open now and resolved public player names; `null` leaves the frame's `<Side> to move.`.
    */
   readonly turnStatus: (
     position: string,
     viewer: GameSide | null,
-    committed: readonly GameSide[]
+    committed: readonly GameSide[],
+    nameOf: GamePlayerName
   ) => string | null;
   /** The finished game in `position`, which `winner` won. */
   readonly result: (position: string, winner: GameWinner) => GameResultSummary;

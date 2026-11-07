@@ -1,0 +1,4 @@
+{
+  "summary": "Hosted phone health and two-person Battleship journeys waited for absent full-layout ship buttons after responsive setup began enlarged. Automation now uses the visible ship picker and region picker, placing every bow on the working precision board while retaining the production default and real readiness journey.",
+  "regressionTest": "libs/battleship-client-ts/tests/automation-rearrange.test.tsx"
+}

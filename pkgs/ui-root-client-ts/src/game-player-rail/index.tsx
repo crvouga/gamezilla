@@ -109,7 +109,7 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
         class={`box flex-1 min-w-0 items-start gap-1 ${styles['chipText']}`}
       >
         <span
-          class={`text textLabel truncate min-w-0 max-w-full ${styles['chipName']}`}
+          class={`text textLabel min-w-0 max-w-full ${styles['chipName']}`}
           classList={{ 'text-on-primary-soft': props.active === true }}
         >
           {props.name}

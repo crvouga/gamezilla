@@ -1,0 +1,4 @@
+{
+  "summary": "Four tall phone player summaries consume 342px above the initial 13-card hand; keep named trick pairs compact.",
+  "regressionTest": "libs/hearts-client-ts/tests/hand-bounds.test.ts"
+}

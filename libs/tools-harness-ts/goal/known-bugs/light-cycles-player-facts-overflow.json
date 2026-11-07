@@ -1,0 +1,4 @@
+{
+  "summary": "Trio phone seat facts force nowrap, pushing Nova, Out and You outside the crashed rider card; desktop names truncate.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

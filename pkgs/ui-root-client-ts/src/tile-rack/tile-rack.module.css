@@ -4,7 +4,7 @@
   justify-content: center;
   gap: var(--ui-space-1);
   padding: var(--ui-space-2);
-  border-radius: var(--ui-radius-card);
+  border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
 }
 .tile {

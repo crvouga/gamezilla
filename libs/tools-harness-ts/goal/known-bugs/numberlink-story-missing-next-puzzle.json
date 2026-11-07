@@ -1,0 +1,4 @@
+{
+  "summary": "numberlink story missing next puzzle: attempt fixture omitted existing production status/continuation controls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

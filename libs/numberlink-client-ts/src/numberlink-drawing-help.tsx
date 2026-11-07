@@ -1,0 +1,31 @@
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
+import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
+
+/** Secondary recovery and keyboard guidance, available at every viewport. */
+export function NumberlinkDrawingHelp() {
+  const { t } = useLingui();
+  return (
+    <Collapsible title={t`Drawing and keyboard help`}>
+      <StackVertical gap="sm">
+        <P variant="caption" tone="secondary">
+          <Trans>
+            Start again at a number to redraw its path. Drag back along your
+            path to shorten it.
+          </Trans>
+        </P>
+        <KeyHints
+          testId="numberlink-key-hints"
+          hints={[
+            { keys: [t`Enter`], label: t`start or end` },
+            { keys: [t`Arrows`], label: t`draw` },
+            { keys: ['Esc'], label: t`cancel` },
+            { keys: ['Del'], label: t`remove` },
+          ]}
+        />
+      </StackVertical>
+    </Collapsible>
+  );
+}

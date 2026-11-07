@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the fitted fifteen-column Word Tiles board plus rack, details and both score rows extended to y921.78 before any input. The fitted board now leaves room for its full context; enlarged cells retain at least a 308px viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

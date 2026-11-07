@@ -1,0 +1,4 @@
+{
+  "summary": "A completed Battleship win opened the player's own fleet instead of the defeated enemy fleet.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

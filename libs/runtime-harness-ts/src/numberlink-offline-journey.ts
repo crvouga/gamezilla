@@ -76,7 +76,7 @@ async function playWhileOffline(
       await NUMBERLINK_JOURNEY_BOARD.solve(device);
       await ui
         .get('content-attempt-complete')
-        .expect.text('Puzzle completed', { ...device, exact: false });
+        .expect.text('Completion saved', { ...device, exact: false });
     }
   );
   await host.peerDevice.reopen();
@@ -90,7 +90,7 @@ async function playWhileOffline(
     await openJourneyAttempt(device, attemptId, 'solved');
     await ui
       .get('content-attempt-complete')
-      .expect.text('Puzzle completed', { ...device, exact: false });
+      .expect.text('Completion saved', { ...device, exact: false });
   });
   return attemptId;
 }
@@ -172,7 +172,7 @@ export async function observeKeptOfflineNumberlink(
         );
       await ui
         .get('content-attempt-complete')
-        .expect.text('Puzzle completed', { ...device, exact: false });
+        .expect.text('Completion saved', { ...device, exact: false });
       for (const row of [0, 1, 2])
         await observeNumberlinkJourneyRow(device, row, true);
     }

@@ -1,0 +1,4 @@
+{
+  "summary": "Intrinsic Quoridor actions overflowed the record panel and hid forced Pass on phones.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

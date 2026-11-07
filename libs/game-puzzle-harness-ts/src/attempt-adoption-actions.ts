@@ -83,7 +83,7 @@ export const observeAttemptAdoption = defineAction({
       await waitForContent(s, () => Promise.resolve(!button().disabled));
       fireEvent.click(button());
       await waitForContent(s, () =>
-        Promise.resolve(view.queryByText('Puzzle completed') !== null)
+        Promise.resolve(view.queryByText('Completion saved') !== null)
       );
       s.notices.set('attempt-continued-from-saved-head', 'true');
     } finally {

@@ -3,8 +3,10 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { expect, fn, within } from 'storybook/test';
+import { createSignal } from 'solid-js';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { numberlinkGeometry } from './numberlink-geometry.example';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
   FIVE_BY_FIVE,
@@ -13,6 +15,7 @@ import {
   PATH_4,
   SOLUTION,
 } from './numberlink-player.example';
+import { recoverWithPointer } from './numberlink-pointer-recovery.example';
 
 /** Progress with `paths` drawn. */
 function progress(paths: typeof SOLUTION): string {
@@ -46,6 +49,7 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      saving={args.disabled}
       complete={numberlinkPuzzleContent.rules.complete(
         args.definition,
         args.state
@@ -66,10 +70,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A fresh attempt: only the numbered endpoints, every cell to fill. */
-export const Fresh: Story = {};
+export const Fresh: Story = {
+  play: async ({ canvasElement }) => {
+    // regression: numberlink-progress-detached-from-board
+    await numberlinkGeometry(canvasElement);
+  },
+};
 
 /** Two pairs joined and a third begun: joined pairs read as connected. */
 export const InProgress: Story = {
+  play: async ({ canvasElement }) => {
+    // regression: numberlink-recovery-displaces-undo
+    await numberlinkGeometry(canvasElement);
+  },
   args: {
     state: progress([
       PATH_1,
@@ -82,16 +95,182 @@ export const InProgress: Story = {
 /** Every pair joined and every cell covered. */
 // regression: solved-pack-story-completion
 export const Solved: Story = {
-  args: { state: progress(SOLUTION), disabled: true },
   play: async ({ canvasElement }) => {
     await expect(
-      await within(canvasElement).findByTestId('content-attempt-complete')
-    ).toHaveTextContent('Puzzle completed');
+      within(canvasElement).getByTestId('content-attempt-complete')
+    ).toHaveTextContent('Completion saved');
+  },
+  args: { state: progress(SOLUTION), disabled: false },
+  render: (args) => {
+    const [next, setNext] = createSignal(false);
+    return (
+      <StoryPackAttempt
+        puzzle={
+          next()
+            ? {
+                ...PUZZLE,
+                title: 'Five pairs practice',
+                pack: { title: 'Linking practice', position: 3, total: 5 },
+              }
+            : PUZZLE
+        }
+        complete={!next()}
+        next={{ title: 'Five pairs practice', open: () => setNext(true) }}
+        player={
+          <NumberlinkPlayer
+            {...args}
+            state={next() ? progress([]) : args.state}
+          />
+        }
+      />
+    );
+  },
+};
+
+export const NextPuzzle: Story = {
+  ...Solved,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('numberlink-solved')).toBeVisible();
+    await userEvent.click(canvas.getByTestId('content-next-puzzle'));
+    await expect(
+      canvas.queryByTestId('numberlink-solved')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('numberlink-progress')).toHaveTextContent(
+      '0/5 pairs connected'
+    );
   },
 };
 
 /** While the shared player is not taking moves, nothing can be drawn. */
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = {
+  args: { disabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId('content-position-save-status')
+    ).toHaveTextContent('Saving your position');
+  },
+};
 
 /** A puzzle this app cannot open points back to its overview. */
 export const Unreadable: Story = { args: { definition: '{}' } };
+
+function movementKey(
+  previous: { x: number; y: number },
+  current: { x: number; y: number }
+): string {
+  if (current.x > previous.x) return 'ArrowRight';
+  if (current.x < previous.x) return 'ArrowLeft';
+  return current.y > previous.y ? 'ArrowDown' : 'ArrowUp';
+}
+
+/** Actual rule application feeds each committed gesture back into the player. */
+export const CompleteWithKeyboard: Story = {
+  render: (args) => {
+    const [state, setState] = createSignal(progress([]));
+    return (
+      <StoryPackAttempt
+        puzzle={PUZZLE}
+        figures={figures(args.definition, state())}
+        player={
+          <NumberlinkPlayer
+            {...args}
+            state={state()}
+            onAction={(action) => {
+              const next = numberlinkPuzzleContent.rules.apply(
+                args.definition,
+                state(),
+                action
+              );
+              if (!next.accepted) throw new Error('Story gesture was refused');
+              setState(next.state);
+            }}
+          />
+        }
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const first = canvas.getByRole('button', { name: /^A1: endpoint 1/ });
+    first.focus();
+    await userEvent.keyboard('{Enter}{ArrowRight}{Escape}');
+    await expect(
+      canvas.getByRole('button', { name: 'B1: empty' })
+    ).toBeInTheDocument();
+    first.focus();
+    await userEvent.keyboard('{Enter}{ArrowRight}{Enter}{Delete}');
+    await expect(
+      canvas.getByRole('button', { name: 'B1: empty' })
+    ).toBeInTheDocument();
+    for (const path of SOLUTION) {
+      const start = path.cells[0];
+      if (!start) throw new Error('Missing path start');
+      const coordinate = `${String.fromCharCode(65 + start.x)}${start.y + 1}`;
+      canvas
+        .getByRole('button', { name: new RegExp(`^${coordinate}:`) })
+        .focus();
+      await userEvent.keyboard('{Enter}');
+      for (let index = 1; index < path.cells.length; index++) {
+        const previous = path.cells[index - 1];
+        const current = path.cells[index];
+        if (!previous || !current) throw new Error('Missing path cell');
+        const key = movementKey(previous, current);
+        await userEvent.keyboard(`{${key}}`);
+      }
+      await userEvent.keyboard('{Enter}');
+      await expect(
+        canvas.getByRole('button', {
+          name: new RegExp(`^${coordinate}: endpoint .* connected$`),
+        })
+      ).toBeInTheDocument();
+    }
+    // regression: numberlink-solved-keeps-drawing-hints
+    await expect(canvas.getByTestId('numberlink-solved')).toHaveTextContent(
+      'Puzzle solved'
+    );
+    await expect(
+      canvas.queryByText('Drag from a number to its match.')
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** Cancel, shorten, redraw and remove a path through pointer input and real rules. */
+export const RecoverWithPointer: Story = {
+  ...CompleteWithKeyboard,
+  play: async ({ canvasElement }) => recoverWithPointer(canvasElement),
+};
+
+/** Keyboard and backtracking help is discoverable without crowding first use. */
+export const DrawingHelp: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await numberlinkGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
+    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
+    await expect(
+      canvas.getByText(/Start again at a number to redraw/)
+    ).toBeVisible();
+  },
+};
+
+/** Three removable paths share a bounded chooser rather than pushing Undo down. */
+export const ChoosePathToRemove: Story = {
+  ...InProgress,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await numberlinkGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Remove a path' })
+    );
+    const surface = within(document.body);
+    for (const label of ['1', '3', '4']) {
+      await expect(
+        surface.getByRole('option', { name: `Remove path ${label}` })
+      ).toBeVisible();
+    }
+  },
+};

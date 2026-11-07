@@ -1,0 +1,4 @@
+{
+  "summary": "390x844 enlarged Word Tiles context was only a 40px mosaic. Expose a named spatial locator and readable whole-board map that navigates without placing.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

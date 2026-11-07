@@ -29,6 +29,7 @@ const GIT_HOOK_NAMES = new Set([
   'sendemail-validate',
 ]);
 
+// regression: git-hooks-file-list-buffer
 // regression: hook-scan-output-buffer-overflow
 test('the repository has no git hooks', () => {
   const listed = spawnSync(

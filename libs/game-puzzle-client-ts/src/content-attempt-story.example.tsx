@@ -26,9 +26,19 @@ export type StoryPackPuzzle = {
 function StoryPackAttemptControls(props: {
   readonly pack: boolean;
   readonly disabled: boolean;
+  readonly next?: { title: string; open: () => void } | undefined;
 }): JSX.Element {
   return (
     <StackHorizontal gap="sm" wrap shrink>
+      <Show when={props.next}>
+        {(next) => (
+          <Button
+            title={`Next puzzle: ${next().title}`}
+            onClick={next().open}
+            dataSet={{ testid: 'content-next-puzzle' }}
+          />
+        )}
+      </Show>
       <Button
         title="Undo"
         intent="neutral"
@@ -66,8 +76,12 @@ function StoryPackAttemptControls(props: {
 export function StoryPackAttempt(props: {
   readonly puzzle: StoryPackPuzzle;
   readonly complete?: boolean | undefined;
+  readonly saving?: boolean | undefined;
+  readonly next?: { title: string; open: () => void } | undefined;
   readonly disabled?: boolean | undefined;
   readonly player: JSX.Element;
+  /** Stateful controls supplied by a game's rules-backed history fixture. */
+  readonly controls?: JSX.Element;
   /** The game's own figures for the attempt (`Connected pairs 2`). */
   readonly figures?: readonly AttemptFigure[] | undefined;
 }): JSX.Element {
@@ -88,17 +102,20 @@ export function StoryPackAttempt(props: {
       }}
       pack={props.puzzle.pack}
       playtest={false}
-      saving={false}
+      saving={props.saving === true}
       changeError={null}
       complete={props.complete === true}
       rulesChanged={false}
       unopenable={false}
       player={props.player}
       controls={
-        <StoryPackAttemptControls
-          pack={props.puzzle.pack !== null}
-          disabled={props.disabled === true}
-        />
+        props.controls ?? (
+          <StoryPackAttemptControls
+            next={props.complete ? props.next : undefined}
+            pack={props.puzzle.pack !== null}
+            disabled={props.disabled === true}
+          />
+        )
       }
       onRetryChange={fn()}
       onReturnToLibrary={fn()}

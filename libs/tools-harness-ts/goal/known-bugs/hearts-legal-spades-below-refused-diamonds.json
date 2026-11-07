@@ -1,0 +1,4 @@
+{
+  "summary": "Legal spades followed unavailable diamonds below the phone viewport.",
+  "regressionTest": "libs/hearts-client-ts/tests/turn-guidance.test.ts"
+}

@@ -22,7 +22,11 @@ import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 function git(root: string, args: string[]): string {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  }).trim();
 }
 
 /** A repository's path inventory may exceed child_process's buffered output limit. */

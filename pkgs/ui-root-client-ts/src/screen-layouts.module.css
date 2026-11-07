@@ -503,3 +503,52 @@
   max-height: 100%;
   overflow-y: auto;
 }
+
+/* Opt-in puzzle boards keep their width through outcome and help changes.
+   The whole puzzle scrolls on short hosts; secondary prose cannot shrink it. */
+.puzzle[data-board-sizing="width"] {
+  overflow: auto;
+}
+.puzzle[data-board-sizing="width"] > .well {
+  flex: none;
+  aspect-ratio: auto;
+  container-type: normal;
+  overflow: visible;
+}
+.puzzle[data-board-sizing="width"] > .well > .board {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+@container puzzle-frame (width < 880px) {
+  .puzzle[data-board-sizing="width"] > .title {
+    order: 0;
+  }
+  .puzzle[data-board-sizing="width"] > .well {
+    order: 1;
+  }
+  .puzzle[data-board-sizing="width"] > .header {
+    order: 2;
+  }
+  .puzzle[data-board-sizing="width"] > .legend {
+    order: 3;
+  }
+  .puzzle[data-board-sizing="width"] > .actions {
+    order: 4;
+  }
+  .puzzle[data-board-sizing="width"] > .timeline {
+    order: 5;
+  }
+  .puzzle[data-board-sizing="width"] > .overlay {
+    order: 6;
+  }
+}
+@container puzzle-frame (min-width: 880px) {
+  .puzzle[data-board-sizing="width"] {
+    flex: 1;
+    grid-template-columns:
+      min(560px, calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6)))
+      minmax(var(--puzzle-panel-measure), 1fr);
+  }
+}

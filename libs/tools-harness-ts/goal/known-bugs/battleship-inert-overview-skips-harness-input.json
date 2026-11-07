@@ -1,0 +1,4 @@
+{
+  "summary": "Alice places Carrier horizontally at G1 with the keyboard, but the harness returns without input because the enlarged overview is inert. Observe the setup root and target region controls, then operate the precise cells; retain the literal refused-placement scenario.",
+  "regressionTest": "libs/battleship-harness-ts/tests/battleship-spatial-input.test.ts"
+}

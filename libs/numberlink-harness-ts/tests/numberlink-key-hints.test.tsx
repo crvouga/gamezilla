@@ -5,6 +5,7 @@ import { initialNumberlinkDefinition } from '@libs/numberlink-client-ts/numberli
 import { NumberlinkPlayer } from '@libs/numberlink-client-ts/numberlink-player';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { fireEvent } from '@solidjs/testing-library';
 
 function mount(width: number) {
   return renderWithI18n(() => (
@@ -27,13 +28,17 @@ function mount(width: number) {
 test('wide, the keyboard hint is key caps beside short labels, not a paragraph', () => {
   const view = mount(1440);
   try {
+    expect(view.queryByTestId('numberlink-key-hints')).toBeNull();
+    fireEvent.click(
+      view.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
     const hint = view.getByTestId('numberlink-key-hints');
     expect(hint.getAttribute('data-component')).toBe('KeyHints');
     const keys = [...hint.querySelectorAll('kbd')].map(
       (key) => key.textContent
     );
     expect(keys).toEqual(['Enter', 'Arrows', 'Esc', 'Del']);
-    expect(hint.textContent).toContain('Drag from a number to its match.');
+    expect(view.getByText('Drag from a number to its match.')).toBeDefined();
     expect(hint.textContent).not.toContain('press Enter again');
   } finally {
     view.unmount();
@@ -49,6 +54,13 @@ test('on a phone the hint is the drag alone, in the words a wide screen uses', (
   try {
     expect(view.queryByTestId('numberlink-key-hints')).toBeNull();
     expect(view.getByText('Drag from a number to its match.')).toBeDefined();
+    // regression: numberlink-secondary-help-overwhelms-first-use
+    fireEvent.click(
+      view.getByRole('button', { name: 'Drawing and keyboard help' })
+    );
+    expect(view.getByTestId('numberlink-key-hints').textContent).toContain(
+      'cancel'
+    );
   } finally {
     view.unmount();
   }

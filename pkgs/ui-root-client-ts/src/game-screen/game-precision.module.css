@@ -1,0 +1,25 @@
+/* Keep the score strip beside compact precision workspaces within the initial
+   phone viewport. The board's production attributes survive test-hook removal. */
+.column:has([data-measure="compact"]) {
+  gap: 0;
+}
+.stage:has([data-measure="compact"]) {
+  gap: 0;
+}
+.board:has([data-measure="compact"]) {
+  gap: 0;
+}
+
+/* The square ocean and precise grid already separate the fleet workspace. */
+.column:has([data-board-theme="battleship"]) {
+  gap: 0;
+}
+.board:has([data-board-theme="battleship"]) {
+  gap: var(--ui-space-2);
+}
+
+/* Keep the four-seat turn record and wall confirmation in the initial view. */
+.column:has([data-board-theme="quoridor"]),
+.stage:has([data-board-theme="quoridor"]) {
+  gap: 0;
+}

@@ -12,7 +12,11 @@ import { cleanup, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-function mount(width: number, figures: readonly AttemptFigure[] = []): void {
+function mount(
+  width: number,
+  figures: readonly AttemptFigure[] = [],
+  complete = false
+): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
       <ContentAttemptScreenView
@@ -30,7 +34,7 @@ function mount(width: number, figures: readonly AttemptFigure[] = []): void {
         playtest={false}
         saving={false}
         changeError={null}
-        complete={false}
+        complete={complete}
         rulesChanged={false}
         unopenable={false}
         player={<span data-testid="player">board</span>}
@@ -161,4 +165,18 @@ test("the puzzle panel shows the game's own figures for the attempt", () => {
   cleanup();
   mount(1440);
   expect(screen.queryByTestId('puzzle-attempt-figures')).toBeNull();
+});
+
+// regression: puzzle-saved-completion-journey-copy
+// regression: puzzle-saved-completion-confused-with-current-board
+test('saved completion remains distinct when the player has moved beyond the solved position', () => {
+  mount(390, [], true);
+  const record = screen.getByTestId('content-attempt-complete');
+  expect(record.textContent).toContain('Completion saved');
+  expect(record.textContent).toContain('You can keep playing');
+  expect(screen.getByTestId('puzzle-attempt-panel').contains(record)).toBe(
+    true
+  );
+  expect(screen.getByTestId('player').textContent).toBe('board');
+  expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
 });

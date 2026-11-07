@@ -1,0 +1,4 @@
+{
+  "summary": "Locked fleet setup still instructs the person to reposition ships or tap cells.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-board.test.tsx"
+}

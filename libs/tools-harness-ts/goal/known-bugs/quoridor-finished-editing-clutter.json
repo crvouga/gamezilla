@@ -1,0 +1,4 @@
+{
+  "summary": "Hill e2 a4 e8 i4 e3 a3 e7 i3 e4 a2 e6 i2 e5 leaves three disabled edit controls over the final board.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}

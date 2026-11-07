@@ -1,0 +1,4 @@
+{
+  "summary": "Moving Fire beside precise aim placed it before the grid in DOM order; keyboard selection of A1 could no longer Tab forward to Fire. Working cells now precede their confirmation in reading and keyboard order.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-precision.test.tsx"
+}

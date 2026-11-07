@@ -99,6 +99,9 @@ export const placeQuoridorWall = scenarioAction({
       await playOnCustomGameBoard(s, actor, async () => {
         if (keyboard) await target.key('enter');
         else await target.tap();
+        const confirm = ui.get(`${CUSTOM_GAME_BOARD}-wall-commit`);
+        if (keyboard) await confirm.key('enter');
+        else await confirm.tap();
         return 'made';
       });
     } else {

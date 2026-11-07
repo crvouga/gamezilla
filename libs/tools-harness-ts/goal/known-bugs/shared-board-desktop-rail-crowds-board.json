@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the 992px application column leaves 960px of content; a 376px rail leaves only a 560px board. Use the existing compact arena rail measure for board-focused sessions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

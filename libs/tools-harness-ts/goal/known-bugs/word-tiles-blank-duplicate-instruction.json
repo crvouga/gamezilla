@@ -1,0 +1,4 @@
+{
+  "summary": "Blank assignment at j8 repeats the same instruction above and below the alphabet (round 6 checkpoint 712).",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx"
+}

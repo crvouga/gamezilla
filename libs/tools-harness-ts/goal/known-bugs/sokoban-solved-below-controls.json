@@ -1,0 +1,4 @@
+{
+  "summary": "Solved feedback was below movement and utility controls, cut by the phone fold.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-player-recovery.test.tsx"
+}

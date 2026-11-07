@@ -1,0 +1,4 @@
+{
+  "summary": "At 390px the Hearts waiting-for-cards center squeezed jordan_plays and robin_42 into fragmented side-seat names. Phone seats now share a separate full-width row.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The selected targeting square overwrote the shot's pending emphasis while waiting for its outcome.",
+  "regressionTest": "libs/battleship-client-ts/tests/board.test.tsx"
+}

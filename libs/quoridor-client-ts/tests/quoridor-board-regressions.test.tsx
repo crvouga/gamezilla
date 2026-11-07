@@ -31,13 +31,6 @@ const BOARD: Omit<
   commitment: null,
 };
 
-/** Runs the board's action `id`, as the frame's action bar does. */
-function run(session: GameFrameBoardSession<JSX.Element>, id: string): void {
-  const action = session.actions().find((each) => each.id === id);
-  if (action === undefined) throw new Error(`No action ${id}`);
-  action.run();
-}
-
 test('an accepted wall clears its preview instead of reporting an overlap', () => {
   // regression: quoridor-accepted-wall-preview
   const [game, setGame] = createSignal(newQuoridor('classic'));
@@ -64,10 +57,17 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
       </ThemeProvider>
     </ClockProvider>
   ));
-  run(session!, 'mode-h');
+  fireEvent.click(view.getByTestId('wall-preview-mode-h'));
   const anchor = view.getByTestId('wall-preview-action-a1h');
   fireEvent.focus(anchor);
   fireEvent.click(anchor);
+  // regression: quoridor-wall-touch-commit
+  expect(game().walls).toEqual([]);
+  expect(anchor.getAttribute('data-preview-edge-top')).toBe('true');
+  fireEvent.click(view.getByTestId('wall-preview-wall-cancel'));
+  expect(game().walls).toEqual([]);
+  fireEvent.click(anchor);
+  fireEvent.click(view.getByTestId('wall-preview-wall-commit'));
   expect(game().walls).toEqual(['a1h']);
   expect(
     view.getByTestId('wall-preview-wall-status').textContent
@@ -84,6 +84,7 @@ test('outside wall anchors never paint a partial wall preview', () => {
 });
 
 test('a finished hill game never announces the next player to move', () => {
+  // regression: quoridor-finished-editing-clutter
   // regression: quoridor-terminal-turn-indicator
   const game = replayQuoridor('hill', [
     'e2',
@@ -103,7 +104,7 @@ test('a finished hill game never announces the next player to move', () => {
   const position = encodeQuoridor(game);
   const frame = quoridorFrame(true);
   for (const viewer of [null, 'white', 'black', 'red', 'blue'] as const)
-    expect(frame.turnStatus(position, viewer, [])).toBeNull();
+    expect(frame.turnStatus(position, viewer, [], () => null)).toBeNull();
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
@@ -118,13 +119,13 @@ test('a finished hill game never announces the next player to move', () => {
               throw new Error('Finished board must be inert');
             },
           });
-          for (const action of session.actions())
-            expect(action.enabled).toBe(false);
           return session.Board();
         })()}
       </ThemeProvider>
     </ClockProvider>
   ));
+  for (const mode of ['move', 'h', 'v'])
+    expect(view.queryByTestId(`finished-hill-mode-${mode}`)).toBeNull();
   expect(view.container.textContent).not.toContain('to move');
   view.unmount();
 });
@@ -132,23 +133,24 @@ test('a finished hill game never announces the next player to move', () => {
 test('the turn line names the pawn to move and where it is heading', () => {
   const classic = encodeQuoridor(newQuoridor('classic'));
   const frame = quoridorFrame(false);
-  expect(frame.turnStatus(classic, 'white', [])).toBe(
+  expect(frame.turnStatus(classic, 'white', [], () => null)).toBe(
     'Your turn. Reach row 9.'
   );
-  expect(frame.turnStatus(classic, 'black', [])).toBe(
+  expect(frame.turnStatus(classic, 'black', [], () => null)).toBe(
     'South red circle to move, heading for row 9.'
   );
   const north = encodeQuoridor(playQuoridor(newQuoridor('classic'), 'e2')!);
-  expect(frame.turnStatus(north, null, [])).toBe(
+  expect(frame.turnStatus(north, null, [], () => null)).toBe(
     'North gold diamond to move, heading for row 1.'
   );
   expect(
     quoridorFrame(true).turnStatus(
       encodeQuoridor(newQuoridor('hill')),
       null,
-      []
+      [],
+      () => null
     )
-  ).toBe('South red circle to move. First to e5 wins.');
+  ).toBe('South red circle to move. First to the center hill (e5) wins.');
 });
 
 test('the tools are the board’s actions, one pressed, and choosing one keeps the board', () => {
@@ -171,19 +173,16 @@ test('the tools are the board’s actions, one pressed, and choosing one keeps t
     </ClockProvider>
   ));
   const pressed = () =>
-    session!
-      .actions()
-      .filter((action) => action.pressed === true)
-      .map((action) => action.id);
-  expect(session!.actions().map((action) => action.id)).toEqual([
-    'mode-move',
-    'mode-h',
-    'mode-v',
-  ]);
-  expect(pressed()).toEqual(['mode-move']);
+    ['move', 'h', 'v'].filter(
+      (mode) =>
+        view.getByTestId(`tools-mode-${mode}`).getAttribute('aria-pressed') ===
+        'true'
+    );
+  expect(session!.actions()).toEqual([]);
+  expect(pressed()).toEqual(['move']);
   expect(view.queryByTestId('tools-action-a1v')).toBeNull();
-  run(session!, 'mode-v');
-  expect(pressed()).toEqual(['mode-v']);
+  fireEvent.click(view.getByTestId('tools-mode-v'));
+  expect(pressed()).toEqual(['v']);
   expect(view.getByTestId('tools-action-a1v')).toBeDefined();
   expect(view.container.textContent).not.toContain('walls');
   view.unmount();
@@ -225,34 +224,29 @@ test('mandatory pass leads the tools and updates when the position changes', () 
       </ClockProvider>
     );
   });
-  expect(session!.actions()[0]?.id).toBe('action-pass');
+  const pass = view.getByTestId('forced-pass-action-pass');
+  expect(pass.textContent).toContain('pass turn');
+  expect(pass.hasAttribute('disabled')).toBe(false);
+  expect(session!.actions()).toEqual([]);
   expect(
-    session!
-      .actions()
-      .filter((action) => action.enabled)
-      .map((action) => action.id)
-  ).toEqual(['action-pass']);
-  expect(view.getByTestId('forced-pass-wall-status').textContent).toContain(
-    'Choose Pass turn'
-  );
-  expect(quoridorFrame(true).turnStatus(position(), 'white', [])).toBe(
-    'No pawn move or wall is legal. Pass your turn.'
-  );
-  run(session!, 'action-pass');
+    quoridorFrame(true).turnStatus(position(), 'white', [], (side) => side)
+  ).toBe('No pawn move or wall is legal. Pass your turn.');
+  fireEvent.click(pass);
   expect(actions).toEqual(['pass']);
   setInteractive(false);
-  expect(session!.actions().every((action) => !action.enabled)).toBe(true);
+  expect(
+    view.getByTestId('forced-pass-action-pass').hasAttribute('disabled')
+  ).toBe(true);
   expect(view.getByTestId('forced-pass-wall-status').textContent).toContain(
     'read-only'
   );
   setPosition(encodeQuoridor(newQuoridor('hill')));
   setInteractive(true);
-  expect(session!.actions().map((action) => action.id)).toEqual([
-    'mode-move',
-    'mode-h',
-    'mode-v',
-  ]);
-  expect(session!.actions().every((action) => action.enabled)).toBe(true);
+  expect(view.queryByTestId('forced-pass-action-pass')).toBeNull();
+  for (const mode of ['move', 'h', 'v'])
+    expect(
+      view.getByTestId(`forced-pass-mode-${mode}`).hasAttribute('disabled')
+    ).toBe(false);
   view.unmount();
 });
 
@@ -283,13 +277,11 @@ test('zero inventory disables both wall tools even when pawn moves remain', () =
   });
   expect(game.remaining[game.turn]).toBe(0);
   expect(
-    session!.actions().find((action) => action.id === 'mode-move')?.enabled
-  ).toBe(true);
-  expect(
-    session!.actions().find((action) => action.id === 'mode-h')?.enabled
+    view.getByTestId('zero-walls-mode-move').hasAttribute('disabled')
   ).toBe(false);
-  expect(
-    session!.actions().find((action) => action.id === 'mode-v')?.enabled
-  ).toBe(false);
+  for (const mode of ['h', 'v'])
+    expect(
+      view.getByTestId(`zero-walls-mode-${mode}`).hasAttribute('disabled')
+    ).toBe(true);
   view.unmount();
 });

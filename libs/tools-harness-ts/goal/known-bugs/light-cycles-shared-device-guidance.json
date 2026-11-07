@@ -1,0 +1,4 @@
+{
+  "summary": "Two locally controlled riders were described as only Comet, with no explanation of swipe half ownership.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

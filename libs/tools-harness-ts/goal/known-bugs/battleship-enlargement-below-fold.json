@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 enlarged fleet placement began around y=678, clipping most rows; desktop fill made cells unbounded. Compact controls and bounded cells keep the placement area reachable.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

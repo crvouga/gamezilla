@@ -23,9 +23,20 @@ import {
   GAME_SIDES,
   type GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
+import {
+  assertHeartsHandBounds,
+  checkHeartsSeatRows,
+  checkInitialHeartsDeal,
+} from './hearts-hand-bounds.checks';
+import {
+  journeyValue,
+  receivedHands,
+  renderPassJourney,
+} from './hearts-pass-journey.example';
 import { heartsPresentation } from './hearts-presentation';
 
 /** One fixed deal: every story sees the same thirteen cards per seat. */
@@ -111,7 +122,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** The first deal opens with every seat choosing three cards to pass left. */
-export const Passing: Story = {};
+// regression: hearts-initial-deal-action-outside-viewport
+export const Passing: Story = {
+  play: async ({ canvasElement }) => checkInitialHeartsDeal(canvasElement),
+};
 
 /** The person has passed: their three cards stay marked while the others choose. */
 export const PassedWaitingForOthers: Story = {
@@ -130,6 +144,44 @@ export const YourTurnToPlay: Story = {
     hand: TO_MOVE.hand,
   },
   parameters: { table: { turn: TO_MOVE.side } satisfies GameTableStory },
+  // regression: hearts-phone-trick-seat-mismatch
+  // regression: hearts-legal-card-selection-emphasis
+  play: async ({ canvasElement }) => {
+    await canvasElement.ownerDocument.fonts.ready;
+    checkHeartsSeatRows(canvasElement);
+    const cards = [
+      ...canvasElement.querySelectorAll<HTMLButtonElement>(
+        '[role="toolbar"] button'
+      ),
+    ];
+    const view = canvasElement.ownerDocument.defaultView;
+    if (!view) throw new Error('Missing Hearts viewport');
+    assertHeartsHandBounds(
+      cards.map((card) => card.getBoundingClientRect()),
+      { width: view.innerWidth, height: view.innerHeight }
+    );
+    const legal = cards.find(
+      (card) => card.getAttribute('aria-disabled') === 'false'
+    );
+    const refused = cards.find(
+      (card) => card.getAttribute('data-refused') === 'true'
+    );
+    if (!legal || !refused) throw new Error('Expected legal and refused cards');
+    // regression: hearts-unavailable-cards-subtle
+    await expect(getComputedStyle(refused).boxShadow).toBe('none');
+    await expect(getComputedStyle(legal).boxShadow).not.toBe('none');
+    await expect(legal).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      getComputedStyle(refused, '::after').backgroundImage
+    ).toContain('repeating-linear-gradient');
+    const marker = refused.querySelector('[aria-hidden="true"]:last-child');
+    if (!marker) throw new Error('Missing unavailable marker');
+    await expect(marker.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      16
+    );
+    await expect(getComputedStyle(legal).borderStyle).toBe('solid');
+    await expect(getComputedStyle(refused).borderStyle).toBe('dashed');
+  },
 };
 
 /** Another seat is playing: the hand is shown but nothing can be played. */
@@ -153,7 +205,21 @@ export const TrickTaken: Story = {
 };
 
 /** A seated player whose cards have not arrived is told so, not shown an empty hand. */
-export const CardsOnTheirWay: Story = { args: { hand: null } };
+// regression: hearts-phone-side-name-fragments
+export const CardsOnTheirWay: Story = {
+  args: { hand: null },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const name of ['jordan_plays', 'robin_42']) {
+      const label = await canvas.findByText(name);
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const lines = [...range.getClientRects()];
+      await expect(lines.length).toBe(1);
+      await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
+    }
+  },
+};
 
 /** A watcher sees the table and the trick, never a hand. */
 export const Watching: Story = {
@@ -191,11 +257,13 @@ const PASSED = heldBy(DEAL.hands, 0).slice(0, 3);
 
 /** Chooses the three cards to pass, as a person taps them. */
 async function chooseThree(canvasElement: HTMLElement): Promise<void> {
+  await checkInitialHeartsDeal(canvasElement);
   const canvas = within(canvasElement);
   for (const card of PASSED)
     await userEvent.click(
       await canvas.findByTestId(`custom-game-board-card-${card}`)
     );
+  await checkInitialHeartsDeal(canvasElement);
 }
 
 /**
@@ -222,5 +290,194 @@ export const PassSending: Story = {
       await within(canvasElement).findByTestId('custom-game-board-pass')
     );
     await expect(args.onAction).toHaveBeenCalledWith(writeCards(PASSED));
+  },
+};
+
+/** Four legal plays update the visible table and remove each played card. */
+export const CompleteTrick: Story = {
+  render: (args, context) => {
+    const [table, setTable] = createSignal(playing(0));
+    return renderGameTable(
+      heartsPresentation,
+      GAME_SIDES,
+      {
+        ...args,
+        get position() {
+          return encodeHearts(table().position);
+        },
+        get orientation() {
+          return seatToMove(table()).side;
+        },
+        get hand() {
+          return seatToMove(table()).hand;
+        },
+        onAction: (action) => {
+          const current = table();
+          const seat = seatToPlay(current.position);
+          if (seat === null) throw new Error('Nobody is to play');
+          const card = legalCards(
+            current.position,
+            seat,
+            heldBy(current.hands, seat)
+          ).find((candidate) => candidate === action);
+          if (card === undefined) throw new Error('Illegal story action');
+          setTable({
+            position: {
+              ...current.position,
+              plays: [...current.position.plays, card],
+            },
+            hands: current.hands.map((hand, index) =>
+              index === seat ? hand.filter((held) => held !== card) : hand
+            ),
+          });
+        },
+      },
+      context
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (let count = 0; count < 4; count++) {
+      const before = playing(count);
+      const seat = seatToPlay(before.position);
+      if (seat === null) throw new Error('Nobody is to play');
+      const card = legalCards(
+        before.position,
+        seat,
+        heldBy(before.hands, seat)
+      )[0];
+      if (card === undefined) throw new Error('No legal card');
+      await userEvent.click(
+        await canvas.findByTestId(`custom-game-board-card-${card}`)
+      );
+      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+        'data-position',
+        encodeHearts(playing(count + 1).position)
+      );
+      await expect(
+        canvas.queryByTestId(`custom-game-board-card-${card}`)
+      ).toBeNull();
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('took the trick');
+  },
+};
+
+/** Acknowledged passing preserves the chosen cards and closes the action. */
+export const PassAcknowledged: Story = {
+  render: (args, context) => {
+    const [commitment, setCommitment] = createSignal<string | null>(null);
+    return renderGameTable(
+      heartsPresentation,
+      GAME_SIDES,
+      {
+        ...args,
+        get commitment() {
+          return commitment();
+        },
+        get committed(): readonly GameSide[] {
+          return commitment() === null ? [] : ['white'];
+        },
+        get interactive() {
+          return commitment() === null;
+        },
+        onAction: setCommitment,
+      },
+      context
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await chooseThree(canvasElement);
+    await userEvent.click(await canvas.findByTestId('custom-game-board-pass'));
+    await expect(canvas.queryByTestId('custom-game-board-pass')).toBeNull();
+    for (const card of PASSED) {
+      await expect(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      ).toHaveAttribute('aria-disabled', 'true');
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('Waiting for every player to pass');
+  },
+};
+
+/** One uninterrupted accepted exchange and first trick, using real legal-card rules. */
+export const PassThroughFirstTrick: Story = {
+  render: (_args, context) => renderPassJourney(context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const initial = canvas
+      .getByTestId('custom-game-board-hand')
+      .querySelectorAll('button');
+    await expect(initial).toHaveLength(13);
+    assertHeartsHandBounds(
+      [...initial].map((button) => button.getBoundingClientRect()),
+      {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }
+    );
+    await chooseThree(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    const hands = receivedHands(PASSED);
+    let position: HeartsPosition = {
+      ...INITIAL_HEARTS,
+      phase: 'play',
+      lead: twoOfClubsSeat({ ...DEAL, hands }),
+    };
+    for (let count = 0; count < 4; count++) {
+      checkHeartsSeatRows(canvasElement);
+      const seat = journeyValue(seatToPlay(position));
+      const tableBounds = canvas
+        .getByRole('group', { name: 'Hearts table' })
+        .getBoundingClientRect();
+      await expect(tableBounds.top).toBeGreaterThanOrEqual(0);
+      await expect(tableBounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+      const buttons = canvas
+        .getByTestId('custom-game-board-hand')
+        .querySelectorAll('button');
+      await expect(buttons).toHaveLength(journeyValue(hands[seat]).length);
+      assertHeartsHandBounds(
+        [...buttons].map((button) => button.getBoundingClientRect()),
+        {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        }
+      );
+      for (const card of journeyValue(hands[seat]))
+        await expect(
+          canvas.getByTestId(`custom-game-board-card-${card}`)
+        ).toBeVisible();
+      const card = journeyValue(
+        legalCards(position, seat, journeyValue(hands[seat]))[0]
+      );
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-card-${card}`)
+      );
+      hands[seat] = journeyValue(hands[seat]).filter((held) => held !== card);
+      position = { ...position, plays: [...position.plays, card] };
+      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+        'data-position',
+        encodeHearts(position)
+      );
+      for (const [index, side] of GAME_SIDES.entries()) {
+        const identity = journeyValue(
+          ['avery', 'jordan_plays', 'morgan', 'robin_42'][index]
+        );
+        const plate = canvas.getByTestId(`custom-game-board-seat-${side}`);
+        await expect(plate).toHaveTextContent(identity);
+        await expect(
+          plate.querySelectorAll('[data-component="GameTableSeat"]')
+        ).toHaveLength(1);
+      }
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-center')
+    ).toHaveTextContent('took the trick');
   },
 };

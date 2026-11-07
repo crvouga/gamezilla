@@ -75,19 +75,21 @@ for (const sample of [
   },
 ]) {
   // regression: desktop-game-record-command-clipping
-  test(`storybook integration: ${sample.story} keeps complete commands inside the record`, async ({
+  test(`storybook integration: ${sample.story} keeps complete commands inside the board workspace`, async ({
     page,
   }) => {
     await openGame(page, sample.story, 1440);
-    const panel = page.locator('[data-component="CustomGameReview"]');
+    const panel = sample.story.includes('quoridor')
+      ? page.getByTestId('custom-game-board-tools')
+      : page.locator('[data-component="WordTileActions"]');
     await expect(panel).toHaveCount(1);
+    if (sample.story.includes('word-tiles'))
+      await page.getByTestId('custom-game-board-more').click();
     for (const name of sample.commands)
       await expect(
         panel.getByRole('button', { name, exact: true })
       ).toBeVisible();
-    expect(
-      await containedItems(panel, '[data-component="GameActionBar"] button')
-    ).toEqual([]);
+    expect(await containedItems(panel, 'button')).toEqual([]);
   });
 }
 
@@ -138,3 +140,37 @@ for (const width of [390, 1440]) {
     ).not.toBeVisible();
   });
 }
+
+// regression: desktop-game-record-command-clipping
+test('storybook integration: literal Quoridor wall tools fit their board workspace', async ({
+  page,
+}) => {
+  await openGame(page, 'screens-games-quoridor-hill--opening', 1440);
+  const tools = page.getByTestId('custom-game-board-tools');
+  for (const name of ['Move pawn', 'Horizontal wall', 'Vertical wall'])
+    await expect(
+      tools.getByRole('button', { name, exact: true })
+    ).toBeVisible();
+  expect(await containedItems(tools, 'button')).toEqual([]);
+});
+
+// regression: light-cycles-finished-steering-instructions
+test('storybook integration: literal finished Light Cycles keeps next steps without steering', async ({
+  page,
+}) => {
+  await openGame(page, 'screens-games-light-cycles-arena--finished', 390);
+  await expect(
+    page.getByRole('heading', { name: 'jordan_plays wins', exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Rematch', exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText('Swipe the arena or use the pad to steer.', { exact: false })
+  ).not.toBeVisible();
+  await expect(
+    page.getByText('Steer with the arrow keys or W, A, S and D.', {
+      exact: false,
+    })
+  ).not.toBeVisible();
+});

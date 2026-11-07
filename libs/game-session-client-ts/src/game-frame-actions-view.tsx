@@ -127,7 +127,7 @@ function FrameDrawActions(props: {
  * is offered the rematch, a new game with other choices and the review;
  * someone watching goes back to the space or reviews.
  */
-export function FrameNextActions(props: {
+export function FrameNextActionsView(props: {
   readonly next: FrameNext;
   readonly onChoose: Choose;
   readonly onBack: () => void;
@@ -189,8 +189,8 @@ export function FrameActionsView(props: {
   readonly onBack: () => void;
   readonly onSeek: (ply: number) => void;
   readonly width?: 'full' | 'content' | undefined;
-  /** A frame can present next actions beside its result without remounting confirmations. */
-  readonly nextLocation?: 'inline' | 'result' | undefined;
+  /** The completion region already owns the next actions. Confirmations stay mounted here. */
+  readonly nextBesideOutcome?: boolean | undefined;
 }): JSX.Element {
   const unfinished = () =>
     props.phase === 'configuring' || props.phase === 'active';
@@ -217,8 +217,8 @@ export function FrameActionsView(props: {
           onChoose={props.onChoose}
         />
       </GameActionBar>
-      <Show when={over() && props.nextLocation !== 'result'}>
-        <FrameNextActions
+      <Show when={over() && !props.nextBesideOutcome}>
+        <FrameNextActionsView
           next={props.next}
           onChoose={props.onChoose}
           onBack={props.onBack}

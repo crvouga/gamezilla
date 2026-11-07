@@ -169,3 +169,28 @@ test('storybook integration: completing then reviewing keeps one outcome and the
     'Finished'
   );
 });
+
+// regression: game-record-current-selection-labeled-live
+test('storybook integration: literal offline record keeps its current state', async ({
+  page,
+}) => {
+  await open(page, 'connection-needed', { width: 390, height: 844 }, 'light');
+  await expect(page.getByTestId('custom-game-move-strip-place')).toHaveText(
+    'Offline'
+  );
+});
+
+// regression: frame-fixture-inactive-board-prompts
+test('storybook integration: literal cancelled board offers no drop instruction', async ({
+  page,
+}) => {
+  await open(page, 'cancelled', { width: 390, height: 844 }, 'light');
+  await expect(
+    page.getByText('Pick a column to drop your disc', { exact: true })
+  ).toHaveCount(0);
+  await expect(
+    page
+      .getByTestId('custom-game-board')
+      .locator('button:enabled:not([aria-disabled="true"])')
+  ).toHaveCount(0);
+});

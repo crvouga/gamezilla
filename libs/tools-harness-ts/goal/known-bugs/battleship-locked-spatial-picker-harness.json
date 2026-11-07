@@ -1,0 +1,4 @@
+{
+  "summary": "The model arranges Bob's fleet, disconnects him, then rotates Carrier. The harness tried opening a disabled spatial ship selector. Locked setup controls now remain unoperated while their fleet stays intact.",
+  "regressionTest": "libs/battleship-harness-ts/tests/battleship-spatial-input.test.ts"
+}

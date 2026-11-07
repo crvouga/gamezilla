@@ -30,8 +30,13 @@ test("Pong's seats show no figure: the court shows each side's points", () => {
 test('Pong has no turn line while play simply goes on', () => {
   const serving = initialPongState(pongConfig(), () => 0);
   expect(
-    pongFrame.turnStatus(pongPositionCodec.encode(serving), null, [])
-  ).toBe('Serve in 3.');
+    pongFrame.turnStatus(
+      pongPositionCodec.encode(serving),
+      null,
+      [],
+      () => null
+    )
+  ).toBeNull();
   const config = pongConfig();
   const step = createPongStep(config);
   const context = {
@@ -43,6 +48,11 @@ test('Pong has no turn line while play simply goes on', () => {
   const playing = step({ ...serving, countdown: 1 }, [], context);
   expect(playing.phase).toBe('playing');
   expect(
-    pongFrame.turnStatus(pongPositionCodec.encode(playing), null, [])
+    pongFrame.turnStatus(
+      pongPositionCodec.encode(playing),
+      null,
+      [],
+      () => null
+    )
   ).toBeNull();
 });

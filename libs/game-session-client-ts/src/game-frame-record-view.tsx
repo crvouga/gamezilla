@@ -535,18 +535,25 @@ function RecordStrip(props: RecordProps): JSX.Element {
       gap="xs"
       testId="custom-game-record"
     >
-      <Show when={props.caption}>
-        {(caption) => (
-          <P variant="label" testId="custom-game-record-caption">
-            {caption()}
-          </P>
-        )}
+      <Show when={props.caption && props.record.moves.length > 0}>
+        <P variant="label" testId="custom-game-record-caption">
+          {props.caption}
+        </P>
       </Show>
       <StackHorizontal
         align="center"
         gap="sm"
         testId="custom-game-move-strip-head"
       >
+        <Show when={props.record.moves.length === 0 && props.caption}>
+          {(caption) => (
+            <StackVertical grow shrink>
+              <P variant="label" testId="custom-game-record-caption">
+                {caption()}
+              </P>
+            </StackVertical>
+          )}
+        </Show>
         {/* The game's own line about the live turn already says the board
             is live: the turn then has the row to itself, on one line. */}
         <Show

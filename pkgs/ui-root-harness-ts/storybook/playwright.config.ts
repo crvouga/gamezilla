@@ -19,7 +19,12 @@ export default defineConfig({
   testDir: '../tests/storybook',
   testMatch: [
     '**/stories.checks.ts',
+    '**/board-round-four.checks.ts',
+    '**/board-round-five.checks.ts',
+    '**/board-round-eight.checks.ts',
+    '**/word-tiles-round-five.checks.ts',
     '**/integration.checks.ts',
+    '**/font-readiness.checks.ts',
     '**/essentials.checks.ts',
     '**/game-layout.checks.ts',
   ],

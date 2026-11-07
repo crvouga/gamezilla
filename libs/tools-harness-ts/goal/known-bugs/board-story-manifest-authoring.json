@@ -1,0 +1,4 @@
+{
+  "summary": "Four Battleship stories returned factory calls as their entire CSF export and five Light Cycles stories used renderer factory calls as render values. They played but their generated agent contracts contained extraction errors. Preserve IDs and behavior while exposing object exports and arrow renderers; pin all nine IDs against the generated manifest.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/board-story-manifests.test.ts"
+}

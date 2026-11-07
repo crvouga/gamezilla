@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 match blank h8 and puzzle blank j8, inline alphabet displaces board context. Assignment now keeps square/nearby tiles and score or target in a bounded dialog.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx"
+}

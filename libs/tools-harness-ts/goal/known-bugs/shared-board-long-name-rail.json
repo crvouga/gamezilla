@@ -1,0 +1,4 @@
+{
+  "summary": "Light Cycles desktop rail wrapped jordan_plays onto an extra line despite available desktop space.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

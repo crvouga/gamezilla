@@ -6,6 +6,7 @@ import {
   type WordTilesPosition,
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import {
+  placementOf,
   puzzleProgress,
   rackTileIds,
   readPuzzle,
@@ -14,7 +15,6 @@ import {
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
 import {
@@ -43,11 +43,14 @@ import {
   rackTiles,
   squareText,
 } from './word-tiles-cells';
-import {
-  WordTilesBlankChooser,
-  WordTilesPreviewPanel,
-} from './word-tiles-panels';
+import { WordTilesBlankChooser } from './word-tiles-panels';
 import { previewCandidate } from './word-tiles-preview';
+import { PuzzleBonusContext } from './word-tiles-puzzle-bonus-context';
+import {
+  PuzzlePlacementFeedback,
+  UnreadablePuzzle,
+} from './word-tiles-puzzle-feedback';
+import { WordTilesPuzzleStatus } from './word-tiles-puzzle-status';
 
 /** The frozen board as a position, so the game's own board pieces show it. */
 export function framePosition(puzzle: WordTilesPuzzle): WordTilesPosition {
@@ -73,13 +76,17 @@ export function puzzleAction(
   return entries.some((e) => e === null) ? null : `play:${entries.join('.')}`;
 }
 
-function PuzzleBoard(props: {
+type PuzzleBoardProps = {
   puzzle: WordTilesPuzzle;
   disabled: boolean;
   state: string;
   lexicon: LexiconState;
   onAction: (action: string) => void;
-}): JSX.Element {
+  onRetryLexicon: () => void;
+  onReturnToLibrary: () => void;
+};
+
+function createPuzzleBoard(props: PuzzleBoardProps) {
   const ids = createMemo(() => rackTileIds(props.puzzle.rack));
   const hand = () => ids().join(',');
   const base = () => encodePosition(framePosition(props.puzzle));
@@ -94,23 +101,152 @@ function PuzzleBoard(props: {
   );
   const progress = () => puzzleProgress(props.state);
   const target = () => props.puzzle.target;
-  const editable = () => !props.disabled;
+  const complete = () => (progress().score ?? 0) >= target();
+  const editable = () => !props.disabled && !complete();
+  const shownPosition = createMemo(() => {
+    const position = framePosition(props.puzzle);
+    if (!complete()) return position;
+    const board = position.board.split('');
+    for (const tile of placementOf(props.puzzle, progress().played ?? '') ?? [])
+      board[tile.cell] = tile.blank ? tile.letter.toLowerCase() : tile.letter;
+    return { ...position, board: board.join('') };
+  });
+  createEffect(
+    on(
+      () => props.state,
+      () => setCandidate(recallAll),
+      { defer: true }
+    )
+  );
   // Memoized: each square reads the list (see the game board).
   const cells = createMemo(() =>
-    boardCells(framePosition(props.puzzle), candidate(), editable())
+    boardCells(shownPosition(), candidate(), editable())
   );
   const tiles = createMemo(() => rackTiles(candidate(), editable()));
+  const submit = () => {
+    const proposal = candidateProposal(candidate());
+    const action = proposal === null ? null : puzzleAction(proposal, ids());
+    if (action !== null) props.onAction(action);
+  };
+  return {
+    submit,
+    candidate,
+    setCandidate,
+    preview,
+    progress,
+    target,
+    complete,
+    editable,
+    cells,
+    tiles,
+  };
+}
+
+function PuzzleBlank(props: {
+  state: Pick<
+    ReturnType<typeof createPuzzleBoard>,
+    'candidate' | 'setCandidate' | 'cells' | 'target' | 'editable'
+  >;
+}): JSX.Element {
   return (
-    <StackVertical gap="sm">
-      <P variant="bodyBold" dataSet={{ testid: 'word-tiles-puzzle-target' }}>
-        {t`Score at least ${target()} points in one move.`}
-      </P>
-      <Show when={progress().score !== null}>
-        <P role="status" dataSet={{ testid: 'word-tiles-puzzle-score' }}>
-          {t`Your last move scored ${progress().score ?? 0} of ${target()}.`}
-        </P>
+    <Show
+      when={props.state.editable() && props.state.candidate().blankAt !== null}
+    >
+      <WordTilesBlankChooser
+        testId="word-tiles-puzzle"
+        cells={props.state.cells()}
+        index={props.state.candidate().blankAt ?? 0}
+        summary={t`Target: ${props.state.target()} points`}
+        onCancel={() =>
+          props.state.setCandidate((c) =>
+            c.blankAt === null ? c : pressCell(c, c.blankAt)
+          )
+        }
+        onChoose={(letter) =>
+          props.state.setCandidate((c) => assignBlank(c, letter))
+        }
+      />
+    </Show>
+  );
+}
+
+function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+  const {
+    submit,
+    candidate,
+    setCandidate,
+    preview,
+    progress,
+    target,
+    complete,
+    editable,
+    cells,
+    tiles,
+  } = createPuzzleBoard(props);
+  const showPreview = () =>
+    editable() &&
+    candidate().blankAt === null &&
+    props.lexicon.status === 'ready';
+  return (
+    <StackVertical gap="xs" padding="lg" width="full" maxWidth="prose">
+      <WordTilesPuzzleStatus
+        target={target()}
+        score={progress().score}
+        complete={complete()}
+        disabled={props.disabled}
+        lexicon={props.lexicon}
+        onReturnToLibrary={props.onReturnToLibrary}
+        onRetryLexicon={props.onRetryLexicon}
+      />
+      <Show when={!complete()}>
+        <PuzzleBlank
+          state={{ candidate, setCandidate, cells, target, editable }}
+        />
+        <Show when={showPreview()}>
+          <PuzzlePlacementFeedback
+            preview={preview()}
+            target={target()}
+            hasPlacement={
+              candidate().placed.length > 0 && candidate().blankAt === null
+            }
+          />
+        </Show>
+        <StackHorizontal gap="sm" wrap>
+          <Button
+            title={t`Play word`}
+            disabled={
+              !editable() ||
+              props.lexicon.status !== 'ready' ||
+              !preview().playable
+            }
+            dataSet={{ testid: 'word-tiles-puzzle-submit' }}
+            onClick={submit}
+          />
+          <Button
+            title={t`Recall tiles`}
+            variant="outline"
+            intent="neutral"
+            disabled={!editable() || candidate().placed.length === 0}
+            dataSet={{ testid: 'word-tiles-puzzle-recall' }}
+            onClick={() => setCandidate(recallAll)}
+          />
+        </StackHorizontal>
+        <TileRack
+          label={t`Your rack`}
+          testId="word-tiles-puzzle-rack"
+          tiles={tiles()}
+          onActivate={(id) => {
+            if (editable()) setCandidate((c) => pressTile(c, Number(id)));
+          }}
+        />
       </Show>
+      <PuzzleBonusContext
+        cell={cells().find(
+          (cell) => parseCell(cell.id) === candidate().placed.at(-1)?.cell
+        )}
+      />
       <WordTileBoard
+        measure="compact"
         label={t`Puzzle board, fifteen columns and fifteen rows`}
         testId="word-tiles-puzzle"
         columnLabels={COLUMN_LABELS}
@@ -119,43 +255,10 @@ function PuzzleBoard(props: {
         squareText={squareText}
         onActivate={(id) => {
           const cell = parseCell(id);
-          if (cell !== null) setCandidate((c) => pressCell(c, cell));
+          if (editable() && cell !== null)
+            setCandidate((c) => pressCell(c, cell));
         }}
       />
-      <TileRack
-        label={t`Your rack`}
-        testId="word-tiles-puzzle-rack"
-        tiles={tiles()}
-        onActivate={(id) => setCandidate((c) => pressTile(c, Number(id)))}
-      />
-      <Show when={candidate().blankAt !== null}>
-        <WordTilesBlankChooser
-          testId="word-tiles-puzzle"
-          onChoose={(letter) => setCandidate((c) => assignBlank(c, letter))}
-        />
-      </Show>
-      <WordTilesPreviewPanel preview={preview()} testId="word-tiles-puzzle" />
-      <StackHorizontal gap="sm" wrap>
-        <Button
-          title={t`Play word`}
-          disabled={props.disabled || !preview().playable}
-          dataSet={{ testid: 'word-tiles-puzzle-submit' }}
-          onClick={() => {
-            const proposal = candidateProposal(candidate());
-            const action =
-              proposal === null ? null : puzzleAction(proposal, ids());
-            if (action !== null) props.onAction(action);
-          }}
-        />
-        <Button
-          title={t`Recall tiles`}
-          variant="outline"
-          intent="neutral"
-          disabled={candidate().placed.length === 0}
-          dataSet={{ testid: 'word-tiles-puzzle-recall' }}
-          onClick={() => setCandidate(recallAll)}
-        />
-      </StackHorizontal>
     </StackVertical>
   );
 }
@@ -163,6 +266,9 @@ function PuzzleBoard(props: {
 export type WordTilesPuzzlePlayerViewProps = PuzzlePlayerProps & {
   /** The word list the puzzle pins: loading, ready, or unavailable. */
   readonly lexicon: LexiconState;
+  readonly onRetryLexicon: () => void;
+  /** Open the existing puzzle library without changing the attempt. */
+  readonly onReturnToLibrary: () => void;
 };
 
 /**
@@ -182,7 +288,7 @@ export function WordTilesPuzzlePlayerView(
         return read.valid ? read.value : null;
       })()}
       fallback={
-        <P>{t`This puzzle cannot be opened. Update the app to play it.`}</P>
+        <UnreadablePuzzle onReturnToLibrary={props.onReturnToLibrary} />
       }
     >
       {(read) => (
@@ -191,7 +297,9 @@ export function WordTilesPuzzlePlayerView(
           disabled={props.disabled}
           state={props.state}
           lexicon={props.lexicon}
+          onReturnToLibrary={props.onReturnToLibrary}
           onAction={props.onAction}
+          onRetryLexicon={props.onRetryLexicon}
         />
       )}
     </Show>

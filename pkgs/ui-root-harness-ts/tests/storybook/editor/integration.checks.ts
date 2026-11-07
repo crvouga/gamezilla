@@ -197,3 +197,64 @@ for (const viewport of [
           Math.min(...measurements.map((item) => item.height))
       ).toBeLessThanOrEqual(1);
     });
+
+// regression: sokoban-palette-lift-crate-truncated
+test('storybook integration: literal phone Lift crate label fits its tool', async ({
+  page,
+}) => {
+  await open(
+    page,
+    'screens-games-sokoban-editor--new-board',
+    { width: 390, height: 844 },
+    'light'
+  );
+  const tools = page.getByTestId('sokoban-tools').getByRole('radio');
+  await expect(
+    page.getByRole('radio', { name: 'Lift crate', exact: true })
+  ).toBeVisible();
+  const measurements = await tools.evaluateAll((radios) =>
+    radios.map((radio) => {
+      const target = radio.getBoundingClientRect();
+      const label = radio.lastElementChild;
+      if (label === null) throw new Error('A tool has no visible name');
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const lines = Array.from(range.getClientRects());
+      return {
+        label: label.textContent,
+        height: target.height,
+        top: target.top,
+        firstLineTop: lines[0]?.top ?? null,
+        visible:
+          lines.length > 0 &&
+          lines.every(
+            (line) =>
+              line.left >= target.left &&
+              line.right <= target.right &&
+              line.top >= target.top &&
+              line.bottom <= target.bottom
+          ),
+        fits:
+          label.scrollWidth <= label.clientWidth + 1 &&
+          label.scrollHeight <= label.clientHeight + 1,
+      };
+    })
+  );
+  expect(measurements.filter((item) => !item.visible || !item.fits)).toEqual(
+    []
+  );
+  expect(
+    measurements.find((item) => item.label === 'Lift crate')
+  ).toBeDefined();
+  for (const item of measurements) {
+    const row = measurements.filter(
+      (other) => Math.abs(other.top - item.top) <= 1
+    );
+    const tops = row.map((other) => other.firstLineTop ?? Number.NaN);
+    expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(1);
+  }
+  expect(
+    Math.max(...measurements.map((item) => item.height)) -
+      Math.min(...measurements.map((item) => item.height))
+  ).toBeLessThanOrEqual(1);
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "Merged record caption, participant rows and duplicate square description push the 390x844 Word Tiles working area below the viewport before input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

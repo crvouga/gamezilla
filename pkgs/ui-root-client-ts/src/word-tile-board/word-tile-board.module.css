@@ -79,7 +79,7 @@
   min-width: 0;
   padding: 0;
   border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-sm);
+  border-radius: 0;
   background: var(--ui-color-background);
   color: var(--ui-color-text);
   cursor: pointer;
@@ -150,4 +150,79 @@
   .points {
     display: none;
   }
+}
+
+.viewport {
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.viewport[data-enlarged="true"] {
+  height: calc(var(--ui-control-size-md) * 7);
+  min-height: calc(var(--ui-control-size-md) * 7);
+}
+.board[data-enlarged="true"] {
+  width: max-content;
+  max-width: none;
+  grid-template-columns: var(--ui-space-4) repeat(
+      var(--word-tile-columns),
+      var(--ui-control-size-md)
+    );
+}
+
+.header[data-axis] {
+  position: sticky;
+  background: var(--ui-color-game-word-tiles-canvas);
+  z-index: 2;
+}
+.header[data-axis="column"],
+.header[data-axis="corner"] {
+  top: 0;
+}
+.header[data-axis="row"],
+.header[data-axis="corner"] {
+  left: 0;
+}
+.header[data-axis="corner"] {
+  z-index: 3;
+}
+.board[data-enlarged="true"] .cell {
+  scroll-margin-top: var(--ui-space-6);
+  scroll-margin-left: var(--ui-space-6);
+}
+.header[data-axis="column"] {
+  min-height: var(--ui-space-6);
+}
+
+.precision {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.precision > .viewport {
+  flex: none;
+}
+
+/* A complete fitted puzzle board alongside its rack and target at desktop height. */
+.board[data-measure="compact"][data-enlarged="false"] {
+  max-width: 23rem;
+  margin-inline: auto;
+}
+
+.cell[data-state="empty"][data-square]:not([data-square="none"]) {
+  background: var(--ui-color-game-word-tiles-surface);
+  color: var(--ui-color-board-card-ink);
+}
+.square {
+  font-weight: 400;
+}
+
+/* The fitted overview leaves room for rack, scores and the enlargement action. */
+.board[data-measure="full"][data-enlarged="false"] {
+  max-width: 23rem;
+  margin-inline: auto;
 }

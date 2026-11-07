@@ -1,0 +1,4 @@
+{
+  "summary": "Undo, Redo and Restart retained blocked feedback from an earlier board position.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-player-recovery.test.tsx"
+}

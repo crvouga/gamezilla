@@ -3,6 +3,7 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import {
   WordTileBoard,
@@ -20,7 +21,9 @@ function example() {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <WordTileBoardExample />
+        <SurfaceStackProvider>
+          <WordTileBoardExample />
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -102,6 +105,67 @@ test('the board reads its squares once per change, however a caller computes the
     2,
     'B 1',
   ]);
+});
+
+// regression: word-tiles-enlarged-context-loss
+test('enlargement retains all squares in an overview and announces the chosen mode', () => {
+  const view = example();
+  const enlarge = view.getByRole('button', { name: 'Enlarge board' });
+  fireEvent.click(enlarge);
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('true');
+  const overview = view.getByRole('img', {
+    name: 'Whole board overview; outline shows the enlarged area',
+  });
+  expect(overview.querySelectorAll('[data-state]')).toHaveLength(25);
+  const indicator = overview.querySelector('[data-viewport-indicator]');
+  expect(indicator).not.toBeNull();
+  const viewport = view.getByRole('region', { name: 'Scrollable word board' });
+  Object.defineProperties(viewport, {
+    scrollWidth: { value: 800 },
+    scrollHeight: { value: 800 },
+    clientWidth: { value: 320 },
+    clientHeight: { value: 260 },
+    scrollLeft: { value: 240 },
+    scrollTop: { value: 320 },
+  });
+  fireEvent.scroll(viewport);
+  expect(indicator?.getAttribute('x')).toBe('1.5');
+  expect(indicator?.getAttribute('y')).toBe('2');
+  expect(indicator?.getAttribute('width')).toBe('2');
+  expect(indicator?.getAttribute('height')).toBe('1.625');
+  fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
+  expect(view.queryByRole('img')).toBeNull();
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('false');
+});
+
+// regression: word-tiles-overview-unreadable-context
+test('board map locates a committed intersection without placing the selected rack tile', () => {
+  const view = example();
+  fireEvent.click(view.getByRole('button', { name: 'S, 1 point' }));
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  fireEvent.click(
+    view.getByRole('button', { name: 'Board map: locate a square' })
+  );
+  const locator = view.getByRole('group', { name: 'Whole board locator' });
+  const cell = locator.querySelector<HTMLButtonElement>('[data-cell="c3"]');
+  expect(cell?.getAttribute('aria-disabled')).toBe('false');
+  expect(cell?.textContent).toContain('A');
+  if (!cell) throw new Error('Missing locator intersection');
+  fireEvent.click(cell);
+  expect(view.queryByRole('dialog')).toBeNull();
+  const original = view.getByRole('button', { name: 'A 1, c3' });
+  expect(document.activeElement).toBe(original);
+  expect(view.getByTestId('example-rack-0').getAttribute('data-placed')).toBe(
+    'false'
+  );
 });
 
 // regression: compact-word-tile-values-unavailable

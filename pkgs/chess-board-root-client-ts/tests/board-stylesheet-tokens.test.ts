@@ -24,3 +24,16 @@ test('every design-system color the board stylesheet reads is a declared token',
   const missing = referenced.filter((token) => !declared.includes(`${token}:`));
   expect(missing).toEqual([]);
 });
+
+// regression: chess-last-move-tan-wash
+test('last-move wash has a board-ink perimeter in addition to its yellow fill', () => {
+  const board = [...document.head.querySelectorAll('style')]
+    .map((style) => style.textContent)
+    .join('\n');
+  const rule = /[^{}]*\[data-kind=["']?last-move["']?\][^{]*\{([^}]+)\}/.exec(
+    board
+  )?.[1];
+  expect(rule).toContain('var(--chess-last-move)');
+  expect(rule).toContain('var(--chess-border)');
+  expect(rule).toContain('inset');
+});

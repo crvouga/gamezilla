@@ -1,0 +1,4 @@
+{
+  "summary": "The enlarged CAT board hit check addressed the SVG behind sibling region buttons instead of the combined 132px diagram and nine-button navigator.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

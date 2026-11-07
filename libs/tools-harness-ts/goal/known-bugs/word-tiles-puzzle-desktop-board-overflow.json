@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844 the enlarged-blank puzzle initially places the fitted board bottom at 881.25px, below its rack and controls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts"
+}

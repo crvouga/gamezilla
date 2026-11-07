@@ -1,0 +1,4 @@
+{
+  "summary": "The last move yellow wash blended into cream and walnut squares.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-stylesheet-tokens.test.ts"
+}

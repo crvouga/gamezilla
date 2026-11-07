@@ -114,6 +114,8 @@ export type PuzzleFeedback = {
 };
 
 export type GamePuzzlesClient = {
+  /** Width-driven play boards retain their touch size as help and outcomes change. */
+  readonly boardSizing?: 'fit' | 'width' | undefined;
   /** The board a puzzle is solved and reviewed on. */
   readonly Board: (props: PuzzleBoardProps) => JSX.Element;
   /** What the coach says about the attempt; silent when absent. */

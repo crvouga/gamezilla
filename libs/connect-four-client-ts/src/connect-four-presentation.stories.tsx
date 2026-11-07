@@ -1,4 +1,6 @@
 import {
+  decodeConnectFour,
+  dropDisc,
   encodeConnectFour,
   replayConnectFour,
 } from '@libs/connect-four-shared-ts/connect-four';
@@ -9,6 +11,7 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createSignal, mergeProps } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -94,8 +97,42 @@ export const Watching: Story = {
   },
 };
 
+/** Finished positions remain readable through every ancestor, including full columns. */
+async function assertReadableFinish(canvasElement: HTMLElement): Promise<void> {
+  const canvas = within(canvasElement);
+  const board = canvas.getByTestId('custom-game-board');
+  for (const disc of board.querySelectorAll(
+    '[data-cell]:not([data-disc="0"]) > span'
+  )) {
+    let element: Element | null = disc;
+    while (element && element !== board.parentElement) {
+      await expect(Number(getComputedStyle(element).opacity)).toBe(1);
+      element = element.parentElement;
+    }
+  }
+  for (const column of board.querySelectorAll('button')) {
+    await expect(column).toHaveAttribute('aria-disabled', 'true');
+  }
+  const before = board.getAttribute('data-cells');
+  await userEvent.click(canvas.getByTestId('custom-game-board-column-1'));
+  await expect(board).toHaveAttribute('data-cells', before);
+}
+
 /** Red's fourth disc in a column wins: the four are marked, and Red is told they won. */
 export const Won: Story = {
+  // regression: connect-four-final-position-dimmed
+  play: async ({ canvasElement }) => {
+    await assertReadableFinish(canvasElement);
+    const canvas = within(canvasElement);
+    for (const cell of [0, 7, 14, 21]) {
+      const disc = canvas.getByTestId(`custom-game-board-cell-${cell}`);
+      await expect(disc).toHaveAttribute('data-winning', 'true');
+      await expect(getComputedStyle(disc).outlineStyle).toBe('solid');
+      await expect(
+        parseFloat(getComputedStyle(disc).outlineWidth)
+      ).toBeGreaterThan(0);
+    }
+  },
   args: { position: after('0101010'), interactive: false },
   parameters: {
     table: {
@@ -118,6 +155,13 @@ export const Lost: Story = {
 
 /** Forty-two discs and no four: the full board is a draw for both. */
 export const FullBoardDraw: Story = {
+  // regression: connect-four-final-position-dimmed
+  play: async ({ canvasElement }) => {
+    await assertReadableFinish(canvasElement);
+    await expect(
+      canvasElement.querySelectorAll('[data-cell]:not([data-disc="0"])')
+    ).toHaveLength(42);
+  },
   args: {
     position: after('000000111111222222433333344444555555666666'),
     interactive: false,
@@ -130,13 +174,118 @@ export const FullBoardDraw: Story = {
   },
 };
 
-/** Choosing a column sends that column as the move (column 4 is action 3). */
+/** Real rule transitions keep the board, seats and move record in sync. */
+const interactiveRender: NonNullable<typeof meta.render> = (args, context) => {
+  const [game, setGame] = createSignal(decodeConnectFour(args.position));
+  const board = mergeProps(args, {
+    get position() {
+      return encodeConnectFour(game());
+    },
+    get interactive() {
+      return game().result === 0;
+    },
+    onAction: (action: string) => {
+      const next = dropDisc(game(), Number(action));
+      if (next) setGame(next);
+    },
+  });
+  const table = {
+    get turn() {
+      return game().turn === 1 ? 'white' : 'black';
+    },
+    get viewer() {
+      return game().turn === 1 ? 'white' : 'black';
+    },
+    get moves() {
+      return game().moves.map((column) => String(column + 1));
+    },
+    get ending(): GameTableStory['ending'] {
+      const result = game().result;
+      return result === 0
+        ? undefined
+        : {
+            winner: result === 3 ? 'draw' : result === 1 ? 'white' : 'black',
+            reason: result === 3 ? 'full board' : 'four in a row',
+          };
+    },
+  };
+  return renderGameTable(connectFourPresentation, TWO_PLAYER_SIDES, board, {
+    parameters: { ...context.parameters, table },
+  });
+};
+
+/** Drop two discs into one column and observe gravity and alternating sides. */
 export const DropADisc: Story = {
-  play: async ({ args, canvasElement }) => {
+  render: interactiveRender,
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-board-column-4')
+    const column = await canvas.findByTestId('custom-game-board-column-4');
+    await userEvent.click(column);
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-3')
+    ).toHaveAttribute('data-disc', '1');
+    await userEvent.hover(column);
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-10')
+    ).toHaveAttribute('data-preview-disc', '2');
+    await userEvent.click(column);
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-10')
+    ).toHaveAttribute('data-disc', '2');
+    await expect(column).toHaveAccessibleName(
+      'Drop in column 4, 2 of 6 occupied'
     );
-    await expect(args.onAction).toHaveBeenCalledWith('3');
+  },
+};
+
+/** A full column preserves the position; keyboard navigation finds another. */
+export const FullColumn: Story = {
+  args: { position: after('000000') },
+  render: interactiveRender,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const column = canvas.getByTestId('custom-game-board-column-1');
+    await expect(column).toHaveAttribute('aria-disabled', 'true');
+    const before = canvas
+      .getByTestId('custom-game-board')
+      .getAttribute('data-cells');
+    await userEvent.click(column);
+    await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+      'data-cells',
+      before
+    );
+    await expect(column).toHaveAccessibleName('Column 1, full');
+    for (let number = 2; number <= 7; number++) {
+      await userEvent.keyboard('{ArrowRight}');
+      await expect(
+        canvas.getByTestId(`custom-game-board-column-${number}`)
+      ).toHaveFocus();
+    }
+    await userEvent.keyboard('{Home}{ArrowRight}');
+    await expect(
+      canvas.getByTestId('custom-game-board-column-2')
+    ).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-1')
+    ).toHaveAttribute('data-disc', '1');
+  },
+};
+
+/** The final legal drop connects four, marks the line and locks further drops. */
+export const ConnectFourToWin: Story = {
+  args: { position: after('010101') },
+  render: interactiveRender,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-column-1'));
+    for (const cell of [0, 7, 14, 21]) {
+      await expect(
+        canvas.getByTestId(`custom-game-board-cell-${cell}`)
+      ).toHaveAttribute('data-winning', 'true');
+    }
+    await expect(
+      canvas.getByTestId('custom-game-board-column-2')
+    ).toHaveAttribute('aria-disabled', 'true');
   },
 };
