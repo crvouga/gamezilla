@@ -79,5 +79,17 @@ accepted additions. StepTrack needed no product change: rendered glyph-range and
 box containment assertions proved its labels fit the phone viewport.
 
 Existing Word Tiles screenshot differences observed during broad authoring were
-not accepted or overwritten. Final no-update comparison and full verification
-remain the completion criteria.
+not accepted or overwritten. The combined no-update comparison passed all 447
+cases. Full verification remains the completion criterion. Coverage also identified
+obsolete phone header goldens and desktop captures required by explicit tests but absent from the
+canonical matrix; these are reconciled through supported viewport metadata, not
+by disabling assertions or deleting valid desktop evidence.
+
+The existing blank-assignment context now has a production-component story with
+visible-content assertions. Its four phone/desktop, light/dark captures were
+independently approved; the focused responsive comparison passed all 28 cases.
+The product preview annotation uses the established `.example.tsx` convention
+so preview infrastructure is classified correctly without weakening the boundary.
+The rebuilt coverage gate reports 990 UI exports, 262 story files and zero
+violations; owning artifact tests and all 28 responsive comparisons pass.
+The critic retains 10/9/9/10 until full verification completes successfully.
