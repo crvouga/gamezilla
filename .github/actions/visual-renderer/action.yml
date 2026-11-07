@@ -5,7 +5,7 @@
 # libs/tools-harness-ts/scripts/workflow-pinning.test.ts refuses them), and a
 # fork's pull request gets no secret or OIDC token to steal.
 name: Pinned visual renderer
-description: Install the fixed Chrome release only for tasks that need a native browser
+description: Install the fixed Chrome release and Playwright video recorder for browser tasks
 runs:
   using: composite
   steps:
@@ -17,6 +17,11 @@ runs:
     - name: Install the pinned Chrome
       shell: bash
       run: mise install http:chrome-for-testing
+    # Playwright's lockfile-pinned version selects its matching recorder.
+    # Installing ffmpeg alone preserves the mise-pinned browser renderer.
+    - name: Install the pinned video recorder
+      shell: bash
+      run: bunx turbo run storybook:video:install --filter=@pkgs/ui-root-harness-ts
     - name: Select visual renderer
       id: chrome
       shell: bash
