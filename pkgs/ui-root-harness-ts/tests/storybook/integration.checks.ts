@@ -141,6 +141,7 @@ async function builderControlsUncovered(page: Page) {
     if (scroller === null || publish === null)
       return ['the builder or its publish step is missing'];
     const covered: string[] = [];
+    const clip = scroller.getBoundingClientRect();
     const check = (at: string): void => {
       const controls = document.querySelectorAll<HTMLElement>(
         '[data-testid="content-author-stage"] :is(button, input)'
@@ -149,7 +150,11 @@ async function builderControlsUncovered(page: Page) {
         const box = control.getBoundingClientRect();
         const x = box.left + box.width / 2;
         const y = box.top + box.height / 2;
-        if (y < 0 || y >= window.innerHeight) continue;
+        if (
+          y < Math.max(0, clip.top) ||
+          y >= Math.min(window.innerHeight, clip.bottom)
+        )
+          continue;
         if (x < 0 || x >= window.innerWidth) continue;
         const top = document.elementFromPoint(x, y);
         if (top !== null && control.contains(top)) continue;
@@ -166,6 +171,21 @@ async function builderControlsUncovered(page: Page) {
     const step = publish.getBoundingClientRect();
     if (step.top < 0 || step.bottom > window.innerHeight)
       covered.push('bottom: the publish step is not wholly in view');
+    for (const control of document.querySelectorAll<HTMLElement>(
+      '[data-testid="content-author-stage"] :is(button, input)'
+    )) {
+      control.scrollIntoView({ block: 'center', inline: 'nearest' });
+      const box = control.getBoundingClientRect();
+      const top = document.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2
+      );
+      if (top === null || !control.contains(top))
+        covered.push(
+          'revealed: ' +
+            (control.getAttribute('data-testid') ?? control.textContent.trim())
+        );
+    }
     return covered;
   });
 }
@@ -256,7 +276,7 @@ for (const story of [
   });
 
 // regression: storybook-sidebar-compact-viewport
-test('storybook integration: sidebar entries declare desktop eligibility without restricting header stories', async ({
+test('storybook integration: desktop header eligibility retains compact tab navigation', async ({
   request,
 }) => {
   const response = await request.get('/index.json');
@@ -282,6 +302,62 @@ test('storybook integration: sidebar entries declare desktop eligibility without
   ]) {
     const entry = index.entries[`screens-shell-header-island--${name}`];
     expect(entry).toBeDefined();
+    expect(entry?.tags).toContain('viewport-desktop');
+  }
+  for (const name of ['spaces-current', 'select-search', 'long-labels']) {
+    const entry = index.entries[`screens-shell-tab-bar--${name}`];
+    expect(entry).toBeDefined();
     expect(entry?.tags).not.toContain('viewport-desktop');
   }
+});
+
+// regression: storybook-builder-scrollport-observation
+test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable inside the scrollport', async ({
+  page,
+}) => {
+  for (const [story, width, height] of [
+    ['screens-puzzles-content-author--pack-builder', 390, 791],
+    ['screens-games-sokoban-editor--two-crates', 1200, 884],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await page.goto(
+      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await page.evaluate(() => document.fonts.ready);
+    expect(await builderControlsUncovered(page)).toEqual([]);
+  }
+});
+
+// regression: storybook-header-responsive-observation
+test('storybook integration: compact tab counterpart selects Search at 390 and 768', async ({
+  page,
+}) => {
+  for (const width of [390, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(
+      '/iframe.html?id=screens-shell-tab-bar--select-search&viewMode=story'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-status',
+      'success'
+    );
+    await expect(
+      page.getByRole('button', { name: 'Search', exact: true })
+    ).toBeVisible();
+  }
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  await page.screenshot({
+    path: testInfo.outputPath('actual.png'),
+    fullPage: true,
+  });
 });

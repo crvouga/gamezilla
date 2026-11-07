@@ -284,3 +284,32 @@ goldens. All eight comparisons then passed without snapshot updates. The
 screenshots document the current translated guidance and matching hint
 highlight; this round changes test setup, not the product screen. Scores
 remain 10/9/9/10 pending full verification.
+
+## Round seventeen Storybook observations
+
+The full catalog passed the repaired puzzle contracts, then failed Storybook
+with 15 functional observations and 96 pixel comparisons. The observations
+assumed older component structure: controls outside their scrollport counted
+as covered, header eligibility ignored the compact tab counterpart, mandatory
+Hill pass required the old command-bar ancestor, and tile details were sought
+inside the grid rather than beside it.
+
+The corrected checks additionally reveal and hit-test every builder control,
+exercise compact Search navigation, require the sole legal Pass command and
+81 disabled squares, and select the exact committed C 3 at g8. Four literal
+regressions register these inputs. The red run had 15 failures and two passes;
+the corrected run has 21 passes. Harness lint, types, tests and goals pass.
+The critic approved all three diffs and 21 captures without finding weakened
+requirements. Product behavior and fixtures are unchanged.
+
+The broader Storybook run passed 278 checks and failed 96 pixel comparisons.
+An independent critic reviewed all 96 pairs individually: 82 approved and
+14 rejected. Rejections identify avatar gallery misuse, detached badge
+positioning, on-primary examples on pale surfaces, and clipped/low-contrast
+image fixtures. An idle sign-in example also falsely claimed loading coverage.
+Only the 82 explicitly approved captures were adopted. The visual review rates
+polish 8/10, design-contract fidelity 9/10 and displayed-content completeness
+8/10; functional and whole-product readiness remain unscored by that review.
+The rejected examples must be corrected in the next round.
+
+All 82 approved-only screenshot comparisons passed without updates.
