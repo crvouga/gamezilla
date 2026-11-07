@@ -244,3 +244,23 @@ typechecks, goals and localization pass. Coverage reports zero violations.
 The critic approved all eight new/existing spectator and no-walls captures
 across themes and widths; eight comparisons then passed without snapshot
 updates. Scores remain 10/9/9/10 pending the full gate.
+
+## Round fifteen named Hearts winners
+
+The full gate found a Hearts assertion expecting the accessibility seat label
+North inside a result correctly naming Carol. The observation now resolves
+the visible participant, checks the played winning card and requires the
+winner's announcement prefix. The critic caught the viewer's own perspective:
+the product correctly says You. The exact seeded diamond trick now covers
+both perspectives, their live announcements and rejection of a wrong winner.
+
+Two accessibility assertions had the same seat-label assumption. They now
+require the validated result in the live region while retaining winning-card,
+rank/suit, next-leader and score checks. Both the original label mismatch and
+the own-winner mismatch were reproduced before their corrections. Product
+copy, rules and specification text are unchanged.
+
+All 58 Hearts scenarios, nine package tests, lint, typechecks and goals pass.
+Cache synchronization required no derived changes. The critic approved eight
+current result captures against older goldens; all eight then passed without
+snapshot updates. Ratings remain 10/9/9/10 pending full verification.
