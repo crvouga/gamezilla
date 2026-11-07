@@ -544,3 +544,223 @@ test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles
     390
   );
 });
+
+// regression: game-four-player-identity-line-breaks
+test('screens-games-light-cycles-arena--quad-steering regression game-four-player-identity-line-breaks', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-light-cycles-arena--quad-steering',
+    390
+  );
+});
+
+// regression: numberlink-story-missing-save-reason
+test('screens-games-numberlink-puzzle--disabled regression numberlink-story-missing-save-reason', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-numberlink-puzzle--disabled',
+    390
+  );
+});
+
+// regression: numberlink-story-missing-next-puzzle
+test('screens-games-numberlink-puzzle--next-puzzle regression numberlink-story-missing-next-puzzle', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-numberlink-puzzle--next-puzzle',
+    390
+  );
+});
+
+// regression: quoridor-competing-cell-chrome
+test('screens-games-quoridor-classic--opening regression quoridor-competing-cell-chrome', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-classic--opening',
+    390
+  );
+});
+
+// regression: quoridor-split-wall-editing
+test('screens-games-quoridor-classic--rotate-wall-preview regression quoridor-split-wall-editing', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-classic--rotate-wall-preview',
+    390
+  );
+});
+
+// regression: quoridor-split-wall-editing
+test('screens-games-quoridor-hill--recover-wall-placement regression quoridor-split-wall-editing', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--recover-wall-placement',
+    390
+  );
+});
+
+// regression: quoridor-wall-start-wording
+test('screens-games-quoridor-classic--precise-coordinates regression quoridor-wall-start-wording', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-classic--precise-coordinates',
+    390
+  );
+});
+
+// regression: quoridor-wall-start-wording
+test('screens-games-quoridor-hill--precise-coordinates regression quoridor-wall-start-wording', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--precise-coordinates',
+    390
+  );
+});
+
+// regression: quoridor-finished-editing-clutter
+test('screens-games-quoridor-hill--reach-the-hill regression quoridor-finished-editing-clutter', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-hill--reach-the-hill',
+    390
+  );
+});
+
+// regression: quoridor-finished-editing-clutter
+test('screens-games-quoridor-classic--reach-opposite-edge regression quoridor-finished-editing-clutter', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-quoridor-classic--reach-opposite-edge',
+    390
+  );
+});
+
+// regression: word-tiles-blank-assignment-context
+test('screens-games-word-tiles-board--assign-a-blank 390 regression word-tiles-blank-assignment-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--assign-a-blank',
+    390
+  );
+});
+
+// regression: word-tiles-blank-assignment-context
+test('screens-games-word-tiles-board--assign-a-blank 1440 regression word-tiles-blank-assignment-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--assign-a-blank',
+    1440
+  );
+});
+
+// regression: word-tiles-blank-assignment-context
+test('screens-games-word-tiles-puzzle--enlarged-blank 390 regression word-tiles-blank-assignment-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    390
+  );
+});
+
+// regression: word-tiles-blank-assignment-context
+test('screens-games-word-tiles-puzzle--enlarged-blank 1440 regression word-tiles-blank-assignment-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    1440
+  );
+});
+
+// regression: word-tiles-region-purpose-hidden
+test('screens-games-word-tiles-board--enlarged-coordinates 390 regression word-tiles-region-purpose-hidden', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--enlarged-coordinates',
+    390
+  );
+});
+
+// regression: word-tiles-puzzle-preview-shortfall
+test('screens-games-word-tiles-puzzle--enlarged-blank 390 regression word-tiles-puzzle-preview-shortfall', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    390
+  );
+});
+
+// regression: battleship-round8-spatial-placement
+test('screens-games-battleship-setup--spatial-region-selection 390 regression battleship-round8-spatial-placement', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--spatial-region-selection',
+    390
+  );
+});
+
+// regression: battleship-round8-spatial-placement
+test('screens-games-battleship-setup--spatial-region-selection 1440 regression battleship-round8-spatial-placement', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--spatial-region-selection',
+    1440
+  );
+});
+
+// regression: battleship-round8-spatial-target-context
+test('screens-games-battleship-board--correct-target-before-firing 390 regression battleship-round8-spatial-target-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-board--correct-target-before-firing',
+    390
+  );
+});
+
+// regression: battleship-round8-spatial-target-context
+test('screens-games-battleship-board--correct-target-before-firing 1440 regression battleship-round8-spatial-target-context', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-board--correct-target-before-firing',
+    1440
+  );
+});

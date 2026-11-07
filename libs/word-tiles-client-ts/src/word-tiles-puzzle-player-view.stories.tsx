@@ -240,8 +240,8 @@ export const EnlargedBlank: Story = {
     );
     await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+    // Assignment is modal: assert its real board/target context and all letters before input.
     await expectBlankTargets(canvasElement, 'word-tiles-puzzle');
-    await expectPuzzlePlacementContext(canvasElement);
     await expect(canvas.getByTestId('word-tiles-puzzle-blank-A')).toHaveFocus();
     // regression: word-tiles-blank-direct-letter-entry
     await userEvent.keyboard('s');
@@ -250,6 +250,10 @@ export const EnlargedBlank: Story = {
       canvas.getByTestId('word-tiles-puzzle-cell-j8')
     ).toHaveAccessibleName(/blank as S/);
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeEnabled();
+    // regression: word-tiles-puzzle-preview-shortfall
+    await expect(
+      canvas.getByTestId('word-tiles-puzzle-shortfall')
+    ).toHaveTextContent('15 more points');
     await expect(
       canvas.getByTestId('word-tiles-puzzle-bonus')
     ).toHaveTextContent('j8: 3L triples this letter. Blank tiles score 0.');

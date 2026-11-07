@@ -9,7 +9,11 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     battleshipBots.choose(position, 'medium', random, null),
   async perform(ui, board, action) {
     if (!isCell(action)) throw new Error('Invalid automated Battleship shot');
-    const target = ui.get(`${board}-target-${action}`);
+    const area =
+      Number(action.charAt(0) >= 'f') +
+      Math.floor((Number(action.slice(1)) - 1) / 2) * 2;
+    await ui.get(`${board}-area-${area}`).key('enter');
+    const target = ui.get(`${board}-aim-${action}`);
     await target.wait('enabled');
     await target.key('enter');
     const fire = ui.get(`${board}-fire`);

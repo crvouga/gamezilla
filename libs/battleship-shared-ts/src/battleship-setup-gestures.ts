@@ -27,13 +27,12 @@ export async function placeSetupBow(
   cell: string,
   keyboard = false
 ): Promise<void> {
-  const region = ui.get(`${board}-region-picker`);
+  const region = ui.get(`${board}-region`);
   const precise = await region.isVisible();
   if (precise) {
-    const area = `${Number(cell.slice(1)) <= 5 ? 'n' : 's'}${cell.charAt(0) < 'f' ? 'w' : 'e'}`;
-    if (keyboard) await region.key('enter');
-    else await region.tap();
-    const choice = ui.get(`${board}-region-${area}`);
+    const area =
+      Number(cell.charAt(0) >= 'f') + Number(Number(cell.slice(1)) > 5) * 2;
+    const choice = ui.get(`${board}-area-${area}`);
     if (keyboard) await choice.key('enter');
     else await choice.tap();
   }

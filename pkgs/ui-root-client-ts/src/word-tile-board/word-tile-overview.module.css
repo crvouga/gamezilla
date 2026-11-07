@@ -79,7 +79,7 @@
 .region {
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
-  border: 1px solid var(--ui-color-game-word-tiles-muted);
+  border: 1px solid var(--ui-color-board-card-face);
   padding: 0;
   background: transparent;
   cursor: pointer;
@@ -87,4 +87,20 @@
 .region:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
+}
+
+.region-purpose {
+  margin: 0;
+  font-size: var(--ui-font-size-xs);
+  color: var(--ui-color-text);
+}
+.direction {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ui-space-4);
+  height: var(--ui-space-4);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-board-card-face);
+  color: var(--ui-color-board-card-ink);
+  font-size: var(--ui-font-size-xs);
 }

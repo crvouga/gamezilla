@@ -182,7 +182,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             controls={
               <WordTileViewControls enlarged={enlarged()} onChange={resize} />
             }
-            position={cells()[focusIndex()]?.label ?? ''}
+            position={`${cells()[focusIndex()]?.id ?? ''} — ${cells()[focusIndex()]?.letter ? t`letter ${cells()[focusIndex()]?.letter}` : t`empty`}`}
             locator={(onChoose) => (
               <WordTileBoard
                 {...props}

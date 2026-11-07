@@ -1,0 +1,4 @@
+{
+  "summary": "At 390\u00d7844 selecting Battleship after Carrier A1 truncates the ship name and requires a separate dropdown to reach F6; the square overview now selects regions directly.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-precision.test.tsx"
+}

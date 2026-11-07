@@ -12,7 +12,11 @@ test('the fleet overview cannot steal placement focus from the working grid', ()
       region={<button type="button">Placement area</button>}
       feedback={<p role="alert">Overlap. Choose another bow or rotate.</p>}
       working={<button type="button">Place at A1</button>}
-      overview={<button type="button">Overview A1</button>}
+      overview={
+        <div inert>
+          <button type="button">Overview A1</button>
+        </div>
+      }
     />
   ));
   expect(screen.getByText('Fleet overview')).toBeTruthy();

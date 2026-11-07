@@ -21,7 +21,7 @@
 .letters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  gap: var(--ui-space-1);
 }
 .letters button {
   padding-inline: var(--ui-space-1);
@@ -32,4 +32,31 @@
 /* The letter face already supplies the complete, disjoint 44px target. */
 .letters button::before {
   inset: 0;
+}
+
+.context-copy {
+  margin: 0 0 var(--ui-space-2);
+  font-size: var(--ui-font-size-sm);
+  color: var(--ui-color-text);
+}
+.neighbors {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--ui-space-1);
+  margin-bottom: var(--ui-space-2);
+}
+.neighbor {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: var(--ui-space-6);
+  font-size: var(--ui-font-size-xs);
+  background: var(--ui-color-game-word-tiles-canvas);
+  color: var(--ui-color-board-card-face);
+  border: 1px solid var(--ui-color-game-word-tiles-muted);
+}
+.neighbor[data-blank="true"] {
+  outline: 2px solid var(--ui-color-focus-ring);
+  background: var(--ui-color-board-card-face);
+  color: var(--ui-color-board-card-ink);
 }

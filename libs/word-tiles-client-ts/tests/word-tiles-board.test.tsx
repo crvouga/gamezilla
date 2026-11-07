@@ -11,6 +11,7 @@ import {
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { fireEvent } from '@solidjs/testing-library';
@@ -24,19 +25,21 @@ function board(hand: string | null, interactive = true, position = START) {
     <ClockProvider clock={clock} timers={timers}>
       <IdProvider createId={() => 'id'} random={() => 0.5}>
         <ThemeProvider colorScheme="light">
-          <WordTilesBoard
-            position={position}
-            orientation="white"
-            interactive={interactive}
-            sound={false}
-            syncKey={0}
-            testId="wt"
-            setup={null}
-            hand={hand}
-            committed={[]}
-            commitment={null}
-            onAction={(action) => actions.push(action)}
-          />
+          <SurfaceStackProvider>
+            <WordTilesBoard
+              position={position}
+              orientation="white"
+              interactive={interactive}
+              sound={false}
+              syncKey={0}
+              testId="wt"
+              setup={null}
+              hand={hand}
+              committed={[]}
+              commitment={null}
+              onAction={(action) => actions.push(action)}
+            />
+          </SurfaceStackProvider>
         </ThemeProvider>
       </IdProvider>
     </ClockProvider>
@@ -210,4 +213,43 @@ test('literal CAT rack keeps primary exposed and secondary tools discoverable wi
   fireEvent.keyDown(view.getByTestId('wt-redo'), { key: 'Escape' });
   expect(more.getAttribute('aria-expanded')).toBe('false');
   expect(document.activeElement).toBe(more);
+});
+
+// regression: word-tiles-blank-assignment-context
+test('opening match h8 blank keeps scores and neighbors, cancels only the blank and restores focus', () => {
+  const { view, actions } = board('11,0,82,98,25,77,69');
+  fireEvent.click(view.getByTestId('wt-rack-11'));
+  fireEvent.click(view.getByTestId('wt-cell-g8'));
+  const square = view.getByTestId('wt-cell-h8');
+  const open = () => {
+    fireEvent.click(view.getByTestId('wt-rack-98'));
+    square.focus();
+    fireEvent.click(square);
+  };
+  open();
+  expect(view.getByTestId('wt-blank-context').textContent).toContain(
+    'Blank at h8. Scores: Amber 0, Teal 0'
+  );
+  expect(
+    view.getByRole('group', {
+      name: 'Nearby squares; outlined square is your blank',
+    }).textContent
+  ).toContain('C');
+  fireEvent.click(view.getByRole('button', { name: 'Cancel blank placement' }));
+  expect(view.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(square);
+  expect(square.getAttribute('data-state')).toBe('empty');
+  expect(view.getByTestId('wt-cell-g8').getAttribute('data-state')).toBe(
+    'tentative'
+  );
+  open();
+  fireEvent.keyDown(view.getByTestId('wt-blank-A'), { key: 'Escape' });
+  expect(view.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(square);
+  open();
+  fireEvent.keyDown(view.getByTestId('wt-blank-A'), { key: 'a' });
+  expect(document.activeElement).toBe(square);
+  expect(square.getAttribute('aria-label')).toContain('blank as A');
+  fireEvent.click(view.getByTestId('wt-submit'));
+  expect(actions).toEqual(['play:g8=11.h8=98A']);
 });

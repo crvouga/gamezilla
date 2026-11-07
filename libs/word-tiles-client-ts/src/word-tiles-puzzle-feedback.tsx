@@ -11,15 +11,36 @@ import type { WordTilesPreview } from './word-tiles-preview';
 export function PuzzlePlacementFeedback(props: {
   preview: WordTilesPreview;
   hasPlacement: boolean;
+  target: number;
 }) {
   return (
     <Show
       when={props.hasPlacement && !props.preview.playable}
       fallback={
-        <WordTilesPreviewPanel
-          preview={props.preview}
-          testId="word-tiles-puzzle"
-        />
+        <StackVertical gap="xs">
+          <WordTilesPreviewPanel
+            preview={props.preview}
+            testId="word-tiles-puzzle"
+          />
+          <Show
+            when={
+              props.hasPlacement &&
+              props.preview.kind === 'score' &&
+              props.preview
+            }
+          >
+            {(score) => (
+              <P
+                role="status"
+                dataSet={{ testid: 'word-tiles-puzzle-shortfall' }}
+              >
+                {score().total < props.target
+                  ? t`You need ${props.target - score().total} more points to reach ${props.target}. Try adding tiles or using a bonus square.`
+                  : t`This word reaches the ${props.target}-point target. Play it to finish.`}
+              </P>
+            )}
+          </Show>
+        </StackVertical>
       }
     >
       <Notice tone="error">

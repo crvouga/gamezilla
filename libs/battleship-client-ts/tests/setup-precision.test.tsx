@@ -29,8 +29,7 @@ test('a ready fleet can be repositioned in another enlarged region', async () =>
   await user.click(
     screen.getByRole('option', { name: 'Destroyer · G3, down' })
   );
-  await user.click(screen.getByRole('button', { name: 'Placement area' }));
-  await user.click(screen.getByRole('option', { name: 'F–J / 6–10' }));
+  await user.click(screen.getByRole('button', { name: 'F–J / 6–10' }));
   await user.click(byTestId('setup-precision-cell-i7'));
   expect(fleet()).toContain('destroyer@i7v');
   expect(byTestId('setup-progress').textContent).toContain(
@@ -69,7 +68,7 @@ test('overlap recovery stays in the placement workspace with ship, direction and
     workspace?.contains(screen.getByRole('button', { name: 'Ship to place' }))
   ).toBe(true);
   expect(
-    workspace?.contains(screen.getByRole('button', { name: 'Placement area' }))
+    workspace?.contains(screen.getByRole('button', { name: 'A–E / 1–5' }))
   ).toBe(true);
   expect(refusal.getAttribute('role')).toBe('alert');
   expect(refusal.textContent).toContain('overlap the Carrier');
@@ -129,8 +128,7 @@ test('comfortable placement validates a complete fleet across four regions with 
   ));
   const user = userEvent.setup();
   const region = async (name: string) => {
-    await user.click(screen.getByRole('button', { name: 'Placement area' }));
-    await user.click(screen.getByRole('option', { name }));
+    await user.click(screen.getByRole('button', { name }));
   };
   byTestId('setup-precision-cell-a1').focus();
   await user.keyboard('{Enter}{Enter}');
@@ -179,12 +177,35 @@ test('locked comfortable placement keeps all waters visible and refuses editing'
       .hasAttribute('disabled')
   ).toBe(true);
   expect(
-    screen
-      .getByRole('button', { name: 'Placement area' })
-      .hasAttribute('disabled')
+    screen.getByRole('button', { name: 'A–E / 1–5' }).hasAttribute('disabled')
   ).toBe(true);
   const user = userEvent.setup();
   await user.click(byTestId('setup-precision-cell-b2'));
   await user.keyboard('r{Enter}');
   expect(changes).toEqual([]);
+});
+
+test('one spatial region press reveals F6 for the full named Battleship', async () => {
+  // regression: battleship-round8-spatial-placement
+  const [fleet, setFleet] = createSignal('fleet:carrier@a1h');
+  renderBoard(() => (
+    <SurfaceStackProvider>
+      <BattleshipSetupBoard
+        setup={fleet()}
+        side="white"
+        locked={false}
+        testId="setup"
+        onChange={setFleet}
+        initialPlacement="enlarged"
+      />
+    </SurfaceStackProvider>
+  ));
+  expect(
+    screen.getByRole('button', { name: 'Ship to place' }).textContent
+  ).toContain('Battleship');
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: 'F–J / 6–10' }));
+  expect(byTestId('setup-area-3').getAttribute('aria-pressed')).toBe('true');
+  await user.click(byTestId('setup-precision-cell-f6'));
+  expect(fleet()).toBe('fleet:carrier@a1h;battleship@f6h');
 });

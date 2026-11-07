@@ -15,9 +15,14 @@ export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
     grid,
     aim,
     region,
-    canvas.getByTestId('custom-game-board-large-targets'),
+    canvas.getByTestId('custom-game-board-target-tools'),
     canvas.getByTestId('custom-game-seat-near'),
   ]);
+  // regression: battleship-round8-spatial-target-context
+  await expect(grid.getBoundingClientRect().width).toBe(
+    grid.getBoundingClientRect().height
+  );
+  await expect(grid.closest('[inert]')).not.toBeNull();
   await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
   for (const cell of [
     ...aim.querySelectorAll<HTMLElement>('[data-cell]'),

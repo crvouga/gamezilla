@@ -156,8 +156,12 @@ export const EnlargedPlacement: Story = {
       await userEvent.click(canvas.getByTestId('custom-game-setup-enlarge'));
 
     // regression: battleship-placement-unlabeled-complete-selection
-    await expect(canvas.getByText('Ship', { exact: true })).toBeVisible();
-    await expect(canvas.getByText('Region', { exact: true })).toBeVisible();
+    await expect(
+      canvas.getByRole('button', { name: 'Ship to place' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByText('Choose region', { exact: true })
+    ).toBeVisible();
     await checkSetupWorkspace(canvasElement);
     const bow = await canvas.findByTestId(
       'custom-game-setup-precision-cell-a1'
@@ -202,6 +206,7 @@ export const EnlargedPlacement: Story = {
     const last = await canvas.findByTestId(
       'custom-game-setup-precision-cell-b2'
     );
+    await checkSetupWorkspace(canvasElement);
     await checkSetupPlacementBounds(last);
     await userEvent.click(last);
     await expect(
@@ -215,5 +220,23 @@ export const EnlargedPlacement: Story = {
     ).toHaveTextContent('Choose a ship to reposition');
     await checkSetupWorkspace(canvasElement);
     await repositionEnlargedShip(canvasElement);
+  },
+};
+
+/** One direct region press replaces opening a dropdown and choosing its option. */
+export const SpatialRegionSelection: Story = {
+  args: { initialPlacement: 'enlarged', setup: 'fleet:carrier@a1h' },
+  play: async ({ canvasElement }) => {
+    // regression: battleship-round8-spatial-placement
+    const canvas = within(canvasElement);
+    await checkSetupWorkspace(canvasElement);
+    await chooseSetupRegion(canvasElement, 'F–J / 6–10');
+    await checkSetupWorkspace(canvasElement);
+    const cell = canvas.getByTestId('custom-game-setup-precision-cell-f6');
+    await checkSetupPlacementBounds(cell);
+    await userEvent.click(cell);
+    await expect(
+      canvas.getByTestId('custom-game-setup-cell-i6')
+    ).toHaveAccessibleName('I6: Battleship');
   },
 };

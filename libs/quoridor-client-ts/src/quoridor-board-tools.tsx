@@ -28,7 +28,7 @@ export function QuoridorBoardTools(props: {
             variant={
               action.pressed || action.emphasis === 'primary'
                 ? 'solid'
-                : 'outline'
+                : 'ghost'
             }
             dataSet={{ testid: `${props.testId}-${action.id}` }}
             onClick={action.run}
@@ -49,7 +49,13 @@ export function QuoridorTargetPicker(props: {
 }): JSX.Element {
   return (
     <Select
-      label={props.tool === 'move' ? t`Move to a coordinate` : t`Wall anchor`}
+      label={
+        props.tool === 'move'
+          ? t`Move to a coordinate`
+          : props.tool === 'h'
+            ? t`Wall starts above a square`
+            : t`Wall starts to the right of a square`
+      }
       value={props.selected ?? ''}
       searchable={props.tool !== 'move'}
       triggerDataSet={{ testid: `${props.testId}-precise-target` }}

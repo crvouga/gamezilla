@@ -31,11 +31,11 @@ export function quoridorWallMessage(
 ): string {
   if (reason === null) return t`Preview only. Place wall to confirm.`;
   const messages: Readonly<Record<QuoridorWallRefusal, string>> = {
-    outside: t`Walls must fit between four squares. Choose an anchor from a1 to h8.`,
-    overlap: t`This wall overlaps another wall. Choose a different anchor.`,
-    crossing: t`This wall crosses another wall. Choose a different anchor or orientation.`,
+    outside: t`Walls must fit between four squares. Choose a starting square from a1 to h8.`,
+    overlap: t`This wall overlaps another wall. Choose a different starting square.`,
+    crossing: t`This wall crosses another wall. Choose a different starting square or orientation.`,
     'no-walls': t`You have no walls left. Move your pawn, or choose Pass turn when no move is available.`,
-    'blocks-path': t`This wall would close a player's last path to the goal. Choose another anchor.`,
+    'blocks-path': t`This wall would close a player's last path to the goal. Choose another starting square.`,
     finished: t`This game has finished. Choose a rematch to play again.`,
   };
   return messages[reason];
@@ -81,7 +81,7 @@ function cellIdentity(
       outlined: false,
     };
   return {
-    glyph: hill ? '★' : legal ? '·' : '',
+    glyph: hill ? '★' : legal ? '○' : '',
     tone: 'open',
     label: hill ? t`Central hill` : t`Empty`,
     outlined: false,
@@ -148,5 +148,7 @@ export function quoridorBoardCells(
 /** Name the anchor edge; the board previews the complete two-square wall. */
 export function quoridorBoundary(action: string): string {
   const anchor = action.slice(0, 2);
-  return action[2] === 'h' ? t`Above ${anchor}` : t`Right of ${anchor}`;
+  return action[2] === 'h'
+    ? t`Wall starts above ${anchor}`
+    : t`Wall starts to the right of ${anchor}`;
 }

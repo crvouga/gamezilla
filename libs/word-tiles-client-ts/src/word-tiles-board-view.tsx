@@ -26,6 +26,7 @@ import {
 } from './word-tiles-cells';
 import { createWordTilesDraft, type WordTilesDraft } from './word-tiles-draft';
 import {
+  seatName,
   WordTilesBlankChooser,
   WordTilesPreviewPanel,
 } from './word-tiles-panels';
@@ -63,7 +64,7 @@ function SeatBoard(props: {
         />
         <WordTileWorkbench>
           <LocalActions draft={props.draft} random={props.random} />
-          <DraftControls draft={props.draft} />
+          <DraftControls draft={props.draft} position={props.position} />
         </WordTileWorkbench>
       </Show>
       <WordTileBoard
@@ -117,7 +118,10 @@ function DraftBoard(props: {
  * would score (or why it cannot be played), and loading the word list again
  * when it would not load.
  */
-function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
+function DraftControls(props: {
+  draft: WordTilesDraft;
+  position: WordTilesPosition;
+}): JSX.Element {
   const testId = () => props.draft.props.testId;
   return (
     <Show
@@ -130,6 +134,16 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
         <Show when={props.draft.candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId={testId()}
+            cells={boardCells(props.position, props.draft.candidate(), false)}
+            index={props.draft.candidate().blankAt ?? 0}
+            summary={t`Scores: ${props.position.scores
+              .map((score, index) => `${seatName(index)} ${score}`)
+              .join(', ')}`}
+            onCancel={() =>
+              props.draft.update((c) =>
+                c.blankAt === null ? c : pressCell(c, c.blankAt)
+              )
+            }
             onChoose={(letter) =>
               props.draft.update((c) => assignBlank(c, letter))
             }

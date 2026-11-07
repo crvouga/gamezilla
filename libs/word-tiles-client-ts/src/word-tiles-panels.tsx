@@ -1,9 +1,14 @@
 import { WORD_TILES_SEATS } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { WordTileLetterChoices } from '@pkgs/ui-root-client-ts/word-tile-workbench';
+import type { WordTileBoardCell } from '@pkgs/ui-root-client-ts/word-tile-board';
+import {
+  WordTileBlankContext,
+  WordTileLetterChoices,
+} from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import { For, type JSX, Show } from 'solid-js';
 import type { WordTilesPreview } from './word-tiles-preview';
 
@@ -52,28 +57,51 @@ export function WordTilesPreviewPanel(props: {
 export function WordTilesBlankChooser(props: {
   testId: string;
   onChoose: (letter: string) => void;
+  onCancel: () => void;
+  cells: readonly WordTileBoardCell[];
+  index: number;
+  summary: string;
 }): JSX.Element {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   return (
-    <StackVertical gap="xs">
-      <P variant="bodyBold">{t`Choose the letter your blank plays`}</P>
-      <WordTileLetterChoices
-        label={t`Choose the letter your blank plays`}
-        onLetter={props.onChoose}
-      >
-        <For each={letters}>
-          {(letter) => (
-            <Button
-              title={letter}
-              size="md"
-              variant="outline"
-              intent="neutral"
-              dataSet={{ testid: `${props.testId}-blank-${letter}` }}
-              onClick={() => props.onChoose(letter)}
-            />
-          )}
-        </For>
-      </WordTileLetterChoices>
-    </StackVertical>
+    <ResponsiveSurface
+      visible
+      onClose={props.onCancel}
+      presentation="modal"
+      title={t`Choose the letter your blank plays`}
+      label={t`Choose the letter your blank plays`}
+      size="medium"
+    >
+      <StackVertical gap="sm">
+        <WordTileBlankContext
+          cells={props.cells}
+          index={props.index}
+          summary={props.summary}
+          testId={props.testId}
+        />
+        <WordTileLetterChoices
+          label={t`Choose the letter your blank plays`}
+          onLetter={props.onChoose}
+        >
+          <For each={letters}>
+            {(letter) => (
+              <Button
+                title={letter}
+                size="md"
+                variant="outline"
+                intent="neutral"
+                dataSet={{ testid: `${props.testId}-blank-${letter}` }}
+                onClick={() => props.onChoose(letter)}
+              />
+            )}
+          </For>
+        </WordTileLetterChoices>
+        <Button
+          title={t`Cancel blank placement`}
+          variant="outline"
+          onClick={props.onCancel}
+        />
+      </StackVertical>
+    </ResponsiveSurface>
   );
 }

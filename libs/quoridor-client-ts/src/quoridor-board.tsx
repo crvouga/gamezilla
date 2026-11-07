@@ -120,10 +120,12 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   const selection = createBoardSelection(props);
   return (
     <StackVertical gap="xs">
-      <QuoridorBoardTools
-        testId={props.testId}
-        actions={props.state.actions()}
-      />
+      <Show when={game().winner === null && quoridorMustPass(game())}>
+        <QuoridorBoardTools
+          testId={props.testId}
+          actions={props.state.actions()}
+        />
+      </Show>
       <CellGridBoard
         boardTheme="quoridor"
         fill
@@ -145,6 +147,10 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           !quoridorMustPass(game())
         }
       >
+        <QuoridorBoardTools
+          testId={props.testId}
+          actions={props.state.actions()}
+        />
         <QuoridorTargetPicker
           testId={props.testId}
           tool={tool()}

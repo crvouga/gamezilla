@@ -19,6 +19,7 @@ import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
 import {
   chooseQuoridorCoordinate,
+  expectQuoridorCellHierarchy,
   expectQuoridorGoalMarker,
   expectQuoridorTargetVisible,
 } from './quoridor-precision.example';
@@ -62,10 +63,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** The start: South moves first, ten walls each, the move tool chosen. */
+// regression: quoridor-competing-cell-chrome
 // regression: quoridor-spatial-task-too-small
 export const Opening: Story = {
   play: async ({ canvasElement }) => {
     await expectQuoridorActionsFit(canvasElement);
+    await expectQuoridorCellHierarchy(canvasElement);
     await expectQuoridorSpatialArea(canvasElement);
   },
 };
@@ -187,8 +190,8 @@ export const ReachOppositeEdge: Story = {
       canvas.getByTestId('custom-game-board-wall-status')
     ).toHaveTextContent('Game finished');
     await expect(
-      canvas.getByTestId('custom-game-board-mode-move')
-    ).toBeDisabled();
+      canvas.queryByTestId('custom-game-board-mode-move')
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -291,6 +294,7 @@ export const RotateWallPreview: Story = {
     const canvas = within(canvasElement);
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+    await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
     await expectQuoridorWallPreview(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));

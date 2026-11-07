@@ -159,7 +159,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             : cell
         )}
         onAim={setSelected}
-        selected={selected()}
         confirmation={
           <Show when={interactive() && view() === 'target'}>
             <ShotConfirmation
@@ -232,7 +231,6 @@ function BattlePanels(props: {
   target: readonly CellGridCell[];
   onAim: (cell: string) => void;
   confirmation: JSX.Element;
-  selected: string | null;
 }): JSX.Element {
   return (
     <PairedPanels
@@ -258,7 +256,6 @@ function BattlePanels(props: {
           testId={props.testId}
           cells={props.target}
           onAim={props.onAim}
-          selected={props.selected}
           confirmation={props.confirmation}
         />
       }

@@ -1,10 +1,9 @@
 import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { Button } from '../button';
 import { CellGridBoard } from '../cell-grid-board';
 import { P } from '../text';
-import { BattleshipTargetLayout } from './index';
+import { BattleshipRegionOverview, BattleshipTargetLayout } from './index';
 
 const regions = Array.from(
   { length: 10 },
@@ -33,11 +32,6 @@ export const Precise: Story = {
     overview: null,
     working: null,
     controls: null,
-    precise: true,
-    region: 0,
-    regions,
-    testId: 'target-layout',
-    onRegion: () => undefined,
   },
   render: (args) => {
     const [area, setArea] = createSignal(0);
@@ -48,16 +42,22 @@ export const Precise: Story = {
     return (
       <BattleshipTargetLayout
         {...args}
-        region={area()}
-        onRegion={setArea}
         overview={
-          <CellGridBoard
-            fill
-            label="Whole field"
-            testId="map"
-            columnLabels={columns}
-            rowLabels={rows}
-            cells={cells}
+          <BattleshipRegionOverview
+            label="Choose region"
+            testId="target-layout"
+            region={area()}
+            regions={regions}
+            onRegion={setArea}
+            overview={
+              <CellGridBoard
+                label="Whole field"
+                testId="map"
+                columnLabels={columns}
+                rowLabels={rows}
+                cells={cells}
+              />
+            }
           />
         }
         controls={<P variant="caption">Aim: {regions[area()]}</P>}
@@ -88,25 +88,5 @@ export const Precise: Story = {
       canvas.getByTestId('map').querySelectorAll('[data-cell]')
     ).toHaveLength(100);
     await expect(canvas.getByTestId('aim-cell-J10')).toBeVisible();
-  },
-};
-
-/** The compact whole-field route remains available without changing any outcome. */
-export const MapOnly: Story = {
-  args: {
-    ...Precise.args,
-    precise: false,
-    controls: <Button title="Aim" />,
-    working: null,
-    overview: (
-      <CellGridBoard
-        fill
-        label="Whole field"
-        testId="map"
-        columnLabels={columns}
-        rowLabels={rows}
-        cells={cells}
-      />
-    ),
   },
 };

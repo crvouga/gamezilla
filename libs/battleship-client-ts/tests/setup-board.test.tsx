@@ -178,8 +178,8 @@ test('enlarged completed fleet names its fields and offers repositioning instead
   );
   fireEvent.click(byTestId('setup-enlarge'));
   const board = byTestId('setup');
-  expect(board.textContent).toContain('Ship');
-  expect(board.textContent).toContain('Region');
+  expect(board.querySelector('[aria-label="Ship to place"]')).not.toBeNull();
+  expect(board.textContent).toContain('Choose region');
   expect(
     board.querySelector('[aria-label="Ship to place"]')?.textContent
   ).toContain('Choose a ship to reposition');

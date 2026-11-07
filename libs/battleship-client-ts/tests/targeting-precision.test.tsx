@@ -36,9 +36,11 @@ test('a mistaken edge target can be corrected before spending the shot', () => {
   // regression: battleship-touch-spends-mistarget
   // regression: battleship-confirmation-label-empty
   const actions = mount();
-  fireEvent.click(byTestId('precision-target-j9'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j9'));
   expect(actions).toEqual([]);
-  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j10'));
   expect(byTestId('precision-fire').textContent).toContain('Fire at J10');
   fireEvent.click(byTestId('precision-view-own'));
   fireEvent.click(byTestId('precision-view-target'));
@@ -86,7 +88,8 @@ test('a refreshed game record preserves the selected target when its position is
       onAction={(cell) => actions.push(cell)}
     />
   ));
-  fireEvent.click(byTestId('refresh-target-f10'));
+  fireEvent.click(byTestId('refresh-area-9'));
+  fireEvent.click(byTestId('refresh-aim-f10'));
   setRecord({ position, syncKey: 0 });
   expect(byTestId('refresh-fire').textContent).toContain('Fire at F10');
   fireEvent.click(byTestId('refresh-fire'));
@@ -106,12 +109,15 @@ test('large targeting areas partition all 100 cells and allow correction and can
     for (const cell of cells) seen.add(cell.getAttribute('data-testid') ?? '');
   }
   expect(seen.size).toBe(100);
-  fireEvent.click(byTestId('precision-target-j9'));
-  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j9'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j10'));
   expect(actions).toEqual([]);
   fireEvent.click(byTestId('precision-cancel-aim'));
   expect(byTestId('precision-fire').hasAttribute('disabled')).toBe(true);
-  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j10'));
   fireEvent.click(byTestId('precision-fire'));
   expect(actions).toEqual(['j10']);
 });
@@ -119,19 +125,20 @@ test('large targeting areas partition all 100 cells and allow correction and can
 // regression: battleship-target-confirmation-competes-with-navigation
 test('J10 confirmation is the only primary action and stays beside Cancel', () => {
   mount();
-  fireEvent.click(byTestId('precision-target-j10'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j10'));
   const fire = byTestId('precision-fire');
   const cancel = byTestId('precision-cancel-aim');
   expect(fire.getAttribute('data-face')).toBe('primary');
   expect(cancel.getAttribute('data-face')).toBe('neutral-ghost');
   expect(cancel.parentElement).toBe(fire.parentElement);
-  expect(byTestId('precision-large-targets').getAttribute('data-face')).toBe(
-    'neutral-outline'
-  );
+  expect(
+    document.querySelector('[data-testid="precision-large-targets"]')
+  ).toBeNull();
 });
 
 // regression: battleship-enlargement-loses-aim-context
-test('enlarging J10 opens its region and returning to all waters preserves the aim', () => {
+test('switching spatial regions preserves J10 aim and all outcomes', () => {
   const actions = mount(
     encodeBattleshipPosition([
       'a1:hit',
@@ -140,16 +147,15 @@ test('enlarging J10 opens its region and returning to all waters preserves the a
       'c3:hit',
     ])
   );
-  fireEvent.click(byTestId('precision-large-targets'));
-  fireEvent.click(byTestId('precision-target-j10'));
-  fireEvent.click(byTestId('precision-large-targets'));
+  fireEvent.click(byTestId('precision-area-9'));
+  fireEvent.click(byTestId('precision-aim-j10'));
   expect(byTestId('precision-area-9').getAttribute('aria-pressed')).toBe(
     'true'
   );
   expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
     'recent'
   );
-  fireEvent.click(byTestId('precision-large-targets'));
+  fireEvent.click(byTestId('precision-area-0'));
   expect(
     byTestId('precision-target-grid').querySelectorAll('button').length
   ).toBe(100);

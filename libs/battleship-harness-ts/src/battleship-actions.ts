@@ -256,8 +256,13 @@ export const shootBattleship = scenarioAction<
       (await target.attribute('aria-disabled')) === 'false'
     ) {
       await playOnCustomGameBoard(s, actor, async () => {
-        await press(target, keyboard);
-        const fire = (await actorUi(s, actor)).get(`${CUSTOM_GAME_BOARD}-fire`);
+        const ui = await actorUi(s, actor);
+        const area =
+          Number(cell.charAt(0) >= 'f') +
+          Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+        await press(ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`), keyboard);
+        await press(ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`), keyboard);
+        const fire = ui.get(`${CUSTOM_GAME_BOARD}-fire`);
         await fire.wait('enabled');
         await press(fire, keyboard);
         return 'made';
@@ -277,7 +282,11 @@ export const chooseBattleshipTarget = scenarioAction({
   name: 'chooseBattleshipTarget',
   act: async (s, actor: string, cell: string) => {
     const ui = await actorUi(s, actor);
-    await ui.get(`${CUSTOM_GAME_BOARD}-target-${cell}`).key('enter');
+    const area =
+      Number(cell.charAt(0) >= 'f') +
+      Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+    await ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`).key('enter');
+    await ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`).key('enter');
     await s.session.waitForIdle();
   },
 });

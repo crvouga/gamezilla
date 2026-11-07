@@ -36,6 +36,7 @@ async function playHillWallPreview(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await expectQuoridorSpatialArea(canvasElement);
   await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+  await expectQuoridorSpatialArea(canvasElement);
   await chooseQuoridorCoordinate(canvasElement, 'd4');
   const horizontal = canvas.getByTestId('custom-game-board-action-d4h');
   await expectQuoridorWallPreview(canvasElement);

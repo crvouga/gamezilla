@@ -1,7 +1,6 @@
 import { expect, test } from 'bun:test';
 import { BattleshipTargetGrid } from '@libs/battleship-client-ts/battleship-target-grid';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 // regression: battleship-default-precision-loses-whole-field
@@ -15,16 +14,13 @@ test('default precise aiming keeps all 100 outcomes and changes regions without 
     enabled: n !== 0,
   }));
   renderBoard(() => {
-    const [selected, setSelected] = createSignal<string | null>(null);
     return (
       <BattleshipTargetGrid
         label="Targeting"
         testId="precise"
         cells={cells}
-        selected={selected()}
         onAim={(cell) => {
           aims.push(cell);
-          setSelected(cell);
         }}
       />
     );

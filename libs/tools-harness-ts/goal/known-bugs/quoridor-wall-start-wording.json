@@ -1,0 +1,4 @@
+{
+  "summary": "The d4h/d4v precise wall choice describes an edge without saying the wall starts there.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

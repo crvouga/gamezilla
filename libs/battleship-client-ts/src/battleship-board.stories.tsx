@@ -223,7 +223,7 @@ function shotJourney(
       await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
       await expect(cell).toHaveAccessibleName(outcome);
       await expect(cell).toHaveAttribute('aria-disabled', 'true');
-      await userEvent.click(cell);
+      await userEvent.click(aim);
       await expect(cell).toHaveAccessibleName(outcome);
       if (wins)
         await expect(

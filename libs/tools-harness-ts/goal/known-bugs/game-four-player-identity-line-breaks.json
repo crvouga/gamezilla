@@ -1,0 +1,4 @@
+{
+  "summary": "Four-rider phone header splits jordan_plays and Ember wins 0 across lines despite enough space for two compact rows.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

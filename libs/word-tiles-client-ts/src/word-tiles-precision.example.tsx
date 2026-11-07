@@ -28,6 +28,13 @@ export async function expectPrecisionDefault(
   await expect(center.getBoundingClientRect().height).toBeGreaterThanOrEqual(
     44
   );
+  // regression: word-tiles-region-purpose-hidden
+  await assertClear(canvas.getByText('View an area'));
+  await assertClear(canvas.getByText('Outline shows viewing area.'));
+  await assertClear(canvas.getByText('Find a square'));
+  await expect(
+    canvas.getByRole('button', { name: 'View a1 to e5' })
+  ).toHaveTextContent('↖');
   // regression: word-tiles-map-fine-target-detour
   const regions = canvas.getByRole('group', { name: 'View a board region' });
   for (const button of within(regions).getAllByRole('button')) {

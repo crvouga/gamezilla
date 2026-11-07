@@ -1,0 +1,4 @@
+{
+  "summary": "AEST?RN blank S at j8 on CAT/TOE scores 5 against target 20 but omitted the 15-point shortfall.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx"
+}

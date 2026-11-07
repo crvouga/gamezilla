@@ -84,6 +84,7 @@ test('outside wall anchors never paint a partial wall preview', () => {
 });
 
 test('a finished hill game never announces the next player to move', () => {
+  // regression: quoridor-finished-editing-clutter
   // regression: quoridor-terminal-turn-indicator
   const game = replayQuoridor('hill', [
     'e2',
@@ -124,9 +125,7 @@ test('a finished hill game never announces the next player to move', () => {
     </ClockProvider>
   ));
   for (const mode of ['move', 'h', 'v'])
-    expect(
-      view.getByTestId(`finished-hill-mode-${mode}`).hasAttribute('disabled')
-    ).toBe(true);
+    expect(view.queryByTestId(`finished-hill-mode-${mode}`)).toBeNull();
   expect(view.container.textContent).not.toContain('to move');
   view.unmount();
 });

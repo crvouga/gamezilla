@@ -78,6 +78,8 @@ export async function checkInitialWordWorkspace(
   });
   await assertClear(viewport, false);
   const board = viewport.getBoundingClientRect();
+  await expect(board.width).toBeGreaterThanOrEqual(308);
+  await expect(board.height).toBeGreaterThanOrEqual(308);
   const rack = canvas
     .getByTestId('custom-game-board-rack')
     .getBoundingClientRect();

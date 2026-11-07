@@ -1,10 +1,12 @@
 import { isShipId, SHIPS } from '@libs/battleship-shared-ts/battleship-board';
 import { t } from '@lingui/core/macro';
 import { BattleshipPlacementLayout } from '@pkgs/ui-root-client-ts/battleship-placement-layout';
+import { BattleshipRegionOverview } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
@@ -28,26 +30,22 @@ function shipOptions(setup: SetupController, testId: string) {
   });
 }
 
-function regionOptions(testId: string) {
+function regionOptions() {
   return [
     {
       value: 'nw',
-      dataSet: { testid: `${testId}-region-nw` },
       label: 'A–E / 1–5',
     },
     {
       value: 'ne',
-      dataSet: { testid: `${testId}-region-ne` },
       label: 'F–J / 1–5',
     },
     {
       value: 'sw',
-      dataSet: { testid: `${testId}-region-sw` },
       label: 'A–E / 6–10',
     },
     {
       value: 'se',
-      dataSet: { testid: `${testId}-region-se` },
       label: 'F–J / 6–10',
     },
   ];
@@ -79,14 +77,6 @@ export function SetupPrecision(props: {
       );
   return (
     <StackVertical gap="sm" width="full" align="center">
-      <Button
-        title={props.open ? t`Close enlarged placement` : t`Enlarge placement`}
-        variant="outline"
-        intent="neutral"
-        disabled={props.locked}
-        onClick={() => props.onOpenChange(!props.open)}
-        dataSet={{ testid: `${props.testId}-enlarge` }}
-      />
       <Show
         when={props.open}
         fallback={
@@ -98,13 +88,26 @@ export function SetupPrecision(props: {
         }
       >
         <BattleshipPlacementLayout
-          overviewLabel={t`Fleet overview`}
-          overview={props.overview}
+          overviewLabel={t`Choose region`}
+          overview={
+            <BattleshipRegionOverview
+              overview={props.overview}
+              placement
+              label={t`Fleet overview`}
+              region={['nw', 'ne', 'sw', 'se'].indexOf(area())}
+              regions={regionOptions().map((option) => option.label)}
+              onRegion={(index) =>
+                setArea(['nw', 'ne', 'sw', 'se'][index] ?? 'nw')
+              }
+              disabled={props.locked}
+              testId={props.testId}
+            />
+          }
           feedback={props.feedback}
+          commands={props.commands}
           controls={
             <>
               <Select
-                label={t`Ship`}
                 aria-label={t`Ship to place`}
                 placeholder={t`Choose a ship to reposition`}
                 value={props.setup.selected() ?? ''}
@@ -115,19 +118,10 @@ export function SetupPrecision(props: {
                 triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
                 options={shipOptions(props.setup, props.testId)}
               />
-              {props.commands}
             </>
           }
           region={
-            <Select
-              label={t`Region`}
-              aria-label={t`Placement area`}
-              triggerDataSet={{ testid: `${props.testId}-region-picker` }}
-              value={area()}
-              onValueChange={setArea}
-              disabled={props.locked}
-              options={regionOptions(props.testId)}
-            />
+            <P variant="label">{t`Place in ${regionOptions().find((option) => option.value === area())?.label ?? ''}`}</P>
           }
           working={
             <CellGridBoard
@@ -147,6 +141,14 @@ export function SetupPrecision(props: {
           }
         />
       </Show>
+      <Button
+        title={props.open ? t`Show full board` : t`Enlarge placement`}
+        variant="ghost"
+        intent="neutral"
+        disabled={props.locked}
+        onClick={() => props.onOpenChange(!props.open)}
+        dataSet={{ testid: `${props.testId}-enlarge` }}
+      />
     </StackVertical>
   );
 }

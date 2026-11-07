@@ -57,6 +57,13 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
     view.getByTestId('map-fixture-rack-11').getAttribute('aria-pressed')
   ).toBe('true');
   fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  // regression: word-tiles-region-purpose-hidden
+  expect(view.getByText('View an area')).toBeTruthy();
+  expect(view.getByText('Find a square')).toBeTruthy();
+  expect(
+    view.getByRole('button', { name: 'View a1 to e5' }).textContent
+  ).toContain('↖');
+  expect(view.getByText(/Current square: h8/)).toBeTruthy();
   // regression: word-tiles-map-fine-target-detour
   fireEvent.click(view.getByRole('button', { name: 'View a1 to e5' }));
   expect(document.activeElement).toBe(view.getByTestId('map-fixture-cell-c3'));

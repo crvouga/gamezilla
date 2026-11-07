@@ -265,9 +265,10 @@
   --color-on-info: var(--ui-color-on-info);
 }
 /* Quoridor pawns keep the same identities as their seats in both variants.
-   Size only occupied glyphs; legal destinations remain quiet dots. */
+   Keep flat square boundaries distinct from heavier walls and destination rings. */
 .board[data-board-theme="quoridor"] .cell {
   container-type: inline-size;
+  border-radius: 0;
   --color-border: var(--ui-color-game-quoridor-muted);
 }
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
@@ -501,13 +502,16 @@
 .board[data-board-theme="quoridor"] .cell[data-goal="true"] {
   position: relative;
 }
-/* Inset dotted circles mark destinations; solid straight edges remain walls. */
+/* A small corner diamond identifies goals without tracing every cell again. */
 .board[data-board-theme="quoridor"] .cell[data-goal="true"]::before {
   content: "";
   position: absolute;
-  inset: var(--ui-space-1);
-  border: var(--ui-space-hairline) dotted var(--ui-color-game-quoridor-ink);
-  border-radius: var(--ui-radius-full);
+  top: var(--ui-space-1);
+  left: var(--ui-space-1);
+  width: var(--ui-space-1);
+  height: var(--ui-space-1);
+  background: var(--ui-color-game-quoridor-ink);
+  transform: rotate(45deg);
   pointer-events: none;
 }
 .board[data-board-theme="quoridor"]
@@ -529,4 +533,11 @@
 }
 .board[data-board-theme="quoridor"] .cell[data-preview-edge-left="true"] {
   border-left-style: solid;
+}
+
+/* Legal destinations are large open rings, never tiny dots lost in the grid. */
+.board[data-board-theme="quoridor"] .cell[data-emphasis="preview"] .glyph {
+  font-size: 72cqw;
+  font-weight: 700;
+  color: var(--ui-color-game-quoridor-accent);
 }

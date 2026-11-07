@@ -326,6 +326,9 @@ export const ReachTheHill: Story = {
       canvas.getByTestId('custom-game-board-action-e5')
     ).not.toHaveTextContent('★');
     await expect(await canvas.findByText('avery wins')).toBeVisible();
+    await expect(
+      canvas.queryByTestId('custom-game-board-tools')
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -344,6 +347,7 @@ export const RecoverWallPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/overlaps/);
+    await expectQuoridorWallPreview(canvasElement);
     await chooseQuoridorCoordinate(canvasElement, 'a1');
     await expectQuoridorWallPreview(canvasElement);
     await expectQuoridorTargetVisible(

@@ -49,6 +49,7 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      saving={args.disabled}
       figures={figures(args.definition, args.state)}
       player={<NumberlinkPlayer {...args} />}
     />
@@ -89,11 +90,58 @@ export const InProgress: Story = {
 
 /** Every pair joined and every cell covered. */
 export const Solved: Story = {
-  args: { state: progress(SOLUTION), disabled: true },
+  args: { state: progress(SOLUTION), disabled: false },
+  render: (args) => {
+    const [next, setNext] = createSignal(false);
+    return (
+      <StoryPackAttempt
+        puzzle={
+          next()
+            ? {
+                ...PUZZLE,
+                title: 'Five pairs practice',
+                pack: { title: 'Linking practice', position: 3, total: 5 },
+              }
+            : PUZZLE
+        }
+        complete={!next()}
+        next={{ title: 'Five pairs practice', open: () => setNext(true) }}
+        player={
+          <NumberlinkPlayer
+            {...args}
+            state={next() ? progress([]) : args.state}
+          />
+        }
+      />
+    );
+  },
+};
+
+export const NextPuzzle: Story = {
+  ...Solved,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('numberlink-solved')).toBeVisible();
+    await userEvent.click(canvas.getByTestId('content-next-puzzle'));
+    await expect(
+      canvas.queryByTestId('numberlink-solved')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('numberlink-progress')).toHaveTextContent(
+      '0/5 pairs connected'
+    );
+  },
 };
 
 /** While the shared player is not taking moves, nothing can be drawn. */
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = {
+  args: { disabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId('content-position-save-status')
+    ).toHaveTextContent('Saving your position');
+  },
+};
 
 /** A puzzle this app cannot open points back to its overview. */
 export const Unreadable: Story = { args: { definition: '{}' } };

@@ -25,11 +25,15 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
     if (!element) throw new Error(`Missing setup ${id}`);
     return element.getBoundingClientRect();
   };
-  for (const label of ['Ship to place', 'Placement area']) {
+  for (const label of ['Ship to place']) {
     const control = root.querySelector<HTMLElement>(`[aria-label="${label}"]`);
     if (!control) throw new Error(`Missing ${label}`);
     const bounds = control.getBoundingClientRect();
-    await expect(bounds.width).toBeLessThanOrEqual(272);
+    // regression: battleship-round8-spatial-placement
+    const text = control.querySelector<HTMLElement>('p');
+    if (!text) throw new Error('Missing selected ship text');
+    await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+    await expect(text.scrollHeight).toBeLessThanOrEqual(text.clientHeight);
     await expect(bounds.left).toBeGreaterThanOrEqual(0);
     await expect(bounds.right).toBeLessThanOrEqual(window.innerWidth);
     await expect(bounds.top).toBeGreaterThanOrEqual(0);
@@ -38,7 +42,9 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
   const working = find('precision');
   const overview = find('grid');
   // regression: battleship-placement-overview-legibility
+  // regression: battleship-round8-spatial-placement
   await expect(overview.width).toBe(224);
+  await expect(overview.height).toBe(overview.width);
   await expect(overview.height).toBeLessThan(working.height);
   await expect(overview.bottom).toBeLessThanOrEqual(window.innerHeight);
   await expect(overview.right).toBeLessThanOrEqual(window.innerWidth);
@@ -90,10 +96,7 @@ export async function repositionEnlargedShip(
   await userEvent.click(
     await page.findByRole('option', { name: 'Destroyer · B2, across' })
   );
-  await userEvent.click(canvas.getByRole('button', { name: 'Placement area' }));
-  await userEvent.click(
-    await page.findByRole('option', { name: 'F–J / 6–10' })
-  );
+  await chooseSetupRegion(canvasElement, 'F–J / 6–10');
   const movedBow = await canvas.findByTestId(
     'custom-game-setup-precision-cell-i7'
   );
@@ -141,12 +144,12 @@ export async function chooseSetupRegion(
   region: string
 ): Promise<void> {
   const canvas = within(root);
-  const control = canvas.getByRole('button', { name: 'Placement area' });
+  const control = canvas.getByRole('button', { name: region });
   const bounds = control.getBoundingClientRect();
   await expect(bounds.top).toBeGreaterThanOrEqual(0);
   await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+  await expect(bounds.width).toBeGreaterThanOrEqual(44);
+  await expect(bounds.height).toBeGreaterThanOrEqual(44);
   await userEvent.click(control);
-  await userEvent.click(
-    await within(root.ownerDocument.body).findByRole('option', { name: region })
-  );
+  await expect(control).toHaveAttribute('aria-pressed', 'true');
 }

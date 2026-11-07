@@ -47,6 +47,13 @@ function board(options: {
 }
 const own = (cell: string) => byTestId(`board-own-${cell}`);
 const target = (cell: string) => byTestId(`board-target-${cell}`);
+const aim = (cell: string) => {
+  const area =
+    Number(cell.charAt(0) >= 'f') +
+    Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+  fireEvent.click(byTestId(`board-area-${area}`));
+  fireEvent.click(byTestId(`board-aim-${cell}`));
+};
 
 test('the own grid shows the viewer’s fleet from its setup and the shots fired at it', () => {
   expect(acceptFleet(FLEET)).toBe(FLEET);
@@ -106,16 +113,16 @@ test('interactive targets fire through onAction and wait, aiming, for the outcom
   expect(target('e5').getAttribute('aria-disabled')).toBe('false');
   expect(target('e5').getAttribute('aria-label')).toBe('Fire at E5');
   expect(target('a1').getAttribute('aria-disabled')).toBe('true');
-  fireEvent.click(target('a1'));
+  aim('a1');
   expect(view.actions).toEqual([]);
-  fireEvent.click(target('e5'));
+  aim('e5');
   expect(view.actions).toEqual([]);
   expect(byTestId('board-fire').textContent).toContain('Fire at E5');
   fireEvent.click(byTestId('board-fire'));
   expect(view.actions).toEqual(['e5']);
   expect(target('e5').getAttribute('data-emphasis')).toBe('pending');
   expect(target('e5').getAttribute('aria-disabled')).toBe('true');
-  fireEvent.click(target('e5'));
+  aim('e5');
   expect(view.actions).toEqual(['e5']);
   view.setPosition(
     encodeBattleshipPosition([

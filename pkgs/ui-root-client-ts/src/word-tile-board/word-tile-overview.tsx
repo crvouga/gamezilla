@@ -51,20 +51,21 @@ export function WordTileOverview(props: {
       />
       <div class={styles['tools']}>
         {props.controls}
-        <P variant="caption">{props.position}</P>
+        <P variant="caption">{t`Current square: ${props.position}`}</P>
+        <P variant="caption">{t`Outline shows viewing area.`}</P>
         <button
           type="button"
           class={styles['locator']}
           aria-label={t`Board map: locate a square`}
           aria-haspopup="dialog"
           onClick={() => setOpen(true)}
-        >{t`Map`}</button>
+        >{t`Find a square`}</button>
       </div>
       <Show when={open()}>
         <ResponsiveSurface
           visible={open()}
           onClose={() => setOpen(false)}
-          title={t`Board map`}
+          title={t`Find a square on the board`}
           size="medium"
         >
           <P>{t`Choose a square to view on the enlarged board. This does not place a tile.`}</P>

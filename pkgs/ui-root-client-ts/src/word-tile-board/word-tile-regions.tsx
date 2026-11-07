@@ -24,57 +24,64 @@ export function WordTileRegions(props: {
     return { start, end, id: props.board.cells[center]?.id };
   };
   return (
-    <div
-      class={styles['regions']}
-      data-testid={`${props.board.testId}-overview`}
-    >
-      <svg
-        class={styles['overview']}
-        viewBox={`0 0 ${columns()} ${rows()}`}
-        role="img"
-        aria-label={t`Whole board overview; outline shows the enlarged area`}
-        {...dataAttrs({ component: 'WordTileOverview' })}
-      >
-        <For each={props.board.cells}>
-          {(cell, index) => (
-            <rect
-              x={index() % columns()}
-              y={Math.floor(index() / columns())}
-              width="1"
-              height="1"
-              class={styles['square']}
-              data-state={cell.state}
-              data-square={cell.square ?? 'none'}
-            />
-          )}
-        </For>
-        <rect
-          class={styles['window']}
-          data-viewport-indicator="true"
-          x={props.box.x * columns()}
-          y={props.box.y * rows()}
-          width={props.box.width * columns()}
-          height={props.box.height * rows()}
-        />
-      </svg>
+    <div>
+      <p class={styles['region-purpose']}>{t`View an area`}</p>
       <div
-        class={styles['region-buttons']}
-        role="group"
-        aria-label={t`View a board region`}
+        class={styles['regions']}
+        data-testid={`${props.board.testId}-overview`}
       >
-        <For each={Array.from({ length: 9 }, (_, index) => index)}>
-          {(index) => (
-            <button
-              type="button"
-              class={styles['region']}
-              aria-label={t`View ${region(index).start} to ${region(index).end}`}
-              onClick={() => {
-                const id = region(index).id;
-                if (id) props.onLocate(id);
-              }}
-            />
-          )}
-        </For>
+        <svg
+          class={styles['overview']}
+          viewBox={`0 0 ${columns()} ${rows()}`}
+          role="img"
+          aria-label={t`Whole board overview; outline shows the enlarged area`}
+          {...dataAttrs({ component: 'WordTileOverview' })}
+        >
+          <For each={props.board.cells}>
+            {(cell, index) => (
+              <rect
+                x={index() % columns()}
+                y={Math.floor(index() / columns())}
+                width="1"
+                height="1"
+                class={styles['square']}
+                data-state={cell.state}
+                data-square={cell.square ?? 'none'}
+              />
+            )}
+          </For>
+          <rect
+            class={styles['window']}
+            data-viewport-indicator="true"
+            x={props.box.x * columns()}
+            y={props.box.y * rows()}
+            width={props.box.width * columns()}
+            height={props.box.height * rows()}
+          />
+        </svg>
+        <div
+          class={styles['region-buttons']}
+          role="group"
+          aria-label={t`View a board region`}
+        >
+          <For each={Array.from({ length: 9 }, (_, index) => index)}>
+            {(index) => (
+              <button
+                type="button"
+                class={styles['region']}
+                aria-label={t`View ${region(index).start} to ${region(index).end}`}
+                onClick={() => {
+                  const id = region(index).id;
+                  if (id) props.onLocate(id);
+                }}
+              >
+                <span class={styles['direction']} aria-hidden="true">
+                  {['↖', '↑', '↗', '←', '•', '→', '↙', '↓', '↘'][index]}
+                </span>
+              </button>
+            )}
+          </For>
+        </div>
       </div>
     </div>
   );

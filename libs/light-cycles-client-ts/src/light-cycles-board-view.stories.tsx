@@ -244,6 +244,7 @@ export const QuadSteering: Story = {
   ...SteerUp,
   play: async (context) => {
     await playerBounds(context);
+    await quadIdentityLines(context.canvasElement);
     await SteerUp.play?.(context);
   },
   render: (args, context) => interactiveRender(4, ['white'])(args, context),
@@ -404,3 +405,23 @@ export const SharedSwipe: Story = {
     await sharedSwipe(canvasElement);
   },
 };
+
+/** Four riders retain one line per identity and counter before steering. */
+async function quadIdentityLines(canvas: HTMLElement) {
+  const rail = canvas.querySelector(
+    '[data-component="GameSessionParticipants"]'
+  );
+  if (!rail) throw new Error('Missing participant rail');
+  const labels = rail.querySelectorAll(
+    '.textLabel, [data-component="GameSeatStat"]'
+  );
+  await expect(labels.length).toBeGreaterThanOrEqual(8);
+  for (const label of labels) {
+    const range = label.ownerDocument.createRange();
+    range.selectNodeContents(label);
+    const tops = new Set(
+      Array.from(range.getClientRects(), (rect) => Math.round(rect.top))
+    );
+    await expect(tops.size).toBe(1);
+  }
+}

@@ -80,8 +80,9 @@ describe('Battleship automation', () => {
     } as unknown as Parameters<typeof battleshipAutomation.perform>[0];
     await battleshipAutomation.perform(ui, 'board', 'e5');
     expect(calls).toEqual([
-      'board-target-e5 wait enabled',
-      'board-target-e5 key enter',
+      'board-area-4 key enter',
+      'board-aim-e5 wait enabled',
+      'board-aim-e5 key enter',
       'board-fire wait enabled',
       'board-fire key enter',
     ]);

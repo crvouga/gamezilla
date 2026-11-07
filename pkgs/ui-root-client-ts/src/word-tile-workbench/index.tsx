@@ -140,3 +140,5 @@ export function WordTileLetterChoices(props: {
     </div>
   );
 }
+
+export { WordTileBlankContext } from './word-tile-blank-context';

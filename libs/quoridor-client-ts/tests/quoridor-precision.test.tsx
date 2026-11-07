@@ -76,16 +76,17 @@ test('opening destinations and d4 wall anchor have precise coordinate choices', 
 });
 
 test('wall modes, target and confirmation share the working board container', () => {
+  // regression: quoridor-split-wall-editing
   // regression: quoridor-detached-wall-controls
   const { view } = mountBoard();
   const board = view.getByTestId('precision');
-  expect(board.previousElementSibling).toBe(
-    view.getByTestId('precision-tools')
-  );
+  expect(board.nextElementSibling).toBe(view.getByTestId('precision-tools'));
   expect(
-    board.nextElementSibling?.contains(
-      view.getByTestId('precision-precise-target')
-    )
+    view
+      .getByTestId('precision-tools')
+      .nextElementSibling?.contains(
+        view.getByTestId('precision-precise-target')
+      )
   ).toBe(true);
   fireEvent.click(view.getByTestId('precision-mode-h'));
   fireEvent.click(view.getByTestId('precision-action-d4h'));
@@ -119,6 +120,7 @@ test('compact wall labels remain within their spoken control names', () => {
   view.unmount();
 });
 
+// regression: quoridor-wall-start-wording
 // regression: quoridor-wall-coordinate-decoding
 test('d4 search names only its anchor and rotation keeps a persistent wall preview', async () => {
   const { view, actions } = mountBoard();
@@ -129,7 +131,7 @@ test('d4 search names only its anchor and rotation keeps a persistent wall previ
   fireEvent.input(view.getByRole('searchbox'), { target: { value: 'd4' } });
   expect(view.getAllByRole('option')).toHaveLength(1);
   const option = view.getByTestId('precision-precise-d4');
-  expect(option.textContent).toContain('Above d4');
+  expect(option.textContent).toContain('Wall starts above d4');
   fireEvent.click(option);
   fireEvent.pointerLeave(view.getByTestId('precision-action-d4h'));
   for (const cell of ['d4', 'e4'])
@@ -146,7 +148,7 @@ test('d4 search names only its anchor and rotation keeps a persistent wall previ
         .getAttribute('data-preview-edge-right')
     ).toBe('true');
   expect(view.getByTestId('precision-wall-status').textContent).toBe(
-    'Right of d4. Preview only. Place wall to confirm.'
+    'Wall starts to the right of d4. Preview only. Place wall to confirm.'
   );
   expect(actions).toEqual([]);
   fireEvent.click(view.getByTestId('precision-wall-commit'));

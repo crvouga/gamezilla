@@ -142,6 +142,34 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
   };
 }
 
+function PuzzleBlank(props: {
+  state: Pick<
+    ReturnType<typeof createPuzzleBoard>,
+    'candidate' | 'setCandidate' | 'cells' | 'target' | 'editable'
+  >;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.state.editable() && props.state.candidate().blankAt !== null}
+    >
+      <WordTilesBlankChooser
+        testId="word-tiles-puzzle"
+        cells={props.state.cells()}
+        index={props.state.candidate().blankAt ?? 0}
+        summary={t`Target: ${props.state.target()} points`}
+        onCancel={() =>
+          props.state.setCandidate((c) =>
+            c.blankAt === null ? c : pressCell(c, c.blankAt)
+          )
+        }
+        onChoose={(letter) =>
+          props.state.setCandidate((c) => assignBlank(c, letter))
+        }
+      />
+    </Show>
+  );
+}
+
 function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
   const {
     submit,
@@ -171,15 +199,13 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
         onRetryLexicon={props.onRetryLexicon}
       />
       <Show when={!complete()}>
-        <Show when={editable() && candidate().blankAt !== null}>
-          <WordTilesBlankChooser
-            testId="word-tiles-puzzle"
-            onChoose={(letter) => setCandidate((c) => assignBlank(c, letter))}
-          />
-        </Show>
+        <PuzzleBlank
+          state={{ candidate, setCandidate, cells, target, editable }}
+        />
         <Show when={showPreview()}>
           <PuzzlePlacementFeedback
             preview={preview()}
+            target={target()}
             hasPlacement={
               candidate().placed.length > 0 && candidate().blankAt === null
             }

@@ -291,6 +291,7 @@ export const RecallAndRestore: Story = {
 export const AssignABlank: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await checkInitialWordWorkspace(canvasElement);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-rack-98')
     );
