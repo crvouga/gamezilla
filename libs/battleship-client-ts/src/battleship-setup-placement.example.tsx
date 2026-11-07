@@ -26,12 +26,18 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
     return element.getBoundingClientRect();
   };
   for (const label of ['Ship to place']) {
-    const control = root.querySelector<HTMLElement>(`[aria-label="${label}"]`);
+    const control = root.querySelector<HTMLElement>(
+      `button[aria-label^="${label}:"]`
+    );
     if (!control) throw new Error(`Missing ${label}`);
     const bounds = control.getBoundingClientRect();
     // regression: battleship-round8-spatial-placement
     const text = control.querySelector<HTMLElement>('p');
     if (!text) throw new Error('Missing selected ship text');
+    // regression: battleship-ship-picker-label-in-name
+    await expect(control).toHaveAccessibleName(
+      `Ship to place: ${text.textContent}`
+    );
     await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
     await expect(text.scrollHeight).toBeLessThanOrEqual(text.clientHeight);
     await expect(bounds.left).toBeGreaterThanOrEqual(0);
@@ -92,7 +98,9 @@ export async function repositionEnlargedShip(
 ): Promise<void> {
   const canvas = within(canvasElement);
   const page = within(canvasElement.ownerDocument.body);
-  await userEvent.click(canvas.getByRole('button', { name: 'Ship to place' }));
+  await userEvent.click(
+    canvas.getByRole('button', { name: /^Ship to place:/ })
+  );
   await userEvent.click(
     await page.findByRole('option', { name: 'Destroyer · B2, across' })
   );

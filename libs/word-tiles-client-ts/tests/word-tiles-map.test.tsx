@@ -16,10 +16,9 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 
-// regression: word-tiles-overview-unreadable-context
-test('fifteen-column CAT/TOE board map locates a remote intersection without consuming a selected tile', () => {
+function renderMap() {
   const { clock, timers } = createHarnessClock();
-  const view = render(() => (
+  return render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <ThemeProvider
         colorScheme="dark"
@@ -51,6 +50,11 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
       </ThemeProvider>
     </ClockProvider>
   ));
+}
+
+// regression: word-tiles-overview-unreadable-context
+test('fifteen-column CAT/TOE board map locates a remote intersection without consuming a selected tile', () => {
+  const view = renderMap();
   const rack = view.getByTestId('map-fixture-rack-11');
   fireEvent.click(rack);
   expect(
@@ -76,7 +80,7 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
   ).toBe('empty');
   expect(view.queryByRole('dialog')).toBeNull();
   const trigger = view.getByRole('button', {
-    name: 'Board map: locate a square',
+    name: 'Find a square',
   });
   trigger.focus();
   fireEvent.click(trigger);
@@ -101,4 +105,16 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
   });
   expect(document.activeElement).toBe(trigger);
   expect(view.queryByRole('dialog')).toBeNull();
+});
+
+// regression: word-tiles-map-label-in-name
+test('CAT/TOE board locator announces its visible Find a square label', () => {
+  const view = renderMap();
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  const trigger = view.getByText('Find a square');
+  expect(trigger).toHaveAccessibleName('Find a square');
+  fireEvent.click(trigger);
+  expect(view.getByRole('dialog')).toHaveAccessibleName(
+    'Find a square on the board'
+  );
 });

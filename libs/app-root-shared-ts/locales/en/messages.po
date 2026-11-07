@@ -1447,10 +1447,6 @@ msgstr "Blue"
 msgid "Blue fleet"
 msgstr "Blue fleet"
 
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
-msgid "Board map: locate a square"
-msgstr "Board map: locate a square"
-
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "Board preview"
 msgstr "Board preview"

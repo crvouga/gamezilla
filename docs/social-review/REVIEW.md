@@ -422,3 +422,40 @@ The critic inspected and approved all 12 unique Your turn, Accepted pass and
 Accepted exchange capture pairs. All 21 browser checks then passed without
 snapshot updates. Existing UI behavior is unchanged; automation now reaches
 its secondary actions through the disclosure.
+
+## Round twenty-three Battleship spoken selection
+
+The full catalog found that the ship picker's field-only name hid its visible
+selected ship from assistive technology. The picker now derives purpose and
+full selection from the same reactive options, including placed coordinates,
+orientation and the final repositioning prompt. Its literal regression failed
+before the fix and passes through all six selection states. All 45 client
+tests and 69 Battleship specs pass, along with owning lint/typechecks, goals
+and localization checks. Existing geometry, placement and locking checks stay.
+
+The critic approved the fix and individually reviewed all 32 unique reference
+comparisons represented by 39 screenshot failures. Only those approved
+references were adopted. Four enlarged-placement before/after captures are
+byte-identical; the before build was existing static output, not a verified
+base-commit build. Overall ratings remain 10/9/9/10 pending full verification.
+
+## Round twenty-four Word Tiles spoken locator
+
+The same accessibility partition exposed a second label-in-name violation:
+visible “Find a square” was overridden by “Board map: locate a square.”
+Removing that override gives the native button its visible name and preserves
+its dialog behavior. A literal CAT/TOE regression proved red (33 pass, one
+fail) and green (34 pass). The existing map, retained-rack, keyboard-focus
+and geometry assertions remain intact. The shared UI client passes 139 tests.
+Both packages' lint/typechecks pass; the original partition, goals and i18n
+checks also pass. The obsolete translation entry was removed.
+
+The critic approved the source changes and retained overall ratings of
+10/9/9/10. The fresh build passed, followed by all 60 focused browser checks without
+snapshot updates: 46 Battleship and 14 Word Tiles checks. Four Word Tiles
+reference screenshots matched the new run unchanged. Full verification
+remains required; focused results alone do not establish full readiness.
+
+The critic approved all four matched Word Tiles references individually,
+with readable locator text, visible focus and intact board navigation. Both
+rounds are approved within scope; overall ratings remain 10/9/9/10.
