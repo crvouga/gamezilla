@@ -12,6 +12,7 @@ import {
   signInWithGoogleAsAccount,
   signOut,
 } from '@libs/harness-ts/auth-actions';
+import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   signedInAccountOf as readAccount,
   signedInAccountOf,
@@ -52,7 +53,12 @@ export const reviewDeletion = scenarioAction({
   name: 'reviewDeletion',
   act: async (s, actor: string) => {
     await Promise.resolve(openPrivacy.act(s, actor));
-    await (await actorUi(s, actor)).get('privacy-delete-review').tap();
+    await choosePrivacyControl(
+      s,
+      actor,
+      'privacy-delete-review',
+      'privacy-delete-access'
+    );
   },
 });
 
@@ -98,10 +104,35 @@ export const askForExport = scenarioAction({
   name: 'askForExport',
   act: async (s, actor: string) => {
     await Promise.resolve(openPrivacy.act(s, actor));
-    await (await actorUi(s, actor)).get('privacy-export-request').tap();
+    await choosePrivacyControl(
+      s,
+      actor,
+      'privacy-export-request',
+      'privacy-export-access'
+    );
     await s.session.waitForIdle();
   },
 });
+
+/** A policy refusal replaces the action; observe it without inventing a click. */
+async function choosePrivacyControl(
+  s: ProductHarness,
+  actor: string,
+  control: string,
+  denial: string
+): Promise<void> {
+  const ui = await actorUi(s, actor);
+  const available = await pollUntil(
+    s,
+    async () => {
+      if (await ui.get(control).isVisible()) return 'allowed';
+      if (await ui.get(denial).isVisible()) return 'denied';
+      return null;
+    },
+    { maxMs: 5_000, description: `${control} or its permission explanation` }
+  );
+  if (available === 'allowed') await ui.get(control).tap();
+}
 
 /** Answer the warning before a ready export is replaced: ask for a new one. */
 export const confirmExportReplacement = scenarioAction({

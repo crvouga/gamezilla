@@ -155,3 +155,15 @@ status; it asserts that the direct request is absent before proof is renewed.
 Product and permission policy are unchanged. The regression, all six cases in
 the affected profile shard, lint, typechecks and goals pass. The independent
 critic approved the correction; scores remain 10/9/9/10 pending the full gate.
+
+## Round ten current permission denials
+
+Old-proof deletion exposed the same hidden-control assumption in action helpers.
+Privacy actions now wait for either their actual visible control or their specific
+visible policy refusal, and only click an available control. Refusal observations
+accept the current-access or post-submit surface while retaining required copy
+and rejecting notices obscured by a modal. A registered old-proof regression
+requires unchanged identity, an Active server account and no erasure deadline.
+All 121 tests across 22 profile spec shards, all 14 package tests and the six
+owning checks pass. No product or policy change was needed. The critic found
+no weakened assertion; scores remain 10/9/9/10 pending full verification.
