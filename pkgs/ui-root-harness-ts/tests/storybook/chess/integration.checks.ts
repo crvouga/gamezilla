@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import {
+  captureAssistiveActivation,
+  capturePromotion,
+} from './assistive-evidence';
+import {
   captureChessState,
   measureChessInput,
   openChessStory,
@@ -24,6 +28,18 @@ for (const width of [390, 768, 1440]) {
   for (const theme of ['light', 'dark']) {
     test.describe(`chess ${width} ${theme}`, () => {
       test.use({ viewport: { width, height: 900 } });
+
+      test('storybook integration: chess assistive activation evidence', async ({
+        page,
+      }, info) => {
+        await captureAssistiveActivation(page, info, theme);
+      });
+
+      test('storybook integration: chess promotion and cancellation evidence', async ({
+        page,
+      }, info) => {
+        await capturePromotion(page, info, theme);
+      });
 
       for (const id of states) {
         test(`storybook integration: ${id} evidence`, async ({
