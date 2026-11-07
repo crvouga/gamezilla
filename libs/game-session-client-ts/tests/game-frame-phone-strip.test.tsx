@@ -284,3 +284,31 @@ test('phone: a two-move turn keeps one line in the strip’s well', () => {
     /column-gap: var\(--ui-space-2\);/
   );
 });
+
+// regression: completed-game-outcome-reason-missing
+test('completed game keeps the resignation reason in its completion header', () => {
+  const time = createHarnessClock();
+  const frame = props(false);
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameFrameScreenView
+          {...frame}
+          phase="completed"
+          status={{
+            ...frame.status!,
+            description: 'Black wins by resignation.',
+          }}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const status = screen.getByTestId('custom-game-status');
+  expect(status.textContent).toContain('Black wins by resignation.');
+  expect(
+    screen.getByTestId('custom-game-completion-lead').contains(status)
+  ).toBe(true);
+});

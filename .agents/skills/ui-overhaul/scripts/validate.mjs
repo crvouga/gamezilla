@@ -7,12 +7,22 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { evaluateRound, initRun, readSession, renderPrompt, VERDICT } from './council-round.mjs';
+import {
+  evaluateRound,
+  initRun,
+  readSession,
+  renderPrompt,
+  VERDICT,
+} from './council-round.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = resolve(here, '..', 'fixtures');
 const skill = resolve(here, '..').split(/[\\/]/).at(-1);
-const exitCodes = { [VERDICT.pass]: 0, [VERDICT.anotherRound]: 2, [VERDICT.incomplete]: 3 };
+const exitCodes = {
+  [VERDICT.pass]: 0,
+  [VERDICT.anotherRound]: 2,
+  [VERDICT.incomplete]: 3,
+};
 
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -24,9 +34,12 @@ function load(name) {
     skill,
     roster: spec.roster.join(','),
     minimum: spec.minimum,
-    product: 'a fixture app'
+    product: 'a fixture app',
   });
-  const round = { ...readJson(join(dir, 'round.json')), configSha256: run.configSha256 };
+  const round = {
+    ...readJson(join(dir, 'round.json')),
+    configSha256: run.configSha256,
+  };
   return { dir, spec, run, round, opinions: readSession(join(dir, 'session')) };
 }
 
@@ -41,14 +54,20 @@ function expect(label, actual, expected, finished) {
     ok,
     expected,
     got: actual.verdict,
-    reasons: [...actual.incomplete, ...actual.failing]
+    reasons: [...actual.incomplete, ...actual.failing],
   });
 }
 
 const cases = readdirSync(fixtures).sort();
 for (const name of ['unanimous-pass', 'below-threshold', 'missing-reviewer']) {
   if (!cases.includes(name))
-    results.push({ label: name, ok: false, expected: 'fixture', got: 'missing', reasons: [] });
+    results.push({
+      label: name,
+      ok: false,
+      expected: 'fixture',
+      got: 'missing',
+      reasons: [],
+    });
 }
 
 for (const name of cases) {
@@ -71,7 +90,7 @@ for (const name of cases) {
       '--session',
       join(dir, 'session'),
       '--format',
-      'markdown'
+      'markdown',
     ],
     { encoding: 'utf8' }
   );
@@ -84,7 +103,7 @@ for (const name of cases) {
     ok: cli.status === exitCodes[spec.expectedVerdict] && tableOk,
     expected: exitCodes[spec.expectedVerdict],
     got: cli.status,
-    reasons: cli.stderr ? [cli.stderr.trim()] : []
+    reasons: cli.stderr ? [cli.stderr.trim()] : [],
   });
 }
 
@@ -192,7 +211,7 @@ try {
     ok: !/\{\{[A-Z_]+\}\}/.test(renderPrompt(base.run, base.round)),
     expected: 'filled',
     got: 'filled',
-    reasons: []
+    reasons: [],
   });
 } catch (error) {
   results.push({
@@ -200,7 +219,7 @@ try {
     ok: false,
     expected: 'filled',
     got: String(error),
-    reasons: []
+    reasons: [],
   });
 }
 
@@ -208,7 +227,9 @@ for (const result of results) {
   process.stdout.write(
     `${result.ok ? 'ok  ' : 'FAIL'} ${result.label}: expected ${result.expected}, got ${result.got}\n`
   );
-  if (!result.ok) for (const reason of result.reasons) process.stdout.write(`       ${reason}\n`);
+  if (!result.ok)
+    for (const reason of result.reasons)
+      process.stdout.write(`       ${reason}\n`);
 }
 const failed = results.filter((result) => !result.ok).length;
 process.stdout.write(

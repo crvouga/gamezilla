@@ -1,0 +1,4 @@
+{
+  "summary": "Realm termination promises were not awaited before releasing ownership.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/termination.test.ts"
+}

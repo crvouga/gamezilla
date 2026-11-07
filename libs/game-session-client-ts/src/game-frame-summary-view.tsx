@@ -42,6 +42,7 @@ export function FrameCompletionLead(
           caption={props.result?.note ?? undefined}
           dataSet={{ testid: 'custom-game-result-headline' }}
         />
+        <FrameStatusView status={props.status} />
         <FrameNextActions
           next={props.next}
           onChoose={props.onChoose}

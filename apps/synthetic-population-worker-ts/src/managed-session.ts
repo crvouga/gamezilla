@@ -120,8 +120,8 @@ export class ManagedSession {
       });
     } else if (message.type === 'closed') {
       // The realm confirms its application roots and transports have stopped.
-      this.stopRealm();
       try {
+        await this.stopRealm();
         await rpc.release.$post({ json });
       } finally {
         this.ports.onClose();
@@ -131,14 +131,18 @@ export class ManagedSession {
   /** Forced stops leave leases to expire; an uncertain close never releases early. */
   abort(): void {
     if (this.closed) return;
-    this.stopRealm();
+    this.stopRealm().catch((error: unknown) => {
+      this.ports.log.error('Synthetic User termination failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
     this.ports.onClose();
   }
-  private stopRealm(): void {
+  private async stopRealm(): Promise<void> {
     this.closed = true;
     this.ports.timers.clearTimeout(this.expiryTimer);
     this.unsubscribe();
     this.unsubscribeError();
-    this.ports.thread.terminate();
+    await this.ports.thread.terminate();
   }
 }
