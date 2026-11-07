@@ -146,3 +146,31 @@ test('screens-games-quoridor-classic--precise-coordinates regression quoridor-de
   if (!scenario) throw new Error('Missing desktop light scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
+
+// regression: word-tiles-empty-premium-label-contrast
+test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-empty-premium-label-contrast light', async ({
+  page,
+}) => {
+  const story =
+    index.entries['screens-games-word-tiles-board--enlarged-coordinates'];
+  if (!story) throw new Error('Missing literal premium-label regression story');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 390 && item.theme === 'light'
+  );
+  if (!scenario) throw new Error('Missing literal phone scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});
+
+// regression: word-tiles-empty-premium-label-contrast
+test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-empty-premium-label-contrast dark', async ({
+  page,
+}) => {
+  const story =
+    index.entries['screens-games-word-tiles-board--enlarged-coordinates'];
+  if (!story) throw new Error('Missing literal premium-label regression story');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 390 && item.theme === 'dark'
+  );
+  if (!scenario) throw new Error('Missing literal phone scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});

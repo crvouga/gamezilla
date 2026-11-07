@@ -219,7 +219,7 @@
 
 .cell[data-state="empty"][data-square]:not([data-square="none"]) {
   background: var(--ui-color-game-word-tiles-surface);
-  color: var(--ui-color-game-word-tiles-ink);
+  color: var(--ui-color-board-card-ink);
 }
 .square {
   font-weight: 400;
