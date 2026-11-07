@@ -1,10 +1,12 @@
 // @io-wall-ok — test-owned static Storybook server; Playwright owns cleanup
 import { resolve, sep } from 'node:path';
+import { storybookTestNetwork } from './network';
 
 const root = resolve(import.meta.dirname, '../.cache/storybook');
+const network = storybookTestNetwork(process.env);
 Bun.serve({
-  hostname: '127.0.0.1',
-  port: 6007,
+  hostname: network.host,
+  port: network.port,
   async fetch(request) {
     const path = resolve(
       root,
