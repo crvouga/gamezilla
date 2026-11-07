@@ -93,3 +93,16 @@ so preview infrastructure is classified correctly without weakening the boundary
 The rebuilt coverage gate reports 990 UI exports, 262 story files and zero
 violations; owning artifact tests and all 28 responsive comparisons pass.
 The critic retains 10/9/9/10 until full verification completes successfully.
+
+## Round five regression proof
+
+Full verification next stopped at five inherited regression registrations that
+only supplied loop-generated tests. Each now has a marked module-scope literal
+reproduction, sharing unchanged assertions with the retained viewport/theme
+matrices. Running those matrices also exposed the old 46-character friend-name
+expectation; it now matches the valid 32-character wide-name fixture, with heading
+containment and header non-overlap assertions preserved.
+
+All 71 affected browser cases pass, along with goals, lint and typecheck. The
+independent critic found no weakened assertions or new product blockers; scores
+remain 10/9/9/10 pending the complete gate.
