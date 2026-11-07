@@ -186,7 +186,9 @@ export const LetterKeyRecovery: Story = {
       'data-moves',
       '0'
     );
-    await expect(canvas.queryByTestId('sokoban-solved')).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('sokoban-solved')
+    ).not.toBeInTheDocument();
   },
 };
 
