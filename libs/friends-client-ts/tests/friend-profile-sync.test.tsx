@@ -24,7 +24,7 @@ function profileProbe(initialStatus: Partial<SyncEngineStatus> = {}) {
   const listeners = new Set<(value: SyncEngineStatus) => void>();
   const subscriptions: { resolve: () => void; closed: boolean }[] = [];
   let refreshes = 0;
-  let rows: readonly ProfileRow[] = [];
+  let rows: readonly (ProfileRow & { deleted_at?: string | null })[] = [];
   const rowListeners = new Set<() => void>();
   const engine = {
     watch: () => ({
@@ -95,7 +95,9 @@ function profileProbe(initialStatus: Partial<SyncEngineStatus> = {}) {
     subscriptions,
     unmount: view.unmount,
     refreshes: () => refreshes,
-    setRows: (next: readonly ProfileRow[]) => {
+    setRows: (
+      next: readonly (ProfileRow & { deleted_at?: string | null })[]
+    ) => {
       rows = next;
       for (const listener of rowListeners) listener();
     },
@@ -176,4 +178,32 @@ test('a profile returned by the first response becomes available and survives di
   probe.setStatus({ online: false, lastError: 'Connection unavailable' });
   expect(probe.state.unreachable()).toBe(false);
   expect(probe.state.profile().username).toBe('alice_plays');
+});
+
+// regression: friend-deleted-profile-explanation-lost
+test('a synced tombstone identifies deletion without exposing the old identity', async () => {
+  const probe = profileProbe();
+  probe.setRows([
+    {
+      id: 'alice',
+      username: 'former_name',
+      avatar_config: 'former_avatar',
+      created_at: null,
+      username_changed_at: null,
+      account_kind: null,
+      deleted_at: '2026-11-07T00:00:00.000Z',
+    },
+  ]);
+  expect(probe.state.deleted()).toBe(false);
+  expect(probe.state.loading()).toBe(true);
+  probe.subscriptions[0]?.resolve();
+  await waitFor(() => expect(probe.state.deleted()).toBe(true));
+  expect(probe.state.profile()).toEqual({
+    userId: 'alice',
+    username: '',
+    avatarConfig: null,
+  });
+  probe.setRows([]);
+  expect(probe.state.deleted()).toBe(false);
+  expect(probe.state.unavailable()).toBe(true);
 });

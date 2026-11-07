@@ -9,6 +9,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
@@ -23,6 +24,7 @@ export type FriendUserPresence =
   | 'loading'
   | 'unreachable'
   | 'unavailable'
+  | 'deleted'
   | 'shown';
 
 /** The identity block of another person's profile, in every state it can be in. */
@@ -56,16 +58,30 @@ export function FriendUserIdentity(props: {
           dataSet={{ testid: 'friend-profile-load-error' }}
         />
       </Match>
-      <Match when={props.presence === 'unavailable'}>
+      <Match
+        when={props.presence === 'unavailable' || props.presence === 'deleted'}
+      >
         <EmptyState
           variant="compact"
           icon={UserIcon}
-          title={<Trans>Profile unavailable</Trans>}
+          title={
+            props.presence === 'deleted' ? (
+              <Trans>Account deleted</Trans>
+            ) : (
+              <Trans>Profile unavailable</Trans>
+            )
+          }
           body={
-            <Trans>
-              This profile is no longer available. Return to Friends to find
-              someone else.
-            </Trans>
+            <>
+              {props.presence === 'deleted' ? (
+                <Trans>This account was deleted.</Trans>
+              ) : (
+                <Trans>This profile is no longer available.</Trans>
+              )}{' '}
+              <TextLink href="/profile/friends">
+                <Trans>Return to Friends</Trans>
+              </TextLink>
+            </>
           }
           dataSet={{ testid: 'friend-profile-unavailable' }}
         />

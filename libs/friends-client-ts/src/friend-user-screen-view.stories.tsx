@@ -67,8 +67,32 @@ export const Loading: Story = { args: { presence: 'loading' } };
 /** This device has never synced and the last attempt failed; retry asks again. */
 export const Unreachable: Story = { args: { presence: 'unreachable' } };
 
-/** The account was deleted: the profile says so instead of showing nobody. */
+/** The requested profile does not exist after its scope has answered. */
 export const Unavailable: Story = { args: { presence: 'unavailable' } };
+
+/** A synced tombstone explains why this profile cannot be opened. */
+export const Deleted: Story = {
+  args: {
+    presence: 'deleted',
+    profile: { userId: MORGAN_ID, username: '', avatarConfig: null },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('This account was deleted.')).toBeVisible();
+    await expect(
+      canvas.queryByText(/morgan|5a1e0000/i)
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole('heading', { name: 'Account deleted', level: 1 })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('link', { name: 'Return to Friends' })
+    ).toHaveAttribute('href', '/profile/friends');
+    await expect(
+      canvas.queryByRole('button', { name: 'Add friend' })
+    ).not.toBeInTheDocument();
+  },
+};
 
 /** A request is out: one Cancel request control. */
 export const RequestSent: Story = { args: { status: 'pending_outgoing' } };

@@ -271,3 +271,18 @@ test('storybook integration: literal initial loading cannot save unknown configu
     })
   ).toBeDisabled();
 });
+
+// regression: friend-profile-unavailable-recovery-missing
+test('storybook integration: a deleted profile has a readable heading and direct Friends recovery', async ({
+  page,
+}) => {
+  await open(page, 'screens-friends-user--deleted', 390, 'light');
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Account deleted' })
+  ).toBeVisible();
+  await expect(page.getByText(/morgan|5a1e0000/i)).toHaveCount(0);
+  await expect(
+    page.getByRole('link', { name: 'Return to Friends' })
+  ).toHaveAttribute('href', '/profile/friends');
+  await expect(page.getByRole('button', { name: 'Add friend' })).toHaveCount(0);
+});

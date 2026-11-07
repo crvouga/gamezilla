@@ -77,14 +77,20 @@ function useHeaderActions(props: FriendUserScreenViewProps) {
 function FriendUserProfileView(props: FriendUserScreenViewProps): JSX.Element {
   const moderation = useModeration();
   const headerActions = useHeaderActions(props);
+  const heading = () => {
+    if (props.presence === 'deleted') return <Trans>Account deleted</Trans>;
+    if (props.presence === 'unavailable')
+      return <Trans>Profile unavailable</Trans>;
+    return friendUserBreadcrumbName(
+      moderation(),
+      props.profile,
+      props.profile.userId
+    );
+  };
   const breadcrumbs = createMemo(() => [
     { name: <Trans>Profile</Trans>, href: '/profile' },
     {
-      name: friendUserBreadcrumbName(
-        moderation(),
-        props.profile,
-        props.profile.userId
-      ),
+      name: heading(),
     },
   ]);
   return (

@@ -167,3 +167,22 @@ requires unchanged identity, an Active server account and no erasure deadline.
 All 121 tests across 22 profile spec shards, all 14 package tests and the six
 owning checks pass. No product or policy change was needed. The critic found
 no weakened assertion; scores remain 10/9/9/10 pending full verification.
+
+## Round eleven deleted profiles and recovery
+
+Full verification found a regression introduced here: generic unavailability
+removed the deleted-account explanation. The profile read now distinguishes a
+synced tombstone from an absent row. Only a tombstone after the profile's first
+answer yields the deletion message; old identity fields are suppressed.
+
+The critic first held an inaccurate fixture, then identified a raw-ID heading
+and missing Friends action in the corrected captures, lowering scores to 9/9/9/9.
+Deleted and unavailable profiles now have readable headings and a direct Friends
+link. Browser assertions pin the heading, destination, identity redaction and
+absence of an Add friend action. The critic approved all eight final captures
+and returned to 10/9/9/10 pending full verification. The initial held captures
+were not accepted as baselines.
+
+Final round-eleven checks: 36 friends-client tests, 14 affected spec cases,
+17 browser comparisons and owning lint/typechecks/goals pass. Coverage reports
+zero violations. Full verification is still required.

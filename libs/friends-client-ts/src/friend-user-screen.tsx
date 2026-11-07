@@ -30,6 +30,7 @@ function useFriendUserPresence(
   return () => {
     if (userProfile.unreachable()) return 'unreachable';
     if (userProfile.loading()) return 'loading';
+    if (userProfile.deleted()) return 'deleted';
     if (!userProfile.unavailable()) return 'shown';
     return 'unavailable';
   };
