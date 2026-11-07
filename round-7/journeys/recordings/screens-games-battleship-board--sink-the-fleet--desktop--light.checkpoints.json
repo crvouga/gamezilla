@@ -1,0 +1,1600 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [9] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [11] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [13] toBeLessThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [15] toBeLessThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [17] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [19] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [21] toBeLessThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [25] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [27] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [29] toBeLessThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [31] toBeLessThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [33] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [35] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [37] toBeLessThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [41] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [43] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [45] toBeLessThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [47] toBeLessThanOrEqual"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [49] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [51] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [53] toBeLessThanOrEqual"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [55] toBeLessThanOrEqual"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [57] toHaveLength"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [59] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 60,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [61] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [63] toBeLessThanOrEqual"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [65] toBeLessThanOrEqual"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [67] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [69] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [71] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [73] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [75] toBeLessThanOrEqual"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [77] toBeLessThanOrEqual"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [79] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [81] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [83] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [87] toBeLessThanOrEqual"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [89] toBeLessThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [91] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 92,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [93] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 94,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [95] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 96,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [97] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 98,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [99] toBeLessThanOrEqual"
+    ],
+    "cursor": 100,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [101] toBeLessThanOrEqual"
+    ],
+    "cursor": 102,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [103] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 104,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [105] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [107] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 108,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [109] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [111] toBeLessThanOrEqual"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [113] toBeLessThanOrEqual"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [115] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [117] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [119] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [121] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [123] toBeLessThanOrEqual"
+    ],
+    "cursor": 124,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [125] toBeLessThanOrEqual"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [127] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [129] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 130,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [131] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 132,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [133] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [135] toBeLessThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [137] toBeLessThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [139] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [141] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [143] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [145] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [147] toBeLessThanOrEqual"
+    ],
+    "cursor": 148,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [149] toBeLessThanOrEqual"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [151] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 152,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [153] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [157] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [159] toBeLessThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [161] toBeLessThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [163] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 164,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [165] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [167] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [169] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 170,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [171] toBeLessThanOrEqual"
+    ],
+    "cursor": 172,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [173] toBeLessThanOrEqual"
+    ],
+    "cursor": 174,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [175] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 176,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [177] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 178,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [179] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 180,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [181] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [183] toBeLessThanOrEqual"
+    ],
+    "cursor": 184,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [185] toBeLessThanOrEqual"
+    ],
+    "cursor": 186,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [187] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 188,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [189] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 190,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [191] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 192,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [193] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 194,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [195] toBeLessThanOrEqual"
+    ],
+    "cursor": 196,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [197] toBeLessThanOrEqual"
+    ],
+    "cursor": 198,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [199] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 200,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [201] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 202,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [203] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 204,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [205] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 206,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [207] toBeLessThanOrEqual"
+    ],
+    "cursor": 208,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [209] toBeLessThanOrEqual"
+    ],
+    "cursor": 210,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [211] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 212,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [213] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 214,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [215] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 216,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [217] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 218,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [219] toBeLessThanOrEqual"
+    ],
+    "cursor": 220,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [221] toBeLessThanOrEqual"
+    ],
+    "cursor": 222,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [223] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 224,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [225] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 226,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [227] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 228,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [229] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 230,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [231] toBeLessThanOrEqual"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [233] toBeLessThanOrEqual"
+    ],
+    "cursor": 234,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [235] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 236,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [237] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [239] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 240,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [241] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 242,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [243] toBeLessThanOrEqual"
+    ],
+    "cursor": 244,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [245] toBeLessThanOrEqual"
+    ],
+    "cursor": 246,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [247] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 248,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [249] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 250,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [251] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 252,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [253] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 254,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [255] toBeLessThanOrEqual"
+    ],
+    "cursor": 256,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [257] toBeLessThanOrEqual"
+    ],
+    "cursor": 258,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [259] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 260,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [261] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 262,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [263] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 264,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [265] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 266,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [267] toBeLessThanOrEqual"
+    ],
+    "cursor": 268,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [269] toBeLessThanOrEqual"
+    ],
+    "cursor": 270,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [271] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 272,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [273] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 274,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [275] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 276,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [277] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 278,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [279] toBeLessThanOrEqual"
+    ],
+    "cursor": 280,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [281] toBeLessThanOrEqual"
+    ],
+    "cursor": 282,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [283] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 284,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [285] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 286,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [287] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 288,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [289] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 290,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [291] toBeLessThanOrEqual"
+    ],
+    "cursor": 292,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [293] toBeLessThanOrEqual"
+    ],
+    "cursor": 294,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [295] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 296,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [297] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 298,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [299] toBeLessThanOrEqual"
+    ],
+    "cursor": 300,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--024.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [301] click"
+    ],
+    "cursor": 302,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--146.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [304] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 305,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--146.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [306] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 307,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--146.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [308] toBeLessThanOrEqual"
+    ],
+    "cursor": 309,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--146.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [310] toBeLessThanOrEqual"
+    ],
+    "cursor": 311,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--146.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [311] click"
+    ],
+    "cursor": 312,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--151.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [314] click"
+    ],
+    "cursor": 315,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--152.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [316] toHaveAccessibleName"
+    ],
+    "cursor": 317,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--153.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [318] toHaveAttribute"
+    ],
+    "cursor": 319,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--154.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [319] click"
+    ],
+    "cursor": 320,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--155.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [321] toHaveAccessibleName"
+    ],
+    "cursor": 322,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--156.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [324] toBeVisible"
+    ],
+    "cursor": 325,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--157.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-board--sink-the-fleet [327] toHaveAccessibleName"
+    ],
+    "cursor": 328,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--158.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 328,
+    "failures": [],
+    "file": "screens-games-battleship-board--sink-the-fleet--desktop--light--159.png",
+    "capturedFrame": true
+  }
+]

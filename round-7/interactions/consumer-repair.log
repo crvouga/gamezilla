@@ -1,0 +1,44 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/battleship-harness-ts, @libs/battleship-shared-ts
+   • Running lint, tc, test in 3 packages
+   • Remote caching disabled, using shared worktree cache
+
+@libs/battleship-client-ts:lint: cache miss, executing 2b8c9374341d12a6
+@libs/battleship-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@libs/battleship-client-ts:lint: Found 0 warnings and 0 errors.
+@libs/battleship-client-ts:lint: Finished in 783ms on 48 files with 147 rules using 10 threads.
+@libs/battleship-client-ts:lint: libs/battleship-client-ts/src/battleship-setup-precision.tsx:32:8 lint/complexity/noExcessiveLinesPerFunction ━━━━━━━━━━
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   × This function has too many lines (80). Maximum allowed is 70.
+@libs/battleship-client-ts:lint:   
+@libs/battleship-client-ts:lint:      31 │ /** A magnified bow picker; placement still validates against the full fleet. */
+@libs/battleship-client-ts:lint:    > 32 │ export function SetupPrecision(props: {
+@libs/battleship-client-ts:lint:         │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@libs/battleship-client-ts:lint:    > 33 │   setup: SetupController;
+@libs/battleship-client-ts:lint:          ...
+@libs/battleship-client-ts:lint:   > 146 │     </StackVertical>
+@libs/battleship-client-ts:lint:   > 147 │   );
+@libs/battleship-client-ts:lint:   > 148 │ }
+@libs/battleship-client-ts:lint:         │ ^
+@libs/battleship-client-ts:lint:     149 │ 
+@libs/battleship-client-ts:lint:   
+@libs/battleship-client-ts:lint:   i Consider refactoring this function to split it into smaller functions.
+@libs/battleship-client-ts:lint:   
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint: Checked 30 files in 1127ms. No fixes applied.
+@libs/battleship-client-ts:lint: Found 1 error.
+@libs/battleship-client-ts:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint:   × Some errors were emitted while running checks.
+@libs/battleship-client-ts:lint:   
+@libs/battleship-client-ts:lint: 
+@libs/battleship-client-ts:lint: error: script "lint" exited with code 1
+@libs/battleship-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    6 successful, 9 total
+Cached:    0 cached, 9 total
+  Time:    7.851s 
+Failed:    @libs/battleship-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

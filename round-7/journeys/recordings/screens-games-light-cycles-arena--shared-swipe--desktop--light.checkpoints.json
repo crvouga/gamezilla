@@ -1,0 +1,150 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [8] toHaveTextContent"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [10] toHaveTextContent"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [12] toBeGreaterThan"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [14] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [16] toBeLessThanOrEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [18] toBeLessThanOrEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [20] toBeLessThanOrEqual"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [22] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [26] pointer"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [29] toHaveAttribute"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [32] toHaveAttribute"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [33] pointer"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [36] toHaveAttribute"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [39] toHaveTextContent"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--desktop--light--014.png",
+    "capturedFrame": true
+  }
+]

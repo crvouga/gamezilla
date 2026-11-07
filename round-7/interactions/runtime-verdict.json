@@ -1,0 +1,38 @@
+{
+  "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f",
+  "cases": 790,
+  "visualCases": 781,
+  "fontCases": 8,
+  "nativeReadinessPlayBrowserErrorsAxe": {
+    "passed": 781,
+    "failed": 0
+  },
+  "fontChecks": {
+    "passed": 8,
+    "failed": 0
+  },
+  "instrumentedGeometryRegression": {
+    "passed": 1,
+    "failed": 0
+  },
+  "pixels": {
+    "pixel": 781,
+    "failureKinds": {
+      "pixel difference": 652,
+      "missing reference": 129
+    }
+  },
+  "sharedReferencesAcceptedOnMacOS": false,
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1440,
+      "height": 844
+    }
+  ],
+  "command": "sh .overhaul-evidence/ui-ux-overhaul/round-7/test.sh",
+  "publicStatus": "All 781 visual cases passed native readiness/play, browser-error and serious/critical axe stages. Eight font checks and the instrumented chess regression passed. Pixel comparisons, full bun verify, hosted safety and Ubuntu reference decisions are reported separately; no macOS references were accepted."
+}

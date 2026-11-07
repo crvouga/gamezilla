@@ -1,0 +1,2710 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [4] toBeVisible"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [7] toBeVisible"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [9] toBeLessThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [11] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [13] toBeLessThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [15] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [17] toBeLessThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [25] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [27] toBeLessThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [29] toBe"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [31] toBeLessThan"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [33] toBeLessThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [35] toBeLessThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [37] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [41] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [43] toBeLessThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [45] toBe"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [47] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [49] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [51] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [53] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [55] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [57] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [59] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 60,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [61] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [63] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [65] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [67] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [69] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [71] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [73] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [75] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [77] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [79] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [81] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [83] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [87] toBeLessThanOrEqual"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [89] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 90,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [90] findByTestId"
+    ],
+    "cursor": 91,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [92] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 93,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [94] toBeLessThanOrEqual"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [96] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [98] toBeLessThanOrEqual"
+    ],
+    "cursor": 99,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [100] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [102] toBeLessThanOrEqual"
+    ],
+    "cursor": 103,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [104] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 105,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [105] click"
+    ],
+    "cursor": 106,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--051.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [106] findByTestId"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--052.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [108] toHaveTextContent"
+    ],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--053.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [109] findByTestId"
+    ],
+    "cursor": 110,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--054.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [111] toHaveAccessibleName"
+    ],
+    "cursor": 112,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [113] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [115] toBeLessThanOrEqual"
+    ],
+    "cursor": 116,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [117] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 118,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [119] toBeLessThanOrEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [121] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 122,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [123] toBeLessThanOrEqual"
+    ],
+    "cursor": 124,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [125] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 126,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--055.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [127] keyboard"
+    ],
+    "cursor": 128,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [133] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [135] toBeLessThanOrEqual"
+    ],
+    "cursor": 136,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [137] toBeLessThanOrEqual"
+    ],
+    "cursor": 138,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [139] toBe"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [141] toBeLessThanOrEqual"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [143] toBeLessThanOrEqual"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [145] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [147] toBeLessThanOrEqual"
+    ],
+    "cursor": 148,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [149] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [151] toBeLessThanOrEqual"
+    ],
+    "cursor": 152,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [153] toBeLessThanOrEqual"
+    ],
+    "cursor": 154,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [155] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 156,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [157] toBeLessThanOrEqual"
+    ],
+    "cursor": 158,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [159] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 160,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [161] toBeLessThanOrEqual"
+    ],
+    "cursor": 162,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [163] toBe"
+    ],
+    "cursor": 164,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [165] toBeLessThan"
+    ],
+    "cursor": 166,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [167] toBeLessThanOrEqual"
+    ],
+    "cursor": 168,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [169] toBeLessThanOrEqual"
+    ],
+    "cursor": 170,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [171] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 172,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [173] toBeLessThanOrEqual"
+    ],
+    "cursor": 174,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [175] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 176,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [177] toBeLessThanOrEqual"
+    ],
+    "cursor": 178,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [179] toBe"
+    ],
+    "cursor": 180,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [181] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 182,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [183] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 184,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [185] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 186,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [187] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 188,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [189] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 190,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [191] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 192,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [193] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 194,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [195] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 196,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [197] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 198,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [199] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 200,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [201] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 202,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [203] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 204,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [205] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 206,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [207] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 208,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [209] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 210,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [211] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 212,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [213] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 214,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [215] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 216,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [217] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 218,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [219] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 220,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [221] toBeLessThanOrEqual"
+    ],
+    "cursor": 222,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [223] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 224,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--063.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [224] findByTestId"
+    ],
+    "cursor": 225,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--110.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [226] toBeVisible"
+    ],
+    "cursor": 227,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [229] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 230,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [231] toBeLessThanOrEqual"
+    ],
+    "cursor": 232,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [233] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 234,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [235] toBeLessThanOrEqual"
+    ],
+    "cursor": 236,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [237] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 238,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [239] toBeLessThanOrEqual"
+    ],
+    "cursor": 240,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [241] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 242,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--111.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [242] keyboard"
+    ],
+    "cursor": 243,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--119.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [243] findByTestId"
+    ],
+    "cursor": 244,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--120.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [245] toHaveAccessibleName"
+    ],
+    "cursor": 246,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--121.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [246] findByTestId"
+    ],
+    "cursor": 247,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--122.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [248] toHaveTextContent"
+    ],
+    "cursor": 249,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--123.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [252] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 253,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--123.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [254] toBeLessThanOrEqual"
+    ],
+    "cursor": 255,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--123.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [255] click"
+    ],
+    "cursor": 256,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--126.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [257] findByRole"
+    ],
+    "cursor": 258,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--127.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [258] click"
+    ],
+    "cursor": 259,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [261] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 262,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [263] toBeLessThanOrEqual"
+    ],
+    "cursor": 264,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [265] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 266,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [267] toBeLessThanOrEqual"
+    ],
+    "cursor": 268,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [269] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 270,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [271] toBeLessThanOrEqual"
+    ],
+    "cursor": 272,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [273] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 274,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--128.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [274] click"
+    ],
+    "cursor": 275,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--136.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [278] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 279,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--136.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [280] toBeLessThanOrEqual"
+    ],
+    "cursor": 281,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--136.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [281] click"
+    ],
+    "cursor": 282,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--139.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [283] findByRole"
+    ],
+    "cursor": 284,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--140.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [284] click"
+    ],
+    "cursor": 285,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--141.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [286] click"
+    ],
+    "cursor": 287,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [289] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 290,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [291] toBeLessThanOrEqual"
+    ],
+    "cursor": 292,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [293] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 294,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [295] toBeLessThanOrEqual"
+    ],
+    "cursor": 296,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [297] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 298,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [299] toBeLessThanOrEqual"
+    ],
+    "cursor": 300,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [301] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 302,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--142.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [302] click"
+    ],
+    "cursor": 303,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--150.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [306] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 307,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--150.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [308] toBeLessThanOrEqual"
+    ],
+    "cursor": 309,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--150.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [309] click"
+    ],
+    "cursor": 310,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--153.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [311] findByRole"
+    ],
+    "cursor": 312,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--154.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [312] click"
+    ],
+    "cursor": 313,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--155.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [313] findByTestId"
+    ],
+    "cursor": 314,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [315] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 316,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [317] toBeLessThanOrEqual"
+    ],
+    "cursor": 318,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [319] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 320,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [321] toBeLessThanOrEqual"
+    ],
+    "cursor": 322,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [323] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 324,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [325] toBeLessThanOrEqual"
+    ],
+    "cursor": 326,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [327] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 328,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--156.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [328] click"
+    ],
+    "cursor": 329,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--164.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [329] findByTestId"
+    ],
+    "cursor": 330,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--165.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [331] toHaveTextContent"
+    ],
+    "cursor": 332,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--166.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [332] findByTestId"
+    ],
+    "cursor": 333,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--167.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [334] toHaveAccessibleName"
+    ],
+    "cursor": 335,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--168.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [337] toHaveTextContent"
+    ],
+    "cursor": 338,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [339] toBeLessThanOrEqual"
+    ],
+    "cursor": 340,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [341] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 342,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [343] toBeLessThanOrEqual"
+    ],
+    "cursor": 344,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [345] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 346,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [347] toBeLessThanOrEqual"
+    ],
+    "cursor": 348,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [349] toBeLessThanOrEqual"
+    ],
+    "cursor": 350,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [351] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 352,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [353] toBeLessThanOrEqual"
+    ],
+    "cursor": 354,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [355] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 356,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [357] toBeLessThanOrEqual"
+    ],
+    "cursor": 358,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [359] toBe"
+    ],
+    "cursor": 360,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [361] toBeLessThan"
+    ],
+    "cursor": 362,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [363] toBeLessThanOrEqual"
+    ],
+    "cursor": 364,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [365] toBeLessThanOrEqual"
+    ],
+    "cursor": 366,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [367] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 368,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [369] toBeLessThanOrEqual"
+    ],
+    "cursor": 370,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [371] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 372,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [373] toBeLessThanOrEqual"
+    ],
+    "cursor": 374,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [375] toBe"
+    ],
+    "cursor": 376,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [377] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 378,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [379] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 380,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [381] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 382,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [383] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 384,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [385] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 386,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [387] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 388,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [389] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 390,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [391] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 392,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [393] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 394,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [395] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 396,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [397] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 398,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [399] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 400,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [401] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 402,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [403] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 404,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [405] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 406,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [407] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 408,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [409] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 410,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [411] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 412,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [413] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 414,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [415] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 416,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [417] toBeLessThanOrEqual"
+    ],
+    "cursor": 418,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [419] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 420,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--169.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [423] click"
+    ],
+    "cursor": 424,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--211.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [424] findByRole"
+    ],
+    "cursor": 425,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--212.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [425] click"
+    ],
+    "cursor": 426,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--213.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [427] click"
+    ],
+    "cursor": 428,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--214.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [428] findByRole"
+    ],
+    "cursor": 429,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--215.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [429] click"
+    ],
+    "cursor": 430,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--216.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [430] findByTestId"
+    ],
+    "cursor": 431,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [432] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 433,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [434] toBeLessThanOrEqual"
+    ],
+    "cursor": 435,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [436] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 437,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [438] toBeLessThanOrEqual"
+    ],
+    "cursor": 439,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [440] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 441,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [442] toBeLessThanOrEqual"
+    ],
+    "cursor": 443,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [444] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 445,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [446] toBeLessThanOrEqual"
+    ],
+    "cursor": 447,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [448] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 449,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [450] toBeLessThanOrEqual"
+    ],
+    "cursor": 451,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [452] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 453,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [454] toBeLessThanOrEqual"
+    ],
+    "cursor": 455,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [456] toBeLessThanOrEqual"
+    ],
+    "cursor": 457,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [458] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 459,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [460] toBeLessThanOrEqual"
+    ],
+    "cursor": 461,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [462] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 463,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [464] toBeLessThanOrEqual"
+    ],
+    "cursor": 465,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [466] toBe"
+    ],
+    "cursor": 467,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [468] toBeLessThan"
+    ],
+    "cursor": 469,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [470] toBeLessThanOrEqual"
+    ],
+    "cursor": 471,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [472] toBeLessThanOrEqual"
+    ],
+    "cursor": 473,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [474] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 475,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [476] toBeLessThanOrEqual"
+    ],
+    "cursor": 477,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [478] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 479,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [480] toBeLessThanOrEqual"
+    ],
+    "cursor": 481,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [482] toBe"
+    ],
+    "cursor": 483,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [484] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 485,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [486] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 487,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [488] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 489,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [490] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 491,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [492] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 493,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [494] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 495,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [496] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 497,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [498] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 499,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [500] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 501,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [502] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 503,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [504] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 505,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [506] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 507,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [508] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 509,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [510] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 511,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [512] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 513,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [514] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 515,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [516] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 517,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [518] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 519,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [520] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 521,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [522] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 523,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [524] toBeLessThanOrEqual"
+    ],
+    "cursor": 525,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [526] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 527,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--217.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [527] click"
+    ],
+    "cursor": 528,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--266.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [530] toHaveAccessibleName"
+    ],
+    "cursor": 531,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--267.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [533] toHaveAccessibleName"
+    ],
+    "cursor": 534,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--268.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-battleship-setup--enlarged-placement [536] toHaveTextContent"
+    ],
+    "cursor": 537,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--269.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 537,
+    "failures": [],
+    "file": "screens-games-battleship-setup--enlarged-placement--phone--light--270.png",
+    "capturedFrame": true
+  }
+]

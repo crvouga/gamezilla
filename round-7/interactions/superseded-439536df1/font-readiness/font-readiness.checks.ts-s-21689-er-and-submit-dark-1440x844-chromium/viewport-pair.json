@@ -1,0 +1,1662 @@
+[
+  {
+    "state": {
+      "active": "\n    \n  \n\n\n\n  \n    \n      \n      \n      \n      \n    \n    \n      \n    \n  \n  \n    \n      \n        Name\n        Description\n        Default\n        Control \n      \n    \n    \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n    \n  \n\n\n\n  \n    No Preview\n    Sorry, but you either have no stories or none are selected somehow.\n    \n      Please check the Storybook config.\n      Try reloading the page.\n    \n    \n      If the problem persists, check the browser console, or the terminal you've run Storybook from.\n    \n  \n\n\n\n  \n    \n    \n      The component failed to render properly, likely due to a configuration issue in Storybook.\n      Here are some common causes and how you can address them:\n    \n    \n      \n        Missing Context/Providers: You can use decorators to supply specific\n        contexts or providers, which are sometimes necessary for components to render correctly. For\n        detailed instructions on using decorators, please visit the\n        Decorators documentation.\n      \n      \n        Misconfigured Webpack or Vite: Verify that Storybook picks up all necessary\n        settings for loaders, plugins, and other relevant parameters. You can find step-by-step\n        guides for configuring\n        Webpack or\n        Vite\n        with Storybook.\n      \n      \n        Missing Environment Variables: Your Storybook may require specific\n        environment variables to function as intended. You can set up custom environment variables\n        as outlined in the\n        Environment Variables documentation.\n      \n    \n    \n  \n\n\n    Word TilesUnratedUntimedjordan_playsTo move7 tilesScore0 0E 1S 1Q 10A 1B 3B 3Play wordPass, exchange & toolsYou can plan a word while you wait. Play it when your turn begins.Choose a tile, then a square.abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2L2L2L2L2W103L113W3L2L2L3L3W122L2W2W2L133L3L142L2W2W2L152L3W2L3W2LFit boardEnlarge boardT 1, i8, committedMapAmber: avery. Teal: jordan_plays. Teal — to play · 83 tiles in the bagavery7 tilesScore10Game recordTeal — to play · 83 tiles in the bagOffer drawResign gameHistory and stats\n    \n    \n      function __onViteAppLoadingError(event) {\n        const hostname = globalThis.location.hostname;\n        if (hostname !== 'localhost' && globalThis.CONFIG_TYPE === 'DEVELOPMENT') {\n          const message = `Failed to load the Storybook preview file 'vite-app.js':\n\n      It looks like you're visiting the Storybook development server on another hostname than localhost: '${hostname}', but you haven't configured the necessary security features to support this.\n      Please re-run your Storybook development server with the '--host ${hostname}' flag, or manually configure your Vite allowedHosts configuration with viteFinal.\n\n      See:`;\n          const docs = [\n            'https://storybook.js.org/docs/api/cli-options#dev',\n            'https://storybook.js.org/docs/api/main-config/main-config-vite-final',\n            'https://vite.dev/config/server-options.html#server-allowedhosts',\n          ];\n          console.error(`${message}\\n${docs.map((doc) => `- ${doc}`).join('\\n')}`);\n\n          document.getElementById('storybook-root').innerHTML =\n            `<p style=\"color: red; max-width: 70ch\">${message.replaceAll(\n              '\\n',\n              '<br/>'\n            )}<ul>${docs.map((doc) => `<li><a href='${doc}' target='_blank'>${doc}</a></li>`).join('')}</ul></p>`;\n          return;\n        }\n      }\n    \n  \n\n\n            #storybook-highlights-menu {\n              position: absolute;\n              z-index: 2147483647;\n              width: 300px;\n              padding: 0px;\n              margin: 15px 0 0 0;\n              transform: translateX(-50%);\n              font-family: \"Nunito Sans\", -apple-system, \".SFNSText-Regular\", \"San Francisco\", BlinkMacSystemFont, \"Segoe UI\", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n              font-size: 12px;\n              background: white;\n              border: none;\n              border-radius: 6px;\n              box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.05), 0 5px 15px 0 rgba(0, 0, 0, 0.1);\n              color: #2E3438;\n            }\n            #storybook-highlights-menu ul {\n              list-style: none;\n              margin: 0;\n              padding: 0;\n            }\n            #storybook-highlights-menu > ul {\n              max-height: 300px;\n              overflow-y: auto;\n              padding: 4px 0;\n            }\n            #storybook-highlights-menu li {\n              padding: 0 4px;\n              margin: 0;\n            }\n            #storybook-highlights-menu li > :not(ul) {\n              display: flex;\n              padding: 8px;\n              margin: 0;\n              align-items: center;\n              gap: 8px;\n              border-radius: 4px;\n            }\n            #storybook-highlights-menu button {\n              width: 100%;\n              border: 0;\n              background: transparent;\n              color: inherit;\n              text-align: left;\n              font-family: inherit;\n              font-size: inherit;\n            }\n            #storybook-highlights-menu button:focus-visible {\n              outline-color: #029CFD;\n            }\n            #storybook-highlights-menu button:hover {\n              background: rgba(2, 156, 253, 0.07);\n              color: #029CFD;\n              cursor: pointer;\n            }\n            #storybook-highlights-menu li code {\n              white-space: nowrap;\n              overflow: hidden;\n              text-overflow: ellipsis;\n              line-height: 16px;\n              font-size: 11px;\n            }\n            #storybook-highlights-menu li svg {\n              flex-shrink: 0;\n              margin: 1px;\n              color: #73828C;\n            }\n            #storybook-highlights-menu li > button:hover svg, #storybook-highlights-menu li > button:focus-visible svg {\n              color: #029CFD;\n            }\n            #storybook-highlights-menu .element-list li svg {\n              display: none;\n            }\n            #storybook-highlights-menu li.selectable svg, #storybook-highlights-menu li.selected svg {\n              display: block;\n            }\n            #storybook-highlights-menu .menu-list {\n              border-top: 1px solid rgba(38, 85, 115, 0.15);\n            }\n            #storybook-highlights-menu .menu-list > li:not(:last-child) {\n              padding-bottom: 4px;\n              margin-bottom: 4px;\n              border-bottom: 1px solid rgba(38, 85, 115, 0.15);\n            }\n            #storybook-highlights-menu .menu-items, #storybook-highlights-menu .menu-items li {\n              padding: 0;\n            }\n            #storybook-highlights-menu .menu-item {\n              display: flex;\n            }\n            #storybook-highlights-menu .menu-item-content {\n              display: flex;\n              flex-direction: column;\n              flex-grow: 1;\n            }\n          \n  \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n  \n",
+      "text": "Word TilesUnratedUntimedjordan_playsTo move7 tilesScore0 0E 1S 1Q 10A 1B 3B 3Play wordPass, exchange & toolsYou can plan a word while you wait. Play it when your turn begins.Choose a tile, then a square.abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2L2L2L2L2W103L113W3L2L2L3L3W122L2W2W2L133L3L142L2W2W2L152L3W2L3W2LFit boardEnlarge boardT 1, i8, committedMapAmber: avery. Teal: jordan_plays. Teal — to play · 83 tiles in the bagavery7 tilesScore10Game recordTeal — to play · 83 tiles in the bagOffer drawResign gameHistory and stats",
+      "scroll": [
+        {
+          "component": "GameScreen",
+          "x": 0,
+          "y": 56,
+          "width": 960,
+          "height": 828,
+          "scrollWidth": 960,
+          "scrollHeight": 886
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 126,
+          "height": 30,
+          "scrollWidth": 126,
+          "scrollHeight": 33
+        },
+        {
+          "component": "GameSeatStat",
+          "x": 0,
+          "y": 0,
+          "width": 38,
+          "height": 44,
+          "scrollWidth": 38,
+          "scrollHeight": 45
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 12,
+          "height": 24,
+          "scrollWidth": 12,
+          "scrollHeight": 25
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 96,
+          "height": 42,
+          "scrollWidth": 96,
+          "scrollHeight": 43
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 185,
+          "height": 42,
+          "scrollWidth": 185,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 67,
+          "y": 184,
+          "width": 632,
+          "height": 364,
+          "scrollWidth": 699,
+          "scrollHeight": 707
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 11,
+          "height": 15,
+          "scrollWidth": 11,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 10,
+          "height": 15,
+          "scrollWidth": 10,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 9,
+          "height": 15,
+          "scrollWidth": 9,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 492,
+          "height": 36,
+          "scrollWidth": 492,
+          "scrollHeight": 40
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 82,
+          "height": 34,
+          "scrollWidth": 82,
+          "scrollHeight": 39
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 116,
+          "height": 34,
+          "scrollWidth": 116,
+          "scrollHeight": 39
+        },
+        {
+          "component": "GameTurnPill",
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": "GameTurnPillWords",
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 220,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 220,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 239,
+          "scrollHeight": 22
+        },
+        {
+          "component": "GameSeatStat",
+          "x": 0,
+          "y": 0,
+          "width": 38,
+          "height": 44,
+          "scrollWidth": 38,
+          "scrollHeight": 45
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 25,
+          "height": 24,
+          "scrollWidth": 25,
+          "scrollHeight": 25
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 262,
+          "height": 104,
+          "scrollWidth": 262,
+          "scrollHeight": 108
+        },
+        {
+          "component": "GameActions",
+          "x": 0,
+          "y": 0,
+          "width": 262,
+          "height": 88,
+          "scrollWidth": 262,
+          "scrollHeight": 92
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 101,
+          "height": 42,
+          "scrollWidth": 101,
+          "scrollHeight": 43
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 78,
+          "height": 42,
+          "scrollWidth": 78,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 37,
+          "scrollHeight": 20
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 138,
+          "height": 34,
+          "scrollWidth": 138,
+          "scrollHeight": 39
+        }
+      ]
+    },
+    "reached": "font-load"
+  },
+  {
+    "state": {
+      "active": "\n    \n  \n\n\n\n  \n    \n      \n      \n      \n      \n    \n    \n      \n    \n  \n  \n    \n      \n        Name\n        Description\n        Default\n        Control \n      \n    \n    \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n      \n        propertyName*\n        \n          This is a short description\n          \n            summary\n          \n        \n        \n          defaultValue\n        \n        Set string\n      \n    \n  \n\n\n\n  \n    No Preview\n    Sorry, but you either have no stories or none are selected somehow.\n    \n      Please check the Storybook config.\n      Try reloading the page.\n    \n    \n      If the problem persists, check the browser console, or the terminal you've run Storybook from.\n    \n  \n\n\n\n  \n    \n    \n      The component failed to render properly, likely due to a configuration issue in Storybook.\n      Here are some common causes and how you can address them:\n    \n    \n      \n        Missing Context/Providers: You can use decorators to supply specific\n        contexts or providers, which are sometimes necessary for components to render correctly. For\n        detailed instructions on using decorators, please visit the\n        Decorators documentation.\n      \n      \n        Misconfigured Webpack or Vite: Verify that Storybook picks up all necessary\n        settings for loaders, plugins, and other relevant parameters. You can find step-by-step\n        guides for configuring\n        Webpack or\n        Vite\n        with Storybook.\n      \n      \n        Missing Environment Variables: Your Storybook may require specific\n        environment variables to function as intended. You can set up custom environment variables\n        as outlined in the\n        Environment Variables documentation.\n      \n    \n    \n  \n\n\n    Word TilesUnratedUntimedjordan_playsTo move7 tilesScore0 0E 1S 1Q 10A 1B 3B 3Play wordPass, exchange & toolsYou can plan a word while you wait. Play it when your turn begins.Choose a tile, then a square.abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2L2L2L2L2W103L113W3L2L2L3L3W122L2W2W2L133L3L142L2W2W2L152L3W2L3W2LFit boardEnlarge boardT 1, i8, committedMapAmber: avery. Teal: jordan_plays. Teal — to play · 83 tiles in the bagavery7 tilesScore10Game recordTeal — to play · 83 tiles in the bagOffer drawResign gameHistory and stats\n    \n    \n      function __onViteAppLoadingError(event) {\n        const hostname = globalThis.location.hostname;\n        if (hostname !== 'localhost' && globalThis.CONFIG_TYPE === 'DEVELOPMENT') {\n          const message = `Failed to load the Storybook preview file 'vite-app.js':\n\n      It looks like you're visiting the Storybook development server on another hostname than localhost: '${hostname}', but you haven't configured the necessary security features to support this.\n      Please re-run your Storybook development server with the '--host ${hostname}' flag, or manually configure your Vite allowedHosts configuration with viteFinal.\n\n      See:`;\n          const docs = [\n            'https://storybook.js.org/docs/api/cli-options#dev',\n            'https://storybook.js.org/docs/api/main-config/main-config-vite-final',\n            'https://vite.dev/config/server-options.html#server-allowedhosts',\n          ];\n          console.error(`${message}\\n${docs.map((doc) => `- ${doc}`).join('\\n')}`);\n\n          document.getElementById('storybook-root').innerHTML =\n            `<p style=\"color: red; max-width: 70ch\">${message.replaceAll(\n              '\\n',\n              '<br/>'\n            )}<ul>${docs.map((doc) => `<li><a href='${doc}' target='_blank'>${doc}</a></li>`).join('')}</ul></p>`;\n          return;\n        }\n      }\n    \n  \n\n\n            #storybook-highlights-menu {\n              position: absolute;\n              z-index: 2147483647;\n              width: 300px;\n              padding: 0px;\n              margin: 15px 0 0 0;\n              transform: translateX(-50%);\n              font-family: \"Nunito Sans\", -apple-system, \".SFNSText-Regular\", \"San Francisco\", BlinkMacSystemFont, \"Segoe UI\", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n              font-size: 12px;\n              background: white;\n              border: none;\n              border-radius: 6px;\n              box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.05), 0 5px 15px 0 rgba(0, 0, 0, 0.1);\n              color: #2E3438;\n            }\n            #storybook-highlights-menu ul {\n              list-style: none;\n              margin: 0;\n              padding: 0;\n            }\n            #storybook-highlights-menu > ul {\n              max-height: 300px;\n              overflow-y: auto;\n              padding: 4px 0;\n            }\n            #storybook-highlights-menu li {\n              padding: 0 4px;\n              margin: 0;\n            }\n            #storybook-highlights-menu li > :not(ul) {\n              display: flex;\n              padding: 8px;\n              margin: 0;\n              align-items: center;\n              gap: 8px;\n              border-radius: 4px;\n            }\n            #storybook-highlights-menu button {\n              width: 100%;\n              border: 0;\n              background: transparent;\n              color: inherit;\n              text-align: left;\n              font-family: inherit;\n              font-size: inherit;\n            }\n            #storybook-highlights-menu button:focus-visible {\n              outline-color: #029CFD;\n            }\n            #storybook-highlights-menu button:hover {\n              background: rgba(2, 156, 253, 0.07);\n              color: #029CFD;\n              cursor: pointer;\n            }\n            #storybook-highlights-menu li code {\n              white-space: nowrap;\n              overflow: hidden;\n              text-overflow: ellipsis;\n              line-height: 16px;\n              font-size: 11px;\n            }\n            #storybook-highlights-menu li svg {\n              flex-shrink: 0;\n              margin: 1px;\n              color: #73828C;\n            }\n            #storybook-highlights-menu li > button:hover svg, #storybook-highlights-menu li > button:focus-visible svg {\n              color: #029CFD;\n            }\n            #storybook-highlights-menu .element-list li svg {\n              display: none;\n            }\n            #storybook-highlights-menu li.selectable svg, #storybook-highlights-menu li.selected svg {\n              display: block;\n            }\n            #storybook-highlights-menu .menu-list {\n              border-top: 1px solid rgba(38, 85, 115, 0.15);\n            }\n            #storybook-highlights-menu .menu-list > li:not(:last-child) {\n              padding-bottom: 4px;\n              margin-bottom: 4px;\n              border-bottom: 1px solid rgba(38, 85, 115, 0.15);\n            }\n            #storybook-highlights-menu .menu-items, #storybook-highlights-menu .menu-items li {\n              padding: 0;\n            }\n            #storybook-highlights-menu .menu-item {\n              display: flex;\n            }\n            #storybook-highlights-menu .menu-item-content {\n              display: flex;\n              flex-direction: column;\n              flex-grow: 1;\n            }\n          \n  \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n    \n      \n    \n  \n",
+      "text": "Word TilesUnratedUntimedjordan_playsTo move7 tilesScore0 0E 1S 1Q 10A 1B 3B 3Play wordPass, exchange & toolsYou can plan a word while you wait. Play it when your turn begins.Choose a tile, then a square.abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2L2L2L2L2W103L113W3L2L2L3L3W122L2W2W2L133L3L142L2W2W2L152L3W2L3W2LFit boardEnlarge boardT 1, i8, committedMapAmber: avery. Teal: jordan_plays. Teal — to play · 83 tiles in the bagavery7 tilesScore10Game recordTeal — to play · 83 tiles in the bagOffer drawResign gameHistory and stats",
+      "scroll": [
+        {
+          "component": "GameScreen",
+          "x": 0,
+          "y": 56,
+          "width": 960,
+          "height": 828,
+          "scrollWidth": 960,
+          "scrollHeight": 886
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 126,
+          "height": 30,
+          "scrollWidth": 126,
+          "scrollHeight": 33
+        },
+        {
+          "component": "GameSeatStat",
+          "x": 0,
+          "y": 0,
+          "width": 38,
+          "height": 44,
+          "scrollWidth": 38,
+          "scrollHeight": 45
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 12,
+          "height": 24,
+          "scrollWidth": 12,
+          "scrollHeight": 25
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 96,
+          "height": 42,
+          "scrollWidth": 96,
+          "scrollHeight": 43
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 185,
+          "height": 42,
+          "scrollWidth": 185,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 67,
+          "y": 184,
+          "width": 632,
+          "height": 364,
+          "scrollWidth": 699,
+          "scrollHeight": 707
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 11,
+          "height": 15,
+          "scrollWidth": 11,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 10,
+          "height": 15,
+          "scrollWidth": 10,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 42,
+          "height": 42,
+          "scrollWidth": 42,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 9,
+          "height": 15,
+          "scrollWidth": 9,
+          "scrollHeight": 18
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 12,
+          "scrollWidth": 7,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 12,
+          "scrollWidth": 18,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 13,
+          "height": 12,
+          "scrollWidth": 13,
+          "scrollHeight": 14
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 492,
+          "height": 36,
+          "scrollWidth": 492,
+          "scrollHeight": 40
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 82,
+          "height": 34,
+          "scrollWidth": 82,
+          "scrollHeight": 39
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 116,
+          "height": 34,
+          "scrollWidth": 116,
+          "scrollHeight": 39
+        },
+        {
+          "component": "GameTurnPill",
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": "GameTurnPillWords",
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 220,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 220,
+          "scrollWidth": 32,
+          "scrollHeight": 220
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 239,
+          "scrollHeight": 22
+        },
+        {
+          "component": "GameSeatStat",
+          "x": 0,
+          "y": 0,
+          "width": 38,
+          "height": 44,
+          "scrollWidth": 38,
+          "scrollHeight": 45
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 25,
+          "height": 24,
+          "scrollWidth": 25,
+          "scrollHeight": 25
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 262,
+          "height": 104,
+          "scrollWidth": 262,
+          "scrollHeight": 108
+        },
+        {
+          "component": "GameActions",
+          "x": 0,
+          "y": 0,
+          "width": 262,
+          "height": 88,
+          "scrollWidth": 262,
+          "scrollHeight": 92
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 101,
+          "height": 42,
+          "scrollWidth": 101,
+          "scrollHeight": 43
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 78,
+          "height": 42,
+          "scrollWidth": 78,
+          "scrollHeight": 43
+        },
+        {
+          "component": null,
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "scrollWidth": 37,
+          "scrollHeight": 20
+        },
+        {
+          "component": "Button",
+          "x": 0,
+          "y": 0,
+          "width": 138,
+          "height": 34,
+          "scrollWidth": 138,
+          "scrollHeight": 39
+        }
+      ]
+    },
+    "reached": "font-load",
+    "pending": {
+      "ready": false,
+      "focusCount": 0
+    }
+  }
+]

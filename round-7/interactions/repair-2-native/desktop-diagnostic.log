@@ -1,0 +1,14 @@
+[
+  {
+    id: 'screens-games-word-tiles-board--your-turn',
+    error: 'expected false to be true // Object.is equality'
+  },
+  {
+    id: 'screens-games-word-tiles-board--enlarged-coordinates',
+    error: 'expected false to be true // Object.is equality'
+  },
+  {
+    id: 'screens-games-word-tiles-puzzle--enlarged-blank',
+    error: null
+  }
+]

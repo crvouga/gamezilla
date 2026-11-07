@@ -1,0 +1,19 @@
+{
+  "candidateSha": "4e6fa4c19276459d586e451a548942d667541168",
+  "status": "completed: failure",
+  "runUrl": "https://github.com/crvouga/gamezilla/actions/runs/42324736244",
+  "runId": "42324736244",
+  "authorAndCompareRequested": true,
+  "referencesAccepted": false,
+  "observedAt": "2026-11-07T02:07:24.020044+00:00",
+  "authorStatus": "failure",
+  "compareStatus": "skipped",
+  "jobId": 128257360865,
+  "priorRounds": "No prior references or patches applied; superseded source runs are diagnostic only.",
+  "logExitCode": 0,
+  "log": "canonical-job-direct.log (lossless archive parts if packed)",
+  "authorFailures": [
+    "screens-games-word-tiles-board--assign-a-blank light-1440",
+    "screens-games-word-tiles-board--assign-a-blank dark-1440"
+  ]
+}

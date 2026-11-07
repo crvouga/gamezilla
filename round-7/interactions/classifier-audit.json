@@ -1,0 +1,49 @@
+[
+  {
+    "run": "initial-native",
+    "priorCounts": {
+      "pixel": 26,
+      "interaction-or-accessibility": 10
+    },
+    "correctedCounts": {
+      "pixel": 16,
+      "interaction-or-accessibility": 20
+    },
+    "exitCode": 0
+  },
+  {
+    "run": "repair-1-native",
+    "priorCounts": {
+      "pixel": 8,
+      "interaction-or-accessibility": 6
+    },
+    "correctedCounts": {
+      "pixel": 5,
+      "interaction-or-accessibility": 9
+    },
+    "exitCode": 0
+  },
+  {
+    "run": "repair-2-native",
+    "priorCounts": {
+      "pixel": 4,
+      "interaction-or-accessibility": 6
+    },
+    "correctedCounts": {
+      "pixel": 2,
+      "interaction-or-accessibility": 8
+    },
+    "exitCode": 0
+  },
+  {
+    "run": "repair-3-native",
+    "priorCounts": {
+      "pixel": 8
+    },
+    "correctedCounts": {
+      "interaction-or-accessibility": 6,
+      "pixel": 2
+    },
+    "exitCode": 0
+  }
+]

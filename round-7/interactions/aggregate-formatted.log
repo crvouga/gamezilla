@@ -1,0 +1,11 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/word-tiles-client-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 4 packages
+   • Remote caching disabled, using shared worktree cache
+
+
+ Tasks:    12 successful, 12 total
+Cached:    9 cached, 12 total
+  Time:    4.591s 
+

@@ -1,0 +1,183 @@
+{
+  "conclusion": "",
+  "headSha": "b8c60f7540f93b52ca49a5feb17f3d8afeb60eb7",
+  "jobs": [
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 128249229780,
+      "name": "verify-nightly:storybook",
+      "startedAt": "2026-11-07T01:06:51Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "completedAt": "2026-11-07T01:06:52Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-07T01:06:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T01:07:37Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-11-07T01:06:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T01:08:18Z",
+          "conclusion": "success",
+          "name": "Run ./.github/actions/setup",
+          "number": 3,
+          "startedAt": "2026-11-07T01:07:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T01:08:19Z",
+          "conclusion": "success",
+          "name": "Run ./.github/actions/visual-renderer",
+          "number": 4,
+          "startedAt": "2026-11-07T01:08:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T01:09:21Z",
+          "conclusion": "success",
+          "name": "Verify diagnostic tooling",
+          "number": 5,
+          "startedAt": "2026-11-07T01:08:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Build canonical Storybook",
+          "number": 6,
+          "startedAt": "2026-11-07T01:09:21Z",
+          "status": "in_progress"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Author references explicitly",
+          "number": 7,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Collect reference changes for review",
+          "number": 8,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Compare every authored Storybook state",
+          "number": 9,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Compare PR Storybook states",
+          "number": 10,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Retain Storybook comparisons and reference patch",
+          "number": 11,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Post Run ./.github/actions/setup",
+          "number": 21,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 22,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249229780"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249230923,
+      "name": "verify-nightly:performance",
+      "startedAt": "2026-11-07T01:06:48Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249230923"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249231082,
+      "name": "verify-nightly:random",
+      "startedAt": "2026-11-07T01:06:48Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249231082"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249231851,
+      "name": "verify-nightly:visual",
+      "startedAt": "2026-11-07T01:06:49Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249231851"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249257281,
+      "name": "verify-nightly:browser",
+      "startedAt": "2026-11-07T01:06:54Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249257281"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249263113,
+      "name": "verify-nightly:gate",
+      "startedAt": "2026-11-07T01:06:55Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249263113"
+    },
+    {
+      "completedAt": "2026-11-07T01:06:48Z",
+      "conclusion": "skipped",
+      "databaseId": 128249268887,
+      "name": "verify-nightly:coverage",
+      "startedAt": "2026-11-07T01:06:56Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030/job/128249268887"
+    }
+  ],
+  "status": "in_progress",
+  "url": "https://github.com/crvouga/gamezilla/actions/runs/42322227030"
+}

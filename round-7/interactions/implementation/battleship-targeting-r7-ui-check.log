@@ -1,0 +1,1059 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:test: cache miss, executing cb9a948203a5991f
+@pkgs/ui-root-harness-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@pkgs/ui-root-harness-ts:test: bun test v1.4.3 (c6da4a4d3)
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/button.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) translated icon labels name their button without showing the tooltip [9.46ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > defaults to a non-submitting button inside forms [2.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > renders a native button, fires onClick, and applies size [1.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > variants change the surface: solid fills, outline borders [1.92ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > disabled and loading block clicks; loading is aria-busy [3.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > keyboard focus reaches the primary button without hovering [8.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > fullWidth stretches and icon renders inline [1.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button > endIcon stroke follows the button on-color (matches label) [1.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) useMutationButton > idle → loading → success → idle with the harness clock [6.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) useMutationButton > error phase shows the error face and retries on click [5.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) IconButton family > IconButton is a ≥44px button named by its label with a tooltip [1.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) IconButton family > tooltip="none" skips the bubble; disabled blocks clicks [0.58ms]
+@pkgs/ui-root-harness-ts:test: (pass) IconButton family > avatar variant keeps the disc at `size` with ring padding [0.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) IconButton family > Back / Close icon buttons have localized names [1.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingActionButton > round FAB is the 52px control disc and extended FAB shows its label [0.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingActionButton > feedback="loading" is aria-busy and inert [0.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) OverflowMenuButton > exposes a menu trigger and hands content to renderMenu [0.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) OverflowMenuButton > renders nothing without actions [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) a spinner-only loading button retains its action name [0.97ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/hosts.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Clickable > renders a real button with tint feedback and forwards clicks [0.61ms]
+@pkgs/ui-root-harness-ts:test: (pass) Clickable > disabled buttons and feedback modes [0.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) Switch > exposes role=switch with aria-checked and toggles [0.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) Switch > the thumb always contrasts with its track [0.36ms]
+@pkgs/ui-root-harness-ts:test: (pass) Switch > its test id names the toggle a person presses [0.29ms]
+@pkgs/ui-root-harness-ts:test: (pass) Checkbox > tri-state aria + toggling semantics [0.97ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextInput > the move review field is named by its visible label [1.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextInput > controlled value, label, error and submit [0.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextInput > masks secure entry [0.36ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScrollView > takes frame and content props separately and bleeds under shell padding [0.60ms]
+@pkgs/ui-root-harness-ts:test: (pass) VirtualList > windows rows and renders header/footer/empty [33.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) VirtualList > empty state [0.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) scrollable code and view regions accept keyboard focus [0.73ms]
+@pkgs/ui-root-harness-ts:test: (pass) bare progress tracks retain an accessible name [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) metric details remain inside the description list grammar [0.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) the switch uses its visible label as its accessible name [0.54ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) secondary tools disclose, keep disabled semantics and restore focus without losing the primary [4.73ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/trail-arena-touch-regions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) touch ownership stays outside the drawing and disappears when shared steering ends [2.40ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-fixtures.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) theme preview renders children in both theme panes [1.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) theme preview labels use sentence case in the footnote role [0.43ms]
+@pkgs/ui-root-harness-ts:test: (pass) preview CSS and JavaScript consumers read the same scheme [0.28ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/board-story-manifests.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) board interaction stories expose usable generated contracts [3.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-thumbnail-stack.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a stacked thumbnail keeps a single thumbnail's square [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen > renders header, helper, rows, footer and data-screen [2.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen > rows with onClick are buttons; disabled rows do not fire [14.00ms]
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen > renders custom trailing slot [0.52ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-board-precision.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) 390px phone starts precise and a1–e5 navigation focuses c3 without activating it [42.01ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/catalog.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) CatalogList > renders each group as a menu section panel of rows and selects by id [5.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogList > search field filters rows and shows the empty state [3.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogDetailNav > prev/next buttons navigate in flattened order and clamp at ends [1.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogDetailNav > unknown id shows a dash position with both ends disabled [0.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogDetail > renders children plus a bottom nav bar when onNavigate is set [0.97ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogDetail > omits the nav without onNavigate and shows not-found for unknown ids [0.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) CatalogDetail > screenBodyBleed cancels the shell edge padding on the nav bar [0.54ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/editor-workbench.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) wide, the canvas's measure is capped by the window's height [0.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/battleship-placement-layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) the fleet overview cannot steal placement focus from the working grid [0.50ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-menu-identity.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) an account menu keeps its pressed item while the displayed identity changes [2.89ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tile-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a board is compact unless it is the screen hero [0.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) arrow keys and W A S D steer only while enabled; other keys pass through [0.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) a swipe gives its dominant direction and a short press is a tap [0.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) a moved piece keeps its element, and tiles name what they hold [0.40ms]
+@pkgs/ui-root-harness-ts:test: (pass) the example passes the accessibility audit [2.96ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/navigation.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) hrefToPath > fills [tokens] and appends leftovers as a query string [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppRouterProvider over @solidjs/router > push / back / params / pathname [14.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) useBreadcrumbNav > pops when possible, otherwise replaces to the fallback [8.25ms]
+@pkgs/ui-root-harness-ts:test: (pass) brand + providers > AppLogo follows host-supplied artwork when the identity changes [0.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) brand + providers > AppLogo names the brand without taking over the page heading [0.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) brand + providers > AppLogo mark-only still has an accessible name [0.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) brand + providers > BrandIcon preserves the official full-color vendor artwork [0.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) brand + providers > ComposeProviders nests outermost-first [0.21ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disc-drop-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) column controls expose occupancy, preserve gravity, and keep full columns inert [9.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) focus and pointer previews identify the landing cell; navigation wraps and read-only controls refuse actions [5.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) a column control's own text says nothing its name leaves out [6.40ms]
+@pkgs/ui-root-harness-ts:test: (pass) the board says what to do and marks where the disc would land [4.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) the column pointed at is tinted, and only its landing cell holds the disc [3.58ms]
+@pkgs/ui-root-harness-ts:test: (pass) every column is headed by its number, as the record writes its moves [0.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) a board nobody is to move on, or a setup preview, reserves no turn rows [1.54ms]
+@pkgs/ui-root-harness-ts:test: (pass) once four connect, the board says it is won and marks the winning discs [0.79ms]
+@pkgs/ui-root-harness-ts:test: (pass) while a column would take the disc, the prompt names it [0.76ms]
+@pkgs/ui-root-harness-ts:test: (pass) the landing preview is an empty dashed outline and the drop slot a hollow ring [0.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) the landing preview reads against the board yet stays an outline [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) the prompt under the columns is in the board's ink, and the dark board is softer [0.25ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/profile-identity-card.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) the wide profile grid lines its columns up at the top, at their own heights [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-screen-phone-title.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a phone game in play shows its title with its facts, at a compact size [0.72ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-layout-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) menu helpers accept block content without nesting paragraphs [0.54ms]
+@pkgs/ui-root-harness-ts:test: (pass) false reactive slots do not reserve rails, footer chrome or setup actions [1.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) a review with an empty reactive rail keeps the menu measure [0.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) native form submission and save clicks share one operation and stay on the editor [3.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) replacing form actions updates labels, disabled state and operation [2.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) empty setup stages disappear while zero remains valid supporting content [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) an empty lazy title does not create an invisible heading [0.22ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/paddle-court-ball.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) the court ball carries where and how large it plays, apart from its drawn size [0.57ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-frame.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: the players > the rail lists every chip and marks only the active one as the current step [1.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: the players > out and reconnecting are told in words, not color alone [0.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: the players > a chip carries its facts as tags, and an empty fact row takes no room [0.57ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: the players > a pressable chip and strip are buttons named by the player [6.92ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: the players > a swatch is decorative unless it is labelled [0.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: actions and watching > choosing a tool keeps keyboard focus while its pressed state changes [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: actions and watching > the action bar ships each test id, a primary step and pressed tools [0.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: actions and watching > an action bar with nothing to do draws nothing [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: actions and watching > the watcher count is compact for the eye and named for a listener [2.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: game over > standings list eight players in place order and mark the viewer [2.33ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: game over > a supplied ordinal wins over the computed one [0.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: game over > ordinals follow the locale ordinal rules [0.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: layout slots > empty header and footer slots take no room [0.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: layout slots > a header and a footer frame the game [0.69ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: layout slots > actions beside the board head the rail, after setup and before the record [0.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: layout slots > without actions beside, status and actions follow the board in its column [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: layout slots > a header with neither title nor trailing draws nothing [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: options > a choice is a single-select group of chips [1.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: options > a count is a stepper described by its range message [1.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: options > an invalid count says why in the error tone [0.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game frame: options > read-only shows each chosen value as text, with no control [0.28ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/card-table.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) the table names every seat and card in words, never by colour alone [3.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) a card the rules allow toggles; one they do not says why and does nothing [2.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) a card played at once is a plain button, not a toggle [1.75ms]
+@pkgs/ui-root-harness-ts:test: (pass) focus stays in the hand when the card played leaves it, and Tab returns to where the person was [1.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) a sent pass shows it is in progress and cannot be sent twice [2.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) the confirm action waits for the full selection [2.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) arrow keys, Home and End move between the cards of the hand [2.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) the table passes the accessibility audit [6.98ms]
+@pkgs/ui-root-harness-ts:test: (pass) cards are drawn as cards in one flat hand, and the trick sits on the table [1.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) a seat holds the person lent to it and keeps its name and phase for a listener [1.60ms]
+@pkgs/ui-root-harness-ts:test: (pass) a hand of thirteen cards lies in two rows of whole cards that never overlap [1.97ms]
+@pkgs/ui-root-harness-ts:test: (pass) a two-row hand breaks at a suit boundary where one fits [0.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) a narrow seat's name is set smaller and wraps, never cut [0.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) a phone's table pairs compact named seat rows with their trick cards [1.73ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/overlay-infra.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) FocusTrap > autofocuses, wraps Tab, restores focus, escapes innermost [15.88ms]
+@pkgs/ui-root-harness-ts:test: (pass) keyboard shortcuts > document listener respects scope gate [9.93ms]
+@pkgs/ui-root-harness-ts:test: (pass) OverlayPortal > teleports children into the host layer [0.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) OverlayPortal > renders inline without a provider [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) SurfaceStack > z-index follows open order and isTop tracks the last surface [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) SurfaceStack > FadeSwitch exposes the state key [0.15ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disc-drop-final-position-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) finished disc positions retain full color and refuse further drops [3.37ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-intro-actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) ScreenIntro actions > a screen's own commands sit at its title, after the words [0.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenIntro actions > without actions the title block is unchanged [0.13ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/app-sidebar.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) AppHeaderIsland sidebar > is a navigation of current-page rows with the global chrome at its foot [5.71ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame rail > wide layouts draw the rail beside the content [1.57ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame rail > compact layouts never draw the rail [0.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame rail > the rail stays while a screen draws its own chrome [1.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame rail > an open space and a tab screen share one column, so their edges match [0.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame rail > beside the sidebar, screen headers do not repeat the global chrome [0.36ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/breadcrumb-navigation-handle.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) trail exposes exactly the immediate parent as the shared navigation control [5.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) pills exposes exactly the immediate parent as the shared navigation control [4.94ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/card-table-availability.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a refused nine of diamonds explains follow suit before activation and never plays [0.46ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/profile-rail-layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a desktop profile with a rail is an identity header over a flexible main column and a rail wide enough for one-line captions [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) a profile with a rail draws its identity apart from the picture and the rail after the main sections [0.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) a profile without a rail keeps the identity card beside its sections [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) on desktop the identity spans the columns under it [0.04ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/story-fonts.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) an already-resolved fonts.ready cannot bypass explicit face loads [0.22ms]
+@pkgs/ui-root-harness-ts:test: (pass) missing CSS registration rejects rather than accepting an empty font set [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) an empty load result rejects rather than silently using fallback copy [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) font network failures propagate to the native Storybook loader [0.03ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-base.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > root screens open with the large title; pushed screens keep the heading beside back [1.92ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > the back control is a 44px target [0.58ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > the top bar hairline shows only once the body has scrolled [0.78ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > trailing chrome sits in the row itself, so a long title keeps the room [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > renders data-screen, TopBar h1 title, back button and body [4.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > back crumb with href routes through useBreadcrumbNav [7.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > actions render as buttons (icon + text) and fire [11.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > scroll body wraps content in a scroller and pins the footer below it [1.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > non-scroll body without footer absorbs the safe-area inset itself [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > bottomBar pins under the footer and takes the safe-area inset [0.70ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > largeTitle hides the TopBar title until the body scrolls [1.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > primaryAction renders a FAB that runs the mutation [5.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > virtual list body renders rows inside the padded shell [7.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase compact > wide virtual list keeps a flex height chain for flush-edge [3.82ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase wide > renders breadcrumb trail with h1 title, link crumbs, actions and body [10.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase wide > wide body starts at the page title edge: no inset, edge step 0 [1.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase wide > scrolling wide body scrolls as one; footer gets no divider [0.27ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenBase wide > primaryAction renders as a header button [0.82ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/code-editor.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) CodeEditor > renders a monospace textarea over a tokenized mirror [1.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) CodeEditor > grows with line count and honours minLines [0.31ms]
+@pkgs/ui-root-harness-ts:test: (pass) CodeEditor > reports text and selection changes from input/select events [8.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) CodeEditor > onKeyDown receives document keydown only while focused [9.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) CodeEditor > editable={false} renders a read-only field [0.26ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-ui-contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) game presentation contracts > countdown follows the deadline, freezes, resumes and releases its timer [0.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) game presentation contracts > the example composes native radio choices and a labelled inline disclosure [4.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) game presentation contracts > inline commands prevent double submission and retain errors for retry [0.96ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/modal.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) ModalRoot > exposes a labelled dialog, moves focus in, and restores it on close [2.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalRoot > backdrop click dismisses unless dismissOnBackdrop is false [0.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalRoot > Escape closes only the top surface [6.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalRoot > throws when a visible modal has no SurfaceStackProvider [0.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalContent > width comes only from size buckets, clamped to the layout [0.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalContent > the dialog floats: raised fill, sheet radius, the float shadow, no hairline [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalContent > footer stacks full width on compact and is one row on wide [0.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) ModalContent > ModalButton maps variants onto Button intents [1.00ms]
+@pkgs/ui-root-harness-ts:test: (pass) ConfirmationModal > confirm / cancel wiring, submitting lock, and error caption [9.31ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-heading-keep-title.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a phone never hides a heading title, a puzzle name included [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/avatar-identity.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "jordan" → "J" [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "jordan_plays" → "JP"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "@jordan_plays" → "JP"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "Ada Lovelace" → "AL"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "robin_42" → "R"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "a_really_long_username" → "AR"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "  morgan  " → "M"
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "42" → "4" [0.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "" → ""
+@pkgs/ui-root-harness-ts:test: (pass) avatarInitials > "élodie-roy" → "ÉR"
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > the same key always gives the same tone [0.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > near-identical names spread across every tone [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > your own indigo plate is never another person’s tone
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > light: every tone's initials hold AA on background [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > light: every initials ring holds 3:1 on background [0.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > light: every tone's initials hold AA on surface
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > light: every initials ring holds 3:1 on surface
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > dark: every tone's initials hold AA on background
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > dark: every initials ring holds 3:1 on background
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > dark: every tone's initials hold AA on surface
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > dark: every initials ring holds 3:1 on surface
+@pkgs/ui-root-harness-ts:test: (pass) avatar tones > your own initials keep their AA ink [0.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar initials ring > an initials face wears its tone ring, not the hairline [0.51ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar initials ring > pictures, placeholders and ringless faces keep no tone ring [0.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar tintKey > tints initials with the key’s tone plate and ink [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar tintKey > leaves pictures, placeholders and your own face untinted [0.21ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-tooltip.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) floating tooltip labels stay within the viewport and retain their theme [8.67ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/examples-mount.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > action-bar/action-bar.example.tsx mounts without throwing [3.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > activity-region/activity-region.example.tsx mounts without throwing [1.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > app-frame/app-frame.example.tsx mounts without throwing [2.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > app-header-island/app-header-island.example.tsx mounts without throwing [1.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > app-header-island/subscreen.example.tsx mounts without throwing [1.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > app-logo/app-logo.example.tsx mounts without throwing [1.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > arrow-key-group/arrow-key-group.example.tsx mounts without throwing [1.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > avatar-group/avatar-group.example.tsx mounts without throwing [104.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > avatar-hero/avatar-hero.example.tsx mounts without throwing [3.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > avatar/avatar.example.tsx mounts without throwing [8.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > badge/badge.example.tsx mounts without throwing [3.31ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > badged-icon/badged-icon.example.tsx mounts without throwing [2.51ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > board-fit/board-fit.example.tsx mounts without throwing [1.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > bottom-action-bar/bottom-action-bar.example.tsx mounts without throwing [3.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > brand-icon/brand-icon.example.tsx mounts without throwing [0.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > button/button.example.tsx mounts without throwing [10.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > button/element-handles.example.tsx mounts without throwing [2.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > card-table/card-table.example.tsx mounts without throwing [1.89ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > card/card.example.tsx mounts without throwing [0.99ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > catalog-detail/catalog.example.tsx mounts without throwing [2.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > cell-grid-board/cell-grid-board.example.tsx mounts without throwing [4.64ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > cell-grid-board/checkered-board.example.tsx mounts without throwing [4.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > cell-grid-palette/cell-grid-palette.example.tsx mounts without throwing [1.70ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > checkbox/checkbox.example.tsx mounts without throwing [0.98ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > chip-group/chip-group.example.tsx mounts without throwing [1.88ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > chip/chip.example.tsx mounts without throwing [1.51ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > chrome-breadcrumb/chrome-breadcrumb.example.tsx mounts without throwing [3.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > chrome-title/chrome-title.example.tsx mounts without throwing [0.98ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > code-block/code-block.example.tsx mounts without throwing [0.71ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > code-editor/code-editor.example.tsx mounts without throwing [1.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > collapsible/collapsible.example.tsx mounts without throwing [1.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > collection-screen/collection-screen.example.tsx mounts without throwing [2.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > combobox/combobox.example.tsx mounts without throwing [5.75ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > command-palette/command-palette.example.tsx mounts without throwing [7.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > content-screen/content-screen.example.tsx mounts without throwing [1.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > copy-to-clipboard-field/copy-to-clipboard-field.example.tsx mounts without throwing [25.36ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > direction-pad/direction-pad.example.tsx mounts without throwing [1.48ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > disclosure-card/disclosure-card.example.tsx mounts without throwing [0.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > dismissible-top-banner/dismissible-top-banner.example.tsx mounts without throwing [1.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > divider/divider.example.tsx mounts without throwing [0.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > document-panel/document-panel.example.tsx mounts without throwing [0.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > editor-workbench/editor-workbench.example.tsx mounts without throwing [1.12ms]
+@pkgs/ui-root-harness-ts:test: 329 |         if (this.#iframe && this.#iframe.window.location.href === targetURL.href) {
+@pkgs/ui-root-harness-ts:test: 330 |             return;
+@pkgs/ui-root-harness-ts:test: 331 |         }
+@pkgs/ui-root-harness-ts:test: 332 |         if (browserFrame.page.context.browser.settings.disableIframePageLoading ||
+@pkgs/ui-root-harness-ts:test: 333 |             !browserFrame.page.context.browser.settings.enableIframePageLoading) {
+@pkgs/ui-root-harness-ts:test: 334 |             const error = new window.DOMException(`Failed to load iframe page "${targetURL.href}". Iframe page loading is disabled.`, DOMExceptionNameEnum.notSupportedError);
+@pkgs/ui-root-harness-ts:test:                                 ^
+@pkgs/ui-root-harness-ts:test: NotSupportedError: Failed to load iframe page "about:blank". Iframe page loading is disabled.
+@pkgs/ui-root-harness-ts:test:       at #loadPage (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/html-iframe-element/HTMLIFrameElement.js:334:27)
+@pkgs/ui-root-harness-ts:test:       at [connectedToDocument] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/html-iframe-element/HTMLIFrameElement.js:230:14)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:801:33)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [connectedToNode] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:793:42)
+@pkgs/ui-root-harness-ts:test:       at [appendChild] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/node/Node.js:421:29)
+@pkgs/ui-root-harness-ts:test:       at [appendChild] (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/happy-dom@21.0.4/node_modules/happy-dom/lib/nodes/element/Element.js:1102:50)
+@pkgs/ui-root-harness-ts:test:       at insertExpression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:618:14)
+@pkgs/ui-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:581:17)
+@pkgs/ui-root-harness-ts:test:       at runComputation (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:750:22)
+@pkgs/ui-root-harness-ts:test:       at updateComputation (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:732:3)
+@pkgs/ui-root-harness-ts:test:       at createRenderEffect (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:239:75)
+@pkgs/ui-root-harness-ts:test:       at insertExpression (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:578:5)
+@pkgs/ui-root-harness-ts:test:       at runComputation (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:750:22)
+@pkgs/ui-root-harness-ts:test:       at updateComputation (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:732:3)
+@pkgs/ui-root-harness-ts:test:       at createRenderEffect (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:239:75)
+@pkgs/ui-root-harness-ts:test:       at insert (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:334:3)
+@pkgs/ui-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:200:37)
+@pkgs/ui-root-harness-ts:test:       at runUpdates (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:871:17)
+@pkgs/ui-root-harness-ts:test:       at createRoot (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/dist/dev.js:202:12)
+@pkgs/ui-root-harness-ts:test:       at render (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/solid-js@1.9.17/node_modules/solid-js/web/dist/dev.js:198:3)
+@pkgs/ui-root-harness-ts:test:       at render (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/node_modules/.bun/@solidjs+testing-library@0.8.10+9ce5e037b2716af7/node_modules/@solidjs/testing-library/dist/index.js:55:65)
+@pkgs/ui-root-harness-ts:test:       at renderUi (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/render.tsx:23:18)
+@pkgs/ui-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/examples-mount.test.tsx:26:11)
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > embedded-frame/embedded-frame.example.tsx mounts without throwing [1.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > embedded-screen/embedded-screen.example.tsx mounts without throwing [0.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > empty-state/empty-state.example.tsx mounts without throwing [2.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > error-state/error-state.example.tsx mounts without throwing [3.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > explorer-workspace/explorer-workspace.example.tsx mounts without throwing [1.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > field-label/field-label.example.tsx mounts without throwing [1.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > file-trigger/file-trigger.example.tsx mounts without throwing [1.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > filter-bar/filter-bar.example.tsx mounts without throwing [0.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > floating-action-button/floating-action-button.example.tsx mounts without throwing [1.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > floating-panel/floating-panel.example.tsx mounts without throwing [1.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > form-actions-footer/form-actions-footer.example.tsx mounts without throwing [0.99ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > form-field/form-field.example.tsx mounts without throwing [2.88ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > form-screen/form-screen.example.tsx mounts without throwing [1.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > form/form.example.tsx mounts without throwing [1.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-board-stage/game-arena.example.tsx mounts without throwing [1.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-board-stage/game-frame-play.example.tsx mounts without throwing [13.97ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-history-screen/game-history-screen.example.tsx mounts without throwing [1.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-move-list/game-move-list.example.tsx mounts without throwing [4.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-player-bar/game-frame-setup.example.tsx mounts without throwing [9.54ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-result/game-frame-result.example.tsx mounts without throwing [3.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-review-screen/game-review-screen.example.tsx mounts without throwing [1.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-screen/game-screen.example.tsx mounts without throwing [1.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-session-layout/game-frame.example.tsx mounts without throwing [2.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-session-layout/game-session-layout.example.tsx mounts without throwing [1.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-setup-panel/game-setup-panel.example.tsx mounts without throwing [0.41ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > game-tile/game-tile.example.tsx mounts without throwing [3.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > grid/grid.example.tsx mounts without throwing [2.45ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > heading/heading.example.tsx mounts without throwing [1.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > icon-button/icon-button.example.tsx mounts without throwing [3.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > icon-link/icon-link.example.tsx mounts without throwing [0.90ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > icon/icon.example.tsx mounts without throwing [3.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > image/image.example.tsx mounts without throwing [1.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > inspection-workspace/inspection-workspace.example.tsx mounts without throwing [1.89ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > key-hints/key-hints.example.tsx mounts without throwing [0.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > landmarks/landmarks.example.tsx mounts without throwing [1.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > layer/layer.example.tsx mounts without throwing [1.22ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > list/list.example.tsx mounts without throwing [4.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > loading-state/loading-state.example.tsx mounts without throwing [1.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > log-line/log-line.example.tsx mounts without throwing [0.81ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > main-menu-screen/main-menu-screen.example.tsx mounts without throwing [0.98ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > markdown-editor/markdown-editor.example.tsx mounts without throwing [43.88ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > menu-row/menu-row.example.tsx mounts without throwing [6.00ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > menu-screen/menu-screen.example.tsx mounts without throwing [1.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > metric-strip/metric-strip.example.tsx mounts without throwing [1.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > mini-player/mini-player.example.tsx mounts without throwing [1.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > modal-content/modal.example.tsx mounts without throwing [2.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > monogram-tile/monogram-tile.example.tsx mounts without throwing [0.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > move-strip/move-strip.example.tsx mounts without throwing [0.78ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > multi-select-swatch-grid/multi-select-swatch-grid.example.tsx mounts without throwing [1.73ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > mutation-modal/mutation-modal.example.tsx mounts without throwing [2.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > notice/notice.example.tsx mounts without throwing [2.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > number-stepper/number-stepper.example.tsx mounts without throwing [1.48ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > overflow-menu-button/overflow-menu-button.example.tsx mounts without throwing [1.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > paddle-court/paddle-court.example.tsx mounts without throwing [1.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > pagination-controls/pagination-controls.example.tsx mounts without throwing [3.00ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > pane/pane.example.tsx mounts without throwing [0.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > path-grid-board/path-grid-board.example.tsx mounts without throwing [2.46ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > picker-section/picker-section.example.tsx mounts without throwing [0.85ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > popover/popover.example.tsx mounts without throwing [1.71ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > pressable/pressable.example.tsx mounts without throwing [1.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > preview-card-grid/preview-card-grid.example.tsx mounts without throwing [2.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > preview-thumbnail/preview-thumbnail.example.tsx mounts without throwing [1.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > profile-screen-layout/profile-screen-layout.example.tsx mounts without throwing [1.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > progress-bar/progress-bar.example.tsx mounts without throwing [0.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > puzzle-screen/puzzle-screen.example.tsx mounts without throwing [2.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > radio-group/radio-group.example.tsx mounts without throwing [1.29ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > range-control/range-control.example.tsx mounts without throwing [0.95ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > responsive-surface/responsive-surface.example.tsx mounts without throwing [0.85ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > screen-base/screen-base.example.tsx mounts without throwing [3.25ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > screen-large-title/screen-title.example.tsx mounts without throwing [0.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > scroll-view/scroll-view.example.tsx mounts without throwing [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > segmented-control/segmented-control.example.tsx mounts without throwing [0.91ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > select/select.example.tsx mounts without throwing [2.82ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > semantic-list/semantic-list.example.tsx mounts without throwing [1.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > skeleton/skeleton.example.tsx mounts without throwing [2.76ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > social-sign-in-button/social-sign-in-button.example.tsx mounts without throwing [3.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > sound-indicator/sound-indicator.example.tsx mounts without throwing [2.48ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > spacer/spacer.example.tsx mounts without throwing [1.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > sparkline/sparkline.example.tsx mounts without throwing [1.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > speaking-avatar/speaking-avatar.example.tsx mounts without throwing [57.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > spinner/spinner.example.tsx mounts without throwing [2.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > stack/stack.example.tsx mounts without throwing [3.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > status-dot/status-dot.example.tsx mounts without throwing [1.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > status-icon-slot/status-icon-slot.example.tsx mounts without throwing [1.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > step-footer/step-footer.example.tsx mounts without throwing [1.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > step-track/step-track.example.tsx mounts without throwing [1.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > success-state/success-state.example.tsx mounts without throwing [1.83ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > suggestion-list/suggestion-list.example.tsx mounts without throwing [1.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > surface/surface.example.tsx mounts without throwing [1.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > switch/switch.example.tsx mounts without throwing [0.79ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > tab-bar/tab-bar.example.tsx mounts without throwing [2.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > table/table.example.tsx mounts without throwing [2.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > tabs/tabs.example.tsx mounts without throwing [2.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > test-command-probe/test-command-probe.example.tsx mounts without throwing [0.89ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > text-input/text-input.example.tsx mounts without throwing [1.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > text-link/text-link.example.tsx mounts without throwing [1.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > text/text.example.tsx mounts without throwing [1.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > textarea/textarea.example.tsx mounts without throwing [0.94ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > theme-context/theme-tokens.example.tsx mounts without throwing [3.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > tile-board/tile-board.example.tsx mounts without throwing [0.36ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > toolbar/toolbar.example.tsx mounts without throwing [1.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > tooltip/tooltip.example.tsx mounts without throwing [1.84ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > trail-arena/trail-arena.example.tsx mounts without throwing [3.71ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > visually-hidden/visually-hidden.example.tsx mounts without throwing [0.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) Storybook fixtures > word-tile-board/word-tile-board.example.tsx mounts without throwing [2.01ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/battleship-target-layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) coarse target areas select by keyboard and pointer without replacing field outcomes [2.13ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/board-measure-consistency.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a square puzzle board takes a game board's measure [0.09ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/popover.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Popover > the trigger announces a dialog popup and its state [5.41ms]
+@pkgs/ui-root-harness-ts:test: (pass) Popover > focus moves in on open and back to the trigger on Escape [7.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) Popover > the trigger toggles it closed [7.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) Popover > a press outside closes it; a press inside does not [8.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) Popover > controlled open follows the owner [0.51ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/data-display.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Badge > renders label with intent/tone colors and pill radius [0.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Badge > sm size uses tighter padding than md [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) StatusDot > is decorative without a label and an img with one [0.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar > names the avatar by alt and draws the uri as its face [0.33ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar > named sizes resolve to their token diameter; ring is optional [0.29ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar > initials sit on the quiet plate, never the blue [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar > falls back to initials and inlines svg markup [0.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar placeholder > nobody yet is a filled head and shoulders on the quiet plate [0.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) AvatarGroup > caps visible avatars and renders the overflow pill [0.48ms]
+@pkgs/ui-root-harness-ts:test: (pass) AvatarGroup > becomes a button when onClick is provided [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) AvatarHero > renders the corner action as a 44px button [0.31ms]
+@pkgs/ui-root-harness-ts:test: (pass) SoundIndicator > exposes state via role=status and switches glyphs [0.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) SpeakingAvatar > renders message bubble and hides mute toggle without a speaker [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) SpeakingAvatar > with a speaker, the head toggles mute (aria-pressed) [0.82ms]
+@pkgs/ui-root-harness-ts:test: (pass) useRelativeTimeLabel > buckets hours and days [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) List / ListItem > renders a ul with li items and separators [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) List / ListItem > interactive items are buttons and report selection [0.45ms]
+@pkgs/ui-root-harness-ts:test: (pass) MenuRow / MenuList / MenuSection > settings rows are native buttons inside a group with a chevron [1.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) MenuRow / MenuList / MenuSection > selected row exposes aria-current and hideChevron drops the glyph [0.22ms]
+@pkgs/ui-root-harness-ts:test: (pass) PaginationControls > page buttons carry aria-current and nav buttons clamp [1.51ms]
+@pkgs/ui-root-harness-ts:test: (pass) settings groups accept links, static details, and native actions [1.46ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-action-clearance.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > the clearance is the FAB margin, its 52px height and a 16px gap [0.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a scroll body ends with the FAB's room on a phone [0.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a scroll body keeps no room when nothing floats [0.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a scroll body keeps no room on a wide screen [0.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a virtual body ends with the FAB's room on a phone [3.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a virtual body keeps no room when nothing floats [2.79ms]
+@pkgs/ui-root-harness-ts:test: (pass) a floating action button never covers the last row > a virtual body keeps no room on a wide screen [2.99ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) squares print their bonus, tiles their letter, and each state is in its label [4.00ms]
+@pkgs/ui-root-harness-ts:test: (pass) a rack tile placed on a square becomes tentative there and an empty rack slot [4.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) arrow keys move focus across squares [3.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) the board and rack pass the accessibility audit [8.75ms]
+@pkgs/ui-root-harness-ts:test: (pass) the board reads its squares once per change, however a caller computes them [1.00ms]
+@pkgs/ui-root-harness-ts:test: 124 |     scrollWidth: { value: 800 },
+@pkgs/ui-root-harness-ts:test: 125 |     scrollHeight: { value: 800 },
+@pkgs/ui-root-harness-ts:test: 126 |     clientWidth: { value: 320 },
+@pkgs/ui-root-harness-ts:test: 127 |     clientHeight: { value: 260 },
+@pkgs/ui-root-harness-ts:test: 128 |     scrollLeft: { value: 240 },
+@pkgs/ui-root-harness-ts:test: 129 |     scrollTop: { value: 320 },
+@pkgs/ui-root-harness-ts:test:                                                      ^
+@pkgs/ui-root-harness-ts:test: error: expect(received).toBe(expected)
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: Expected: "true"
+@pkgs/ui-root-harness-ts:test: Received: "false"
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx:129:48)
+@pkgs/ui-root-harness-ts:test: (fail) enlargement retains all squares in an overview and announces the chosen mode [4.60ms]
+@pkgs/ui-root-harness-ts:test: (pass) board map locates a committed intersection without placing the selected rack tile [10.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/step-track.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) StepTrack > reads its steps in order: a check once done, a number until then [0.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) StepTrack > a step keeps its action element as its state changes [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) StepTrack > stacks one step a line when its container is narrow [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/word-tile-board-enlarged.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) enlarging retains the chosen coordinate and placement through fit changes [34.44ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/path-grid-input.contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) pointer sample expansion stays in bounds and visits adjacent cells through the final sample [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) one captured pointer expands fast drags; a different pointer and synthetic click do not duplicate them [1.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) cancellation, lost capture and disabling discard the trace once without committing it [0.79ms]
+@pkgs/ui-root-harness-ts:test: (pass) keyboard focus is stable while paths update and disabled controls remain readable [1.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) the explorer renders every path color and its disabled state [0.77ms]
+@pkgs/ui-root-harness-ts:test: (pass) a square is at most 80px, so a small grid never fills a wide column [0.15ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-grid.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen wide grid > wide, a grid menu gives every destination its own card [0.99ms]
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen wide grid > compact, the same menu stays one panel of rows [0.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuScreen wide grid > without the grid, wide menus keep their rows [0.41ms]
+@pkgs/ui-root-harness-ts:test: (pass) balanced grids > four destinations take two columns so none is stranded [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) tiles > four games are four tiles in one row, each read top to bottom with two lines of what it is [1.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) tiles > compact, a tile menu stays one panel of rows [0.57ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-manifests.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) every generated component has its production purpose available to agents [2.90ms]
+@pkgs/ui-root-harness-ts:test: (pass) native manifest curation keeps focused examples and preserves gallery URLs [3.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) the docs manifest carries the explicit guide summary and static guidance [0.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/disclosure.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Collapsible > toggles body and aria-expanded [4.69ms]
+@pkgs/ui-root-harness-ts:test: (pass) ScreenTitle > large title falls back to provider title; scroll reveals top bar title [0.38ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-focus.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > the first screen leaves the keyboard alone [0.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > a screen replacing the keyboard's screen takes it on its title [1.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > the title that takes the keyboard draws no focus ring [1.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > coming back puts the keyboard on the control it left from [1.50ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > a change that leaves the keyboard on lasting chrome does not move it [0.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen focus > outside an AppFrame, screens manage no focus [0.44ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/key-hints.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) KeyHints > says the pointer way first, then each key cap beside what it does [0.22ms]
+@pkgs/ui-root-harness-ts:test: (pass) KeyHints > the words take a line of their own, so the keys share one line [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/select.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) select logic > selectOptionText prefers searchText, then string label; JSX labels are opaque [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) select logic > filterSelectOptions is case-insensitive and keeps everything on empty query [0.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) select logic > nextSelectOptionIndex wraps arrows and jumps Home / End [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) select logic > type-ahead matches prefixes and cycles on repeated letters [0.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) PickerSection > renders label, description and children in a section [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > trigger shows the selected label and listbox popup semantics [0.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > trigger reads as a field: the TextInput host, body value, icon chevron [0.33ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > opens a dialog with a listbox, marks the current option and picks on click [3.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > user-event click picks a portaled option [3.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > arrow keys rove over enabled options, Enter picks, Escape closes [18.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > type-ahead moves focus to the first option starting with the typed letter [4.71ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > searchable select filters the listbox from the search field [11.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > disabled trigger does not open; placeholder shows when nothing matches [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Select > tags its root as Select and picks a value [1.54ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-title-edge.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a square puzzle's grid starts on the game column's edge [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-menu-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: the game heads its menu, every way to play a tile, the main way in leading [1.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: a quiet choice is a compact row under the tiles, never a tile [0.58ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: the look back is a shorter card of the tiles' own kind [0.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: the lead tag sits beside its title at a readable size, the tile one line across [0.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: the lead reads across, its chevron on its words' axis [0.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > phone: the same choices as one panel of menu rows [0.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > the main way in leads alike on every size: its picture on the accent and its tag [1.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > wide: two ways to play are tiles of one size, the look back a full-width row under them [0.82ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMenuScreen > phone: the lead's tag sits beside its title, never on a line of its own or in the caption [0.84ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/main-menu-item-emphasis.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuItemRow emphasis > the primary row leads with a tinted chevron, never a fill; a quiet one keeps its title ink and says less [0.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) MainMenuItemRow emphasis > a row's tag follows its title at a readable size; the main way in's is in the accent [0.39ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-surfaces-balance.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a section pairs its picture in a card of its own, before the section [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a phone's setup picture is a slim row, the thumbnail beside its label [0.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > three players on a phone share a row with wrapping facts [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a phone's Battleship grid gives its room to the targets [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a section with no picture keeps its plain body [0.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > the game's commands close the record's own card, and the rail is as tall as what it holds [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a progress track is the line tone, never the sunken well [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a phone seat's toggle sits under the name, beside the seat's own controls [0.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a wide seat's toggle stays at the row's far edge [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a puzzle's title shows on every size, with its facts on its line [0.43ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a stat's progress bar spans the stat [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > the rail beside a wide board runs to the column's edge and its moves grow beside the board [0.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a rail's chips share their row's height, a stacked chip's lines from its top [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a wide setup's preview card is no taller than its players, and seat rows stay level [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) game surfaces > a split setup card's two halves start on one line [0.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/nav-selection-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) navigation selection keeps the layout still > wide header labels reserve the semibold width before and after selection [0.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) navigation selection keeps the layout still > compact tab bar labels reserve the semibold width before and after selection [0.33ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/responsive-surface.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) shouldUseMobileSheet > sheet only for responsive + compact + capable host [0.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > wide layout renders a centered ModalContent dialog named by the title [0.98ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > compact layout renders the CSS bottom sheet with a decorative handle [3.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > presentation="modal" forces the centered modal on compact layouts [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > scroll={false} keeps the surface fixed without a chrome ScrollView [0.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > default scroll pins the header and scrolls only the body [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > overflowing body keeps header outside the scrollport [0.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > scroll={false} keeps shell edge padding for nested flush scrollers [0.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > closable=false hides the close icon and ignores backdrop dismiss [0.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > passthrough host falls back to the modal path; web host is the default [0.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > Escape closes the sheet and returns focus to the control that opened it [9.61ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > a scrim tap closes the sheet and returns focus to the opener [4.33ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > presentation="modal" is the dialog: centered, scrim, Escape closes [3.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) ResponsiveSurface > sheet unmounts and restores focus when hidden [0.54ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Chip / ChipGroup > Chip is a toggle button with aria-pressed and fixed height [0.25ms]
+@pkgs/ui-root-harness-ts:test: (pass) Chip / ChipGroup > ChipGroup is a radiogroup that selects exactly one option [0.41ms]
+@pkgs/ui-root-harness-ts:test: (pass) SegmentedControl > radiogroup semantics + indicator geometry [0.46ms]
+@pkgs/ui-root-harness-ts:test: (pass) NumberStepper > spinbutton aria + increment/decrement clamp [0.58ms]
+@pkgs/ui-root-harness-ts:test: (pass) MultiSelectSwatchGrid > toggles swatches with aria-checked and helpers agree [0.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) SocialSignInButton > renders the provider label, brand glyph, and blocks when loading [0.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) CopyToClipboardField > copies via the injected sink and flips to the copied label [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) FormActionsFooter > submit runs the operation with success feedback; cancel fires [2.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) Google sign-in follows the vendor palette and typography in every theme [0.56ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/form-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) translated actions retain their provider while saving, retrying and cancelling [16.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) Enter submits a valid editor and preserves the draft after a failed save and retry [18.36ms]
+@pkgs/ui-root-harness-ts:test: (pass) native validity and a disabled save action guard programmatic submissions [1.50ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/choice-controls.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Button faces follow the brief > secondary (neutral solid) is the outline face and disables as one [0.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) Button faces follow the brief > every size keeps a 44px hit area through `hitTarget` [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Chip > a 32px chip takes the 44px hit area and can leave the tab order [0.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) ChipGroup multiple selection > toggles chips with aria-pressed and reports keys in option order [0.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) ChipGroup multiple selection > toggleChipKey adds and removes in option order [0.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) ChipGroup multiple selection > a disabled option ignores presses [0.40ms]
+@pkgs/ui-root-harness-ts:test: (pass) ChipGroup single selection > is one tab stop; arrows move and choose, wrapping [8.64ms]
+@pkgs/ui-root-harness-ts:test: (pass) ChipGroup single selection > pressing the chosen chip again does not re-select it [0.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) SegmentedControl keyboard > one tab stop; arrow keys move the selection [5.47ms]
+@pkgs/ui-root-harness-ts:test: (pass) NumberStepper bounds > disables the control at a bound and announces why [1.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) NumberStepper bounds > Home and End jump to the bounds; a disabled stepper ignores keys [0.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) NumberStepper bounds > stepperBound names the bound the value sits on
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/combobox.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (single) > trigger exposes combobox semantics and the placeholder [0.51ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (single) > opens a dialog with a focused search box and a listbox; click picks and closes [4.81ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (single) > typing filters options; arrows move aria-activedescendant; Enter picks [14.78ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (single) > no match shows the empty message; Escape closes without picking [12.79ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (multiple) > renders chips, toggles values without closing, Done closes [6.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (multiple) > chip click removes the value; clear button empties the selection [0.43ms]
+@pkgs/ui-root-harness-ts:test: (pass) Combobox (multiple) > Backspace in an empty search removes the last chip [4.22ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/wide-layout-regression.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > the wide frame paints the background canvas, never the surface well [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a desktop menu screen takes the whole column from its leading edge, title included [0.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > inside a space a menu screen starts at the same edge as a tab screen [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a desktop menu screen puts each section label beside its rows [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a menu section outside a menu screen stays stacked on desktop [0.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a desktop collection shows its aside beside the list; a phone does not [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > header actions sit on the title line, under the breadcrumb [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a content screen shares the prose measure between title and body [0.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > an embedded menu centers its title and rows at width 390 [0.22ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > an embedded menu centers its title and rows at width 768 [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > an embedded menu centers its title and rows at width 1024 [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > an embedded menu centers its title and rows at width 1440 [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a routed menu centers its column at compact width 390 [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide layout canvas and centered measure > a routed menu centers its column at compact width 768 [0.21ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/battleship-day-palette.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) the light theme draws Battleship as a day sea, every mark readable [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) the light theme sets white targets on a frame a step deeper, so each cell reads [0.02ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/floating-menu.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu > renders a positioned role=menu with ≥44px items and header [1.86ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu > empty label falls back to aria-label / id; subtitle stays on one line [0.81ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu > a row is named by what it shows, so a listener hears its visible label [1.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu > focuses the first item, arrows skip disabled rows, select closes [16.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu > Escape and outside click close the menu [3.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) default overflow menus > OverflowMenuButton renders a FloatingMenu anchored to its trigger [1.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) default overflow menus > ActionBar More trigger opens a FloatingMenu with the overflow rows [1.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu header badge > renders the badge on its own row under the header title [0.40ms]
+@pkgs/ui-root-harness-ts:test: (pass) FloatingMenu header badge > renders no badge slot without one [0.35ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/app-header-island.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) AppHeaderIsland > renders leading, a navigation of current-page buttons and explicit trailing [4.76ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppHeaderIsland > omits the navigation without items and falls back to AppFrame global trailing [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen breadcrumbs replace root pills, retain navigation and reset after unmount [5.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) root screens keep primary navigation without a redundant body header [0.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) compact screens retain their own back/title bar [0.70ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen actions remain usable when navigation moves into the shell [5.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) persistent shell resolves newly routed ancestors to their named destinations [4.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) a JSX breadcrumb title mounts once and remains the accessible page heading [0.74ms]
+@pkgs/ui-root-harness-ts:test: (pass) keyboard focus reaches the pill heading and returns to the previous screen control [8.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) breadcrumb JSX keeps the screen provider context and mounts once [0.61ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/speaking-avatar-accessibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) speech loading retains complete words in the same live region through context changes and mute [0.91ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/layout-additions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Spacer > grows when unsized, holds a token step when sized, and is hidden [0.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Layer > covers the parent or the viewport and lays out its children [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) Image > a lazy, framed picture over a muted placeholder until it loads [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Image > a failed load keeps the placeholder and the alt text [0.15ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tabs.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Tabs > wires tabs to panels with roles, names and one tab stop [1.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tabs > arrow keys, Home and End move and select, skipping disabled tabs [19.29ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tabs > controlled value wins and follows the owner [5.81ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tabs > defaultValue picks the first tab; unselected panels are hidden [0.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tabs > underline tabs share the width on compact layouts; pill is a track [0.81ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/story-readiness.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) args rerenders cannot mark a still-playing story ready [0.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) native story failures remain failures after a successful args rerender [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) readiness ignores other stories and detaches native listeners on cleanup [0.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) a nested render cannot finish the story before the original completion hooks [0.03ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-editor.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) formatting and undo preserve arbitrary authored paragraphs [15.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) formatting cannot exceed the serialized writing limit [5.75ms]
+@pkgs/ui-root-harness-ts:test: (pass) pasted links cannot introduce executable destinations [8.28ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/cell-grid-board.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) barriers and previews update without remounting the focused pawn cell [0.84ms]
+@pkgs/ui-root-harness-ts:test: (pass) navigation keys move within the grid and stop at its edges [0.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) each cell is a named button with a hidden glyph; only enabled cells activate [0.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) one roving tab stop follows focus; previews report the focused cell; other keys reach the caller [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) paired panels keep both panels mounted and switch which one shows [3.25ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/pending-navigation.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) staying keeps a pending mutation mounted and leaving disposes it only after confirmation [4.89ms]
+@pkgs/ui-root-harness-ts:test: (pass) embedded navigation keeps its owner alive until departure is confirmed [3.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) router links also require confirmation while a mutation is pending [2.99ms]
+@pkgs/ui-root-harness-ts:test: (pass) dismissing a dialog keeps its mutation mounted until departure is confirmed [4.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) closing a dialog cancels only work belonging to that dialog [3.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) closing an idle dialog does not interrupt work elsewhere [0.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) reload protection clears after mutation success [2.43ms]
+@pkgs/ui-root-harness-ts:test: (pass) reload protection clears after mutation failure [2.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) finishing during confirmation makes the requested departure safe [2.77ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/feedback.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Spinner > renders role=status with a live label and twelve petals [0.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) Spinner > defaults to md in the secondary text tone, and labels itself [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Spinner > a decorative spinner is hidden from assistive tech [0.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Spinner > shares rotation phase through SpinnerProvider via animation-delay [0.38ms]
+@pkgs/ui-root-harness-ts:test: (pass) Skeleton > Skeleton is decorative and sized [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Skeleton > Skeleton shape picks a radius token, never a length [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > StateBlock fill vs compact layout [0.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > LoadingState renders spinner + caption [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > EmptyState renders title/body and fires the action [0.46ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > SuccessState renders as a status region with an action [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > ErrorState is an alert, retries, and copies the message [1.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > retry is the primary face and a second recovery stays outline [0.83ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > loading, empty, error, and success each render their state [0.64ms]
+@pkgs/ui-root-harness-ts:test: (pass) State blocks > MutationError keeps a wrapping message from pushing the retry out of the band [1.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tooltip > shows on hover, hides on leave, and describes the trigger [0.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tooltip > shows on keyboard focus-visible when enableFocus is on [2.90ms]
+@pkgs/ui-root-harness-ts:test: (pass) Tooltip > pins horizontally via static placement (no JS shift) [0.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) InFlowBanner > portals custom chrome into the in-flow host [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) DismissibleBanner > renders into the in-flow portal host, dismisses, and fires the action [0.90ms]
+@pkgs/ui-root-harness-ts:test: (pass) DismissibleBanner > is not rendered while hidden [0.08ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/text-link.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) TextLink > a real link, inline and tinted by default [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextLink > external opens a new tab safely and says so [0.29ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextLink > download names the saved file [0.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) TextLink > onPress takes a plain click and leaves a modified click to the browser [0.66ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/monogram-tile.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "Friday game night" → "F" [0.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "robin_42's space" → "R"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "  sunday  " → "S"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "@jordan" → "J"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "42 club" → "4"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "échecs" → "É"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "🎲" → "🎲"
+@pkgs/ui-root-harness-ts:test: (pass) monogramOf > "" → "?"
+@pkgs/ui-root-harness-ts:test: (pass) monogram paints > the same seed always gives the same paint
+@pkgs/ui-root-harness-ts:test: (pass) monogram paints > ids that differ only at the end spread across every paint [0.03ms]
+@pkgs/ui-root-harness-ts:test: (pass) monogram paints > a paint is the same colour in both themes, so a space keeps its colour [0.01ms]
+@pkgs/ui-root-harness-ts:test: (pass) monogram paints > light: every paint's letter holds AA [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) monogram paints > dark: every paint's letter holds AA
+@pkgs/ui-root-harness-ts:test: (pass) the tile draws the first letter, hidden from assistive tech [0.11ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/form-field.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Form > a named form that submits without a page load [4.49ms]
+@pkgs/ui-root-harness-ts:test: (pass) Form > noValidate and gap reach the form [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) FormField > labels any control and describes it with help and error [0.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) FormField > without an error the control is valid and described by help only [0.52ms]
+@pkgs/ui-root-harness-ts:test: (pass) Textarea > edits, caps and counts [6.80ms]
+@pkgs/ui-root-harness-ts:test: (pass) Textarea > disabled, read-only and required states [0.28ms]
+@pkgs/ui-root-harness-ts:test: (pass) Textarea > auto-grow fits the height to the text and turns off manual resize [0.18ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/storybook-index.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) the public Storybook index includes stories from both owning harnesses [0.68ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-board-legibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Sokoban board > walls are dark, the floor light, and pieces fill most of a tile [0.73ms]
+@pkgs/ui-root-harness-ts:test: (pass) Sokoban board > the builder's board draws its pieces as the player does [0.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) Sokoban walls > tile-board/tile-board.module.css draws each wall as one block, its joints on the grid [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) Sokoban walls > cell-grid-board/cell-grid-board.module.css draws each wall as one block, its joints on the grid [0.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) path board > paths paint over the grid lines, endpoints over the paths [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) path board > a path still open is one continuous stroke between its squares [0.54ms]
+@pkgs/ui-root-harness-ts:test: (pass) path board > the board keeps its night palette in the light theme [0.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) panels > a panel's end rows round their corners with the card [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-seat-card-layout.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a compact seat's controls start at its row's edge on every size [1.96ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/mutation-modal.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) MutationModal > idle → loading → success; Done dismisses and fires onSuccess [6.87ms]
+@pkgs/ui-root-harness-ts:test: (pass) MutationModal > error phase is retryable and cancel closes [4.84ms]
+@pkgs/ui-root-harness-ts:test: (pass) MutationModal > custom children replace the message in the idle body [1.72ms]
+@pkgs/ui-root-harness-ts:test: (pass) MutationModal > re-exports the shared lifecycle and resolves surface close per phase [0.02ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/text.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) text host class > applies variant typography classes [0.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) text host class > utility color classes compose with the text host [0.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) text host class > line-clamp utility works on the host [0.06ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/puzzle-screen.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) invalid board ratio %s is refused instead of producing invalid CSS [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) invalid board ratio %s is refused instead of producing invalid CSS [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) invalid board ratio %s is refused instead of producing invalid CSS [0.05ms]
+@pkgs/ui-root-harness-ts:test: (pass) invalid board ratio %s is refused instead of producing invalid CSS [0.06ms]
+@pkgs/ui-root-harness-ts:test: (pass) rectangular boards update without remounting and own their overlays and controls [0.67ms]
+@pkgs/ui-root-harness-ts:test: (pass) the actions come right after the board, the move list after them [0.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide, a square board's panel takes the rest of its column [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-move-list.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > moves group into numbered turns and each button holds only its move [0.70ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > choosing a move moves the mark to it [0.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > the strip shows the whole turn holding the shown move, and only it [0.41ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > bare-number moves are named once by their word, and the shown turn is named [0.30ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > the table keeps bare turn numbers [0.25ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > the table names bare-number moves once in its heading, as the strip does [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > a table move written in words wraps, never clipped [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) GameMoveList > the table sizes its seat columns by their longest move, aligned across turns [0.05ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/screen-layout-contract.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) screen layout composition contracts > every screen example renders in compact and wide themes with one screen identity [46.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen layout composition contracts > custom and matched game examples expose setup, play and result compositions [8.68ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen layout composition contracts > form example keeps feedback in the footer and retains the editor after saving [3.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) screen layout composition contracts > a supporting rail can appear without remounting the play surface [0.34ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/command-palette.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > trigger opens the dialog with a focused combobox, listbox and grouped rows [5.02ms]
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > typing filters, arrows move the selection, Enter runs and closes, recent bubbles up [30.69ms]
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > clicking a row runs it; disabled rows do not run; Escape and scrim close [11.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > no match shows the empty state [12.23ms]
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > failed command keeps the palette open and shows an inline error; retry clears it [4.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) CommandPalette > fuzzy highlights render as inline spans under one line-clamped host [16.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) shortcuts > mod+k toggles the palette; command shortcuts run without opening [18.44ms]
+@pkgs/ui-root-harness-ts:test: (pass) shortcuts > useCommandPaletteShortcut binds custom keys when defaults are off [17.42ms]
+@pkgs/ui-root-harness-ts:test: (pass) shortcuts > nested KeyboardShortcutScope routes mod+k to the active panel registry [15.69ms]
+@pkgs/ui-root-harness-ts:test: (pass) registry hooks > RegisterCommand / useRegisterCommands register while mounted and react to changes [0.25ms]
+@pkgs/ui-root-harness-ts:test: (pass) registry hooks > useCommand and useCommandPalette expose reactive handles [2.98ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/icons.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) icons > decorative by default, labelled icons expose role=img [3.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) icons > color resolves tokens; default stroke follows --ui-on-icon [0.29ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/tab-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) TabBar > is a named navigation landmark of buttons with the current page marked [5.27ms]
+@pkgs/ui-root-harness-ts:test: (pass) TabBar > href items are links; onPress takes a plain click, modified clicks stay the browser’s [0.54ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/progress-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a labelled progress bar keeps its percentage and accessible value reactive [0.53ms]
+@pkgs/ui-root-harness-ts:test: (pass) unknown progress does not claim a percentage [0.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) a nonnumeric progress input never exposes an invalid accessible value [0.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) progress clamps to the unit range and exposes its bounds [0.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) an unlabelled bar is the bare track, with no percentage or description [0.18ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-content.property.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) fenced Markdown preserves arbitrary code verbatim [4.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) Markdown links cannot select executable or implicit remote destinations [4.62ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/action-bar.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > renders inline icon buttons with ≥44px targets and fires clicks [1.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > always-overflow items collapse behind a More trigger that opens the menu [0.88ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > overflow="never" keeps everything inline; text actions render as buttons [0.86ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > inline labels render captions and press feedback flips the label [0.78ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > renders nothing without items, text actions, or end slot [0.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar > ActionBarLabeledControl is a labeled ≥44px button [0.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a 1px box shows only the More trigger, and More holds every action [1.96ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a 43px box shows only the More trigger, and More holds every action [1.32ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a 44px box shows only the More trigger, and More holds every action [2.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a 60px box shows only the More trigger, and More holds every action [1.63ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a 95px box shows only the More trigger, and More holds every action [1.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > the bar asks for its full row but gives it up down to the More trigger [1.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a bar that holds its pinned items keeps their room beside More [1.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) ActionBar in a box too narrow for its actions > a box with room for everything shows every action inline [1.64ms]
+@pkgs/ui-root-harness-ts:test: (pass) BottomActionBar > mixes tab-style actions and contained buttons [0.93ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-screen-actions.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a game screen's own next command sits in its title row, before the body [0.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) without actions a game screen keeps its plain title block [0.14ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/identity-and-counts.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > a bot is the bot glyph and is announced as a bot [0.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > a guest is a person placeholder with the guest mark [0.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > an empty seat is a dashed outline ring with nobody in it [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > a person without alt is decorative; with alt it is named [0.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > your avatar is the soft blue plate with soft blue initials [0.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) Avatar kinds > a seat color is the ring, replacing the hairline [0.17ms]
+@pkgs/ui-root-harness-ts:test: (pass) Fixed tags > Live is a sentence-case status tag on the live wash with a dot in its ink [0.18ms]
+@pkgs/ui-root-harness-ts:test: (pass) Fixed tags > Current is the same tag on the brand wash [0.13ms]
+@pkgs/ui-root-harness-ts:test: (pass) Fixed tags > Host is a neutral tag [0.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Fixed tags > no other badge can be live [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Compact counts > a stat pill shows 12.4K and keeps the exact count [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Compact counts > an active stat pill is the soft blue [0.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Compact counts > a badged icon compacts a number count and hides zero [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Compact counts > an avatar group compacts its overflow count [1.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) Rows and panels > the section label is the sectionLabel role above a panel [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Rows and panels > long row titles end in an ellipsis and the hairline starts past an avatar [1.15ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/state-blocks.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) EmptyState > always says what to do next, and the action is the primary [0.65ms]
+@pkgs/ui-root-harness-ts:test: (pass) EmptyState > a secondary way out sits beside the primary, outlined and neutral [0.70ms]
+@pkgs/ui-root-harness-ts:test: (pass) ErrorState > renders what broke, what to do, and a retry with the default label [0.59ms]
+@pkgs/ui-root-harness-ts:test: (pass) ErrorState > every variant shows the guidance line [0.69ms]
+@pkgs/ui-root-harness-ts:test: (pass) SkeletonContent > each shape is one polite loading status with hidden placeholders [0.92ms]
+@pkgs/ui-root-harness-ts:test: (pass) SkeletonContent > rows, people and tiles draw `count` items; people lead with an avatar [0.66ms]
+@pkgs/ui-root-harness-ts:test: (pass) SkeletonContent > the board is a square between two player bars [0.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) FormActionsFooter > on phones the primary action comes first, full width, Cancel under it [0.81ms]
+@pkgs/ui-root-harness-ts:test: (pass) FormActionsFooter > on wide layouts both share one row, the primary on the right [0.45ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/markdown-editor.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) independent paragraphs can be formatted and undone in one editor [3.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) a multiline textbox does not announce an unsupported expanded state [2.40ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/table.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Table > wide: a captioned table with column headers and one row per record [1.07ms]
+@pkgs/ui-root-harness-ts:test: (pass) Table > wide: pressable rows answer click, Enter and Space [12.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) Table > compact: each row is a list item of label / value pairs [3.35ms]
+@pkgs/ui-root-harness-ts:test: (pass) Table > the empty slot replaces the rows [0.12ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/layout.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) layout host classes > Center / Spacer / Divider / Card class contracts [0.14ms]
+@pkgs/ui-root-harness-ts:test: (pass) TopBar > slots, safe-area padding, hairline and one row height at every breakpoint [0.37ms]
+@pkgs/ui-root-harness-ts:test: (pass) TopBar > in flow, the title keeps a basis and truncates; trailing items share its row [0.24ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame > wide frame shows the default header, screens can override it [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame > compact frame ignores the header [0.15ms]
+@pkgs/ui-root-harness-ts:test: (pass) AppFrame > wide frame hosts banner portals outside the max-width column [0.20ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-card-board-fill.test.ts:
+@pkgs/ui-root-harness-ts:test: (pass) a card's board fills its picture: the whole area, fitted to its height [0.19ms]
+@pkgs/ui-root-harness-ts:test: (pass) a card's board is drawn at full strength, not dimmed as a waiting board [0.04ms]
+@pkgs/ui-root-harness-ts:test: (pass) wide, cards are one height, and a rows grid stays compact rows [0.07ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/game-chrome.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a game inside a host names itself once and draws no second top bar [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > the others sit above the board, then the turn, then your own strip [0.56ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a stage without seats or a turn is the board alone [0.09ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a seat without an avatar draws the person placeholder, not an icon [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > the turn pill announces its words politely but not its trailing facts [0.21ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a long turn line wraps inside its pill instead of running out of it [0.12ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a turn pill that is not live is no status region [0.11ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > the active clock is chosen and the time stays in the control [0.16ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > a clock that is nearly used up says so with more than its colour [0.26ms]
+@pkgs/ui-root-harness-ts:test: (pass) Game chrome > the selected pace is a chosen control with a visible name [0.67ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/cell-grid-palette.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) the tools are one named group, each a swatch of its square over its name [3.83ms]
+@pkgs/ui-root-harness-ts:test: (pass) one tool is chosen at a time, and it is the one tab stop [2.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) a disabled palette chooses nothing [1.39ms]
+@pkgs/ui-root-harness-ts:test: (pass) every tool shows its name beside no other cue, at every width [0.55ms]
+@pkgs/ui-root-harness-ts:test: (pass) tiles keep one height: names on one line under a top-aligned swatch [0.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) narrow, the group's name is for listeners only [0.37ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/preview-card-grid.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) a section of cards: a named list, each card one button with its picture hidden [13.10ms]
+@pkgs/ui-root-harness-ts:test: (pass) pressing a card runs its action; a disabled card does not [0.60ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/radio-group.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) RadioGroup > a named radiogroup of radios with labels and descriptions [7.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) RadioGroup > the checked radio is the one tab stop; unset falls to the first enabled [1.08ms]
+@pkgs/ui-root-harness-ts:test: (pass) RadioGroup > arrow keys move and check, wrapping and skipping disabled; Space checks [20.20ms]
+@pkgs/ui-root-harness-ts:test: (pass) RadioGroup > a disabled group takes no input [6.62ms]
+@pkgs/ui-root-harness-ts:test: (pass) RadioGroup > inside a group FormField it is named by the label and described by help and error [0.78ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/notice.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) Notice > sits in the page flow with no dismiss control unless asked [0.34ms]
+@pkgs/ui-root-harness-ts:test: (pass) Notice > onDismiss adds a labelled dismiss control that calls it [0.42ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: tests/pong-phone-marker-legibility.test.tsx:
+@pkgs/ui-root-harness-ts:test: (pass) phone court enlarges markers around unchanged physical centres [0.33ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test: 1 tests failed:
+@pkgs/ui-root-harness-ts:test: (fail) enlargement retains all squares in an overview and announces the chosen mode [4.60ms]
+@pkgs/ui-root-harness-ts:test: 
+@pkgs/ui-root-harness-ts:test:  772 pass
+@pkgs/ui-root-harness-ts:test:  1 fail
+@pkgs/ui-root-harness-ts:test:  4539 expect() calls
+@pkgs/ui-root-harness-ts:test: Ran 773 tests across 105 files. [2.41s]
+@pkgs/ui-root-harness-ts:test: error: script "test" exited with code 1
+@pkgs/ui-root-harness-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    1 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    3.587s 
+Failed:    @pkgs/ui-root-harness-ts#test
+
+ ERROR  run failed: command  exited (1)

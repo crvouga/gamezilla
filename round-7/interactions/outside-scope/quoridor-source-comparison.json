@@ -1,0 +1,35 @@
+{
+  "candidateSha": "4e6fa4c19276459d586e451a548942d667541168",
+  "files": [
+    {
+      "path": "libs/runtime-harness-ts/src/custom-game-party-journey.ts",
+      "unchangedFromRound6": true,
+      "sha256": "a562338ea9875e71194eeb8ab68b927d08cd1b320d743c9df3a96cd679032670"
+    },
+    {
+      "path": "libs/runtime-harness-ts/src/custom-game-party-turn.ts",
+      "unchangedFromRound6": true,
+      "sha256": "5226e8bcc04e187c771688acc701783af343d00bfe91132eb118050e0be58e7b"
+    },
+    {
+      "path": "libs/quoridor-shared-ts/src/quoridor-game.ts",
+      "unchangedFromRound6": true,
+      "sha256": "8468a6393a5a1bcdd23a3402e2d8297f54855901a7c7289e8478c8ab2f331ae2"
+    },
+    {
+      "path": "libs/quoridor-client-ts/src/quoridor-board.tsx",
+      "unchangedFromRound6": true,
+      "sha256": "aa77df1dcc1bcdf64d69c6ad43d422796a0b9fdde6c5c5223bde84916e804d22"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/custom-game-screen.tsx",
+      "unchangedFromRound6": true,
+      "sha256": "db3fcfedd0699aa872865dbf279d2a1a63d3c36daa5f76441a7aa4e4edd44a73"
+    },
+    {
+      "path": "libs/game-session-client-ts/src/game-frame-screen-view.tsx",
+      "unchangedFromRound6": true,
+      "sha256": "bbbdb6b3e4ada6b2c3ac4b7e84bdd2606f66708e8c1bf8fceceb426000d36cf6"
+    }
+  ]
+}

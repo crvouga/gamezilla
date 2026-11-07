@@ -1,0 +1,46 @@
+Counter({'pixel': 83, 'pass': 8, 'interaction-or-accessibility': 3})
+screens-games-word-tiles-board--recover-and-submit regression word-tiles-cat-status-clipping Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 319[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   Object {[39m
+[31m+     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+[31m+     "help": "Elements must meet minimum color contrast ratio thresholds",[39m
+[31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",[39m
+[31m+     "id": "color-contrast",[39m
+[31m+     "impact": "serious",[39m
+[31m+     "nodes": Array [[39m
+[31m+       Ob
+screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-enlarged-context-loss Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 245[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   Object {[39m
+[31m+     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+[31m+     "help": "Elements must meet minimum color contrast ratio thresholds",[39m
+[31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",[39m
+[31m+     "id": "color-contrast",[39m
+[31m+     "impact": "serious",[39m
+[31m+     "nodes": Array [[39m
+[31m+       Ob
+screens-games-word-tiles-board--accepted-exchange regression word-tiles-exchange-history-occlusion Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+[32m- Expected  -   1[39m
+[31m+ Received  + 245[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   Object {[39m
+[31m+     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+[31m+     "help": "Elements must meet minimum color contrast ratio thresholds",[39m
+[31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",[39m
+[31m+     "id": "color-contrast",[39m
+[31m+     "impact": "serious",[39m
+[31m+     "nodes": Array [[39m
+[31m+       Ob

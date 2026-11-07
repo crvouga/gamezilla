@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "pattern": "screens-games-word-tiles-(board--(opening|your-turn|assign-a-blank|enlarged-coordinates)|puzzle--enlarged-blank) (light|dark)(-1440)?$|word-tiles-blank-mode-hit-overlap",
+  "sourceStatus": "uncommitted repair over 4e6fa4c19",
+  "retries": 0
+}

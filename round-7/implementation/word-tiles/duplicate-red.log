@@ -1,0 +1,83 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/word-tiles-client-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/word-tiles-client-ts:test: cache miss, executing 191c9052803d2a6c
+@libs/word-tiles-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/word-tiles-client-ts:test: bun test v1.4.4 (38afee6c8)
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-candidate.test.ts:
+@libs/word-tiles-client-ts:test: (pass) the candidate > placing tiles makes one atomic proposal, in cell order [0.26ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > a tentative tile pressed again goes back to the rack [0.04ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > a blank waits for its letter, which can change before submitting [0.04ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > two rack tiles pressed in turn swap places, without placing anything [0.03ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > shuffling only reorders the rack [0.04ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > undo and redo change only the uncommitted candidate [0.04ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > an exchange chooses rack tiles instead of placing them [0.02ms]
+@libs/word-tiles-client-ts:test: (pass) the candidate > a candidate never carries stale tiles into a later position [0.07ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-map.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) fifteen-column CAT/TOE board map locates a remote intersection without consuming a selected tile [97.60ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-board.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) placing tiles from the rack and playing sends one proposal [22.14ms]
+@libs/word-tiles-client-ts:test: (pass) a placement the rules refuse cannot be played and says why [14.70ms]
+@libs/word-tiles-client-ts:test: (pass) a watcher sees the board but no rack, actions or preview [6.30ms]
+@libs/word-tiles-client-ts:test: (pass) the frame shows the turn, the bag, each score and each rack [0.20ms]
+@libs/word-tiles-client-ts:test: (pass) the board, its actions and its controls share one draft [17.97ms]
+@libs/word-tiles-client-ts:test: (pass) passing is available through more actions [8.15ms]
+@libs/word-tiles-client-ts:test: (pass) CAT editing and exchange share the rack work area before the grid [10.22ms]
+@libs/word-tiles-client-ts:test: (pass) wt2 unreadable input links to the public app version screen [1.01ms]
+@libs/word-tiles-client-ts:test: (pass) literal CAT rack keeps primary exposed and secondary tools discoverable with focus recovery [29.61ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-puzzle-recovery.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) the unavailable puzzle offers recovery and reports loading after retry [3.79ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-puzzle-refusal.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) TOEEA is a grouped refusal with recall restoring the retained rack [18.72ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-puzzle-bonus-context.test.tsx:
+@libs/word-tiles-client-ts:test: 51 |     view.getByTestId('word-tiles-puzzle-cell-j8')
+@libs/word-tiles-client-ts:test: 52 |   );
+@libs/word-tiles-client-ts:test: 53 |   expect(bonus().textContent).toContain('j8: 3L triples this letter');
+@libs/word-tiles-client-ts:test: 54 |   expect(bonus().textContent).toContain('Blank tiles score 0');
+@libs/word-tiles-client-ts:test: 55 |   expect(view.getByTestId('word-tiles-puzzle-cell-j8').textContent).toContain(
+@libs/word-tiles-client-ts:test: 56 |     'S'
+@libs/word-tiles-client-ts:test:                                                                             ^
+@libs/word-tiles-client-ts:test: error: expect(received).toHaveLength(expected)
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: Expected length: 1
+@libs/word-tiles-client-ts:test: Received length: 2
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test:       at <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx:56:72)
+@libs/word-tiles-client-ts:test: (fail) AEST?RN at j8 explains the covered triple-letter square beside the rack [13.86ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-blank-targets.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) all 26 blank letters use full medium controls and native keyboard-focusable buttons [7.28ms]
+@libs/word-tiles-client-ts:test: (pass) typing lowercase s at the first blank choice immediately assigns S [5.25ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-puzzle-next-action.test.tsx:
+@libs/word-tiles-client-ts:test: (pass) an unreadable definition offers the puzzle library without a move [4.24ms]
+@libs/word-tiles-client-ts:test: (pass) the solved eight-point move against target six offers a library action [0.89ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: tests/word-tiles-exchange-settlement.test.ts:
+@libs/word-tiles-client-ts:test: (pass) accepted exchange settles selection; refusal keeps the chosen tiles [0.08ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test: 1 tests failed:
+@libs/word-tiles-client-ts:test: (fail) AEST?RN at j8 explains the covered triple-letter square beside the rack [13.86ms]
+@libs/word-tiles-client-ts:test: 
+@libs/word-tiles-client-ts:test:  25 pass
+@libs/word-tiles-client-ts:test:  1 fail
+@libs/word-tiles-client-ts:test:  176 expect() calls
+@libs/word-tiles-client-ts:test: Ran 26 tests across 9 files. [778.00ms]
+@libs/word-tiles-client-ts:test: error: script "test" exited with code 1
+@libs/word-tiles-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/word-tiles-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.4/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.339s 
+Failed:    @libs/word-tiles-client-ts#test
+
+ ERROR  run failed: command  exited (1)

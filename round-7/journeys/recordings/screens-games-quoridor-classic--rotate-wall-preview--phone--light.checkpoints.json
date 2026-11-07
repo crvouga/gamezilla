@@ -1,0 +1,610 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [2] findByTestId"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [6] toBeLessThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [10] toEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [12] toEqual"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [14] toEqual"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [16] toEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [18] toEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [22] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--007.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [25] toHaveTextContent"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [28] toHaveTextContent"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [30] click"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [32] click"
+    ],
+    "cursor": 33,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [35] findByTestId"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--013.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [41] toBeLessThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--013.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [43] toEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [45] toEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [47] toEqual"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [49] toEqual"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--019.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [51] toEqual"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [55] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--020.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [58] toHaveTextContent"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [61] toHaveTextContent"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [64] toEqual"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [67] toEqual"
+    ],
+    "cursor": 68,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [69] toBe"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [71] toBe"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [73] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [75] toBe"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [77] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [79] toBe"
+    ],
+    "cursor": 80,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [81] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [83] toBe"
+    ],
+    "cursor": 84,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [85] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 86,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--025.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [87] click"
+    ],
+    "cursor": 88,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [90] findByTestId"
+    ],
+    "cursor": 91,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [94] toBeLessThanOrEqual"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--036.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [96] toBeLessThanOrEqual"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--036.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [98] toEqual"
+    ],
+    "cursor": 99,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [100] toEqual"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [102] toEqual"
+    ],
+    "cursor": 103,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [104] toEqual"
+    ],
+    "cursor": 105,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [106] toEqual"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--043.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [110] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 111,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--043.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [113] toHaveTextContent"
+    ],
+    "cursor": 114,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--045.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [116] toHaveTextContent"
+    ],
+    "cursor": 117,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--046.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [119] toEqual"
+    ],
+    "cursor": 120,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--047.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [122] toEqual"
+    ],
+    "cursor": 123,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [124] toBe"
+    ],
+    "cursor": 125,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [126] toBe"
+    ],
+    "cursor": 127,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [128] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 129,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [130] toBe"
+    ],
+    "cursor": 131,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [132] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 133,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [134] toBe"
+    ],
+    "cursor": 135,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [136] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 137,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [138] toBe"
+    ],
+    "cursor": 139,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [140] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 141,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--048.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [143] toHaveAttribute"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--058.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-quoridor-classic--rotate-wall-preview [146] toHaveAttribute"
+    ],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--059.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-quoridor-classic--rotate-wall-preview--phone--light--060.png",
+    "capturedFrame": true
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "format": "Concatenate parts in listed order to reconstruct tar.gz",
+  "source": "/var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/verify-run-TWB8DD/diagnostics.tar.gz",
+  "sha256": "6269793a54f77228fd49739d6e9e2933205e3def34f7cf329d3ed83c9fdde405",
+  "parts": [
+    {
+      "file": "verify-diagnostics.tar.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "48f4ec91ce2a6cb6e9d36043fe4ef894f4c60656519fa25908bac86a24e864fe"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "223ac20da611f17d25259d4a8f2d29d7feb316a4b12fe62c15c19644e0371a64"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-03",
+      "bytes": 50000000,
+      "sha256": "471873989f47a577f1725a80448994f6a1f5598f3c51522035f9185b868520b0"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-04",
+      "bytes": 8734031,
+      "sha256": "f1ca32c86838f3fcb032fdd52b391816314dc75fbe449bf455e6318d269e172b"
+    }
+  ],
+  "memberInventory": "verify-diagnostics-inventory.json"
+}

@@ -1,0 +1,25 @@
+{
+  "originalLog": "ubuntu/canonical-job-direct.log",
+  "originalBytes": 287558574,
+  "originalSha256": "e38793f8a9166217923393faeb3e6d9eb1a7a04192d33622471a2832afb3dffd",
+  "compression": "gzip; concatenate parts in order then decompress",
+  "compressedSha256": "fe70bf137e4ac50fef0dcdaca122283d670b7be65008dbd92ab8d1e01a92f966",
+  "parts": [
+    {
+      "file": "canonical-job-direct.log.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "8de009810c47600217cfd53ccd4e7e57e966ab0efe7fff080f551f5176e78765"
+    },
+    {
+      "file": "canonical-job-direct.log.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "bc90a6b1e1f5a5cf41c4f746b4754b3ca3a535c71ae2020422163a7b7a8ee821"
+    },
+    {
+      "file": "canonical-job-direct.log.gz.part-03",
+      "bytes": 4753165,
+      "sha256": "c637a2c1a36288caf9ca4236596805912658cd1e5cc95dd800bae8a991825868"
+    }
+  ],
+  "roundTripVerified": true
+}

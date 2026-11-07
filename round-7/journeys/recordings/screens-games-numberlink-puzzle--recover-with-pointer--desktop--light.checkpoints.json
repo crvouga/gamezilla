@@ -1,0 +1,770 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [7] toBeGreaterThan"
+    ],
+    "cursor": 8,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [9] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [11] toBeLessThanOrEqual"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [13] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [15] toBeLessThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [17] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [19] toBeLessThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [21] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [25] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [27] toBeLessThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [29] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [31] toBeLessThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [33] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [35] toBeLessThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [37] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [39] toBeLessThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [41] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [43] toBeLessThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [45] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [48] click"
+    ],
+    "cursor": 49,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--020.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [51] toBeInTheDocument"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--021.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [53] click"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--022.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [54] pointerDown"
+    ],
+    "cursor": 55,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--023.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [55] pointerMove"
+    ],
+    "cursor": 56,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [56] pointerMove"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [57] pointerCancel"
+    ],
+    "cursor": 58,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--026.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [60] toBeInTheDocument"
+    ],
+    "cursor": 61,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--027.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [61] pointerDown"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [62] pointerMove"
+    ],
+    "cursor": 63,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [63] pointerMove"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [64] pointerMove"
+    ],
+    "cursor": 65,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [65] pointerUp"
+    ],
+    "cursor": 66,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--032.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [68] toBeInTheDocument"
+    ],
+    "cursor": 69,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--033.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [71] toBeInTheDocument"
+    ],
+    "cursor": 72,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--034.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [72] pointerDown"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--035.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [73] pointerMove"
+    ],
+    "cursor": 74,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--036.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [74] pointerMove"
+    ],
+    "cursor": 75,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--037.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [75] pointerMove"
+    ],
+    "cursor": 76,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--038.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [76] pointerMove"
+    ],
+    "cursor": 77,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--039.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [77] pointerMove"
+    ],
+    "cursor": 78,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--040.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [78] pointerUp"
+    ],
+    "cursor": 79,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--041.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [81] toBeInTheDocument"
+    ],
+    "cursor": 82,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [88] toBeGreaterThan"
+    ],
+    "cursor": 89,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [90] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 91,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [92] toBeLessThanOrEqual"
+    ],
+    "cursor": 93,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [94] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 95,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [96] toBeLessThanOrEqual"
+    ],
+    "cursor": 97,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [98] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 99,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [100] toBeLessThanOrEqual"
+    ],
+    "cursor": 101,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [102] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 103,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [104] toBeLessThanOrEqual"
+    ],
+    "cursor": 105,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [106] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 107,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [108] toBeLessThanOrEqual"
+    ],
+    "cursor": 109,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [110] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 111,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [112] toBeLessThanOrEqual"
+    ],
+    "cursor": 113,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [114] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 115,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [116] toBeLessThanOrEqual"
+    ],
+    "cursor": 117,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [118] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 119,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [120] toBeLessThanOrEqual"
+    ],
+    "cursor": 121,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [122] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 123,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [124] toBeLessThanOrEqual"
+    ],
+    "cursor": 125,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [126] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 127,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [128] toBe"
+    ],
+    "cursor": 129,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--042.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [130] click"
+    ],
+    "cursor": 131,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--064.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [133] click"
+    ],
+    "cursor": 134,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--065.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [136] toBeInTheDocument"
+    ],
+    "cursor": 137,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--066.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [139] toBeInTheDocument"
+    ],
+    "cursor": 140,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--067.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [140] pointerDown"
+    ],
+    "cursor": 141,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--068.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [141] pointerMove"
+    ],
+    "cursor": 142,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--069.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [142] pointerMove"
+    ],
+    "cursor": 143,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--070.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [143] pointerMove"
+    ],
+    "cursor": 144,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--071.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [144] pointerMove"
+    ],
+    "cursor": 145,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--072.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [145] pointerMove"
+    ],
+    "cursor": 146,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--073.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [146] pointerUp"
+    ],
+    "cursor": 147,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--074.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-numberlink-puzzle--recover-with-pointer [149] toBeInTheDocument"
+    ],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--075.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 150,
+    "failures": [],
+    "file": "screens-games-numberlink-puzzle--recover-with-pointer--desktop--light--076.png",
+    "capturedFrame": true
+  }
+]

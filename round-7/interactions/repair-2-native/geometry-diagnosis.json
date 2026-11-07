@@ -1,0 +1,5710 @@
+[
+  {
+    "id": "screens-games-word-tiles-board--your-turn",
+    "error": "expected 856.4375 to be less than or equal to 844",
+    "elements": [
+      {
+        "id": "custom-game-unrated",
+        "text": "Unrated",
+        "rect": {
+          "x": 125.015625,
+          "y": 18.5,
+          "width": 53.359375,
+          "height": 20,
+          "top": 18.5,
+          "right": 178.375,
+          "bottom": 38.5,
+          "left": 125.015625
+        },
+        "ancestors": [
+          {
+            "class": "_facts_lxkso_2",
+            "component": "GameFacts",
+            "gap": "normal 8px",
+            "rect": {
+              "x": 125.015625,
+              "y": 18.5,
+              "width": 129.078125,
+              "height": 20,
+              "top": 18.5,
+              "right": 254.09375,
+              "bottom": 38.5,
+              "left": 125.015625
+            }
+          },
+          {
+            "class": "_facts_1rsau_11",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 125.015625,
+              "y": 18.5,
+              "width": 129.078125,
+              "height": 20,
+              "top": 18.5,
+              "right": 254.09375,
+              "bottom": 38.5,
+              "left": 125.015625
+            }
+          },
+          {
+            "class": "_heading_1rsau_4",
+            "component": "GameHeading",
+            "gap": "normal 12px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 41,
+              "top": 8,
+              "right": 374,
+              "bottom": 49,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 127.015625,
+            "y": 20.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 127.015625,
+            "y": 36.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 176.375,
+            "y": 20.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 176.375,
+            "y": 36.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-content",
+        "text": "Amber — to play · 81 tiles in the bagNo moves yet.All movesjordan_plays7 tilesScore3O 1E 1R 1T 1I 1N",
+        "rect": {
+          "x": 16,
+          "y": 53,
+          "width": 358,
+          "height": 931.4375,
+          "top": 53,
+          "right": 374,
+          "bottom": 984.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_column_kllvv_7 _column_dwz0k_3",
+            "component": "GameColumn",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 976.4375,
+              "top": 8,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto",
+            "component": "ScrollViewContent",
+            "gap": "16px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 1016.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 1016.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "scroll flex-1 self-stretch w-full",
+            "component": "GameScreen",
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 55,
+            "contained": true,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 18,
+            "y": 982.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 55,
+            "contained": true,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 982.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-record",
+        "text": "Amber — to play · 81 tiles in the bagNo moves yet.All moves",
+        "rect": {
+          "x": 16,
+          "y": 53,
+          "width": 358,
+          "height": 80,
+          "top": 53,
+          "right": 374,
+          "bottom": 133,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_column_kllvv_7 _column_dwz0k_3",
+            "component": "GameColumn",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 976.4375,
+              "top": 8,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 55,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 18,
+            "y": 131,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 55,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 131,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-record-caption",
+        "text": "Amber — to play · 81 tiles in the bag",
+        "rect": {
+          "x": 25,
+          "y": 58,
+          "width": 340,
+          "height": 22,
+          "top": 58,
+          "right": 365,
+          "bottom": 80,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          },
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 60,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 81 tiles in the bag</p>"
+          },
+          {
+            "x": 27,
+            "y": 78,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 81 tiles in the bag</p>"
+          },
+          {
+            "x": 363,
+            "y": 60,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 81 tiles in the bag</p>"
+          },
+          {
+            "x": 363,
+            "y": 78,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 81 tiles in the bag</p>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-move-strip-head",
+        "text": "No moves yet.All moves",
+        "rect": {
+          "x": 25,
+          "y": 84,
+          "width": 340,
+          "height": 44,
+          "top": 84,
+          "right": 365,
+          "bottom": 128,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          },
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 27,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 363,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-move-strip",
+        "text": "No moves yet.",
+        "rect": {
+          "x": 25,
+          "y": 84,
+          "width": 288,
+          "height": 44,
+          "top": 84,
+          "right": 313,
+          "bottom": 128,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box flex-1 bg-surface-muted rounded-control",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 288,
+              "height": 44,
+              "top": 84,
+              "right": 313,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box flex-row items-center gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 340,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 27,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 311,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 311,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-review-jump",
+        "text": "",
+        "rect": {
+          "x": 321,
+          "y": 84,
+          "width": 44,
+          "height": 44,
+          "top": 84,
+          "right": 365,
+          "bottom": 128,
+          "left": 321
+        },
+        "ancestors": [
+          {
+            "class": "box _anchor_34yxi_6",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 321,
+              "y": 84,
+              "width": 44,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 321
+            }
+          },
+          {
+            "class": "box flex-row items-center gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 340,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 323,
+            "y": 86,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 323,
+            "y": 126,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 86,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 126,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-public",
+        "text": "jordan_plays7 tilesScore3O 1E 1R 1T 1I 1N 1 0Play wordPass, exchange & toolsChoose a tile, then a sq",
+        "rect": {
+          "x": 16,
+          "y": 149,
+          "width": 358,
+          "height": 707.4375,
+          "top": 149,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 151,
+            "contained": true,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 151,
+            "contained": true,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-black",
+        "text": "jordan_plays7 tilesScore3",
+        "rect": {
+          "x": 16,
+          "y": 149,
+          "width": 358,
+          "height": 58,
+          "top": 149,
+          "right": 374,
+          "bottom": 207,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 151,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 18,
+            "y": 205,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 151,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 205,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-black-person",
+        "text": "jordan_plays",
+        "rect": {
+          "x": 92,
+          "y": 153,
+          "width": 94.765625,
+          "height": 22,
+          "top": 153,
+          "right": 186.765625,
+          "bottom": 175,
+          "left": 92
+        },
+        "ancestors": [
+          {
+            "class": "text textLabel min-w-0 _playerName_kllvv_229",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 92,
+              "y": 153,
+              "width": 94.765625,
+              "height": 22,
+              "top": 153,
+              "right": 186.765625,
+              "bottom": 175,
+              "left": 92
+            }
+          },
+          {
+            "class": "box flex-row flex-wrap items-center gap-2 min-w-0",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 64,
+              "y": 153,
+              "width": 255.765625,
+              "height": 22,
+              "top": 153,
+              "right": 319.765625,
+              "bottom": 175,
+              "left": 64
+            }
+          },
+          {
+            "class": "_playerIdentity_kllvv_222",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 64,
+              "y": 153,
+              "width": 255.765625,
+              "height": 50,
+              "top": 153,
+              "right": 319.765625,
+              "bottom": 203,
+              "left": 64
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 94,
+            "y": 155,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 94,
+            "y": 173,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 184.765625,
+            "y": 155,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 184.765625,
+            "y": 173,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-rack",
+        "text": "O 1E 1R 1T 1I 1N 1 0",
+        "rect": {
+          "x": 16,
+          "y": 211,
+          "width": 358,
+          "height": 61.4375,
+          "top": 211,
+          "right": 374,
+          "bottom": 272.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_board_kllvv_110",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 213,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 18,
+            "y": 270.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 372,
+            "y": 213,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 372,
+            "y": 270.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-submit",
+        "text": "Play word",
+        "rect": {
+          "x": 16,
+          "y": 276.4375,
+          "width": 97.625,
+          "height": 44,
+          "top": 276.4375,
+          "right": 113.625,
+          "bottom": 320.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1 w-full",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "",
+            "component": "WordTileActions",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 18,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-more",
+        "text": "Pass, exchange & tools",
+        "rect": {
+          "x": 121.625,
+          "y": 276.4375,
+          "width": 186.546875,
+          "height": 44,
+          "top": 276.4375,
+          "right": 308.171875,
+          "bottom": 320.4375,
+          "left": 121.625
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1 w-full",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "",
+            "component": "WordTileActions",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 123.625,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 123.625,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 306.171875,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 306.171875,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-preview",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 324.4375,
+          "width": 358,
+          "height": 22,
+          "top": 324.4375,
+          "right": 374,
+          "bottom": 346.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 18,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-status",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 324.4375,
+          "width": 358,
+          "height": 22,
+          "top": 324.4375,
+          "right": 374,
+          "bottom": 346.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 18,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          }
+        ]
+      },
+      {
+        "id": "Scrollable word board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2",
+        "rect": {
+          "x": 16,
+          "y": 350.4375,
+          "width": 358,
+          "height": 308,
+          "top": 350.4375,
+          "right": 374,
+          "bottom": 658.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 352.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_1b6aw_57\"></span>"
+          },
+          {
+            "x": 18,
+            "y": 656.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"row\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">11</span>"
+          },
+          {
+            "x": 372,
+            "y": 352.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">l</span>"
+          },
+          {
+            "x": 372,
+            "y": 656.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_cell_1b6aw_67\" data-index=\"161\" data-cell=\"l11\" data-testid=\"custom-game-board-cell-l11\" data-state=\"empty\" data-square=\"none\" aria-label=\"l11, empty\" aria-disabled=\"fals"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 13L2L92W2",
+        "rect": {
+          "x": -163,
+          "y": 138.4375,
+          "width": 699,
+          "height": 707,
+          "top": 138.4375,
+          "right": 536,
+          "bottom": 845.4375,
+          "left": -163
+        },
+        "ancestors": [
+          {
+            "class": "_viewport_1b6aw_148",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 308,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 658.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": -161,
+            "y": 140.4375,
+            "contained": false
+          },
+          {
+            "x": -161,
+            "y": 843.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 140.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 843.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-overview",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 662.4375,
+          "width": 132,
+          "height": 132,
+          "top": 662.4375,
+          "right": 148,
+          "bottom": 794.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "View a board region",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 662.4375,
+          "width": 132,
+          "height": 132,
+          "top": 662.4375,
+          "right": 148,
+          "bottom": 794.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_regions_1xcav_66",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 132,
+              "height": 132,
+              "top": 662.4375,
+              "right": 148,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "Board map: locate a square",
+        "text": "Map",
+        "rect": {
+          "x": 156,
+          "y": 726.4375,
+          "width": 218,
+          "height": 44,
+          "top": 726.4375,
+          "right": 374,
+          "bottom": 770.4375,
+          "left": 156
+        },
+        "ancestors": [
+          {
+            "class": "_tools_1xcav_60",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 156,
+              "y": 662.4375,
+              "width": 218,
+              "height": 108,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 770.4375,
+              "left": 156
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 158,
+            "y": 728.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 158,
+            "y": 768.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 728.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 768.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-status",
+        "text": "Amber: avery. Teal: jordan_plays. Amber — to play · 81 tiles in the bag",
+        "rect": {
+          "x": 15,
+          "y": 148,
+          "width": 1,
+          "height": 220,
+          "top": 148,
+          "right": 16,
+          "bottom": 368,
+          "left": 15
+        },
+        "ancestors": [
+          {
+            "class": "sr-only",
+            "component": "GameTurnPill",
+            "gap": "normal",
+            "rect": {
+              "x": 15,
+              "y": 148,
+              "width": 1,
+              "height": 1,
+              "top": 148,
+              "right": 16,
+              "bottom": 149,
+              "left": 15
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 17,
+            "y": 150,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 17,
+            "y": 366,
+            "contained": false,
+            "hit": "<span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_1b6aw_57\"></span>"
+          },
+          {
+            "x": 14,
+            "y": 150,
+            "contained": false,
+            "hit": "<div data-component=\"ScrollViewContent\" class=\"scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto\" style=\"max-width: 100%;\"><div class=\"_column_kllvv_7 _column_dwz0k_3\" data-component="
+          },
+          {
+            "x": 14,
+            "y": 366,
+            "contained": false,
+            "hit": "<div data-component=\"ScrollViewContent\" class=\"scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto\" style=\"max-width: 100%;\"><div class=\"_column_kllvv_7 _column_dwz0k_3\" data-component="
+          }
+        ]
+      },
+      {
+        "id": "custom-game-seat-near",
+        "text": "averyYour move7 tilesScore10",
+        "rect": {
+          "x": 16,
+          "y": 798.4375,
+          "width": 358,
+          "height": 58,
+          "top": 798.4375,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 800.4375,
+            "contained": true,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 800.4375,
+            "contained": true,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-white",
+        "text": "averyYour move7 tilesScore10",
+        "rect": {
+          "x": 16,
+          "y": 798.4375,
+          "width": 358,
+          "height": 58,
+          "top": 798.4375,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 798.4375,
+              "width": 358,
+              "height": 58,
+              "top": 798.4375,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 800.4375,
+            "contained": false,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 800.4375,
+            "contained": false,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-white-person",
+        "text": "avery",
+        "rect": {
+          "x": 92,
+          "y": 802.4375,
+          "width": 39.5,
+          "height": 22,
+          "top": 802.4375,
+          "right": 131.5,
+          "bottom": 824.4375,
+          "left": 92
+        },
+        "ancestors": [
+          {
+            "class": "text textLabel min-w-0 _playerName_kllvv_229 text-on-primary-soft",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 92,
+              "y": 802.4375,
+              "width": 39.5,
+              "height": 22,
+              "top": 802.4375,
+              "right": 131.5,
+              "bottom": 824.4375,
+              "left": 92
+            }
+          },
+          {
+            "class": "box flex-row flex-wrap items-center gap-2 min-w-0",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 64,
+              "y": 802.4375,
+              "width": 255.765625,
+              "height": 22,
+              "top": 802.4375,
+              "right": 319.765625,
+              "bottom": 824.4375,
+              "left": 64
+            }
+          },
+          {
+            "class": "_playerIdentity_kllvv_222",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 64,
+              "y": 802.4375,
+              "width": 255.765625,
+              "height": 50,
+              "top": 802.4375,
+              "right": 319.765625,
+              "bottom": 852.4375,
+              "left": 64
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 94,
+            "y": 804.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 94,
+            "y": 822.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 129.5,
+            "y": 804.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 129.5,
+            "y": 822.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-offer",
+        "text": "Offer draw",
+        "rect": {
+          "x": 16,
+          "y": 872.4375,
+          "width": 102.90625,
+          "height": 44,
+          "top": 872.4375,
+          "right": 118.90625,
+          "bottom": 916.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 190.703125,
+              "height": 44,
+              "top": 872.4375,
+              "right": 206.703125,
+              "bottom": 916.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 18,
+            "y": 914.4375,
+            "contained": false
+          },
+          {
+            "x": 116.90625,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 116.90625,
+            "y": 914.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-resign",
+        "text": "Resign game",
+        "rect": {
+          "x": 126.90625,
+          "y": 872.4375,
+          "width": 79.796875,
+          "height": 44,
+          "top": 872.4375,
+          "right": 206.703125,
+          "bottom": 916.4375,
+          "left": 126.90625
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 190.703125,
+              "height": 44,
+              "top": 872.4375,
+              "right": 206.703125,
+              "bottom": 916.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 128.90625,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 128.90625,
+            "y": 914.4375,
+            "contained": false
+          },
+          {
+            "x": 204.703125,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 204.703125,
+            "y": 914.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-history-stats",
+        "text": "History and stats",
+        "rect": {
+          "x": 16,
+          "y": 924.4375,
+          "width": 167.5625,
+          "height": 36,
+          "top": 924.4375,
+          "right": 183.5625,
+          "bottom": 960.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_controls_kllvv_68",
+            "component": "GameControls",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 926.4375,
+            "contained": false
+          },
+          {
+            "x": 18,
+            "y": 958.4375,
+            "contained": false
+          },
+          {
+            "x": 181.5625,
+            "y": 926.4375,
+            "contained": false
+          },
+          {
+            "x": 181.5625,
+            "y": 958.4375,
+            "contained": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "screens-games-word-tiles-board--enlarged-coordinates",
+    "error": "expected 856.4375 to be less than or equal to 844",
+    "elements": [
+      {
+        "id": "custom-game-unrated",
+        "text": "Unrated",
+        "rect": {
+          "x": 125.015625,
+          "y": 18.5,
+          "width": 53.359375,
+          "height": 20,
+          "top": 18.5,
+          "right": 178.375,
+          "bottom": 38.5,
+          "left": 125.015625
+        },
+        "ancestors": [
+          {
+            "class": "_facts_lxkso_2",
+            "component": "GameFacts",
+            "gap": "normal 8px",
+            "rect": {
+              "x": 125.015625,
+              "y": 18.5,
+              "width": 129.078125,
+              "height": 20,
+              "top": 18.5,
+              "right": 254.09375,
+              "bottom": 38.5,
+              "left": 125.015625
+            }
+          },
+          {
+            "class": "_facts_1rsau_11",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 125.015625,
+              "y": 18.5,
+              "width": 129.078125,
+              "height": 20,
+              "top": 18.5,
+              "right": 254.09375,
+              "bottom": 38.5,
+              "left": 125.015625
+            }
+          },
+          {
+            "class": "_heading_1rsau_4",
+            "component": "GameHeading",
+            "gap": "normal 12px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 41,
+              "top": 8,
+              "right": 374,
+              "bottom": 49,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 127.015625,
+            "y": 20.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 127.015625,
+            "y": 36.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 176.375,
+            "y": 20.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          },
+          {
+            "x": 176.375,
+            "y": 36.5,
+            "contained": true,
+            "hit": "<span class=\"text textFootnote _fact_lxkso_2\" data-component=\"GameFact\" data-testid=\"custom-game-unrated\">Unrated</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-content",
+        "text": "Amber — to play · 86 tiles in the bagNo moves yet.All movesjordan_plays7 tilesScore0C 3A 1T 1 0E 1S ",
+        "rect": {
+          "x": 16,
+          "y": 53,
+          "width": 358,
+          "height": 931.4375,
+          "top": 53,
+          "right": 374,
+          "bottom": 984.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_column_kllvv_7 _column_dwz0k_3",
+            "component": "GameColumn",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 976.4375,
+              "top": 8,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto",
+            "component": "ScrollViewContent",
+            "gap": "16px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 1016.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 1016.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "scroll flex-1 self-stretch w-full",
+            "component": "GameScreen",
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 55,
+            "contained": true,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 18,
+            "y": 982.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 55,
+            "contained": true,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 982.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-record",
+        "text": "Amber — to play · 86 tiles in the bagNo moves yet.All moves",
+        "rect": {
+          "x": 16,
+          "y": 53,
+          "width": 358,
+          "height": 80,
+          "top": 53,
+          "right": 374,
+          "bottom": 133,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_column_kllvv_7 _column_dwz0k_3",
+            "component": "GameColumn",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 8,
+              "width": 358,
+              "height": 976.4375,
+              "top": 8,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 55,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 18,
+            "y": 131,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 55,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          },
+          {
+            "x": 372,
+            "y": 131,
+            "contained": false,
+            "hit": "<div class=\"_pinned_87dqk_6\" data-component=\"GameSessionPinned\"><div class=\"box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border\" data-testid=\"custom-game-record\"><p class=\"tex"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-record-caption",
+        "text": "Amber — to play · 86 tiles in the bag",
+        "rect": {
+          "x": 25,
+          "y": 58,
+          "width": 340,
+          "height": 22,
+          "top": 58,
+          "right": 365,
+          "bottom": 80,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          },
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 60,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 86 tiles in the bag</p>"
+          },
+          {
+            "x": 27,
+            "y": 78,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 86 tiles in the bag</p>"
+          },
+          {
+            "x": 363,
+            "y": 60,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 86 tiles in the bag</p>"
+          },
+          {
+            "x": 363,
+            "y": 78,
+            "contained": true,
+            "hit": "<p class=\"text textLabel\" data-testid=\"custom-game-record-caption\">Amber — to play · 86 tiles in the bag</p>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-move-strip-head",
+        "text": "No moves yet.All moves",
+        "rect": {
+          "x": 25,
+          "y": 84,
+          "width": 340,
+          "height": 44,
+          "top": 84,
+          "right": 365,
+          "bottom": 128,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          },
+          {
+            "class": "_pinned_87dqk_6",
+            "component": "GameSessionPinned",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 84,
+              "top": 53,
+              "right": 374,
+              "bottom": 137,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 27,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 363,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-move-strip",
+        "text": "No moves yet.",
+        "rect": {
+          "x": 25,
+          "y": 84,
+          "width": 288,
+          "height": 44,
+          "top": 84,
+          "right": 313,
+          "bottom": 128,
+          "left": 25
+        },
+        "ancestors": [
+          {
+            "class": "box flex-1 bg-surface-muted rounded-control",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 288,
+              "height": 44,
+              "top": 84,
+              "right": 313,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box flex-row items-center gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 340,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 27,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 27,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 311,
+            "y": 86,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          },
+          {
+            "x": 311,
+            "y": 126,
+            "contained": true,
+            "hit": "<div class=\"box flex-row items-center justify-center self-stretch shrink-0 min-w-0 min-h-ui-control-md\" data-testid=\"custom-game-move-strip\" data-fit=\"fill\" data-overflow=\"wrap\"><div class=\"box flex-r"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-review-jump",
+        "text": "",
+        "rect": {
+          "x": 321,
+          "y": 84,
+          "width": 44,
+          "height": 44,
+          "top": 84,
+          "right": 365,
+          "bottom": 128,
+          "left": 321
+        },
+        "ancestors": [
+          {
+            "class": "box _anchor_34yxi_6",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 321,
+              "y": 84,
+              "width": 44,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 321
+            }
+          },
+          {
+            "class": "box flex-row items-center gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 25,
+              "y": 84,
+              "width": 340,
+              "height": 44,
+              "top": 84,
+              "right": 365,
+              "bottom": 128,
+              "left": 25
+            }
+          },
+          {
+            "class": "box gap-ui-xs px-ui-sm py-ui-xs bg-surface rounded-card border border-border",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 80,
+              "top": 53,
+              "right": 374,
+              "bottom": 133,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 323,
+            "y": 86,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 323,
+            "y": 126,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 86,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          },
+          {
+            "x": 363,
+            "y": 126,
+            "contained": false,
+            "hit": "<div class=\"box _anchor_34yxi_6\" role=\"presentation\"><button class=\"clickable clickableTint items-center justify-center rounded-full bg-transparent\" data-component=\"IconButton\" data-variant=\"icon\" dat"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-public",
+        "text": "jordan_plays7 tilesScore0C 3A 1T 1 0E 1S 1Q 10Play wordPass, exchange & toolsChoose a tile, then a s",
+        "rect": {
+          "x": 16,
+          "y": 149,
+          "width": 358,
+          "height": 707.4375,
+          "top": 149,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-4 min-w-0 pb-6 _session_87dqk_69",
+            "component": "CustomGameContent",
+            "gap": "12px",
+            "rect": {
+              "x": 16,
+              "y": 53,
+              "width": 358,
+              "height": 931.4375,
+              "top": 53,
+              "right": 374,
+              "bottom": 984.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 151,
+            "contained": true,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 151,
+            "contained": true,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-black",
+        "text": "jordan_plays7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 149,
+          "width": 358,
+          "height": 58,
+          "top": 149,
+          "right": 374,
+          "bottom": 207,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 151,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 18,
+            "y": 205,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 151,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 372,
+            "y": 205,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-black-person",
+        "text": "jordan_plays",
+        "rect": {
+          "x": 92,
+          "y": 153,
+          "width": 94.765625,
+          "height": 22,
+          "top": 153,
+          "right": 186.765625,
+          "bottom": 175,
+          "left": 92
+        },
+        "ancestors": [
+          {
+            "class": "text textLabel min-w-0 _playerName_kllvv_229",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 92,
+              "y": 153,
+              "width": 94.765625,
+              "height": 22,
+              "top": 153,
+              "right": 186.765625,
+              "bottom": 175,
+              "left": 92
+            }
+          },
+          {
+            "class": "box flex-row flex-wrap items-center gap-2 min-w-0",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 64,
+              "y": 153,
+              "width": 255.765625,
+              "height": 22,
+              "top": 153,
+              "right": 319.765625,
+              "bottom": 175,
+              "left": 64
+            }
+          },
+          {
+            "class": "_playerIdentity_kllvv_222",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 64,
+              "y": 153,
+              "width": 255.765625,
+              "height": 50,
+              "top": 153,
+              "right": 319.765625,
+              "bottom": 203,
+              "left": 64
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 94,
+            "y": 155,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 94,
+            "y": 173,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 184.765625,
+            "y": 155,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          },
+          {
+            "x": 184.765625,
+            "y": 173,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"jordan_plays\" data-component=\"GameSessionIdentity\">jordan_plays</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-rack",
+        "text": "C 3A 1T 1 0E 1S 1Q 10",
+        "rect": {
+          "x": 16,
+          "y": 211,
+          "width": 358,
+          "height": 61.4375,
+          "top": 211,
+          "right": 374,
+          "bottom": 272.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_board_kllvv_110",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 213,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 18,
+            "y": 270.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 372,
+            "y": 213,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          },
+          {
+            "x": 372,
+            "y": 270.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"custom-game-board-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"custom-game-boar"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-submit",
+        "text": "Play word",
+        "rect": {
+          "x": 16,
+          "y": 276.4375,
+          "width": 97.625,
+          "height": 44,
+          "top": 276.4375,
+          "right": 113.625,
+          "bottom": 320.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1 w-full",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "",
+            "component": "WordTileActions",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 18,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-more",
+        "text": "Pass, exchange & tools",
+        "rect": {
+          "x": 121.625,
+          "y": 276.4375,
+          "width": 186.546875,
+          "height": 44,
+          "top": 276.4375,
+          "right": 308.171875,
+          "bottom": 320.4375,
+          "left": 121.625
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1 w-full",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "",
+            "component": "WordTileActions",
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 44,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 320.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 123.625,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 123.625,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 306.171875,
+            "y": 278.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 306.171875,
+            "y": 318.4375,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-preview",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 324.4375,
+          "width": 358,
+          "height": 22,
+          "top": 324.4375,
+          "right": 374,
+          "bottom": 346.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 18,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-status",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 324.4375,
+          "width": 358,
+          "height": 22,
+          "top": 324.4375,
+          "right": 374,
+          "bottom": 346.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 324.4375,
+              "width": 358,
+              "height": 22,
+              "top": 324.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_workbench_atzu4_1",
+            "component": "WordTileWorkbench",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 276.4375,
+              "width": 358,
+              "height": 70,
+              "top": 276.4375,
+              "right": 374,
+              "bottom": 346.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 18,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 326.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          },
+          {
+            "x": 372,
+            "y": 344.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"custom-game-board-status\" class=\"text textBody\" role=\"status\">Choose a tile, then a square.</p>"
+          }
+        ]
+      },
+      {
+        "id": "Scrollable word board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3L★3L2L92W2L2L2L2L2",
+        "rect": {
+          "x": 16,
+          "y": 350.4375,
+          "width": 358,
+          "height": 308,
+          "top": 350.4375,
+          "right": 374,
+          "bottom": 658.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 211,
+              "width": 358,
+              "height": 583.4375,
+              "top": 211,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 352.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_1b6aw_57\"></span>"
+          },
+          {
+            "x": 18,
+            "y": 656.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"row\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">11</span>"
+          },
+          {
+            "x": 372,
+            "y": 352.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">l</span>"
+          },
+          {
+            "x": 372,
+            "y": 656.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_cell_1b6aw_67\" data-index=\"161\" data-cell=\"l11\" data-testid=\"custom-game-board-cell-l11\" data-state=\"empty\" data-square=\"none\" aria-label=\"l11, empty\" aria-disabled=\"fals"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3L★3L2L92W2L2L2L2L2",
+        "rect": {
+          "x": -163,
+          "y": 138.4375,
+          "width": 699,
+          "height": 707,
+          "top": 138.4375,
+          "right": 536,
+          "bottom": 845.4375,
+          "left": -163
+        },
+        "ancestors": [
+          {
+            "class": "_viewport_1b6aw_148",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 308,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 658.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": -161,
+            "y": 140.4375,
+            "contained": false
+          },
+          {
+            "x": -161,
+            "y": 843.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 140.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 843.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-board-overview",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 662.4375,
+          "width": 132,
+          "height": 132,
+          "top": 662.4375,
+          "right": 148,
+          "bottom": 794.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "View a board region",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 662.4375,
+          "width": 132,
+          "height": 132,
+          "top": 662.4375,
+          "right": 148,
+          "bottom": 794.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_regions_1xcav_66",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 132,
+              "height": 132,
+              "top": 662.4375,
+              "right": 148,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 664.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 792.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "Board map: locate a square",
+        "text": "Map",
+        "rect": {
+          "x": 156,
+          "y": 726.4375,
+          "width": 218,
+          "height": 44,
+          "top": 726.4375,
+          "right": 374,
+          "bottom": 770.4375,
+          "left": 156
+        },
+        "ancestors": [
+          {
+            "class": "_tools_1xcav_60",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 156,
+              "y": 662.4375,
+              "width": 218,
+              "height": 108,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 770.4375,
+              "left": 156
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 662.4375,
+              "width": 358,
+              "height": 132,
+              "top": 662.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 350.4375,
+              "width": 358,
+              "height": 444,
+              "top": 350.4375,
+              "right": 374,
+              "bottom": 794.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 158,
+            "y": 728.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 158,
+            "y": 768.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 728.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 768.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-status",
+        "text": "Amber: avery. Teal: jordan_plays. Amber — to play · 86 tiles in the bag",
+        "rect": {
+          "x": 15,
+          "y": 148,
+          "width": 1,
+          "height": 220,
+          "top": 148,
+          "right": 16,
+          "bottom": 368,
+          "left": 15
+        },
+        "ancestors": [
+          {
+            "class": "sr-only",
+            "component": "GameTurnPill",
+            "gap": "normal",
+            "rect": {
+              "x": 15,
+              "y": 148,
+              "width": 1,
+              "height": 1,
+              "top": 148,
+              "right": 16,
+              "bottom": 149,
+              "left": 15
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 17,
+            "y": 150,
+            "contained": false,
+            "hit": "<div class=\"_boardStage_kllvv_110 _board_dwz0k_9\" data-preview=\"false\" data-component=\"GameBoardStage\" data-testid=\"custom-game-public\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-surface p"
+          },
+          {
+            "x": 17,
+            "y": 366,
+            "contained": false,
+            "hit": "<span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_1b6aw_57\"></span>"
+          },
+          {
+            "x": 14,
+            "y": 150,
+            "contained": false,
+            "hit": "<div data-component=\"ScrollViewContent\" class=\"scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto\" style=\"max-width: 100%;\"><div class=\"_column_kllvv_7 _column_dwz0k_3\" data-component="
+          },
+          {
+            "x": 14,
+            "y": 366,
+            "contained": false,
+            "hit": "<div data-component=\"ScrollViewContent\" class=\"scrollContent gap-ui-lg px-ui-lg pt-ui-sm pb-ui-2xl w-full mx-auto\" style=\"max-width: 100%;\"><div class=\"_column_kllvv_7 _column_dwz0k_3\" data-component="
+          }
+        ]
+      },
+      {
+        "id": "custom-game-seat-near",
+        "text": "averyYour move7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 798.4375,
+          "width": 358,
+          "height": 58,
+          "top": 798.4375,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_layout_kllvv_8",
+            "component": "GameLayout",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 811.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 800.4375,
+            "contained": true,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 800.4375,
+            "contained": true,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-white",
+        "text": "averyYour move7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 798.4375,
+          "width": 358,
+          "height": 58,
+          "top": 798.4375,
+          "right": 374,
+          "bottom": 856.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 798.4375,
+              "width": 358,
+              "height": 58,
+              "top": 798.4375,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_boardStage_kllvv_110 _board_dwz0k_9",
+            "component": "GameBoardStage",
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_stage_kllvv_67 _stage_dwz0k_6",
+            "component": null,
+            "gap": "0px",
+            "rect": {
+              "x": 16,
+              "y": 149,
+              "width": 358,
+              "height": 707.4375,
+              "top": 149,
+              "right": 374,
+              "bottom": 856.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 800.4375,
+            "contained": false,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 18,
+            "y": 854.4375,
+            "contained": false
+          },
+          {
+            "x": 372,
+            "y": 800.4375,
+            "contained": false,
+            "hit": "<div class=\"box\" data-testid=\"custom-game-seat-near\"><section class=\"_player_kllvv_173 rounded-card py-1 bg-tint-subtle px-1\" data-density=\"compact\" aria-current=\"step\" data-active=\"true\" data-compone"
+          },
+          {
+            "x": 372,
+            "y": 854.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-white-person",
+        "text": "avery",
+        "rect": {
+          "x": 92,
+          "y": 802.4375,
+          "width": 39.5,
+          "height": 22,
+          "top": 802.4375,
+          "right": 131.5,
+          "bottom": 824.4375,
+          "left": 92
+        },
+        "ancestors": [
+          {
+            "class": "text textLabel min-w-0 _playerName_kllvv_229 text-on-primary-soft",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 92,
+              "y": 802.4375,
+              "width": 39.5,
+              "height": 22,
+              "top": 802.4375,
+              "right": 131.5,
+              "bottom": 824.4375,
+              "left": 92
+            }
+          },
+          {
+            "class": "box flex-row flex-wrap items-center gap-2 min-w-0",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 64,
+              "y": 802.4375,
+              "width": 255.765625,
+              "height": 22,
+              "top": 802.4375,
+              "right": 319.765625,
+              "bottom": 824.4375,
+              "left": 64
+            }
+          },
+          {
+            "class": "_playerIdentity_kllvv_222",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 64,
+              "y": 802.4375,
+              "width": 255.765625,
+              "height": 50,
+              "top": 802.4375,
+              "right": 319.765625,
+              "bottom": 852.4375,
+              "left": 64
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 94,
+            "y": 804.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 94,
+            "y": 822.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 129.5,
+            "y": 804.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          },
+          {
+            "x": 129.5,
+            "y": 822.4375,
+            "contained": true,
+            "hit": "<span class=\"_identity_87dqk_21\" title=\"avery\" data-component=\"GameSessionIdentity\">avery</span>"
+          }
+        ]
+      },
+      {
+        "id": "custom-game-offer",
+        "text": "Offer draw",
+        "rect": {
+          "x": 16,
+          "y": 872.4375,
+          "width": 102.90625,
+          "height": 44,
+          "top": 872.4375,
+          "right": 118.90625,
+          "bottom": 916.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 190.703125,
+              "height": 44,
+              "top": 872.4375,
+              "right": 206.703125,
+              "bottom": 916.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 18,
+            "y": 914.4375,
+            "contained": false
+          },
+          {
+            "x": 116.90625,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 116.90625,
+            "y": 914.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-resign",
+        "text": "Resign game",
+        "rect": {
+          "x": 126.90625,
+          "y": 872.4375,
+          "width": 79.796875,
+          "height": 44,
+          "top": 872.4375,
+          "right": 206.703125,
+          "bottom": 916.4375,
+          "left": 126.90625
+        },
+        "ancestors": [
+          {
+            "class": "_actions_brxcq_1",
+            "component": "GameActionBar",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 190.703125,
+              "height": 44,
+              "top": 872.4375,
+              "right": 206.703125,
+              "bottom": 916.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 128.90625,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 128.90625,
+            "y": 914.4375,
+            "contained": false
+          },
+          {
+            "x": 204.703125,
+            "y": 874.4375,
+            "contained": false
+          },
+          {
+            "x": 204.703125,
+            "y": 914.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "custom-game-history-stats",
+        "text": "History and stats",
+        "rect": {
+          "x": 16,
+          "y": 924.4375,
+          "width": 167.5625,
+          "height": 36,
+          "top": 924.4375,
+          "right": 183.5625,
+          "bottom": 960.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_actions_kllvv_162",
+            "component": "GameActions",
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_controls_kllvv_68",
+            "component": "GameControls",
+            "gap": "16px",
+            "rect": {
+              "x": 16,
+              "y": 872.4375,
+              "width": 358,
+              "height": 88,
+              "top": 872.4375,
+              "right": 374,
+              "bottom": 960.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 926.4375,
+            "contained": false
+          },
+          {
+            "x": 18,
+            "y": 958.4375,
+            "contained": false
+          },
+          {
+            "x": 181.5625,
+            "y": 926.4375,
+            "contained": false
+          },
+          {
+            "x": 181.5625,
+            "y": 958.4375,
+            "contained": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "error": null,
+    "elements": [
+      {
+        "id": "word-tiles-puzzle-target",
+        "text": "Score at least 20 points in one move.",
+        "rect": {
+          "x": 16,
+          "y": 16,
+          "width": 358,
+          "height": 22,
+          "top": 16,
+          "right": 374,
+          "bottom": 38,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0 relative",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 18,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-target\" class=\"text textBodyBold\">Score at least 20 points in one move.</p>"
+          },
+          {
+            "x": 18,
+            "y": 36,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-target\" class=\"text textBodyBold\">Score at least 20 points in one move.</p>"
+          },
+          {
+            "x": 372,
+            "y": 18,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-target\" class=\"text textBodyBold\">Score at least 20 points in one move.</p>"
+          },
+          {
+            "x": 372,
+            "y": 36,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-target\" class=\"text textBodyBold\">Score at least 20 points in one move.</p>"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-preview",
+        "text": "CATS: 5 = 5Scores 5 points.",
+        "rect": {
+          "x": 16,
+          "y": 42,
+          "width": 358,
+          "height": 46,
+          "top": 42,
+          "right": 374,
+          "bottom": 88,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0 relative",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 44,
+            "contained": true,
+            "hit": "<p class=\"text textCaption\">CATS: 5 = 5</p>"
+          },
+          {
+            "x": 18,
+            "y": 86,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          },
+          {
+            "x": 372,
+            "y": 44,
+            "contained": true,
+            "hit": "<p class=\"text textCaption\">CATS: 5 = 5</p>"
+          },
+          {
+            "x": 372,
+            "y": 86,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-status",
+        "text": "Scores 5 points.",
+        "rect": {
+          "x": 16,
+          "y": 66,
+          "width": 358,
+          "height": 22,
+          "top": 66,
+          "right": 374,
+          "bottom": 88,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 42,
+              "width": 358,
+              "height": 46,
+              "top": 42,
+              "right": 374,
+              "bottom": 88,
+              "left": 16
+            }
+          },
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 68,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          },
+          {
+            "x": 18,
+            "y": 86,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          },
+          {
+            "x": 372,
+            "y": 68,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          },
+          {
+            "x": 372,
+            "y": 86,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-status\" class=\"text textBody\" role=\"status\">Scores 5 points.</p>"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-submit",
+        "text": "Play word",
+        "rect": {
+          "x": 16,
+          "y": 92,
+          "width": 97.625,
+          "height": 44,
+          "top": 92,
+          "right": 113.625,
+          "bottom": 136,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box flex-row flex-wrap gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 92,
+              "width": 358,
+              "height": 44,
+              "top": 92,
+              "right": 374,
+              "bottom": 136,
+              "left": 16
+            }
+          },
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 94,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 18,
+            "y": 134,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 94,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          },
+          {
+            "x": 111.625,
+            "y": 134,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"primary\" data-variant=\"solid\" data-size=\"md\" data-phase=\"idl"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-recall",
+        "text": "Recall tiles",
+        "rect": {
+          "x": 121.625,
+          "y": 92,
+          "width": 106.6875,
+          "height": 44,
+          "top": 92,
+          "right": 228.3125,
+          "bottom": 136,
+          "left": 121.625
+        },
+        "ancestors": [
+          {
+            "class": "box flex-row flex-wrap gap-ui-sm",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 92,
+              "width": 358,
+              "height": 44,
+              "top": 92,
+              "right": 374,
+              "bottom": 136,
+              "left": 16
+            }
+          },
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 123.625,
+            "y": 94,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 123.625,
+            "y": 134,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 226.3125,
+            "y": 94,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          },
+          {
+            "x": 226.3125,
+            "y": 134,
+            "contained": true,
+            "hit": "<button class=\"clickable clickableTint btn hitTarget flex-row items-center justify-center select-none\" data-component=\"Button\" data-intent=\"neutral\" data-variant=\"outline\" data-size=\"md\" data-phase=\"i"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-rack",
+        "text": "A 1E 1S 1T 1 R 1N 1",
+        "rect": {
+          "x": 16,
+          "y": 140,
+          "width": 358,
+          "height": 61.4375,
+          "top": 140,
+          "right": 374,
+          "bottom": 201.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0 relative",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 142,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"word-tiles-puzzle-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"word-tiles-puzzl"
+          },
+          {
+            "x": 18,
+            "y": 199.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"word-tiles-puzzle-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"word-tiles-puzzl"
+          },
+          {
+            "x": 372,
+            "y": 142,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"word-tiles-puzzle-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"word-tiles-puzzl"
+          },
+          {
+            "x": 372,
+            "y": 199.4375,
+            "contained": true,
+            "hit": "<div class=\"_rack_w1u6w_1\" data-component=\"TileRack\" role=\"group\" aria-label=\"Your rack\" data-testid=\"word-tiles-puzzle-rack\"><button type=\"button\" class=\"_tile_w1u6w_10\" data-testid=\"word-tiles-puzzl"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-bonus",
+        "text": "j8: 3L triples this letter. Blank tiles score 0.",
+        "rect": {
+          "x": 16,
+          "y": 205.4375,
+          "width": 358,
+          "height": 20,
+          "top": 205.4375,
+          "right": 374,
+          "bottom": 225.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          },
+          {
+            "class": "box flex-1 min-h-0 min-w-0 relative",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 207.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-bonus\" class=\"text textCaption\">j8: 3L triples this letter. Blank tiles score 0.</p>"
+          },
+          {
+            "x": 18,
+            "y": 223.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-bonus\" class=\"text textCaption\">j8: 3L triples this letter. Blank tiles score 0.</p>"
+          },
+          {
+            "x": 372,
+            "y": 207.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-bonus\" class=\"text textCaption\">j8: 3L triples this letter. Blank tiles score 0.</p>"
+          },
+          {
+            "x": 372,
+            "y": 223.4375,
+            "contained": true,
+            "hit": "<p data-testid=\"word-tiles-puzzle-bonus\" class=\"text textCaption\">j8: 3L triples this letter. Blank tiles score 0.</p>"
+          }
+        ]
+      },
+      {
+        "id": "Scrollable word board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 1S 02L92W",
+        "rect": {
+          "x": 16,
+          "y": 229.4375,
+          "width": 358,
+          "height": 308,
+          "top": 229.4375,
+          "right": 374,
+          "bottom": 537.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box w-full max-w-ui-prose gap-ui-xs p-ui-lg",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 689.4375,
+              "top": 0,
+              "right": 390,
+              "bottom": 689.4375,
+              "left": 0
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 231.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"corner\" aria-hidden=\"true\" class=\"_header_1b6aw_57\"></span>"
+          },
+          {
+            "x": 18,
+            "y": 535.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"row\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">11</span>"
+          },
+          {
+            "x": 372,
+            "y": 231.4375,
+            "contained": true,
+            "hit": "<span data-axis=\"column\" aria-hidden=\"true\" class=\"_header_1b6aw_57\">l</span>"
+          },
+          {
+            "x": 372,
+            "y": 535.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_cell_1b6aw_67\" data-index=\"161\" data-cell=\"l11\" data-testid=\"word-tiles-puzzle-cell-l11\" data-state=\"empty\" data-square=\"none\" aria-label=\"l11, empty\" aria-disabled=\"fals"
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 1S 02L92W",
+        "rect": {
+          "x": -163,
+          "y": 17.4375,
+          "width": 699,
+          "height": 707,
+          "top": 17.4375,
+          "right": 536,
+          "bottom": 724.4375,
+          "left": -163
+        },
+        "ancestors": [
+          {
+            "class": "_viewport_1b6aw_148",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 308,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 537.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": -161,
+            "y": 19.4375,
+            "contained": false
+          },
+          {
+            "x": -161,
+            "y": 722.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 19.4375,
+            "contained": false
+          },
+          {
+            "x": 534,
+            "y": 722.4375,
+            "contained": false
+          }
+        ]
+      },
+      {
+        "id": "word-tiles-puzzle-overview",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 541.4375,
+          "width": 132,
+          "height": 132,
+          "top": 541.4375,
+          "right": 148,
+          "bottom": 673.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 541.4375,
+              "width": 358,
+              "height": 132,
+              "top": 541.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "box gap-ui-xs",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 543.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 671.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 543.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 671.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "View a board region",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 541.4375,
+          "width": 132,
+          "height": 132,
+          "top": 541.4375,
+          "right": 148,
+          "bottom": 673.4375,
+          "left": 16
+        },
+        "ancestors": [
+          {
+            "class": "_regions_1xcav_66",
+            "component": null,
+            "gap": "normal",
+            "rect": {
+              "x": 16,
+              "y": 541.4375,
+              "width": 132,
+              "height": 132,
+              "top": 541.4375,
+              "right": 148,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 541.4375,
+              "width": 358,
+              "height": 132,
+              "top": 541.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 18,
+            "y": 543.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a1 to e5\"></button>"
+          },
+          {
+            "x": 18,
+            "y": 671.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View a11 to e15\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 543.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k1 to o5\"></button>"
+          },
+          {
+            "x": 146,
+            "y": 671.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" class=\"_region_1xcav_66\" aria-label=\"View k11 to o15\"></button>"
+          }
+        ]
+      },
+      {
+        "id": "Board map: locate a square",
+        "text": "Map",
+        "rect": {
+          "x": 156,
+          "y": 605.4375,
+          "width": 218,
+          "height": 44,
+          "top": 605.4375,
+          "right": 374,
+          "bottom": 649.4375,
+          "left": 156
+        },
+        "ancestors": [
+          {
+            "class": "_tools_1xcav_60",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 156,
+              "y": 541.4375,
+              "width": 218,
+              "height": 108,
+              "top": 541.4375,
+              "right": 374,
+              "bottom": 649.4375,
+              "left": 156
+            }
+          },
+          {
+            "class": "_context_1xcav_55",
+            "component": null,
+            "gap": "8px",
+            "rect": {
+              "x": 16,
+              "y": 541.4375,
+              "width": 358,
+              "height": 132,
+              "top": 541.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          },
+          {
+            "class": "_precision_1b6aw_191",
+            "component": null,
+            "gap": "4px",
+            "rect": {
+              "x": 16,
+              "y": 229.4375,
+              "width": 358,
+              "height": 444,
+              "top": 229.4375,
+              "right": 374,
+              "bottom": 673.4375,
+              "left": 16
+            }
+          }
+        ],
+        "hits": [
+          {
+            "x": 158,
+            "y": 607.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 158,
+            "y": 647.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 607.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          },
+          {
+            "x": 372,
+            "y": 647.4375,
+            "contained": true,
+            "hit": "<button type=\"button\" aria-haspopup=\"dialog\" class=\"_locator_1xcav_1\" aria-label=\"Board map: locate a square\">Map</button>"
+          }
+        ]
+      }
+    ]
+  }
+]

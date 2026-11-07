@@ -1,0 +1,108 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:test: cache bypass, force executing 3b221462d9fed6c8
+@pkgs/ui-root-harness-ts:storybook:test: $ playwright test -c storybook/playwright.config.ts "--workers=1" "--reporter=line,json" --grep "^(screens-games-battleship-(setup--(empty|enlarged-placement)|board--(your-turn|correct-target-before-firing))|screens-games-word-tiles-(board--(opening|your-turn|enlarged-coordinates)|puzzle--(ready|enlarged-blank))) (light|dark)(-1440)?\$"
+@pkgs/ui-root-harness-ts:storybook:test: Error: No tests found
+@pkgs/ui-root-harness-ts:storybook:test: 
+@pkgs/ui-root-harness-ts:storybook:test: {
+@pkgs/ui-root-harness-ts:storybook:test:   "config": {
+@pkgs/ui-root-harness-ts:storybook:test:     "argv": [
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.local/share/mise/installs/node/26.12.0/bin/node",
+@pkgs/ui-root-harness-ts:storybook:test:       "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/node_modules/.bin/playwright",
+@pkgs/ui-root-harness-ts:storybook:test:       "test",
+@pkgs/ui-root-harness-ts:storybook:test:       "-c",
+@pkgs/ui-root-harness-ts:storybook:test:       "storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "--workers=1",
+@pkgs/ui-root-harness-ts:storybook:test:       "--reporter=line,json",
+@pkgs/ui-root-harness-ts:storybook:test:       "--grep",
+@pkgs/ui-root-harness-ts:storybook:test:       "^(screens-games-battleship-(setup--(empty|enlarged-placement)|board--(your-turn|correct-target-before-firing))|screens-games-word-tiles-(board--(opening|your-turn|enlarged-coordinates)|puzzle--(ready|enlarged-blank))) (light|dark)(-1440)?$"
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "configFile": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/storybook/playwright.config.ts",
+@pkgs/ui-root-harness-ts:storybook:test:     "rootDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:     "failOnFlakyTests": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "forbidOnly": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "fullyParallel": true,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalSetup": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTeardown": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "globalTimeout": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "grep": {},
+@pkgs/ui-root-harness-ts:storybook:test:     "grepInvert": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "maxFailures": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "metadata": {},
+@pkgs/ui-root-harness-ts:storybook:test:     "preserveOutput": "always",
+@pkgs/ui-root-harness-ts:storybook:test:     "projects": [
+@pkgs/ui-root-harness-ts:storybook:test:       {
+@pkgs/ui-root-harness-ts:storybook:test:         "outputDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/.cache/storybook-test-results",
+@pkgs/ui-root-harness-ts:storybook:test:         "repeatEach": 1,
+@pkgs/ui-root-harness-ts:storybook:test:         "retries": 0,
+@pkgs/ui-root-harness-ts:storybook:test:         "metadata": {},
+@pkgs/ui-root-harness-ts:storybook:test:         "id": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "name": "chromium",
+@pkgs/ui-root-harness-ts:storybook:test:         "testDir": "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook",
+@pkgs/ui-root-harness-ts:storybook:test:         "testIgnore": [],
+@pkgs/ui-root-harness-ts:storybook:test:         "testMatch": [
+@pkgs/ui-root-harness-ts:storybook:test:           "**/stories.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/board-round-four.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/board-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/word-tiles-round-five.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/integration.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/font-readiness.checks.ts",
+@pkgs/ui-root-harness-ts:storybook:test:           "**/essentials.checks.ts"
+@pkgs/ui-root-harness-ts:storybook:test:         ],
+@pkgs/ui-root-harness-ts:storybook:test:         "timeout": 30000
+@pkgs/ui-root-harness-ts:storybook:test:       }
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "quiet": false,
+@pkgs/ui-root-harness-ts:storybook:test:     "reporter": [
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "line"
+@pkgs/ui-root-harness-ts:storybook:test:       ],
+@pkgs/ui-root-harness-ts:storybook:test:       [
+@pkgs/ui-root-harness-ts:storybook:test:         "json"
+@pkgs/ui-root-harness-ts:storybook:test:       ]
+@pkgs/ui-root-harness-ts:storybook:test:     ],
+@pkgs/ui-root-harness-ts:storybook:test:     "reportSlowTests": {
+@pkgs/ui-root-harness-ts:storybook:test:       "max": 5,
+@pkgs/ui-root-harness-ts:storybook:test:       "threshold": 300000
+@pkgs/ui-root-harness-ts:storybook:test:     },
+@pkgs/ui-root-harness-ts:storybook:test:     "shard": null,
+@pkgs/ui-root-harness-ts:storybook:test:     "tags": [],
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSnapshots": "none",
+@pkgs/ui-root-harness-ts:storybook:test:     "updateSourceMethod": "patch",
+@pkgs/ui-root-harness-ts:storybook:test:     "version": "1.61.1",
+@pkgs/ui-root-harness-ts:storybook:test:     "workers": 1,
+@pkgs/ui-root-harness-ts:storybook:test:     "webServer": {
+@pkgs/ui-root-harness-ts:storybook:test:       "command": "bun static-server.ts",
+@pkgs/ui-root-harness-ts:storybook:test:       "url": "http://127.0.0.1:6007/index.json",
+@pkgs/ui-root-harness-ts:storybook:test:       "reuseExistingServer": false
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   },
+@pkgs/ui-root-harness-ts:storybook:test:   "suites": [],
+@pkgs/ui-root-harness-ts:storybook:test:   "errors": [
+@pkgs/ui-root-harness-ts:storybook:test:     {
+@pkgs/ui-root-harness-ts:storybook:test:       "message": "Error: No tests found",
+@pkgs/ui-root-harness-ts:storybook:test:       "stack": "Error: No tests found"
+@pkgs/ui-root-harness-ts:storybook:test:     }
+@pkgs/ui-root-harness-ts:storybook:test:   ],
+@pkgs/ui-root-harness-ts:storybook:test:   "stats": {
+@pkgs/ui-root-harness-ts:storybook:test:     "startTime": "2026-11-07T00:43:57.908Z",
+@pkgs/ui-root-harness-ts:storybook:test:     "duration": 553.436,
+@pkgs/ui-root-harness-ts:storybook:test:     "expected": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "skipped": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "unexpected": 0,
+@pkgs/ui-root-harness-ts:storybook:test:     "flaky": 0
+@pkgs/ui-root-harness-ts:storybook:test:   }
+@pkgs/ui-root-harness-ts:storybook:test: }
+@pkgs/ui-root-harness-ts:storybook:test: error: script "storybook:test" exited with code 1
+@pkgs/ui-root-harness-ts#storybook:test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run storybook:test --workers=1 --reporter=line,json --grep ^(screens-games-battleship-(setup--(empty|enlarged-placement)|board--(your-turn|correct-target-before-firing))|screens-games-word-tiles-(board--(opening|your-turn|enlarged-coordinates)|puzzle--(ready|enlarged-blank))) (light|dark)(-1440)?$ exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.351s 
+Failed:    @pkgs/ui-root-harness-ts#storybook:test
+
+ ERROR  run failed: command  exited (1)

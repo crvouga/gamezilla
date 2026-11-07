@@ -1,0 +1,330 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [2] click"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [4] click"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [6] click"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [9] toBeInTheDocument"
+    ],
+    "cursor": 10,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [13] toBeGreaterThan"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [15] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [17] toBeLessThanOrEqual"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [19] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [21] toBeLessThanOrEqual"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [23] toBeLessThanOrEqual"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [25] toBe"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [27] toBe"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [29] toBe"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [31] toBe"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [33] toBeGreaterThan"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [35] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [37] toBeLessThanOrEqual"
+    ],
+    "cursor": 38,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [39] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [41] toBeLessThanOrEqual"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [43] toBeLessThanOrEqual"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [45] toBe"
+    ],
+    "cursor": 46,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [47] toBe"
+    ],
+    "cursor": 48,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [49] toBe"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [51] toBe"
+    ],
+    "cursor": 52,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--003.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [53] click"
+    ],
+    "cursor": 54,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--024.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [56] toBeInTheDocument"
+    ],
+    "cursor": 57,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--025.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [58] click"
+    ],
+    "cursor": 59,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--026.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [61] toBeDisabled"
+    ],
+    "cursor": 62,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--027.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [63] click"
+    ],
+    "cursor": 64,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--028.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [66] toBeInTheDocument"
+    ],
+    "cursor": 67,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--029.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [69] toBeInTheDocument"
+    ],
+    "cursor": 70,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--030.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-word-tiles-board--accepted-exchange [72] toBeDisabled"
+    ],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--031.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 73,
+    "failures": [],
+    "file": "screens-games-word-tiles-board--accepted-exchange--desktop--light--032.png",
+    "capturedFrame": true
+  }
+]

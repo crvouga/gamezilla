@@ -1,0 +1,51 @@
+Counter({'pixel': 778, 'pass': 9, 'interaction-or-accessibility': 2})
+screens-games-word-tiles-board--assign-a-blank light-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+screens-games-word-tiles-board--assign-a-blank dark-1440 Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"success"[39m
+Received: [31m"error: expected false to be true // Object.is equality"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+   at verify-story-scenario.ts:35
+
+  33 |       })
+  34 |     )
+> 35 |     .toBe('success');
+     |      ^
+  36 |   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  37 |   await page.evaluate(() => document.fonts.ready);
+  38 |   await page.addScriptTag({ content: axe.source });
+    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/t
+21 font evidence files
+Traceback (most recent call last):
+  File "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-7/runtime-verdict.py", line 10, in <module>
+    assert not functional,[(c['title'],c['errors']) for c in functional]
+           ^^^^^^^^^^^^^^
+AssertionError: [('screens-games-word-tiles-board--assign-a-blank light-1440', ['Error: \x1b[2mexpect(\x1b[22m\x1b[31mreceived\x1b[39m\x1b[2m).\x1b[22mtoBe\x1b[2m(\x1b[22m\x1b[32mexpected\x1b[39m\x1b[2m) // Object.is equality\x1b[22m\n\nExpected: \x1b[32m"success"\x1b[39m\nReceived: \x1b[31m"error: expected false to be true // Object.is equality"\x1b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe(\'success\');\n     |      ^\n  36 |   await expect(page.locator(\'.sb-errordisplay\')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7']), ('screens-games-word-tiles-board--assign-a-blank dark-1440', ['Error: \x1b[2mexpect(\x1b[22m\x1b[31mreceived\x1b[39m\x1b[2m).\x1b[22mtoBe\x1b[2m(\x1b[22m\x1b[32mexpected\x1b[39m\x1b[2m) // Object.is equality\x1b[22m\n\nExpected: \x1b[32m"success"\x1b[39m\nReceived: \x1b[31m"error: expected false to be true // Object.is equality"\x1b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n   at verify-story-scenario.ts:35\n\n  33 |       })\n  34 |     )\n> 35 |     .toBe(\'success\');\n     |      ^\n  36 |   await expect(page.locator(\'.sb-errordisplay\')).not.toBeVisible();\n  37 |   await page.evaluate(() => document.fonts.ready);\n  38 |   await page.addScriptTag({ content: axe.source });\n    at verifyStoryScenario (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/verify-story-scenario.ts:35:6)\n    at /Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts:28:7'])]
+Traceback (most recent call last):
+  File "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-7/run-final-native.py", line 13, in <module>
+    subprocess.run(['python3',str(r/'runtime-verdict.py')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chrisvouga/.local/share/mise/installs/python/3.15.2/lib/python3.15/subprocess.py", line 692, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command ['python3', '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-7/runtime-verdict.py'] returned non-zero exit status 1.

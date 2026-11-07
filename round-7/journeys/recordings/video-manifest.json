@@ -1,0 +1,782 @@
+[
+  {
+    "file": "videos/product-wordtileworkbench--secondary-tools--desktop--light.webm",
+    "durationSeconds": 2.32,
+    "checkpoints": 5,
+    "finalPhase": "finished",
+    "sha256": "acab94ba36fd93b4c1bf5c1302bbb05963b54a405e68412d325b4fff6a4eb4a7",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/product-wordtileworkbench--secondary-tools--phone--light.webm",
+    "durationSeconds": 3.32,
+    "checkpoints": 5,
+    "finalPhase": "finished",
+    "sha256": "b22a8edaf31a96b4e6643afb7506f4417836885036791d2248163dbd0be0327d",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-board--correct-target-before-firing--desktop--light.webm",
+    "durationSeconds": 12.56,
+    "checkpoints": 462,
+    "finalPhase": "finished",
+    "sha256": "41c9bc315e5bad9c201ab167679256ae2c6c292cf463f0d6b6951ce3acd6f89d",
+    "distinctCheckpointFrames": 7,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-board--correct-target-before-firing--phone--light.webm",
+    "durationSeconds": 11.36,
+    "checkpoints": 462,
+    "finalPhase": "finished",
+    "sha256": "9aad3aa4f92111a61b675db5aa65ff11345f1f6d1fa72b4dbd2597dec11c6982",
+    "distinctCheckpointFrames": 7,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-board--sink-the-fleet--desktop--light.webm",
+    "durationSeconds": 6.96,
+    "checkpoints": 160,
+    "finalPhase": "finished",
+    "sha256": "f5aca225519c9f5c9d8aac9512d34f4e36a6932a53f3ef8ce0aae010b9f56a63",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-board--sink-the-fleet--phone--light.webm",
+    "durationSeconds": 5.84,
+    "checkpoints": 160,
+    "finalPhase": "finished",
+    "sha256": "0feb219a90b4e34cfe302b76091efae6c1ee03c559eb11346c067511c23b1858",
+    "distinctCheckpointFrames": 5,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-setup--arrange-full-fleet--desktop--light.webm",
+    "durationSeconds": 16.84,
+    "checkpoints": 38,
+    "finalPhase": "finished",
+    "sha256": "080c2e7716275a9f7cc2a4113a8da8f4e0816fef9cac3988a01b42702a1326ab",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-setup--arrange-full-fleet--phone--light.webm",
+    "durationSeconds": 16.32,
+    "checkpoints": 38,
+    "finalPhase": "finished",
+    "sha256": "3bc4d1d11000114d92811486c09bce77ed07c2d91cd1a6c3166432a82d3588e0",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-setup--enlarged-placement--desktop--light.webm",
+    "durationSeconds": 22.04,
+    "checkpoints": 272,
+    "finalPhase": "finished",
+    "sha256": "4a1c8b5b028749e61a417fb99ebeff2f84320a804b3640a0df90b85e56748d04",
+    "distinctCheckpointFrames": 20,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-battleship-setup--enlarged-placement--phone--light.webm",
+    "durationSeconds": 21.2,
+    "checkpoints": 271,
+    "finalPhase": "finished",
+    "sha256": "6ab4e1f07d1af9680f2beea65bc54d64a23da2aa2d44d55c59c0ce163a00c4f4",
+    "distinctCheckpointFrames": 19,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-chess-board--promotion-choice--desktop--light.webm",
+    "durationSeconds": 5.64,
+    "checkpoints": 34,
+    "finalPhase": "finished",
+    "sha256": "6eb23f98f1a0b1f2963bb0a549e507c7c9fb9da855cf993dc711540633ed2969",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-chess-board--promotion-choice--phone--light.webm",
+    "durationSeconds": 4.52,
+    "checkpoints": 34,
+    "finalPhase": "finished",
+    "sha256": "b43a19f3bcf8398532921fe1cc1fafd9e21b74b6297e808ad623846c0b6bcc86",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-connect-four-board--connect-four-to-win--desktop--light.webm",
+    "durationSeconds": 3.28,
+    "checkpoints": 7,
+    "finalPhase": "finished",
+    "sha256": "d19df336b14764fbf7ff551eb42619c54a74c0a9a26ac28cb49b181a95245fbf",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-connect-four-board--connect-four-to-win--phone--light.webm",
+    "durationSeconds": 3.32,
+    "checkpoints": 7,
+    "finalPhase": "finished",
+    "sha256": "33079717f42b2c86e6746a6cc210b8b852aa8b127629feb0e6d569e0f92529ec",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-hearts-board--pass-through-first-trick--desktop--light.webm",
+    "durationSeconds": 44.68,
+    "checkpoints": 114,
+    "finalPhase": "finished",
+    "sha256": "cde976af318ec41cbb7316b1dd101013051bbb0de68238632d9016def9e217c9",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-hearts-board--pass-through-first-trick--phone--light.webm",
+    "durationSeconds": 43.12,
+    "checkpoints": 114,
+    "finalPhase": "finished",
+    "sha256": "864d2ad21f05032997b8022e601bee2272fc929227bd01645757af0a4d9f9190",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--collision-through-next-round--desktop--light.webm",
+    "durationSeconds": 6.76,
+    "checkpoints": 14,
+    "finalPhase": "finished",
+    "sha256": "efcd9f28b752c32d4a68449c248a1c3fb5202f973f4d2139800db013563f134c",
+    "distinctCheckpointFrames": 6,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--collision-through-next-round--phone--light.webm",
+    "durationSeconds": 6.88,
+    "checkpoints": 14,
+    "finalPhase": "finished",
+    "sha256": "4a653e6688133df5e1cef05ad66a8e8c62bef47a0920a8f8c65c8430823aec69",
+    "distinctCheckpointFrames": 6,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--quad-steering--desktop--light.webm",
+    "durationSeconds": 5.68,
+    "checkpoints": 563,
+    "finalPhase": "finished",
+    "sha256": "9b689d9ea8defd64c35d6b62da4195cc372d63f4e7e1cf29bb4f747bd59444a2",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--quad-steering--phone--light.webm",
+    "durationSeconds": 4.84,
+    "checkpoints": 468,
+    "finalPhase": "finished",
+    "sha256": "c731acae4f22c984e70a381a408770e9834b9821832bc420982b9b4942d675df",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--resumed-steering--desktop--light.webm",
+    "durationSeconds": 5.48,
+    "checkpoints": 10,
+    "finalPhase": "finished",
+    "sha256": "0a77b6377875f2adc9e6bf71ae05d5f9c9f2f04c9bab93738cd60e306b152f96",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--resumed-steering--phone--light.webm",
+    "durationSeconds": 4.44,
+    "checkpoints": 10,
+    "finalPhase": "finished",
+    "sha256": "6dce8f2d6085dad8af64b060907a2875d75e49cb2b043c53bd9e40ce00672722",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--shared-swipe--desktop--light.webm",
+    "durationSeconds": 4.2,
+    "checkpoints": 15,
+    "finalPhase": "finished",
+    "sha256": "19a6561cf95b54eccffb9bcfc2d093c85318e64942e9f7c87eb7402ca2c13823",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-light-cycles-arena--shared-swipe--phone--light.webm",
+    "durationSeconds": 4.56,
+    "checkpoints": 20,
+    "finalPhase": "finished",
+    "sha256": "3eebeec4c0a01e3f41b042c24e5b7e3f0a10601d437d1207cd09a0cfc60c8342",
+    "distinctCheckpointFrames": 3,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--choose-path-to-remove--desktop--light.webm",
+    "durationSeconds": 3.84,
+    "checkpoints": 25,
+    "finalPhase": "finished",
+    "sha256": "50e4cce5551440d1e2036c6fe7dc8b210c60e5c776c15d87a12000dccf0de30f",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--choose-path-to-remove--phone--light.webm",
+    "durationSeconds": 2.84,
+    "checkpoints": 25,
+    "finalPhase": "finished",
+    "sha256": "7c4fedc784d5e6a3d0647f40701ead8b0350b234f88148e8bd940b5ea92f45ee",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--drawing-help--desktop--light.webm",
+    "durationSeconds": 2.48,
+    "checkpoints": 24,
+    "finalPhase": "finished",
+    "sha256": "dd9bf98449a171d8ca78f4fca347b86e2a6a51afc01d9f5ed7f33ea43f731b2b",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--drawing-help--phone--light.webm",
+    "durationSeconds": 2.4,
+    "checkpoints": 24,
+    "finalPhase": "finished",
+    "sha256": "91faf018812838ad38dc8d4869772ced52c122b9585661d989f692ce0e0b4ce6",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--recover-with-pointer--desktop--light.webm",
+    "durationSeconds": 16.72,
+    "checkpoints": 77,
+    "finalPhase": "finished",
+    "sha256": "b424d01bed7d64a1ca1554b45b970a0b760f10f92183d049d2dbe2bc4cd4cd58",
+    "distinctCheckpointFrames": 22,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-numberlink-puzzle--recover-with-pointer--phone--light.webm",
+    "durationSeconds": 15.44,
+    "checkpoints": 77,
+    "finalPhase": "finished",
+    "sha256": "ddb43b1646364eed229fc2aa007778c800ab3c0f95986ec46e73dcdd18d71ab2",
+    "distinctCheckpointFrames": 21,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-pong-court--return-score-and-reconnect--desktop--light.webm",
+    "durationSeconds": 6.72,
+    "checkpoints": 17,
+    "finalPhase": "finished",
+    "sha256": "8af52fd3376cc4e946e09d991a8f776abe49bc0036be386a18e883ef6adfa986",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-pong-court--return-score-and-reconnect--phone--light.webm",
+    "durationSeconds": 6.04,
+    "checkpoints": 17,
+    "finalPhase": "finished",
+    "sha256": "8d6e3cc8edc4b5e1a609a2e68bf50de157cf068dd4dc97edcf9cccf840f17491",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--place-a-wall--desktop--light.webm",
+    "durationSeconds": 17.0,
+    "checkpoints": 51,
+    "finalPhase": "finished",
+    "sha256": "209414dccce36cdfcc99a820dbacf1537309237db6125d2318f4baf6ff866a6e",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--place-a-wall--phone--light.webm",
+    "durationSeconds": 15.6,
+    "checkpoints": 51,
+    "finalPhase": "finished",
+    "sha256": "2e210a8c14e235d009de9a6df06ec5f4eb04a8e90b6057049672aff4aa9f2261",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--precise-coordinates--desktop--light.webm",
+    "durationSeconds": 19.84,
+    "checkpoints": 52,
+    "finalPhase": "finished",
+    "sha256": "722a095e8384f9dd2b377facc97b15efabd6dc4a154499c6ce27829d0c226677",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--precise-coordinates--phone--light.webm",
+    "durationSeconds": 18.56,
+    "checkpoints": 52,
+    "finalPhase": "finished",
+    "sha256": "cbe5ada2364ba76a5804f7028e35f3fc0e47522ece841a163a3bc9d8b3048c83",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--reach-opposite-edge--desktop--light.webm",
+    "durationSeconds": 3.88,
+    "checkpoints": 6,
+    "finalPhase": "finished",
+    "sha256": "0db86c568aba5df4fe9660eadc4ae0a6570509fe44ac3111f2ba7287729b0067",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--reach-opposite-edge--phone--light.webm",
+    "durationSeconds": 2.8,
+    "checkpoints": 6,
+    "finalPhase": "finished",
+    "sha256": "94ca305d52ed0cff14a113d4890fd659d5f07a989108c0eeaba19ebad2f49a6f",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--rotate-wall-preview--desktop--light.webm",
+    "durationSeconds": 15.44,
+    "checkpoints": 61,
+    "finalPhase": "finished",
+    "sha256": "62864485b89183aaae7450de59b1b50b3cad99fb1b2aee8f49fbdb1720368649",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-classic--rotate-wall-preview--phone--light.webm",
+    "durationSeconds": 14.24,
+    "checkpoints": 61,
+    "finalPhase": "finished",
+    "sha256": "cb9685974291e5135a84cb26ee771866726d3ad3d3a454625dea552b35bcdc5e",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--four-player-round--desktop--light.webm",
+    "durationSeconds": 47.04,
+    "checkpoints": 191,
+    "finalPhase": "finished",
+    "sha256": "b9816724ad7f02a206b81329e5a5e974b6841d91e4d3d069f871be578bc92d82",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--four-player-round--phone--light.webm",
+    "durationSeconds": 44.08,
+    "checkpoints": 179,
+    "finalPhase": "finished",
+    "sha256": "c768ac402d974ba265894742565660065abae80c30fa8fd68fcf19135664e20c",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--pass-and-continue--desktop--light.webm",
+    "durationSeconds": 15.92,
+    "checkpoints": 76,
+    "finalPhase": "finished",
+    "sha256": "ebb7d39f046182b1ca397b34761f24b32fb5b7f9d88564637eb111b0fdc03e5f",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--pass-and-continue--phone--light.webm",
+    "durationSeconds": 14.4,
+    "checkpoints": 72,
+    "finalPhase": "finished",
+    "sha256": "45489b64e362d1e93ab1973241dcee5826e14ccb649d8fa3ff4b85aee2257a73",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--precise-coordinates--desktop--light.webm",
+    "durationSeconds": 72.76,
+    "checkpoints": 285,
+    "finalPhase": "finished",
+    "sha256": "b9c868f7d55c587725ec3e1a0cacf6c05177e9a9a05f9194caa8af5598116ee3",
+    "distinctCheckpointFrames": 21,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--precise-coordinates--phone--light.webm",
+    "durationSeconds": 70.88,
+    "checkpoints": 285,
+    "finalPhase": "finished",
+    "sha256": "b783a294ea97b992bf4e442db1b1084c42f9a34b054630a38d3285648908772d",
+    "distinctCheckpointFrames": 21,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--reach-the-hill--desktop--light.webm",
+    "durationSeconds": 8.72,
+    "checkpoints": 29,
+    "finalPhase": "finished",
+    "sha256": "48c03612396ad4afd0db3e50f808ada32507284bd7228e68e8fdc39e02f884a2",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--reach-the-hill--phone--light.webm",
+    "durationSeconds": 8.48,
+    "checkpoints": 29,
+    "finalPhase": "finished",
+    "sha256": "9140562d6b287a9975cc5d51c180d11987268430e5c1f7a3966bf52a68603f7c",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--recover-wall-placement--desktop--light.webm",
+    "durationSeconds": 17.72,
+    "checkpoints": 61,
+    "finalPhase": "finished",
+    "sha256": "fdfa5552c9909cb061737ac4d58acd40cc6f1618c29bfbe6b5d5a39b11ab0855",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-quoridor-hill--recover-wall-placement--phone--light.webm",
+    "durationSeconds": 17.24,
+    "checkpoints": 61,
+    "finalPhase": "finished",
+    "sha256": "a29c307152623a1dfc8d6539856b7f44b6e8e5cef6cb9f5a8b40862774019792",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--corner-recovery--desktop--light.webm",
+    "durationSeconds": 8.84,
+    "checkpoints": 18,
+    "finalPhase": "finished",
+    "sha256": "07ad86eb7383b80ea043e5e4236dd6db11ce84830496b3e4fafbb180c7674bdc",
+    "distinctCheckpointFrames": 7,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--corner-recovery--phone--light.webm",
+    "durationSeconds": 7.72,
+    "checkpoints": 18,
+    "finalPhase": "finished",
+    "sha256": "2f32821287747e8e793739d1343f61ca57ef0720967230bae86e6c46811aec34",
+    "distinctCheckpointFrames": 7,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--solved--desktop--light.webm",
+    "durationSeconds": 3.8,
+    "checkpoints": 9,
+    "finalPhase": "finished",
+    "sha256": "ef913b7c7d416626bc595da65bae9914ac41baae2483a17b16b5640ee7263f87",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--solved--phone--light.webm",
+    "durationSeconds": 2.84,
+    "checkpoints": 9,
+    "finalPhase": "finished",
+    "sha256": "8a3fd1722c6f30273faa8b399b29f4d5297333968896ac1fed7ef19ceac3734f",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--unreadable--desktop--light.webm",
+    "durationSeconds": 2.04,
+    "checkpoints": 6,
+    "finalPhase": "finished",
+    "sha256": "c4c4e0c831d9fc73f2f05cf5c0e601deca29962cc34d1e2bb3b6ef7441051e5b",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-sokoban-puzzle--unreadable--phone--light.webm",
+    "durationSeconds": 2.04,
+    "checkpoints": 6,
+    "finalPhase": "finished",
+    "sha256": "808ca2bf8f9b1fb221d8b021670060ae7b4d22757471ac2de3065695359e809c",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--accepted-exchange--desktop--light.webm",
+    "durationSeconds": 6.92,
+    "checkpoints": 33,
+    "finalPhase": "finished",
+    "sha256": "f3c611008e982ed19ceea387b6026894bfff2d84b155927aeb22e0e8783631c9",
+    "distinctCheckpointFrames": 7,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--accepted-exchange--phone--light.webm",
+    "durationSeconds": 5.84,
+    "checkpoints": 33,
+    "finalPhase": "finished",
+    "sha256": "9b9036b94f382e4b97b84dfadeaf5c7821f6891ba536db9d11c50f5e7736eb42",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--accepted-pass--desktop--light.webm",
+    "durationSeconds": 3.88,
+    "checkpoints": 8,
+    "finalPhase": "finished",
+    "sha256": "bed332cc7be538ea9e34d505192168285ed5ebba3efdaea71ffdd1b643393ba1",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--accepted-pass--phone--light.webm",
+    "durationSeconds": 3.76,
+    "checkpoints": 8,
+    "finalPhase": "finished",
+    "sha256": "119751b6c5b9976c64f2274906b3262c4c57c073e62d7ab324d0abe6cb98555c",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm",
+    "durationSeconds": 8.32,
+    "checkpoints": 647,
+    "finalPhase": "finished",
+    "sha256": "b5a9c32956c918436bef729df5996f0ae360d2d368c5ea19ab7d9bcbd7f3aa99",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",
+    "durationSeconds": 8.2,
+    "checkpoints": 647,
+    "finalPhase": "finished",
+    "sha256": "62b88feb9bc83484dbc38c44f3d5427d501f9e36b304d46c4f089571b62423ed",
+    "distinctCheckpointFrames": 4,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--enlarged-coordinates--desktop--light.webm",
+    "durationSeconds": 15.6,
+    "checkpoints": 269,
+    "finalPhase": "finished",
+    "sha256": "579b827777e2dcced4f69bda89497e0daecf98a5a32dbd16ebd764d4c16eebd8",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--enlarged-coordinates--phone--light.webm",
+    "durationSeconds": 15.12,
+    "checkpoints": 268,
+    "finalPhase": "finished",
+    "sha256": "442809ec72bda928239af69f5f31dafc6b0a436f52da9f883f749393b233b35b",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--recover-and-submit--desktop--light.webm",
+    "durationSeconds": 11.2,
+    "checkpoints": 46,
+    "finalPhase": "finished",
+    "sha256": "ccbcff551978d61a31ef4983f77f70b1c2fe3271a3a9e20d02d63ff653cb97aa",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-board--recover-and-submit--phone--light.webm",
+    "durationSeconds": 10.92,
+    "checkpoints": 46,
+    "finalPhase": "finished",
+    "sha256": "7b1fb8e59f5e84fb067a609c76a6a36452826d0141d9af613600638741bf5f4a",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--enlarged-blank--desktop--light.webm",
+    "durationSeconds": 22.12,
+    "checkpoints": 1161,
+    "finalPhase": "finished",
+    "sha256": "5bbc467089777f60c83f7cd0f322f82e523846ecaa16210e1f6986e7ce76b3c3",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--enlarged-blank--phone--light.webm",
+    "durationSeconds": 23.12,
+    "checkpoints": 1270,
+    "finalPhase": "finished",
+    "sha256": "98274d84847bf49114fc1429fca7eba6979969f98273a607de25dd53bc730e6e",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--reach-target--desktop--light.webm",
+    "durationSeconds": 8.76,
+    "checkpoints": 39,
+    "finalPhase": "finished",
+    "sha256": "d974876051f497b92999a2eb4b5dbaf71f649f559bec99b90c99612ac8db5c43",
+    "distinctCheckpointFrames": 8,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--reach-target--phone--light.webm",
+    "durationSeconds": 10.12,
+    "checkpoints": 61,
+    "finalPhase": "finished",
+    "sha256": "e7cac4546f1a5eb5c57eee30e0c763d332d0805dc949bdedbedc01b409d75291",
+    "distinctCheckpointFrames": 11,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--retry-word-list--desktop--light.webm",
+    "durationSeconds": 3.36,
+    "checkpoints": 5,
+    "finalPhase": "finished",
+    "sha256": "f6c139783b7b65dbe6d84b1d84587dfed69f70e6d66b42dab25e8d5eec9cf748",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-games-word-tiles-puzzle--retry-word-list--phone--light.webm",
+    "durationSeconds": 2.48,
+    "checkpoints": 5,
+    "finalPhase": "finished",
+    "sha256": "578ae7c852ab671105098ac6bb2d4523154054dd39101b3f1419d03d4c234301",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--keyboard-help--desktop--light.webm",
+    "durationSeconds": 3.88,
+    "checkpoints": 13,
+    "finalPhase": "finished",
+    "sha256": "37d5d3bc055a6480d156a4e56233d5df2520693932bb317ffacbab4f4fc3416a",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--keyboard-help--phone--light.webm",
+    "durationSeconds": 2.8,
+    "checkpoints": 13,
+    "finalPhase": "finished",
+    "sha256": "48105f43ba103f06d768ce39a04ff9303eaab4804f43842fb84970789dc966f5",
+    "distinctCheckpointFrames": 2,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--solve-journey--desktop--light.webm",
+    "durationSeconds": 6.68,
+    "checkpoints": 20,
+    "finalPhase": "finished",
+    "sha256": "112f4fe47f0bb2dfd125a5aeb0472b1a3dfe16141434ed1087c1c6003d9f495c",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--solve-journey--phone--light.webm",
+    "durationSeconds": 6.56,
+    "checkpoints": 20,
+    "finalPhase": "finished",
+    "sha256": "3b74ea095cef337971a60e7ef8bc183a7870810fff2f424c1e8b0fb737910e5a",
+    "distinctCheckpointFrames": 9,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--wrong-move-recovery--desktop--light.webm",
+    "durationSeconds": 14.4,
+    "checkpoints": 49,
+    "finalPhase": "finished",
+    "sha256": "0567df5fd57b9f4a2973d4800243a1ce2bfe5c045b3f9888991bfe332d4439f9",
+    "distinctCheckpointFrames": 13,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  },
+  {
+    "file": "videos/screens-puzzles-chess-play--wrong-move-recovery--phone--light.webm",
+    "durationSeconds": 13.16,
+    "checkpoints": 49,
+    "finalPhase": "finished",
+    "sha256": "882b0e67f4d21582c296191009f7a7c79b40e3d812cc20762bb135aa82c65a8e",
+    "distinctCheckpointFrames": 13,
+    "checkpointFailures": 0,
+    "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f"
+  }
+]

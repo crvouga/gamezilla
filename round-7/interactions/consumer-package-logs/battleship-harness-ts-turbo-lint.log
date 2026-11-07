@@ -1,0 +1,2 @@
+$ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+Checked 23 files in 1456ms. No fixes applied.

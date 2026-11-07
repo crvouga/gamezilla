@@ -1,0 +1,38 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:lint: cache miss, executing 902698fb006880c4
+@pkgs/ui-root-harness-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   x typescript(no-deprecated): `addListener` is deprecated. [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaQueryList/addListener)
+@pkgs/ui-root-harness-ts:lint:     ,-[pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx:14:5]
+@pkgs/ui-root-harness-ts:lint:  13 |     onchange: null,
+@pkgs/ui-root-harness-ts:lint:  14 |     addListener: () => undefined,
+@pkgs/ui-root-harness-ts:lint:     :     ^^^^^^^^^^^
+@pkgs/ui-root-harness-ts:lint:  15 |     removeListener: () => undefined,
+@pkgs/ui-root-harness-ts:lint:     `----
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   x typescript(no-deprecated): `removeListener` is deprecated. [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaQueryList/removeListener)
+@pkgs/ui-root-harness-ts:lint:     ,-[pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx:15:5]
+@pkgs/ui-root-harness-ts:lint:  14 |     addListener: () => undefined,
+@pkgs/ui-root-harness-ts:lint:  15 |     removeListener: () => undefined,
+@pkgs/ui-root-harness-ts:lint:     :     ^^^^^^^^^^^^^^
+@pkgs/ui-root-harness-ts:lint:  16 |     addEventListener: () => undefined,
+@pkgs/ui-root-harness-ts:lint:     `----
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint: Found 0 warnings and 2 errors.
+@pkgs/ui-root-harness-ts:lint: Finished in 825ms on 119 files with 147 rules using 10 threads.
+@pkgs/ui-root-harness-ts:lint: Checked 142 files in 996ms. No fixes applied.
+@pkgs/ui-root-harness-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-harness-ts#lint:  WARNING  command finished with error, but continuing...
+@pkgs/ui-root-harness-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    3 successful, 4 total
+Cached:    2 cached, 4 total
+  Time:    6.454s 
+Failed:    @pkgs/ui-root-harness-ts#lint
+
+ ERROR  run failed: command  exited (1)

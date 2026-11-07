@@ -1,0 +1,1 @@
+The --only build command omitted src dependency tasks and restored the previous d39c5dac build. Its source binding to 4e6fa4c19 is invalid. Partial native execution was interrupted; no final verdict is taken from these artifacts. Rebuild through the full source dependency graph, inspect emitted CSS, then execute native tests.

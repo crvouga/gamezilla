@@ -1,0 +1,70 @@
+$ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+bun test v1.4.3 (c6da4a4d3)
+
+tests/automation.test.tsx:
+(pass) the game automation fires a shot through the targeting grid [53.36ms]
+(pass) the presentation names the game, its sides and its ending [0.07ms]
+
+tests/targeting-precision.test.tsx:
+(pass) a mistaken edge target can be corrected before spending the shot [27.66ms]
+(pass) keyboard selection previews a shot before confirmation [21.19ms]
+(pass) a refreshed game record preserves the selected target when its position is unchanged [21.95ms]
+(pass) large targeting areas partition all 100 cells and allow correction and cancellation [43.74ms]
+(pass) J10 confirmation is the only primary action and stays beside Cancel [19.48ms]
+(pass) enlarging J10 opens its region and returning to all waters preserves the aim [13.86ms]
+
+tests/panel-titles.test.tsx:
+(pass) a board shown behind the switch is not titled again under it [9.06ms]
+(pass) the board fills its column, edge to edge with the seats [8.71ms]
+(pass) a key under the boards names every mark the grids draw [19.89ms]
+(pass) on a phone the switch to the other fleet follows the grid [8.25ms]
+(pass) on a phone the switch under the grid is a compact control, centred [0.06ms]
+
+tests/setup-board.test.tsx:
+(pass) pressing a cell places the selected ship with its bow there, across by default [5.74ms]
+(pass) rotate turns the next placement down, and the five ships make the canonical fleet [7.08ms]
+(pass) an overlapping placement is refused with its reason and leaves the fleet unchanged [3.11ms]
+(pass) an out-of-bounds placement is refused and leaves the fleet unchanged [3.75ms]
+(pass) the preview marks the cells a placement would cover, and which it cannot [3.98ms]
+(pass) placing a placed ship again moves it; rotating it in place is refused off the board [10.13ms]
+(pass) the keyboard selects a cell with arrows, rotates with R and places with Enter [21.71ms]
+(pass) a locked setup disables every control and says why [3.96ms]
+(pass) the placing progress has its own id, leaving `<testId>-status` to the screen's private-setup status [2.56ms]
+(pass) enlarged completed fleet names its fields and offers repositioning instead of Select [12.21ms]
+
+tests/hit-mark.test.ts:
+(pass) a Battleship hit is a solid mark in both themes [0.14ms]
+(pass) wide, the Battleship board leaves only the room its switch and key take [0.04ms]
+
+tests/board.test.tsx:
+(pass) the own grid shows the viewer’s fleet from its setup and the shots fired at it [10.09ms]
+(pass) the targeting grid shows only the public shots, never a ship that was not hit [12.09ms]
+(pass) interactive targets fire through onAction and wait, aiming, for the outcome [25.86ms]
+(pass) read-only boards refuse every target, and the switch keeps both grids mounted [12.11ms]
+(pass) the frame's turn line announces the latest shot and whose turn it is [8.84ms]
+(pass) the other side sees its own fleet and shots from its orientation [9.22ms]
+(pass) a watcher sees two public shot boards named by side, with no ships [9.18ms]
+
+tests/battleship-frame-commands.test.ts:
+(pass) Battleship offers no draw by agreement among its commands
+
+tests/automation-rearrange.test.tsx:
+(pass) the game automation arranges a whole fleet over an empty board [33.11ms]
+(pass) the game automation arranges a whole fleet over another whole fleet [36.16ms]
+(pass) the game automation arranges a whole fleet over a fleet in the way of the new one [37.92ms]
+(pass) phone multiplayer setup arranges the literal fleet through the default precision controls [160.59ms]
+
+tests/targeting-default.test.tsx:
+(pass) default precise aiming keeps all 100 outcomes and changes regions without spending a shot [9.54ms]
+
+tests/setup-precision.test.tsx:
+(pass) a ready fleet can be repositioned in another enlarged region [65.10ms]
+(pass) overlap recovery stays in the placement workspace with ship, direction and region [41.45ms]
+(pass) a phone opens comfortable placement without a mode discovery step [17.08ms]
+(pass) comfortable placement validates a complete fleet across four regions with keyboard recovery [126.20ms]
+(pass) locked comfortable placement keeps all waters visible and refuses editing [23.13ms]
+
+ 43 pass
+ 0 fail
+ 531 expect() calls
+Ran 43 tests across 10 files. [1375.00ms]

@@ -1,0 +1,34 @@
+[
+  {
+    "runId": "42322210996",
+    "headSha": "b8c60f7540f93b52ca49a5feb17f3d8afeb60eb7",
+    "job": "verify:start",
+    "conclusion": "success",
+    "log": "hosted-job-128249176836.log",
+    "logExitCode": 1
+  },
+  {
+    "runId": "42322210996",
+    "headSha": "b8c60f7540f93b52ca49a5feb17f3d8afeb60eb7",
+    "job": "verify:shards (0)",
+    "conclusion": "success",
+    "log": "hosted-job-128249730542.log",
+    "logExitCode": 1
+  },
+  {
+    "runId": "42322210996",
+    "headSha": "b8c60f7540f93b52ca49a5feb17f3d8afeb60eb7",
+    "job": "verify:shards (2)",
+    "conclusion": "failure",
+    "log": "hosted-job-128249730553.log",
+    "logExitCode": 1
+  },
+  {
+    "runId": "42322210996",
+    "headSha": "b8c60f7540f93b52ca49a5feb17f3d8afeb60eb7",
+    "job": "verify:shards (4)",
+    "conclusion": "success",
+    "log": "hosted-job-128249730638.log",
+    "logExitCode": 1
+  }
+]

@@ -1,0 +1,1426 @@
+[
+  {
+    "id": "screens-games-battleship-setup--empty",
+    "error": null,
+    "elements": [
+      {
+        "id": "custom-game-setup",
+        "text": "0 of 5 ships placed.Close enlarged placementShipCarrier · 5Rotate downRemoveRegionA–E / 1–5Carrier: ",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 774.0625,
+          "top": 0,
+          "right": 390,
+          "bottom": 774.0625,
+          "left": 0
+        }
+      },
+      {
+        "id": "custom-game-setup-progress",
+        "text": "0 of 5 ships placed.",
+        "rect": {
+          "x": 126.078125,
+          "y": 12,
+          "width": 137.828125,
+          "height": 22,
+          "top": 12,
+          "right": 263.90625,
+          "bottom": 34,
+          "left": 126.078125
+        }
+      },
+      {
+        "id": "custom-game-setup-enlarge",
+        "text": "Close enlarged placement",
+        "rect": {
+          "x": 91.125,
+          "y": 46,
+          "width": 207.734375,
+          "height": 44,
+          "top": 46,
+          "right": 298.859375,
+          "bottom": 90,
+          "left": 91.125
+        }
+      },
+      {
+        "id": "_controls_devsk_9",
+        "text": "ShipCarrier · 5Rotate downRemove",
+        "rect": {
+          "x": 12,
+          "y": 98,
+          "width": 134,
+          "height": 172,
+          "top": 98,
+          "right": 146,
+          "bottom": 270,
+          "left": 12
+        }
+      },
+      {
+        "id": "text textCaption mb-1 text-text-secondary",
+        "text": "Ship",
+        "rect": {
+          "x": 12,
+          "y": 98,
+          "width": 134,
+          "height": 20,
+          "top": 98,
+          "right": 146,
+          "bottom": 118,
+          "left": 12
+        }
+      },
+      {
+        "id": "text line-clamp-1 flex-1 min-w-0 shrink textBody text-text",
+        "text": "Carrier · 5",
+        "rect": {
+          "x": 29,
+          "y": 133,
+          "width": 72,
+          "height": 22,
+          "top": 133,
+          "right": 101,
+          "bottom": 155,
+          "left": 29
+        }
+      },
+      {
+        "id": "custom-game-setup-rotate",
+        "text": "Rotate down",
+        "rect": {
+          "x": 12,
+          "y": 174,
+          "width": 118.703125,
+          "height": 44,
+          "top": 174,
+          "right": 130.703125,
+          "bottom": 218,
+          "left": 12
+        }
+      },
+      {
+        "id": "text textBodyBold whitespace-nowrap",
+        "text": "Rotate down",
+        "rect": {
+          "x": 29,
+          "y": 186,
+          "width": 84.703125,
+          "height": 20,
+          "top": 186,
+          "right": 113.703125,
+          "bottom": 206,
+          "left": 29
+        }
+      },
+      {
+        "id": "custom-game-setup-remove",
+        "text": "Remove",
+        "rect": {
+          "x": 12,
+          "y": 226,
+          "width": 87.375,
+          "height": 44,
+          "top": 226,
+          "right": 99.375,
+          "bottom": 270,
+          "left": 12
+        }
+      },
+      {
+        "id": "text textBodyBold whitespace-nowrap",
+        "text": "Remove",
+        "rect": {
+          "x": 29,
+          "y": 238,
+          "width": 53.375,
+          "height": 20,
+          "top": 238,
+          "right": 82.375,
+          "bottom": 258,
+          "left": 29
+        }
+      },
+      {
+        "id": "_region_devsk_16",
+        "text": "RegionA–E / 1–5",
+        "rect": {
+          "x": 59,
+          "y": 348.0625,
+          "width": 272,
+          "height": 68,
+          "top": 348.0625,
+          "right": 331,
+          "bottom": 416.0625,
+          "left": 59
+        }
+      },
+      {
+        "id": "text textCaption mb-1 text-text-secondary",
+        "text": "Region",
+        "rect": {
+          "x": 59,
+          "y": 348.0625,
+          "width": 272,
+          "height": 20,
+          "top": 348.0625,
+          "right": 331,
+          "bottom": 368.0625,
+          "left": 59
+        }
+      },
+      {
+        "id": "text line-clamp-1 flex-1 min-w-0 shrink textBody text-text",
+        "text": "A–E / 1–5",
+        "rect": {
+          "x": 76,
+          "y": 383.0625,
+          "width": 210,
+          "height": 22,
+          "top": 383.0625,
+          "right": 286,
+          "bottom": 405.0625,
+          "left": 76
+        }
+      },
+      {
+        "id": "_feedback_devsk_22",
+        "text": "Carrier: 5 cells across. Tap its first cell to place it; use Rotate to change direction.",
+        "rect": {
+          "x": 12,
+          "y": 424.0625,
+          "width": 366,
+          "height": 72,
+          "top": 424.0625,
+          "right": 378,
+          "bottom": 496.0625,
+          "left": 12
+        }
+      },
+      {
+        "id": "custom-game-setup-guidance",
+        "text": "Carrier: 5 cells across. Tap its first cell to place it; use Rotate to change direction.",
+        "rect": {
+          "x": 12,
+          "y": 456.0625,
+          "width": 366,
+          "height": 40,
+          "top": 456.0625,
+          "right": 378,
+          "bottom": 496.0625,
+          "left": 12
+        }
+      },
+      {
+        "id": "_working_devsk_28",
+        "text": "ABCDE12345",
+        "rect": {
+          "x": 12,
+          "y": 504.0625,
+          "width": 366,
+          "height": 258,
+          "top": 504.0625,
+          "right": 378,
+          "bottom": 762.0625,
+          "left": 12
+        }
+      },
+      {
+        "id": "custom-game-setup-precision",
+        "text": "ABCDE12345",
+        "rect": {
+          "x": 60,
+          "y": 504.0625,
+          "width": 270,
+          "height": 258,
+          "top": 504.0625,
+          "right": 330,
+          "bottom": 762.0625,
+          "left": 60
+        }
+      },
+      {
+        "id": "_overview_devsk_34",
+        "text": "Fleet overviewABCDEFGHIJ12345678910",
+        "rect": {
+          "x": 154,
+          "y": 98,
+          "width": 224,
+          "height": 242.0625,
+          "top": 98,
+          "right": 378,
+          "bottom": 340.0625,
+          "left": 154
+        }
+      },
+      {
+        "id": "custom-game-setup-grid",
+        "text": "ABCDEFGHIJ12345678910",
+        "rect": {
+          "x": 154,
+          "y": 128,
+          "width": 224,
+          "height": 212.0625,
+          "top": 128,
+          "right": 378,
+          "bottom": 340.0625,
+          "left": 154
+        }
+      }
+    ]
+  },
+  {
+    "id": "screens-games-battleship-board--your-turn",
+    "error": null,
+    "elements": [
+      {
+        "id": "custom-game-unrated",
+        "text": "Unrated",
+        "rect": {
+          "x": 124.390625,
+          "y": 18.5,
+          "width": 53.359375,
+          "height": 20,
+          "top": 18.5,
+          "right": 177.75,
+          "bottom": 38.5,
+          "left": 124.390625
+        }
+      },
+      {
+        "id": "custom-game-content",
+        "text": "Red fleet fired at C4 and missed. Your turn to fire.Move 4G2 hitC4 missAll movesjordan_playsDestroye",
+        "rect": {
+          "x": 16,
+          "y": 65,
+          "width": 358,
+          "height": 824,
+          "top": 65,
+          "right": 374,
+          "bottom": 889,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-record",
+        "text": "Red fleet fired at C4 and missed. Your turn to fire.Move 4G2 hitC4 missAll moves",
+        "rect": {
+          "x": 16,
+          "y": 65,
+          "width": 358,
+          "height": 102,
+          "top": 65,
+          "right": 374,
+          "bottom": 167,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-record-caption",
+        "text": "Red fleet fired at C4 and missed. Your turn to fire.",
+        "rect": {
+          "x": 25,
+          "y": 70,
+          "width": 340,
+          "height": 44,
+          "top": 70,
+          "right": 365,
+          "bottom": 114,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-move-strip-head",
+        "text": "Move 4G2 hitC4 missAll moves",
+        "rect": {
+          "x": 25,
+          "y": 118,
+          "width": 340,
+          "height": 44,
+          "top": 118,
+          "right": 365,
+          "bottom": 162,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-move-strip",
+        "text": "Move 4G2 hitC4 miss",
+        "rect": {
+          "x": 25,
+          "y": 118,
+          "width": 288,
+          "height": 44,
+          "top": 118,
+          "right": 313,
+          "bottom": 162,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-review-move-7",
+        "text": "G2 hit",
+        "rect": {
+          "x": 126.03125,
+          "y": 124,
+          "width": 59.375,
+          "height": 32,
+          "top": 124,
+          "right": 185.40625,
+          "bottom": 156,
+          "left": 126.03125
+        }
+      },
+      {
+        "id": "custom-game-review-move-8",
+        "text": "C4 miss",
+        "rect": {
+          "x": 217.40625,
+          "y": 124,
+          "width": 73.328125,
+          "height": 32,
+          "top": 124,
+          "right": 290.734375,
+          "bottom": 156,
+          "left": 217.40625
+        }
+      },
+      {
+        "id": "custom-game-review-jump",
+        "text": "",
+        "rect": {
+          "x": 321,
+          "y": 118,
+          "width": 44,
+          "height": 44,
+          "top": 118,
+          "right": 365,
+          "bottom": 162,
+          "left": 321
+        }
+      },
+      {
+        "id": "custom-game-public",
+        "text": "jordan_playsDestroyer sunkYour fleetTargetingYour fleetABCDEFGHIJ1✕■■■■2○3■■■■4○5■■■67■■■89■✕10Targe",
+        "rect": {
+          "x": 16,
+          "y": 183,
+          "width": 358,
+          "height": 622,
+          "top": 183,
+          "right": 374,
+          "bottom": 805,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-black",
+        "text": "jordan_playsDestroyer sunk",
+        "rect": {
+          "x": 16,
+          "y": 183,
+          "width": 358,
+          "height": 58,
+          "top": 183,
+          "right": 374,
+          "bottom": 241,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-black-person",
+        "text": "jordan_plays",
+        "rect": {
+          "x": 92,
+          "y": 187,
+          "width": 94.765625,
+          "height": 22,
+          "top": 187,
+          "right": 186.765625,
+          "bottom": 209,
+          "left": 92
+        }
+      },
+      {
+        "id": "custom-game-board",
+        "text": "Your fleetTargetingYour fleetABCDEFGHIJ1✕■■■■2○3■■■■4○5■■■67■■■89■✕10TargetingABCDEFGHIJ12✕✕34567891",
+        "rect": {
+          "x": 16,
+          "y": 253,
+          "width": 358,
+          "height": 488,
+          "top": 253,
+          "right": 374,
+          "bottom": 741,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-view-panels",
+        "text": "Your fleetTargetingYour fleetABCDEFGHIJ1✕■■■■2○3■■■■4○5■■■67■■■89■✕10TargetingABCDEFGHIJ12✕✕34567891",
+        "rect": {
+          "x": 16,
+          "y": 253,
+          "width": 358,
+          "height": 460,
+          "top": 253,
+          "right": 374,
+          "bottom": 713,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-view",
+        "text": "Your fleetTargeting",
+        "rect": {
+          "x": 51,
+          "y": 667,
+          "width": 288,
+          "height": 46,
+          "top": 667,
+          "right": 339,
+          "bottom": 713,
+          "left": 51
+        }
+      },
+      {
+        "id": "custom-game-board-view-own",
+        "text": "Your fleet",
+        "rect": {
+          "x": 56,
+          "y": 672,
+          "width": 137,
+          "height": 36,
+          "top": 672,
+          "right": 193,
+          "bottom": 708,
+          "left": 56
+        }
+      },
+      {
+        "id": "custom-game-board-view-target",
+        "text": "Targeting",
+        "rect": {
+          "x": 197,
+          "y": 672,
+          "width": 137,
+          "height": 36,
+          "top": 672,
+          "right": 334,
+          "bottom": 708,
+          "left": 197
+        }
+      },
+      {
+        "id": "custom-game-board-own-grid",
+        "text": "ABCDEFGHIJ1✕■■■■2○3■■■■4○5■■■67■■■89■✕10",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      {
+        "id": "custom-game-board-target-grid",
+        "text": "ABCDEFGHIJ12✕✕345678910✖✖",
+        "rect": {
+          "x": 16,
+          "y": 253,
+          "width": 270,
+          "height": 230,
+          "top": 253,
+          "right": 286,
+          "bottom": 483,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-region",
+        "text": "A1E2F1J2A3E4F3J4A5E6F5J6A7E8F7J8A9E10F9J10",
+        "rect": {
+          "x": 286,
+          "y": 253,
+          "width": 88,
+          "height": 230,
+          "top": 253,
+          "right": 374,
+          "bottom": 483,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-0",
+        "text": "A1E2",
+        "rect": {
+          "x": 286,
+          "y": 253,
+          "width": 44,
+          "height": 46,
+          "top": 253,
+          "right": 330,
+          "bottom": 299,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-1",
+        "text": "F1J2",
+        "rect": {
+          "x": 330,
+          "y": 253,
+          "width": 44,
+          "height": 46,
+          "top": 253,
+          "right": 374,
+          "bottom": 299,
+          "left": 330
+        }
+      },
+      {
+        "id": "custom-game-board-area-2",
+        "text": "A3E4",
+        "rect": {
+          "x": 286,
+          "y": 299,
+          "width": 44,
+          "height": 46,
+          "top": 299,
+          "right": 330,
+          "bottom": 345,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-3",
+        "text": "F3J4",
+        "rect": {
+          "x": 330,
+          "y": 299,
+          "width": 44,
+          "height": 46,
+          "top": 299,
+          "right": 374,
+          "bottom": 345,
+          "left": 330
+        }
+      },
+      {
+        "id": "custom-game-board-area-4",
+        "text": "A5E6",
+        "rect": {
+          "x": 286,
+          "y": 345,
+          "width": 44,
+          "height": 46,
+          "top": 345,
+          "right": 330,
+          "bottom": 391,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-5",
+        "text": "F5J6",
+        "rect": {
+          "x": 330,
+          "y": 345,
+          "width": 44,
+          "height": 46,
+          "top": 345,
+          "right": 374,
+          "bottom": 391,
+          "left": 330
+        }
+      },
+      {
+        "id": "custom-game-board-area-6",
+        "text": "A7E8",
+        "rect": {
+          "x": 286,
+          "y": 391,
+          "width": 44,
+          "height": 46,
+          "top": 391,
+          "right": 330,
+          "bottom": 437,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-7",
+        "text": "F7J8",
+        "rect": {
+          "x": 330,
+          "y": 391,
+          "width": 44,
+          "height": 46,
+          "top": 391,
+          "right": 374,
+          "bottom": 437,
+          "left": 330
+        }
+      },
+      {
+        "id": "custom-game-board-area-8",
+        "text": "A9E10",
+        "rect": {
+          "x": 286,
+          "y": 437,
+          "width": 44,
+          "height": 46,
+          "top": 437,
+          "right": 330,
+          "bottom": 483,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-area-9",
+        "text": "F9J10",
+        "rect": {
+          "x": 330,
+          "y": 437,
+          "width": 44,
+          "height": 46,
+          "top": 437,
+          "right": 374,
+          "bottom": 483,
+          "left": 330
+        }
+      },
+      {
+        "id": "custom-game-board-target-tools",
+        "text": "Aim: A1–E2Map",
+        "rect": {
+          "x": 286,
+          "y": 513,
+          "width": 88,
+          "height": 68,
+          "top": 513,
+          "right": 374,
+          "bottom": 581,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-large-targets",
+        "text": "Map",
+        "rect": {
+          "x": 286,
+          "y": 537,
+          "width": 88,
+          "height": 44,
+          "top": 537,
+          "right": 374,
+          "bottom": 581,
+          "left": 286
+        }
+      },
+      {
+        "id": "custom-game-board-aim-grid",
+        "text": "ABCDE12",
+        "rect": {
+          "x": 16,
+          "y": 487,
+          "width": 270,
+          "height": 120,
+          "top": 487,
+          "right": 286,
+          "bottom": 607,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-confirmation",
+        "text": "Choose a target",
+        "rect": {
+          "x": 16,
+          "y": 611,
+          "width": 358,
+          "height": 44,
+          "top": 611,
+          "right": 374,
+          "bottom": 655,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-fire",
+        "text": "Choose a target",
+        "rect": {
+          "x": 16,
+          "y": 611,
+          "width": 358,
+          "height": 44,
+          "top": 611,
+          "right": 374,
+          "bottom": 655,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-key",
+        "text": "■Ship○Miss✕Hit✖Sunk",
+        "rect": {
+          "x": 16,
+          "y": 717,
+          "width": 358,
+          "height": 24,
+          "top": 717,
+          "right": 374,
+          "bottom": 741,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-status",
+        "text": "Blue fleet: avery. Red fleet: jordan_plays. Red fleet fired at C4 and missed. Your turn to fire.",
+        "rect": {
+          "x": 15,
+          "y": 182,
+          "width": 1,
+          "height": 242,
+          "top": 182,
+          "right": 16,
+          "bottom": 424,
+          "left": 15
+        }
+      },
+      {
+        "id": "custom-game-seat-near",
+        "text": "averyYour move",
+        "rect": {
+          "x": 16,
+          "y": 753,
+          "width": 358,
+          "height": 52,
+          "top": 753,
+          "right": 374,
+          "bottom": 805,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-white",
+        "text": "averyYour move",
+        "rect": {
+          "x": 16,
+          "y": 753,
+          "width": 358,
+          "height": 52,
+          "top": 753,
+          "right": 374,
+          "bottom": 805,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-white-person",
+        "text": "avery",
+        "rect": {
+          "x": 92,
+          "y": 768,
+          "width": 39.5,
+          "height": 22,
+          "top": 768,
+          "right": 131.5,
+          "bottom": 790,
+          "left": 92
+        }
+      },
+      {
+        "id": "custom-game-resign",
+        "text": "Resign game",
+        "rect": {
+          "x": 16,
+          "y": 821,
+          "width": 79.796875,
+          "height": 44,
+          "top": 821,
+          "right": 95.796875,
+          "bottom": 865,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-history-stats",
+        "text": "History and stats",
+        "rect": {
+          "x": 103.796875,
+          "y": 825,
+          "width": 167.5625,
+          "height": 36,
+          "top": 825,
+          "right": 271.359375,
+          "bottom": 861,
+          "left": 103.796875
+        }
+      }
+    ]
+  },
+  {
+    "id": "screens-games-word-tiles-board--enlarged-coordinates",
+    "error": "expected 860.4375 to be less than or equal to 844",
+    "elements": [
+      {
+        "id": "custom-game-unrated",
+        "text": "Unrated",
+        "rect": {
+          "x": 125.015625,
+          "y": 18.5,
+          "width": 53.359375,
+          "height": 20,
+          "top": 18.5,
+          "right": 178.375,
+          "bottom": 38.5,
+          "left": 125.015625
+        }
+      },
+      {
+        "id": "custom-game-content",
+        "text": "Amber — to play · 86 tiles in the bagNo moves yet.All movesjordan_plays7 tilesScore0C 3A 1T 1 0E 1S ",
+        "rect": {
+          "x": 16,
+          "y": 65,
+          "width": 358,
+          "height": 923.4375,
+          "top": 65,
+          "right": 374,
+          "bottom": 988.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-record",
+        "text": "Amber — to play · 86 tiles in the bagNo moves yet.All moves",
+        "rect": {
+          "x": 16,
+          "y": 65,
+          "width": 358,
+          "height": 80,
+          "top": 65,
+          "right": 374,
+          "bottom": 145,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-record-caption",
+        "text": "Amber — to play · 86 tiles in the bag",
+        "rect": {
+          "x": 25,
+          "y": 70,
+          "width": 340,
+          "height": 22,
+          "top": 70,
+          "right": 365,
+          "bottom": 92,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-move-strip-head",
+        "text": "No moves yet.All moves",
+        "rect": {
+          "x": 25,
+          "y": 96,
+          "width": 340,
+          "height": 44,
+          "top": 96,
+          "right": 365,
+          "bottom": 140,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-move-strip",
+        "text": "No moves yet.",
+        "rect": {
+          "x": 25,
+          "y": 96,
+          "width": 288,
+          "height": 44,
+          "top": 96,
+          "right": 313,
+          "bottom": 140,
+          "left": 25
+        }
+      },
+      {
+        "id": "custom-game-review-jump",
+        "text": "",
+        "rect": {
+          "x": 321,
+          "y": 96,
+          "width": 44,
+          "height": 44,
+          "top": 96,
+          "right": 365,
+          "bottom": 140,
+          "left": 321
+        }
+      },
+      {
+        "id": "custom-game-public",
+        "text": "jordan_plays7 tilesScore0C 3A 1T 1 0E 1S 1Q 10Play wordPass, exchange & toolsChoose a tile, then a s",
+        "rect": {
+          "x": 16,
+          "y": 161,
+          "width": 358,
+          "height": 699.4375,
+          "top": 161,
+          "right": 374,
+          "bottom": 860.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-black",
+        "text": "jordan_plays7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 161,
+          "width": 358,
+          "height": 54,
+          "top": 161,
+          "right": 374,
+          "bottom": 215,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-black-person",
+        "text": "jordan_plays",
+        "rect": {
+          "x": 92,
+          "y": 165,
+          "width": 94.765625,
+          "height": 22,
+          "top": 165,
+          "right": 186.765625,
+          "bottom": 187,
+          "left": 92
+        }
+      },
+      {
+        "id": "custom-game-board-rack",
+        "text": "C 3A 1T 1 0E 1S 1Q 10",
+        "rect": {
+          "x": 16,
+          "y": 219,
+          "width": 358,
+          "height": 61.4375,
+          "top": 219,
+          "right": 374,
+          "bottom": 280.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-submit",
+        "text": "Play word",
+        "rect": {
+          "x": 16,
+          "y": 284.4375,
+          "width": 97.625,
+          "height": 44,
+          "top": 284.4375,
+          "right": 113.625,
+          "bottom": 328.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-more",
+        "text": "Pass, exchange & tools",
+        "rect": {
+          "x": 121.625,
+          "y": 284.4375,
+          "width": 186.546875,
+          "height": 44,
+          "top": 284.4375,
+          "right": 308.171875,
+          "bottom": 328.4375,
+          "left": 121.625
+        }
+      },
+      {
+        "id": "custom-game-board-preview",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 332.4375,
+          "width": 358,
+          "height": 22,
+          "top": 332.4375,
+          "right": 374,
+          "bottom": 354.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board-status",
+        "text": "Choose a tile, then a square.",
+        "rect": {
+          "x": 16,
+          "y": 332.4375,
+          "width": 358,
+          "height": 22,
+          "top": 332.4375,
+          "right": 374,
+          "bottom": 354.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "Scrollable word board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3L★3L2L92W2L2L2L2L2",
+        "rect": {
+          "x": 16,
+          "y": 358.4375,
+          "width": 358,
+          "height": 308,
+          "top": 358.4375,
+          "right": 374,
+          "bottom": 666.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3L★3L2L92W2L2L2L2L2",
+        "rect": {
+          "x": -163,
+          "y": 146.4375,
+          "width": 699,
+          "height": 707,
+          "top": 146.4375,
+          "right": 536,
+          "bottom": 853.4375,
+          "left": -163
+        }
+      },
+      {
+        "id": "custom-game-board-overview",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 670.4375,
+          "width": 132,
+          "height": 132,
+          "top": 670.4375,
+          "right": 148,
+          "bottom": 802.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "View a board region",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 670.4375,
+          "width": 132,
+          "height": 132,
+          "top": 670.4375,
+          "right": 148,
+          "bottom": 802.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "Board map: locate a square",
+        "text": "Map",
+        "rect": {
+          "x": 156,
+          "y": 734.4375,
+          "width": 218,
+          "height": 44,
+          "top": 734.4375,
+          "right": 374,
+          "bottom": 778.4375,
+          "left": 156
+        }
+      },
+      {
+        "id": "custom-game-status",
+        "text": "Amber: avery. Teal: jordan_plays. Amber — to play · 86 tiles in the bag",
+        "rect": {
+          "x": 15,
+          "y": 160,
+          "width": 1,
+          "height": 220,
+          "top": 160,
+          "right": 16,
+          "bottom": 380,
+          "left": 15
+        }
+      },
+      {
+        "id": "custom-game-seat-near",
+        "text": "averyYour move7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 806.4375,
+          "width": 358,
+          "height": 54,
+          "top": 806.4375,
+          "right": 374,
+          "bottom": 860.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-white",
+        "text": "averyYour move7 tilesScore0",
+        "rect": {
+          "x": 16,
+          "y": 806.4375,
+          "width": 358,
+          "height": 54,
+          "top": 806.4375,
+          "right": 374,
+          "bottom": 860.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-white-person",
+        "text": "avery",
+        "rect": {
+          "x": 92,
+          "y": 810.4375,
+          "width": 39.5,
+          "height": 22,
+          "top": 810.4375,
+          "right": 131.5,
+          "bottom": 832.4375,
+          "left": 92
+        }
+      },
+      {
+        "id": "custom-game-offer",
+        "text": "Offer draw",
+        "rect": {
+          "x": 16,
+          "y": 876.4375,
+          "width": 102.90625,
+          "height": 44,
+          "top": 876.4375,
+          "right": 118.90625,
+          "bottom": 920.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "custom-game-resign",
+        "text": "Resign game",
+        "rect": {
+          "x": 126.90625,
+          "y": 876.4375,
+          "width": 79.796875,
+          "height": 44,
+          "top": 876.4375,
+          "right": 206.703125,
+          "bottom": 920.4375,
+          "left": 126.90625
+        }
+      },
+      {
+        "id": "custom-game-history-stats",
+        "text": "History and stats",
+        "rect": {
+          "x": 16,
+          "y": 928.4375,
+          "width": 167.5625,
+          "height": 36,
+          "top": 928.4375,
+          "right": 183.5625,
+          "bottom": 964.4375,
+          "left": 16
+        }
+      }
+    ]
+  },
+  {
+    "id": "screens-games-word-tiles-puzzle--enlarged-blank",
+    "error": null,
+    "elements": [
+      {
+        "id": "word-tiles-puzzle-target",
+        "text": "Score at least 20 points in one move.",
+        "rect": {
+          "x": 16,
+          "y": 16,
+          "width": 358,
+          "height": 22,
+          "top": 16,
+          "right": 374,
+          "bottom": 38,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-preview",
+        "text": "CATS: 5 = 5Scores 5 points.",
+        "rect": {
+          "x": 16,
+          "y": 42,
+          "width": 358,
+          "height": 46,
+          "top": 42,
+          "right": 374,
+          "bottom": 88,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-status",
+        "text": "Scores 5 points.",
+        "rect": {
+          "x": 16,
+          "y": 66,
+          "width": 358,
+          "height": 22,
+          "top": 66,
+          "right": 374,
+          "bottom": 88,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-submit",
+        "text": "Play word",
+        "rect": {
+          "x": 16,
+          "y": 92,
+          "width": 97.625,
+          "height": 44,
+          "top": 92,
+          "right": 113.625,
+          "bottom": 136,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-recall",
+        "text": "Recall tiles",
+        "rect": {
+          "x": 121.625,
+          "y": 92,
+          "width": 106.6875,
+          "height": 44,
+          "top": 92,
+          "right": 228.3125,
+          "bottom": 136,
+          "left": 121.625
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-rack",
+        "text": "A 1E 1S 1T 1 R 1N 1",
+        "rect": {
+          "x": 16,
+          "y": 140,
+          "width": 358,
+          "height": 61.4375,
+          "top": 140,
+          "right": 374,
+          "bottom": 201.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-bonus",
+        "text": "j8: 3L triples this letter. Blank tiles score 0.",
+        "rect": {
+          "x": 16,
+          "y": 205.4375,
+          "width": 358,
+          "height": 20,
+          "top": 205.4375,
+          "right": 374,
+          "bottom": 225.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "Scrollable word board",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 1S 02L92W",
+        "rect": {
+          "x": 16,
+          "y": 229.4375,
+          "width": 358,
+          "height": 308,
+          "top": 229.4375,
+          "right": 374,
+          "bottom": 537.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "word-tiles-puzzle",
+        "text": "abcdefghijklmno12L3W2L3W2L22L2W2W2L33L3L42L2W2W2L53W3L2L2L3L3W63L72W2L2L2L2L2W82L3LC 3A 1T 1S 02L92W",
+        "rect": {
+          "x": -163,
+          "y": 17.4375,
+          "width": 699,
+          "height": 707,
+          "top": 17.4375,
+          "right": 536,
+          "bottom": 724.4375,
+          "left": -163
+        }
+      },
+      {
+        "id": "word-tiles-puzzle-overview",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 541.4375,
+          "width": 132,
+          "height": 132,
+          "top": 541.4375,
+          "right": 148,
+          "bottom": 673.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "View a board region",
+        "text": "",
+        "rect": {
+          "x": 16,
+          "y": 541.4375,
+          "width": 132,
+          "height": 132,
+          "top": 541.4375,
+          "right": 148,
+          "bottom": 673.4375,
+          "left": 16
+        }
+      },
+      {
+        "id": "Board map: locate a square",
+        "text": "Map",
+        "rect": {
+          "x": 156,
+          "y": 605.4375,
+          "width": 218,
+          "height": 44,
+          "top": 605.4375,
+          "right": 374,
+          "bottom": 649.4375,
+          "left": 156
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,73 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts, @libs/word-tiles-client-ts, @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc, test in 4 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:lint: cache miss, executing bdab0d12d58dea87
+@pkgs/ui-root-harness-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+@pkgs/ui-root-harness-ts:lint: Found 0 warnings and 0 errors.
+@pkgs/ui-root-harness-ts:lint: Finished in 758ms on 119 files with 147 rules using 10 threads.
+@pkgs/ui-root-harness-ts:lint: pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   × Formatter would have printed the following content:
+@pkgs/ui-root-harness-ts:lint:   
+@pkgs/ui-root-harness-ts:lint:     481 481 │   
+@pkgs/ui-root-harness-ts:lint:     482 482 │   // regression: battleship-phone-placement-default
+@pkgs/ui-root-harness-ts:lint:     483     │ - test('screens-games-battleship-setup--empty·regression·battleship-phone-placement-default',·async·({·page·})·=>·{
+@pkgs/ui-root-harness-ts:lint:     484     │ - ··await·verifyBoardRegression(page,·'screens-games-battleship-setup--empty',·390);
+@pkgs/ui-root-harness-ts:lint:         483 │ + test('screens-games-battleship-setup--empty·regression·battleship-phone-placement-default',·async·({
+@pkgs/ui-root-harness-ts:lint:         484 │ + ··page,
+@pkgs/ui-root-harness-ts:lint:         485 │ + })·=>·{
+@pkgs/ui-root-harness-ts:lint:         486 │ + ··await·verifyBoardRegression(
+@pkgs/ui-root-harness-ts:lint:         487 │ + ····page,
+@pkgs/ui-root-harness-ts:lint:         488 │ + ····'screens-games-battleship-setup--empty',
+@pkgs/ui-root-harness-ts:lint:         489 │ + ····390
+@pkgs/ui-root-harness-ts:lint:         490 │ + ··);
+@pkgs/ui-root-harness-ts:lint:     485 491 │   });
+@pkgs/ui-root-harness-ts:lint:     486 492 │   
+@pkgs/ui-root-harness-ts:lint:     487 493 │   // regression: battleship-placement-overview-legibility
+@pkgs/ui-root-harness-ts:lint:     488     │ - test('screens-games-battleship-setup--enlarged-placement·regression·battleship-placement-overview-legibility',·async·({·page·})·=>·{
+@pkgs/ui-root-harness-ts:lint:     489     │ - ··await·verifyBoardRegression(page,·'screens-games-battleship-setup--enlarged-placement',·390);
+@pkgs/ui-root-harness-ts:lint:         494 │ + test('screens-games-battleship-setup--enlarged-placement·regression·battleship-placement-overview-legibility',·async·({
+@pkgs/ui-root-harness-ts:lint:         495 │ + ··page,
+@pkgs/ui-root-harness-ts:lint:         496 │ + })·=>·{
+@pkgs/ui-root-harness-ts:lint:         497 │ + ··await·verifyBoardRegression(
+@pkgs/ui-root-harness-ts:lint:         498 │ + ····page,
+@pkgs/ui-root-harness-ts:lint:         499 │ + ····'screens-games-battleship-setup--enlarged-placement',
+@pkgs/ui-root-harness-ts:lint:         500 │ + ····390
+@pkgs/ui-root-harness-ts:lint:         501 │ + ··);
+@pkgs/ui-root-harness-ts:lint:     490 502 │   });
+@pkgs/ui-root-harness-ts:lint:     491 503 │   
+@pkgs/ui-root-harness-ts:lint:     492 504 │   // regression: battleship-placement-guidance-gap
+@pkgs/ui-root-harness-ts:lint:     493     │ - test('screens-games-battleship-setup--enlarged-placement·regression·battleship-placement-guidance-gap',·async·({·page·})·=>·{
+@pkgs/ui-root-harness-ts:lint:     494     │ - ··await·verifyBoardRegression(page,·'screens-games-battleship-setup--enlarged-placement',·390);
+@pkgs/ui-root-harness-ts:lint:         505 │ + test('screens-games-battleship-setup--enlarged-placement·regression·battleship-placement-guidance-gap',·async·({
+@pkgs/ui-root-harness-ts:lint:         506 │ + ··page,
+@pkgs/ui-root-harness-ts:lint:         507 │ + })·=>·{
+@pkgs/ui-root-harness-ts:lint:         508 │ + ··await·verifyBoardRegression(
+@pkgs/ui-root-harness-ts:lint:         509 │ + ····page,
+@pkgs/ui-root-harness-ts:lint:         510 │ + ····'screens-games-battleship-setup--enlarged-placement',
+@pkgs/ui-root-harness-ts:lint:         511 │ + ····390
+@pkgs/ui-root-harness-ts:lint:         512 │ + ··);
+@pkgs/ui-root-harness-ts:lint:     495 513 │   });
+@pkgs/ui-root-harness-ts:lint:     496 514 │   
+@pkgs/ui-root-harness-ts:lint:   
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint: Checked 142 files in 874ms. No fixes applied.
+@pkgs/ui-root-harness-ts:lint: Found 1 error.
+@pkgs/ui-root-harness-ts:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint:   × Some errors were emitted while running checks.
+@pkgs/ui-root-harness-ts:lint:   
+@pkgs/ui-root-harness-ts:lint: 
+@pkgs/ui-root-harness-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-harness-ts#lint:  WARNING  command finished with error, but continuing...
+@pkgs/ui-root-harness-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    11 successful, 12 total
+Cached:    9 cached, 12 total
+  Time:    4.307s 
+Failed:    @pkgs/ui-root-harness-ts#lint
+
+ ERROR  run failed: command  exited (1)

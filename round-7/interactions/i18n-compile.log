@@ -1,0 +1,19 @@
+$ turbo run //#task:i18n:compile
+
+   • turbo 2.11.10
+   • Packages in scope: //
+   • Running //#task:i18n:compile in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/tools-harness-ts:generate:identity: cache hit, replaying logs 03a9e7c9fe5e3a6b
+@libs/tools-harness-ts:generate:identity: $ bun run scripts/materialize-product-identity.ts --development
+@libs/tools-harness-ts:generate:identity: identity: materialized fixture configuration (values omitted)
+//:task:i18n:compile: cache miss, executing f398be09cfc43164
+//:task:i18n:compile: $ lingui compile --typescript --strict && bun run libs/tools-harness-ts/scripts/ensure-trailing-newline.ts libs/app-root-shared-ts/locales/en/messages.ts
+//:task:i18n:compile: Compiling message catalogs…
+//:task:i18n:compile: Done in 144ms
+
+ Tasks:    2 successful, 2 total
+Cached:    1 cached, 2 total
+  Time:    852ms 
+

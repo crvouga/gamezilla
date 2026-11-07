@@ -1,0 +1,170 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [2] keyDown"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [3] keyUp"
+    ],
+    "cursor": 4,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [5] toBeLessThan"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--001.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [8] toHaveTextContent"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [10] click"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [11] keyDown"
+    ],
+    "cursor": 12,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [13] toBe"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--005.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [15] toHaveAttribute"
+    ],
+    "cursor": 16,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [17] click"
+    ],
+    "cursor": 18,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [19] toHaveAttribute"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [20] keyDown"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [21] keyUp"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [23] toBeGreaterThan"
+    ],
+    "cursor": 24,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--011.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [25] click"
+    ],
+    "cursor": 26,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [28] toHaveTextContent"
+    ],
+    "cursor": 29,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-pong-court--return-score-and-reconnect [31] toBeInTheDocument"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-pong-court--return-score-and-reconnect--desktop--light--016.png",
+    "capturedFrame": true
+  }
+]

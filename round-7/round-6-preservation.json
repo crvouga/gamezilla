@@ -1,0 +1,11 @@
+{
+  "evidenceCode": "95e2cf5e91b0fcee",
+  "candidateSha": "863c687fae76c57527d495ec436afcf0ea99539a",
+  "filesChecked": 8217,
+  "groups": {
+    "fileHashes": 4663,
+    "verificationHashes": 3537,
+    "canonicalEvidenceHashes": 17
+  },
+  "status": "all manifest-bound raw evidence unchanged"
+}

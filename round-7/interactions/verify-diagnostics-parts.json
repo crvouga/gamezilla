@@ -1,0 +1,28 @@
+{
+  "format": "Concatenate parts in listed order to reconstruct tar.gz",
+  "source": "/var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/verify-run-zEQy5C/diagnostics.tar.gz",
+  "sha256": "474123f90de4b4edd8fbacdcec843388698e6e80a2b246a503c8ec151d4423d4",
+  "parts": [
+    {
+      "file": "verify-diagnostics.tar.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "0d81138e30489e743d73d7c4a541eb03039743a3bd7ddff0a63c01eaa69c859a"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "5833848408c5f60347ad8bb24f47d71bb271b3530ba3953d55b0ad34266cba13"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-03",
+      "bytes": 50000000,
+      "sha256": "2817f552e5cff9f8fb0c1dbc92f9732f0dec8e1dc997ac60f31178e6445978a6"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-04",
+      "bytes": 8753667,
+      "sha256": "81cb7977afc3a74529be9280e2e4e33ce3d8d88b797f0f9c4302e6990bbfc820"
+    }
+  ],
+  "memberInventory": "verify-diagnostics-inventory.json"
+}

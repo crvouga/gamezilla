@@ -1,0 +1,90 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [4] toBeGreaterThan"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [6] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 7,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [8] toBeLessThanOrEqual"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [10] toBeLessThanOrEqual"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--000.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [12] click"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [14] toHaveBeenCalledTimes"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [16] keyboard"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--solved [19] toHaveAttribute"
+    ],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 20,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--solved--phone--light--008.png",
+    "capturedFrame": true
+  }
+]

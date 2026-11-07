@@ -1,0 +1,2313 @@
+﻿2026-11-07T01:43:52.4393736Z Current runner version: '2.338.2'
+2026-11-07T01:43:52.4415201Z ##[group]Runner Image Provisioner
+2026-11-07T01:43:52.4415954Z Hosted Compute Agent
+2026-11-07T01:43:52.4416573Z Version: 20261028.624
+2026-11-07T01:43:52.4417135Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-07T01:43:52.4417779Z Build Date: 2026-10-28T21:51:42Z
+2026-11-07T01:43:52.4418383Z Worker ID: {d6d7991c-0828-42f0-ae6b-0033a210293d}
+2026-11-07T01:43:52.4419176Z Region: westus2
+2026-11-07T01:43:52.4419730Z Cloud: Azure
+2026-11-07T01:43:52.4420223Z ##[endgroup]
+2026-11-07T01:43:52.4421352Z ##[group]Operating System
+2026-11-07T01:43:52.4421950Z Ubuntu
+2026-11-07T01:43:52.4422480Z 24.04.5
+2026-11-07T01:43:52.4422958Z LTS
+2026-11-07T01:43:52.4423412Z ##[endgroup]
+2026-11-07T01:43:52.4423872Z ##[group]Runner Image
+2026-11-07T01:43:52.4424441Z Image: ubuntu-24.04
+2026-11-07T01:43:52.4425052Z Version: 20261101.360.1
+2026-11-07T01:43:52.4426208Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-07T01:43:52.4427474Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-07T01:43:52.4428338Z ##[endgroup]
+2026-11-07T01:43:52.4429592Z ##[group]GITHUB_TOKEN Permissions
+2026-11-07T01:43:52.4431410Z Actions: read
+2026-11-07T01:43:52.4431924Z Checks: read
+2026-11-07T01:43:52.4432442Z Contents: read
+2026-11-07T01:43:52.4433004Z Metadata: read
+2026-11-07T01:43:52.4433488Z Statuses: read
+2026-11-07T01:43:52.4434012Z ##[endgroup]
+2026-11-07T01:43:52.4435717Z Secret source: Actions
+2026-11-07T01:43:52.4436546Z Cache mode: write
+2026-11-07T01:43:52.4437211Z Prepare workflow directory
+2026-11-07T01:43:52.4908240Z Prepare all required actions
+2026-11-07T01:43:52.4947503Z Getting action download info
+2026-11-07T01:43:52.8153386Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-11-07T01:43:52.9339284Z Download action repository 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+2026-11-07T01:43:53.2540205Z Complete job name: verify:end
+2026-11-07T01:43:53.3240197Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-11-07T01:43:53.3241106Z with:
+2026-11-07T01:43:53.3241496Z   persist-credentials: false
+2026-11-07T01:43:53.3241937Z   fetch-depth: 0
+2026-11-07T01:43:53.3242340Z   repository: crvouga/gamezilla
+2026-11-07T01:43:53.3245680Z   token: ***
+2026-11-07T01:43:53.3246067Z   ssh-strict: true
+2026-11-07T01:43:53.3246455Z   ssh-user: git
+2026-11-07T01:43:53.3246827Z   clean: true
+2026-11-07T01:43:53.3247208Z   sparse-checkout-cone-mode: true
+2026-11-07T01:43:53.3247651Z   fetch-tags: false
+2026-11-07T01:43:53.3248040Z   show-progress: true
+2026-11-07T01:43:53.3248431Z   lfs: false
+2026-11-07T01:43:53.3248922Z   submodules: false
+2026-11-07T01:43:53.3249326Z   set-safe-directory: true
+2026-11-07T01:43:53.3249765Z   allow-unsafe-pr-checkout: false
+2026-11-07T01:43:53.3250637Z env:
+2026-11-07T01:43:53.3253898Z   GH_TOKEN: ***
+2026-11-07T01:43:53.3254279Z   TURBO_UI: stream
+2026-11-07T01:43:53.3254707Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:43:53.3255137Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:43:53.3255536Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:43:53.3255948Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:43:53.3256358Z   GOMAXPROCS: 1
+2026-11-07T01:43:53.3256808Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:43:53.3257370Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:43:53.3257887Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:43:53.3258331Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:43:53.3258861Z   SECRETS_ENV: dev
+2026-11-07T01:43:53.3259347Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:43:53.3259893Z   GH_EVENT: pull_request
+2026-11-07T01:43:53.3260352Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:43:53.3260898Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:43:53.3261395Z   VERIFY_SHARDS: 64
+2026-11-07T01:43:53.3262023Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:43:53.3262426Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:43:53.3262853Z   VERIFY_PROFILE: release
+2026-11-07T01:43:53.3263267Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:43:53.3263664Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:43:53.3264079Z ##[endgroup]
+2026-11-07T01:43:53.7427032Z Syncing repository: crvouga/gamezilla
+2026-11-07T01:43:53.7430792Z ##[group]Getting Git version info
+2026-11-07T01:43:53.7431725Z Working directory is '/home/runner/work/gamezilla/gamezilla'
+2026-11-07T01:43:53.7433154Z [command]/usr/bin/git version
+2026-11-07T01:43:53.7433844Z git version 2.56.0
+2026-11-07T01:43:53.7436029Z ##[endgroup]
+2026-11-07T01:43:53.7441467Z Temporarily overriding HOME='/home/runner/work/_temp/5053550f-aa55-45c2-aeb0-090d98b0953f' before making global git config changes
+2026-11-07T01:43:53.7443112Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-07T01:43:53.7444685Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:43:53.7478522Z Deleting the contents of '/home/runner/work/gamezilla/gamezilla'
+2026-11-07T01:43:53.7481734Z ##[group]Determining repository object format
+2026-11-07T01:43:53.7483012Z ##[endgroup]
+2026-11-07T01:43:53.7484013Z ##[group]Initializing the repository
+2026-11-07T01:43:53.7487424Z [command]/usr/bin/git init /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:43:53.7562344Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-07T01:43:53.7563479Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-07T01:43:53.7564244Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-07T01:43:53.7564824Z hint: call:
+2026-11-07T01:43:53.7565300Z hint:
+2026-11-07T01:43:53.7565713Z hint: 	git config --global init.defaultBranch <name>
+2026-11-07T01:43:53.7566211Z hint:
+2026-11-07T01:43:53.7566782Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-07T01:43:53.7567795Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-07T01:43:53.7568757Z hint:
+2026-11-07T01:43:53.7569277Z hint: 	git branch -m <name>
+2026-11-07T01:43:53.7569870Z hint:
+2026-11-07T01:43:53.7570631Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-07T01:43:53.7572039Z Initialized empty Git repository in /home/runner/work/gamezilla/gamezilla/.git/
+2026-11-07T01:43:53.7580142Z [command]/usr/bin/git remote add origin https://github.com/crvouga/gamezilla
+2026-11-07T01:43:53.7625321Z ##[endgroup]
+2026-11-07T01:43:53.7625956Z ##[group]Disabling automatic garbage collection
+2026-11-07T01:43:53.7629636Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-07T01:43:53.7658544Z ##[endgroup]
+2026-11-07T01:43:53.7659693Z ##[group]Setting up auth
+2026-11-07T01:43:53.7660423Z Removing SSH command configuration
+2026-11-07T01:43:53.7664506Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-07T01:43:53.7696004Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-07T01:43:54.1915690Z Removing HTTP extra header
+2026-11-07T01:43:54.1917254Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-07T01:43:54.1952247Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-07T01:43:54.2145316Z Removing includeIf entries pointing to credentials config files
+2026-11-07T01:43:54.2150151Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-07T01:43:54.2180211Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-07T01:43:54.2378557Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-07T01:43:54.2414372Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/gamezilla/gamezilla/.git.path /home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:43:54.2446478Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/gamezilla/gamezilla/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:43:54.2487801Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:43:54.2517025Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:43:54.2544598Z ##[endgroup]
+2026-11-07T01:43:54.2546916Z ##[group]Fetching the repository
+2026-11-07T01:43:54.2551509Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +e8eff1e12a79b66a2aabfc3a72c77ca822b897a2:refs/remotes/pull/280/merge
+2026-11-07T01:44:37.1242022Z From https://github.com/crvouga/gamezilla
+2026-11-07T01:44:37.1242930Z  * [new branch]          codex/ui-ux-overhaul                     -> origin/codex/ui-ux-overhaul
+2026-11-07T01:44:37.1243631Z  * [new branch]          main                                     -> origin/main
+2026-11-07T01:44:37.1244394Z  * [new branch]          overhaul-evidence/pr-280                 -> origin/overhaul-evidence/pr-280
+2026-11-07T01:44:37.1245184Z  * [new branch]          t3/copy-overhaul-skills                  -> origin/t3/copy-overhaul-skills
+2026-11-07T01:44:37.1245971Z  * [new branch]          t3/fix-release-health-checks             -> origin/t3/fix-release-health-checks
+2026-11-07T01:44:37.1247347Z  * [new branch]          t3/game-board-ux-overhaul                -> origin/t3/game-board-ux-overhaul
+2026-11-07T01:44:37.1248196Z  * [new tag]             release-145                              -> release-145
+2026-11-07T01:44:37.1248976Z  * [new tag]             release-215                              -> release-215
+2026-11-07T01:44:37.1249715Z  * [new ref]             e8eff1e12a79b66a2aabfc3a72c77ca822b897a2 -> pull/280/merge
+2026-11-07T01:44:37.1252302Z ##[endgroup]
+2026-11-07T01:44:37.1252943Z ##[group]Determining the checkout info
+2026-11-07T01:44:37.1253603Z ##[endgroup]
+2026-11-07T01:44:37.1254087Z [command]/usr/bin/git sparse-checkout disable
+2026-11-07T01:44:37.1303780Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-07T01:44:37.1333873Z ##[group]Checking out the ref
+2026-11-07T01:44:37.1337714Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/280/merge
+2026-11-07T01:44:38.1583483Z Updating files:  86% (14858/17125)
+2026-11-07T01:44:38.1716249Z Updating files:  87% (14899/17125)
+2026-11-07T01:44:38.1874501Z Updating files:  88% (15070/17125)
+2026-11-07T01:44:38.2001115Z Updating files:  89% (15242/17125)
+2026-11-07T01:44:38.2182888Z Updating files:  90% (15413/17125)
+2026-11-07T01:44:38.2335728Z Updating files:  91% (15584/17125)
+2026-11-07T01:44:38.2483433Z Updating files:  92% (15755/17125)
+2026-11-07T01:44:38.2703485Z Updating files:  93% (15927/17125)
+2026-11-07T01:44:38.2829964Z Updating files:  94% (16098/17125)
+2026-11-07T01:44:38.2901793Z Updating files:  95% (16269/17125)
+2026-11-07T01:44:38.2974963Z Updating files:  96% (16440/17125)
+2026-11-07T01:44:38.3044179Z Updating files:  97% (16612/17125)
+2026-11-07T01:44:38.3142794Z Updating files:  98% (16783/17125)
+2026-11-07T01:44:38.3219282Z Updating files:  99% (16954/17125)
+2026-11-07T01:44:38.3219678Z Updating files: 100% (17125/17125)
+2026-11-07T01:44:38.3220019Z Updating files: 100% (17125/17125), done.
+2026-11-07T01:44:38.3398018Z Note: switching to 'refs/remotes/pull/280/merge'.
+2026-11-07T01:44:38.3398332Z 
+2026-11-07T01:44:38.3398506Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-07T01:44:38.3399133Z changes and commit them, and you can discard any commits you make in this
+2026-11-07T01:44:38.3399519Z state without impacting any branches by switching back to a branch.
+2026-11-07T01:44:38.3399734Z 
+2026-11-07T01:44:38.3399897Z If you want to create a new branch to retain commits you create, you may
+2026-11-07T01:44:38.3400241Z do so (now or later) by using -c with the switch command. Example:
+2026-11-07T01:44:38.3400433Z 
+2026-11-07T01:44:38.3400530Z   git switch -c <new-branch-name>
+2026-11-07T01:44:38.3400666Z 
+2026-11-07T01:44:38.3400748Z Or undo this operation with:
+2026-11-07T01:44:38.3400883Z 
+2026-11-07T01:44:38.3400954Z   git switch -
+2026-11-07T01:44:38.3401064Z 
+2026-11-07T01:44:38.3401231Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-07T01:44:38.3401484Z 
+2026-11-07T01:44:38.3401764Z HEAD is now at e8eff1e12 Merge 4e6fa4c19276459d586e451a548942d667541168 into 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:44:38.3467528Z ##[endgroup]
+2026-11-07T01:44:38.3511815Z [command]/usr/bin/git log -1 --format=%H
+2026-11-07T01:44:38.3538181Z e8eff1e12a79b66a2aabfc3a72c77ca822b897a2
+2026-11-07T01:44:38.3549599Z ##[group]Removing auth
+2026-11-07T01:44:38.3550085Z Removing SSH command configuration
+2026-11-07T01:44:38.3550566Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-07T01:44:38.3581882Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-07T01:44:38.3820356Z Removing HTTP extra header
+2026-11-07T01:44:38.3824059Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-07T01:44:38.3854534Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-07T01:44:38.4074723Z Removing includeIf entries pointing to credentials config files
+2026-11-07T01:44:38.4078297Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-07T01:44:38.4103671Z includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git.path
+2026-11-07T01:44:38.4104205Z includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git/worktrees/*.path
+2026-11-07T01:44:38.4104548Z includeif.gitdir:/github/workspace/.git.path
+2026-11-07T01:44:38.4104830Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-07T01:44:38.4113535Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git.path
+2026-11-07T01:44:38.4138894Z /home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:44:38.4147712Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-e8f218cd\-b387\-4694\-b393\-a37c48ff86d1\.config
+2026-11-07T01:44:38.4182925Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git/worktrees/*.path
+2026-11-07T01:44:38.4203088Z /home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:44:38.4210331Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/gamezilla/gamezilla/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-e8f218cd\-b387\-4694\-b393\-a37c48ff86d1\.config
+2026-11-07T01:44:38.4240575Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-07T01:44:38.4260823Z /github/runner_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:44:38.4266657Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-e8f218cd\-b387\-4694\-b393\-a37c48ff86d1\.config
+2026-11-07T01:44:38.4296770Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-07T01:44:38.4324656Z /github/runner_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config
+2026-11-07T01:44:38.4330734Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-e8f218cd\-b387\-4694\-b393\-a37c48ff86d1\.config
+2026-11-07T01:44:38.4361127Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-07T01:44:38.4578877Z Removing credentials config '/home/runner/work/_temp/git-credentials-e8f218cd-b387-4694-b393-a37c48ff86d1.config'
+2026-11-07T01:44:38.4588069Z ##[endgroup]
+2026-11-07T01:44:38.4903033Z Prepare all required actions
+2026-11-07T01:44:38.4903529Z Getting action download info
+2026-11-07T01:44:38.6289929Z Download action repository 'jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e' (SHA:82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e)
+2026-11-07T01:44:39.1136994Z ##[group]Run ./.github/actions/setup
+2026-11-07T01:44:39.1137219Z with:
+2026-11-07T01:44:39.1139925Z   product-identity-json: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#16835E\" d=\"M4 28V12l4-4V4h4l4 4h8l4 4v16H4Z\"/><path fill=\"#F4F8E9\" d=\"M10 13h4v4h-4zm12 0h4v4h-4zM10 20h16v4H14v2h-4z\"/><path fill=\"#16835E\" d=\"M18 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:44:39.1142451Z   tools: bun node gh opentofu conftest tflint gitleaks actionlint zizmor
+2026-11-07T01:44:39.1142745Z   secrets-environment: dev
+2026-11-07T01:44:39.1142989Z   secrets-identity-id: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:44:39.1143250Z   secrets-project-id: secrets
+2026-11-07T01:44:39.1143457Z   product-identity-mode: fixture
+2026-11-07T01:44:39.1143645Z env:
+2026-11-07T01:44:39.1145829Z   GH_TOKEN: ***
+2026-11-07T01:44:39.1146018Z   TURBO_UI: stream
+2026-11-07T01:44:39.1146198Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:44:39.1146400Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:44:39.1146582Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:44:39.1146781Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:44:39.1146974Z   GOMAXPROCS: 1
+2026-11-07T01:44:39.1147175Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:44:39.1147453Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:44:39.1147708Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:44:39.1147901Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:44:39.1148075Z   SECRETS_ENV: dev
+2026-11-07T01:44:39.1148292Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:44:39.1148547Z   GH_EVENT: pull_request
+2026-11-07T01:44:39.1148855Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:44:39.1149102Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:44:39.1149326Z   VERIFY_SHARDS: 64
+2026-11-07T01:44:39.1149498Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:44:39.1149685Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:44:39.1149871Z   VERIFY_PROFILE: release
+2026-11-07T01:44:39.1150051Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:44:39.1150235Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:44:39.1150613Z ##[endgroup]
+2026-11-07T01:44:39.1199973Z ##[start-action display=Trust mise.toml;id=__self.__run]
+2026-11-07T01:44:39.1256920Z ##[group]Run echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
+2026-11-07T01:44:39.1257444Z [36;1mecho "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"[0m
+2026-11-07T01:44:39.1257904Z [36;1mecho "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"[0m
+2026-11-07T01:44:39.1280821Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:44:39.1281104Z env:
+2026-11-07T01:44:39.1283228Z   GH_TOKEN: ***
+2026-11-07T01:44:39.1283410Z   TURBO_UI: stream
+2026-11-07T01:44:39.1283585Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:44:39.1283780Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:44:39.1283956Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:44:39.1284137Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:44:39.1284324Z   GOMAXPROCS: 1
+2026-11-07T01:44:39.1284710Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:44:39.1284997Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:44:39.1285247Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:44:39.1285438Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:44:39.1285612Z   SECRETS_ENV: dev
+2026-11-07T01:44:39.1285823Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:44:39.1286083Z   GH_EVENT: pull_request
+2026-11-07T01:44:39.1286286Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:44:39.1286532Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:44:39.1286745Z   VERIFY_SHARDS: 64
+2026-11-07T01:44:39.1286903Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:44:39.1287083Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:44:39.1287266Z   VERIFY_PROFILE: release
+2026-11-07T01:44:39.1287442Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:44:39.1287611Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:44:39.1287794Z ##[endgroup]
+2026-11-07T01:44:39.1355744Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=15]
+2026-11-07T01:44:39.1357749Z ##[start-action display=Install pinned tools (mise.toml);id=__self.__jdx_mise-action]
+2026-11-07T01:44:39.1447881Z ##[group]Run jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e
+2026-11-07T01:44:39.1448169Z with:
+2026-11-07T01:44:39.1448358Z   version: 2026.9.13
+2026-11-07T01:44:39.1448573Z   cache: false
+2026-11-07T01:44:39.1449080Z   install_args: bun node gh opentofu conftest tflint gitleaks actionlint zizmor
+2026-11-07T01:44:39.1449408Z   auto_update: false
+2026-11-07T01:44:39.1449591Z   minimum_release_age: 24h
+2026-11-07T01:44:39.1449780Z   install: true
+2026-11-07T01:44:39.1449942Z   monorepo: true
+2026-11-07T01:44:39.1450109Z   bootstrap: false
+2026-11-07T01:44:39.1450278Z   cache_save: true
+2026-11-07T01:44:39.1450441Z   cache_save_post: false
+2026-11-07T01:44:39.1450635Z   cache_restore_retry_budget: 0s
+2026-11-07T01:44:39.1450838Z   cache_save_retry_budget: 0s
+2026-11-07T01:44:39.1451038Z   cache_key_prefix: mise-v1
+2026-11-07T01:44:39.1451252Z   cache_max_age_days: 30
+2026-11-07T01:44:39.1451440Z   experimental: false
+2026-11-07T01:44:39.1451620Z   log_level: info
+2026-11-07T01:44:39.1451783Z   reshim: false
+2026-11-07T01:44:39.1451950Z   add_shims_to_path: true
+2026-11-07T01:44:39.1454060Z   github_token: ***
+2026-11-07T01:44:39.1454245Z   persist_github_token: false
+2026-11-07T01:44:39.1454455Z   fetch_from_github: true
+2026-11-07T01:44:39.1454632Z   env: true
+2026-11-07T01:44:39.1454792Z   export_path: true
+2026-11-07T01:44:39.1454957Z   wings_enabled: false
+2026-11-07T01:44:39.1455132Z env:
+2026-11-07T01:44:39.1457128Z   GH_TOKEN: ***
+2026-11-07T01:44:39.1457290Z   TURBO_UI: stream
+2026-11-07T01:44:39.1457467Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:44:39.1457660Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:44:39.1457837Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:44:39.1458025Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:44:39.1458212Z   GOMAXPROCS: 1
+2026-11-07T01:44:39.1458411Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:44:39.1459018Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:44:39.1459265Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:44:39.1459457Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:44:39.1459634Z   SECRETS_ENV: dev
+2026-11-07T01:44:39.1459859Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:44:39.1460114Z   GH_EVENT: pull_request
+2026-11-07T01:44:39.1460316Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:44:39.1460562Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:44:39.1460780Z   VERIFY_SHARDS: 64
+2026-11-07T01:44:39.1460943Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:44:39.1461123Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:44:39.1461309Z   VERIFY_PROFILE: release
+2026-11-07T01:44:39.1461494Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:44:39.1461670Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:44:39.1461930Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:44:39.1462389Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:44:39.1462650Z ##[endgroup]
+2026-11-07T01:44:39.2947678Z `minimum_release_age` is ignored because an explicit mise version was provided
+2026-11-07T01:44:39.2974905Z [command]/usr/bin/ldd --version
+2026-11-07T01:44:39.3023388Z ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39
+2026-11-07T01:44:39.3025022Z Copyright (C) 2024 Free Software Foundation, Inc.
+2026-11-07T01:44:39.3025605Z This is free software; see the source for copying conditions.  There is NO
+2026-11-07T01:44:39.3026304Z warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+2026-11-07T01:44:39.3026842Z Written by Roland McGrath and Ulrich Drepper.
+2026-11-07T01:44:39.3040841Z ##[group]Download mise@2026.9.13
+2026-11-07T01:44:39.3062039Z [command]/usr/local/bin/zstd --version
+2026-11-07T01:44:39.3088145Z *** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***
+2026-11-07T01:44:39.3097913Z [command]/usr/bin/tar --zstd --version
+2026-11-07T01:44:39.3124768Z tar (GNU tar) 1.35
+2026-11-07T01:44:39.3125402Z Copyright (C) 2023 Free Software Foundation, Inc.
+2026-11-07T01:44:39.3126442Z License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+2026-11-07T01:44:39.3127278Z This is free software: you are free to change and redistribute it.
+2026-11-07T01:44:39.3128060Z There is NO WARRANTY, to the extent permitted by law.
+2026-11-07T01:44:39.3128472Z 
+2026-11-07T01:44:39.3129007Z Written by John Gilmore and Jay Fenlason.
+2026-11-07T01:44:39.3140687Z Using curl to download mise
+2026-11-07T01:44:39.3148778Z [command]/usr/bin/curl -fsSL https://github.com/jdx/mise/releases/download/v2026.9.13/mise-v2026.9.13-linux-x64.tar.zst --output /tmp/mise-action-EuNT3e/mise-v2026.9.13-linux-x64.tar.zst
+2026-11-07T01:44:40.3988406Z Verified mise-v2026.9.13-linux-x64.tar.zst against the signed packslip
+2026-11-07T01:44:40.3997990Z [command]/usr/bin/tar --zstd -xf /tmp/mise-action-EuNT3e/mise-v2026.9.13-linux-x64.tar.zst -C /tmp/mise-action-EuNT3e
+2026-11-07T01:44:40.6087869Z [command]/usr/bin/mv /tmp/mise-action-EuNT3e/mise/bin/mise /home/runner/.local/share/mise/bin/mise
+2026-11-07T01:44:40.6192375Z ##[group]Setting env vars
+2026-11-07T01:44:40.6192726Z Setting MISE_LOG_LEVEL=info
+2026-11-07T01:44:40.6194842Z Setting MISE_YES=1
+2026-11-07T01:44:40.6195193Z Adding /home/runner/.local/share/mise/shims to PATH
+2026-11-07T01:44:40.6196668Z ##[group]Running mise --version
+2026-11-07T01:44:40.6212035Z [command]/home/runner/.local/share/mise/bin/mise --version
+2026-11-07T01:44:40.6299985Z 2026.9.13 linux-x64 (2026-09-24)
+2026-11-07T01:44:40.6346217Z ##[endgroup]
+2026-11-07T01:44:40.6588404Z ##[group]Running mise install bun node gh opentofu conftest tflint gitleaks actionlint zizmor
+2026-11-07T01:44:40.6598421Z [command]/home/runner/.local/share/mise/bin/mise install bun node gh opentofu conftest tflint gitleaks actionlint zizmor
+2026-11-07T01:44:40.6729676Z [2mmise[0m [2mby @jdx[0m – installing 9 tools
+2026-11-07T01:44:41.7122147Z [2mmise[0m [38;5;10m✓[0m [34mactionlint[0m@1.7.12  1.0s  [2mactionlint_1.7.12_linux_amd64.tar.gz[0m
+2026-11-07T01:44:42.4315626Z [2mmise[0m [34mnode[0m@26.12.0 v26.12.0
+2026-11-07T01:44:42.5155820Z [2mmise[0m [34mnode[0m@26.12.0 11.20.0
+2026-11-07T01:44:42.5811042Z [2mmise[0m [38;5;10m✓[0m [34mnode[0m@26.12.0       1.9s  [2mnode-v26.12.0-linux-x64.tar.gz[0m
+2026-11-07T01:44:43.1196472Z [2mmise[0m [38;5;10m✓[0m [34mgitleaks[0m@8.30.1    2.4s  [2mgitleaks_8.30.1_linux_x64.tar.gz[0m
+2026-11-07T01:44:43.1949293Z [2mmise[0m [34mbun[0m@1.4.3 1.4.3
+2026-11-07T01:44:43.2060130Z [2mmise[0m [38;5;10m✓[0m [34mbun[0m@1.4.3          2.5s  [2mbun-linux-x64.zip[0m
+2026-11-07T01:44:43.6733369Z [2mmise[0m [36m█████████[0m[31m[0m[2m░░░░░░░[0m 4/9 · 3.0s
+2026-11-07T01:44:43.6733765Z   [34mgh[0m@2.102.0         verifying    3.0s
+2026-11-07T01:44:43.6734049Z   [34mopentofu[0m@1.13.1    installing   3.0s
+2026-11-07T01:44:43.6734369Z   [34mconftest[0m@0.71.1    downloading  3.0s  12.6/22.9 MB
+2026-11-07T01:44:43.6734945Z   [34mtflint[0m@0.64.0      installing   3.0s
+2026-11-07T01:44:43.6735234Z   [34mzizmor[0m@1.31.1      installing   2.0s
+2026-11-07T01:44:43.9529122Z [2mmise[0m [38;5;10m✓[0m [34mgh[0m@2.102.0         3.3s  [2mgh_2.102.0_linux_amd64.tar.gz[0m
+2026-11-07T01:44:44.3480770Z [2mmise[0m [38;5;10m✓[0m [34mconftest[0m@0.71.1    3.7s  [2mconftest_0.71.1_Linux_x86_64.tar.gz[0m
+2026-11-07T01:44:44.7909473Z [2mmise[0m [38;5;10m✓[0m [34mtflint[0m@0.64.0      4.1s  [2mtflint_linux_amd64.zip[0m
+2026-11-07T01:44:46.6736035Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 6.0s
+2026-11-07T01:44:46.6736443Z   [34mopentofu[0m@1.13.1    installing  6.0s
+2026-11-07T01:44:46.6736730Z   [34mzizmor[0m@1.31.1      installing  5.0s
+2026-11-07T01:44:49.6739554Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 9.0s
+2026-11-07T01:44:49.6739984Z   [34mopentofu[0m@1.13.1    installing  9.0s
+2026-11-07T01:44:49.6740274Z   [34mzizmor[0m@1.31.1      installing  8.0s
+2026-11-07T01:44:52.5019900Z [33mmise[0m [33mWARN[0m  HTTP GET https://api.github.com/repos/opentofu/opentofu/releases?per_page=100 attempt 1 failed after 11.09s (transient): HTTP status server error (504 Gateway Timeout) for url (https://api.github.com/repos/opentofu/opentofu/releases?per_page=100); retrying in 140.794854ms
+2026-11-07T01:44:52.6738788Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 12.0s
+2026-11-07T01:44:52.6739232Z   [34mopentofu[0m@1.13.1    installing  12.0s
+2026-11-07T01:44:52.6739529Z   [34mzizmor[0m@1.31.1      installing  11.0s
+2026-11-07T01:44:55.6740609Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 15.0s
+2026-11-07T01:44:55.6741031Z   [34mopentofu[0m@1.13.1    installing  15.0s
+2026-11-07T01:44:55.6741334Z   [34mzizmor[0m@1.31.1      installing  14.0s
+2026-11-07T01:44:58.6742531Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 18.0s
+2026-11-07T01:44:58.6743064Z   [34mopentofu[0m@1.13.1    installing  18.0s
+2026-11-07T01:44:58.6743512Z   [34mzizmor[0m@1.31.1      installing  17.0s
+2026-11-07T01:45:01.6743399Z [2mmise[0m [36m████████████[0m[31m[0m[2m░░░░[0m 7/9 · 21.0s
+2026-11-07T01:45:01.6743815Z   [34mopentofu[0m@1.13.1    installing  21.0s
+2026-11-07T01:45:01.6744100Z   [34mzizmor[0m@1.31.1      installing  20.0s
+2026-11-07T01:45:03.1251215Z [2mmise[0m [38;5;10m✓[0m [34mzizmor[0m@1.31.1      21.4s  [2mzizmor-x86_64-unknown-linux-gnu.tar.gz[0m
+2026-11-07T01:45:03.1365546Z [2mmise[0m [38;5;10m✓[0m [34mopentofu[0m@1.13.1    22.5s  [2mtofu_1.13.1_linux_amd64.tar.gz[0m
+2026-11-07T01:45:03.1368125Z [2mmise[0m [36m████████████████[0m[31m[0m[2m[0m 9/9 · installed 9 tools in 22.5s
+2026-11-07T01:45:03.4644260Z ##[endgroup]
+2026-11-07T01:45:03.4644757Z ##[group]Running mise ls
+2026-11-07T01:45:03.4660290Z [command]/home/runner/.local/share/mise/bin/mise ls
+2026-11-07T01:45:03.4841955Z actionlint               1.7.12                             ~/work/gamezilla/gamezilla/mise.toml  1.7.12
+2026-11-07T01:45:03.4842478Z ast-grep                 0.51.0 (missing)                   ~/work/gamezilla/gamezilla/mise.toml  0.51.0
+2026-11-07T01:45:03.4843204Z bun                      1.4.3                              ~/work/gamezilla/gamezilla/mise.toml  1.4.3
+2026-11-07T01:45:03.4843580Z conftest                 0.71.1                             ~/work/gamezilla/gamezilla/mise.toml  0.71.1
+2026-11-07T01:45:03.4843960Z duckdb                   1.5.6 (missing)                    ~/work/gamezilla/gamezilla/mise.toml  1.5.6
+2026-11-07T01:45:03.4844336Z gh                       2.102.0                            ~/work/gamezilla/gamezilla/mise.toml  2.102.0
+2026-11-07T01:45:03.4844736Z github:emqx/emqx         5.8.6 (missing)                    ~/work/gamezilla/gamezilla/mise.toml  5.8.6
+2026-11-07T01:45:03.4845130Z gitleaks                 8.30.1                             ~/work/gamezilla/gamezilla/mise.toml  8.30.1
+2026-11-07T01:45:03.4845513Z http:alloy               6.2.0 (missing)                    ~/work/gamezilla/gamezilla/mise.toml  6.2.0
+2026-11-07T01:45:03.4846036Z http:apalache            0.56.1 (missing)                   ~/work/gamezilla/gamezilla/mise.toml  0.56.1
+2026-11-07T01:45:03.4846518Z http:chrome-for-testing  154.0.8037.92 (missing)            ~/work/gamezilla/gamezilla/mise.toml  154.0.8037.92
+2026-11-07T01:45:03.4846973Z infisical                0.44.3 (missing)                   ~/work/gamezilla/gamezilla/mise.toml  0.44.3
+2026-11-07T01:45:03.4847447Z java                     temurin-21.0.12+8.0.LTS (missing)  ~/work/gamezilla/gamezilla/mise.toml  temurin-21.0.12+8.0.LTS
+2026-11-07T01:45:03.4847899Z node                     26.12.0                            ~/work/gamezilla/gamezilla/mise.toml  26.12.0
+2026-11-07T01:45:03.4848263Z opentofu                 1.13.1                             ~/work/gamezilla/gamezilla/mise.toml  1.13.1
+2026-11-07T01:45:03.4848806Z railway                  5.71.0 (missing)                   ~/work/gamezilla/gamezilla/mise.toml  5.71.0
+2026-11-07T01:45:03.4849217Z tflint                   0.64.0                             ~/work/gamezilla/gamezilla/mise.toml  0.64.0
+2026-11-07T01:45:03.4849599Z uv                       0.13.3 (missing)                   ~/work/gamezilla/gamezilla/mise.toml  0.13.3
+2026-11-07T01:45:03.4849953Z zizmor                   1.31.1                             ~/work/gamezilla/gamezilla/mise.toml  1.31.1
+2026-11-07T01:45:03.4859499Z ##[endgroup]
+2026-11-07T01:45:03.5094311Z ##[group]Exporting mise environment variables
+2026-11-07T01:45:03.5348098Z [command]/home/runner/.local/share/mise/bin/mise env --json
+2026-11-07T01:45:03.5541070Z {
+2026-11-07T01:45:03.5543415Z   "PATH": "/home/runner/.local/share/mise/installs/bun/1.4.3/bin:/home/runner/.local/share/mise/installs/node/26.12.0/bin:/home/runner/.local/share/mise/installs/gh/2.102.0/gh_2.102.0_linux_amd64/bin:/home/runner/.local/share/mise/installs/gitleaks/8.30.1:/home/runner/.local/share/mise/installs/actionlint/1.7.12:/home/runner/.local/share/mise/installs/zizmor/1.31.1:/home/runner/.local/share/mise/installs/opentofu/1.13.1:/home/runner/.local/share/mise/installs/conftest/0.71.1:/home/runner/.local/share/mise/installs/tflint/0.64.0:/home/runner/.local/share/mise/shims:/home/runner/.local/share/mise/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+2026-11-07T01:45:03.5545671Z }
+2026-11-07T01:45:03.5685358Z Adding /home/runner/.local/share/mise/installs/tflint/0.64.0 to PATH
+2026-11-07T01:45:03.5685971Z Adding /home/runner/.local/share/mise/installs/conftest/0.71.1 to PATH
+2026-11-07T01:45:03.5686580Z Adding /home/runner/.local/share/mise/installs/opentofu/1.13.1 to PATH
+2026-11-07T01:45:03.5687140Z Adding /home/runner/.local/share/mise/installs/zizmor/1.31.1 to PATH
+2026-11-07T01:45:03.5687696Z Adding /home/runner/.local/share/mise/installs/actionlint/1.7.12 to PATH
+2026-11-07T01:45:03.5688313Z Adding /home/runner/.local/share/mise/installs/gitleaks/8.30.1 to PATH
+2026-11-07T01:45:03.5689237Z Adding /home/runner/.local/share/mise/installs/gh/2.102.0/gh_2.102.0_linux_amd64/bin to PATH
+2026-11-07T01:45:03.5689679Z Adding /home/runner/.local/share/mise/installs/node/26.12.0/bin to PATH
+2026-11-07T01:45:03.5690031Z Adding /home/runner/.local/share/mise/installs/bun/1.4.3/bin to PATH
+2026-11-07T01:45:03.5690577Z ##[endgroup]
+2026-11-07T01:45:03.5808332Z ##[end-action id=__self.__jdx_mise-action;outcome=success;conclusion=success;duration_ms=24444]
+2026-11-07T01:45:03.5811470Z ##[start-action display=Restore bun's download cache;id=__self.__actions_cache]
+2026-11-07T01:45:03.6360017Z ##[group]Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+2026-11-07T01:45:03.6360323Z with:
+2026-11-07T01:45:03.6360491Z   path: ~/.bun/install/cache
+2026-11-07T01:45:03.6360875Z   key: bun-install-v1-Linux-X64-943f0c4485747e43fa211ce797c20f7487fbddb48476b04259407fa3ce44ef43
+2026-11-07T01:45:03.6361290Z   restore-keys: bun-install-v1-Linux-X64-
+2026-11-07T01:45:03.6361738Z   enableCrossOsArchive: false
+2026-11-07T01:45:03.6361953Z   fail-on-cache-miss: false
+2026-11-07T01:45:03.6362145Z   lookup-only: false
+2026-11-07T01:45:03.6362321Z   save-always: false
+2026-11-07T01:45:03.6362485Z env:
+2026-11-07T01:45:03.6364879Z   GH_TOKEN: ***
+2026-11-07T01:45:03.6365062Z   TURBO_UI: stream
+2026-11-07T01:45:03.6365244Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:03.6365446Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:03.6365630Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:03.6365822Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:03.6366015Z   GOMAXPROCS: 1
+2026-11-07T01:45:03.6366219Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:03.6366515Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:03.6366768Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:03.6366971Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:03.6367155Z   SECRETS_ENV: dev
+2026-11-07T01:45:03.6367375Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:03.6367654Z   GH_EVENT: pull_request
+2026-11-07T01:45:03.6367865Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:03.6368119Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:03.6368342Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:03.6368517Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:03.6368879Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:03.6369070Z   VERIFY_PROFILE: release
+2026-11-07T01:45:03.6369253Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:03.6369435Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:03.6369701Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:03.6370038Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:03.6370309Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:03.6370484Z   MISE_YES: 1
+2026-11-07T01:45:03.6370648Z ##[endgroup]
+2026-11-07T01:45:03.9623163Z Cache hit for: bun-install-v1-Linux-X64-943f0c4485747e43fa211ce797c20f7487fbddb48476b04259407fa3ce44ef43
+2026-11-07T01:45:05.2328066Z Received 16777216 of 440921890 (3.8%), 16.0 MBs/sec
+2026-11-07T01:45:06.2337208Z Received 142606336 of 440921890 (32.3%), 68.0 MBs/sec
+2026-11-07T01:45:07.2368603Z Received 276824064 of 440921890 (62.8%), 88.0 MBs/sec
+2026-11-07T01:45:08.2340736Z Received 402653184 of 440921890 (91.3%), 96.0 MBs/sec
+2026-11-07T01:45:08.4946057Z Received 440921890 of 440921890 (100.0%), 98.7 MBs/sec
+2026-11-07T01:45:08.4948513Z Cache Size: ~420 MB (440921890 B)
+2026-11-07T01:45:08.5030355Z [command]/usr/bin/tar -xf /home/runner/work/_temp/3062e3a6-dbd3-4011-bc51-4dfa6e92117a/cache.tzst -P -C /home/runner/work/gamezilla/gamezilla --use-compress-program unzstd
+2026-11-07T01:45:13.3258009Z Cache restored successfully
+2026-11-07T01:45:13.3960476Z Cache restored from key: bun-install-v1-Linux-X64-943f0c4485747e43fa211ce797c20f7487fbddb48476b04259407fa3ce44ef43
+2026-11-07T01:45:13.4092429Z ##[end-action id=__self.__actions_cache;outcome=success;conclusion=success;duration_ms=9828]
+2026-11-07T01:45:13.4095612Z ##[start-action display=Restore generation artifacts;id=__self.generation]
+2026-11-07T01:45:13.5864736Z ##[group]Run actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+2026-11-07T01:45:13.5865054Z with:
+2026-11-07T01:45:13.5865230Z   path: .cache/setup-generation
+2026-11-07T01:45:13.5865792Z   key: setup-generation-v1-Linux-X64-b8d9642365080c6ff5eab743cd5fee47af5050d95f8f2a10e9a1fafe8bf1aeaa-e8eff1e12a79b66a2aabfc3a72c77ca822b897a2
+2026-11-07T01:45:13.5866584Z   restore-keys: setup-generation-v1-Linux-X64-b8d9642365080c6ff5eab743cd5fee47af5050d95f8f2a10e9a1fafe8bf1aeaa-
+2026-11-07T01:45:13.5867037Z   enableCrossOsArchive: false
+2026-11-07T01:45:13.5867253Z   fail-on-cache-miss: false
+2026-11-07T01:45:13.5867459Z   lookup-only: false
+2026-11-07T01:45:13.5867632Z env:
+2026-11-07T01:45:13.5870135Z   GH_TOKEN: ***
+2026-11-07T01:45:13.5870331Z   TURBO_UI: stream
+2026-11-07T01:45:13.5870519Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:13.5870723Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:13.5870910Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:13.5871346Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:13.5871546Z   GOMAXPROCS: 1
+2026-11-07T01:45:13.5871749Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:13.5872028Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:13.5872279Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:13.5872480Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:13.5872662Z   SECRETS_ENV: dev
+2026-11-07T01:45:13.5872885Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:13.5873146Z   GH_EVENT: pull_request
+2026-11-07T01:45:13.5873359Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:13.5873614Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:13.5873837Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:13.5874007Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:13.5874199Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:13.5874389Z   VERIFY_PROFILE: release
+2026-11-07T01:45:13.5874579Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:13.5874768Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:13.5875046Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:13.5875382Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:13.5875644Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:13.5875817Z   MISE_YES: 1
+2026-11-07T01:45:13.5875987Z ##[endgroup]
+2026-11-07T01:45:13.9103245Z Cache hit for: setup-generation-v1-Linux-X64-b8d9642365080c6ff5eab743cd5fee47af5050d95f8f2a10e9a1fafe8bf1aeaa-e8eff1e12a79b66a2aabfc3a72c77ca822b897a2
+2026-11-07T01:45:14.8992476Z Received 1028772 of 1028772 (100.0%), 1.4 MBs/sec
+2026-11-07T01:45:14.8992941Z Cache Size: ~1 MB (1028772 B)
+2026-11-07T01:45:14.9022361Z [command]/usr/bin/tar -xf /home/runner/work/_temp/85584791-7388-4913-9550-faee123b3fbe/cache.tzst -P -C /home/runner/work/gamezilla/gamezilla --use-compress-program unzstd
+2026-11-07T01:45:14.9210449Z Cache restored successfully
+2026-11-07T01:45:14.9270973Z Cache restored from key: setup-generation-v1-Linux-X64-b8d9642365080c6ff5eab743cd5fee47af5050d95f8f2a10e9a1fafe8bf1aeaa-e8eff1e12a79b66a2aabfc3a72c77ca822b897a2
+2026-11-07T01:45:14.9349105Z ##[end-action id=__self.generation;outcome=success;conclusion=success;duration_ms=1525]
+2026-11-07T01:45:14.9353532Z ##[start-action display=Install dependencies and restore generated outputs;id=__self.__run_2]
+2026-11-07T01:45:14.9444591Z ##[group]Run bun install --frozen-lockfile
+2026-11-07T01:45:14.9444884Z [36;1mbun install --frozen-lockfile[0m
+2026-11-07T01:45:14.9464846Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:14.9465139Z env:
+2026-11-07T01:45:14.9467342Z   GH_TOKEN: ***
+2026-11-07T01:45:14.9467545Z   TURBO_UI: stream
+2026-11-07T01:45:14.9467750Z   TURBO_CACHE_DIR: .cache/setup-generation
+2026-11-07T01:45:14.9467990Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:14.9468193Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:14.9468395Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:14.9468601Z   GOMAXPROCS: 1
+2026-11-07T01:45:14.9469012Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:14.9469471Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:14.9469739Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:14.9469953Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:14.9470144Z   SECRETS_ENV: dev
+2026-11-07T01:45:14.9470382Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:14.9470658Z   GH_EVENT: pull_request
+2026-11-07T01:45:14.9470874Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:14.9471146Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:14.9471383Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:14.9471561Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:14.9471757Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:14.9471964Z   VERIFY_PROFILE: release
+2026-11-07T01:45:14.9472165Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:14.9472354Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:14.9472644Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:14.9473144Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:14.9473426Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:14.9473617Z   MISE_YES: 1
+2026-11-07T01:45:14.9473797Z   ONNXRUNTIME_NODE_INSTALL: skip
+2026-11-07T01:45:14.9474008Z ##[endgroup]
+2026-11-07T01:45:14.9560385Z bun install v1.4.3 (c6da4a4d3)
+2026-11-07T01:45:19.6505289Z 
+2026-11-07T01:45:19.6505799Z $ bun run generate
+2026-11-07T01:45:19.6546753Z $ turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources @libs/tools-harness-ts#generate:brand-artifacts @libs/observability-server-ts#generate:slo @libs/tools-harness-ts#generate:identity-agents
+2026-11-07T01:45:19.6920681Z 
+2026-11-07T01:45:19.6921092Z Attention:
+2026-11-07T01:45:19.6921434Z Turborepo now collects completely anonymous telemetry regarding usage.
+2026-11-07T01:45:19.6921906Z This information is used to shape the Turborepo roadmap and prioritize features.
+2026-11-07T01:45:19.6922481Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+2026-11-07T01:45:19.6922964Z https://turborepo.dev/docs/telemetry
+2026-11-07T01:45:19.6923123Z 
+2026-11-07T01:45:19.7942297Z 
+2026-11-07T01:45:19.7943412Z    • Packages in scope: //, @libs/infra-shared-ts, @libs/observability-server-ts, @libs/tools-harness-ts, @pkgs/object-store-s3-server-ts
+2026-11-07T01:45:19.7945633Z    • Running //#task:tokens:generate, //#task:sounds:generate, @pkgs/object-store-s3-server-ts#generate:browser, @libs/infra-shared-ts#generate:infra-map, //#task:i18n:compile, //#task:spec:catalog, //#task:spec:inputs, @libs/tools-harness-ts#generate:ui-quality-sources, @libs/tools-harness-ts#generate:brand-artifacts, @libs/observability-server-ts#generate:slo, @libs/tools-harness-ts#generate:identity-agents in 5 packages
+2026-11-07T01:45:19.7947315Z    • Remote caching disabled
+2026-11-07T01:45:19.7947472Z 
+2026-11-07T01:45:20.3044119Z ##[group]@libs/tools-harness-ts:generate:identity
+2026-11-07T01:45:20.3044586Z cache hit, replaying logs 03a9e7c9fe5e3a6b
+2026-11-07T01:45:20.3044917Z $ bun run scripts/materialize-product-identity.ts --development
+2026-11-07T01:45:20.3045279Z identity: materialized fixture configuration (values omitted)
+2026-11-07T01:45:20.3045710Z ##[endgroup]
+2026-11-07T01:45:20.3075743Z ##[group]@pkgs/object-store-s3-server-ts:generate:browser
+2026-11-07T01:45:20.3076593Z cache hit, replaying logs 528a29b790270f06
+2026-11-07T01:45:20.3077186Z $ bun run scripts/generate-browser.ts
+2026-11-07T01:45:20.3077814Z ##[endgroup]
+2026-11-07T01:45:20.3097085Z ##[group]@libs/infra-shared-ts:generate:infra-map
+2026-11-07T01:45:20.3098185Z cache hit, replaying logs 2bc365cde7595855
+2026-11-07T01:45:20.3098900Z $ bun run scripts/render-infra-map.ts
+2026-11-07T01:45:20.3099507Z wrote libs/infra-shared-ts/.cache/infra-map.html (382331 bytes)
+2026-11-07T01:45:20.3100459Z ##[endgroup]
+2026-11-07T01:45:20.3169783Z ##[group]@libs/tools-harness-ts:generate:brand-artifacts
+2026-11-07T01:45:20.3190019Z cache hit, replaying logs 7c227ba92a055112
+2026-11-07T01:45:20.3209535Z $ bun run scripts/generate-brand-artifacts.ts
+2026-11-07T01:45:20.3210142Z wrote apps/client-ts/public/pwa/mark.svg
+2026-11-07T01:45:20.3210588Z wrote apps/client-ts/public/pwa/manifest.webmanifest
+2026-11-07T01:45:20.3211052Z wrote apps/product-ts/public/.well-known/security.txt
+2026-11-07T01:45:20.3211521Z wrote apps/client-swift/src/product-identity.generated.swift
+2026-11-07T01:45:20.3212110Z wrote apps/client-swift/config/product-identity.generated.xcconfig
+2026-11-07T01:45:20.3212733Z wrote apps/client-ts/public/pwa/apple-icon-180.png
+2026-11-07T01:45:20.3213174Z wrote apps/client-ts/public/pwa/apple-splash-dark-1125-2436.png
+2026-11-07T01:45:20.3213671Z wrote apps/client-ts/public/pwa/apple-splash-dark-1136-640.png
+2026-11-07T01:45:20.3214473Z wrote apps/client-ts/public/pwa/apple-splash-dark-1170-2532.png
+2026-11-07T01:45:20.3215056Z wrote apps/client-ts/public/pwa/apple-splash-dark-1179-2556.png
+2026-11-07T01:45:20.3215568Z wrote apps/client-ts/public/pwa/apple-splash-dark-1206-2622.png
+2026-11-07T01:45:20.3216077Z wrote apps/client-ts/public/pwa/apple-splash-dark-1242-2208.png
+2026-11-07T01:45:20.3216558Z wrote apps/client-ts/public/pwa/apple-splash-dark-1242-2688.png
+2026-11-07T01:45:20.3217100Z wrote apps/client-ts/public/pwa/apple-splash-dark-1260-2736.png
+2026-11-07T01:45:20.3217619Z wrote apps/client-ts/public/pwa/apple-splash-dark-1284-2778.png
+2026-11-07T01:45:20.3218130Z wrote apps/client-ts/public/pwa/apple-splash-dark-1290-2796.png
+2026-11-07T01:45:20.3218873Z wrote apps/client-ts/public/pwa/apple-splash-dark-1320-2868.png
+2026-11-07T01:45:20.3219352Z wrote apps/client-ts/public/pwa/apple-splash-dark-1334-750.png
+2026-11-07T01:45:20.3219826Z wrote apps/client-ts/public/pwa/apple-splash-dark-1488-2266.png
+2026-11-07T01:45:20.3220339Z wrote apps/client-ts/public/pwa/apple-splash-dark-1536-2048.png
+2026-11-07T01:45:20.3220889Z wrote apps/client-ts/public/pwa/apple-splash-dark-1620-2160.png
+2026-11-07T01:45:20.3221453Z wrote apps/client-ts/public/pwa/apple-splash-dark-1640-2360.png
+2026-11-07T01:45:20.3222033Z wrote apps/client-ts/public/pwa/apple-splash-dark-1668-2224.png
+2026-11-07T01:45:20.3222596Z wrote apps/client-ts/public/pwa/apple-splash-dark-1668-2388.png
+2026-11-07T01:45:20.3223138Z wrote apps/client-ts/public/pwa/apple-splash-dark-1792-828.png
+2026-11-07T01:45:20.3223668Z wrote apps/client-ts/public/pwa/apple-splash-dark-2048-1536.png
+2026-11-07T01:45:20.3224202Z wrote apps/client-ts/public/pwa/apple-splash-dark-2048-2732.png
+2026-11-07T01:45:20.3224737Z wrote apps/client-ts/public/pwa/apple-splash-dark-2160-1620.png
+2026-11-07T01:45:20.3225256Z wrote apps/client-ts/public/pwa/apple-splash-dark-2208-1242.png
+2026-11-07T01:45:20.3225784Z wrote apps/client-ts/public/pwa/apple-splash-dark-2224-1668.png
+2026-11-07T01:45:20.3226352Z wrote apps/client-ts/public/pwa/apple-splash-dark-2266-1488.png
+2026-11-07T01:45:20.3226881Z wrote apps/client-ts/public/pwa/apple-splash-dark-2360-1640.png
+2026-11-07T01:45:20.3227405Z wrote apps/client-ts/public/pwa/apple-splash-dark-2388-1668.png
+2026-11-07T01:45:20.3227933Z wrote apps/client-ts/public/pwa/apple-splash-dark-2436-1125.png
+2026-11-07T01:45:20.3228512Z wrote apps/client-ts/public/pwa/apple-splash-dark-2532-1170.png
+2026-11-07T01:45:20.3240001Z wrote apps/client-ts/public/pwa/apple-splash-dark-2556-1179.png
+2026-11-07T01:45:20.3240592Z wrote apps/client-ts/public/pwa/apple-splash-dark-2622-1206.png
+2026-11-07T01:45:20.3241136Z wrote apps/client-ts/public/pwa/apple-splash-dark-2688-1242.png
+2026-11-07T01:45:20.3241686Z wrote apps/client-ts/public/pwa/apple-splash-dark-2732-2048.png
+2026-11-07T01:45:20.3242178Z wrote apps/client-ts/public/pwa/apple-splash-dark-2736-1260.png
+2026-11-07T01:45:20.3242677Z wrote apps/client-ts/public/pwa/apple-splash-dark-2778-1284.png
+2026-11-07T01:45:20.3243183Z wrote apps/client-ts/public/pwa/apple-splash-dark-2796-1290.png
+2026-11-07T01:45:20.8565162Z wrote apps/client-ts/public/pwa/apple-splash-dark-2868-1320.png
+2026-11-07T01:45:20.8565728Z wrote apps/client-ts/public/pwa/apple-splash-dark-640-1136.png
+2026-11-07T01:45:20.8566272Z wrote apps/client-ts/public/pwa/apple-splash-dark-750-1334.png
+2026-11-07T01:45:20.8566801Z wrote apps/client-ts/public/pwa/apple-splash-dark-828-1792.png
+2026-11-07T01:45:20.8567339Z wrote apps/client-ts/public/favicon.ico
+2026-11-07T01:45:20.8567856Z wrote apps/client-ts/public/pwa/favicon-196.png
+2026-11-07T01:45:20.8568439Z wrote apps/client-ts/public/pwa/manifest-icon-192.maskable.png
+2026-11-07T01:45:20.8569454Z wrote apps/client-ts/public/pwa/manifest-icon-512.maskable.png
+2026-11-07T01:45:20.8569926Z wrote apps/product-ts/public/favicon.ico
+2026-11-07T01:45:20.8570337Z wrote apps/client-ts/src/android-icon-background.png
+2026-11-07T01:45:20.8570797Z wrote apps/client-ts/src/android-icon-foreground.png
+2026-11-07T01:45:20.8571235Z wrote apps/client-ts/src/android-icon-monochrome.png
+2026-11-07T01:45:20.8571822Z wrote apps/client-ts/src/favicon.png
+2026-11-07T01:45:20.8572177Z wrote apps/client-ts/src/icon.png
+2026-11-07T01:45:20.8572525Z wrote apps/client-ts/src/splash-icon.png
+2026-11-07T01:45:20.8573212Z ##[endgroup]
+2026-11-07T01:45:20.8573663Z ##[group]//:task:tokens:generate
+2026-11-07T01:45:20.8574014Z cache hit, replaying logs c19cc7cd5382118f
+2026-11-07T01:45:20.8574472Z $ bun run pkgs/ui-root-client-ts/scripts/generate-tokens-css.ts
+2026-11-07T01:45:20.8574947Z wrote pkgs/ui-root-client-ts/src/tokens.css
+2026-11-07T01:45:20.8575336Z wrote pkgs/ui-root-client-ts/src/tokens.json
+2026-11-07T01:45:20.8575732Z wrote pkgs/ui-root-shared-ts/src/token-names.ts
+2026-11-07T01:45:20.8576269Z ##[endgroup]
+2026-11-07T01:45:20.8595294Z ##[group]//:task:sounds:generate
+2026-11-07T01:45:20.8595731Z cache hit, replaying logs 97f81d841eb9e3ed
+2026-11-07T01:45:20.8596242Z $ bun run pkgs/sounds-server-ts/scripts/generate-manifest.ts --code-only
+2026-11-07T01:45:20.8597302Z {"level":"info","time":"2026-11-06T02:42:47.936Z","name":"sounds:generate-manifest","msg":"Generated code for 146 sounds"}
+2026-11-07T01:45:20.8598485Z {"level":"info","time":"2026-11-06T02:42:47.939Z","name":"sounds:generate-manifest","msg":"Wrote /home/runner/work/gamezilla/gamezilla/pkgs/sounds-shared-ts/src/sound-urls.ts"}
+2026-11-07T01:45:20.8600049Z {"level":"info","time":"2026-11-06T02:42:47.939Z","name":"sounds:generate-manifest","msg":"Wrote /home/runner/work/gamezilla/gamezilla/pkgs/sounds-shared-ts/src/sound-volumes.ts"}
+2026-11-07T01:45:20.8601403Z {"level":"info","time":"2026-11-06T02:42:47.939Z","name":"sounds:generate-manifest","msg":"Wrote /home/runner/work/gamezilla/gamezilla/pkgs/sounds-shared-ts/src/sound-id.ts"}
+2026-11-07T01:45:20.8602482Z ##[endgroup]
+2026-11-07T01:45:20.8602921Z ##[group]//:task:i18n:compile
+2026-11-07T01:45:20.8603260Z cache hit, replaying logs f398be09cfc43164
+2026-11-07T01:45:20.8604116Z $ lingui compile --typescript --strict && bun run libs/tools-harness-ts/scripts/ensure-trailing-newline.ts libs/app-root-shared-ts/locales/en/messages.ts
+2026-11-07T01:45:20.8605244Z Compiling message catalogs…
+2026-11-07T01:45:20.8605586Z Done in 611ms
+2026-11-07T01:45:20.8606014Z ##[endgroup]
+2026-11-07T01:45:20.8606495Z ##[group]//:task:spec:catalog
+2026-11-07T01:45:20.8606827Z cache hit, replaying logs 87e678ee636f9ab3
+2026-11-07T01:45:20.8607254Z $ bun run libs/tools-harness-ts/scripts/spec-catalog.ts
+2026-11-07T01:45:20.8607658Z spec:catalog: wrote 26 step catalogs
+2026-11-07T01:45:20.8608140Z ##[endgroup]
+2026-11-07T01:45:20.8624132Z ##[group]@libs/observability-server-ts:generate:slo
+2026-11-07T01:45:20.8624516Z cache hit, replaying logs 34a8ad21e2c62b9b
+2026-11-07T01:45:20.8624771Z $ bun run scripts/slo-generate.ts
+2026-11-07T01:45:20.8625693Z wrote libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json, libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json and libs/observability-server-ts/slo-alert-policies.openslo.yaml
+2026-11-07T01:45:20.8626989Z ##[endgroup]
+2026-11-07T01:45:20.8718597Z ##[group]@libs/games-harness-ts:generate:feature-variants
+2026-11-07T01:45:20.8719387Z cache hit, replaying logs aa8a8eceda6bb40a
+2026-11-07T01:45:20.8725674Z $ bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register tests/generate-feature-variants.ts
+2026-11-07T01:45:20.8727146Z ##[endgroup]
+2026-11-07T01:45:20.8970013Z ##[group]@libs/tools-harness-ts:generate:identity-agents
+2026-11-07T01:45:20.8972070Z cache bypass, force executing 31cb755d8438852d
+2026-11-07T01:45:20.8972653Z $ bun run scripts/sync-agent-mcp.ts
+2026-11-07T01:45:20.8973376Z ##[endgroup]
+2026-11-07T01:45:20.8974086Z ##[group]//:task:spec:inputs
+2026-11-07T01:45:20.8974592Z cache hit, replaying logs decf9a3435a10ad8
+2026-11-07T01:45:20.8975155Z $ bun run libs/harness-ts/scripts/spec-inputs.ts
+2026-11-07T01:45:20.8975872Z ##[endgroup]
+2026-11-07T01:45:21.0952113Z ##[group]@libs/tools-harness-ts:generate:ui-quality-sources
+2026-11-07T01:45:21.0952754Z cache bypass, force executing d38dd1bbd47a3a4e
+2026-11-07T01:45:21.0953316Z $ bun run scripts/sync-ui-quality-sources.ts
+2026-11-07T01:45:21.0953961Z ##[endgroup]
+2026-11-07T01:45:21.0960503Z 
+2026-11-07T01:45:21.0960676Z  Tasks:    13 successful, 13 total
+2026-11-07T01:45:21.0960939Z Cached:    11 cached, 13 total
+2026-11-07T01:45:21.0961153Z   Time:    1.399s 
+2026-11-07T01:45:21.0961266Z 
+2026-11-07T01:45:21.1040336Z 
+2026-11-07T01:45:21.1040570Z + @antithesishq/bombadil@0.7.9
+2026-11-07T01:45:21.1040893Z + @biomejs/biome@2.5.7
+2026-11-07T01:45:21.1041214Z + @lingui/cli@6.6.0
+2026-11-07T01:45:21.1041479Z + @lingui/conf@6.6.0
+2026-11-07T01:45:21.1041762Z + @lingui/format-po@6.6.0
+2026-11-07T01:45:21.1042186Z + @lingui/solid@6.6.0
+2026-11-07T01:45:21.1042543Z + @shadcn/lint@0.1.5
+2026-11-07T01:45:21.1042746Z + @total-typescript/ts-reset@0.6.1
+2026-11-07T01:45:21.1042984Z + @types/bun@1.4.3
+2026-11-07T01:45:21.1043164Z + @types/node@20.19.43
+2026-11-07T01:45:21.1043440Z + @typescript/native@7.0.2
+2026-11-07T01:45:21.1043871Z + eslint-plugin-solid@0.17.1
+2026-11-07T01:45:21.1044151Z + jiti@2.7.0
+2026-11-07T01:45:21.1044339Z + oxlint@1.89.0
+2026-11-07T01:45:21.1044516Z + oxlint-tsgolint@7.0.2004
+2026-11-07T01:45:21.1044791Z + sort-package-json@3.7.1
+2026-11-07T01:45:21.1044994Z + syncpack@14.3.1
+2026-11-07T01:45:21.1045303Z + turbo@2.11.10
+2026-11-07T01:45:21.1045473Z + typescript@6.0.3
+2026-11-07T01:45:21.1045580Z 
+2026-11-07T01:45:21.1045729Z 1116 packages installed [6.15s]
+2026-11-07T01:45:21.1081444Z ##[end-action id=__self.__run_2;outcome=success;conclusion=success;duration_ms=6172]
+2026-11-07T01:45:21.1084419Z ##[start-action display=Save generation artifacts;id=__self.__actions_cache_2]
+2026-11-07T01:45:21.1095047Z ##[end-action id=__self.__actions_cache_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-07T01:45:21.1096846Z ##[start-action display=Inject secrets;id=__self.__self]
+2026-11-07T01:45:21.1117736Z Prepare all required actions
+2026-11-07T01:45:21.1118169Z Getting action download info
+2026-11-07T01:45:21.1586275Z ##[group]Run ./.github/actions/secrets-auth
+2026-11-07T01:45:21.1586542Z with:
+2026-11-07T01:45:21.1586757Z   identity-id: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.1587020Z   project-id: secrets
+2026-11-07T01:45:21.1587227Z   environment: dev
+2026-11-07T01:45:21.1587412Z env:
+2026-11-07T01:45:21.1589666Z   GH_TOKEN: ***
+2026-11-07T01:45:21.1589859Z   TURBO_UI: stream
+2026-11-07T01:45:21.1590065Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:21.1590285Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:21.1590479Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:21.1590693Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:21.1590902Z   GOMAXPROCS: 1
+2026-11-07T01:45:21.1591116Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:21.1591419Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:21.1591692Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:21.1591920Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:21.1592139Z   SECRETS_ENV: dev
+2026-11-07T01:45:21.1592537Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.1592824Z   GH_EVENT: pull_request
+2026-11-07T01:45:21.1593053Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:21.1593334Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:21.1593576Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:21.1593764Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:21.1593973Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:21.1594180Z   VERIFY_PROFILE: release
+2026-11-07T01:45:21.1594380Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:21.1594589Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:21.1594875Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:21.1595231Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:21.1595510Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:21.1595700Z   MISE_YES: 1
+2026-11-07T01:45:21.1595891Z ##[endgroup]
+2026-11-07T01:45:21.1598982Z ##[start-action display=Inject secrets;id=__self.__self.__self]
+2026-11-07T01:45:21.1634074Z Prepare all required actions
+2026-11-07T01:45:21.1634510Z Getting action download info
+2026-11-07T01:45:21.3094644Z Download action repository 'Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d' (SHA:d2e351f16c6ca20d17c85e6c992e04bdeb64e87d)
+2026-11-07T01:45:21.6043360Z ##[group]Run ./.github/actions/secrets-auth/impl-infisical
+2026-11-07T01:45:21.6043651Z with:
+2026-11-07T01:45:21.6043857Z   identity-id: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.6044107Z   project-id: secrets
+2026-11-07T01:45:21.6044297Z   environment: dev
+2026-11-07T01:45:21.6044468Z env:
+2026-11-07T01:45:21.6046638Z   GH_TOKEN: ***
+2026-11-07T01:45:21.6046828Z   TURBO_UI: stream
+2026-11-07T01:45:21.6047026Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:21.6047236Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:21.6047424Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:21.6047627Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:21.6047828Z   GOMAXPROCS: 1
+2026-11-07T01:45:21.6048063Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:21.6048345Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:21.6048597Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:21.6048928Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:21.6049119Z   SECRETS_ENV: dev
+2026-11-07T01:45:21.6049344Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.6049633Z   GH_EVENT: pull_request
+2026-11-07T01:45:21.6049843Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:21.6050107Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:21.6050331Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:21.6050505Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:21.6050703Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:21.6050896Z   VERIFY_PROFILE: release
+2026-11-07T01:45:21.6051094Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:21.6051278Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:21.6051553Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:21.6051901Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:21.6052167Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:21.6052349Z   MISE_YES: 1
+2026-11-07T01:45:21.6052521Z ##[endgroup]
+2026-11-07T01:45:21.6056529Z ##[start-action display=Prepare OIDC request URL;id=__self.__self.__self.__run]
+2026-11-07T01:45:21.6103589Z ##[group]Run set -euo pipefail
+2026-11-07T01:45:21.6103955Z [36;1mset -euo pipefail[0m
+2026-11-07T01:45:21.6104329Z [36;1mif [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then[0m
+2026-11-07T01:45:21.6105472Z [36;1m  echo "::error::No OIDC token is available to this run (a pull request from a fork or Dependabot, or a job without id-token: write). The gate needs the dev secrets; push the change to a branch of this repository to verify it."[0m
+2026-11-07T01:45:21.6106530Z [36;1m  exit 1[0m
+2026-11-07T01:45:21.6106780Z [36;1mfi[0m
+2026-11-07T01:45:21.6107109Z [36;1mif [[ "$ACTIONS_ID_TOKEN_REQUEST_URL" != *\?* ]]; then[0m
+2026-11-07T01:45:21.6107917Z [36;1m  printf 'ACTIONS_ID_TOKEN_REQUEST_URL=%s?\n' "$ACTIONS_ID_TOKEN_REQUEST_URL" >> "$GITHUB_ENV"[0m
+2026-11-07T01:45:21.6108474Z [36;1mfi[0m
+2026-11-07T01:45:21.6129405Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:21.6129690Z env:
+2026-11-07T01:45:21.6131837Z   GH_TOKEN: ***
+2026-11-07T01:45:21.6132023Z   TURBO_UI: stream
+2026-11-07T01:45:21.6132207Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:21.6132426Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:21.6132774Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:21.6133040Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:21.6133296Z   GOMAXPROCS: 1
+2026-11-07T01:45:21.6133551Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:21.6133933Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:21.6134265Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:21.6134533Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:21.6134833Z   SECRETS_ENV: dev
+2026-11-07T01:45:21.6135364Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.6135792Z   GH_EVENT: pull_request
+2026-11-07T01:45:21.6136103Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:21.6136455Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:21.6136774Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:21.6136996Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:21.6137264Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:21.6137557Z   VERIFY_PROFILE: release
+2026-11-07T01:45:21.6137817Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:21.6138118Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:21.6138521Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:21.6139219Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:21.6139644Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:21.6139932Z   MISE_YES: 1
+2026-11-07T01:45:21.6140193Z ##[endgroup]
+2026-11-07T01:45:21.6233003Z ##[end-action id=__self.__self.__self.__run;outcome=success;conclusion=success;duration_ms=17]
+2026-11-07T01:45:21.6235884Z ##[start-action display=Fetch secrets from Infisical;id=__self.__self.__self.__Infisical_secrets-action]
+2026-11-07T01:45:21.6294642Z ##[group]Run Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d
+2026-11-07T01:45:21.6295160Z with:
+2026-11-07T01:45:21.6295411Z   method: oidc
+2026-11-07T01:45:21.6295731Z   oidc-audience: https://github.com/crvouga
+2026-11-07T01:45:21.6296175Z   identity-id: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.6296587Z   project-slug: secrets
+2026-11-07T01:45:21.6296870Z   env-slug: dev
+2026-11-07T01:45:21.6297172Z   domain: https://app.infisical.com
+2026-11-07T01:45:21.6297535Z   export-type: env
+2026-11-07T01:45:21.6297801Z   file-output-path: /.env
+2026-11-07T01:45:21.6298137Z   secret-path: /
+2026-11-07T01:45:21.6298427Z   include-imports: true
+2026-11-07T01:45:21.6298879Z   recursive: false
+2026-11-07T01:45:21.6299147Z env:
+2026-11-07T01:45:21.6303068Z   GH_TOKEN: ***
+2026-11-07T01:45:21.6303375Z   TURBO_UI: stream
+2026-11-07T01:45:21.6303687Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:21.6304016Z   RAYON_NUM_THREADS: 1
+2026-11-07T01:45:21.6304318Z   VERIFY_LINT_THREADS: 1
+2026-11-07T01:45:21.6304632Z   VERIFY_TEST_CONCURRENCY: 1
+2026-11-07T01:45:21.6304956Z   GOMAXPROCS: 1
+2026-11-07T01:45:21.6305285Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:21.6305753Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
+2026-11-07T01:45:21.6306179Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:21.6306507Z   VERIFY_SOLVER_SLOTS: 1
+2026-11-07T01:45:21.6306803Z   SECRETS_ENV: dev
+2026-11-07T01:45:21.6307167Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba15cb4d9692
+2026-11-07T01:45:21.6307609Z   GH_EVENT: pull_request
+2026-11-07T01:45:21.6307954Z   PR_BASE: 70536e4275f478b147b94492d9c724ea3186a511
+2026-11-07T01:45:21.6308385Z   PR_HEAD: 4e6fa4c19276459d586e451a548942d667541168
+2026-11-07T01:45:21.6308962Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:21.6309246Z   VERIFY_CONCURRENCY: 1
+2026-11-07T01:45:21.6309547Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:21.6310103Z   VERIFY_PROFILE: release
+2026-11-07T01:45:21.6310408Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:21.6310698Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:21.6311138Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:21.6311707Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:21.6312152Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:21.6312442Z   MISE_YES: 1
+2026-11-07T01:45:21.6312694Z ##[endgroup]
+2026-11-07T01:45:21.9797193Z (node:2572) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-07T01:45:21.9798292Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-07T01:45:22.6750094Z Injected secrets as environment variables
+2026-11-07T01:45:22.6811362Z ##[end-action id=__self.__self.__self.__Infisical_secrets-action;outcome=success;conclusion=success;duration_ms=***057]
+2026-11-07T01:45:22.6815619Z ##[start-action display=Export secrets auth coords for admin CLI;id=__self.__self.__self.__run_2]
+2026-11-07T01:45:22.7289805Z ##[group]Run set -euo pipefail
+2026-11-07T01:45:22.7290473Z [36;***mset -euo pipefail[0m
+2026-11-07T01:45:22.7291186Z [36;***mecho "SECRETS_IDENTITY_ID=${IDENTITY_ID}" >> "$GITHUB_ENV"[0m
+2026-11-07T01:45:22.7292100Z [36;***mproject_id="$(bun -p 'require("./.secrets.json").projectId ?? ""')"[0m
+2026-11-07T01:45:22.7292959Z [36;***mif [ -z "$project_id" ] || [ "$project_id" = "null" ]; then[0m
+2026-11-07T01:45:22.7293868Z [36;***m  echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"[0m
+2026-11-07T01:45:22.7294659Z [36;***m  exit ***[0m
+2026-11-07T01:45:22.7295186Z [36;***mfi[0m
+2026-11-07T01:45:22.7295814Z [36;***mecho "SECRETS_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"[0m
+2026-11-07T01:45:22.7316226Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:22.7316777Z env:
+2026-11-07T01:45:22.7319422Z   GH_TOKEN: ***
+2026-11-07T01:45:22.7319790Z   TURBO_UI: stream
+2026-11-07T01:45:22.7320149Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:22.7320538Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:22.7320909Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:22.7321294Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:22.7321672Z   GOMAXPROCS: ***
+2026-11-07T01:45:22.7322065Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:22.7322560Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:22.7323016Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:22.7323400Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:22.7323766Z   SECRETS_ENV: dev
+2026-11-07T01:45:22.7324182Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:22.7324641Z   GH_EVENT: pull_request
+2026-11-07T01:45:22.7325063Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:22.7325561Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:22.7326001Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:22.7326400Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:22.7326777Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:22.7327144Z   VERIFY_PROFILE: release
+2026-11-07T01:45:22.7327500Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:22.7327861Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:22.7328320Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:22.7329085Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:22.7329542Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:22.7329898Z   MISE_YES: ***
+2026-11-07T01:45:22.7330282Z   API_URL: ***
+2026-11-07T01:45:22.7330691Z   AUTH_SECRET: ***
+2026-11-07T01:45:22.7331515Z   DATABASE_URL: ***
+2026-11-07T01:45:22.7331958Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:22.7332374Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:22.7332769Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:22.7333147Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7333623Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7334193Z   IOT_REGION: ***
+2026-11-07T01:45:22.7334620Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7335012Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:22.7336035Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:22.7336637Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:22.7337062Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:22.7337619Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:22.7338165Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:22.7338594Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:22.7339147Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:22.7339662Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:22.7340032Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:22.7340873Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:22.7341867Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:22.7342355Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:22.7342707Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:22.7343554Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:22.7343923Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:22.7344557Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:22.7345025Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:22.7345445Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7345823Z   S3_BUCKET: ***
+2026-11-07T01:45:22.7346306Z   S3_ENDPOINT: ***
+2026-11-07T01:45:22.7346649Z   S3_REGION: ***
+2026-11-07T01:45:22.7347134Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7347870Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:22.7348575Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:22.7349208Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:22.7349594Z   TURBO_CACHE: ***
+2026-11-07T01:45:22.7349935Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:22.7350296Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:22.7350723Z   VITE_API_URL: ***
+2026-11-07T01:45:22.7351109Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:22.7351542Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7351957Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:22.7352489Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:22.7352917Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:22.7353522Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7353996Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:22.7354597Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:22.7355157Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:22.7355631Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:22.7356100Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:22.7356919Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:22.7357452Z   NEON_API_KEY: ***
+2026-11-07T01:45:22.7357955Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:22.7358374Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:22.7358977Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:22.7359408Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7359811Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:22.7360343Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7360729Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:22.7361266Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7361750Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7362315Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:22.7362885Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7363424Z   TURBO_TOKEN: ***
+2026-11-07T01:45:22.7363983Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:22.7364482Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:22.7364920Z   IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:22.7365346Z ##[endgroup]
+2026-11-07T01:45:22.7524168Z ##[end-action id=__self.__self.__self.__run_2;outcome=success;conclusion=success;duration_ms=70]
+2026-11-07T01:45:22.7527127Z ##[start-action display=Pin the Turbo Remote Cache team;id=__self.__self.__self.__run_3]
+2026-11-07T01:45:22.7566273Z ##[group]Run set -euo pipefail
+2026-11-07T01:45:22.7566887Z [36;***mset -euo pipefail[0m
+2026-11-07T01:45:22.7567724Z [36;***mecho "TURBO_TEAM=$(bun -p 'require("./turbo.json").remoteCache.teamSlug')" >> "$GITHUB_ENV"[0m
+2026-11-07T01:45:22.7568939Z [36;***mecho "TURBO_API=$(bun -p 'require("./turbo.json").remoteCache.apiUrl')" >> "$GITHUB_ENV"[0m
+2026-11-07T01:45:22.7589077Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:22.7589529Z env:
+2026-11-07T01:45:22.7591845Z   GH_TOKEN: ***
+2026-11-07T01:45:22.7592209Z   TURBO_UI: stream
+2026-11-07T01:45:22.7592556Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:22.7592956Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:22.7593333Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:22.7593715Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:22.7594093Z   GOMAXPROCS: ***
+2026-11-07T01:45:22.7594497Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:22.7594971Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:22.7595409Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:22.7595785Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:22.7596139Z   SECRETS_ENV: dev
+2026-11-07T01:45:22.7596544Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:22.7596987Z   GH_EVENT: pull_request
+2026-11-07T01:45:22.7597551Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:22.7598033Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:22.7598540Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:22.7599182Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:22.7599740Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:22.7600289Z   VERIFY_PROFILE: release
+2026-11-07T01:45:22.7600807Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:22.7601327Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:22.7602006Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:22.7602801Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:22.7603462Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:22.7603979Z   MISE_YES: ***
+2026-11-07T01:45:22.7604531Z   API_URL: ***
+2026-11-07T01:45:22.7605129Z   AUTH_SECRET: ***
+2026-11-07T01:45:22.7606333Z   DATABASE_URL: ***
+2026-11-07T01:45:22.7606960Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:22.7607554Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:22.7608100Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:22.7608772Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7609461Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7609996Z   IOT_REGION: ***
+2026-11-07T01:45:22.7610642Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7611198Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:22.7612851Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:22.7613674Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:22.7614093Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:22.7614818Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:22.7615632Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:22.7616055Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:22.7616408Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:22.7616899Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:22.7617274Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:22.7618080Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:22.7619254Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:22.7619737Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:22.7620103Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:22.7620956Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:22.7621366Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:22.7621856Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:22.7622310Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:22.7622731Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7623104Z   S3_BUCKET: ***
+2026-11-07T01:45:22.7623577Z   S3_ENDPOINT: ***
+2026-11-07T01:45:22.7623915Z   S3_REGION: ***
+2026-11-07T01:45:22.7624397Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7625091Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:22.7625778Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:22.7626247Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:22.7626639Z   TURBO_CACHE: ***
+2026-11-07T01:45:22.7626984Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:22.7627342Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:22.7627758Z   VITE_API_URL: ***
+2026-11-07T01:45:22.7628146Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:22.7628570Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7629156Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:22.7629858Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:22.7630251Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:22.7630786Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7631234Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:22.7631725Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:22.7632254Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:22.7632710Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:22.7633151Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:22.7633943Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:22.7634461Z   NEON_API_KEY: ***
+2026-11-07T01:45:22.7634943Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:22.7635351Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:22.7635785Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:22.7636196Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7636592Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:22.7637220Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7638016Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:22.7639058Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7640236Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7658939Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:22.7659521Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7660062Z   TURBO_TOKEN: ***
+2026-11-07T01:45:22.7660625Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:22.7661370Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:22.7662040Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:22.7662492Z ##[endgroup]
+2026-11-07T01:45:22.7835644Z ##[end-action id=__self.__self.__self.__run_3;outcome=success;conclusion=success;duration_ms=30]
+2026-11-07T01:45:22.7848152Z ##[end-action id=__self.__self.__self;outcome=success;conclusion=success;duration_ms=***624]
+2026-11-07T01:45:22.7852869Z ##[end-action id=__self.__self;outcome=success;conclusion=success;duration_ms=***675]
+2026-11-07T01:45:22.7856984Z ##[start-action display=Inject public build identity;id=__self.__run_3]
+2026-11-07T01:45:22.7884518Z ##[group]Run bun run libs/secrets-server-ts/scripts/export-product-identity.ts
+2026-11-07T01:45:22.7885584Z [36;***mbun run libs/secrets-server-ts/scripts/export-product-identity.ts[0m
+2026-11-07T01:45:22.7907215Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:22.7907712Z env:
+2026-11-07T01:45:22.7910269Z   GH_TOKEN: ***
+2026-11-07T01:45:22.7910654Z   TURBO_UI: stream
+2026-11-07T01:45:22.7911033Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:22.7911448Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:22.7911842Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:22.7912232Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:22.7912625Z   GOMAXPROCS: ***
+2026-11-07T01:45:22.7913032Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:22.7913545Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:22.7914016Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:22.7914413Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:22.7914801Z   SECRETS_ENV: dev
+2026-11-07T01:45:22.7915254Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:22.7915743Z   GH_EVENT: pull_request
+2026-11-07T01:45:22.7916172Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:22.7916670Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:22.7917105Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:22.7917464Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:22.7917854Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:22.7918243Z   VERIFY_PROFILE: release
+2026-11-07T01:45:22.7918757Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:22.7919186Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:22.7919675Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:22.7920237Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:22.7920712Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:22.7921109Z   MISE_YES: ***
+2026-11-07T01:45:22.7921535Z   API_URL: ***
+2026-11-07T01:45:22.7922005Z   AUTH_SECRET: ***
+2026-11-07T01:45:22.7922843Z   DATABASE_URL: ***
+2026-11-07T01:45:22.7923483Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:22.7923921Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:22.7924345Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:22.7924754Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7925247Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7925651Z   IOT_REGION: ***
+2026-11-07T01:45:22.7926107Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7926522Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:22.7927602Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:22.7928224Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:22.7928771Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:22.7929356Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:22.7929941Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:22.7930409Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:22.7930798Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:22.7931316Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:22.7931727Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:22.7932586Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:22.7933731Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:22.7934230Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:22.7934604Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:22.7935474Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:22.7935895Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:22.7936409Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:22.7936895Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:22.7937348Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7937749Z   S3_BUCKET: ***
+2026-11-07T01:45:22.7938257Z   S3_ENDPOINT: ***
+2026-11-07T01:45:22.7938764Z   S3_REGION: ***
+2026-11-07T01:45:22.7939334Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7940071Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:22.7940783Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:22.7941280Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:22.7941696Z   TURBO_CACHE: ***
+2026-11-07T01:45:22.7942068Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:22.7942447Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:22.7942895Z   VITE_API_URL: ***
+2026-11-07T01:45:22.7943307Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:22.7943770Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7944219Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:22.7944775Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:22.7945189Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:22.7945757Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7946239Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:22.7946764Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:22.7947311Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:22.7947788Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:22.7948257Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:22.7949184Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:22.7949742Z   NEON_API_KEY: ***
+2026-11-07T01:45:22.7950262Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:22.7950702Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:22.7951165Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:22.7951606Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7952031Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:22.7952595Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.7953016Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:22.7953590Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7954073Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.7954636Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:22.7955196Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.7955741Z   TURBO_TOKEN: ***
+2026-11-07T01:45:22.7956321Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:22.7956827Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:22.7957310Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:22.7957798Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:22.7958214Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:22.7961259Z   REPOSITORY_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:22.7964278Z   PRODUCT_IDENTITY_MODE: fixture
+2026-11-07T01:45:22.7964693Z ##[endgroup]
+2026-11-07T01:45:22.8742123Z Public build identity injected; values omitted.
+2026-11-07T01:45:22.8770342Z ##[end-action id=__self.__run_3;outcome=success;conclusion=success;duration_ms=9***]
+2026-11-07T01:45:22.8773553Z ##[start-action display=Configure deployment identity;id=__self.__run_4]
+2026-11-07T01:45:22.8779845Z ##[end-action id=__self.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-07T01:45:22.9687465Z ##[group]Run bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
+2026-11-07T01:45:22.9688398Z [36;***mbun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci[0m
+2026-11-07T01:45:22.9711884Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:22.9712347Z env:
+2026-11-07T01:45:22.9714701Z   GH_TOKEN: ***
+2026-11-07T01:45:22.9715059Z   TURBO_UI: stream
+2026-11-07T01:45:22.9715413Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:22.9715810Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:22.9716187Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:22.9716571Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:22.9717320Z   GOMAXPROCS: ***
+2026-11-07T01:45:22.9734981Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:22.9735709Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:22.9736170Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:22.9736606Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:22.9736983Z   SECRETS_ENV: dev
+2026-11-07T01:45:22.9737418Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:22.9737882Z   GH_EVENT: pull_request
+2026-11-07T01:45:22.9738487Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:22.9739325Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:22.9739939Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:22.9740451Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:22.9740981Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:22.9741520Z   VERIFY_PROFILE: release
+2026-11-07T01:45:22.9742034Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:22.9742555Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:22.9743212Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:22.9744022Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:22.9744597Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:22.9744967Z   MISE_YES: ***
+2026-11-07T01:45:22.9745358Z   API_URL: ***
+2026-11-07T01:45:22.9745774Z   AUTH_SECRET: ***
+2026-11-07T01:45:22.9746577Z   DATABASE_URL: ***
+2026-11-07T01:45:22.9747027Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:22.9747441Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:22.9748039Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:22.9748591Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.9749395Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.9749934Z   IOT_REGION: ***
+2026-11-07T01:45:22.9750393Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.9750779Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:22.9751795Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:22.9752381Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:22.9752797Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:22.9753346Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:22.9753888Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:22.9754520Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:22.9754880Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:22.9755401Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:22.9755788Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:22.9756637Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:22.9757679Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:22.9758234Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:22.9758851Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:22.9760225Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:22.9760846Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:22.9761647Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:22.9762371Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:22.9762829Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.9763206Z   S3_BUCKET: ***
+2026-11-07T01:45:22.9763683Z   S3_ENDPOINT: ***
+2026-11-07T01:45:22.9764019Z   S3_REGION: ***
+2026-11-07T01:45:22.9764519Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.9765234Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:22.9765930Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:22.9766404Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:22.9766794Z   TURBO_CACHE: ***
+2026-11-07T01:45:22.9767134Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:22.9767685Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:22.9768114Z   VITE_API_URL: ***
+2026-11-07T01:45:22.9768485Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:22.9769117Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.9769540Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:22.9770061Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:22.9770448Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:22.9770983Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.9771485Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:22.9771981Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:22.9772505Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:22.9772977Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:22.9773414Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:22.9774214Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:22.9774726Z   NEON_API_KEY: ***
+2026-11-07T01:45:22.9775278Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:22.9775797Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:22.9776233Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:22.9776661Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.9777060Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:22.9777577Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:22.9777964Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:22.9778516Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.9779121Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:22.9779657Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:22.9780194Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:22.9780735Z   TURBO_TOKEN: ***
+2026-11-07T01:45:22.9781282Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:22.9781754Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:22.9782209Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:22.9782670Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:22.9783067Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:22.9785958Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:22.9789140Z ##[endgroup]
+2026-11-07T01:45:23.3174107Z Downloaded *** files of CI artifact verify-plan
+2026-11-07T01:45:23.3265471Z ##[group]Run bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=*** TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
+2026-11-07T01:45:23.3266835Z [36;***mbun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=*** TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts[0m
+2026-11-07T01:45:23.3287018Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:23.3287482Z env:
+2026-11-07T01:45:23.3290046Z   GH_TOKEN: ***
+2026-11-07T01:45:23.3290406Z   TURBO_UI: stream
+2026-11-07T01:45:23.3290754Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:23.3291143Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:23.3291517Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:23.3291894Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:23.3292288Z   GOMAXPROCS: ***
+2026-11-07T01:45:23.3292677Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:23.3293191Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:23.3293636Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:23.3294022Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:23.3294376Z   SECRETS_ENV: dev
+2026-11-07T01:45:23.3294793Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:23.3295264Z   GH_EVENT: pull_request
+2026-11-07T01:45:23.3295694Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:23.3296161Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:23.3296570Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:23.3296919Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:23.3297282Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:23.3297655Z   VERIFY_PROFILE: release
+2026-11-07T01:45:23.3298004Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:23.3298364Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:23.3299015Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:23.3299575Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:23.3300022Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:23.3300380Z   MISE_YES: ***
+2026-11-07T01:45:23.3300759Z   API_URL: ***
+2026-11-07T01:45:23.3301171Z   AUTH_SECRET: ***
+2026-11-07T01:45:23.3301953Z   DATABASE_URL: ***
+2026-11-07T01:45:23.3302388Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:23.3302784Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:23.3303163Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:23.3303542Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:23.3304001Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:23.3304355Z   IOT_REGION: ***
+2026-11-07T01:45:23.3304784Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:23.3305167Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:23.3306164Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:23.3306742Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:23.3307163Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:23.3307708Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:23.3308252Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:23.3308812Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:23.3309163Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:23.3309656Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:23.3310041Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:23.3310870Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:23.3311864Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:23.3312337Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:23.3312697Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:23.3313536Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:23.3313901Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:23.3314388Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:23.3314833Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:23.3315245Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:23.3315616Z   S3_BUCKET: ***
+2026-11-07T01:45:23.3316094Z   S3_ENDPOINT: ***
+2026-11-07T01:45:23.3316455Z   S3_REGION: ***
+2026-11-07T01:45:23.3316937Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:23.3317837Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:23.3318512Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:23.3319332Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:23.3319735Z   TURBO_CACHE: ***
+2026-11-07T01:45:23.3320090Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:23.3320453Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:23.3320865Z   VITE_API_URL: ***
+2026-11-07T01:45:23.3321247Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:23.3321671Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:23.3322090Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:23.3322621Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:23.3322996Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:23.3323530Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:23.3323981Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:23.3324471Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:23.3324993Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:23.3325439Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:23.3325873Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:23.3326683Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:23.3327188Z   NEON_API_KEY: ***
+2026-11-07T01:45:23.3327677Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:23.3328087Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:23.3328525Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:23.3329139Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:23.3329539Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:23.3330048Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:23.3330416Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:23.3330937Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:23.3331392Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:23.3331922Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:23.3332441Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:23.3332944Z   TURBO_TOKEN: ***
+2026-11-07T01:45:23.3333487Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:23.3333970Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:23.3334413Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:23.3334878Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:23.3335282Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:23.3338114Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:23.3341165Z ##[endgroup]
+2026-11-07T01:45:23.4832340Z secrets-run: projectId=26***37c60-8dea-4d95-a8a3-3090***6***5b026 env=dev endpoint=https://app.infisical.com
+2026-11-07T01:45:23.8136986Z 
+2026-11-07T01:45:23.8138779Z    • Packages in scope: @libs/observability-server-ts, @libs/tools-harness-ts
+2026-11-07T01:45:23.8139919Z    • Running @libs/tools-harness-ts#generate:brand-artifacts, @libs/observability-server-ts#generate:slo, @libs/tools-harness-ts#generate:identity-agents in 2 packages
+2026-11-07T01:45:23.8140724Z    • Remote caching enabled
+2026-11-07T01:45:23.8140958Z 
+2026-11-07T01:45:24.1506477Z ##[group]@libs/tools-harness-ts:generate:identity
+2026-11-07T01:45:24.1507303Z cache hit, replaying logs 2722264a6629***e8***
+2026-11-07T01:45:24.1508065Z $ bun run scripts/materialize-product-identity.ts --development
+2026-11-07T01:45:24.1509269Z identity: materialized fixture configuration (values omitted)
+2026-11-07T01:45:24.1510233Z ##[endgroup]
+2026-11-07T01:45:24.1849257Z ##[group]@libs/observability-server-ts:generate:slo
+2026-11-07T01:45:24.1850448Z cache hit, replaying logs ac60cf8494efb690
+2026-11-07T01:45:24.1851541Z $ bun run scripts/slo-generate.ts
+2026-11-07T01:45:24.1853370Z wrote libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json, libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json and libs/observability-server-ts/slo-alert-policies.openslo.yaml
+2026-11-07T01:45:24.1854736Z ##[endgroup]
+2026-11-07T01:45:24.1891579Z ##[group]@libs/tools-harness-ts:generate:identity-agents
+2026-11-07T01:45:24.1892313Z cache bypass, force executing 2d684bca***734e338
+2026-11-07T01:45:24.1893003Z $ bun run scripts/sync-agent-mcp.ts
+2026-11-07T01:45:24.1894036Z ##[endgroup]
+2026-11-07T01:45:24.2111619Z ##[group]@libs/tools-harness-ts:generate:brand-artifacts
+2026-11-07T01:45:24.2112305Z cache hit, replaying logs ***6a09cb***482bb***87
+2026-11-07T01:45:24.2112926Z $ bun run scripts/generate-brand-artifacts.ts
+2026-11-07T01:45:24.2113396Z wrote apps/client-ts/public/pwa/mark.svg
+2026-11-07T01:45:24.2113872Z wrote apps/client-ts/public/pwa/manifest.webmanifest
+2026-11-07T01:45:24.2114349Z wrote apps/product-ts/public/.well-known/security.txt
+2026-11-07T01:45:24.2114862Z wrote apps/client-swift/src/product-identity.generated.swift
+2026-11-07T01:45:24.2115431Z wrote apps/client-swift/config/product-identity.generated.xcconfig
+2026-11-07T01:45:24.2115967Z wrote apps/client-ts/public/pwa/apple-icon-***80.png
+2026-11-07T01:45:24.2116524Z wrote apps/client-ts/public/pwa/apple-splash-dark-***25-2436.png
+2026-11-07T01:45:24.2117104Z wrote apps/client-ts/public/pwa/apple-splash-dark-***36-640.png
+2026-11-07T01:45:24.2117636Z wrote apps/client-ts/public/pwa/apple-splash-dark-***70-2532.png
+2026-11-07T01:45:24.2118149Z wrote apps/client-ts/public/pwa/apple-splash-dark-***79-2556.png
+2026-11-07T01:45:24.2118871Z wrote apps/client-ts/public/pwa/apple-splash-dark-***206-2622.png
+2026-11-07T01:45:24.2119462Z wrote apps/client-ts/public/pwa/apple-splash-dark-***242-2208.png
+2026-11-07T01:45:24.2119978Z wrote apps/client-ts/public/pwa/apple-splash-dark-***242-2688.png
+2026-11-07T01:45:24.2120482Z wrote apps/client-ts/public/pwa/apple-splash-dark-***260-2736.png
+2026-11-07T01:45:24.2121072Z wrote apps/client-ts/public/pwa/apple-splash-dark-***284-2778.png
+2026-11-07T01:45:24.2121907Z wrote apps/client-ts/public/pwa/apple-splash-dark-***290-2796.png
+2026-11-07T01:45:24.2122668Z wrote apps/client-ts/public/pwa/apple-splash-dark-***320-2868.png
+2026-11-07T01:45:24.2123366Z wrote apps/client-ts/public/pwa/apple-splash-dark-***334-750.png
+2026-11-07T01:45:24.2124106Z wrote apps/client-ts/public/pwa/apple-splash-dark-***488-2266.png
+2026-11-07T01:45:24.2124655Z wrote apps/client-ts/public/pwa/apple-splash-dark-***536-2048.png
+2026-11-07T01:45:24.2125163Z wrote apps/client-ts/public/pwa/apple-splash-dark-***620-2***60.png
+2026-11-07T01:45:24.2125695Z wrote apps/client-ts/public/pwa/apple-splash-dark-***640-2360.png
+2026-11-07T01:45:24.2126204Z wrote apps/client-ts/public/pwa/apple-splash-dark-***668-2224.png
+2026-11-07T01:45:24.2126699Z wrote apps/client-ts/public/pwa/apple-splash-dark-***668-2388.png
+2026-11-07T01:45:24.2127200Z wrote apps/client-ts/public/pwa/apple-splash-dark-***792-828.png
+2026-11-07T01:45:24.2127703Z wrote apps/client-ts/public/pwa/apple-splash-dark-2048-***536.png
+2026-11-07T01:45:24.2128195Z wrote apps/client-ts/public/pwa/apple-splash-dark-2048-2732.png
+2026-11-07T01:45:24.2128912Z wrote apps/client-ts/public/pwa/apple-splash-dark-2***60-***620.png
+2026-11-07T01:45:24.2129439Z wrote apps/client-ts/public/pwa/apple-splash-dark-2208-***242.png
+2026-11-07T01:45:24.2129933Z wrote apps/client-ts/public/pwa/apple-splash-dark-2224-***668.png
+2026-11-07T01:45:24.2130428Z wrote apps/client-ts/public/pwa/apple-splash-dark-2266-***488.png
+2026-11-07T01:45:24.2130927Z wrote apps/client-ts/public/pwa/apple-splash-dark-2360-***640.png
+2026-11-07T01:45:24.2131649Z wrote apps/client-ts/public/pwa/apple-splash-dark-2388-***668.png
+2026-11-07T01:45:24.2132293Z wrote apps/client-ts/public/pwa/apple-splash-dark-2436-***25.png
+2026-11-07T01:45:24.2132806Z wrote apps/client-ts/public/pwa/apple-splash-dark-2532-***70.png
+2026-11-07T01:45:24.2133311Z wrote apps/client-ts/public/pwa/apple-splash-dark-2556-***79.png
+2026-11-07T01:45:24.2133815Z wrote apps/client-ts/public/pwa/apple-splash-dark-2622-***206.png
+2026-11-07T01:45:24.2134313Z wrote apps/client-ts/public/pwa/apple-splash-dark-2688-***242.png
+2026-11-07T01:45:24.2134808Z wrote apps/client-ts/public/pwa/apple-splash-dark-2732-2048.png
+2026-11-07T01:45:24.2135319Z wrote apps/client-ts/public/pwa/apple-splash-dark-2736-***260.png
+2026-11-07T01:45:24.2135815Z wrote apps/client-ts/public/pwa/apple-splash-dark-2778-***284.png
+2026-11-07T01:45:24.2136322Z wrote apps/client-ts/public/pwa/apple-splash-dark-2796-***290.png
+2026-11-07T01:45:24.2136821Z wrote apps/client-ts/public/pwa/apple-splash-dark-2868-***320.png
+2026-11-07T01:45:24.2137329Z wrote apps/client-ts/public/pwa/apple-splash-dark-640-***36.png
+2026-11-07T01:45:24.2138156Z wrote apps/client-ts/public/pwa/apple-splash-dark-750-***334.png
+2026-11-07T01:45:24.2139086Z wrote apps/client-ts/public/pwa/apple-splash-dark-828-***792.png
+2026-11-07T01:45:24.2139810Z wrote apps/client-ts/public/favicon.ico
+2026-11-07T01:45:24.2140550Z wrote apps/client-ts/public/pwa/favicon-***96.png
+2026-11-07T01:45:24.2141307Z wrote apps/client-ts/public/pwa/manifest-icon-***92.maskable.png
+2026-11-07T01:45:24.2142111Z wrote apps/client-ts/public/pwa/manifest-icon-5***2.maskable.png
+2026-11-07T01:45:24.2142829Z wrote apps/product-ts/public/favicon.ico
+2026-11-07T01:45:24.2143516Z wrote apps/client-ts/src/android-icon-background.png
+2026-11-07T01:45:24.2144040Z wrote apps/client-ts/src/android-icon-foreground.png
+2026-11-07T01:45:24.2144485Z wrote apps/client-ts/src/android-icon-monochrome.png
+2026-11-07T01:45:24.2145036Z wrote apps/client-ts/src/favicon.png
+2026-11-07T01:45:24.2145650Z wrote apps/client-ts/src/icon.png
+2026-11-07T01:45:24.2146247Z wrote apps/client-ts/src/splash-icon.png
+2026-11-07T01:45:24.2147203Z ##[endgroup]
+2026-11-07T01:45:24.2147412Z 
+2026-11-07T01:45:24.2147584Z  Tasks:    4 successful, 4 total
+2026-11-07T01:45:24.2147966Z Cached:    3 cached, 4 total
+2026-11-07T01:45:24.2148337Z   Time:    662ms 
+2026-11-07T01:45:24.2148528Z 
+2026-11-07T01:45:24.4650818Z consumers: nothing to execute
+2026-11-07T01:45:24.5150136Z ##[group]Run set -euo pipefail
+2026-11-07T01:45:24.5150656Z [36;***mset -euo pipefail[0m
+2026-11-07T01:45:24.5151284Z [36;***mif git diff --quiet "$PR_BASE...$PR_HEAD" -- libs/infra-shared-ts libs/infra-server-ts; then[0m
+2026-11-07T01:45:24.5151963Z [36;***m  echo "changed=false" >> "$GITHUB_OUTPUT"[0m
+2026-11-07T01:45:24.5152443Z [36;***melse[0m
+2026-11-07T01:45:24.5152871Z [36;***m  echo "changed=true" >> "$GITHUB_OUTPUT"[0m
+2026-11-07T01:45:24.5153325Z [36;***mfi[0m
+2026-11-07T01:45:24.5173587Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:24.5174114Z env:
+2026-11-07T01:45:24.5176560Z   GH_TOKEN: ***
+2026-11-07T01:45:24.5177075Z   TURBO_UI: stream
+2026-11-07T01:45:24.5177645Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:24.5178290Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:24.5179033Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:24.5179648Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:24.5180267Z   GOMAXPROCS: ***
+2026-11-07T01:45:24.5180949Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:24.5181742Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:24.5182478Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:24.5183106Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:24.5183689Z   SECRETS_ENV: dev
+2026-11-07T01:45:24.5184353Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:24.5185080Z   GH_EVENT: pull_request
+2026-11-07T01:45:24.5185741Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:24.5186583Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:24.5187058Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:24.5187463Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:24.5187879Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:24.5188516Z   VERIFY_PROFILE: release
+2026-11-07T01:45:24.5189206Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:24.5189791Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:24.5190514Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:24.5191125Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:24.5191627Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:24.5192032Z   MISE_YES: ***
+2026-11-07T01:45:24.5192467Z   API_URL: ***
+2026-11-07T01:45:24.5193020Z   AUTH_SECRET: ***
+2026-11-07T01:45:24.5194313Z   DATABASE_URL: ***
+2026-11-07T01:45:24.5195030Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:24.5195557Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:24.5195977Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:24.5196392Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5197142Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.5197743Z   IOT_REGION: ***
+2026-11-07T01:45:24.5198450Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5199212Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:24.5200293Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:24.5201147Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:24.5201812Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:24.5202713Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:24.5203399Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:24.5203894Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:24.5204291Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:24.5204964Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:24.5205595Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:24.5206962Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:24.5208025Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:24.5208791Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:24.5209375Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:24.5210794Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:24.5211243Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:24.5211797Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:24.5212457Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:24.5213133Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5213737Z   S3_BUCKET: ***
+2026-11-07T01:45:24.5214482Z   S3_ENDPOINT: ***
+2026-11-07T01:45:24.5214860Z   S3_REGION: ***
+2026-11-07T01:45:24.5215389Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5216162Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:24.5217101Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:24.5217739Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:24.5218377Z   TURBO_CACHE: ***
+2026-11-07T01:45:24.5219054Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:24.5219633Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:24.5220236Z   VITE_API_URL: ***
+2026-11-07T01:45:24.5220680Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:24.5221157Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5221807Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:24.5222688Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:24.5223309Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:24.5224030Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5224549Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:24.5225207Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:24.5226089Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:24.5226840Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:24.5227492Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:24.5228379Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:24.5229355Z   NEON_API_KEY: ***
+2026-11-07T01:45:24.5230176Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:24.5230851Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:24.5231375Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:24.5231838Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5232303Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:24.5233149Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.5233754Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:24.5234651Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5235224Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5235969Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:24.5236560Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5237132Z   TURBO_TOKEN: ***
+2026-11-07T01:45:24.5237991Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:24.5238909Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:24.5239645Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:24.5254494Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:24.5255003Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:24.5257917Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:24.5260817Z ##[endgroup]
+2026-11-07T01:45:24.5953261Z ##[group]Run bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-consumers '.cache/verify-ci/evidence-*.tar.gz'
+2026-11-07T01:45:24.5954848Z [36;***mbun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-consumers '.cache/verify-ci/evidence-*.tar.gz'[0m
+2026-11-07T01:45:24.5974388Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:24.5974884Z env:
+2026-11-07T01:45:24.5977234Z   GH_TOKEN: ***
+2026-11-07T01:45:24.5977602Z   TURBO_UI: stream
+2026-11-07T01:45:24.5977969Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:24.5978530Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:24.5979240Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:24.5979817Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:24.5980389Z   GOMAXPROCS: ***
+2026-11-07T01:45:24.5980960Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:24.5981703Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:24.5982425Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:24.5983005Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:24.5983560Z   SECRETS_ENV: dev
+2026-11-07T01:45:24.5984168Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:24.5984872Z   GH_EVENT: pull_request
+2026-11-07T01:45:24.5985490Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:24.5986202Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:24.5986855Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:24.5987372Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:24.5987923Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:24.5988470Z   VERIFY_PROFILE: release
+2026-11-07T01:45:24.5989168Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:24.5989697Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:24.5990389Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:24.5991210Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:24.5991889Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:24.5992413Z   MISE_YES: ***
+2026-11-07T01:45:24.5992972Z   API_URL: ***
+2026-11-07T01:45:24.5993571Z   AUTH_SECRET: ***
+2026-11-07T01:45:24.5994793Z   DATABASE_URL: ***
+2026-11-07T01:45:24.5995430Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:24.5996008Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:24.5996569Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:24.5997123Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.5997808Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.5998528Z   IOT_REGION: ***
+2026-11-07T01:45:24.5999293Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.5999861Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:24.6001551Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:24.6002445Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:24.6003068Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:24.6003903Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:24.6004756Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:24.6005404Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:24.6005856Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:24.6006379Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:24.6006777Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:24.6007613Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:24.6008757Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:24.6009300Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:24.6009688Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:24.6010561Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:24.6010951Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:24.6011460Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:24.6011944Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:24.6012386Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.6012776Z   S3_BUCKET: ***
+2026-11-07T01:45:24.6013276Z   S3_ENDPOINT: ***
+2026-11-07T01:45:24.6013633Z   S3_REGION: ***
+2026-11-07T01:45:24.6014136Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.6014856Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:24.6015566Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:24.6016082Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:24.6016489Z   TURBO_CACHE: ***
+2026-11-07T01:45:24.6017020Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:24.6017400Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:24.6017841Z   VITE_API_URL: ***
+2026-11-07T01:45:24.6018240Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:24.6018863Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.6019304Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:24.6019850Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:24.6020243Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:24.6020802Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.6021263Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:24.6021790Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:24.6022329Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:24.6022800Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:24.6023261Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:24.6024073Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:24.6024607Z   NEON_API_KEY: ***
+2026-11-07T01:45:24.6025106Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:24.6025531Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:24.6025991Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:24.6026410Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.6026823Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:24.6027343Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.6027728Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:24.6028272Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.6028917Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.6029472Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:24.6030028Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.6030554Z   TURBO_TOKEN: ***
+2026-11-07T01:45:24.6031112Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:24.6031608Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:24.6032078Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:24.6032560Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:24.6032958Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:24.6035875Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:24.6039065Z ##[endgroup]
+2026-11-07T01:45:24.6936881Z No files for CI artifact verify-evidence-consumers; nothing uploaded.
+2026-11-07T01:45:24.7412423Z ##[group]Run bun run libs/tools-harness-ts/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
+2026-11-07T01:45:24.7413747Z [36;***mbun run libs/tools-harness-ts/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"[0m
+2026-11-07T01:45:24.7433552Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:24.7434043Z env:
+2026-11-07T01:45:24.7436444Z   GH_TOKEN: ***
+2026-11-07T01:45:24.7436833Z   TURBO_UI: stream
+2026-11-07T01:45:24.7437219Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:24.7437633Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:24.7438035Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:24.7438440Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:24.7439066Z   GOMAXPROCS: ***
+2026-11-07T01:45:24.7439498Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:24.7440122Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:24.7440604Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:24.7441027Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:24.7441415Z   SECRETS_ENV: dev
+2026-11-07T01:45:24.7441864Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:24.7442351Z   GH_EVENT: pull_request
+2026-11-07T01:45:24.7442788Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:24.7443298Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:24.7443744Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:24.7444116Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:24.7444507Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:24.7444907Z   VERIFY_PROFILE: release
+2026-11-07T01:45:24.7445292Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:24.7445679Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:24.7446168Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:24.7446736Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:24.7447206Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:24.7447579Z   MISE_YES: ***
+2026-11-07T01:45:24.7447980Z   API_URL: ***
+2026-11-07T01:45:24.7448416Z   AUTH_SECRET: ***
+2026-11-07T01:45:24.7449357Z   DATABASE_URL: ***
+2026-11-07T01:45:24.7449813Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:24.7450241Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:24.7450671Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:24.7451092Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.7451594Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.7451993Z   IOT_REGION: ***
+2026-11-07T01:45:24.7452457Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.7452881Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:24.7453945Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:24.7454567Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:24.7455008Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:24.7455586Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:24.7456158Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:24.7456617Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:24.7456999Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:24.7457528Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:24.7457934Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:24.7458904Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:24.7459945Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:24.7460441Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:24.7460820Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:24.7461902Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:24.7462309Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:24.7462840Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:24.7463317Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:24.7463765Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.7464165Z   S3_BUCKET: ***
+2026-11-07T01:45:24.7464679Z   S3_ENDPOINT: ***
+2026-11-07T01:45:24.7465055Z   S3_REGION: ***
+2026-11-07T01:45:24.7465584Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.7466335Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:24.7467064Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:24.7467764Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:24.7468192Z   TURBO_CACHE: ***
+2026-11-07T01:45:24.7468571Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:24.7469051Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:24.7469502Z   VITE_API_URL: ***
+2026-11-07T01:45:24.7469915Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:24.7470377Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.7470827Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:24.7471405Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:24.7471816Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:24.7472395Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.7472878Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:24.7473409Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:24.7473969Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:24.7474458Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:24.7474940Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:24.7475780Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:24.7476337Z   NEON_API_KEY: ***
+2026-11-07T01:45:24.7476858Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:24.7477305Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:24.7477786Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:24.7478222Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.7478737Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:24.7479293Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:24.7479697Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:24.7480261Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.7480751Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:24.7481311Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:24.7481880Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:24.7482420Z   TURBO_TOKEN: ***
+2026-11-07T01:45:24.7483001Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:24.7483520Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:24.7483999Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:24.7484500Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:24.7484921Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:24.7487874Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:24.7490855Z ##[endgroup]
+2026-11-07T01:45:29.8300690Z Transferred 9 evidence artifacts
+2026-11-07T01:45:29.8441638Z ##[group]Run bun run libs/tools-harness-ts/scripts/verify-verdict.ts
+2026-11-07T01:45:29.8442279Z [36;***mbun run libs/tools-harness-ts/scripts/verify-verdict.ts[0m
+2026-11-07T01:45:29.8461675Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:29.8462128Z env:
+2026-11-07T01:45:29.8464576Z   GH_TOKEN: ***
+2026-11-07T01:45:29.8464940Z   TURBO_UI: stream
+2026-11-07T01:45:29.8465291Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:29.8465686Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:29.8466053Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:29.8466428Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:29.8466806Z   GOMAXPROCS: ***
+2026-11-07T01:45:29.8467203Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:29.8467682Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:29.8468122Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:29.8468510Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:29.8469046Z   SECRETS_ENV: dev
+2026-11-07T01:45:29.8469497Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:29.8469959Z   GH_EVENT: pull_request
+2026-11-07T01:45:29.8470370Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:29.8470840Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:29.8471262Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:29.8471601Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:29.8471975Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:29.8472349Z   VERIFY_PROFILE: release
+2026-11-07T01:45:29.8472710Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:29.8473070Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:29.8473537Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:29.8474054Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:29.8474503Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:29.8474857Z   MISE_YES: ***
+2026-11-07T01:45:29.8475239Z   API_URL: ***
+2026-11-07T01:45:29.8475648Z   AUTH_SECRET: ***
+2026-11-07T01:45:29.8476421Z   DATABASE_URL: ***
+2026-11-07T01:45:29.8476853Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:29.8477247Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:29.8477619Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:29.8477999Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.8478467Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:29.8479029Z   IOT_REGION: ***
+2026-11-07T01:45:29.8479465Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.8479847Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:29.8495670Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:29.8496551Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:29.8497145Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:29.8497970Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:29.8498962Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:29.8499627Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:29.8500157Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:29.8500947Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:29.8501507Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:29.8502509Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:29.8503533Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:29.8504022Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:29.8504379Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:29.8505226Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:29.8505614Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:29.8506117Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:29.8506605Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:29.8507060Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.8507442Z   S3_BUCKET: ***
+2026-11-07T01:45:29.8507932Z   S3_ENDPOINT: ***
+2026-11-07T01:45:29.8508276Z   S3_REGION: ***
+2026-11-07T01:45:29.8508964Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.8509666Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:29.8510356Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:29.8510824Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:29.8511218Z   TURBO_CACHE: ***
+2026-11-07T01:45:29.8511565Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:29.8511924Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:29.8512345Z   VITE_API_URL: ***
+2026-11-07T01:45:29.8512939Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:29.8513374Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.8513797Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:29.8514330Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:29.8514722Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:29.8515254Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.8515846Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:29.8516351Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:29.8516872Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:29.8517325Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:29.8517758Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:29.8518556Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:29.8519265Z   NEON_API_KEY: ***
+2026-11-07T01:45:29.8519754Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:29.8520172Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:29.8520601Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:29.8521014Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.8521420Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:29.8521930Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:29.8522309Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:29.8522834Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.8523297Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.8523818Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:29.8524355Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.8524858Z   TURBO_TOKEN: ***
+2026-11-07T01:45:29.8525401Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:29.8525881Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:29.8526320Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:29.8526781Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:29.8527166Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:29.8530192Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:29.8532965Z   START_RESULT: success
+2026-11-07T01:45:29.8533324Z   SHARD_RESULT: failure
+2026-11-07T01:45:29.8533665Z ##[endgroup]
+2026-11-07T01:45:29.9397582Z 
+2026-11-07T01:45:29.9398532Z !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+2026-11-07T01:45:29.9409581Z WHY THIS RUN IS RED
+2026-11-07T01:45:29.9410708Z   - Verify shard 0 FAILED: *** task failed — @apps/product-ts#test:release-journeys:***
+2026-11-07T01:45:29.9411555Z !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+2026-11-07T01:45:29.9411996Z 
+2026-11-07T01:45:29.9432012Z ##[error]Verify shard 0 FAILED: *** task failed — @apps/product-ts#test:release-journeys:***
+2026-11-07T01:45:29.9440318Z Release verification
+2026-11-07T01:45:29.9440656Z 
+2026-11-07T01:45:29.9440914Z Typecheck             PASS
+2026-11-07T01:45:29.9441482Z Lint and boundaries   PASS
+2026-11-07T01:45:29.9442034Z Unit tests            PASS
+2026-11-07T01:45:29.9442569Z Synthetic Population  PASS
+2026-11-07T01:45:29.9443127Z Database schema       PASS
+2026-11-07T01:45:29.9443666Z Security              PASS
+2026-11-07T01:45:29.9444140Z Build                 PASS
+2026-11-07T01:45:29.9444646Z Repository gates      FAIL   ***
+2026-11-07T01:45:29.9445440Z job verify:shards     FAILURE
+2026-11-07T01:45:29.9445740Z 
+2026-11-07T01:45:29.9445989Z *** total failures across *** suites
+2026-11-07T01:45:29.9447788Z ##[error]@apps/product-ts#test:release-journeys:*** failed
+2026-11-07T01:45:29.9455885Z ##[error]Process completed with exit code ***.
+2026-11-07T01:45:29.9512739Z ##[group]Run bunx turbo run @libs/tools-harness-ts#verify:pr-checks
+2026-11-07T01:45:29.9513467Z [36;***mbunx turbo run @libs/tools-harness-ts#verify:pr-checks[0m
+2026-11-07T01:45:29.9532749Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:29.9533202Z env:
+2026-11-07T01:45:29.9535496Z   GH_TOKEN: ***
+2026-11-07T01:45:29.9535854Z   TURBO_UI: stream
+2026-11-07T01:45:29.9536201Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:29.9536589Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:29.9536953Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:29.9537325Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:29.9537699Z   GOMAXPROCS: ***
+2026-11-07T01:45:29.9538086Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:29.9538571Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:29.9539216Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:29.9539615Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:29.9539981Z   SECRETS_ENV: dev
+2026-11-07T01:45:29.9540440Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:29.9540893Z   GH_EVENT: pull_request
+2026-11-07T01:45:29.9541304Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:29.9541765Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:29.9542189Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:29.9542528Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:29.9542897Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:29.9543262Z   VERIFY_PROFILE: release
+2026-11-07T01:45:29.9543617Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:29.9543971Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:29.9544421Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:29.9544941Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:29.9545380Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:29.9545732Z   MISE_YES: ***
+2026-11-07T01:45:29.9546118Z   API_URL: ***
+2026-11-07T01:45:29.9546533Z   AUTH_SECRET: ***
+2026-11-07T01:45:29.9547311Z   DATABASE_URL: ***
+2026-11-07T01:45:29.9547747Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:29.9548139Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:29.9548516Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:29.9549102Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.9549557Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:29.9549934Z   IOT_REGION: ***
+2026-11-07T01:45:29.9550361Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.9550775Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:29.9551779Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:29.9552351Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:29.9552767Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:29.9553298Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:29.9553829Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:29.9554256Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:29.9554602Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:29.9555097Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:29.9555480Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:29.9556295Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:29.9557263Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:29.9557734Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:29.9558083Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:29.9559044Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:29.9559417Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:29.9559904Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:29.9560349Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:29.9560766Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.9561141Z   S3_BUCKET: ***
+2026-11-07T01:45:29.9561604Z   S3_ENDPOINT: ***
+2026-11-07T01:45:29.9561947Z   S3_REGION: ***
+2026-11-07T01:45:29.9562434Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.9563133Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:29.9563813Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:29.9564275Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:29.9564666Z   TURBO_CACHE: ***
+2026-11-07T01:45:29.9565006Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:29.9565366Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:29.9565778Z   VITE_API_URL: ***
+2026-11-07T01:45:29.9566389Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:29.9566935Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.9567339Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:29.9567862Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:29.9568237Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:29.9568860Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.9569318Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:29.9569827Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:29.9570349Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:29.9570809Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:29.9571254Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:29.9572054Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:29.9572576Z   NEON_API_KEY: ***
+2026-11-07T01:45:29.9573064Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:29.9573475Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:29.9573911Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:29.9574322Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.9574729Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:29.9575255Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:29.9575637Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:29.9576158Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.9576613Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:29.9577137Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:29.9577660Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:29.9578168Z   TURBO_TOKEN: ***
+2026-11-07T01:45:29.9578899Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:29.9579387Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:29.9579836Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:29.9580292Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:29.9580684Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:29.9583522Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:29.9586334Z   SHARD_RESULT: failure
+2026-11-07T01:45:29.9601262Z ##[endgroup]
+2026-11-07T01:45:30.2825926Z 
+2026-11-07T01:45:30.2830381Z    • Packages in scope: @libs/tools-harness-ts
+2026-11-07T01:45:30.2831356Z    • Running @libs/tools-harness-ts#verify:pr-checks in *** package
+2026-11-07T01:45:30.2832111Z    • Remote caching enabled
+2026-11-07T01:45:30.2832509Z 
+2026-11-07T01:45:32.1521501Z [;3***m@libs/tools-harness-ts:verify:pr-checks[;0m
+2026-11-07T01:45:32.1524365Z ##[error]command (/home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts) /home/runner/.local/share/mise/installs/bun/***.4.3/bin/bun run verify:pr-checks exited (***)
+2026-11-07T01:45:32.1527959Z @libs/tools-harness-ts#verify:pr-checks:  ERROR  command (/home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts) /home/runner/.local/share/mise/installs/bun/***.4.3/bin/bun run verify:pr-checks exited (***)
+2026-11-07T01:45:32.1529440Z cache bypass, force executing 7520348bc40***83be
+2026-11-07T01:45:32.1530138Z $ bun run scripts/verify-required-pr-checks.ts
+2026-11-07T01:45:32.1530666Z ***07 |   const failures = requiredPrCheckFailures(
+2026-11-07T01:45:32.1531101Z ***08 |     required,
+2026-11-07T01:45:32.1531460Z ***09 |     checks,
+2026-11-07T01:45:32.1532433Z ***0 |     process.env['SHARD_RESULT'] === 'skipped'
+2026-11-07T01:45:32.1533248Z *** |   );
+2026-11-07T01:45:32.1533724Z ***2 |   if (failures.length > 0) throw new Error(failures.join('\n'));
+2026-11-07T01:45:32.1534241Z                                            ^
+2026-11-07T01:45:32.1534914Z error: Required check did not pass: verify:shards (0) (failure)
+2026-11-07T01:45:32.1535936Z       at main (/home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts/scripts/verify-required-pr-checks.ts:***2:38)
+2026-11-07T01:45:32.1537147Z       at /home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts/scripts/verify-required-pr-checks.ts:***8:23
+2026-11-07T01:45:32.1537767Z 
+2026-11-07T01:45:32.1542820Z ##[error]
+      at main (/home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts/scripts/verify-required-pr-checks.ts:***2:38)
+      at /home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts/scripts/verify-required-pr-checks.ts:***8:23
+2026-11-07T01:45:32.1544331Z 
+2026-11-07T01:45:32.1544513Z Bun v***.4.3 (Linux x64)
+2026-11-07T01:45:32.1544950Z error: script "verify:pr-checks" exited with code ***
+2026-11-07T01:45:32.1545436Z  ERROR  run failed: command  exited (***)
+2026-11-07T01:45:32.1545691Z 
+2026-11-07T01:45:32.1545873Z  Tasks:    0 successful, *** total
+2026-11-07T01:45:32.1546277Z Cached:    0 cached, *** total
+2026-11-07T01:45:32.1546659Z   Time:    2.***5s 
+2026-11-07T01:45:32.1547044Z Failed:    @libs/tools-harness-ts#verify:pr-checks
+2026-11-07T01:45:32.1547322Z 
+2026-11-07T01:45:32.1605015Z ##[error]Process completed with exit code ***.
+2026-11-07T01:45:32.2127563Z ##[group]Run actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d***c52a9
+2026-11-07T01:45:32.2128074Z with:
+2026-11-07T01:45:32.2128444Z   path: .cache/verify-ci/measured-costs.json
+2026-11-07T01:45:32.2129129Z   key: verify-task-costs-v2-release-423247***4376-***
+2026-11-07T01:45:32.2129582Z   enableCrossOsArchive: false
+2026-11-07T01:45:32.2129952Z env:
+2026-11-07T01:45:32.2132228Z   GH_TOKEN: ***
+2026-11-07T01:45:32.2132588Z   TURBO_UI: stream
+2026-11-07T01:45:32.2132959Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:32.2133350Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:32.2133720Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:32.2134089Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:32.2134466Z   GOMAXPROCS: ***
+2026-11-07T01:45:32.2134854Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:32.2135342Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:32.2135778Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:32.2136196Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:32.2136557Z   SECRETS_ENV: dev
+2026-11-07T01:45:32.2136978Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:32.2137449Z   GH_EVENT: pull_request
+2026-11-07T01:45:32.2137866Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:32.2138341Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:32.2138996Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:32.2139365Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:32.2139746Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:32.2140125Z   VERIFY_PROFILE: release
+2026-11-07T01:45:32.2140476Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:32.2140844Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:32.2141309Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:32.2141837Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:32.2142291Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:32.2142640Z   MISE_YES: ***
+2026-11-07T01:45:32.2143028Z   API_URL: ***
+2026-11-07T01:45:32.2143453Z   AUTH_SECRET: ***
+2026-11-07T01:45:32.2144236Z   DATABASE_URL: ***
+2026-11-07T01:45:32.2144668Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:32.2145066Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:32.2145438Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:32.2145821Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:32.2146285Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:32.2146653Z   IOT_REGION: ***
+2026-11-07T01:45:32.2147081Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:32.2147458Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:32.2148732Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:32.2149449Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:32.2149869Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:32.2150407Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:32.2150939Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:32.2151372Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:32.2151723Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:32.2152222Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:32.2152609Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:32.2153422Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:32.2154389Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:32.2154862Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:32.2155213Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:32.2156052Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:32.2156426Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:32.2156911Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:32.2157363Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:32.2157787Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:32.2158180Z   S3_BUCKET: ***
+2026-11-07T01:45:32.2158811Z   S3_ENDPOINT: ***
+2026-11-07T01:45:32.2159196Z   S3_REGION: ***
+2026-11-07T01:45:32.2159685Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:32.2160389Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:32.2161080Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:32.2161558Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:32.2161955Z   TURBO_CACHE: ***
+2026-11-07T01:45:32.2162324Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:32.2162858Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:32.2163293Z   VITE_API_URL: ***
+2026-11-07T01:45:32.2163682Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:32.2164116Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:32.2164531Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:32.2165050Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:32.2165425Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:32.2165954Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:32.2166421Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:32.2166937Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:32.2167461Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:32.2167920Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:32.2168355Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:32.2169309Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:32.2169837Z   NEON_API_KEY: ***
+2026-11-07T01:45:32.2170320Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:32.2170744Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:32.2171205Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:32.2171657Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:32.2172057Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:32.2172569Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:32.2172944Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:32.2173475Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:32.2173931Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:32.2174477Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:32.2175015Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:32.2175545Z   TURBO_TOKEN: ***
+2026-11-07T01:45:32.2176096Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:32.2176580Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:32.2177035Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:32.2177494Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:32.2177892Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:32.2180907Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:32.2183839Z ##[endgroup]
+2026-11-07T01:45:32.3329393Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/gamezilla/gamezilla --files-from manifest.txt --use-compress-program zstdmt
+2026-11-07T01:45:32.8721253Z Sent 3334 of 3334 (***00.0%), 0.0 MBs/sec
+2026-11-07T01:45:33.1644647Z Cache saved with key: verify-task-costs-v2-release-423247***4376-***
+2026-11-07T01:45:33.1796109Z ##[group]Run bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-
+2026-11-07T01:45:33.1797194Z [36;***mbun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-[0m
+2026-11-07T01:45:33.1824785Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-07T01:45:33.1825498Z env:
+2026-11-07T01:45:33.1829982Z   GH_TOKEN: ***
+2026-11-07T01:45:33.1830544Z   TURBO_UI: stream
+2026-11-07T01:45:33.1831098Z   TURBO_CACHE_DIR: .turbo/cache
+2026-11-07T01:45:33.1831698Z   RAYON_NUM_THREADS: ***
+2026-11-07T01:45:33.1832277Z   VERIFY_LINT_THREADS: ***
+2026-11-07T01:45:33.1832867Z   VERIFY_TEST_CONCURRENCY: ***
+2026-11-07T01:45:33.1833473Z   GOMAXPROCS: ***
+2026-11-07T01:45:33.1834079Z   JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+2026-11-07T01:45:33.1834856Z   JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms5***2m
+2026-11-07T01:45:33.1835558Z   MODEL_VERIFY_CONCURRENCY: 2
+2026-11-07T01:45:33.1836169Z   VERIFY_SOLVER_SLOTS: ***
+2026-11-07T01:45:33.1836800Z   SECRETS_ENV: dev
+2026-11-07T01:45:33.1837433Z   SECRETS_IDENTITY_ID: 22489066-3bd5-424e-9edd-ba***5cb4d9692
+2026-11-07T01:45:33.1838156Z   GH_EVENT: pull_request
+2026-11-07T01:45:33.1839013Z   PR_BASE: 70536e4275f478b***47b94492d9c724ea3***86a5***
+2026-11-07T01:45:33.1839755Z   PR_HEAD: 4e6fa4c***9276459d586e45***a548942d66754***68
+2026-11-07T01:45:33.1840440Z   VERIFY_SHARDS: 64
+2026-11-07T01:45:33.1840993Z   VERIFY_CONCURRENCY: ***
+2026-11-07T01:45:33.1841558Z   VERIFY_CACHE_MODE: normal
+2026-11-07T01:45:33.1842130Z   VERIFY_PROFILE: release
+2026-11-07T01:45:33.1842686Z   VERIFY_CI_STAGE: pr
+2026-11-07T01:45:33.1843243Z   VERIFY_ADVISORIES: enforce
+2026-11-07T01:45:33.1843960Z   MISE_TRUSTED_CONFIG_PATHS: /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:33.1844815Z   MISE_DISABLE_TOOLS: pipx:graphifyy,pipx:serena-agent,swift
+2026-11-07T01:45:33.1845525Z   MISE_LOG_LEVEL: info
+2026-11-07T01:45:33.1846090Z   MISE_YES: ***
+2026-11-07T01:45:33.1846681Z   API_URL: ***
+2026-11-07T01:45:33.1847340Z   AUTH_SECRET: ***
+2026-11-07T01:45:33.1848811Z   DATABASE_URL: ***
+2026-11-07T01:45:33.1849553Z   EMQX_JWT_SECRET: ***
+2026-11-07T01:45:33.1850206Z   EMQX_WSS_URL: ***
+2026-11-07T01:45:33.1850816Z   HYPERDRIVE_ID: ***
+2026-11-07T01:45:33.1851396Z   IOT_ACCESS_KEY_ID: ***
+2026-11-07T01:45:33.1852133Z   IOT_DATA_ENDPOINT: ***
+2026-11-07T01:45:33.1852718Z   IOT_REGION: ***
+2026-11-07T01:45:33.1853387Z   IOT_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:33.1853969Z   OBSERVABILITY_BACKEND: ***
+2026-11-07T01:45:33.1855708Z   OBSERVABILITY_COLLECTOR_TOKEN: ***
+2026-11-07T01:45:33.1856656Z   OBSERVABILITY_COLLECTOR_URL: ***
+2026-11-07T01:45:33.1857304Z   OBSERVABILITY_COLLECTOR_USER: ***
+2026-11-07T01:45:33.1858176Z   OBSERVABILITY_LOGS_URL: ***
+2026-11-07T01:45:33.1859236Z   OBSERVABILITY_METRICS_URL: ***
+2026-11-07T01:45:33.1859924Z   OBS_LOKI_URL: ***
+2026-11-07T01:45:33.1860474Z   OBS_LOKI_USER: ***
+2026-11-07T01:45:33.1861267Z   OBS_PROMETHEUS_URL: ***
+2026-11-07T01:45:33.1861865Z   OBS_PROMETHEUS_USER: ***
+2026-11-07T01:45:33.1863254Z   OBS_READONLY_DATABASE_URL: ***
+2026-11-07T01:45:33.1864975Z   OBS_TEMPO_TOKEN: ***
+2026-11-07T01:45:33.1865720Z   OBS_TEMPO_URL: ***
+2026-11-07T01:45:33.1866276Z   OBS_TEMPO_USER: ***
+2026-11-07T01:45:33.1867703Z   OPENAI_API_KEY: ***
+2026-11-07T01:45:33.1868301Z   OPENAI_BASE_URL: ***
+2026-11-07T01:45:33.1869509Z   PADDLE_API_KEY: ***
+2026-11-07T01:45:33.1870242Z   POPULATION_WORKER_TOKEN: ***
+2026-11-07T01:45:33.1870917Z   S3_ACCESS_KEY_ID: ***
+2026-11-07T01:45:33.1871551Z   S3_BUCKET: ***
+2026-11-07T01:45:33.1872317Z   S3_ENDPOINT: ***
+2026-11-07T01:45:33.1872870Z   S3_REGION: ***
+2026-11-07T01:45:33.1873631Z   S3_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:33.1874798Z   STRIPE_PUBLISHABLE_KEY: ***
+2026-11-07T01:45:33.1875958Z   STRIPE_SECRET_KEY: ***
+2026-11-07T01:45:33.1876714Z   SYNTHETIC_MONITOR_TOKEN: ***
+2026-11-07T01:45:33.1877333Z   TURBO_CACHE: ***
+2026-11-07T01:45:33.1877887Z   TURBO_LOG_ORDER: ***
+2026-11-07T01:45:33.1878435Z   TURBO_TELEMETRY_DISABLED: ***
+2026-11-07T01:45:33.1879537Z   VITE_API_URL: ***
+2026-11-07T01:45:33.1880136Z   CHROMATIC_PROJECT_TOKEN: ***
+2026-11-07T01:45:33.1880826Z   CI_ARTIFACTS_ACCESS_KEY_ID: ***
+2026-11-07T01:45:33.1881472Z   CI_ARTIFACTS_BUCKET: ***
+2026-11-07T01:45:33.1882256Z   CI_ARTIFACTS_ENDPOINT: ***
+2026-11-07T01:45:33.1882862Z   CI_ARTIFACTS_REGION: ***
+2026-11-07T01:45:33.1883730Z   CI_ARTIFACTS_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:33.1884455Z   CLOUDFLARE_ACCOUNT_ID: ***
+2026-11-07T01:45:33.1885266Z   CLOUDFLARE_API_TOKEN: ***
+2026-11-07T01:45:33.1886112Z   DEPOT_ORG_TOKEN: ***
+2026-11-07T01:45:33.1886850Z   ELEVEN_LABS_API_KEY: ***
+2026-11-07T01:45:33.1887573Z   GITHUB_ADMIN_TOKEN: ***
+2026-11-07T01:45:33.1889126Z   GRAFANA_CLOUD_API_TOKEN: ***
+2026-11-07T01:45:33.1890000Z   NEON_API_KEY: ***
+2026-11-07T01:45:33.1890779Z   PLANETSCALE_SERVICE_TOKEN: ***
+2026-11-07T01:45:33.1891412Z   PLANETSCALE_SERVICE_TOKEN_ID: ***
+2026-11-07T01:45:33.1892106Z   RAILWAY_TOKEN: ***
+2026-11-07T01:45:33.1892748Z   SHARED_DATA_ACCESS_KEY_ID: ***
+2026-11-07T01:45:33.1893389Z   SHARED_DATA_BUCKET: ***
+2026-11-07T01:45:33.1894218Z   SHARED_DATA_ENDPOINT: ***
+2026-11-07T01:45:33.1894808Z   SHARED_DATA_REGION: ***
+2026-11-07T01:45:33.1895675Z   SHARED_DATA_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:33.1896410Z   TOFU_STATE_ACCESS_KEY_ID: ***
+2026-11-07T01:45:33.1897265Z   TOFU_STATE_PASSPHRASE: ***
+2026-11-07T01:45:33.1898139Z   TOFU_STATE_SECRET_ACCESS_KEY: ***
+2026-11-07T01:45:33.1899127Z   TURBO_TOKEN: ***
+2026-11-07T01:45:33.1900007Z   WEB_CLIENT_GOOGLE_CLIENT_ID: ***
+2026-11-07T01:45:33.1900784Z   WEB_CLIENT_GOOGLE_CLIENT_SECRET: ***
+2026-11-07T01:45:33.1901513Z   SECRETS_PROJECT_ID: 26***37c60-8dea-4d95-a8a3-3090***6***5b026
+2026-11-07T01:45:33.1902281Z   TURBO_TEAM: crvougas-projects
+2026-11-07T01:45:33.1902903Z   TURBO_API: https://api.vercel.com
+2026-11-07T01:45:33.1907807Z   PRODUCT_IDENTITY_JSON: {"$schema":"./product-identity.schema.json","brand":{"name":"Gamezilla","shortName":"Gamezilla","domain":"gamezilla.app","themeColor":"#000000","backgroundColor":"#000000","securityContact":"mailto:crvouga@gmail.com","markSvg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" fill=\"none\"><path fill=\"#***6835E\" d=\"M4 28V***2l4-4V4h4l4 4h8l4 4v***6H4Z\"/><path fill=\"#F4F8E9\" d=\"M***0 ***3h4v4h-4zm***2 0h4v4h-4zM***0 20h***6v4H***4v2h-4z\"/><path fill=\"#***6835E\" d=\"M***8 20h4v2h-4z\"/></svg>"},"technical":{"namespace":"gamezilla"},"external":{"deepLinkScheme":"gamezilla","appleBundleId":"local.gamezilla.apple-client","sourceRepository":"crvouga/gamezilla","previousSourceRepositories":["gamezilla-org/gamezilla"],"planetscaleOrganization":"gamezilla","sentryOrganization":"gamezilla","githubEnvironments":["gamezilla / development","gamezilla / production","gamezilla-dev / production"]},"aliases":["gamezilla","game zilla","game-zilla"]}
+2026-11-07T01:45:33.1912881Z ##[endgroup]
+2026-11-07T01:45:34.7872458Z Deleted ***33 objects of verify-* CI artifacts
+2026-11-07T01:45:34.8030450Z Post job cleanup.
+2026-11-07T01:45:34.8036181Z ##[start-action display=Restore bun's download cache;id=__a7ea8b0f-***4eb-4682-95ff-6cf***d9045222.__actions_cache]
+2026-11-07T01:45:34.8038926Z ##[end-action id=__a7ea8b0f-***4eb-4682-95ff-6cf***d9045222.__actions_cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-07T01:45:34.8041540Z ##[start-action display=Install pinned tools (mise.toml);id=__a7ea8b0f-***4eb-4682-95ff-6cf***d9045222.__jdx_mise-action]
+2026-11-07T01:45:34.8115489Z Post job cleanup.
+2026-11-07T01:45:34.9639402Z ##[end-action id=__a7ea8b0f-***4eb-4682-95ff-6cf***d9045222.__jdx_mise-action;outcome=success;conclusion=success;duration_ms=***59]
+2026-11-07T01:45:34.9721077Z Post job cleanup.
+2026-11-07T01:45:35.0420639Z [command]/usr/bin/git version
+2026-11-07T01:45:35.0487392Z git version 2.56.0
+2026-11-07T01:45:35.0515563Z Temporarily overriding HOME='/home/runner/work/_temp/466b5495-849f-4a2a-b695-0***43bc3daf06' before making global git config changes
+2026-11-07T01:45:35.0516906Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-07T01:45:35.0521797Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/gamezilla/gamezilla
+2026-11-07T01:45:35.0549923Z Removing SSH command configuration
+2026-11-07T01:45:35.0554986Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-07T01:45:35.0586823Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-07T01:45:35.0817266Z Removing HTTP extra header
+2026-11-07T01:45:35.0823207Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-07T01:45:35.0855767Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-07T01:45:35.1078462Z Removing includeIf entries pointing to credentials config files
+2026-11-07T01:45:35.1085264Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-07T01:45:35.1115936Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-07T01:45:35.1478179Z Cleaning up orphan processes

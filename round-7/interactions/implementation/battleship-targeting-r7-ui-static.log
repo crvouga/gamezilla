@@ -1,0 +1,30 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-client-ts, @pkgs/ui-root-harness-ts
+   • Running lint, tc in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-client-ts:lint: cache miss, executing fe2ed3b4b596657c
+@pkgs/ui-root-client-ts:lint: $ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts && bun run scripts/generate-tokens-css.ts --check
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint:   x jsx-a11y(no-noninteractive-element-interactions): Non-interactive elements should not be assigned mouse or keyboard event listeners.
+@pkgs/ui-root-client-ts:lint:      ,-[pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx:114:6]
+@pkgs/ui-root-client-ts:lint:  113 |   return (
+@pkgs/ui-root-client-ts:lint:  114 |     <div
+@pkgs/ui-root-client-ts:lint:      :      ^^^
+@pkgs/ui-root-client-ts:lint:  115 |       ref={root}
+@pkgs/ui-root-client-ts:lint:      `----
+@pkgs/ui-root-client-ts:lint:   help: Move the handler to an interactive element, or use an appropriate interactive role.
+@pkgs/ui-root-client-ts:lint: 
+@pkgs/ui-root-client-ts:lint: Found 0 warnings and 1 error.
+@pkgs/ui-root-client-ts:lint: Finished in 4.7s on 673 files with 147 rules using 10 threads.
+@pkgs/ui-root-client-ts:lint: Checked 746 files in 4s. No fixes applied.
+@pkgs/ui-root-client-ts:lint: error: script "lint" exited with code 1
+@pkgs/ui-root-client-ts#lint:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run lint exited (1)
+
+ Tasks:    1 successful, 4 total
+Cached:    0 cached, 4 total
+  Time:    7.099s 
+Failed:    @pkgs/ui-root-client-ts#lint
+
+ ERROR  run failed: command  exited (1)

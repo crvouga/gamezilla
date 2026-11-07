@@ -1,0 +1,23 @@
+# Round-seven source review
+
+Start: 863c687fae76c57527d495ec436afcf0ea99539a. All worker files preserved; root implementation notes compared byte-for-byte with excluded handoffs, then removed from the production checkout. The initial dirty diff is retained in initial-source.diff. Explicit source ownership is in intended-source-paths.json.
+
+Word Tiles uses real responsive precision defaults and direct A–Z blank selection; nine coarse regions retain full-board navigation. Battleship setup uses responsive precision with a readable 224px fleet overview. Targeting uses ten two-row regions and persistent full-field outcomes. Consumer search found no retained four-quadrant targeting selectors outside the updated controller/stories/tests; setup continues to use four placement quadrants intentionally.
+
+Three new setup native registrations supplement the parent's six targeting/Word Tiles registrations. Three bug records now link to executable marked native checks instead of helper files. Both new target-layout states receive desktop theme checks alongside ordinary phone scenarios. i18n extraction and strict compilation passed; cache contracts refreshed.
+
+No specs, references, assertion bounds or tolerances changed. Final native execution is bound to b606946642616ea53bbf11e8b4fb23e08fb55c5f and static build ef37ffff1cdb2b70865260cb9af6835a582abbd0e38b97ce6712a902e93db533. All 781 native visual cases, eight font checks and one instrumented geometry regression passed functional stages; 652 pixel differences and 129 missing references remain unaccepted.
+
+Native repairs bind literal failing inputs to individual known-bug records: setup guidance selector targeted a field label, Word Tiles composite overview hit testing targeted the covered SVG, and compact Word Tiles placed the local score below the viewport/scroll clipping edge. Actual 44px cells, 308px viewport minimum, nine 44px region buttons and all 26 disjoint blank letters are retained. A small production-attribute-based spacing module is reused by GameScreen/GameBoardStage; it applies only to boards requesting compact measure. GameSessionLayout removes the extra compact-board gap. No test-hook attributes are used for production styling.
+
+The `your-turn` story now invokes the phone-default assertion, before-input local score checks run before region navigation, and puzzle blank checks include below-board context and all region buttons. Setup and Word Tiles automated journeys do not click an already-active enlargement mode on phones; desktop still reaches the retained enlargement route through its real control.
+
+Hosted consumer repair 439536df1: trace demonstrated absent full-layout ship buttons on phone and inert overview. Added stable Ship/Region option identifiers, shared chooseSetupShip/placeSetupBow gestures, and reused them in live fleet automation and custom-game actions. Literal BLUE-to-RED phone-default regression failed first then passed; no timeout/retry/spec changes. Full-map targeting keyboard remains valid; no remaining four-quadrant target-index assumptions found.
+
+Native contrast repair 4e6fa4c19: empty premium squares paired pale surface with cream game ink (1.17:1). Use existing board-card ink. Literal native enlarged-coordinate phone regressions reproduce in light/dark before repair; all axe assertions retained. Evidence classifier now matches error headlines rather than code excerpts containing toHaveScreenshot. Superseded run 439536df1: 94 completed cases, 83 pixel failures, 8 passes, 3 accessibility failures, interrupted exit130. No final pass claimed.
+
+Build provenance correction: a --only Storybook build restored stale dependency output at 4e6fa4c19. Interrupted native artifacts are explicitly invalidated in interactions/stale-build-4e6fa4c19. Final build includes ^src dependencies and hash-build.py verifies emitted empty-premium CSS uses board-card ink before binding/launching. This is an evidence invocation repair, not a product baseline waiver.
+
+Desktop blank hit repair b60694664: completed 4e6fa4c matrix had778pixel,9pass,2play failures, corroborated by Ubuntu authoring's same2desktop AssignABlank failures. Automated diagnosis found small Fit/Enlarge pseudo hit extensions covering letters O–S. Fitted controls now have44px faces; redundant following gap removed. Enlarged controls retain their compact footprint. Focused21cases (opening/yourturn/blank/enlargedcoords/puzzleblank boththemes/viewports plusliteral regression) passed native/play/browser/axe;21pixel differences retained. Six UI lint/tc/test tasks passed.
+
+Final integrated diff: final-source.diff; all 69 changed source paths: final-source-paths.json. The original dirty diff and ownership list remain retained separately.

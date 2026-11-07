@@ -1,0 +1,4 @@
+$ bun run ../../libs/tools-harness-ts/scripts/lint-package.ts
+Found 0 warnings and 0 errors.
+Finished in 542ms on 48 files with 147 rules using 10 threads.
+Checked 30 files in 1106ms. No fixes applied.

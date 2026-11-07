@@ -1,0 +1,55 @@
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+index 81c692b23..790689ae3 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+@@ -138,7 +138,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+     focusCell(root, focusIndex());
+   };
+   return (
+-    <StackVertical gap="xs">
++    <StackVertical gap="none">
+       <Show when={props.purpose !== 'locator' && !enlarged()}>
+         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+       </Show>
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+index 45a8556a4..d892dc15e 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+@@ -13,14 +13,14 @@ export function WordTileViewControls(props: {
+       <StackHorizontal gap="xs" wrap>
+         <Button
+           title={t`Fit board`}
+-          size="sm"
++          size={props.enlarged ? 'sm' : 'md'}
+           variant={props.enlarged ? 'outline' : 'solid'}
+           aria-pressed={!props.enlarged}
+           onClick={() => props.onChange(false)}
+         />
+         <Button
+           title={t`Enlarge board`}
+-          size="sm"
++          size={props.enlarged ? 'sm' : 'md'}
+           variant={props.enlarged ? 'solid' : 'outline'}
+           aria-pressed={props.enlarged}
+           onClick={() => props.onChange(true)}
+diff --git a/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts b/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
+index bde33522b..1039b59b3 100644
+--- a/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
++++ b/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
+@@ -174,3 +174,16 @@ test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles
+   if (!scenario) throw new Error('Missing literal phone scenario');
+   await verifyStoryScenario(page, story.id, scenario);
+ });
++
++// regression: word-tiles-blank-mode-hit-overlap
++test('screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-mode-hit-overlap', async ({
++  page,
++}) => {
++  const story = index.entries['screens-games-word-tiles-board--assign-a-blank'];
++  if (!story) throw new Error('Missing literal blank assignment story');
++  const scenario = visualScenarios(story).find(
++    (item) => item.width === 1440 && item.theme === 'light'
++  );
++  if (!scenario) throw new Error('Missing desktop light scenario');
++  await verifyStoryScenario(page, story.id, scenario);
++});

@@ -1,0 +1,180 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [2] keyboard"
+    ],
+    "cursor": 3,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [5] toBeVisible"
+    ],
+    "cursor": 6,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [8] toHaveAttribute"
+    ],
+    "cursor": 9,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [10] click"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--003.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [13] toHaveAttribute"
+    ],
+    "cursor": 14,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--004.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [16] toBeInTheDocument"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--005.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [18] click"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--006.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [21] toBeInTheDocument"
+    ],
+    "cursor": 22,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--007.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [24] toHaveAttribute"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--008.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [26] click"
+    ],
+    "cursor": 27,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--009.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [27] keyboard"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--010.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [30] toBeVisible"
+    ],
+    "cursor": 31,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--011.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [33] toHaveAttribute"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--012.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [35] click"
+    ],
+    "cursor": 36,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [38] toHaveAttribute"
+    ],
+    "cursor": 39,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [41] toBeInTheDocument"
+    ],
+    "cursor": 42,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-sokoban-puzzle--corner-recovery [44] toBeInTheDocument"
+    ],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 45,
+    "failures": [],
+    "file": "screens-games-sokoban-puzzle--corner-recovery--phone--light--017.png",
+    "capturedFrame": true
+  }
+]

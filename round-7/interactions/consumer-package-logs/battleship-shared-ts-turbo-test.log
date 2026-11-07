@@ -1,0 +1,65 @@
+$ bun test tests
+bun test v1.4.3 (c6da4a4d3)
+
+tests/game.test.ts:
+(pass) the Battleship registration > offers custom games, matchmaking and history, and no puzzles [0.02ms]
+(pass) the Battleship registration > the notice names the fleets and the ending [0.02ms]
+(pass) the Battleship registration > the record lists the public shots and never a fleet [0.12ms]
+(pass) Battleship automation > chooses as the medium bot does [0.19ms]
+(pass) Battleship automation > selects an enabled target, then confirms the shot [0.10ms]
+
+tests/combat.test.ts:
+(pass) positions > a game starts with no shots and white to fire at any of 100 cells [0.06ms]
+(pass) positions > only well-formed shot logs are recognized [0.04ms]
+(pass) resolving shots against the hidden fleet > open water is a miss and a ship cell is a hit [0.20ms]
+(pass) resolving shots against the hidden fleet > the last cell of each ship sinks it, in any firing order [0.32ms]
+(pass) resolving shots against the hidden fleet > a damaged ship stays afloat [0.16ms]
+(pass) resolving shots against the hidden fleet > a repeated, foreign or off-board cell is refused [0.05ms]
+(pass) resolving shots against the hidden fleet > a defender without a legal fleet resolves nothing [0.03ms]
+(pass) playing resolved shots > the turn passes after a miss and after a hit [0.08ms]
+(pass) playing resolved shots > the 17th hit sinks the fifth ship and wins at once [0.72ms]
+(pass) playing resolved shots > nothing is accepted after the victory [0.03ms]
+(pass) playing resolved shots > a refused action leaves the position as it was [0.04ms]
+(pass) playing resolved shots > shots no fleet could explain are refused [0.05ms]
+(pass) playing resolved shots > the move list labels every shot with its positions [0.07ms]
+
+tests/placement.test.ts:
+(pass) fleet placement > every ship fits at every bow and orientation exactly when it stays on the board [8.57ms]
+(pass) fleet placement > ships hug every corner and edge [0.03ms]
+(pass) fleet placement > a ship beyond any edge is refused, one cell back it fits [0.11ms]
+(pass) fleet placement > overlapping ships are refused, touching ones are not [0.02ms]
+(pass) fleet placement > a fleet missing, repeating or inventing a ship is refused [0.02ms]
+(pass) fleet placement > anything but the exact spelling is refused [0.03ms]
+(pass) fleet placement > the fleet is stored in canonical ship order
+(pass) fleet placement > a parsed fleet names each ship with its cells from the bow [0.05ms]
+(pass) random fleets > every drawn fleet is legal and covers 17 distinct cells [11.41ms]
+(pass) random fleets > extreme draws still give a legal fleet [0.14ms]
+
+tests/properties.test.ts:
+(pass) combat properties > P-007 a side never shoots the same cell twice [114.43ms]
+(pass) combat properties > P-008 accepted shots that do not finish the game alternate the turn [83.17ms]
+(pass) combat properties > P-010 P-011 hits are exactly the defender fleet cells [86.90ms]
+(pass) combat properties > P-012 a ship sinks exactly when its last cell is hit [90.13ms]
+(pass) combat properties > P-013 the attacker wins exactly when all 17 fleet cells are hit [83.74ms]
+(pass) combat properties > P-014 a finished game accepts no shot and offers none [80.29ms]
+(pass) combat properties > P-015 shots are only ever added [88.29ms]
+(pass) combat properties > P-016 the same fleets and shots give the same game [117.95ms]
+(pass) combat properties > P-017 replaying the actions reproduces every position and label [97.17ms]
+(pass) P-025 symmetry > a transformed board gives the transformed outcomes [154.70ms]
+
+tests/bots.test.ts:
+(pass) battleship bots > offers three strengths [0.37ms]
+(pass) battleship bots > two bots play only legal, fresh cells and finish within 199 shots [186.50ms]
+(pass) battleship bots > the pinned nightly bot corpus finishes within the ordinary deadline [816.24ms]
+(pass) battleship bots > easy draws uniformly among the legal cells by its random value [0.08ms]
+(pass) battleship bots > medium hunts on one colour of the checkerboard [0.07ms]
+(pass) battleship bots > medium and hard follow up an unresolved hit next to it [0.36ms]
+(pass) battleship bots > medium and hard extend a line of aligned hits [0.39ms]
+(pass) battleship bots > a sunk ship no longer draws fire to its neighbours [0.65ms]
+(pass) battleship bots > the bot never sees a fleet: hidden fleets change its shots only through public outcomes [344.90ms]
+(pass) battleship bots > over the same 30 games, hard finishes sooner than medium, and medium than easy [419.20ms]
+
+ 48 pass
+ 0 fail
+ 41849 expect() calls
+Ran 48 tests across 5 files. [2.84s]

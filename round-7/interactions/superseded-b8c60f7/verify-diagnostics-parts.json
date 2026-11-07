@@ -1,0 +1,28 @@
+{
+  "format": "Concatenate parts in listed order to reconstruct tar.gz",
+  "source": "/var/folders/lf/7xlgzq1s749bccp0h53ykb940000gn/T/verify-run-D597y4/diagnostics.tar.gz",
+  "sha256": "c0572bd1dba352f65053bd6a9961f622e40fde2fcf76206b5e9c4886532f7ce5",
+  "parts": [
+    {
+      "file": "verify-diagnostics.tar.gz.part-01",
+      "bytes": 50000000,
+      "sha256": "9cd2e08c3d574f0c6088670fecad42db1b435f56d83df4a90b8482f2c45f2dd2"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-02",
+      "bytes": 50000000,
+      "sha256": "85b8d497d2b70797da000ed30b519eb626b73e898407bda650ff0d26ef9e1bf4"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-03",
+      "bytes": 50000000,
+      "sha256": "ea59add399b02d8234f25f5a2be2bfb423d36536845ca5351e83c01145ae7a36"
+    },
+    {
+      "file": "verify-diagnostics.tar.gz.part-04",
+      "bytes": 8764851,
+      "sha256": "b340c89137b1498965e62abea71a751f5298e98c2187e30bb4bd02c0b2d88e81"
+    }
+  ],
+  "memberInventory": "verify-diagnostics-inventory.json"
+}

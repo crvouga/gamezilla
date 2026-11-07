@@ -1,0 +1,200 @@
+[
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [4] toBeLessThanOrEqual"
+    ],
+    "cursor": 5,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--000.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [10] toHaveTextContent"
+    ],
+    "cursor": 11,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--001.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [12] toHaveTextContent"
+    ],
+    "cursor": 13,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [14] toBeGreaterThan"
+    ],
+    "cursor": 15,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [16] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 17,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [18] toBeLessThanOrEqual"
+    ],
+    "cursor": 19,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [20] toBeLessThanOrEqual"
+    ],
+    "cursor": 21,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [22] toBeLessThanOrEqual"
+    ],
+    "cursor": 23,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [24] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 25,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [27] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 28,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [29] toBeLessThanOrEqual"
+    ],
+    "cursor": 30,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [31] toBeGreaterThanOrEqual"
+    ],
+    "cursor": 32,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [33] toBeLessThanOrEqual"
+    ],
+    "cursor": 34,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--002.png",
+    "capturedFrame": false
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [36] pointer"
+    ],
+    "cursor": 37,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--013.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [39] toHaveAttribute"
+    ],
+    "cursor": 40,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--014.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [42] toHaveAttribute"
+    ],
+    "cursor": 43,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--015.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [43] pointer"
+    ],
+    "cursor": 44,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--016.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [46] toHaveAttribute"
+    ],
+    "cursor": 47,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--017.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "playing",
+    "pending": [
+      "screens-games-light-cycles-arena--shared-swipe [49] toHaveTextContent"
+    ],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--018.png",
+    "capturedFrame": true
+  },
+  {
+    "phase": "finished",
+    "pending": [],
+    "cursor": 50,
+    "failures": [],
+    "file": "screens-games-light-cycles-arena--shared-swipe--phone--light--019.png",
+    "capturedFrame": true
+  }
+]

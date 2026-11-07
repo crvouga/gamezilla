@@ -1,0 +1,11 @@
+$ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @libs/harness-ts/preload tests
+bun test v1.4.3 (c6da4a4d3)
+
+tests/battleship-record.test.ts:
+(pass) the known victory sinks the second fleet with the seventeenth hit, on the thirty-third shot [0.42ms]
+(pass) a Battleship record reads back its people, result, clock choice and shots [0.26ms]
+
+ 2 pass
+ 0 fail
+ 5 expect() calls
+Ran 2 tests across 1 file. [620.00ms]

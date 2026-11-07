@@ -1,0 +1,3217 @@
+diff --git a/docs/SELF_SERVICE_READINESS.md b/docs/SELF_SERVICE_READINESS.md
+index 50eb3869a..bba465a13 100644
+--- a/docs/SELF_SERVICE_READINESS.md
++++ b/docs/SELF_SERVICE_READINESS.md
+@@ -84,7 +84,7 @@ verified before this pass; it was inspected, not changed.
+ | Open a multiplayer link | Arrive in a space or see what failed | Endless spinner when creation threw or returned nothing | Unbounded | Ends within 10 s in the space, the hosting limit, or Try again / Go to Spaces; no duplicate space | `libs/game-matchmaking-client-ts/tests/multiplayer-link-attempt.test.ts` (`multiplayer-link-spins-forever`) | — |
+ | A guest tries to change the game | Told the host chooses | Nothing happened offline; the note never cleared online | Silent offline | Told on- and offline; note clears when the game changes | `specs/games/space-follows-the-host.feature` (`guest-offline-back-silent`) | — |
+ | Set up a custom game | Know who sits where, what the options are and exactly why the game cannot start yet | One fixed "Every place must be filled and every person ready." for every blocker; options were each game's own form, hidden from everyone but the host; nobody was told they would only watch | Fixed reason, host-only forms | Each seat shows its look, a person, bot, guest on this device or an open seat (the host tagged); Start stays visible for the host and its line names the first blocker with a count (open seats, closed seats, unanswered invitations, people not ready) or says "Ready to start."; every option is the frame's chips or stepper with its range, read-only for everyone else; a member gets "Sit here" / "Take a seat", a seated person "Leave seat" and "Waiting for the host to start.", and with every seat taken "All seats are taken. You'll watch."; a refused option shows the game's value again and the screen says why it was refused | `libs/game-session-client-ts/tests/game-frame-setup.test.tsx`; `specs/light-cycles/light-cycles-victory.feature`; `specs/games/custom-game-accessibility.feature` | The player count is shown, not changed, on the setup screen ([decision 19](ui-overhaul/DECISIONS.md)) |
+-| Play a custom game | Know whose turn it is, who sits where, who is away or out, who is watching, and what can be done now | Seats at a three- or four-seat table stacked as full strips; a game's own turn line competed with the frame's; claiming the win sat inside the away notice; watchers were not told they only watch | Stacked seats, scattered commands | The other seat is a strip above the board (two or more are a scrolling rail with the active one highlighted, Out and Reconnecting in words), the person's own seat (a watcher: the first side) is below it, one turn line between them that is the game's own where it has one; board-local controls stay beside their board; draw offers, claim the win, resign and cancel remain in the frame's action bar; the title row counts the people watching; someone without a seat sees "You're watching"; tapping a player opens their profile, or for a guest the sign-in their denial unlocks Board tools visibly identify the selected action; empty arena status retains its spoken lineup without painting an empty pill.  Battleship separates aiming from firing and shows the sunk enemy fleet after victory; setup offers bounded enlarged placement whose 44px target budget includes its coordinate gutter, gaps and padding, with a compact toolbar and readable rotation controls, while targeting offers bounded large-cell areas with correct, cancel and confirm actions. Light Cycles names both local riders and their swipe areas, aligns each pad with its swipe half, names riders in their score labels, removes unusable pads, and shows the round outcome above the arena without repeating it in round context. Battleship placement keeps labelled Ship and Region selectors beside its working area and compact fleet overview; a completed fleet explicitly offers repositioning. Completed games lead with outcome and existing next actions; compact identities retain full names and controls. Battleship groups placement feedback with the working grid, and Fire stays beside Cancel ahead of secondary view tools. Pong puts interruption status and drag cues on the court and retains an accessible rally summary for the live court reader; Light Cycles names touch halves and groups result guidance; four-player phone identities and counters use two readable rows. Four-seat history preserves whole coordinates. Locked fleets omit unavailable editing guidance. Unreadable boards offer existing recovery destinations. | `libs/game-session-client-ts/tests/game-frame-play.test.tsx`; `specs/games/custom-game-sides.feature`; `specs/games/custom-game-away.feature`; `specs/games/custom-game-accessibility.feature`; `pkgs/ui-root-harness-ts/tests/game-frame.test.tsx`; `libs/game-session-client-ts/tests/game-frame-empty-status.test.tsx`; `libs/battleship-client-ts/tests/setup-precision.test.tsx`; `libs/battleship-client-ts/src/battleship-setup-board.stories.tsx`; `libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx`; `libs/battleship-client-ts/tests/targeting-precision.test.tsx`; `libs/pong-client-ts/tests/pong-board.test.tsx`; `libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx` | The watcher count is everyone connected to the space minus the seated people, not who has the game open ([decision](ui-overhaul/DECISIONS.md)); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. Round-six native regressions cover full four-seat identity/counter text and Hill wall confirmation in the initial phone viewport. |
++| Play a custom game | Know whose turn it is, who sits where, who is away or out, who is watching, and what can be done now | Seats at a three- or four-seat table stacked as full strips; a game's own turn line competed with the frame's; claiming the win sat inside the away notice; watchers were not told they only watch | Stacked seats, scattered commands | The other seat is a strip above the board (two or more are a scrolling rail with the active one highlighted, Out and Reconnecting in words), the person's own seat (a watcher: the first side) is below it, one turn line between them that is the game's own where it has one; board-local controls stay beside their board; draw offers, claim the win, resign and cancel remain in the frame's action bar; the title row counts the people watching; someone without a seat sees "You're watching"; tapping a player opens their profile, or for a guest the sign-in their denial unlocks Board tools visibly identify the selected action; empty arena status retains its spoken lineup without painting an empty pill.  Battleship separates aiming from firing and shows the sunk enemy fleet after victory; setup offers bounded enlarged placement whose 44px target budget includes its coordinate gutter, gaps and padding, with a compact toolbar and readable rotation controls, while targeting offers bounded large-cell areas with correct, cancel and confirm actions. Light Cycles names both local riders and their swipe areas, aligns each pad with its swipe half, names riders in their score labels, removes unusable pads, and shows the round outcome above the arena without repeating it in round context. Battleship placement keeps labelled Ship and Region selectors beside its working area and compact fleet overview; a completed fleet explicitly offers repositioning. Completed games lead with outcome and existing next actions; compact identities retain full names and controls. Battleship groups placement feedback with the working grid, and Fire stays beside Cancel ahead of secondary view tools. Pong puts interruption status and drag cues on the court and retains an accessible rally summary for the live court reader; Light Cycles names touch halves and groups result guidance; four-player phone identities and counters use two readable rows. Four-seat history preserves whole coordinates. Locked fleets omit unavailable editing guidance. Unreadable boards offer existing recovery destinations.  Battleship phone setup starts enlarged, with a legible full-fleet overview and adjacent Region and placement guidance. Targeting opens with whole-field outcomes and a precise two-row picker; direct coarse areas preserve aim, Cancel clears it, and only Fire spends a shot. | `libs/game-session-client-ts/tests/game-frame-play.test.tsx`; `specs/games/custom-game-sides.feature`; `specs/games/custom-game-away.feature`; `specs/games/custom-game-accessibility.feature`; `pkgs/ui-root-harness-ts/tests/game-frame.test.tsx`; `libs/game-session-client-ts/tests/game-frame-empty-status.test.tsx`; `libs/battleship-client-ts/tests/setup-precision.test.tsx`; `libs/battleship-client-ts/src/battleship-setup-board.stories.tsx`; `libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx`; `libs/battleship-client-ts/tests/targeting-precision.test.tsx`; `libs/pong-client-ts/tests/pong-board.test.tsx`; `libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx`  `libs/battleship-client-ts/tests/targeting-default.test.tsx`; `libs/battleship-client-ts/src/battleship-setup-placement.example.tsx`; `libs/battleship-client-ts/src/battleship-targeting.example.tsx`; `pkgs/ui-root-harness-ts/tests/battleship-target-layout.test.tsx` | The watcher count is everyone connected to the space minus the seated people, not who has the game open ([decision](ui-overhaul/DECISIONS.md)); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. Round-six native regressions cover full four-seat identity/counter text and Hill wall confirmation in the initial phone viewport. Round-seven pre-input geometry and local-seat viewport checks run through the integrated native matrix; exact outcomes, reference decisions and remaining gates are recorded separately in PR 280 evidence. |
+ | Finish a custom game | Know who won and where everyone placed, then choose what next | The end was one status line; the next choices were the host's only, and a watcher had none | Status line only | Resign and cancel keep their confirmation open through completion until Done is pressed; the final board stays; the turn line keeps the ending ("Black wins by resignation."); a headline says "You win", "You came 2nd", "Erin wins" or "Draw"; the standings list every player in finishing order with their score; the host gets Rematch and Change game, everyone who played gets Review, a watcher gets Back to the space and Review | `libs/game-session-client-ts/tests/game-frame-play.test.tsx`; `libs/game-session-client-ts/tests/game-finish-confirmation.test.tsx`; `specs/games/custom-game-rematch.feature`; `specs/games/custom-game-completion.feature` | Custom games record no rematch readiness: the standings say "Host starts the rematch" instead of each player's readiness ([decision](ui-overhaul/DECISIONS.md)) |
+ | Play Pong | Control a paddle, understand the score and recover after interruption | A stopped simulation could leave an active game with no way to continue; opening cancelled-game history could crash cleanup; a disconnected player could see an older paddle pose and a returning viewer could miss the paused court | Pong was unavailable | Mechanics, local execution, custom-room lifecycle and the client surface are implemented and globally registered; failed execution keeps its last valid record through the existing terminal-game policy; persistent custom and matched authorities save a bounded recovery value before publishing and restore the latest published court after restart, while failed persistence retains the last visible court; local execution also stores before publication and restores tick, court and random continuation from pre-cleanup storage bytes; a failed local restore leaves saved choices intact, starts no timer and can retry by reopening; local failures also reach the injected root logger while recovery remains available if diagnostics fail, and failed deterministic steps retain bounded seed/state/input/bot replay data on the existing error trace; leaving the board releases controls without reading disposed props; matched play offers only the assigned paddle, preserves the last court offline and refreshes the current court on return; local prediction replays only the time still ahead of the latest court, and same-tick paddle prediction error is observable without counting future movement; receiving a delayed court preserves forward playback rather than rewinding its presentation clock; abort and resign follow actual play rather than room revisions; Synthetic Users guide their own paddle through normal controls, remain identified as automated offline, retain their ongoing game and finished result through reopening, and continue after return; concurrent departures preserve the newer authority state; a local hybrid choice preserves live progress and replays its checkpoint with the choice after return; viewers follow local play through the existing room, retain their earlier court offline and receive current play after return, with no paddle controls; local and matched move-review controls appear only for games offering turns, while score/history and finished records remain; fresh matched Pong accounts reach a natural score-target victory and accept a UI rematch with swapped controls, zero scores and the retained target; stale rooms cannot supply the displayed match with another match's execution. Spectator and interrupted guidance matches control availability; phone ball and paddle drawings are enlarged without changing physics. | `libs/game-matchmaking-client-ts/tests/multiplayer-rematch-connectivity.test.tsx` (`rematch-command-during-disconnection`); `specs/journeys/pong-game.feature`; `libs/game-matchmaking-client-ts/tests/multiplayer-room-game.test.ts`; `specs/pong/pong-shared-control.feature`; `specs/pong/pong-local-watch.feature`; `specs/pong/pong-scoring.feature`; `specs/synthetic-population/playing-pong.feature`; `specs/synthetic-population/recognizing-synthetic-users.feature`; `specs/synthetic-population/synthetic-user-continuity.feature`; `libs/app-root-shared-ts/tests/pong-catalog.test.ts`; `apps/synthetic-population-worker-ts/tests/continuous-realms.test.ts`; `libs/game-session-shared-ts/tests/simulation-checkpoint-race.test.ts`; `libs/pong-harness-ts/tests/quint/pong-shared-control.binding.ts`; `libs/pong-shared-ts/tests/`; `libs/pong-client-ts/tests/pong-board.test.tsx`; `libs/pong-shared-ts/tests/pong-replica.test.ts` (`simulation-prediction-rebase-repeats-elapsed-movement`, `simulation-prediction-error-unreported`); `libs/game-session-shared-ts/tests/simulation-projection-history.test.ts`; `libs/game-session-shared-ts/tests/simulation-replica-clock.test.ts`; `libs/game-session-harness-ts/tests/live-network.property.test.ts`; `libs/game-session-harness-ts/tests/live-network-regression.test.ts` (`simulation-presentation-clock-rewinds-on-snapshot`); `libs/games-harness-ts/tests/simulation-history.test.ts`; `libs/game-session-shared-ts/tests/simulation-local-restart.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-local-restart.property.test.ts`; `libs/game-session-shared-ts/tests/simulation-local-publication.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-local-restore-retry.contract.test.ts`; `libs/game-session-client-ts/tests/local-failure.test.tsx`; `libs/game-session-shared-ts/tests/simulation-failure-telemetry.test.ts`; `libs/game-session-shared-ts/tests/simulation-failure-bots.test.ts`; `pkgs/observability-root-shared-ts/tests/reproducible-error.test.ts`; `pkgs/observability-root-harness-ts/tests/reproduction.test.ts`; `libs/game-session-shared-ts/tests/simulation-restart.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-restart.property.test.ts`; `libs/game-session-shared-ts/tests/simulation-recovery-choice.contract.test.ts`; `pkgs/room-adapter-durable-object-harness-ts/tests/live-checkpoint.test.ts`; `libs/game-session-shared-ts/tests/simulation-session.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-local.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-hybrid-local.contract.test.ts`; `libs/game-session-shared-ts/tests/simulation-local-watch.contract.test.ts`; `pkgs/ui-root-client-ts/tests/paddle-court.test.tsx`; `libs/pong-client-ts/tests/pong-board.test.tsx`; `libs/pong-client-ts/tests/pong-journey.test.tsx` | In progress: production-like execution of the matched completion/rematch journey, full bot population policy coverage, complete shared specs and journeys, production-like browser and hosted server recovery, duplicate-owner behavior, target-device and hosted latency/performance and automated visual verification (in-process CPU and JSON bandwidth now have a repeatable profile); see `libs/games-shared-ts/docs/REALTIME_IMPLEMENTATION.md`; Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. |
+ | Browse game and settings menus | Balanced, readable choices at every width | Capped menus sat against the left edge in wider compact hosts | Centered only in desktop mode | Shared embedded and routed columns center at every width, retaining narrow-screen padding | `pkgs/ui-root-harness-ts/tests/wide-layout-regression.test.tsx` (`compact-menus-not-centered`) | — |
+@@ -94,7 +94,7 @@ verified before this pass; it was inspected, not changed.
+ 
+ | Undo and redo draft edits | Step back and forward through draft edits, also offline, without losing any copy | An undo could be mistaken for deleting work; a stale choice after another device's edit | No undo or redo in the builder | Undo edit and Redo edit beside the builder, offered only for this session's earlier or undone edit and disabled while a change is still saving; each keeps a new draft copy, so every kept copy stays choosable; a different edit (including choosing a kept copy) replaces the redo choice; a refused step keeps the draft unchanged with a retry and points to the kept copies | `specs/puzzles/edit-draft-history.feature`; `specs/puzzles/draft-editing.qnt`; `libs/game-puzzle-client-ts/tests/draft-edit-history.test.ts` | Choices last for one app session and the 50 most recent edits of each of the 20 most recently edited drafts; reopening the app (or switching account) starts fresh choices while keeping every draft copy |
+ | Play Classic Quoridor or King of the Hill | Know the goal, turn, inventory and reason a wall is refused | A four-person game could not be configured | Two-player framework | Declared seats share readiness, clocks, recovery and rematches; the board names every pawn and previews walls with a specific next action on refusal. Board pawns and seat colors agree; stronger square boundaries and tool-specific touch guidance accompany stateful wall, refusal and completion stories; action rows wrap within their board and forced Pass is shown first, with pre-interaction bounds assertions. Wall proposals remain visible until confirmed or cancelled, invalid proposals preserve the board and explain correction, forced passing exposes only its continuation action, and the goal row or hill is marked. Full-size coordinate choices supplement the complete board; modes, target selection and wall confirmation share the board area. Inset dotted goal rings remain distinct from physical walls. Concise wall anchors retain a complete proposal through rotation until cancellation or confirmation. Hill names and stars the center destination while preserving the arriving pawn and forced-pass continuation. | `specs/quoridor/`; `specs/games/multi-seat-games.feature`; `specs/games/four-seat-matchmaking.feature`; `libs/quoridor-shared-ts/tests/quoridor-integrity.test.ts`; `libs/quoridor-client-ts/src/quoridor-board.stories.tsx`; `libs/quoridor-client-ts/src/quoridor-board-hill.stories.tsx`; `libs/quoridor-client-ts/tests/quoridor-precision.test.tsx`; `libs/quoridor-client-ts/src/quoridor-hill-precision.example.tsx`; `libs/quoridor-client-ts/tests/quoridor-hill-destination-regression.test.tsx`; `libs/quoridor-client-ts/tests/quoridor-precision.test.tsx` | 58 Quoridor tests and both bounded proofs pass; full and live release verification remain open: [verification evidence](QUORIDOR_SPEC_AUDIT.md); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. |
+-| Play Word Tiles | Know whose turn it is, what a placement scores and why it is refused before sending it; nobody else sees a rack | A refused placement, a missing word list or a hidden rack leaking would leave the person guessing or cheated | New game | The board previews each candidate's words and score and names a refusal with its next action (recall, swap, choose a blank's letter); the word list loads on demand with a retry; racks and the bag stay with the authority and each person's own device; practice against bots plays offline. Fit and enlarged board views preserve coordinates and focus; readable premium keys accompany local draft, blank and puzzle scoring journeys; retry preserves drafts, match fixtures apply accepted words through real rules, and puzzle completion commits the shown word and locks further input. Exchange choice survives refusal and closes when the accepted turn and replacement rack arrive; its primary action is labelled for exchange. Rack, preview and primary action share the working area, enlarged boards retain coordinate headers, with centre/corner keyboard clearance checked in `word-tiles-coordinate.example.tsx`, and unavailable puzzle word lists expose retry. A missing local match word list still permits the authority to check a submission; retry restores the local preview. Match rack, editing actions, pass/exchange and full-width preview share one working area. Enlarged boards retain a simultaneous whole-board overview and viewport outline with an explicit viewing mode. Unreadable matches link to app-version information with update/reopen guidance. Puzzle refusals group recall guidance; unreadable puzzles and solved targets offer Puzzle library through existing navigation. Word-list retry retains drafts; completion locks the committed board. Pass, exchange & tools names ordinary turn choices in the compact disclosure with keyboard focus recovery; confirmation remains exposed. Blank letters use separate medium controls, with native 44px geometry and keyboard checks. The labelled Map opens the complete board as a spatial locator; choosing an intersection returns focus to the enlarged board without placing a tile. Enlarged placement reserves most width for the working board. Puzzle rack and covered-square bonus guidance remain adjacent to placement. | `specs/word-tiles/`; `libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx`; `libs/games-harness-ts/tests/conformance/custom-games/dealt-hands-privacy.test.ts`; `libs/games-harness-ts/tests/conformance/matchmaking/dealt-hands-privacy.test.ts`; `pkgs/ui-root-harness-ts/tests/word-tile-board-enlarged.test.tsx`; `libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx`; `pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-refusal.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-next-action.test.tsx`; `libs/game-puzzle-client-ts/tests/puzzle-library-navigation.test.ts`; `pkgs/ui-root-harness-ts/tests/word-tile-actions.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx` | Practice against bots works offline on the person's own device; the authority reports a refusal as an illegal move, the specific reason is the board's own preview: [game notes](../libs/word-tiles-shared-ts/docs/WORD_TILES.md); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. Round-six native regressions cover disjoint 44px blank targets and compact enlarged placement with the chooser open; exact outcomes remain in PR 280 evidence. |
++| Play Word Tiles | Know whose turn it is, what a placement scores and why it is refused before sending it; nobody else sees a rack | A refused placement, a missing word list or a hidden rack leaking would leave the person guessing or cheated | New game | The board previews each candidate's words and score and names a refusal with its next action (recall, swap, choose a blank's letter); the word list loads on demand with a retry; racks and the bag stay with the authority and each person's own device; practice against bots plays offline. Fit and enlarged board views preserve coordinates and focus; readable premium keys accompany local draft, blank and puzzle scoring journeys; retry preserves drafts, match fixtures apply accepted words through real rules, and puzzle completion commits the shown word and locks further input. Exchange choice survives refusal and closes when the accepted turn and replacement rack arrive; its primary action is labelled for exchange. Rack, preview and primary action share the working area, enlarged boards retain coordinate headers, with centre/corner keyboard clearance checked in `word-tiles-coordinate.example.tsx`, and unavailable puzzle word lists expose retry. A missing local match word list still permits the authority to check a submission; retry restores the local preview. Match rack, editing actions, pass/exchange and full-width preview share one working area. Enlarged boards retain a simultaneous whole-board overview and viewport outline with an explicit viewing mode. Unreadable matches link to app-version information with update/reopen guidance. Puzzle refusals group recall guidance; unreadable puzzles and solved targets offer Puzzle library through existing navigation. Word-list retry retains drafts; completion locks the committed board. Pass, exchange & tools names ordinary turn choices in the compact disclosure with keyboard focus recovery; confirmation remains exposed. Blank letters use separate medium controls, with native 44px geometry and keyboard checks. The labelled Map opens the complete board as a spatial locator; choosing an intersection returns focus to the enlarged board without placing a tile. Enlarged placement reserves most width for the working board. Puzzle rack and covered-square bonus guidance remain adjacent to placement. Phones start with 44px precision cells and a persistent whole-board navigator with nine coarse region targets. Region navigation preserves rack selection without placing a tile; Fit and Map retain whole-board inspection. Blank letters accept direct A–Z keys with a single instruction and placement-focus recovery. | `specs/word-tiles/`; `libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx`; `libs/games-harness-ts/tests/conformance/custom-games/dealt-hands-privacy.test.ts`; `libs/games-harness-ts/tests/conformance/matchmaking/dealt-hands-privacy.test.ts`; `pkgs/ui-root-harness-ts/tests/word-tile-board-enlarged.test.tsx`; `libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx`; `pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-refusal.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-next-action.test.tsx`; `libs/game-puzzle-client-ts/tests/puzzle-library-navigation.test.ts`; `pkgs/ui-root-harness-ts/tests/word-tile-actions.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx`; `pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx`; `libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx`; `libs/word-tiles-client-ts/src/word-tiles-precision.example.tsx` | Practice against bots works offline on the person's own device; the authority reports a refusal as an illegal move, the specific reason is the board's own preview: [game notes](../libs/word-tiles-shared-ts/docs/WORD_TILES.md); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. Round-six native regressions cover disjoint 44px blank targets and compact enlarged placement with the chooser open; exact outcomes remain in PR 280 evidence. Round-seven checks include the initial local score, full precision viewport and blank-open region controls; exact native, pixel, canonical and full-gate outcomes are recorded separately in PR 280 evidence. |
+ | Play Hearts with three others | Know whose turn it is, which cards may be played or passed and why one is refused, and who won | Four people must stay for a whole match; a refused card gives no reason; a tie for the lowest score; an offline secret choice was queued and later applied | Not offered | A table naming every seat, the trick, scores and passes; a refused card or pass names the rule (follow suit, hearts not broken); an away person's seat is played by a disclosed stand-in until they take it back; joint winners are credited; a refused or failed pass keeps its three cards to send again, and a sent pass shows its progress; the end names every score and the winners; offline secret commitments are refused and stay refused after reconnection. Phone side seats preserve readable names; unavailable cards have visible markers and rule explanations; stateful stories exercise acknowledged passing and trick completion; keyed seats retain their identities through orientation changes, legal cards come first, and pending-pass guidance matches the action state. Phone tables and rule guidance are compact, with pre-interaction checks for the complete hand and trick context. Phone player rows put each trick card beside its named owner with compact facts and no wrap separators. Initial and selected passing assertions include all 13 cards, the pass button and table context before scrolling. Legal solid-edge cards remain distinct from lifted, ringed pass selections; refused cards retain × and the rule. Phone seats use two rows of adjacent named player/card pairs. Unavailable cards retain readable ink with a cross and hatched foot. Resolved identities name opponent/watcher turns and trick winners; local turns address You, with unknown-identity fallback. | `specs/hearts/`; `specs/games/secret-choices.feature`; `specs/games/multi-seat-stand-ins.feature`; `specs/games/shared-victories.feature`; `libs/hearts-shared-ts/tests/properties.test.ts`; `libs/hearts-client-ts/tests/board-recovery.test.tsx` (`hearts-refused-pass-loses-cards`, `hearts-pass-merges-selection`, `hearts-final-scores-unnamed`); `pkgs/ui-root-harness-ts/tests/card-table.test.tsx` (`card-table-refusal-silent`, `card-table-pass-vanishes`); `specs/games/secret-choices.qnt` (`offline-secret-choice-queued`); `pkgs/ui-root-harness-ts/tests/card-table-availability.test.tsx`; `libs/hearts-client-ts/src/hearts-board.stories.tsx`; `libs/hearts-client-ts/tests/hand-bounds.test.ts`; `libs/hearts-client-ts/tests/named-turn-guidance.test.tsx`; `pkgs/ui-root-harness-ts/tests/card-table.test.tsx` | Custom games only (no finding an opponent, no ratings); full and live release verification remain open: [ledger](HEARTS_IMPLEMENTATION.md); Board-only Storybook evidence covers intrinsic interactions, geometry, browser errors and serious/critical accessibility checks; it does not establish live transport or persistence. Current candidate checks, Ubuntu reference decisions and independent reviews are recorded with [PR 280](https://github.com/crvouga/gamezilla/pull/280). Full release verification remains required. Round-four native geometry, reference decisions and full-gate outcomes remain recorded separately in the PR evidence; app updates, live lexicon loading and persisted journeys are not established by board fixtures. Round-five integrated native, pixel, canonical-reference and full-catalog outcomes are recorded separately in PR 280; DOM checks do not establish live transport or persistence. |
+ | Resize a chess board | Each visible square accepts its own input | A pointer press before resize delivery used the previous width | Input could target another square | Hit testing measures the current width on each press | `pkgs/chess-board-root-harness-ts/tests/browser/resize.contract.test.ts` (`chessboard-resize-before-observer`) | — |
+ | Search for people | An answer, also offline for people already known | Offline search hid known friends behind "needs a connection" | Hid results | Known people shown offline with a note that more may appear online | journey "Searching for people finishes with an answer"; `specs/friends/social-needs-connection.feature` (`offline-search-hides-known-people`) | — |
+diff --git a/libs/app-root-shared-ts/locales/en/messages.po b/libs/app-root-shared-ts/locales/en/messages.po
+index 9ed8696e4..efee5861b 100644
+--- a/libs/app-root-shared-ts/locales/en/messages.po
++++ b/libs/app-root-shared-ts/locales/en/messages.po
+@@ -1119,6 +1119,15 @@ msgstr "After 1 s"
+ msgid "Agree draw"
+ msgstr "Agree draw"
+ 
++#: libs/battleship-client-ts/src/battleship-target-grid.tsx
++msgid "Aim"
++msgstr "Aim"
++
++#. placeholder {0}: regions[area()]
++#: libs/battleship-client-ts/src/battleship-target-grid.tsx
++msgid "Aim: {0}"
++msgstr "Aim: {0}"
++
+ #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
+ msgid "All"
+ msgstr "All"
+@@ -3781,10 +3790,6 @@ msgstr "King"
+ msgid "Knight"
+ msgstr "Knight"
+ 
+-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+-msgid "Larger targets"
+-msgstr "Larger targets"
+-
+ #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
+ msgid "Last activity"
+ msgstr "Last activity"
+@@ -4123,6 +4128,7 @@ msgstr "Manage subscription"
+ msgid "Manual next puzzle"
+ msgstr "Manual next puzzle"
+ 
++#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+ #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+ msgid "Map"
+ msgstr "Map"
+@@ -5392,6 +5398,10 @@ msgstr "Pong court"
+ msgid "Practice runs don't count toward your progress."
+ msgstr "Practice runs don't count toward your progress."
+ 
++#: libs/battleship-client-ts/src/battleship-target-grid.tsx
++msgid "Precise aim"
++msgstr "Precise aim"
++
+ #: libs/app-root-client-ts/src/settings-screen-view.tsx
+ msgid "Preferences"
+ msgstr "Preferences"
+@@ -6433,10 +6443,6 @@ msgstr "Scores {total} points. Checking the words…"
+ msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
+ msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
+ 
+-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+-msgid "Scroll or use arrow keys. Map locates squares; Enter places a tile."
+-msgstr "Scroll or use arrow keys. Map locates squares; Enter places a tile."
+-
+ #: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+ msgid "Scrollable word board"
+ msgstr "Scrollable word board"
+@@ -6671,10 +6677,6 @@ msgstr "Show performance monitor"
+ msgid "Show the position after {0}"
+ msgstr "Show the position after {0}"
+ 
+-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+-msgid "Show whole board"
+-msgstr "Show whole board"
+-
+ #: libs/spaces-client-ts/src/space-miniplayer.tsx
+ msgid "Show your live spaces"
+ msgstr "Show your live spaces"
+@@ -7345,15 +7347,6 @@ msgstr "Target rating: {0}"
+ msgid "Target reached. Puzzle solved!"
+ msgstr "Target reached. Puzzle solved!"
+ 
+-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+-msgid "Target region"
+-msgstr "Target region"
+-
+-#. placeholder {0}: regions[area()]
+-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+-msgid "Target region: {0}"
+-msgstr "Target region: {0}"
+-
+ #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+ msgid "target score"
+ msgstr "target score"
+@@ -8497,6 +8490,16 @@ msgstr "Version and diagnostics"
+ msgid "Vertical wall"
+ msgstr "Vertical wall"
+ 
++#. placeholder {0}: region(index).start
++#. placeholder {1}: region(index).end
++#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
++msgid "View {0} to {1}"
++msgstr "View {0} to {1}"
++
++#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
++msgid "View a board region"
++msgstr "View a board region"
++
+ #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
+ msgid "View profile"
+ msgstr "View profile"
+@@ -8629,7 +8632,7 @@ msgstr "Who's here"
+ msgid "Whole board locator"
+ msgstr "Whole board locator"
+ 
+-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
++#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+ msgid "Whole board overview; outline shows the enlarged area"
+ msgstr "Whole board overview; outline shows the enlarged area"
+ 
+diff --git a/libs/battleship-client-ts/src/battleship-board.stories.tsx b/libs/battleship-client-ts/src/battleship-board.stories.tsx
+index 2f0ecc350..c488b2eb7 100644
+--- a/libs/battleship-client-ts/src/battleship-board.stories.tsx
++++ b/libs/battleship-client-ts/src/battleship-board.stories.tsx
+@@ -101,6 +101,7 @@ export const Opening: Story = {};
+ 
+ /** Mid-game on Blue's turn: a sunk destroyer, hits and misses on both boards. */
+ export const YourTurn: Story = {
++  play: async ({ canvasElement }) => assertTargetWorkbench(canvasElement),
+   args: { position: after(VOLLEYS) },
+   parameters: {
+     table: { moves: recorded(after(VOLLEYS)) } satisfies GameTableStory,
+@@ -208,10 +209,17 @@ function shotJourney(
+     },
+     play: async ({ canvasElement }) => {
+       const canvas = within(canvasElement);
+-      const cell = await canvas.findByTestId(
+-        `custom-game-board-target-${target}`
++      await assertTargetWorkbench(canvasElement);
++      const area =
++        Number(target.charAt(0) >= 'f') +
++        Math.floor((Number(target.slice(1)) - 1) / 2) * 2;
++      await userEvent.click(
++        canvas.getByTestId(`custom-game-board-area-${area}`)
+       );
+-      await userEvent.click(cell);
++      const aim = canvas.getByTestId(`custom-game-board-aim-${target}`);
++      await assertTargetViewport(canvasElement, [aim]);
++      await userEvent.click(aim);
++      const cell = canvas.getByTestId(`custom-game-board-target-${target}`);
+       await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+       await expect(cell).toHaveAccessibleName(outcome);
+       await expect(cell).toHaveAttribute('aria-disabled', 'true');
+@@ -257,23 +265,15 @@ export const CorrectTargetBeforeFiring: Story = {
+   play: async ({ canvasElement }) => {
+     const canvas = within(canvasElement);
+     // regression: battleship-touch-spends-mistarget
+-    await assertTargetViewport(canvasElement, [
+-      canvas.getByTestId('custom-game-board-target-j10'),
+-      canvas.getByTestId('custom-game-board-fire'),
+-      canvas.getByTestId('custom-game-board-large-targets'),
+-    ]);
+-    await userEvent.click(
+-      canvas.getByTestId('custom-game-board-large-targets')
+-    );
+-    await userEvent.click(canvas.getByTestId('custom-game-board-region'));
+-    await userEvent.click(
+-      within(canvasElement.ownerDocument.body).getByTestId(
+-        'custom-game-board-area-3'
+-      )
+-    );
++    await assertTargetWorkbench(canvasElement);
++    await userEvent.click(canvas.getByTestId('custom-game-board-aim-b1'));
++    await userEvent.click(canvas.getByTestId('custom-game-board-area-9'));
++    await expect(
++      canvas.getByTestId('custom-game-board-fire')
++    ).toHaveTextContent('Fire at B1');
+     await assertTargetWorkbench(canvasElement);
+     const targetBounds = canvas
+-      .getByTestId('custom-game-board-target-j10')
++      .getByTestId('custom-game-board-aim-j10')
+       .getBoundingClientRect();
+     await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
+     await expect(targetBounds.width).toBeLessThanOrEqual(64);
+@@ -281,16 +281,16 @@ export const CorrectTargetBeforeFiring: Story = {
+     await userEvent.pointer([
+       {
+         keys: '[TouchA]',
+-        target: canvas.getByTestId('custom-game-board-target-j9'),
++        target: canvas.getByTestId('custom-game-board-aim-j9'),
+       },
+     ]);
+     await expect(
+-      canvas.getByTestId('custom-game-board-target-j9')
++      canvas.getByTestId('custom-game-board-aim-j9')
+     ).toHaveAccessibleName('Fire at J9');
+     await userEvent.pointer([
+       {
+         keys: '[TouchA]',
+-        target: canvas.getByTestId('custom-game-board-target-j10'),
++        target: canvas.getByTestId('custom-game-board-aim-j10'),
+       },
+     ]);
+     await expect(
+@@ -299,10 +299,10 @@ export const CorrectTargetBeforeFiring: Story = {
+     await assertTargetWorkbench(canvasElement, true);
+     await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
+     await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
+-    await userEvent.click(canvas.getByTestId('custom-game-board-target-j10'));
++    await userEvent.click(canvas.getByTestId('custom-game-board-aim-j10'));
+     await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+     await expect(
+-      canvas.getByTestId('custom-game-board-target-j10')
++      canvas.getByTestId('custom-game-board-aim-j10')
+     ).toHaveAccessibleName('J10: miss, latest shot');
+   },
+ };
+diff --git a/libs/battleship-client-ts/src/battleship-board.tsx b/libs/battleship-client-ts/src/battleship-board.tsx
+index a11d4edeb..f4658bdfa 100644
+--- a/libs/battleship-client-ts/src/battleship-board.tsx
++++ b/libs/battleship-client-ts/src/battleship-board.tsx
+@@ -143,7 +143,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
+     })
+   );
+   return (
+-    <StackVertical gap="md" testId={props.testId}>
++    <StackVertical gap="xs" testId={props.testId}>
+       <Show when={battle().winner !== null}>
+         <P variant="bodyBold">{t`${sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))} destroyed — all five ships sunk.`}</P>
+       </Show>
+diff --git a/libs/battleship-client-ts/src/battleship-setup-board.stories.tsx b/libs/battleship-client-ts/src/battleship-setup-board.stories.tsx
+index 474b49ba5..8165f16a7 100644
+--- a/libs/battleship-client-ts/src/battleship-setup-board.stories.tsx
++++ b/libs/battleship-client-ts/src/battleship-setup-board.stories.tsx
+@@ -1,4 +1,4 @@
+-import { createSignal } from 'solid-js';
++import { createSignal, Show } from 'solid-js';
+ import { expect, fn, userEvent, within } from 'storybook/test';
+ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+ import { BattleshipSetupBoard } from './battleship-setup-board';
+@@ -6,6 +6,7 @@ import {
+   checkSetupPlacementBounds,
+   checkSetupRecovery,
+   checkSetupWorkspace,
++  chooseSetupRegion,
+   repositionEnlargedShip,
+ } from './battleship-setup-placement.example';
+ 
+@@ -20,21 +21,30 @@ const meta = {
+   render: (args) => {
+     const [fleet, setFleet] = createSignal(args.setup);
+     return (
+-      <BattleshipSetupBoard
+-        {...args}
+-        setup={fleet()}
+-        onChange={(value) => {
+-          setFleet(value);
+-          args.onChange(value);
+-        }}
+-      />
++      <Show when={args.initialPlacement} keyed>
++        <BattleshipSetupBoard
++          {...args}
++          setup={fleet()}
++          onChange={(value) => {
++            setFleet(value);
++            args.onChange(value);
++          }}
++        />
++      </Show>
+     );
+   },
+   parameters: {
+     appRouter: true,
+     controls: { exclude: ['onChange'] },
+   },
++  argTypes: {
++    initialPlacement: {
++      control: 'select',
++      options: ['responsive', 'full', 'enlarged'],
++    },
++  },
+   args: {
++    initialPlacement: 'responsive',
+     setup: '',
+     side: 'white',
+     locked: false,
+@@ -46,7 +56,15 @@ export default meta;
+ type Story = StoryObj<typeof meta>;
+ 
+ /** Nothing placed: the Carrier is chosen first, across, and every cell takes its bow. */
+-export const Empty: Story = {};
++export const Empty: Story = {
++  play: async ({ canvasElement }) => {
++    if (window.innerWidth >= 640) return;
++    await checkSetupWorkspace(canvasElement);
++    await checkSetupPlacementBounds(
++      within(canvasElement).getByTestId('custom-game-setup-precision-cell-a1')
++    );
++  },
++};
+ 
+ /** Two ships placed; the next unplaced ship is chosen and the count says how far along. */
+ export const Partial: Story = {
+@@ -61,6 +79,7 @@ export const Locked: Story = { args: { setup: FULL_FLEET, locked: true } };
+ 
+ /** A Carrier with its bow at J1 would run off the board: refused, with the reason. */
+ export const RefusedOffBoard: Story = {
++  args: { initialPlacement: 'full' },
+   play: async ({ args, canvasElement }) => {
+     const canvas = within(canvasElement);
+     await userEvent.click(
+@@ -75,6 +94,7 @@ export const RefusedOffBoard: Story = {
+ 
+ /** Choosing a cell places the chosen ship with its bow there. */
+ export const PlaceAShip: Story = {
++  args: { initialPlacement: 'full' },
+   play: async ({ args, canvasElement }) => {
+     const canvas = within(canvasElement);
+     await userEvent.click(
+@@ -86,6 +106,7 @@ export const PlaceAShip: Story = {
+ 
+ /** Place every ship, recover an overlap, then rearrange the completed fleet. */
+ export const ArrangeFullFleet: Story = {
++  args: { initialPlacement: 'full' },
+   play: async ({ canvasElement }) => {
+     const canvas = within(canvasElement);
+     const click = async (suffix: string) =>
+@@ -131,9 +152,9 @@ export const ArrangeFullFleet: Story = {
+ export const EnlargedPlacement: Story = {
+   play: async ({ canvasElement }) => {
+     const canvas = within(canvasElement);
+-    await userEvent.click(
+-      await canvas.findByTestId('custom-game-setup-enlarge')
+-    );
++    if (!canvas.queryByTestId('custom-game-setup-precision'))
++      await userEvent.click(canvas.getByTestId('custom-game-setup-enlarge'));
++
+     // regression: battleship-placement-unlabeled-complete-selection
+     await expect(canvas.getByText('Ship', { exact: true })).toBeVisible();
+     await expect(canvas.getByText('Region', { exact: true })).toBeVisible();
+@@ -153,33 +174,31 @@ export const EnlargedPlacement: Story = {
+     const previousTop = canvas
+       .getByTestId('custom-game-setup-precision')
+       .getBoundingClientRect().top;
+-    await userEvent.click(bow);
++    await userEvent.keyboard('{Enter}');
+     await checkSetupRecovery(canvasElement, previousTop);
+     await expect(
+       await canvas.findByTestId('custom-game-setup-refusal')
+     ).toBeVisible();
+-    await userEvent.click(
+-      await canvas.findByTestId('custom-game-setup-rotate')
+-    );
+-    await userEvent.click(
+-      await canvas.findByTestId('custom-game-setup-precision-cell-a3')
++    await checkSetupPlacementBounds(
++      canvas.getByTestId('custom-game-setup-precision-cell-a3')
+     );
++    await userEvent.keyboard('r{ArrowDown}{ArrowDown}{Enter}');
+     await expect(
+       await canvas.findByTestId('custom-game-setup-cell-a6')
+     ).toHaveAccessibleName('A6: Battleship');
+     await expect(
+       await canvas.findByTestId('custom-game-setup-progress')
+     ).toHaveTextContent('2 of 5 ships placed');
+-    for (const id of ['c3', 'e3']) {
+-      const target = await canvas.findByTestId(
+-        `custom-game-setup-precision-cell-${id}`
+-      );
+-      await checkSetupPlacementBounds(target);
+-      await userEvent.click(target);
+-    }
+-    await userEvent.click(
+-      await canvas.findByTestId('custom-game-setup-rotate')
+-    );
++    await chooseSetupRegion(canvasElement, 'F–J / 1–5');
++    const cruiser = canvas.getByTestId('custom-game-setup-precision-cell-g2');
++    await checkSetupPlacementBounds(cruiser);
++    await userEvent.click(cruiser);
++    await chooseSetupRegion(canvasElement, 'A–E / 6–10');
++    await userEvent.click(canvas.getByTestId('custom-game-setup-rotate'));
++    const submarine = canvas.getByTestId('custom-game-setup-precision-cell-b8');
++    await checkSetupPlacementBounds(submarine);
++    await userEvent.click(submarine);
++    await chooseSetupRegion(canvasElement, 'A–E / 1–5');
+     const last = await canvas.findByTestId(
+       'custom-game-setup-precision-cell-b2'
+     );
+diff --git a/libs/battleship-client-ts/src/battleship-setup-board.tsx b/libs/battleship-client-ts/src/battleship-setup-board.tsx
+index 2c4d74549..01ff9be7d 100644
+--- a/libs/battleship-client-ts/src/battleship-setup-board.tsx
++++ b/libs/battleship-client-ts/src/battleship-setup-board.tsx
+@@ -11,6 +11,7 @@ import {
+   type GameChoice,
+   GameChoiceGrid,
+ } from '@pkgs/ui-root-client-ts/game-choice-grid';
++import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
+ import { Notice } from '@pkgs/ui-root-client-ts/notice';
+ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+ import { P } from '@pkgs/ui-root-client-ts/text';
+@@ -89,10 +90,19 @@ function SetupCommands(props: {
+  * `<testId>-progress`: the screen hosting it keeps `<testId>-status` for
+  * its own word on the setup.
+  */
+-export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
++export function BattleshipSetupBoard(
++  props: GameSetupBoardProps & {
++    /** Responsive starts enlarged below 640px; an explicit choice lasts until unmount. */
++    initialPlacement?: 'responsive' | 'full' | 'enlarged';
++  }
++): JSX.Element {
+   const setup = createSetupController(props);
+   const statusId = createUniqueId();
+-  const [enlarged, setEnlarged] = createSignal(false);
++  const phone = createMediaQuery('(max-width: 639px)');
++  const [enlarged, setEnlarged] = createSignal(
++    props.initialPlacement === 'enlarged' ||
++      ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())
++  );
+   return (
+     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
+       <P
+@@ -137,7 +147,11 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
+           <Show when={!props.locked}>
+             <Show
+               when={setup.refusal()}
+-              fallback={<P variant="caption">{setup.instruction()}</P>}
++              fallback={
++                <P variant="caption" testId={`${props.testId}-guidance`}>
++                  {setup.instruction()}
++                </P>
++              }
+             >
+               {(reason) => (
+                 <P
+diff --git a/libs/battleship-client-ts/src/battleship-setup-placement.example.tsx b/libs/battleship-client-ts/src/battleship-setup-placement.example.tsx
+index f03e98c75..7a731007b 100644
+--- a/libs/battleship-client-ts/src/battleship-setup-placement.example.tsx
++++ b/libs/battleship-client-ts/src/battleship-setup-placement.example.tsx
+@@ -30,22 +30,53 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
+     if (!control) throw new Error(`Missing ${label}`);
+     const bounds = control.getBoundingClientRect();
+     await expect(bounds.width).toBeLessThanOrEqual(272);
++    await expect(bounds.left).toBeGreaterThanOrEqual(0);
++    await expect(bounds.right).toBeLessThanOrEqual(window.innerWidth);
+     await expect(bounds.top).toBeGreaterThanOrEqual(0);
+     await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+   }
+   const working = find('precision');
+   const overview = find('grid');
+-  await expect(overview.width).toBeLessThanOrEqual(176);
++  // regression: battleship-placement-overview-legibility
++  await expect(overview.width).toBe(224);
+   await expect(overview.height).toBeLessThan(working.height);
+   await expect(overview.bottom).toBeLessThanOrEqual(window.innerHeight);
+   await expect(overview.right).toBeLessThanOrEqual(window.innerWidth);
+   await expect(working.width).toBeGreaterThanOrEqual(270);
++  await expect(working.bottom).toBeLessThanOrEqual(window.innerHeight);
++  await expect(overview.top).toBeGreaterThanOrEqual(0);
++  // regression: battleship-placement-guidance-gap
++  const feedback =
++    root.querySelector<HTMLElement>(
++      '[data-component="BattleshipPlacementLayout"] [role="alert"]'
++    ) ??
++    root.querySelector<HTMLElement>(
++      '[data-testid="custom-game-setup-guidance"]'
++    );
++  if (!feedback) throw new Error('Missing placement guidance');
++  await expect(
++    working.top - feedback.getBoundingClientRect().bottom
++  ).toBeLessThanOrEqual(8);
++  const headers = Array.from(
++    root.querySelectorAll<HTMLElement>(
++      '[data-testid="custom-game-setup-grid"] > span[aria-hidden="true"]'
++    )
++  ).slice(1, 11);
++  await expect(headers.length).toBe(10);
++  for (const header of headers) {
++    await expect(header.getBoundingClientRect().width).toBeGreaterThanOrEqual(
++      16
++    );
++    await expect(
++      Number.parseFloat(getComputedStyle(header).fontSize)
++    ).toBeGreaterThanOrEqual(12);
++  }
+   if (window.innerWidth >= 640) {
+     await expect(overview.left).toBeGreaterThan(working.right);
+     await expect(overview.bottom).toBe(working.bottom);
+   } else {
+     await expect(overview.bottom).toBeLessThanOrEqual(working.top);
+-    await expect(overview.width).toBeGreaterThanOrEqual(112);
++    await expect(overview.width).toBeGreaterThanOrEqual(224);
+   }
+ }
+ 
+@@ -103,3 +134,19 @@ export async function checkSetupRecovery(
+   await expect(grid.bottom).toBeLessThanOrEqual(window.innerHeight);
+   await checkSetupWorkspace(root);
+ }
++
++/** A region switch never relies on click scrolling to reveal its control. */
++export async function chooseSetupRegion(
++  root: HTMLElement,
++  region: string
++): Promise<void> {
++  const canvas = within(root);
++  const control = canvas.getByRole('button', { name: 'Placement area' });
++  const bounds = control.getBoundingClientRect();
++  await expect(bounds.top).toBeGreaterThanOrEqual(0);
++  await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
++  await userEvent.click(control);
++  await userEvent.click(
++    await within(root.ownerDocument.body).findByRole('option', { name: region })
++  );
++}
+diff --git a/libs/battleship-client-ts/src/battleship-setup-precision.tsx b/libs/battleship-client-ts/src/battleship-setup-precision.tsx
+index 62fe0202d..53a5ca6e6 100644
+--- a/libs/battleship-client-ts/src/battleship-setup-precision.tsx
++++ b/libs/battleship-client-ts/src/battleship-setup-precision.tsx
+@@ -14,11 +14,12 @@ import {
+ } from './battleship-copy';
+ import type { SetupController } from './battleship-setup-controller';
+ 
+-function shipOptions(setup: SetupController) {
++function shipOptions(setup: SetupController, testId: string) {
+   return SHIPS.map(({ id, length }) => {
+     const placed = setup.draft().get(id);
+     return {
+       value: id,
++      dataSet: { testid: `${testId}-ship-${id}` },
+       label:
+         placed === undefined
+           ? `${shipName(id)} · ${length}`
+@@ -27,6 +28,31 @@ function shipOptions(setup: SetupController) {
+   });
+ }
+ 
++function regionOptions(testId: string) {
++  return [
++    {
++      value: 'nw',
++      dataSet: { testid: `${testId}-region-nw` },
++      label: 'A–E / 1–5',
++    },
++    {
++      value: 'ne',
++      dataSet: { testid: `${testId}-region-ne` },
++      label: 'F–J / 1–5',
++    },
++    {
++      value: 'sw',
++      dataSet: { testid: `${testId}-region-sw` },
++      label: 'A–E / 6–10',
++    },
++    {
++      value: 'se',
++      dataSet: { testid: `${testId}-region-se` },
++      label: 'F–J / 6–10',
++    },
++  ];
++}
++
+ /** A magnified bow picker; placement still validates against the full fleet. */
+ export function SetupPrecision(props: {
+   setup: SetupController;
+@@ -86,24 +112,23 @@ export function SetupPrecision(props: {
+                   if (isShipId(value)) props.setup.choose(value);
+                 }}
+                 disabled={props.locked}
+-                options={shipOptions(props.setup)}
++                triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
++                options={shipOptions(props.setup, props.testId)}
+               />
+               {props.commands}
+-              <Select
+-                label={t`Region`}
+-                aria-label={t`Placement area`}
+-                value={area()}
+-                onValueChange={setArea}
+-                disabled={props.locked}
+-                options={[
+-                  { value: 'nw', label: 'A–E / 1–5' },
+-                  { value: 'ne', label: 'F–J / 1–5' },
+-                  { value: 'sw', label: 'A–E / 6–10' },
+-                  { value: 'se', label: 'F–J / 6–10' },
+-                ]}
+-              />
+             </>
+           }
++          region={
++            <Select
++              label={t`Region`}
++              aria-label={t`Placement area`}
++              triggerDataSet={{ testid: `${props.testId}-region-picker` }}
++              value={area()}
++              onValueChange={setArea}
++              disabled={props.locked}
++              options={regionOptions(props.testId)}
++            />
++          }
+           working={
+             <CellGridBoard
+               label={t`Enlarged bow placement`}
+diff --git a/libs/battleship-client-ts/src/battleship-target-grid.tsx b/libs/battleship-client-ts/src/battleship-target-grid.tsx
+index 3ba186476..b27feb223 100644
+--- a/libs/battleship-client-ts/src/battleship-target-grid.tsx
++++ b/libs/battleship-client-ts/src/battleship-target-grid.tsx
+@@ -1,15 +1,16 @@
+ import { t } from '@lingui/core/macro';
++import { BattleshipTargetLayout } from '@pkgs/ui-root-client-ts/battleship-target-layout';
+ import { Button } from '@pkgs/ui-root-client-ts/button';
+ import {
+   CellGridBoard,
+   type CellGridCell,
+ } from '@pkgs/ui-root-client-ts/cell-grid-board';
+-import { Select } from '@pkgs/ui-root-client-ts/select';
+-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
++import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
++import { P } from '@pkgs/ui-root-client-ts/text';
+ import { createSignal, type JSX, Show } from 'solid-js';
+ import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
+ 
+-/** Four bounded five-by-five areas keep every coordinate reachable at a larger size. */
++/** The full field stays visible while ten coarse regions offer precise two-row aiming. */
+ export function BattleshipTargetGrid(props: {
+   label: string;
+   testId: string;
+@@ -18,78 +19,84 @@ export function BattleshipTargetGrid(props: {
+   confirmation?: JSX.Element;
+   selected: string | null;
+ }): JSX.Element {
+-  const [large, setLarge] = createSignal(false);
++  const [precise, setPrecise] = createSignal(true);
+   const [area, setArea] = createSignal(0);
+   const columns = () =>
+-    large()
+-      ? COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5)
+-      : COLUMN_LABELS;
++    COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5);
+   const rows = () =>
+-    large()
+-      ? ROW_LABELS.slice(
+-          Math.floor(area() / 2) * 5,
+-          Math.floor(area() / 2) * 5 + 5
+-        )
+-      : ROW_LABELS;
++    ROW_LABELS.slice(
++      Math.floor(area() / 2) * 2,
++      Math.floor(area() / 2) * 2 + 2
++    );
+   const cells = () =>
+     props.cells.filter(
+       (cell) =>
+         columns().includes(cell.id[0]?.toUpperCase() ?? '') &&
+         rows().includes(cell.id.slice(1))
+     );
+-  const regions = ['A1–E5', 'F1–J5', 'A6–E10', 'F6–J10'];
+-  const toggleSize = () => {
+-    const selected = props.selected;
+-    if (!large() && selected) {
+-      const right = selected.charAt(0).toLowerCase() >= 'f';
+-      const bottom = Number(selected.slice(1)) >= 6;
+-      setArea(Number(right) + Number(bottom) * 2);
+-    }
+-    setLarge(!large());
++  const regions = Array.from(
++    { length: 10 },
++    (_, n) =>
++      `${n % 2 === 0 ? 'A' : 'F'}${Math.floor(n / 2) * 2 + 1}–${n % 2 === 0 ? 'E' : 'J'}${Math.floor(n / 2) * 2 + 2}`
++  );
++  const toggle = () => {
++    const cell = props.selected;
++    if (!precise() && cell)
++      setArea(
++        Number(cell.charAt(0) >= 'f') +
++          Math.floor((Number(cell.slice(1)) - 1) / 2) * 2
++      );
++    setPrecise(!precise());
+   };
+   return (
+     <StackVertical gap="xs" width="full">
+-      <CellGridBoard
+-        fill={!large()}
+-        label={props.label}
+-        testId={`${props.testId}-target-grid`}
+-        cellTestId={(cell) => `${props.testId}-target-${cell}`}
+-        columnLabels={columns()}
+-        rowLabels={rows()}
+-        cells={cells()}
+-        onActivate={props.onAim}
+-      />
+-      {props.confirmation}
+-      <StackHorizontal
+-        gap="sm"
+-        align="center"
+-        justify="between"
+-        testId={`${props.testId}-target-tools`}
+-      >
+-        <Button
+-          title={large() ? t`Show whole board` : t`Larger targets`}
+-          intent="neutral"
+-          variant="outline"
+-          onClick={toggleSize}
+-          dataSet={{ testid: `${props.testId}-large-targets` }}
+-        />
+-        <Show when={large()}>
+-          <StackVertical grow>
+-            <Select
+-              aria-label={t`Target region: ${regions[area()]}`}
+-              surfaceTitle={t`Target region`}
+-              value={area()}
+-              onValueChange={setArea}
+-              triggerDataSet={{ testid: `${props.testId}-region` }}
+-              options={regions.map((label, value) => ({
+-                label,
+-                value,
+-                dataSet: { testid: `${props.testId}-area-${value}` },
+-              }))}
++      <BattleshipTargetLayout
++        precise={precise()}
++        region={area()}
++        regions={regions}
++        onRegion={setArea}
++        testId={props.testId}
++        overview={
++          <CellGridBoard
++            fill
++            label={props.label}
++            testId={`${props.testId}-target-grid`}
++            cellTestId={(cell) => `${props.testId}-target-${cell}`}
++            columnLabels={COLUMN_LABELS}
++            rowLabels={ROW_LABELS}
++            cells={props.cells}
++            onActivate={props.onAim}
++          />
++        }
++        controls={
++          <StackVertical gap="xs" testId={`${props.testId}-target-tools`}>
++            <P variant="caption">{t`Aim: ${regions[area()]}`}</P>
++            <Button
++              title={precise() ? t`Map` : t`Aim`}
++              intent="neutral"
++              variant="outline"
++              onClick={toggle}
++              dataSet={{ testid: `${props.testId}-large-targets` }}
+             />
+           </StackVertical>
+-        </Show>
+-      </StackHorizontal>
++        }
++        working={
++          <Show when={precise()}>
++            <StackVertical gap="xs" align="center" width="full">
++              <CellGridBoard
++                label={t`Precise aim`}
++                testId={`${props.testId}-aim-grid`}
++                cellTestId={(cell) => `${props.testId}-aim-${cell}`}
++                columnLabels={columns()}
++                rowLabels={rows()}
++                cells={cells()}
++                onActivate={props.onAim}
++              />
++            </StackVertical>
++          </Show>
++        }
++      />
++      {props.confirmation}
+     </StackVertical>
+   );
+ }
+diff --git a/libs/battleship-client-ts/src/battleship-targeting.example.tsx b/libs/battleship-client-ts/src/battleship-targeting.example.tsx
+index 6eeb82c8f..03ad50c78 100644
+--- a/libs/battleship-client-ts/src/battleship-targeting.example.tsx
++++ b/libs/battleship-client-ts/src/battleship-targeting.example.tsx
+@@ -1,44 +1,50 @@
+ import { expect, within } from 'storybook/test';
+ 
+-/** Measure the untouched viewport before a pointer action can scroll its target. */
++/** Measure before input, so userEvent cannot repair a clipped workspace by scrolling. */
+ export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
++  // regression: battleship-default-precision-loses-whole-field
+   // regression: battleship-target-confirmation-competes-with-navigation
++  // regression: battleship-target-context-below-fold
+   const canvas = within(root);
+   const fire = canvas.getByTestId('custom-game-board-fire');
+-  const tools = canvas.getByTestId('custom-game-board-target-tools');
+-  const view = canvas.getByTestId('custom-game-board-large-targets');
+-  const region = canvas.getByTestId('custom-game-board-region');
+   const grid = canvas.getByTestId('custom-game-board-target-grid');
+-  await assertTargetViewport(root, [fire, view, region, grid]);
+-  await expect(view.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
+-  await expect(region.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+-    44
+-  );
+-  await expect(view.getBoundingClientRect().top).toBe(
+-    region.getBoundingClientRect().top
+-  );
+-  await expect(tools.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+-    fire.getBoundingClientRect().bottom
++  const aim = canvas.getByTestId('custom-game-board-aim-grid');
++  const region = canvas.getByTestId('custom-game-board-region');
++  await assertTargetViewport(root, [
++    fire,
++    grid,
++    aim,
++    region,
++    canvas.getByTestId('custom-game-board-large-targets'),
++    canvas.getByTestId('custom-game-seat-near'),
++  ]);
++  await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
++  for (const cell of [
++    ...aim.querySelectorAll<HTMLElement>('[data-cell]'),
++    ...region.querySelectorAll<HTMLElement>('button'),
++  ]) {
++    await assertTargetViewport(root, [cell]);
++    await expect(cell.getBoundingClientRect().width).toBeGreaterThanOrEqual(44);
++    await expect(cell.getBoundingClientRect().height).toBeGreaterThanOrEqual(
++      44
++    );
++  }
++  await expect(aim.getBoundingClientRect().bottom).toBeLessThanOrEqual(
++    fire.getBoundingClientRect().top
+   );
+-  await expect(view).toHaveAttribute('data-face', 'neutral-outline');
+   if (aimed) {
+     const cancel = canvas.getByTestId('custom-game-board-cancel-aim');
++    await assertTargetViewport(root, [cancel]);
+     await expect(cancel).toHaveAttribute('data-face', 'neutral-ghost');
+     await expect(fire).toHaveAttribute('data-face', 'primary');
+     await expect(fire).toHaveTextContent('Fire at J10');
+     await expect(cancel.getBoundingClientRect().top).toBe(
+       fire.getBoundingClientRect().top
+     );
+-    await expect(cancel.getBoundingClientRect().right).toBeLessThanOrEqual(
+-      fire.getBoundingClientRect().left
+-    );
+-    await expect(cancel.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+-      44
+-    );
+   }
+ }
+ 
+-/** Shared by the initial whole-board state and the enlarged state, before input. */
++/** Bounds must pass on the untouched viewport, including the local turn context. */
+ export async function assertTargetViewport(
+   root: HTMLElement,
+   elements: HTMLElement[]
+diff --git a/libs/battleship-client-ts/tests/automation-rearrange.test.tsx b/libs/battleship-client-ts/tests/automation-rearrange.test.tsx
+index c0a9bd148..68dd42cef 100644
+--- a/libs/battleship-client-ts/tests/automation-rearrange.test.tsx
++++ b/libs/battleship-client-ts/tests/automation-rearrange.test.tsx
+@@ -6,6 +6,7 @@ import { setupI18n } from '@lingui/core';
+ import { I18nProvider } from '@lingui/solid';
+ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
++import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
+ import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+ import {
+   createSolidDomDriver,
+@@ -43,13 +44,15 @@ function setupBoardDriver(initial: string) {
+         <I18nProvider i18n={i18n}>
+           <ClockProvider clock={time.clock} timers={time.timers}>
+             <ThemeProvider colorScheme="light">
+-              <BattleshipSetupBoard
+-                setup={setup()}
+-                side="white"
+-                locked={false}
+-                testId="setup"
+-                onChange={setSetup}
+-              />
++              <SurfaceStackProvider>
++                <BattleshipSetupBoard
++                  setup={setup()}
++                  side="white"
++                  locked={false}
++                  testId="setup"
++                  onChange={setSetup}
++                />
++              </SurfaceStackProvider>
+             </ThemeProvider>
+           </ClockProvider>
+         </I18nProvider>
+@@ -74,3 +77,30 @@ test.each([
+     expect(setup()).toBe(RED);
+   }
+ );
++
++test('phone multiplayer setup arranges the literal fleet through the default precision controls', async () => {
++  // regression: battleship-phone-setup-automation
++  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
++  Object.defineProperty(window, 'matchMedia', {
++    configurable: true,
++    value: () => ({
++      matches: true,
++      addEventListener() {},
++      removeEventListener() {},
++    }),
++  });
++  try {
++    const { board, setup } = setupBoardDriver(BLUE);
++    driver = board;
++    await driver.launch();
++    await driver.get('setup-precision-cell-a1').expect.visible();
++    await battleshipAutomation.arrange?.(driver, 'setup', RED);
++    expect(setup()).toBe(RED);
++    await driver.get('setup-precision-cell-j10').expect.visible();
++  } finally {
++    await driver?.close();
++    driver = undefined;
++    if (original) Object.defineProperty(window, 'matchMedia', original);
++    else Reflect.deleteProperty(window, 'matchMedia');
++  }
++});
+diff --git a/libs/battleship-client-ts/tests/setup-precision.test.tsx b/libs/battleship-client-ts/tests/setup-precision.test.tsx
+index d8eee56d0..cc443afeb 100644
+--- a/libs/battleship-client-ts/tests/setup-precision.test.tsx
++++ b/libs/battleship-client-ts/tests/setup-precision.test.tsx
+@@ -1,5 +1,6 @@
+ import { expect, test } from 'bun:test';
+ import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setup-board';
++import { acceptFleet } from '@libs/battleship-shared-ts/battleship-fleet';
+ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
+ import { screen } from '@solidjs/testing-library';
+ import userEvent from '@testing-library/user-event';
+@@ -77,3 +78,113 @@ test('overlap recovery stays in the placement workspace with ship, direction and
+   expect(fleet()).toBe('fleet:carrier@a1h;battleship@a3v');
+   expect(screen.queryByTestId('setup-refusal')).toBeNull();
+ });
++
++test('a phone opens comfortable placement without a mode discovery step', () => {
++  // regression: battleship-phone-placement-default
++  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
++  Object.defineProperty(window, 'matchMedia', {
++    configurable: true,
++    value: () => ({
++      matches: true,
++      addEventListener() {},
++      removeEventListener() {},
++    }),
++  });
++  try {
++    renderBoard(() => (
++      <SurfaceStackProvider>
++        <BattleshipSetupBoard
++          setup=""
++          side="white"
++          locked={false}
++          testId="setup"
++          onChange={() => undefined}
++        />
++      </SurfaceStackProvider>
++    ));
++    expect(screen.queryByTestId('setup-precision-cell-a1')).not.toBeNull();
++    expect(byTestId('setup-grid').closest('[inert]')).not.toBeNull();
++    expect(
++      screen.getByRole('button', { name: 'Ship to place' }).textContent
++    ).toContain('Carrier');
++  } finally {
++    if (original) Object.defineProperty(window, 'matchMedia', original);
++    else Reflect.deleteProperty(window, 'matchMedia');
++  }
++});
++
++test('comfortable placement validates a complete fleet across four regions with keyboard recovery', async () => {
++  const [fleet, setFleet] = createSignal('');
++  renderBoard(() => (
++    <SurfaceStackProvider>
++      <BattleshipSetupBoard
++        setup={fleet()}
++        side="white"
++        locked={false}
++        testId="setup"
++        onChange={setFleet}
++        initialPlacement="enlarged"
++      />
++    </SurfaceStackProvider>
++  ));
++  const user = userEvent.setup();
++  const region = async (name: string) => {
++    await user.click(screen.getByRole('button', { name: 'Placement area' }));
++    await user.click(screen.getByRole('option', { name }));
++  };
++  byTestId('setup-precision-cell-a1').focus();
++  await user.keyboard('{Enter}{Enter}');
++  expect(fleet()).toBe('fleet:carrier@a1h');
++  expect(byTestId('setup-refusal').textContent).toContain('overlap');
++  await user.keyboard('r{ArrowDown}{ArrowDown}{Enter}');
++  expect(fleet()).toContain('battleship@a3v');
++  await region('F–J / 1–5');
++  await user.click(byTestId('setup-precision-cell-g2'));
++  await region('A–E / 6–10');
++  await user.click(byTestId('setup-rotate'));
++  await user.click(byTestId('setup-precision-cell-b8'));
++  await region('F–J / 6–10');
++  await user.click(byTestId('setup-precision-cell-i7'));
++  expect(fleet()).toBe(
++    'fleet:carrier@a1h;battleship@a3v;cruiser@g2v;submarine@b8h;destroyer@i7h'
++  );
++  expect(acceptFleet(fleet())).toBe(fleet());
++  expect(byTestId('setup-progress').textContent).toContain(
++    'All five ships placed'
++  );
++});
++
++test('locked comfortable placement keeps all waters visible and refuses editing', async () => {
++  const changes: string[] = [];
++  renderBoard(() => (
++    <SurfaceStackProvider>
++      <BattleshipSetupBoard
++        setup="fleet:carrier@a1h"
++        side="white"
++        locked
++        testId="setup"
++        onChange={(next) => changes.push(next)}
++        initialPlacement="enlarged"
++      />
++    </SurfaceStackProvider>
++  ));
++  expect(byTestId('setup-locked').textContent).toContain('locked in');
++  expect(document.body.textContent).not.toContain('Tap its first cell');
++  expect(byTestId('setup-grid').querySelectorAll('[data-cell]').length).toBe(
++    100
++  );
++  expect(
++    screen
++      .getByRole('button', { name: 'Ship to place' })
++      .hasAttribute('disabled')
++  ).toBe(true);
++  expect(
++    screen
++      .getByRole('button', { name: 'Placement area' })
++      .hasAttribute('disabled')
++  ).toBe(true);
++  const user = userEvent.setup();
++  await user.click(byTestId('setup-precision-cell-b2'));
++  await user.keyboard('r{Enter}');
++  expect(changes).toEqual([]);
++});
+diff --git a/libs/battleship-client-ts/tests/targeting-default.test.tsx b/libs/battleship-client-ts/tests/targeting-default.test.tsx
+new file mode 100644
+index 000000000..6ccf87af6
+--- /dev/null
++++ b/libs/battleship-client-ts/tests/targeting-default.test.tsx
+@@ -0,0 +1,50 @@
++import { expect, test } from 'bun:test';
++import { BattleshipTargetGrid } from '@libs/battleship-client-ts/battleship-target-grid';
++import { fireEvent } from '@solidjs/testing-library';
++import { createSignal } from 'solid-js';
++import { byTestId, renderBoard } from './render';
++
++// regression: battleship-default-precision-loses-whole-field
++test('default precise aiming keeps all 100 outcomes and changes regions without spending a shot', () => {
++  const aims: string[] = [];
++  const cells = Array.from({ length: 100 }, (_, n) => ({
++    id: `${String.fromCharCode(97 + (n % 10))}${Math.floor(n / 10) + 1}`,
++    glyph: n === 0 ? '○' : '',
++    label: n === 0 ? 'A1: miss' : 'Untried',
++    tone: 'open' as const,
++    enabled: n !== 0,
++  }));
++  renderBoard(() => {
++    const [selected, setSelected] = createSignal<string | null>(null);
++    return (
++      <BattleshipTargetGrid
++        label="Targeting"
++        testId="precise"
++        cells={cells}
++        selected={selected()}
++        onAim={(cell) => {
++          aims.push(cell);
++          setSelected(cell);
++        }}
++      />
++    );
++  });
++  expect(
++    byTestId('precise-target-grid').querySelectorAll('[data-cell]')
++  ).toHaveLength(100);
++  expect(
++    byTestId('precise-aim-grid').querySelectorAll('[data-cell]')
++  ).toHaveLength(10);
++  fireEvent.click(byTestId('precise-aim-a1'));
++  expect(aims).toEqual([]);
++  fireEvent.click(byTestId('precise-aim-b1'));
++  fireEvent.click(byTestId('precise-area-9'));
++  expect(aims).toEqual(['b1']);
++  expect(byTestId('precise-target-a1').getAttribute('aria-label')).toBe(
++    'A1: miss'
++  );
++  fireEvent.click(byTestId('precise-aim-j10'));
++  expect(aims).toEqual(['b1', 'j10']);
++  fireEvent.click(byTestId('precise-area-0'));
++  expect(byTestId('precise-aim-b1')).toBeDefined();
++});
+diff --git a/libs/battleship-client-ts/tests/targeting-precision.test.tsx b/libs/battleship-client-ts/tests/targeting-precision.test.tsx
+index 847fa2d61..a0b7caef2 100644
+--- a/libs/battleship-client-ts/tests/targeting-precision.test.tsx
++++ b/libs/battleship-client-ts/tests/targeting-precision.test.tsx
+@@ -49,7 +49,7 @@ test('a mistaken edge target can be corrected before spending the shot', () => {
+ 
+ test('keyboard selection previews a shot before confirmation', async () => {
+   const actions = mount();
+-  const cell = byTestId('precision-target-a1');
++  const cell = byTestId('precision-aim-a1');
+   cell.focus();
+   const user = userEvent.setup({ delay: null });
+   await user.keyboard('{Enter}');
+@@ -98,13 +98,11 @@ test('a refreshed game record preserves the selected target when its position is
+ test('large targeting areas partition all 100 cells and allow correction and cancellation', () => {
+   // regression: battleship-large-targets-unavailable
+   const actions = mount();
+-  fireEvent.click(byTestId('precision-large-targets'));
+   const seen = new Set<string>();
+-  for (let area = 0; area < 4; area += 1) {
+-    fireEvent.click(byTestId('precision-region'));
++  for (let area = 0; area < 10; area += 1) {
+     fireEvent.click(byTestId(`precision-area-${area}`));
+-    const cells = byTestId('precision-target-grid').querySelectorAll('button');
+-    expect(cells.length).toBe(25);
++    const cells = byTestId('precision-aim-grid').querySelectorAll('button');
++    expect(cells.length).toBe(10);
+     for (const cell of cells) seen.add(cell.getAttribute('data-testid') ?? '');
+   }
+   expect(seen.size).toBe(100);
+@@ -142,9 +140,12 @@ test('enlarging J10 opens its region and returning to all waters preserves the a
+       'c3:hit',
+     ])
+   );
++  fireEvent.click(byTestId('precision-large-targets'));
+   fireEvent.click(byTestId('precision-target-j10'));
+   fireEvent.click(byTestId('precision-large-targets'));
+-  expect(byTestId('precision-region').textContent).toContain('F6–J10');
++  expect(byTestId('precision-area-9').getAttribute('aria-pressed')).toBe(
++    'true'
++  );
+   expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
+     'recent'
+   );
+diff --git a/libs/battleship-harness-ts/src/battleship-actions.ts b/libs/battleship-harness-ts/src/battleship-actions.ts
+index 7451e90ad..b501ff579 100644
+--- a/libs/battleship-harness-ts/src/battleship-actions.ts
++++ b/libs/battleship-harness-ts/src/battleship-actions.ts
+@@ -12,6 +12,10 @@ import {
+   type ShipId,
+ } from '@libs/battleship-shared-ts/battleship-board';
+ import type { Orientation } from '@libs/battleship-shared-ts/battleship-fleet';
++import {
++  chooseSetupShip,
++  placeSetupBow,
++} from '@libs/battleship-shared-ts/battleship-setup-gestures';
+ import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
+ import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
+ import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
+@@ -101,11 +105,7 @@ async function chooseShip(
+   keyboard: boolean | undefined
+ ): Promise<void> {
+   const ui = await actorUi(s, actor);
+-  await press(
+-    ui.get(`${BATTLESHIP_SETUP_BOARD}-ship-${ship}`),
+-    keyboard,
+-    'space'
+-  );
++  await chooseSetupShip(ui, BATTLESHIP_SETUP_BOARD, ship, keyboard);
+   await s.session.waitForIdle();
+ }
+ 
+@@ -152,7 +152,7 @@ export const placeBattleshipShip = scenarioAction<
+       (await rotate.attribute('data-orientation')) !== orientation &&
+       (await rotate.attribute('disabled')) === null;
+     if (turned) await rotateChosen(s, actor, keyboard);
+-    await press(ui.get(`${BATTLESHIP_SETUP_BOARD}-cell-${cell}`), keyboard);
++    await placeSetupBow(ui, BATTLESHIP_SETUP_BOARD, cell, keyboard);
+     await s.session.waitForIdle();
+     if (!turned || (await battleshipSetupRefusal(s, actor)) === null) return;
+     const now = shipCells((await battleshipView(s, actor)).setup, ship);
+diff --git a/libs/battleship-shared-ts/src/battleship-automation.ts b/libs/battleship-shared-ts/src/battleship-automation.ts
+index 096bcde27..b142d783f 100644
+--- a/libs/battleship-shared-ts/src/battleship-automation.ts
++++ b/libs/battleship-shared-ts/src/battleship-automation.ts
+@@ -2,6 +2,7 @@ import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
+ import { isCell, SHIPS } from './battleship-board';
+ import { battleshipBots } from './battleship-bot';
+ import { parseFleet } from './battleship-fleet';
++import { chooseSetupShip, placeSetupBow } from './battleship-setup-gestures';
+ 
+ export const battleshipAutomation: TurnGame['turnAutomation'] = {
+   choose: (position, random) =>
+@@ -25,16 +26,16 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
+     if (fleet === null) throw new Error('Invalid automated Battleship fleet');
+     // regression: battleship-arrange-over-fleet
+     for (const { id } of SHIPS) {
+-      await ui.get(`${board}-ship-${id}`).tap();
++      await chooseSetupShip(ui, board, id);
+       const remove = ui.get(`${board}-remove`);
+       if ((await remove.attribute('disabled')) === null) await remove.tap();
+     }
+     for (const ship of fleet) {
+-      await ui.get(`${board}-ship-${ship.ship}`).tap();
++      await chooseSetupShip(ui, board, ship.ship);
+       const rotate = ui.get(`${board}-rotate`);
+       if ((await rotate.attribute('data-orientation')) !== ship.orientation)
+         await rotate.tap();
+-      await ui.get(`${board}-cell-${ship.bow}`).tap();
++      await placeSetupBow(ui, board, ship.bow);
+     }
+   },
+ };
+diff --git a/libs/battleship-shared-ts/src/battleship-setup-gestures.ts b/libs/battleship-shared-ts/src/battleship-setup-gestures.ts
+new file mode 100644
+index 000000000..8a264b9f1
+--- /dev/null
++++ b/libs/battleship-shared-ts/src/battleship-setup-gestures.ts
+@@ -0,0 +1,43 @@
++import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
++import type { ShipId } from './battleship-board';
++
++type Driver = Parameters<NonNullable<TurnGame['turnAutomation']['arrange']>>[0];
++
++/** Choose through the visible ship control in either production layout. */
++export async function chooseSetupShip(
++  ui: Driver,
++  board: string,
++  ship: ShipId,
++  keyboard = false
++): Promise<void> {
++  const picker = ui.get(`${board}-ship-picker`);
++  if (await picker.isVisible()) {
++    if (keyboard) await picker.key('enter');
++    else await picker.tap();
++  }
++  const choice = ui.get(`${board}-ship-${ship}`);
++  if (keyboard) await choice.key('space');
++  else await choice.tap();
++}
++
++/** Navigate the enlarged region before pressing its bow; never use its inert overview. */
++export async function placeSetupBow(
++  ui: Driver,
++  board: string,
++  cell: string,
++  keyboard = false
++): Promise<void> {
++  const region = ui.get(`${board}-region-picker`);
++  const precise = await region.isVisible();
++  if (precise) {
++    const area = `${Number(cell.slice(1)) <= 5 ? 'n' : 's'}${cell.charAt(0) < 'f' ? 'w' : 'e'}`;
++    if (keyboard) await region.key('enter');
++    else await region.tap();
++    const choice = ui.get(`${board}-region-${area}`);
++    if (keyboard) await choice.key('enter');
++    else await choice.tap();
++  }
++  const bow = ui.get(`${board}-${precise ? 'precision-cell' : 'cell'}-${cell}`);
++  if (keyboard) await bow.key('enter');
++  else await bow.tap();
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-default-precision-loses-whole-field.json b/libs/tools-harness-ts/goal/known-bugs/battleship-default-precision-loses-whole-field.json
+new file mode 100644
+index 000000000..c77e1f1f6
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-default-precision-loses-whole-field.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390×844 Battleship required a Larger targets mode change and hid the whole field while aiming; default coarse regions now retain every outcome above a precise two-row picker.",
++  "regressionTest": "libs/battleship-client-ts/tests/targeting-default.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-guidance-check-target.json b/libs/tools-harness-ts/goal/known-bugs/battleship-guidance-check-target.json
+new file mode 100644
+index 000000000..43cf2baed
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-guidance-check-target.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "The enlarged setup geometry check selected the Ship label rather than the actual placement instruction, reporting a false 386px guidance gap.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-phone-placement-default.json b/libs/tools-harness-ts/goal/known-bugs/battleship-phone-placement-default.json
+new file mode 100644
+index 000000000..f5638ec9f
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-phone-placement-default.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390x844 empty setup required discovering enlarged mode before using 44px bow cells.",
++  "regressionTest": "libs/battleship-client-ts/tests/setup-precision.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-phone-setup-automation.json b/libs/tools-harness-ts/goal/known-bugs/battleship-phone-setup-automation.json
+new file mode 100644
+index 000000000..8e3658fd6
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-phone-setup-automation.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "Hosted phone health and two-person Battleship journeys waited for absent full-layout ship buttons after responsive setup began enlarged. Automation now uses the visible ship picker and region picker, placing every bow on the working precision board while retaining the production default and real readiness journey.",
++  "regressionTest": "libs/battleship-client-ts/tests/automation-rearrange.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-placement-guidance-gap.json b/libs/tools-harness-ts/goal/known-bugs/battleship-placement-guidance-gap.json
+new file mode 100644
+index 000000000..81d708780
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-placement-guidance-gap.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390x844 completed enlarged setup left a large blank space between selected-ship guidance and bow targets.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-placement-overview-legibility.json b/libs/tools-harness-ts/goal/known-bugs/battleship-placement-overview-legibility.json
+new file mode 100644
+index 000000000..aa3fcaa4e
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-placement-overview-legibility.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390x844 enlarged setup reduced the ten-column fleet overview to 112px, crushing A–J coordinate labels.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/battleship-target-context-below-fold.json b/libs/tools-harness-ts/goal/known-bugs/battleship-target-context-below-fold.json
+new file mode 100644
+index 000000000..ded7ab6e6
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/battleship-target-context-below-fold.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390×844 YourTurn pushes the local seat below the initial viewport; the compact targeting workbench checks the seat before input can scroll it into view.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-direct-letter-entry.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-direct-letter-entry.json
+new file mode 100644
+index 000000000..ebcfbee51
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-direct-letter-entry.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "Selecting S for a blank requires eighteen Tab presses; direct letter entry does nothing.",
++  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-duplicate-instruction.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-duplicate-instruction.json
+new file mode 100644
+index 000000000..ea7464535
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-duplicate-instruction.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "Blank assignment at j8 repeats the same instruction above and below the alphabet (round 6 checkpoint 712).",
++  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-mode-hit-overlap.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-mode-hit-overlap.json
+new file mode 100644
+index 000000000..dc0aa4d84
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-blank-mode-hit-overlap.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 1440x844, Fit/Enlarge small-button hit extensions overlapped the bottom corners of blank letters O-S after the workspace gap was compacted. Use full 44px button faces and remove the redundant following gap; retain every letter's full bounds and corner-hit assertion.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-empty-premium-label-contrast.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-empty-premium-label-contrast.json
+new file mode 100644
+index 000000000..0d5f871f6
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-empty-premium-label-contrast.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "The quieter empty premium square used pale game ink on a pale surface. Native enlarged-coordinate and recovery journeys measured 1.17:1 contrast on 12px DL/TW labels. Use board-card ink on the pale surface; retain the full native axe check in both themes.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-map-fine-target-detour.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-map-fine-target-detour.json
+new file mode 100644
+index 000000000..fd76bc2ea
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-map-fine-target-detour.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "Moving to a distant board region requires opening a map and selecting a tiny intersection.",
++  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-phone-precision-default.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-phone-precision-default.json
+new file mode 100644
+index 000000000..6fb4cac8f
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-phone-precision-default.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "Phone Word Tiles defaults to roughly 22px placement cells instead of comfortable precision targets.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-precision-local-score-below-fold.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-precision-local-score-below-fold.json
+new file mode 100644
+index 000000000..b30559c4c
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-precision-local-score-below-fold.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "At 390x844 CAT/TOE YourTurn must keep the local seat and score visible before precision navigation or input.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/tools-harness-ts/goal/known-bugs/word-tiles-region-composite-hit-target.json b/libs/tools-harness-ts/goal/known-bugs/word-tiles-region-composite-hit-target.json
+new file mode 100644
+index 000000000..c6c0341c6
+--- /dev/null
++++ b/libs/tools-harness-ts/goal/known-bugs/word-tiles-region-composite-hit-target.json
+@@ -0,0 +1,4 @@
++{
++  "summary": "The enlarged CAT board hit check addressed the SVG behind sibling region buttons instead of the combined 132px diagram and nine-button navigator.",
++  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
++}
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-blank-geometry.example.tsx b/libs/word-tiles-client-ts/src/word-tiles-blank-geometry.example.tsx
+index 851846cc1..02f31b5ed 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-blank-geometry.example.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-blank-geometry.example.tsx
+@@ -9,6 +9,10 @@ export async function expectBlankTargets(
+   // regression: word-tiles-blank-letter-content-overflow
+   // regression: word-tiles-blank-small-targets
+   const canvas = within(canvasElement);
++  // regression: word-tiles-blank-duplicate-instruction
++  await expect(
++    canvas.getAllByText(/^Choose the letter your blank plays\.?$/)
++  ).toHaveLength(1);
+   const boxes: DOMRect[] = [];
+   for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+     const button = canvas.getByTestId(`${testId}-blank-${letter}`);
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx b/libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx
+index fcfd4039d..38d52f8f1 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-board-view.stories.tsx
+@@ -34,6 +34,7 @@ import {
+   checkInitialWordWorkspace,
+ } from './word-tiles-geometry.example';
+ import { matchJourney } from './word-tiles-match-journey.example';
++import { expectPrecisionDefault } from './word-tiles-precision.example';
+ 
+ /** A position from a new two-seat game, with `changes`. */
+ function table(changes: Partial<WordTilesPosition> = {}): string {
+@@ -112,13 +113,19 @@ type Story = StoryObj<typeof meta>;
+ 
+ /** A new game: the first word must cover the centre star. */
+ export const Opening: Story = {
+-  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
++  play: async ({ canvasElement }) => {
++    await checkInitialWordWorkspace(canvasElement);
++    await expectPrecisionDefault(canvasElement, 'custom-game-board');
++  },
+ };
+ 
+ /** Mid-game on the person's turn: words on the board, a fresh rack. */
+ export const YourTurn: Story = {
+   args: { position: MID_GAME, hand: LATER_RACK },
+-  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
++  play: async ({ canvasElement }) => {
++    await checkInitialWordWorkspace(canvasElement);
++    await expectPrecisionDefault(canvasElement, 'custom-game-board');
++  },
+ };
+ 
+ /** Teal is playing: the rack shows, but nothing can be sent. */
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-board-view.tsx b/libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+index 8ead37c2b..8b01a747b 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+@@ -45,7 +45,7 @@ function SeatBoard(props: {
+     rackTiles(props.draft.candidate(), props.draft.editable())
+   );
+   return (
+-    <StackVertical gap="sm">
++    <StackVertical gap="none">
+       <LexiconRecovery draft={props.draft} />
+       <Show
+         when={props.draft.props.hand !== null}
+@@ -91,7 +91,7 @@ function DraftBoard(props: {
+     <Show
+       when={props.draft.position()}
+       fallback={
+-        <StackVertical gap="sm">
++        <StackVertical gap="xs">
+           <P>{t`This game cannot be shown by this app. Check your app version, install an available update, then reopen this game.`}</P>
+           <TextLink
+             href="/more/about"
+@@ -123,7 +123,7 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
+     <Show
+       when={props.draft.props.hand !== null && props.draft.position() !== null}
+     >
+-      <StackVertical gap="sm">
++      <StackVertical gap="xs">
+         <Show when={!props.draft.props.interactive && props.draft.editable()}>
+           <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
+         </Show>
+@@ -135,7 +135,13 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
+             }
+           />
+         </Show>
+-        <Show when={props.draft.editable() && props.draft.preview()}>
++        <Show
++          when={
++            props.draft.editable() &&
++            props.draft.candidate().blankAt === null &&
++            props.draft.preview()
++          }
++        >
+           {(preview) => (
+             <WordTilesPreviewPanel preview={preview()} testId={testId()} />
+           )}
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-coordinate.example.tsx b/libs/word-tiles-client-ts/src/word-tiles-coordinate.example.tsx
+index 969893ace..60b0f9861 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-coordinate.example.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-coordinate.example.tsx
+@@ -39,17 +39,20 @@ async function assertFocusedCoordinates(
+     'custom-game-board-overview'
+   );
+   const context = overview.getBoundingClientRect();
+-  await expect(context.top).toBeGreaterThanOrEqual(clip.top);
+-  await expect(context.bottom).toBeLessThanOrEqual(clip.bottom);
+-  await expect(context.left).toBeGreaterThanOrEqual(clip.right);
++  await expect(context.top).toBeGreaterThanOrEqual(clip.bottom);
++  await expect(context.bottom).toBeLessThanOrEqual(window.innerHeight);
++  await expect(context.left).toBeGreaterThanOrEqual(clip.left);
++  await expect(context.right).toBeLessThanOrEqual(clip.right);
+ }
+ 
+ /** Keyboard navigation must reveal its cell without concealing either coordinate. */
+ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
+   await checkInitialWordWorkspace(canvasElement);
+-  await userEvent.click(
+-    within(canvasElement).getByRole('button', { name: 'Enlarge board' })
+-  );
++  const enlarge = within(canvasElement).getByRole('button', {
++    name: 'Enlarge board',
++  });
++  if (enlarge.getAttribute('aria-pressed') !== 'true')
++    await userEvent.click(enlarge);
+   // regression: word-tiles-enlarged-context-loss
+   const canvas = within(canvasElement);
+   const overview = canvas.getByTestId('custom-game-board-overview');
+@@ -61,6 +64,13 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
+     canvas.getByRole('button', { name: 'Enlarge board' })
+   ).toHaveAttribute('aria-pressed', 'true');
+   await checkPrecisionWorkspace(canvasElement);
++  canvas
++    .getByTestId('custom-game-board-cell-h8')
++    .focus({ preventScroll: true });
++  await assertFocusedCoordinates(canvasElement, 'h8');
++  await userEvent.click(canvas.getByRole('button', { name: 'View a1 to e5' }));
++  await assertFocusedCoordinates(canvasElement, 'c3');
++  await userEvent.click(canvas.getByRole('button', { name: 'View f6 to j10' }));
+   await assertFocusedCoordinates(canvasElement, 'h8');
+   for (const [keys, cell] of [
+     ['{Control>}{Home}{/Control}', 'a1'],
+@@ -92,7 +102,7 @@ async function checkPrecisionWorkspace(
+   await expect(rect.width).toBeGreaterThanOrEqual(308);
+   await expect(rect.width / available.width).toBeGreaterThanOrEqual(0.8);
+   await expect(rect.height).toBeGreaterThanOrEqual(308);
+-  await expect(context.width / available.width).toBeLessThanOrEqual(0.2);
++  await expect(context.width).toBeGreaterThanOrEqual(132);
+   await assertClear(viewport, false);
+   await assertClear(overview);
+   await assertClear(canvas.getByTestId('custom-game-board-rack'));
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-geometry.example.tsx b/libs/word-tiles-client-ts/src/word-tiles-geometry.example.tsx
+index 1451dbb73..0e3e0dc49 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-geometry.example.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-geometry.example.tsx
+@@ -68,6 +68,8 @@ export async function checkInitialWordWorkspace(
+   await expect(
+     canvas.queryByTestId('custom-game-board-recall')
+   ).not.toBeInTheDocument();
++  // regression: word-tiles-precision-local-score-below-fold
++  await assertClear(canvas.getByTestId('custom-game-seat-near'));
+   await assertClear(primary);
+   await assertClear(more);
+   await assertClear(canvas.getByTestId('custom-game-board-rack'));
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-panels.tsx b/libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+index 59e43f777..92956375b 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-panels.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+@@ -57,7 +57,10 @@ export function WordTilesBlankChooser(props: {
+   return (
+     <StackVertical gap="xs">
+       <P variant="bodyBold">{t`Choose the letter your blank plays`}</P>
+-      <WordTileLetterChoices label={t`Choose the letter your blank plays`}>
++      <WordTileLetterChoices
++        label={t`Choose the letter your blank plays`}
++        onLetter={props.onChoose}
++      >
+         <For each={letters}>
+           {(letter) => (
+             <Button
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-precision.example.tsx b/libs/word-tiles-client-ts/src/word-tiles-precision.example.tsx
+new file mode 100644
+index 000000000..8de9bb842
+--- /dev/null
++++ b/libs/word-tiles-client-ts/src/word-tiles-precision.example.tsx
+@@ -0,0 +1,63 @@
++import { expect, userEvent, within } from 'storybook/test';
++import { assertClear } from './word-tiles-geometry.example';
++
++/** Phone defaults are measured before any input or focus can scroll the board. */
++export async function expectPrecisionDefault(
++  canvasElement: HTMLElement,
++  testId: string
++) {
++  // regression: word-tiles-phone-precision-default
++  const canvas = within(canvasElement);
++  const board = canvas.getByTestId(testId);
++  const phone =
++    canvasElement.ownerDocument.defaultView?.matchMedia(
++      '(max-width: 639px)'
++    ).matches;
++  await expect(board).toHaveAttribute('data-enlarged', String(phone));
++  if (!phone) return;
++  const viewport = canvas.getByRole('region', {
++    name: 'Scrollable word board',
++  });
++  await assertClear(viewport, false);
++  const bounds = viewport.getBoundingClientRect();
++  await expect(bounds.width).toBeGreaterThanOrEqual(308);
++  await expect(bounds.height).toBeGreaterThanOrEqual(308);
++  const center = canvas.getByTestId(`${testId}-cell-h8`);
++  await assertClear(center);
++  await expect(center.getBoundingClientRect().width).toBeGreaterThanOrEqual(44);
++  await expect(center.getBoundingClientRect().height).toBeGreaterThanOrEqual(
++    44
++  );
++  // regression: word-tiles-map-fine-target-detour
++  const regions = canvas.getByRole('group', { name: 'View a board region' });
++  for (const button of within(regions).getAllByRole('button')) {
++    await assertClear(button);
++    await expect(button.getBoundingClientRect().width).toBeGreaterThanOrEqual(
++      44
++    );
++    await expect(button.getBoundingClientRect().height).toBeGreaterThanOrEqual(
++      44
++    );
++  }
++  const before = canvas
++    .getByTestId(`${testId}-cell-c3`)
++    .getAttribute('data-state');
++  await userEvent.click(canvas.getByRole('button', { name: 'View a1 to e5' }));
++  const target = canvas.getByTestId(`${testId}-cell-c3`);
++  await expect(target).toHaveFocus();
++  await expect(target).toHaveAttribute('data-state', before ?? 'empty');
++  await assertClear(target);
++  await expect(canvas.queryByRole('dialog')).not.toBeInTheDocument();
++  await userEvent.click(canvas.getByRole('button', { name: 'View f6 to j10' }));
++}
++
++/** Navigate through the real region controls before clicking a distant placement. */
++export async function viewPrecisionRegion(
++  canvasElement: HTMLElement,
++  name: string
++) {
++  const button = within(canvasElement).queryByRole('button', { name });
++  if (!button) return; // Fitted desktop boards already expose every square.
++  await assertClear(button);
++  await userEvent.click(button);
++}
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-puzzle-geometry.example.tsx b/libs/word-tiles-client-ts/src/word-tiles-puzzle-geometry.example.tsx
+index dc49aa2e9..3946020ef 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-puzzle-geometry.example.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-puzzle-geometry.example.tsx
+@@ -1,4 +1,5 @@
+ import { expect, within } from 'storybook/test';
++import { assertClear } from './word-tiles-geometry.example';
+ 
+ /** Native geometry before a locator click can scroll the context into view. */
+ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
+@@ -19,6 +20,18 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
+   const viewport = canvas.getByRole('region', {
+     name: 'Scrollable word board',
+   });
++  await assertClear(viewport, false);
++  const overview = canvas.queryByTestId('word-tiles-puzzle-overview');
++  if (overview) {
++    // regression: word-tiles-blank-chooser-pushes-precision-below-fold
++    await assertClear(overview);
++    const regions = canvas.getByRole('group', { name: 'View a board region' });
++    for (const button of within(regions).getAllByRole('button'))
++      await assertClear(button);
++    await assertClear(
++      canvas.getByRole('button', { name: 'Board map: locate a square' })
++    );
++  }
+   const bounds = viewport.getBoundingClientRect();
+   const rack = canvas
+     .getByTestId('word-tiles-puzzle-rack')
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx b/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx
+index 9b07ae7e2..88ede3801 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx
+@@ -16,7 +16,12 @@ import {
+   STORY_LEXICON,
+   STORY_LEXICON_KEY,
+ } from './word-tiles-board-view.example';
++import { assertClear } from './word-tiles-geometry.example';
+ import { expectBoardMap } from './word-tiles-map.example';
++import {
++  expectPrecisionDefault,
++  viewPrecisionRegion,
++} from './word-tiles-precision.example';
+ import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
+ import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
+ 
+@@ -51,7 +56,10 @@ export default meta;
+ type Story = StoryObj<typeof meta>;
+ 
+ /** A fresh attempt: the target, the frozen board and the rack. */
+-export const Ready: Story = {};
++export const Ready: Story = {
++  play: async ({ canvasElement }) =>
++    expectPrecisionDefault(canvasElement, 'word-tiles-puzzle'),
++};
+ 
+ /** The last move fell short: its score against the target. */
+ export const AfterAMove: Story = {
+@@ -120,6 +128,7 @@ export const Unreadable: Story = {
+ export const PlaceAWord: Story = {
+   play: async ({ canvasElement }) => {
+     const canvas = within(canvasElement);
++    await viewPrecisionRegion(canvasElement, 'View f11 to j15');
+     for (const [tile, cell] of [
+       ['17', 'i11'],
+       ['0', 'i12'],
+@@ -168,11 +177,15 @@ export const ReachTarget: Story = {
+   },
+   play: async ({ canvasElement, args }) => {
+     const canvas = within(canvasElement);
++    await viewPrecisionRegion(canvasElement, 'View a1 to e5');
++    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
+     // Try a disconnected tile, then recover using the player's own recall action.
+     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-rack-0'));
+     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
+     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
+     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-recall'));
++    await viewPrecisionRegion(canvasElement, 'View f6 to j10');
++    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+     // Extend CAT to CATS on the triple-letter square at j8.
+     await userEvent.click(
+       canvas.getByTestId(
+@@ -216,22 +229,22 @@ export const EnlargedBlank: Story = {
+     const canvas = within(canvasElement);
+     // Check initial controls before userEvent can scroll to its first target.
+     await expectPuzzlePlacementContext(canvasElement);
+-    await userEvent.click(
+-      canvas.getByRole('button', { name: 'Enlarge board' })
+-    );
++    const enlarge = canvas.getByRole('button', { name: 'Enlarge board' });
++    if (enlarge.getAttribute('aria-pressed') !== 'true')
++      await userEvent.click(enlarge);
+     await expectPuzzlePlacementContext(canvasElement);
+     await userEvent.click(
+       canvas.getByTestId(
+         `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[4]}`
+       )
+     );
++    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
+     await expectBlankTargets(canvasElement, 'word-tiles-puzzle');
+     await expectPuzzlePlacementContext(canvasElement);
+     await expect(canvas.getByTestId('word-tiles-puzzle-blank-A')).toHaveFocus();
+-    for (let index = 0; index < 18; index += 1) await userEvent.tab();
+-    await expect(canvas.getByTestId('word-tiles-puzzle-blank-S')).toHaveFocus();
+-    await userEvent.keyboard('{Enter}');
++    // regression: word-tiles-blank-direct-letter-entry
++    await userEvent.keyboard('s');
+     await expect(canvas.getByTestId('word-tiles-puzzle-cell-j8')).toHaveFocus();
+     await expect(
+       canvas.getByTestId('word-tiles-puzzle-cell-j8')
+diff --git a/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx b/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
+index 5e32c8d1e..ef5c855dd 100644
+--- a/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
++++ b/libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
+@@ -123,8 +123,13 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
+     boardCells(shownPosition(), candidate(), editable())
+   );
+   const tiles = createMemo(() => rackTiles(candidate(), editable()));
++  const submit = () => {
++    const proposal = candidateProposal(candidate());
++    const action = proposal === null ? null : puzzleAction(proposal, ids());
++    if (action !== null) props.onAction(action);
++  };
+   return {
+-    ids,
++    submit,
+     candidate,
+     setCandidate,
+     preview,
+@@ -139,7 +144,7 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
+ 
+ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+   const {
+-    ids,
++    submit,
+     candidate,
+     setCandidate,
+     preview,
+@@ -150,8 +155,12 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+     cells,
+     tiles,
+   } = createPuzzleBoard(props);
++  const showPreview = () =>
++    editable() &&
++    candidate().blankAt === null &&
++    props.lexicon.status === 'ready';
+   return (
+-    <StackVertical gap="sm" padding="lg" width="full" maxWidth="prose">
++    <StackVertical gap="xs" padding="lg" width="full" maxWidth="prose">
+       <WordTilesPuzzleStatus
+         target={target()}
+         score={progress().score}
+@@ -168,7 +177,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+             onChoose={(letter) => setCandidate((c) => assignBlank(c, letter))}
+           />
+         </Show>
+-        <Show when={editable() && props.lexicon.status === 'ready'}>
++        <Show when={showPreview()}>
+           <PuzzlePlacementFeedback
+             preview={preview()}
+             hasPlacement={
+@@ -185,12 +194,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+               !preview().playable
+             }
+             dataSet={{ testid: 'word-tiles-puzzle-submit' }}
+-            onClick={() => {
+-              const proposal = candidateProposal(candidate());
+-              const action =
+-                proposal === null ? null : puzzleAction(proposal, ids());
+-              if (action !== null) props.onAction(action);
+-            }}
++            onClick={submit}
+           />
+           <Button
+             title={t`Recall tiles`}
+diff --git a/libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx b/libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx
+index 677bfd58b..578ddbf3e 100644
+--- a/libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx
++++ b/libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx
+@@ -29,3 +29,16 @@ test('all 26 blank letters use full medium controls and native keyboard-focusabl
+   fireEvent.click(view.getByRole('button', { name: 'S' }));
+   expect(chosen).toEqual(['S']);
+ });
++
++// regression: word-tiles-blank-direct-letter-entry
++test('typing lowercase s at the first blank choice immediately assigns S', () => {
++  const chosen: string[] = [];
++  const view = render(() => (
++    <WordTilesBlankChooser
++      testId="direct"
++      onChoose={(letter) => chosen.push(letter)}
++    />
++  ));
++  fireEvent.keyDown(view.getByRole('button', { name: 'A' }), { key: 's' });
++  expect(chosen).toEqual(['S']);
++});
+diff --git a/libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx b/libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx
+index 3a003a48a..4f9e832df 100644
+--- a/libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx
++++ b/libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx
+@@ -57,6 +57,16 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
+     view.getByTestId('map-fixture-rack-11').getAttribute('aria-pressed')
+   ).toBe('true');
+   fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
++  // regression: word-tiles-map-fine-target-detour
++  fireEvent.click(view.getByRole('button', { name: 'View a1 to e5' }));
++  expect(document.activeElement).toBe(view.getByTestId('map-fixture-cell-c3'));
++  expect(
++    view.getByTestId('map-fixture-rack-11').getAttribute('aria-pressed')
++  ).toBe('true');
++  expect(
++    view.getByTestId('map-fixture-cell-c3').getAttribute('data-state')
++  ).toBe('empty');
++  expect(view.queryByRole('dialog')).toBeNull();
+   const trigger = view.getByRole('button', {
+     name: 'Board map: locate a square',
+   });
+diff --git a/libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx b/libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx
+index e3fa4b31b..d17f357fd 100644
+--- a/libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx
++++ b/libs/word-tiles-client-ts/tests/word-tiles-puzzle-bonus-context.test.tsx
+@@ -44,6 +44,10 @@ test('AEST?RN at j8 explains the covered triple-letter square beside the rack',
+   expect(document.activeElement).toBe(
+     view.getByTestId('word-tiles-puzzle-blank-A')
+   );
++  // regression: word-tiles-blank-duplicate-instruction
++  expect(
++    view.getAllByText(/^Choose the letter your blank plays\.?$/)
++  ).toHaveLength(1);
+   fireEvent.click(view.getByTestId('word-tiles-puzzle-blank-S'));
+   expect(document.activeElement).toBe(
+     view.getByTestId('word-tiles-puzzle-cell-j8')
+diff --git a/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.module.css b/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.module.css
+index a7d11b00a..418b08bfa 100644
+--- a/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.module.css
++++ b/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.module.css
+@@ -1,10 +1,10 @@
+ .layout {
+   display: grid;
+-  grid-template-columns: minmax(0, 1fr) 7rem;
++  grid-template-columns: minmax(0, 1fr) 14rem;
+   align-items: start;
+-  gap: var(--ui-space-2) var(--ui-space-4);
++  gap: var(--ui-space-2);
+   width: 100%;
+-  max-width: 29rem;
++  max-width: 33rem;
+ }
+ .controls {
+   grid-column: 1;
+@@ -13,9 +13,17 @@
+   gap: var(--ui-space-2);
+   min-width: 0;
+ }
++.region {
++  grid-column: 1 / -1;
++  width: 100%;
++  max-width: 17rem;
++  justify-self: center;
++}
+ .feedback {
+   grid-column: 1 / -1;
+   min-height: 4.5rem;
++  display: flex;
++  align-items: end;
+ }
+ .working {
+   grid-column: 1 / -1;
+@@ -36,14 +44,26 @@
+ }
+ @media (min-width: 640px) {
+   .layout {
+-    grid-template-columns: 17rem 11rem;
++    grid-template-columns: 17rem 14rem;
+   }
++  .region,
+   .feedback,
+   .working {
+     grid-column: 1;
+   }
+   .overview {
+-    grid-row: 1 / span 3;
++    grid-row: 1 / span 4;
+     align-self: end;
+   }
+ }
++@media (max-width: 389px) {
++  .layout {
++    grid-template-columns: minmax(0, 1fr);
++  }
++  .overview {
++    grid-column: 1;
++    grid-row: auto;
++    max-width: 14rem;
++    justify-self: center;
++  }
++}
+diff --git a/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx b/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx
+index 27f8d98a5..92d549519 100644
+--- a/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx
++++ b/pkgs/ui-root-client-ts/src/battleship-placement-layout/battleship-placement-layout.stories.tsx
+@@ -47,14 +47,16 @@ export const Enlarged: Story = {
+             options={[{ value: 'carrier', label: 'Carrier · 5' }]}
+           />
+           <Button title="Rotate down" variant="outline" intent="neutral" />
+-          <Select
+-            label="Region"
+-            value="nw"
+-            onValueChange={() => undefined}
+-            options={[{ value: 'nw', label: 'A–E / 1–5' }]}
+-          />
+         </>
+       }
++      region={
++        <Select
++          label="Region"
++          value="nw"
++          onValueChange={() => undefined}
++          options={[{ value: 'nw', label: 'A–E / 1–5' }]}
++        />
++      }
+       working={
+         <CellGridBoard
+           label="Working region"
+diff --git a/pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx b/pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx
+index c1abdc293..ff9a412a6 100644
+--- a/pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx
++++ b/pkgs/ui-root-client-ts/src/battleship-placement-layout/index.tsx
+@@ -2,10 +2,12 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+ import type { JSX } from 'solid-js';
+ import styles from './battleship-placement-layout.module.css';
+ 
+-/** Keeps fleet placement controls with the working grid and a compact overview. */
++/** Keeps fleet placement controls with the working grid and a legible full-fleet overview. */
+ export function BattleshipPlacementLayout(props: {
+   controls: JSX.Element;
+   working: JSX.Element;
++  /** Region selection sits immediately above placement guidance and the grid. */
++  region?: JSX.Element;
+   /** Reserved inline guidance/refusal space keeps the bow targets stationary. */
+   feedback?: JSX.Element;
+   overview: JSX.Element;
+@@ -17,6 +19,7 @@ export function BattleshipPlacementLayout(props: {
+       {...dataAttrs({ component: 'BattleshipPlacementLayout' })}
+     >
+       <div class={styles['controls']}>{props.controls}</div>
++      <div class={styles['region']}>{props.region}</div>
+       <div class={styles['feedback']}>{props.feedback}</div>
+       <div class={styles['working']}>{props.working}</div>
+       <div class={styles['overview']}>
+diff --git a/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.module.css b/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.module.css
+new file mode 100644
+index 000000000..42a8773ce
+--- /dev/null
++++ b/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.module.css
+@@ -0,0 +1,67 @@
++.layout {
++  display: flex;
++  flex-wrap: wrap;
++  gap: var(--ui-space-1) 0;
++  width: 100%;
++}
++.map {
++  display: contents;
++}
++.overview {
++  flex: 1 0 calc(100% - var(--ui-control-size-md) * 2);
++  min-width: 0;
++}
++.overview [data-cell] {
++  aspect-ratio: auto;
++  min-height: var(--ui-space-5);
++}
++.overview [data-cell] span {
++  font-size: var(--ui-text-label-size);
++}
++.regions {
++  flex: 0 0 calc(var(--ui-control-size-md) * 2);
++  display: grid;
++  grid-template-columns: repeat(2, minmax(var(--ui-control-size-md), 1fr));
++  grid-template-rows: repeat(5, minmax(var(--ui-control-size-md), 1fr));
++}
++.regions[hidden] {
++  display: none;
++}
++.region {
++  display: flex;
++  flex-direction: column;
++  justify-content: center;
++  align-items: center;
++  background: var(--ui-color-surface);
++  color: var(--ui-color-text);
++  font-size: var(--ui-text-label-size);
++  border: var(--ui-space-hairline) solid var(--ui-color-outline);
++  border-radius: var(--ui-radius-sm);
++  cursor: pointer;
++  touch-action: manipulation;
++}
++.region[aria-pressed="true"],
++.region:focus-visible {
++  outline: var(--ui-space-1) solid var(--ui-color-tint);
++  outline-offset: calc(-1 * var(--ui-space-1));
++}
++.controls {
++  order: 3;
++  flex: 1 0 calc(var(--ui-control-size-md) * 2);
++  max-width: calc(var(--ui-control-size-md) * 2);
++  display: flex;
++  flex-direction: column;
++  justify-content: center;
++  gap: var(--ui-space-2);
++}
++.working {
++  order: 2;
++  flex: 1 0
++    calc(
++      5 *
++      (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
++      var(--ui-space-6) +
++      var(--ui-space-4)
++    );
++  min-width: 0;
++}
+diff --git a/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.stories.tsx b/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.stories.tsx
+new file mode 100644
+index 000000000..b0d637376
+--- /dev/null
++++ b/pkgs/ui-root-client-ts/src/battleship-target-layout/battleship-target-layout.stories.tsx
+@@ -0,0 +1,112 @@
++import { createSignal } from 'solid-js';
++import { expect, userEvent, within } from 'storybook/test';
++import type { Meta, StoryObj } from 'storybook-solidjs-vite';
++import { Button } from '../button';
++import { CellGridBoard } from '../cell-grid-board';
++import { P } from '../text';
++import { BattleshipTargetLayout } from './index';
++
++const regions = Array.from(
++  { length: 10 },
++  (_, n) =>
++    `${n % 2 ? 'F' : 'A'}${Math.floor(n / 2) * 2 + 1}–${n % 2 ? 'J' : 'E'}${Math.floor(n / 2) * 2 + 2}`
++);
++const columns = 'ABCDEFGHIJ'.split('');
++const rows = Array.from({ length: 10 }, (_, n) => String(n + 1));
++const cells = Array.from({ length: 100 }, (_, n) => ({
++  id: `${columns[n % 10]}${rows[Math.floor(n / 10)]}`,
++  label: n === 0 ? 'A1: miss' : 'Untried water',
++  glyph: n === 0 ? '○' : '',
++  tone: 'open' as const,
++  enabled: n !== 0,
++}));
++const meta = {
++  title: 'Games/Battleship/Target layout',
++  component: BattleshipTargetLayout,
++} satisfies Meta<typeof BattleshipTargetLayout>;
++export default meta;
++type Story = StoryObj<typeof meta>;
++
++/** Ten coarse areas retain the whole field while the working grid provides comfortable aim. */
++export const Precise: Story = {
++  args: {
++    overview: null,
++    working: null,
++    controls: null,
++    precise: true,
++    region: 0,
++    regions,
++    testId: 'target-layout',
++    onRegion: () => undefined,
++  },
++  render: (args) => {
++    const [area, setArea] = createSignal(0);
++    const selectedColumns = () =>
++      columns.slice((area() % 2) * 5, (area() % 2) * 5 + 5);
++    const selectedRows = () =>
++      rows.slice(Math.floor(area() / 2) * 2, Math.floor(area() / 2) * 2 + 2);
++    return (
++      <BattleshipTargetLayout
++        {...args}
++        region={area()}
++        onRegion={setArea}
++        overview={
++          <CellGridBoard
++            fill
++            label="Whole field"
++            testId="map"
++            columnLabels={columns}
++            rowLabels={rows}
++            cells={cells}
++          />
++        }
++        controls={<P variant="caption">Aim: {regions[area()]}</P>}
++        working={
++          <CellGridBoard
++            label="Precise aim"
++            testId="aim"
++            columnLabels={selectedColumns()}
++            rowLabels={selectedRows()}
++            cells={cells.filter(
++              (cell) =>
++                selectedColumns().includes(cell.id.charAt(0)) &&
++                selectedRows().includes(cell.id.slice(1))
++            )}
++          />
++        }
++      />
++    );
++  },
++  play: async ({ canvasElement }) => {
++    const canvas = within(canvasElement);
++    await userEvent.click(canvas.getByTestId('target-layout-area-9'));
++    await expect(canvas.getByTestId('target-layout-area-9')).toHaveAttribute(
++      'aria-pressed',
++      'true'
++    );
++    await expect(
++      canvas.getByTestId('map').querySelectorAll('[data-cell]')
++    ).toHaveLength(100);
++    await expect(canvas.getByTestId('aim-cell-J10')).toBeVisible();
++  },
++};
++
++/** The compact whole-field route remains available without changing any outcome. */
++export const MapOnly: Story = {
++  args: {
++    ...Precise.args,
++    precise: false,
++    controls: <Button title="Aim" />,
++    working: null,
++    overview: (
++      <CellGridBoard
++        fill
++        label="Whole field"
++        testId="map"
++        columnLabels={columns}
++        rowLabels={rows}
++        cells={cells}
++      />
++    ),
++  },
++};
+diff --git a/pkgs/ui-root-client-ts/src/battleship-target-layout/index.tsx b/pkgs/ui-root-client-ts/src/battleship-target-layout/index.tsx
+new file mode 100644
+index 000000000..169b62134
+--- /dev/null
++++ b/pkgs/ui-root-client-ts/src/battleship-target-layout/index.tsx
+@@ -0,0 +1,49 @@
++import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
++import { For, type JSX } from 'solid-js';
++import styles from './battleship-target-layout.module.css';
++
++/** A whole-field map with coarse two-row regions above a comfortable aim grid. */
++export function BattleshipTargetLayout(props: {
++  overview: JSX.Element;
++  working: JSX.Element;
++  controls: JSX.Element;
++  precise: boolean;
++  region: number;
++  regions: readonly string[];
++  onRegion: (region: number) => void;
++  testId: string;
++}): JSX.Element {
++  return (
++    <div
++      class={styles['layout']}
++      {...dataAttrs({ component: 'BattleshipTargetLayout' })}
++    >
++      <div class={styles['map']}>
++        <div class={styles['overview']}>{props.overview}</div>
++        <div
++          class={styles['regions']}
++          hidden={!props.precise}
++          data-testid={`${props.testId}-region`}
++        >
++          <For each={props.regions}>
++            {(label, index) => (
++              <button
++                type="button"
++                class={styles['region']}
++                aria-label={label}
++                aria-pressed={props.region === index()}
++                data-testid={`${props.testId}-area-${index()}`}
++                onClick={() => props.onRegion(index())}
++              >
++                <span>{label.split('–')[0]}</span>
++                <span>{label.split('–')[1]}</span>
++              </button>
++            )}
++          </For>
++        </div>
++      </div>
++      <div class={styles['controls']}>{props.controls}</div>
++      <div class={styles['working']}>{props.working}</div>
++    </div>
++  );
++}
+diff --git a/pkgs/ui-root-client-ts/src/game-board-stage/index.tsx b/pkgs/ui-root-client-ts/src/game-board-stage/index.tsx
+index a7b270ef5..912ebf0fc 100644
+--- a/pkgs/ui-root-client-ts/src/game-board-stage/index.tsx
++++ b/pkgs/ui-root-client-ts/src/game-board-stage/index.tsx
+@@ -1,6 +1,7 @@
+ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
+ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+ import { type JSX, Show } from 'solid-js';
++import precision from '../game-screen/game-precision.module.css';
+ import styles from '../game-ui.module.css';
+ import { createScreenSlot } from '../screen-slot';
+ import { GameBoardPreviewContext } from './board-preview';
+@@ -36,7 +37,7 @@ export function GameBoardStage(props: {
+   const preview = (): boolean => props.preview === true;
+   return (
+     <div
+-      class={styles['boardStage']}
++      class={`${styles['boardStage']} ${precision['board']}`}
+       data-preview={props.preview === true}
+       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
+     >
+diff --git a/pkgs/ui-root-client-ts/src/game-screen/game-precision.module.css b/pkgs/ui-root-client-ts/src/game-screen/game-precision.module.css
+new file mode 100644
+index 000000000..222cd805d
+--- /dev/null
++++ b/pkgs/ui-root-client-ts/src/game-screen/game-precision.module.css
+@@ -0,0 +1,11 @@
++/* Keep the score strip beside compact precision workspaces within the initial
++   phone viewport. The board's production attributes survive test-hook removal. */
++.column:has([data-measure="compact"]) {
++  gap: 0;
++}
++.stage:has([data-measure="compact"]) {
++  gap: 0;
++}
++.board:has([data-measure="compact"]) {
++  gap: 0;
++}
+diff --git a/pkgs/ui-root-client-ts/src/game-screen/index.tsx b/pkgs/ui-root-client-ts/src/game-screen/index.tsx
+index 31e632250..7d5b6f9d6 100644
+--- a/pkgs/ui-root-client-ts/src/game-screen/index.tsx
++++ b/pkgs/ui-root-client-ts/src/game-screen/index.tsx
+@@ -6,6 +6,7 @@ import styles from '../game-ui.module.css';
+ import { ScreenIntro } from '../screen-intro/index';
+ import { createScreenSlot } from '../screen-slot';
+ import heading from './game-heading.module.css';
++import precision from './game-precision.module.css';
+ 
+ /**
+  * A game inside its host's chrome. The host's one top bar carries the back
+@@ -53,7 +54,10 @@ export function GameScreen(props: {
+       width="full"
+       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
+     >
+-      <div class={styles['column']} {...dataAttrs({ component: 'GameColumn' })}>
++      <div
++        class={`${styles['column']} ${precision['column']}`}
++        {...dataAttrs({ component: 'GameColumn' })}
++      >
+         <Show
+           when={facts.present()}
+           fallback={
+@@ -157,7 +161,9 @@ export function GameLayout(props: {
+         <Show when={setup.present()}>
+           <div class={styles['setup']}>{setup.content()}</div>
+         </Show>
+-        <div class={styles['stage']}>{stage.content()}</div>
++        <div class={`${styles['stage']} ${precision['stage']}`}>
++          {stage.content()}
++        </div>
+         <Show when={controls.present()}>
+           <div
+             class={styles['controls']}
+diff --git a/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css b/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
+index 31f7e6fe5..320c72861 100644
+--- a/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
++++ b/pkgs/ui-root-client-ts/src/game-session-layout/game-session-layout.module.css
+@@ -76,3 +76,8 @@
+ .session[data-board-focus="true"] {
+   gap: var(--ui-space-3);
+ }
++
++/* The rack and precision navigator already separate a compact board's content. */
++.session[data-board-focus="true"]:has([data-measure="compact"]) {
++  gap: 0;
++}
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+index f167abb2f..790689ae3 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
+@@ -1,7 +1,16 @@
+ import { t } from '@lingui/core/macro';
+ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
++import {
++  createEffect,
++  createMemo,
++  createSignal,
++  type JSX,
++  onCleanup,
++  Show,
++} from 'solid-js';
+ import { cellGridStep } from '../cell-grid-board/index';
++import { createMediaQuery } from '../media-query';
++import { observeElementResize } from '../observe-element-resize';
+ import { StackVertical } from '../stack/index';
+ import { P } from '../text/index';
+ import styles from './word-tile-board.module.css';
+@@ -64,13 +73,40 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
+   });
+ }
+ 
++function createPrecisionCenter(
++  viewport: () => HTMLDivElement | undefined,
++  root: () => HTMLDivElement | undefined,
++  enlarged: () => boolean,
++  focusIndex: () => number
++): void {
++  createEffect(() => {
++    const element = viewport();
++    if (!element || !enlarged()) return;
++    const center = () => {
++      const cell = root()?.querySelector<HTMLElement>(
++        `[data-index="${focusIndex()}"]`
++      );
++      if (!cell) return;
++      const bounds = cell.getBoundingClientRect();
++      const clip = element.getBoundingClientRect();
++      element.scrollLeft +=
++        bounds.left - clip.left - (clip.width - bounds.width) / 2;
++      element.scrollTop +=
++        bounds.top - clip.top - (clip.height - bounds.height) / 2;
++    };
++    center();
++    onCleanup(observeElementResize(element, center));
++  });
++}
++
+ /**
+  * A word-game board: a labelled grid of square buttons under column and row
+  * headers. Empty squares print their bonus; tiles show their letter and
+  * value, a tentative tile dashed and a last-turn tile ringed (each also in
+  * its label, so colour never carries a state alone). One cell is the tab
+  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
+- * activates. It fits its container, shrinking its squares on small screens.
++ * activates. Phones start with precision cells and a whole-board region navigator;
++ * wider screens start fitted. An explicit view choice persists across resizing.
+  */
+ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+   const [selectedIndex, setFocusIndex] = createSignal<number>();
+@@ -78,12 +114,15 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+     selectedIndex() ??
+     Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
+       Math.floor(props.columnLabels.length / 2);
+-  const [enlarged, setEnlarged] = createSignal(false);
++  const compact = createMediaQuery('(max-width: 639px)');
++  const [choice, setEnlarged] = createSignal<boolean>();
++  const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
+   // Read once per change: every square reads the list, and a caller that
+   // computes it inline would otherwise rebuild it once per square.
+   const cells = createMemo(() => props.cells);
+   let root: HTMLDivElement | undefined;
+   const [viewport, setViewport] = createSignal<HTMLDivElement>();
++  createPrecisionCenter(viewport, () => root, enlarged, focusIndex);
+   const onKey = (event: KeyboardEvent, index: number): void => {
+     const next = cellGridStep(event, index, {
+       columns: props.columnLabels.length,
+@@ -99,8 +138,8 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+     focusCell(root, focusIndex());
+   };
+   return (
+-    <StackVertical gap="xs">
+-      <Show when={props.purpose !== 'locator'}>
++    <StackVertical gap="none">
++      <Show when={props.purpose !== 'locator' && !enlarged()}>
+         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+       </Show>
+       <Show when={props.purpose === 'locator'}>
+@@ -140,6 +179,10 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+           <WordTileOverview
+             board={props}
+             viewport={viewport}
++            controls={
++              <WordTileViewControls enlarged={enlarged()} onChange={resize} />
++            }
++            position={cells()[focusIndex()]?.label ?? ''}
+             locator={(onChoose) => (
+               <WordTileBoard
+                 {...props}
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css
+index 6cba669f0..0f962e7d8 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-board.module.css
+@@ -152,15 +152,15 @@
+   overscroll-behavior: contain;
+ }
+ .viewport[data-enlarged="true"] {
+-  height: calc(var(--ui-control-size-lg) * 6);
+-  max-height: 48dvh;
++  height: calc(var(--ui-control-size-md) * 7);
++  min-height: calc(var(--ui-control-size-md) * 7);
+ }
+ .board[data-enlarged="true"] {
+   width: max-content;
+   max-width: none;
+   grid-template-columns: var(--ui-space-4) repeat(
+       var(--word-tile-columns),
+-      var(--ui-control-size-lg)
++      var(--ui-control-size-md)
+     );
+ }
+ 
+@@ -191,12 +191,13 @@
+ .precision {
+   container-type: inline-size;
+   display: flex;
+-  align-items: flex-start;
++  flex-direction: column;
++  align-items: stretch;
+   gap: var(--ui-space-1);
+   min-width: 0;
+ }
+ .precision > .viewport {
+-  flex: 1;
++  flex: none;
+ }
+ 
+ @container (min-width: 32rem) {
+@@ -215,3 +216,11 @@
+   max-width: calc(var(--ui-control-size-lg) * 9);
+   margin-inline: auto;
+ }
++
++.cell[data-state="empty"][data-square]:not([data-square="none"]) {
++  background: var(--ui-color-game-word-tiles-surface);
++  color: var(--ui-color-board-card-ink);
++}
++.square {
++  font-weight: 400;
++}
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.module.css b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.module.css
+index 1ec75a18b..6b9c12235 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.module.css
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.module.css
+@@ -2,8 +2,8 @@
+   display: grid;
+   justify-items: center;
+   gap: var(--ui-space-1);
+-  flex-shrink: 0;
+-  width: var(--ui-control-size-md);
++
++  min-width: var(--ui-control-size-md);
+   min-height: var(--ui-control-size-md);
+   padding: 0;
+   border: 0;
+@@ -17,7 +17,7 @@
+   outline-offset: 2px;
+ }
+ .overview {
+-  width: var(--ui-space-10);
++  width: 100%;
+   max-width: 100%;
+   aspect-ratio: 1;
+   border-radius: var(--ui-radius-sm);
+@@ -51,3 +51,40 @@
+   paint-order: stroke;
+   filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
+ }
++
++.context {
++  display: flex;
++  gap: var(--ui-space-2);
++  align-items: start;
++}
++.tools {
++  display: grid;
++  gap: var(--ui-space-1);
++  flex: 1;
++  min-width: 0;
++}
++.regions {
++  position: relative;
++  width: calc(var(--ui-control-size-md) * 3);
++  height: calc(var(--ui-control-size-md) * 3);
++  flex-shrink: 0;
++}
++.region-buttons {
++  position: absolute;
++  inset: 0;
++  display: grid;
++  grid-template-columns: repeat(3, 1fr);
++  grid-template-rows: repeat(3, 1fr);
++}
++.region {
++  min-width: var(--ui-control-size-md);
++  min-height: var(--ui-control-size-md);
++  border: 1px solid var(--ui-color-game-word-tiles-muted);
++  padding: 0;
++  background: transparent;
++  cursor: pointer;
++}
++.region:focus-visible {
++  outline: 2px solid var(--ui-color-focus-ring);
++  outline-offset: -2px;
++}
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+index b50034e25..17707c825 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+@@ -1,9 +1,7 @@
+ import { t } from '@lingui/core/macro';
+-import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+ import {
+   createEffect,
+   createSignal,
+-  For,
+   type JSX,
+   onCleanup,
+   Show,
+@@ -13,10 +11,13 @@ import { ResponsiveSurface } from '../responsive-surface/index';
+ import { P } from '../text/index';
+ import type { WordTileBoardProps } from './index';
+ import styles from './word-tile-overview.module.css';
++import { WordTileRegions } from './word-tile-regions';
+ 
+-/** Whole-board context beside the precision viewport; the outline tracks actual scrolling. */
++/** Whole-board context adjacent to the precision viewport; the outline tracks actual scrolling. */
+ export function WordTileOverview(props: {
+   board: WordTileBoardProps;
++  controls: JSX.Element;
++  position: string;
+   viewport: () => HTMLDivElement | undefined;
+   locator: (onChoose: (id: string) => void) => JSX.Element;
+   onLocate: (id: string) => void;
+@@ -41,49 +42,24 @@ export function WordTileOverview(props: {
+       stop();
+     });
+   });
+-  const columns = () => props.board.columnLabels.length;
+-  const rows = () => props.board.rowLabels.length;
+   return (
+-    <>
+-      <button
+-        type="button"
+-        class={styles['locator']}
+-        aria-label={t`Board map: locate a square`}
+-        aria-haspopup="dialog"
+-        onClick={() => setOpen(true)}
+-      >
+-        <svg
+-          class={styles['overview']}
+-          viewBox={`0 0 ${columns()} ${rows()}`}
+-          role="img"
+-          aria-label={t`Whole board overview; outline shows the enlarged area`}
+-          {...dataAttrs({ component: 'WordTileOverview' })}
+-          data-testid={`${props.board.testId}-overview`}
+-        >
+-          <For each={props.board.cells}>
+-            {(cell, index) => (
+-              <rect
+-                x={index() % columns()}
+-                y={Math.floor(index() / columns())}
+-                width="1"
+-                height="1"
+-                class={styles['square']}
+-                data-state={cell.state}
+-                data-square={cell.square ?? 'none'}
+-              />
+-            )}
+-          </For>
+-          <rect
+-            class={styles['window']}
+-            data-viewport-indicator="true"
+-            x={box().x * columns()}
+-            y={box().y * rows()}
+-            width={box().width * columns()}
+-            height={box().height * rows()}
+-          />
+-        </svg>
+-        <span>{t`Map`}</span>
+-      </button>
++    <div class={styles['context']}>
++      <WordTileRegions
++        board={props.board}
++        box={box()}
++        onLocate={props.onLocate}
++      />
++      <div class={styles['tools']}>
++        {props.controls}
++        <P variant="caption">{props.position}</P>
++        <button
++          type="button"
++          class={styles['locator']}
++          aria-label={t`Board map: locate a square`}
++          aria-haspopup="dialog"
++          onClick={() => setOpen(true)}
++        >{t`Map`}</button>
++      </div>
+       <Show when={open()}>
+         <ResponsiveSurface
+           visible={open()}
+@@ -98,6 +74,6 @@ export function WordTileOverview(props: {
+           })}
+         </ResponsiveSurface>
+       </Show>
+-    </>
++    </div>
+   );
+ }
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+new file mode 100644
+index 000000000..a063c542e
+--- /dev/null
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+@@ -0,0 +1,81 @@
++import { t } from '@lingui/core/macro';
++import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
++import { For, type JSX } from 'solid-js';
++import type { WordTileBoardProps } from './index';
++import styles from './word-tile-overview.module.css';
++
++/** Nine comfortable region targets preserve board context without placing a tile. */
++export function WordTileRegions(props: {
++  board: WordTileBoardProps;
++  box: { x: number; y: number; width: number; height: number };
++  onLocate: (id: string) => void;
++}): JSX.Element {
++  const columns = () => props.board.columnLabels.length;
++  const rows = () => props.board.rowLabels.length;
++  const region = (index: number) => {
++    const x = Math.floor(((index % 3) * columns()) / 3);
++    const y = Math.floor((Math.floor(index / 3) * rows()) / 3);
++    const right = Math.ceil((((index % 3) + 1) * columns()) / 3) - 1;
++    const bottom = Math.ceil(((Math.floor(index / 3) + 1) * rows()) / 3) - 1;
++    const start = `${props.board.columnLabels[x]}${props.board.rowLabels[y]}`;
++    const end = `${props.board.columnLabels[right]}${props.board.rowLabels[bottom]}`;
++    const center =
++      Math.floor((y + bottom) / 2) * columns() + Math.floor((x + right) / 2);
++    return { start, end, id: props.board.cells[center]?.id };
++  };
++  return (
++    <div
++      class={styles['regions']}
++      data-testid={`${props.board.testId}-overview`}
++    >
++      <svg
++        class={styles['overview']}
++        viewBox={`0 0 ${columns()} ${rows()}`}
++        role="img"
++        aria-label={t`Whole board overview; outline shows the enlarged area`}
++        {...dataAttrs({ component: 'WordTileOverview' })}
++      >
++        <For each={props.board.cells}>
++          {(cell, index) => (
++            <rect
++              x={index() % columns()}
++              y={Math.floor(index() / columns())}
++              width="1"
++              height="1"
++              class={styles['square']}
++              data-state={cell.state}
++              data-square={cell.square ?? 'none'}
++            />
++          )}
++        </For>
++        <rect
++          class={styles['window']}
++          data-viewport-indicator="true"
++          x={props.box.x * columns()}
++          y={props.box.y * rows()}
++          width={props.box.width * columns()}
++          height={props.box.height * rows()}
++        />
++      </svg>
++      <div
++        class={styles['region-buttons']}
++        role="group"
++        aria-label={t`View a board region`}
++      >
++        <For each={Array.from({ length: 9 }, (_, index) => index)}>
++          {(index) => (
++            <button
++              type="button"
++              class={styles['region']}
++              aria-label={t`View ${region(index).start} to ${region(index).end}`}
++              onClick={() => {
++                const id = region(index).id;
++                if (id) props.onLocate(id);
++              }}
++            />
++          )}
++        </For>
++      </div>
++    </div>
++  );
++}
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+index 315e0b465..d892dc15e 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
+@@ -1,8 +1,7 @@
+ import { t } from '@lingui/core/macro';
+-import { type JSX, Show } from 'solid-js';
++import type { JSX } from 'solid-js';
+ import { Button } from '../button/index';
+ import { StackHorizontal } from '../stack/index';
+-import { P } from '../text/index';
+ 
+ /** Switch between the whole board and precise scrollable cells, keeping navigation guidance visible. */
+ export function WordTileViewControls(props: {
+@@ -14,24 +13,19 @@ export function WordTileViewControls(props: {
+       <StackHorizontal gap="xs" wrap>
+         <Button
+           title={t`Fit board`}
+-          size="sm"
++          size={props.enlarged ? 'sm' : 'md'}
+           variant={props.enlarged ? 'outline' : 'solid'}
+           aria-pressed={!props.enlarged}
+           onClick={() => props.onChange(false)}
+         />
+         <Button
+           title={t`Enlarge board`}
+-          size="sm"
++          size={props.enlarged ? 'sm' : 'md'}
+           variant={props.enlarged ? 'solid' : 'outline'}
+           aria-pressed={props.enlarged}
+           onClick={() => props.onChange(true)}
+         />
+       </StackHorizontal>
+-      <Show when={props.enlarged}>
+-        <P variant="caption">
+-          {t`Scroll or use arrow keys. Map locates squares; Enter places a tile.`}
+-        </P>
+-      </Show>
+     </>
+   );
+ }
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx b/pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx
+index 65285329b..c55aa76a9 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx
++++ b/pkgs/ui-root-client-ts/src/word-tile-workbench/index.tsx
+@@ -89,14 +89,33 @@ export function WordTileActions(props: {
+   );
+ }
+ 
+-/** Disjoint full-sized blank-letter choices; keyboard entry starts at the first letter. */
++/** Disjoint full-sized blank-letter choices; typing a letter chooses it directly. */
+ export function WordTileLetterChoices(props: {
+   label: string;
++  onLetter?: (letter: string) => void;
+   children: JSX.Element;
+ }): JSX.Element {
+   let root: HTMLDivElement | undefined;
++  const chooseKey = (event: KeyboardEvent): void => {
++    if (
++      event.ctrlKey ||
++      event.metaKey ||
++      event.altKey ||
++      !/^[a-z]$/i.test(event.key)
++    )
++      return;
++    event.preventDefault();
++    props.onLetter?.(event.key.toUpperCase());
++  };
+   onMount(() => {
+     const previous = document.activeElement;
++    const buttons = root?.querySelectorAll('button');
++    for (const button of buttons ?? [])
++      button.addEventListener('keydown', chooseKey);
++    onCleanup(() => {
++      for (const button of buttons ?? [])
++        button.removeEventListener('keydown', chooseKey);
++    });
+     root
+       ?.querySelector<HTMLButtonElement>('button')
+       ?.focus({ preventScroll: true });
+diff --git a/pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.module.css b/pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.module.css
+index 3d189f4c9..b2a610c7e 100644
+--- a/pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.module.css
++++ b/pkgs/ui-root-client-ts/src/word-tile-workbench/word-tile-workbench.module.css
+@@ -1,7 +1,7 @@
+ .workbench {
+   display: grid;
+   min-width: 0;
+-  gap: var(--ui-space-2);
++  gap: var(--ui-space-1);
+ }
+ .workbench button,
+ .workbench [role="status"] {
+@@ -21,7 +21,7 @@
+ .letters {
+   display: flex;
+   flex-wrap: wrap;
+-  gap: var(--ui-space-1);
++  gap: 0;
+ }
+ .letters button {
+   padding-inline: var(--ui-space-1);
+diff --git a/pkgs/ui-root-harness-ts/tests/battleship-placement-layout.test.tsx b/pkgs/ui-root-harness-ts/tests/battleship-placement-layout.test.tsx
+index 6f4d1a3f4..b8c824fba 100644
+--- a/pkgs/ui-root-harness-ts/tests/battleship-placement-layout.test.tsx
++++ b/pkgs/ui-root-harness-ts/tests/battleship-placement-layout.test.tsx
+@@ -9,6 +9,7 @@ test('the fleet overview cannot steal placement focus from the working grid', ()
+     <BattleshipPlacementLayout
+       overviewLabel="Fleet overview"
+       controls={<button type="button">Choose ship</button>}
++      region={<button type="button">Placement area</button>}
+       feedback={<p role="alert">Overlap. Choose another bow or rotate.</p>}
+       working={<button type="button">Place at A1</button>}
+       overview={<button type="button">Overview A1</button>}
+@@ -19,4 +20,10 @@ test('the fleet overview cannot steal placement focus from the working grid', ()
+   expect(screen.getByText('Overview A1').closest('[inert]')).not.toBeNull();
+   expect(screen.getByText('Place at A1').closest('[inert]')).toBeNull();
+   expect(screen.getByText('Choose ship').closest('[inert]')).toBeNull();
++  const region = screen.getByText('Placement area');
++  expect(region.closest('[inert]')).toBeNull();
++  expect(
++    region.compareDocumentPosition(screen.getByRole('alert')) &
++      Node.DOCUMENT_POSITION_FOLLOWING
++  ).toBeTruthy();
+ });
+diff --git a/pkgs/ui-root-harness-ts/tests/battleship-target-layout.test.tsx b/pkgs/ui-root-harness-ts/tests/battleship-target-layout.test.tsx
+new file mode 100644
+index 000000000..0bdf3d203
+--- /dev/null
++++ b/pkgs/ui-root-harness-ts/tests/battleship-target-layout.test.tsx
+@@ -0,0 +1,39 @@
++import { expect, test } from 'bun:test';
++import { BattleshipTargetLayout } from '@pkgs/ui-root-client-ts/battleship-target-layout';
++import { fireEvent, screen } from '@solidjs/testing-library';
++import userEvent from '@testing-library/user-event';
++import { createSignal } from 'solid-js';
++import { renderUi } from './render';
++
++test('coarse target areas select by keyboard and pointer without replacing field outcomes', async () => {
++  const selected: number[] = [];
++  renderUi(() => {
++    const [area, setArea] = createSignal(0);
++    return (
++      <BattleshipTargetLayout
++        precise
++        region={area()}
++        testId="layout"
++        regions={['A1–E2', 'F1–J2']}
++        onRegion={(n) => {
++          selected.push(n);
++          setArea(n);
++        }}
++        overview={<p>A1: miss</p>}
++        working={<button type="button">Aim at B1</button>}
++        controls={<button type="button">Map</button>}
++      />
++    );
++  });
++  const right = screen.getByRole('button', { name: 'F1–J2' });
++  right.focus();
++  await userEvent.setup({ delay: null }).keyboard('{Enter}');
++  expect(selected).toEqual([1]);
++  expect(right.getAttribute('aria-pressed')).toBe('true');
++  fireEvent.click(screen.getByRole('button', { name: 'A1–E2' }));
++  expect(selected).toEqual([1, 0]);
++  expect(screen.getByText('A1: miss')).toBeDefined();
++  expect(
++    screen.getByRole('button', { name: 'Aim at B1' }).closest('[inert]')
++  ).toBeNull();
++});
+diff --git a/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts b/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
+index 8e0f753eb..1039b59b3 100644
+--- a/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
++++ b/pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts
+@@ -99,6 +99,8 @@ test('screens-games-word-tiles-board--accepted-exchange regression word-tiles-ex
+ // New board-local compositions retain desktop evidence as well as the canonical phone cases.
+ for (const id of [
+   'games-battleship-placement-layout--enlarged',
++  'games-battleship-target-layout--precise',
++  'games-battleship-target-layout--map-only',
+   'product-wordtileworkbench--recovery',
+ ]) {
+   for (const theme of ['light', 'dark']) {
+@@ -144,3 +146,44 @@ test('screens-games-quoridor-classic--precise-coordinates regression quoridor-de
+   if (!scenario) throw new Error('Missing desktop light scenario');
+   await verifyStoryScenario(page, story.id, scenario);
+ });
++
++// regression: word-tiles-empty-premium-label-contrast
++test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-empty-premium-label-contrast light', async ({
++  page,
++}) => {
++  const story =
++    index.entries['screens-games-word-tiles-board--enlarged-coordinates'];
++  if (!story) throw new Error('Missing literal premium-label regression story');
++  const scenario = visualScenarios(story).find(
++    (item) => item.width === 390 && item.theme === 'light'
++  );
++  if (!scenario) throw new Error('Missing literal phone scenario');
++  await verifyStoryScenario(page, story.id, scenario);
++});
++
++// regression: word-tiles-empty-premium-label-contrast
++test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-empty-premium-label-contrast dark', async ({
++  page,
++}) => {
++  const story =
++    index.entries['screens-games-word-tiles-board--enlarged-coordinates'];
++  if (!story) throw new Error('Missing literal premium-label regression story');
++  const scenario = visualScenarios(story).find(
++    (item) => item.width === 390 && item.theme === 'dark'
++  );
++  if (!scenario) throw new Error('Missing literal phone scenario');
++  await verifyStoryScenario(page, story.id, scenario);
++});
++
++// regression: word-tiles-blank-mode-hit-overlap
++test('screens-games-word-tiles-board--assign-a-blank regression word-tiles-blank-mode-hit-overlap', async ({
++  page,
++}) => {
++  const story = index.entries['screens-games-word-tiles-board--assign-a-blank'];
++  if (!story) throw new Error('Missing literal blank assignment story');
++  const scenario = visualScenarios(story).find(
++    (item) => item.width === 1440 && item.theme === 'light'
++  );
++  if (!scenario) throw new Error('Missing desktop light scenario');
++  await verifyStoryScenario(page, story.id, scenario);
++});
+diff --git a/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts b/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
+index 6796798ca..4a31f521f 100644
+--- a/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
++++ b/pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts
+@@ -412,3 +412,135 @@ test('screens-games-frame-geometry--four-players regression shared-board-four-se
+     390
+   );
+ });
++
++// regression: battleship-default-precision-loses-whole-field
++test('screens-games-battleship-board--correct-target-before-firing regression battleship-default-precision-loses-whole-field', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-board--correct-target-before-firing',
++    390
++  );
++});
++
++// regression: battleship-target-context-below-fold
++test('screens-games-battleship-board--your-turn regression battleship-target-context-below-fold', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-board--your-turn',
++    390
++  );
++});
++
++// regression: word-tiles-phone-precision-default
++test('screens-games-word-tiles-board--your-turn regression word-tiles-phone-precision-default', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-board--your-turn',
++    390
++  );
++});
++
++// regression: word-tiles-map-fine-target-detour
++test('screens-games-word-tiles-puzzle--ready regression word-tiles-map-fine-target-detour', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-puzzle--ready',
++    390
++  );
++});
++
++// regression: word-tiles-blank-direct-letter-entry
++test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blank-direct-letter-entry', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-puzzle--enlarged-blank',
++    390
++  );
++});
++
++// regression: word-tiles-blank-duplicate-instruction
++test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blank-duplicate-instruction', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-puzzle--enlarged-blank',
++    390
++  );
++});
++
++// regression: battleship-phone-placement-default
++test('screens-games-battleship-setup--empty regression battleship-phone-placement-default', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-setup--empty',
++    390
++  );
++});
++
++// regression: battleship-placement-overview-legibility
++test('screens-games-battleship-setup--enlarged-placement regression battleship-placement-overview-legibility', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-setup--enlarged-placement',
++    390
++  );
++});
++
++// regression: battleship-placement-guidance-gap
++test('screens-games-battleship-setup--enlarged-placement regression battleship-placement-guidance-gap', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-setup--enlarged-placement',
++    390
++  );
++});
++
++// regression: word-tiles-precision-local-score-below-fold
++test('screens-games-word-tiles-board--your-turn regression word-tiles-precision-local-score-below-fold', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-board--your-turn',
++    390
++  );
++});
++
++// regression: battleship-guidance-check-target
++test('screens-games-battleship-setup--empty regression battleship-guidance-check-target', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-battleship-setup--empty',
++    390
++  );
++});
++
++// regression: word-tiles-region-composite-hit-target
++test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-region-composite-hit-target', async ({
++  page,
++}) => {
++  await verifyBoardRegression(
++    page,
++    'screens-games-word-tiles-board--enlarged-coordinates',
++    390
++  );
++});
+diff --git a/pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx b/pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx
+new file mode 100644
+index 000000000..514fbdf54
+--- /dev/null
++++ b/pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx
+@@ -0,0 +1,50 @@
++import { expect, test } from 'bun:test';
++import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
++import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
++import { fireEvent } from '@solidjs/testing-library';
++
++// regression: word-tiles-phone-precision-default
++// regression: word-tiles-map-fine-target-detour
++test('390px phone starts precise and a1–e5 navigation focuses c3 without activating it', () => {
++  const previous = window.matchMedia;
++  const phone = previous.call(window, '(max-width: 639px)');
++  Object.defineProperty(phone, 'matches', { value: true });
++  window.matchMedia = () => phone;
++  const activated: string[] = [];
++  try {
++    const view = render(() => (
++      <WordTileBoard
++        label="Phone board"
++        testId="phone"
++        columnLabels={'abcdefghijklmno'.split('')}
++        rowLabels={Array.from({ length: 15 }, (_, i) => String(i + 1))}
++        cells={Array.from({ length: 225 }, (_, i) => ({
++          id: `${String.fromCharCode(97 + (i % 15))}${Math.floor(i / 15) + 1}`,
++          letter: '',
++          points: null,
++          square: null,
++          state: 'empty',
++          label: String(i),
++          enabled: true,
++        }))}
++        squareText={() => ''}
++        onActivate={(id) => activated.push(id)}
++      />
++    ));
++    expect(view.getByTestId('phone').getAttribute('data-enlarged')).toBe(
++      'true'
++    );
++    expect(view.getAllByRole('button', { name: /^View / })).toHaveLength(9);
++    fireEvent.click(view.getByRole('button', { name: 'View a1 to e5' }));
++    expect(document.activeElement).toBe(view.getByTestId('phone-cell-c3'));
++    expect(activated).toEqual([]);
++    expect(view.queryByRole('dialog')).toBeNull();
++    fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
++    expect(view.getByTestId('phone').getAttribute('data-enlarged')).toBe(
++      'false'
++    );
++    view.unmount();
++  } finally {
++    window.matchMedia = previous;
++  }
++});
+diff --git a/pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx b/pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx
+index 052ecce33..856415d3b 100644
+--- a/pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx
++++ b/pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx
+@@ -112,7 +112,11 @@ test('enlargement retains all squares in an overview and announces the chosen mo
+   const view = example();
+   const enlarge = view.getByRole('button', { name: 'Enlarge board' });
+   fireEvent.click(enlarge);
+-  expect(enlarge.getAttribute('aria-pressed')).toBe('true');
++  expect(
++    view
++      .getByRole('button', { name: 'Enlarge board' })
++      .getAttribute('aria-pressed')
++  ).toBe('true');
+   const overview = view.getByRole('img', {
+     name: 'Whole board overview; outline shows the enlarged area',
+   });
+@@ -135,7 +139,11 @@ test('enlargement retains all squares in an overview and announces the chosen mo
+   expect(indicator?.getAttribute('height')).toBe('1.625');
+   fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
+   expect(view.queryByRole('img')).toBeNull();
+-  expect(enlarge.getAttribute('aria-pressed')).toBe('false');
++  expect(
++    view
++      .getByRole('button', { name: 'Enlarge board' })
++      .getAttribute('aria-pressed')
++  ).toBe('false');
+ });
+ 
+ // regression: word-tiles-overview-unreadable-context

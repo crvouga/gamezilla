@@ -1,0 +1,12 @@
+{
+  "candidateSha": "b606946642616ea53bbf11e8b4fb23e08fb55c5f",
+  "buildSha256": "ef37ffff1cdb2b70865260cb9af6835a582abbd0e38b97ce6712a902e93db533",
+  "command": [
+    "sh",
+    "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-7/test.sh"
+  ],
+  "startedAt": "2026-11-07T02:14:50.141826+00:00",
+  "completedAt": "2026-11-07T02:35:57.184578+00:00",
+  "exitCode": 1,
+  "retries": 0
+}

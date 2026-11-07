@@ -1,0 +1,19 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/tools-harness-ts
+   • Running ci:goals in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/tools-harness-ts:ci:goals: cache miss, executing b84b279976a631ae
+@libs/tools-harness-ts:ci:goals: $ bun run scripts/verify-goals.ts
+@libs/tools-harness-ts:ci:goals: known-bug gate failed:
+@libs/tools-harness-ts:ci:goals:   known-bugs:word-tiles-empty-premium-label-contrast: pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts requires a marked, literal Playwright test imported from @playwright/test at module scope
+@libs/tools-harness-ts:ci:goals: error: script "ci:goals" exited with code 1
+@libs/tools-harness-ts#ci:goals:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/tools-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run ci:goals exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    924ms 
+Failed:    @libs/tools-harness-ts#ci:goals
+
+ ERROR  run failed: command  exited (1)

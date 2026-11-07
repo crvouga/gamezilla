@@ -1,0 +1,105 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @libs/battleship-client-ts
+   • Running test in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@libs/battleship-client-ts:test: cache miss, executing 5f9d5742412014db
+@libs/battleship-client-ts:test: $ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests
+@libs/battleship-client-ts:test: bun test v1.4.3 (c6da4a4d3)
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/automation.test.tsx:
+@libs/battleship-client-ts:test: (pass) the game automation fires a shot through the targeting grid [57.34ms]
+@libs/battleship-client-ts:test: (pass) the presentation names the game, its sides and its ending [0.08ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/targeting-precision.test.tsx:
+@libs/battleship-client-ts:test: (pass) a mistaken edge target can be corrected before spending the shot [23.78ms]
+@libs/battleship-client-ts:test: (pass) keyboard selection previews a shot before confirmation [22.48ms]
+@libs/battleship-client-ts:test: (pass) a refreshed game record preserves the selected target when its position is unchanged [19.33ms]
+@libs/battleship-client-ts:test: (pass) large targeting areas partition all 100 cells and allow correction and cancellation [41.23ms]
+@libs/battleship-client-ts:test: (pass) J10 confirmation is the only primary action and stays beside Cancel [12.62ms]
+@libs/battleship-client-ts:test: (pass) enlarging J10 opens its region and returning to all waters preserves the aim [17.10ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/panel-titles.test.tsx:
+@libs/battleship-client-ts:test: (pass) a board shown behind the switch is not titled again under it [9.56ms]
+@libs/battleship-client-ts:test: (pass) the board fills its column, edge to edge with the seats [8.64ms]
+@libs/battleship-client-ts:test: (pass) a key under the boards names every mark the grids draw [19.70ms]
+@libs/battleship-client-ts:test: (pass) on a phone the switch to the other fleet follows the grid [8.99ms]
+@libs/battleship-client-ts:test: (pass) on a phone the switch under the grid is a compact control, centred [0.06ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/setup-board.test.tsx:
+@libs/battleship-client-ts:test: (pass) pressing a cell places the selected ship with its bow there, across by default [5.40ms]
+@libs/battleship-client-ts:test: (pass) rotate turns the next placement down, and the five ships make the canonical fleet [9.50ms]
+@libs/battleship-client-ts:test: (pass) an overlapping placement is refused with its reason and leaves the fleet unchanged [3.34ms]
+@libs/battleship-client-ts:test: (pass) an out-of-bounds placement is refused and leaves the fleet unchanged [3.68ms]
+@libs/battleship-client-ts:test: (pass) the preview marks the cells a placement would cover, and which it cannot [4.05ms]
+@libs/battleship-client-ts:test: (pass) placing a placed ship again moves it; rotating it in place is refused off the board [6.53ms]
+@libs/battleship-client-ts:test: (pass) the keyboard selects a cell with arrows, rotates with R and places with Enter [20.89ms]
+@libs/battleship-client-ts:test: (pass) a locked setup disables every control and says why [6.47ms]
+@libs/battleship-client-ts:test: (pass) the placing progress has its own id, leaving `<testId>-status` to the screen's private-setup status [2.78ms]
+@libs/battleship-client-ts:test: (pass) enlarged completed fleet names its fields and offers repositioning instead of Select [11.55ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/hit-mark.test.ts:
+@libs/battleship-client-ts:test: (pass) a Battleship hit is a solid mark in both themes [0.09ms]
+@libs/battleship-client-ts:test: (pass) wide, the Battleship board leaves only the room its switch and key take [0.04ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/board.test.tsx:
+@libs/battleship-client-ts:test: (pass) the own grid shows the viewer’s fleet from its setup and the shots fired at it [12.37ms]
+@libs/battleship-client-ts:test: (pass) the targeting grid shows only the public shots, never a ship that was not hit [11.68ms]
+@libs/battleship-client-ts:test: (pass) interactive targets fire through onAction and wait, aiming, for the outcome [26.29ms]
+@libs/battleship-client-ts:test: (pass) read-only boards refuse every target, and the switch keeps both grids mounted [9.29ms]
+@libs/battleship-client-ts:test: (pass) the frame's turn line announces the latest shot and whose turn it is [8.50ms]
+@libs/battleship-client-ts:test: (pass) the other side sees its own fleet and shots from its orientation [9.66ms]
+@libs/battleship-client-ts:test: (pass) a watcher sees two public shot boards named by side, with no ships [8.69ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/battleship-frame-commands.test.ts:
+@libs/battleship-client-ts:test: (pass) Battleship offers no draw by agreement among its commands
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/automation-rearrange.test.tsx:
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over an empty board [43.19ms]
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over another whole fleet [39.37ms]
+@libs/battleship-client-ts:test: (pass) the game automation arranges a whole fleet over a fleet in the way of the new one [34.44ms]
+@libs/battleship-client-ts:test: 80 |       await Promise.resolve();
+@libs/battleship-client-ts:test: 81 |       const mutated = tracker.takeMutated();
+@libs/battleship-client-ts:test: 82 |       if (check()) return;
+@libs/battleship-client-ts:test: 83 |       const now = clock.now();
+@libs/battleship-client-ts:test: 84 |       if (now >= deadline) {
+@libs/battleship-client-ts:test: 85 |         throw new TimeoutError(
+@libs/battleship-client-ts:test:                    ^
+@libs/battleship-client-ts:test: TimeoutError: Timed out after 5000ms waiting for visible testId("setup-ship-carrier")
+@libs/battleship-client-ts:test:  timeoutMs: 5000,
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test:       at waitForDom (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/dom-wait.ts:85:15)
+@libs/battleship-client-ts:test:       at async wait (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/solid-dom-driver-node.ts:146:16)
+@libs/battleship-client-ts:test:       at async waitVisible (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/solid-dom-driver-node.ts:265:16)
+@libs/battleship-client-ts:test:       at async tap (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-testing-solid-dom-client-ts/src/solid-dom-driver-node.ts:63:16)
+@libs/battleship-client-ts:test:       at async arrange (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-shared-ts/src/battleship-automation.ts:28:43)
+@libs/battleship-client-ts:test:       at async <anonymous> (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts/tests/automation-rearrange.test.tsx:111:32)
+@libs/battleship-client-ts:test: (fail) phone multiplayer setup arranges the literal fleet through the default precision controls [10.79ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/targeting-default.test.tsx:
+@libs/battleship-client-ts:test: (pass) default precise aiming keeps all 100 outcomes and changes regions without spending a shot [9.84ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: tests/setup-precision.test.tsx:
+@libs/battleship-client-ts:test: (pass) a ready fleet can be repositioned in another enlarged region [69.11ms]
+@libs/battleship-client-ts:test: (pass) overlap recovery stays in the placement workspace with ship, direction and region [42.80ms]
+@libs/battleship-client-ts:test: (pass) a phone opens comfortable placement without a mode discovery step [13.49ms]
+@libs/battleship-client-ts:test: (pass) comfortable placement validates a complete fleet across four regions with keyboard recovery [116.87ms]
+@libs/battleship-client-ts:test: (pass) locked comfortable placement keeps all waters visible and refuses editing [23.37ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test: 1 tests failed:
+@libs/battleship-client-ts:test: (fail) phone multiplayer setup arranges the literal fleet through the default precision controls [10.79ms]
+@libs/battleship-client-ts:test: 
+@libs/battleship-client-ts:test:  42 pass
+@libs/battleship-client-ts:test:  1 fail
+@libs/battleship-client-ts:test:  530 expect() calls
+@libs/battleship-client-ts:test: Ran 43 tests across 10 files. [1.54s]
+@libs/battleship-client-ts:test: error: script "test" exited with code 1
+@libs/battleship-client-ts#test:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/libs/battleship-client-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run test exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    2.122s 
+Failed:    @libs/battleship-client-ts#test
+
+ ERROR  run failed: command  exited (1)

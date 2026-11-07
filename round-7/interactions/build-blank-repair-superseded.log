@@ -1,0 +1,37 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @pkgs/ui-root-harness-ts
+   • Running storybook:build in 1 package
+   • Remote caching disabled, using shared worktree cache
+
+@pkgs/ui-root-harness-ts:storybook:build: cache miss, executing 77751e53bf2442d3
+@pkgs/ui-root-harness-ts:storybook:build: $ storybook build -c storybook -o .cache/storybook
+@pkgs/ui-root-harness-ts:storybook:build: 
+@pkgs/ui-root-harness-ts:storybook:build: ┌  Building storybook v10.6.5
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Cleaning outputDir: .cache/storybook
+@pkgs/ui-root-harness-ts:storybook:build: (node:54151) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+@pkgs/ui-root-harness-ts:storybook:build: (Use `node --trace-deprecation ...` to show where the warning was created)
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ▲  One or more extensionless imports detected: "./docgen" in file
+@pkgs/ui-root-harness-ts:storybook:build: │  "/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts/storybook/main.ts".
+@pkgs/ui-root-harness-ts:storybook:build: │  For more information on how to resolve the issue:
+@pkgs/ui-root-harness-ts:storybook:build: │  ]8;;https://storybook.js.org/docs/faq#extensionless-imports-in-storybookmaints-and-required-ts-extensionshttps://storybook.js.org/docs/faq#extensionless-imports-in-st...]8;;
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Loading presets
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ◇  Building manager..
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ●  Building open services..
+@pkgs/ui-root-harness-ts:storybook:build: │
+@pkgs/ui-root-harness-ts:storybook:build: ●  Building preview..
+@pkgs/ui-root-harness-ts:storybook:build: │  Vite vite v8.3.4 building client environment for production...
+@pkgs/ui-root-harness-ts:storybook:build: transforming...
+@pkgs/ui-root-harness-ts#storybook:build:  ERROR  command (/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/pkgs/ui-root-harness-ts) /Users/chrisvouga/.local/share/mise/installs/bun/1.4.3/bin/bun run storybook:build exited (137)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1m19.959s 
+Failed:    @pkgs/ui-root-harness-ts#storybook:build
+
+ ERROR  run failed: command  exited (137)
