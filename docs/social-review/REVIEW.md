@@ -144,3 +144,14 @@ the actual gated control. Product code is unchanged. The regression and all six
 deleted-account payment scenarios pass, including the pending cancellation case;
 lint, typechecks and goals pass. The critic found no weakened assertion and
 retains 10/9/9/10 until full verification succeeds.
+
+## Round nine overdue export proof
+
+The overdue-export scenario expected an immediate request button after 24 hours,
+contradicting the existing ten-minute proof requirement. Its assertion now checks
+the overdue explanation and concrete Sign in action. A registered regression
+also proves that renewing account proof permits a new export and clears the late
+status; it asserts that the direct request is absent before proof is renewed.
+Product and permission policy are unchanged. The regression, all six cases in
+the affected profile shard, lint, typechecks and goals pass. The independent
+critic approved the correction; scores remain 10/9/9/10 pending the full gate.
