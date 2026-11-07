@@ -6,7 +6,7 @@ export function visibilityScript(selectors: readonly string[]): string {
       if (s.display === 'none' || s.visibility === 'hidden' || s.visibility === 'collapse') return false;
       for (let parent = el.parentElement; parent; parent = parent.parentElement) {
         const style = getComputedStyle(parent);
-        if (style.display === 'none' || style.opacity === '0') return false;
+        if (parent.hasAttribute('hidden') || style.display === 'none' || style.opacity === '0') return false;
       }
       if (s.opacity !== '0') return true;
       return el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox') &&

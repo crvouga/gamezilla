@@ -77,6 +77,7 @@ function visible(world: World, id: string): boolean {
   if (id === Handles.spaceEnded) return world.screen === 'ended';
   if (id === Handles.spaceTitle) return world.created;
   if (id === Handles.spaceClose) return world.created && world.overflow;
+  if (id === Handles.spaceMembersButton) return world.created;
   if (id === Handles.navBack) {
     return (
       world.screen === 'settings' ||
@@ -277,13 +278,17 @@ describe('hostSpace', () => {
   });
 
   // regression: journey-host-readiness-close-in-overflow
-  test('opens a space directly when Close is inside the unopened overflow', async () => {
+  // regression: journey-host-ready-collapsed-minimize
+  test('opens a space with Minimize collapsed into the closed overflow menu', async () => {
     const { ui, world } = driver(0);
     await hostSpace(ui);
     expect(world.taps).toContain(Handles.spaceCreate);
     expect(world.taps).not.toContain(Handles.spaceEnd);
     expect(world.taps).not.toContain(Handles.spaceJoin);
     expect(world.created).toBe(true);
+    expect(world.overflow).toBe(false);
+    expect(await ui.get(Handles.spaceClose).isVisible()).toBe(false);
+    expect(await ui.get(Handles.spaceMembersButton).isVisible()).toBe(true);
   });
 
   // regression: journey-leftovers-hidden-until-spaces-sync

@@ -1,4 +1,4 @@
 {
-  "summary": "Fresh-device game journeys timed out after successfully hosting because readiness waited for Close, now inside the unopened overflow menu. Hosting waits for the visible space title; cleanup still opens the overflow and ends the space through visible controls.",
+  "summary": "Fresh-device game journeys timed out after successfully hosting because readiness waited for Close, now inside the unopened overflow menu. Hosting waits for the always-visible members control; cleanup still opens the overflow and ends the space through visible controls.",
   "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
 }

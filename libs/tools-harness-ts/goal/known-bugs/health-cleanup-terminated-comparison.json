@@ -1,0 +1,4 @@
+{
+  "summary": "The branch comparison helper rejected CaptureResult at typecheck because a terminated process can have null status. Accept that process result and fail maintenance without claiming integration proof.",
+  "regressionTest": "libs/harness-ts/scripts/branch-comparison.test.ts"
+}

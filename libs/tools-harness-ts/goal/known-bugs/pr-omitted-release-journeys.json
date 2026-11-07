@@ -1,0 +1,4 @@
+{
+  "summary": "PR verification omitted the production-build journeys that blocked Release after merge. PR and Release now select identical safety tasks, including every journey partition.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}

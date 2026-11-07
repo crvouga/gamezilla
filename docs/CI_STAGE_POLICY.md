@@ -27,14 +27,14 @@ release must also pass environment configuration, infrastructure safety and live
 post-deployment probes before it is tagged. This is a bounded automated release bar;
 it does not promise that every feature, visual state or performance case is correct.
 
-PR runs the inexpensive predictors below, including focused security and migration
-tests. Release reruns that same selection on the exact selected commit and adds all
-three `@apps/product-ts#test:release-journeys:<k>` partitions. These cover the existing
-health specs supported by the local production-like stack, including sign-in,
-join links, offline recovery and multiplayer games. PR intentionally omits those
-browser journeys; its green status predicts rather than guarantees a green release.
-Manual Verify PR dispatches use the PR selection; Release's reusable invocation
-explicitly selects release. Nightly executes both tiers and the remaining catalog.
+PR and Release run the same deterministic safety selection, including focused security
+and migration tests and all three `@apps/product-ts#test:release-journeys:<k>`
+partitions. These exercise the production client and production-like stack, including
+sign-in, join links, offline recovery and multiplayer games, before merge. Release
+rechecks the exact selected commit and reuses only identical successful task hashes.
+Manual Verify PR dispatches use the same selection. A regression test requires PR and
+Release selections to remain equal as the catalog changes. Nightly runs this selection
+and the remaining catalog at its deeper profile.
 
 Selection is cheap; successful tasks execute only on cache misses. The release gate
 does not run the full nightly catalog as a hidden prerequisite.
@@ -47,6 +47,7 @@ does not run the full nightly catalog as a hidden prerequisite.
 | Permissions library/shared/harness and auth provider/root harness unit tests | Access-control and authentication failures can expose data immediately. These run the same assertions as nightly, not alternate implementations. |
 | Migration and schema-engine unit tests; `verify:schema-evolution` | Destructive schema evolution cannot wait for nightly. The baseline is the immutable PR base or pre-push SHA, not a moving main ref that might already equal HEAD. A manual run compares the selected commit's parent. |
 | Product/auth relay Worker bundle checks; rendered Worker; offline shell | The release executables and boot assets must exist and satisfy their runtime contracts. Their build prerequisites remain blocking and cached. |
+| Production-build journey partitions | Catch browser, auth, sync and game integration failures before merge using the same production bundle and stack as Release verification. |
 | Synthetic population foundation; repository policy | Prevent unsafe infrastructure isolation, resource hosting and repository-protection changes. |
 | Conditional PR fleet/foundation plans | Changed infrastructure needs provider validation against actual state. The existing read-only role and foundation opt-in remain. |
 
@@ -64,7 +65,7 @@ Everything below remains in its existing owning package and production-relevant 
   at nightly depth through the same catalog.
 - All `test:contract` variants, render contracts, all numbered `test:spec:*` parts,
   Quint `verify:models` parts and `verify:board-contract`.
-- Every split release journey (also release-blocking), Storybook checks and remote corpus checks.
+- Every split release journey (also PR- and release-blocking), Storybook checks and remote corpus checks.
 - `ci:i18n`, `ci:agent-commands`, `ci:workspace-lifecycle`, `ci:cache-hygiene`,
   `ci:package-names`, `ci:goals`, `ci:specs`, `ci:statecharts`, `ci:conformance`,
   `ci:spec-ownership`, branding and synthetic rebranding checks.
@@ -122,19 +123,19 @@ not a claim that the preceding deployment was atomically undone.
 
 ## Redundancy and expected improvement
 
-No verification is deleted. PR omits critical browser journeys; Release omits the
+No verification is deleted. PR and Release both omit the
 comprehensive functional, model, visual and performance catalog. Named security tests run
 once within each selected graph; nightly's generic `test` includes those same suites.
 Existing cached successes, shared build prerequisites and identical dependency tasks
 remain deduplicated by Turbo. Superseded pending releases no longer consume deployment
 work. Full nightly coverage and hourly production monitoring remain unchanged.
 
-No new timing or cost claim is made for this selection. Release adds the three
-existing journey partitions to the PR graph, with their shared prerequisites deduplicated
+No new timing or cost claim is made for this selection. PR includes the three
+existing journey partitions from the Release graph, with their shared prerequisites deduplicated
 by Turbo. Compare hosted timing and cache-hit data after rollout.
 
-Accepted risk: journey failures may reach main and stop Release; failures outside the
-release bar may reach production before nightly discovers them. Blocking access-control,
+Accepted risk: merge interactions and live environment failures may still stop Release;
+failures outside the release bar may reach production before nightly discovers them. Blocking access-control,
 secrets, dependency, schema and deployability checks plus live production probes limit
 critical exposure. Complete nightly verification, assigned triage and pinned regressions
 provide the feedback loop; nightly intentionally does not become a release gate.
