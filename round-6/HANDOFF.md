@@ -2,7 +2,7 @@
 
 PR: https://github.com/crvouga/gamezilla/pull/280
 Candidate: `863c687fae76c57527d495ec436afcf0ea99539a`
-Media: `publication pending`
+Media: `60ff27e35a1a772884b05d9e64141fbebc42c73c`
 Evidence code: `95e2cf5e91b0fcee`
 Build SHA-256: `2ee4017c2c1836dae976a6f86b25c5053b5735071cb9328da7d08122091f555c`
 
@@ -60,6 +60,18 @@ Prior failed and interrupted native runs are diagnostic evidence, never the fina
 
 ## Publication
 
-Media/comment publication receipts will be appended after the immutable media commit is pushed.
+- sourceSha: 863c687fae76c57527d495ec436afcf0ea99539a
+- mediaSha: 60ff27e35a1a772884b05d9e64141fbebc42c73c
+- evidence_code: 95e2cf5e91b0fcee
+- manifest: https://github.com/crvouga/gamezilla/blob/60ff27e35a1a772884b05d9e64141fbebc42c73c/round-6/manifest.json
+- gallery: https://github.com/crvouga/gamezilla/blob/60ff27e35a1a772884b05d9e64141fbebc42c73c/round-6/GALLERY.md
+- canonicalRun: https://github.com/crvouga/gamezilla/actions/runs/42309542538
+- https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699238532
+- https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699238994
+- https://github.com/crvouga/gamezilla/pull/280#issuecomment-6699239407
 
 No manual QA, subagents, merge, watch or unwatch. Source checkout is clean; owned capture/test processes are stopped before final handback. No live transport, persisted full-match, app-update or live lexicon-service claim follows from board fixtures.
+
+## Publication-time canonical result
+
+The workflow subsequently completed **successfully**, including the Storybook and final diagnostic jobs. Both authoring and comparison reported **767 passed**. See `canonical-publication-status.json`; the immutable media manifest intentionally preserves its earlier observed workflow-pending status. No references were accepted.
