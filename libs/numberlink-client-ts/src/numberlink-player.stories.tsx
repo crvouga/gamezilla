@@ -186,7 +186,7 @@ function movementKey(
 }
 
 /** Actual rule application feeds each committed gesture back into the player. */
-export const CompleteWithKeyboard: Story = {
+export const DrawPaths: Story = {
   render: (args) => {
     const [state, setState] = createSignal(progress([]));
     return (
@@ -211,6 +211,11 @@ export const CompleteWithKeyboard: Story = {
       />
     );
   },
+};
+
+/** Complete a fresh attempt using keyboard input and real game rules. */
+export const CompleteWithKeyboard: Story = {
+  ...DrawPaths,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const first = canvas.getByRole('button', { name: /^A1: endpoint 1/ });
@@ -254,12 +259,6 @@ export const CompleteWithKeyboard: Story = {
       canvas.queryByText('Drag from a number to its match.')
     ).not.toBeInTheDocument();
   },
-};
-
-/** A fresh, rule-backed attempt for automated native pointer and touch journeys. */
-export const DrawPaths: Story = {
-  ...CompleteWithKeyboard,
-  play: undefined,
 };
 
 /** Cancel, shorten, redraw and remove a path through pointer input and real rules. */
