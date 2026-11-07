@@ -952,6 +952,11 @@ msgstr "Accepting…"
 msgid "Account"
 msgstr "Account"
 
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
+msgid "Account deleted"
+msgstr "Account deleted"
+
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "account deletion"
 msgstr "account deletion"
@@ -5593,6 +5598,7 @@ msgid "Profile"
 msgstr "Profile"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
 msgid "Profile unavailable"
 msgstr "Profile unavailable"
 
@@ -6317,6 +6323,10 @@ msgstr "Return to editing"
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Return to editing to add a published puzzle or create a new draft."
 msgstr "Return to editing to add a published puzzle or create a new draft."
+
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "Return to Friends"
+msgstr "Return to Friends"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
@@ -7992,6 +8002,10 @@ msgstr "This account already has a sign-in method from that provider. Remove it 
 msgid "This account was already deleted. Sign in again to start a new account."
 msgstr "This account was already deleted. Sign in again to start a new account."
 
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "This account was deleted."
+msgstr "This account was deleted."
+
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This attempt"
 msgstr "This attempt"
@@ -8154,8 +8168,8 @@ msgid "This profile could not be loaded"
 msgstr "This profile could not be loaded"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
-msgid "This profile is no longer available. Return to Friends to find someone else."
-msgstr "This profile is no longer available. Return to Friends to find someone else."
+msgid "This profile is no longer available."
+msgstr "This profile is no longer available."
 
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "This publication is withdrawn. You can continue saved attempts from your library."

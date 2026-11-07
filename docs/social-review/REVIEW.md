@@ -186,3 +186,13 @@ were not accepted as baselines.
 Final round-eleven checks: 36 friends-client tests, 14 affected spec cases,
 17 browser comparisons and owning lint/typechecks/goals pass. Coverage reports
 zero violations. Full verification is still required.
+
+## Round twelve catalog synchronization
+
+The full gate caught missing committed catalog entries for round eleven's
+profile headings, explanation and Friends link. Canonical extraction now
+matches the reviewed source, including its source references and removal of
+the obsolete combined explanation. The catalog freshness gate and strict
+compilation pass. The independent critic approved the correction with no new
+findings; scores remain 10/9/9/10 pending full verification. Round eleven's
+approved automated captures still show the current interface.
