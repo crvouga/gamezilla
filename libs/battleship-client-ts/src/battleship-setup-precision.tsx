@@ -89,20 +89,22 @@ export function SetupPrecision(props: {
                 options={shipOptions(props.setup)}
               />
               {props.commands}
-              <Select
-                label={t`Region`}
-                aria-label={t`Placement area`}
-                value={area()}
-                onValueChange={setArea}
-                disabled={props.locked}
-                options={[
-                  { value: 'nw', label: 'A–E / 1–5' },
-                  { value: 'ne', label: 'F–J / 1–5' },
-                  { value: 'sw', label: 'A–E / 6–10' },
-                  { value: 'se', label: 'F–J / 6–10' },
-                ]}
-              />
             </>
+          }
+          region={
+            <Select
+              label={t`Region`}
+              aria-label={t`Placement area`}
+              value={area()}
+              onValueChange={setArea}
+              disabled={props.locked}
+              options={[
+                { value: 'nw', label: 'A–E / 1–5' },
+                { value: 'ne', label: 'F–J / 1–5' },
+                { value: 'sw', label: 'A–E / 6–10' },
+                { value: 'se', label: 'F–J / 6–10' },
+              ]}
+            />
           }
           working={
             <CellGridBoard

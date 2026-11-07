@@ -76,3 +76,8 @@
 .session[data-board-focus="true"] {
   gap: var(--ui-space-3);
 }
+
+/* The rack and precision navigator already separate a compact board's content. */
+.session[data-board-focus="true"]:has([data-measure="compact"]) {
+  gap: 0;
+}

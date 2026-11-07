@@ -47,13 +47,15 @@ export const Enlarged: Story = {
             options={[{ value: 'carrier', label: 'Carrier · 5' }]}
           />
           <Button title="Rotate down" variant="outline" intent="neutral" />
-          <Select
-            label="Region"
-            value="nw"
-            onValueChange={() => undefined}
-            options={[{ value: 'nw', label: 'A–E / 1–5' }]}
-          />
         </>
+      }
+      region={
+        <Select
+          label="Region"
+          value="nw"
+          onValueChange={() => undefined}
+          options={[{ value: 'nw', label: 'A–E / 1–5' }]}
+        />
       }
       working={
         <CellGridBoard

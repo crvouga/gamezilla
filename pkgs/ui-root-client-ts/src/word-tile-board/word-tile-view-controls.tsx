@@ -1,8 +1,7 @@
 import { t } from '@lingui/core/macro';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { Button } from '../button/index';
 import { StackHorizontal } from '../stack/index';
-import { P } from '../text/index';
 
 /** Switch between the whole board and precise scrollable cells, keeping navigation guidance visible. */
 export function WordTileViewControls(props: {
@@ -27,11 +26,6 @@ export function WordTileViewControls(props: {
           onClick={() => props.onChange(true)}
         />
       </StackHorizontal>
-      <Show when={props.enlarged}>
-        <P variant="caption">
-          {t`Scroll or use arrow keys. Map locates squares; Enter places a tile.`}
-        </P>
-      </Show>
     </>
   );
 }

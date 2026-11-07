@@ -1,0 +1,67 @@
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-1) 0;
+  width: 100%;
+}
+.map {
+  display: contents;
+}
+.overview {
+  flex: 1 0 calc(100% - var(--ui-control-size-md) * 2);
+  min-width: 0;
+}
+.overview [data-cell] {
+  aspect-ratio: auto;
+  min-height: var(--ui-space-5);
+}
+.overview [data-cell] span {
+  font-size: var(--ui-text-label-size);
+}
+.regions {
+  flex: 0 0 calc(var(--ui-control-size-md) * 2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(var(--ui-control-size-md), 1fr));
+  grid-template-rows: repeat(5, minmax(var(--ui-control-size-md), 1fr));
+}
+.regions[hidden] {
+  display: none;
+}
+.region {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  font-size: var(--ui-text-label-size);
+  border: var(--ui-space-hairline) solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-sm);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.region[aria-pressed="true"],
+.region:focus-visible {
+  outline: var(--ui-space-1) solid var(--ui-color-tint);
+  outline-offset: calc(-1 * var(--ui-space-1));
+}
+.controls {
+  order: 3;
+  flex: 1 0 calc(var(--ui-control-size-md) * 2);
+  max-width: calc(var(--ui-control-size-md) * 2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ui-space-2);
+}
+.working {
+  order: 2;
+  flex: 1 0
+    calc(
+      5 *
+      (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+      var(--ui-space-6) +
+      var(--ui-space-4)
+    );
+  min-width: 0;
+}

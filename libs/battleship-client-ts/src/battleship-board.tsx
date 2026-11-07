@@ -143,7 +143,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
     })
   );
   return (
-    <StackVertical gap="md" testId={props.testId}>
+    <StackVertical gap="xs" testId={props.testId}>
       <Show when={battle().winner !== null}>
         <P variant="bodyBold">{t`${sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))} destroyed — all five ships sunk.`}</P>
       </Show>

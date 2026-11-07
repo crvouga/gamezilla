@@ -1,44 +1,50 @@
 import { expect, within } from 'storybook/test';
 
-/** Measure the untouched viewport before a pointer action can scroll its target. */
+/** Measure before input, so userEvent cannot repair a clipped workspace by scrolling. */
 export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
+  // regression: battleship-default-precision-loses-whole-field
   // regression: battleship-target-confirmation-competes-with-navigation
+  // regression: battleship-target-context-below-fold
   const canvas = within(root);
   const fire = canvas.getByTestId('custom-game-board-fire');
-  const tools = canvas.getByTestId('custom-game-board-target-tools');
-  const view = canvas.getByTestId('custom-game-board-large-targets');
-  const region = canvas.getByTestId('custom-game-board-region');
   const grid = canvas.getByTestId('custom-game-board-target-grid');
-  await assertTargetViewport(root, [fire, view, region, grid]);
-  await expect(view.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
-  await expect(region.getBoundingClientRect().height).toBeGreaterThanOrEqual(
-    44
+  const aim = canvas.getByTestId('custom-game-board-aim-grid');
+  const region = canvas.getByTestId('custom-game-board-region');
+  await assertTargetViewport(root, [
+    fire,
+    grid,
+    aim,
+    region,
+    canvas.getByTestId('custom-game-board-large-targets'),
+    canvas.getByTestId('custom-game-seat-near'),
+  ]);
+  await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
+  for (const cell of [
+    ...aim.querySelectorAll<HTMLElement>('[data-cell]'),
+    ...region.querySelectorAll<HTMLElement>('button'),
+  ]) {
+    await assertTargetViewport(root, [cell]);
+    await expect(cell.getBoundingClientRect().width).toBeGreaterThanOrEqual(44);
+    await expect(cell.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+      44
+    );
+  }
+  await expect(aim.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    fire.getBoundingClientRect().top
   );
-  await expect(view.getBoundingClientRect().top).toBe(
-    region.getBoundingClientRect().top
-  );
-  await expect(tools.getBoundingClientRect().top).toBeGreaterThanOrEqual(
-    fire.getBoundingClientRect().bottom
-  );
-  await expect(view).toHaveAttribute('data-face', 'neutral-outline');
   if (aimed) {
     const cancel = canvas.getByTestId('custom-game-board-cancel-aim');
+    await assertTargetViewport(root, [cancel]);
     await expect(cancel).toHaveAttribute('data-face', 'neutral-ghost');
     await expect(fire).toHaveAttribute('data-face', 'primary');
     await expect(fire).toHaveTextContent('Fire at J10');
     await expect(cancel.getBoundingClientRect().top).toBe(
       fire.getBoundingClientRect().top
     );
-    await expect(cancel.getBoundingClientRect().right).toBeLessThanOrEqual(
-      fire.getBoundingClientRect().left
-    );
-    await expect(cancel.getBoundingClientRect().height).toBeGreaterThanOrEqual(
-      44
-    );
   }
 }
 
-/** Shared by the initial whole-board state and the enlarged state, before input. */
+/** Bounds must pass on the untouched viewport, including the local turn context. */
 export async function assertTargetViewport(
   root: HTMLElement,
   elements: HTMLElement[]

@@ -34,6 +34,7 @@ import {
   checkInitialWordWorkspace,
 } from './word-tiles-geometry.example';
 import { matchJourney } from './word-tiles-match-journey.example';
+import { expectPrecisionDefault } from './word-tiles-precision.example';
 
 /** A position from a new two-seat game, with `changes`. */
 function table(changes: Partial<WordTilesPosition> = {}): string {
@@ -112,13 +113,19 @@ type Story = StoryObj<typeof meta>;
 
 /** A new game: the first word must cover the centre star. */
 export const Opening: Story = {
-  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
+  play: async ({ canvasElement }) => {
+    await checkInitialWordWorkspace(canvasElement);
+    await expectPrecisionDefault(canvasElement, 'custom-game-board');
+  },
 };
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
 export const YourTurn: Story = {
   args: { position: MID_GAME, hand: LATER_RACK },
-  play: async ({ canvasElement }) => checkInitialWordWorkspace(canvasElement),
+  play: async ({ canvasElement }) => {
+    await checkInitialWordWorkspace(canvasElement);
+    await expectPrecisionDefault(canvasElement, 'custom-game-board');
+  },
 };
 
 /** Teal is playing: the rack shows, but nothing can be sent. */

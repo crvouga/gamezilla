@@ -412,3 +412,135 @@ test('screens-games-frame-geometry--four-players regression shared-board-four-se
     390
   );
 });
+
+// regression: battleship-default-precision-loses-whole-field
+test('screens-games-battleship-board--correct-target-before-firing regression battleship-default-precision-loses-whole-field', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-board--correct-target-before-firing',
+    390
+  );
+});
+
+// regression: battleship-target-context-below-fold
+test('screens-games-battleship-board--your-turn regression battleship-target-context-below-fold', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-board--your-turn',
+    390
+  );
+});
+
+// regression: word-tiles-phone-precision-default
+test('screens-games-word-tiles-board--your-turn regression word-tiles-phone-precision-default', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--your-turn',
+    390
+  );
+});
+
+// regression: word-tiles-map-fine-target-detour
+test('screens-games-word-tiles-puzzle--ready regression word-tiles-map-fine-target-detour', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--ready',
+    390
+  );
+});
+
+// regression: word-tiles-blank-direct-letter-entry
+test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blank-direct-letter-entry', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    390
+  );
+});
+
+// regression: word-tiles-blank-duplicate-instruction
+test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blank-duplicate-instruction', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-puzzle--enlarged-blank',
+    390
+  );
+});
+
+// regression: battleship-phone-placement-default
+test('screens-games-battleship-setup--empty regression battleship-phone-placement-default', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--empty',
+    390
+  );
+});
+
+// regression: battleship-placement-overview-legibility
+test('screens-games-battleship-setup--enlarged-placement regression battleship-placement-overview-legibility', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    390
+  );
+});
+
+// regression: battleship-placement-guidance-gap
+test('screens-games-battleship-setup--enlarged-placement regression battleship-placement-guidance-gap', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    390
+  );
+});
+
+// regression: word-tiles-precision-local-score-below-fold
+test('screens-games-word-tiles-board--your-turn regression word-tiles-precision-local-score-below-fold', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--your-turn',
+    390
+  );
+});
+
+// regression: battleship-guidance-check-target
+test('screens-games-battleship-setup--empty regression battleship-guidance-check-target', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-battleship-setup--empty',
+    390
+  );
+});
+
+// regression: word-tiles-region-composite-hit-target
+test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles-region-composite-hit-target', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-word-tiles-board--enlarged-coordinates',
+    390
+  );
+});

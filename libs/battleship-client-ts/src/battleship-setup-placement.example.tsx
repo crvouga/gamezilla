@@ -30,22 +30,53 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
     if (!control) throw new Error(`Missing ${label}`);
     const bounds = control.getBoundingClientRect();
     await expect(bounds.width).toBeLessThanOrEqual(272);
+    await expect(bounds.left).toBeGreaterThanOrEqual(0);
+    await expect(bounds.right).toBeLessThanOrEqual(window.innerWidth);
     await expect(bounds.top).toBeGreaterThanOrEqual(0);
     await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
   }
   const working = find('precision');
   const overview = find('grid');
-  await expect(overview.width).toBeLessThanOrEqual(176);
+  // regression: battleship-placement-overview-legibility
+  await expect(overview.width).toBe(224);
   await expect(overview.height).toBeLessThan(working.height);
   await expect(overview.bottom).toBeLessThanOrEqual(window.innerHeight);
   await expect(overview.right).toBeLessThanOrEqual(window.innerWidth);
   await expect(working.width).toBeGreaterThanOrEqual(270);
+  await expect(working.bottom).toBeLessThanOrEqual(window.innerHeight);
+  await expect(overview.top).toBeGreaterThanOrEqual(0);
+  // regression: battleship-placement-guidance-gap
+  const feedback =
+    root.querySelector<HTMLElement>(
+      '[data-component="BattleshipPlacementLayout"] [role="alert"]'
+    ) ??
+    root.querySelector<HTMLElement>(
+      '[data-testid="custom-game-setup-guidance"]'
+    );
+  if (!feedback) throw new Error('Missing placement guidance');
+  await expect(
+    working.top - feedback.getBoundingClientRect().bottom
+  ).toBeLessThanOrEqual(8);
+  const headers = Array.from(
+    root.querySelectorAll<HTMLElement>(
+      '[data-testid="custom-game-setup-grid"] > span[aria-hidden="true"]'
+    )
+  ).slice(1, 11);
+  await expect(headers.length).toBe(10);
+  for (const header of headers) {
+    await expect(header.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      16
+    );
+    await expect(
+      Number.parseFloat(getComputedStyle(header).fontSize)
+    ).toBeGreaterThanOrEqual(12);
+  }
   if (window.innerWidth >= 640) {
     await expect(overview.left).toBeGreaterThan(working.right);
     await expect(overview.bottom).toBe(working.bottom);
   } else {
     await expect(overview.bottom).toBeLessThanOrEqual(working.top);
-    await expect(overview.width).toBeGreaterThanOrEqual(112);
+    await expect(overview.width).toBeGreaterThanOrEqual(224);
   }
 }
 
@@ -102,4 +133,20 @@ export async function checkSetupRecovery(
   await expect(grid.top).toBe(previousTop);
   await expect(grid.bottom).toBeLessThanOrEqual(window.innerHeight);
   await checkSetupWorkspace(root);
+}
+
+/** A region switch never relies on click scrolling to reveal its control. */
+export async function chooseSetupRegion(
+  root: HTMLElement,
+  region: string
+): Promise<void> {
+  const canvas = within(root);
+  const control = canvas.getByRole('button', { name: 'Placement area' });
+  const bounds = control.getBoundingClientRect();
+  await expect(bounds.top).toBeGreaterThanOrEqual(0);
+  await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+  await userEvent.click(control);
+  await userEvent.click(
+    await within(root.ownerDocument.body).findByRole('option', { name: region })
+  );
 }

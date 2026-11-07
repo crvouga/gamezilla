@@ -1,9 +1,7 @@
 import { t } from '@lingui/core/macro';
-import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import {
   createEffect,
   createSignal,
-  For,
   type JSX,
   onCleanup,
   Show,
@@ -13,10 +11,13 @@ import { ResponsiveSurface } from '../responsive-surface/index';
 import { P } from '../text/index';
 import type { WordTileBoardProps } from './index';
 import styles from './word-tile-overview.module.css';
+import { WordTileRegions } from './word-tile-regions';
 
-/** Whole-board context beside the precision viewport; the outline tracks actual scrolling. */
+/** Whole-board context adjacent to the precision viewport; the outline tracks actual scrolling. */
 export function WordTileOverview(props: {
   board: WordTileBoardProps;
+  controls: JSX.Element;
+  position: string;
   viewport: () => HTMLDivElement | undefined;
   locator: (onChoose: (id: string) => void) => JSX.Element;
   onLocate: (id: string) => void;
@@ -41,49 +42,24 @@ export function WordTileOverview(props: {
       stop();
     });
   });
-  const columns = () => props.board.columnLabels.length;
-  const rows = () => props.board.rowLabels.length;
   return (
-    <>
-      <button
-        type="button"
-        class={styles['locator']}
-        aria-label={t`Board map: locate a square`}
-        aria-haspopup="dialog"
-        onClick={() => setOpen(true)}
-      >
-        <svg
-          class={styles['overview']}
-          viewBox={`0 0 ${columns()} ${rows()}`}
-          role="img"
-          aria-label={t`Whole board overview; outline shows the enlarged area`}
-          {...dataAttrs({ component: 'WordTileOverview' })}
-          data-testid={`${props.board.testId}-overview`}
-        >
-          <For each={props.board.cells}>
-            {(cell, index) => (
-              <rect
-                x={index() % columns()}
-                y={Math.floor(index() / columns())}
-                width="1"
-                height="1"
-                class={styles['square']}
-                data-state={cell.state}
-                data-square={cell.square ?? 'none'}
-              />
-            )}
-          </For>
-          <rect
-            class={styles['window']}
-            data-viewport-indicator="true"
-            x={box().x * columns()}
-            y={box().y * rows()}
-            width={box().width * columns()}
-            height={box().height * rows()}
-          />
-        </svg>
-        <span>{t`Map`}</span>
-      </button>
+    <div class={styles['context']}>
+      <WordTileRegions
+        board={props.board}
+        box={box()}
+        onLocate={props.onLocate}
+      />
+      <div class={styles['tools']}>
+        {props.controls}
+        <P variant="caption">{props.position}</P>
+        <button
+          type="button"
+          class={styles['locator']}
+          aria-label={t`Board map: locate a square`}
+          aria-haspopup="dialog"
+          onClick={() => setOpen(true)}
+        >{t`Map`}</button>
+      </div>
       <Show when={open()}>
         <ResponsiveSurface
           visible={open()}
@@ -98,6 +74,6 @@ export function WordTileOverview(props: {
           })}
         </ResponsiveSurface>
       </Show>
-    </>
+    </div>
   );
 }

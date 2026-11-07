@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipSetupBoard } from './battleship-setup-board';
@@ -6,6 +6,7 @@ import {
   checkSetupPlacementBounds,
   checkSetupRecovery,
   checkSetupWorkspace,
+  chooseSetupRegion,
   repositionEnlargedShip,
 } from './battleship-setup-placement.example';
 
@@ -20,21 +21,30 @@ const meta = {
   render: (args) => {
     const [fleet, setFleet] = createSignal(args.setup);
     return (
-      <BattleshipSetupBoard
-        {...args}
-        setup={fleet()}
-        onChange={(value) => {
-          setFleet(value);
-          args.onChange(value);
-        }}
-      />
+      <Show when={args.initialPlacement} keyed>
+        <BattleshipSetupBoard
+          {...args}
+          setup={fleet()}
+          onChange={(value) => {
+            setFleet(value);
+            args.onChange(value);
+          }}
+        />
+      </Show>
     );
   },
   parameters: {
     appRouter: true,
     controls: { exclude: ['onChange'] },
   },
+  argTypes: {
+    initialPlacement: {
+      control: 'select',
+      options: ['responsive', 'full', 'enlarged'],
+    },
+  },
   args: {
+    initialPlacement: 'responsive',
     setup: '',
     side: 'white',
     locked: false,
@@ -46,7 +56,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** Nothing placed: the Carrier is chosen first, across, and every cell takes its bow. */
-export const Empty: Story = {};
+export const Empty: Story = {
+  play: async ({ canvasElement }) => {
+    if (window.innerWidth >= 640) return;
+    await checkSetupWorkspace(canvasElement);
+    await checkSetupPlacementBounds(
+      within(canvasElement).getByTestId('custom-game-setup-precision-cell-a1')
+    );
+  },
+};
 
 /** Two ships placed; the next unplaced ship is chosen and the count says how far along. */
 export const Partial: Story = {
@@ -61,6 +79,7 @@ export const Locked: Story = { args: { setup: FULL_FLEET, locked: true } };
 
 /** A Carrier with its bow at J1 would run off the board: refused, with the reason. */
 export const RefusedOffBoard: Story = {
+  args: { initialPlacement: 'full' },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
@@ -75,6 +94,7 @@ export const RefusedOffBoard: Story = {
 
 /** Choosing a cell places the chosen ship with its bow there. */
 export const PlaceAShip: Story = {
+  args: { initialPlacement: 'full' },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
@@ -86,6 +106,7 @@ export const PlaceAShip: Story = {
 
 /** Place every ship, recover an overlap, then rearrange the completed fleet. */
 export const ArrangeFullFleet: Story = {
+  args: { initialPlacement: 'full' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const click = async (suffix: string) =>
@@ -131,9 +152,9 @@ export const ArrangeFullFleet: Story = {
 export const EnlargedPlacement: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-enlarge')
-    );
+    if (!canvas.queryByTestId('custom-game-setup-precision'))
+      await userEvent.click(canvas.getByTestId('custom-game-setup-enlarge'));
+
     // regression: battleship-placement-unlabeled-complete-selection
     await expect(canvas.getByText('Ship', { exact: true })).toBeVisible();
     await expect(canvas.getByText('Region', { exact: true })).toBeVisible();
@@ -153,33 +174,31 @@ export const EnlargedPlacement: Story = {
     const previousTop = canvas
       .getByTestId('custom-game-setup-precision')
       .getBoundingClientRect().top;
-    await userEvent.click(bow);
+    await userEvent.keyboard('{Enter}');
     await checkSetupRecovery(canvasElement, previousTop);
     await expect(
       await canvas.findByTestId('custom-game-setup-refusal')
     ).toBeVisible();
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-rotate')
+    await checkSetupPlacementBounds(
+      canvas.getByTestId('custom-game-setup-precision-cell-a3')
     );
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-precision-cell-a3')
-    );
+    await userEvent.keyboard('r{ArrowDown}{ArrowDown}{Enter}');
     await expect(
       await canvas.findByTestId('custom-game-setup-cell-a6')
     ).toHaveAccessibleName('A6: Battleship');
     await expect(
       await canvas.findByTestId('custom-game-setup-progress')
     ).toHaveTextContent('2 of 5 ships placed');
-    for (const id of ['c3', 'e3']) {
-      const target = await canvas.findByTestId(
-        `custom-game-setup-precision-cell-${id}`
-      );
-      await checkSetupPlacementBounds(target);
-      await userEvent.click(target);
-    }
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-rotate')
-    );
+    await chooseSetupRegion(canvasElement, 'F–J / 1–5');
+    const cruiser = canvas.getByTestId('custom-game-setup-precision-cell-g2');
+    await checkSetupPlacementBounds(cruiser);
+    await userEvent.click(cruiser);
+    await chooseSetupRegion(canvasElement, 'A–E / 6–10');
+    await userEvent.click(canvas.getByTestId('custom-game-setup-rotate'));
+    const submarine = canvas.getByTestId('custom-game-setup-precision-cell-b8');
+    await checkSetupPlacementBounds(submarine);
+    await userEvent.click(submarine);
+    await chooseSetupRegion(canvasElement, 'A–E / 1–5');
     const last = await canvas.findByTestId(
       'custom-game-setup-precision-cell-b2'
     );

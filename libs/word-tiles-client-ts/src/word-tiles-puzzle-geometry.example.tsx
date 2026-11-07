@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { assertClear } from './word-tiles-geometry.example';
 
 /** Native geometry before a locator click can scroll the context into view. */
 export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
@@ -19,6 +20,18 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
   const viewport = canvas.getByRole('region', {
     name: 'Scrollable word board',
   });
+  await assertClear(viewport, false);
+  const overview = canvas.queryByTestId('word-tiles-puzzle-overview');
+  if (overview) {
+    // regression: word-tiles-blank-chooser-pushes-precision-below-fold
+    await assertClear(overview);
+    const regions = canvas.getByRole('group', { name: 'View a board region' });
+    for (const button of within(regions).getAllByRole('button'))
+      await assertClear(button);
+    await assertClear(
+      canvas.getByRole('button', { name: 'Board map: locate a square' })
+    );
+  }
   const bounds = viewport.getBoundingClientRect();
   const rack = canvas
     .getByTestId('word-tiles-puzzle-rack')

@@ -1,7 +1,16 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { createMediaQuery } from '../media-query';
+import { observeElementResize } from '../observe-element-resize';
 import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
@@ -64,13 +73,40 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
   });
 }
 
+function createPrecisionCenter(
+  viewport: () => HTMLDivElement | undefined,
+  root: () => HTMLDivElement | undefined,
+  enlarged: () => boolean,
+  focusIndex: () => number
+): void {
+  createEffect(() => {
+    const element = viewport();
+    if (!element || !enlarged()) return;
+    const center = () => {
+      const cell = root()?.querySelector<HTMLElement>(
+        `[data-index="${focusIndex()}"]`
+      );
+      if (!cell) return;
+      const bounds = cell.getBoundingClientRect();
+      const clip = element.getBoundingClientRect();
+      element.scrollLeft +=
+        bounds.left - clip.left - (clip.width - bounds.width) / 2;
+      element.scrollTop +=
+        bounds.top - clip.top - (clip.height - bounds.height) / 2;
+    };
+    center();
+    onCleanup(observeElementResize(element, center));
+  });
+}
+
 /**
  * A word-game board: a labelled grid of square buttons under column and row
  * headers. Empty squares print their bonus; tiles show their letter and
  * value, a tentative tile dashed and a last-turn tile ringed (each also in
  * its label, so colour never carries a state alone). One cell is the tab
  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
- * activates. It fits its container, shrinking its squares on small screens.
+ * activates. Phones start with precision cells and a whole-board region navigator;
+ * wider screens start fitted. An explicit view choice persists across resizing.
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [selectedIndex, setFocusIndex] = createSignal<number>();
@@ -78,12 +114,15 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     selectedIndex() ??
     Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
       Math.floor(props.columnLabels.length / 2);
-  const [enlarged, setEnlarged] = createSignal(false);
+  const compact = createMediaQuery('(max-width: 639px)');
+  const [choice, setEnlarged] = createSignal<boolean>();
+  const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
   // Read once per change: every square reads the list, and a caller that
   // computes it inline would otherwise rebuild it once per square.
   const cells = createMemo(() => props.cells);
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
+  createPrecisionCenter(viewport, () => root, enlarged, focusIndex);
   const onKey = (event: KeyboardEvent, index: number): void => {
     const next = cellGridStep(event, index, {
       columns: props.columnLabels.length,
@@ -100,7 +139,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   };
   return (
     <StackVertical gap="xs">
-      <Show when={props.purpose !== 'locator'}>
+      <Show when={props.purpose !== 'locator' && !enlarged()}>
         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
       </Show>
       <Show when={props.purpose === 'locator'}>
@@ -140,6 +179,10 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           <WordTileOverview
             board={props}
             viewport={viewport}
+            controls={
+              <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+            }
+            position={cells()[focusIndex()]?.label ?? ''}
             locator={(onChoose) => (
               <WordTileBoard
                 {...props}

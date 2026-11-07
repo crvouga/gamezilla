@@ -123,8 +123,13 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
     boardCells(shownPosition(), candidate(), editable())
   );
   const tiles = createMemo(() => rackTiles(candidate(), editable()));
+  const submit = () => {
+    const proposal = candidateProposal(candidate());
+    const action = proposal === null ? null : puzzleAction(proposal, ids());
+    if (action !== null) props.onAction(action);
+  };
   return {
-    ids,
+    submit,
     candidate,
     setCandidate,
     preview,
@@ -139,7 +144,7 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
 
 function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
   const {
-    ids,
+    submit,
     candidate,
     setCandidate,
     preview,
@@ -150,8 +155,12 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
     cells,
     tiles,
   } = createPuzzleBoard(props);
+  const showPreview = () =>
+    editable() &&
+    candidate().blankAt === null &&
+    props.lexicon.status === 'ready';
   return (
-    <StackVertical gap="sm" padding="lg" width="full" maxWidth="prose">
+    <StackVertical gap="xs" padding="lg" width="full" maxWidth="prose">
       <WordTilesPuzzleStatus
         target={target()}
         score={progress().score}
@@ -168,7 +177,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
             onChoose={(letter) => setCandidate((c) => assignBlank(c, letter))}
           />
         </Show>
-        <Show when={editable() && props.lexicon.status === 'ready'}>
+        <Show when={showPreview()}>
           <PuzzlePlacementFeedback
             preview={preview()}
             hasPlacement={
@@ -185,12 +194,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
               !preview().playable
             }
             dataSet={{ testid: 'word-tiles-puzzle-submit' }}
-            onClick={() => {
-              const proposal = candidateProposal(candidate());
-              const action =
-                proposal === null ? null : puzzleAction(proposal, ids());
-              if (action !== null) props.onAction(action);
-            }}
+            onClick={submit}
           />
           <Button
             title={t`Recall tiles`}

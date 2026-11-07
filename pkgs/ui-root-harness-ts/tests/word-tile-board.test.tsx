@@ -112,7 +112,11 @@ test('enlargement retains all squares in an overview and announces the chosen mo
   const view = example();
   const enlarge = view.getByRole('button', { name: 'Enlarge board' });
   fireEvent.click(enlarge);
-  expect(enlarge.getAttribute('aria-pressed')).toBe('true');
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('true');
   const overview = view.getByRole('img', {
     name: 'Whole board overview; outline shows the enlarged area',
   });
@@ -135,7 +139,11 @@ test('enlargement retains all squares in an overview and announces the chosen mo
   expect(indicator?.getAttribute('height')).toBe('1.625');
   fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
   expect(view.queryByRole('img')).toBeNull();
-  expect(enlarge.getAttribute('aria-pressed')).toBe('false');
+  expect(
+    view
+      .getByRole('button', { name: 'Enlarge board' })
+      .getAttribute('aria-pressed')
+  ).toBe('false');
 });
 
 // regression: word-tiles-overview-unreadable-context

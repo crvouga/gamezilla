@@ -11,6 +11,7 @@ import {
   type GameChoice,
   GameChoiceGrid,
 } from '@pkgs/ui-root-client-ts/game-choice-grid';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -89,10 +90,19 @@ function SetupCommands(props: {
  * `<testId>-progress`: the screen hosting it keeps `<testId>-status` for
  * its own word on the setup.
  */
-export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
+export function BattleshipSetupBoard(
+  props: GameSetupBoardProps & {
+    /** Responsive starts enlarged below 640px; an explicit choice lasts until unmount. */
+    initialPlacement?: 'responsive' | 'full' | 'enlarged';
+  }
+): JSX.Element {
   const setup = createSetupController(props);
   const statusId = createUniqueId();
-  const [enlarged, setEnlarged] = createSignal(false);
+  const phone = createMediaQuery('(max-width: 639px)');
+  const [enlarged, setEnlarged] = createSignal(
+    props.initialPlacement === 'enlarged' ||
+      ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())
+  );
   return (
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
       <P
@@ -137,7 +147,11 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           <Show when={!props.locked}>
             <Show
               when={setup.refusal()}
-              fallback={<P variant="caption">{setup.instruction()}</P>}
+              fallback={
+                <P variant="caption" testId={`${props.testId}-guidance`}>
+                  {setup.instruction()}
+                </P>
+              }
             >
               {(reason) => (
                 <P

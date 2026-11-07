@@ -16,7 +16,12 @@ import {
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { assertClear } from './word-tiles-geometry.example';
 import { expectBoardMap } from './word-tiles-map.example';
+import {
+  expectPrecisionDefault,
+  viewPrecisionRegion,
+} from './word-tiles-precision.example';
 import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
 
@@ -51,7 +56,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A fresh attempt: the target, the frozen board and the rack. */
-export const Ready: Story = {};
+export const Ready: Story = {
+  play: async ({ canvasElement }) =>
+    expectPrecisionDefault(canvasElement, 'word-tiles-puzzle'),
+};
 
 /** The last move fell short: its score against the target. */
 export const AfterAMove: Story = {
@@ -120,6 +128,7 @@ export const Unreadable: Story = {
 export const PlaceAWord: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await viewPrecisionRegion(canvasElement, 'View f11 to j15');
     for (const [tile, cell] of [
       ['17', 'i11'],
       ['0', 'i12'],
@@ -168,11 +177,15 @@ export const ReachTarget: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+    await viewPrecisionRegion(canvasElement, 'View a1 to e5');
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
     // Try a disconnected tile, then recover using the player's own recall action.
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-rack-0'));
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-a1'));
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-recall'));
+    await viewPrecisionRegion(canvasElement, 'View f6 to j10');
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
     // Extend CAT to CATS on the triple-letter square at j8.
     await userEvent.click(
       canvas.getByTestId(
@@ -216,22 +229,22 @@ export const EnlargedBlank: Story = {
     const canvas = within(canvasElement);
     // Check initial controls before userEvent can scroll to its first target.
     await expectPuzzlePlacementContext(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Enlarge board' })
-    );
+    const enlarge = canvas.getByRole('button', { name: 'Enlarge board' });
+    if (enlarge.getAttribute('aria-pressed') !== 'true')
+      await userEvent.click(enlarge);
     await expectPuzzlePlacementContext(canvasElement);
     await userEvent.click(
       canvas.getByTestId(
         `word-tiles-puzzle-rack-${rackTileIds(PUZZLE.rack)[4]}`
       )
     );
+    await assertClear(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
     await userEvent.click(canvas.getByTestId('word-tiles-puzzle-cell-j8'));
     await expectBlankTargets(canvasElement, 'word-tiles-puzzle');
     await expectPuzzlePlacementContext(canvasElement);
     await expect(canvas.getByTestId('word-tiles-puzzle-blank-A')).toHaveFocus();
-    for (let index = 0; index < 18; index += 1) await userEvent.tab();
-    await expect(canvas.getByTestId('word-tiles-puzzle-blank-S')).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
+    // regression: word-tiles-blank-direct-letter-entry
+    await userEvent.keyboard('s');
     await expect(canvas.getByTestId('word-tiles-puzzle-cell-j8')).toHaveFocus();
     await expect(
       canvas.getByTestId('word-tiles-puzzle-cell-j8')

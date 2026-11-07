@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setup-board';
+import { acceptFleet } from '@libs/battleship-shared-ts/battleship-fleet';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
@@ -76,4 +77,114 @@ test('overlap recovery stays in the placement workspace with ship, direction and
   await user.click(byTestId('setup-precision-cell-a3'));
   expect(fleet()).toBe('fleet:carrier@a1h;battleship@a3v');
   expect(screen.queryByTestId('setup-refusal')).toBeNull();
+});
+
+test('a phone opens comfortable placement without a mode discovery step', () => {
+  // regression: battleship-phone-placement-default
+  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: () => ({
+      matches: true,
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  });
+  try {
+    renderBoard(() => (
+      <SurfaceStackProvider>
+        <BattleshipSetupBoard
+          setup=""
+          side="white"
+          locked={false}
+          testId="setup"
+          onChange={() => undefined}
+        />
+      </SurfaceStackProvider>
+    ));
+    expect(screen.queryByTestId('setup-precision-cell-a1')).not.toBeNull();
+    expect(byTestId('setup-grid').closest('[inert]')).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Ship to place' }).textContent
+    ).toContain('Carrier');
+  } finally {
+    if (original) Object.defineProperty(window, 'matchMedia', original);
+    else Reflect.deleteProperty(window, 'matchMedia');
+  }
+});
+
+test('comfortable placement validates a complete fleet across four regions with keyboard recovery', async () => {
+  const [fleet, setFleet] = createSignal('');
+  renderBoard(() => (
+    <SurfaceStackProvider>
+      <BattleshipSetupBoard
+        setup={fleet()}
+        side="white"
+        locked={false}
+        testId="setup"
+        onChange={setFleet}
+        initialPlacement="enlarged"
+      />
+    </SurfaceStackProvider>
+  ));
+  const user = userEvent.setup();
+  const region = async (name: string) => {
+    await user.click(screen.getByRole('button', { name: 'Placement area' }));
+    await user.click(screen.getByRole('option', { name }));
+  };
+  byTestId('setup-precision-cell-a1').focus();
+  await user.keyboard('{Enter}{Enter}');
+  expect(fleet()).toBe('fleet:carrier@a1h');
+  expect(byTestId('setup-refusal').textContent).toContain('overlap');
+  await user.keyboard('r{ArrowDown}{ArrowDown}{Enter}');
+  expect(fleet()).toContain('battleship@a3v');
+  await region('F–J / 1–5');
+  await user.click(byTestId('setup-precision-cell-g2'));
+  await region('A–E / 6–10');
+  await user.click(byTestId('setup-rotate'));
+  await user.click(byTestId('setup-precision-cell-b8'));
+  await region('F–J / 6–10');
+  await user.click(byTestId('setup-precision-cell-i7'));
+  expect(fleet()).toBe(
+    'fleet:carrier@a1h;battleship@a3v;cruiser@g2v;submarine@b8h;destroyer@i7h'
+  );
+  expect(acceptFleet(fleet())).toBe(fleet());
+  expect(byTestId('setup-progress').textContent).toContain(
+    'All five ships placed'
+  );
+});
+
+test('locked comfortable placement keeps all waters visible and refuses editing', async () => {
+  const changes: string[] = [];
+  renderBoard(() => (
+    <SurfaceStackProvider>
+      <BattleshipSetupBoard
+        setup="fleet:carrier@a1h"
+        side="white"
+        locked
+        testId="setup"
+        onChange={(next) => changes.push(next)}
+        initialPlacement="enlarged"
+      />
+    </SurfaceStackProvider>
+  ));
+  expect(byTestId('setup-locked').textContent).toContain('locked in');
+  expect(document.body.textContent).not.toContain('Tap its first cell');
+  expect(byTestId('setup-grid').querySelectorAll('[data-cell]').length).toBe(
+    100
+  );
+  expect(
+    screen
+      .getByRole('button', { name: 'Ship to place' })
+      .hasAttribute('disabled')
+  ).toBe(true);
+  expect(
+    screen
+      .getByRole('button', { name: 'Placement area' })
+      .hasAttribute('disabled')
+  ).toBe(true);
+  const user = userEvent.setup();
+  await user.click(byTestId('setup-precision-cell-b2'));
+  await user.keyboard('r{Enter}');
+  expect(changes).toEqual([]);
 });

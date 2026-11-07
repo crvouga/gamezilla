@@ -45,7 +45,7 @@ function SeatBoard(props: {
     rackTiles(props.draft.candidate(), props.draft.editable())
   );
   return (
-    <StackVertical gap="sm">
+    <StackVertical gap="none">
       <LexiconRecovery draft={props.draft} />
       <Show
         when={props.draft.props.hand !== null}
@@ -91,7 +91,7 @@ function DraftBoard(props: {
     <Show
       when={props.draft.position()}
       fallback={
-        <StackVertical gap="sm">
+        <StackVertical gap="xs">
           <P>{t`This game cannot be shown by this app. Check your app version, install an available update, then reopen this game.`}</P>
           <TextLink
             href="/more/about"
@@ -123,7 +123,7 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
     <Show
       when={props.draft.props.hand !== null && props.draft.position() !== null}
     >
-      <StackVertical gap="sm">
+      <StackVertical gap="xs">
         <Show when={!props.draft.props.interactive && props.draft.editable()}>
           <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
         </Show>
@@ -135,7 +135,13 @@ function DraftControls(props: { draft: WordTilesDraft }): JSX.Element {
             }
           />
         </Show>
-        <Show when={props.draft.editable() && props.draft.preview()}>
+        <Show
+          when={
+            props.draft.editable() &&
+            props.draft.candidate().blankAt === null &&
+            props.draft.preview()
+          }
+        >
           {(preview) => (
             <WordTilesPreviewPanel preview={preview()} testId={testId()} />
           )}

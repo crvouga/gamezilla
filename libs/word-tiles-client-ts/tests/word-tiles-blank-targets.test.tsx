@@ -29,3 +29,16 @@ test('all 26 blank letters use full medium controls and native keyboard-focusabl
   fireEvent.click(view.getByRole('button', { name: 'S' }));
   expect(chosen).toEqual(['S']);
 });
+
+// regression: word-tiles-blank-direct-letter-entry
+test('typing lowercase s at the first blank choice immediately assigns S', () => {
+  const chosen: string[] = [];
+  const view = render(() => (
+    <WordTilesBlankChooser
+      testId="direct"
+      onChoose={(letter) => chosen.push(letter)}
+    />
+  ));
+  fireEvent.keyDown(view.getByRole('button', { name: 'A' }), { key: 's' });
+  expect(chosen).toEqual(['S']);
+});

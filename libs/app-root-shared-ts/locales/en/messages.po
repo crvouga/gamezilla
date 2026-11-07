@@ -1119,6 +1119,15 @@ msgstr "After 1 s"
 msgid "Agree draw"
 msgstr "Agree draw"
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Aim"
+msgstr "Aim"
+
+#. placeholder {0}: regions[area()]
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Aim: {0}"
+msgstr "Aim: {0}"
+
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -3781,10 +3790,6 @@ msgstr "King"
 msgid "Knight"
 msgstr "Knight"
 
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Larger targets"
-msgstr "Larger targets"
-
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Last activity"
 msgstr "Last activity"
@@ -4123,6 +4128,7 @@ msgstr "Manage subscription"
 msgid "Manual next puzzle"
 msgstr "Manual next puzzle"
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Map"
 msgstr "Map"
@@ -5392,6 +5398,10 @@ msgstr "Pong court"
 msgid "Practice runs don't count toward your progress."
 msgstr "Practice runs don't count toward your progress."
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Precise aim"
+msgstr "Precise aim"
+
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Preferences"
 msgstr "Preferences"
@@ -6433,10 +6443,6 @@ msgstr "Scores {total} points. Checking the words…"
 msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
-msgid "Scroll or use arrow keys. Map locates squares; Enter places a tile."
-msgstr "Scroll or use arrow keys. Map locates squares; Enter places a tile."
-
 #: pkgs/ui-root-client-ts/src/word-tile-board/index.tsx
 msgid "Scrollable word board"
 msgstr "Scrollable word board"
@@ -6670,10 +6676,6 @@ msgstr "Show performance monitor"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
-
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Show whole board"
-msgstr "Show whole board"
 
 #: libs/spaces-client-ts/src/space-miniplayer.tsx
 msgid "Show your live spaces"
@@ -7344,15 +7346,6 @@ msgstr "Target rating: {0}"
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-status.tsx
 msgid "Target reached. Puzzle solved!"
 msgstr "Target reached. Puzzle solved!"
-
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Target region"
-msgstr "Target region"
-
-#. placeholder {0}: regions[area()]
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Target region: {0}"
-msgstr "Target region: {0}"
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "target score"
@@ -8497,6 +8490,16 @@ msgstr "Version and diagnostics"
 msgid "Vertical wall"
 msgstr "Vertical wall"
 
+#. placeholder {0}: region(index).start
+#. placeholder {1}: region(index).end
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+msgid "View {0} to {1}"
+msgstr "View {0} to {1}"
+
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
+msgid "View a board region"
+msgstr "View a board region"
+
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "View profile"
 msgstr "View profile"
@@ -8629,7 +8632,7 @@ msgstr "Who's here"
 msgid "Whole board locator"
 msgstr "Whole board locator"
 
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
+#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-regions.tsx
 msgid "Whole board overview; outline shows the enlarged area"
 msgstr "Whole board overview; outline shows the enlarged area"
 

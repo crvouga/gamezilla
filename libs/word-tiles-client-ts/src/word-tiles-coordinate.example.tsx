@@ -39,17 +39,20 @@ async function assertFocusedCoordinates(
     'custom-game-board-overview'
   );
   const context = overview.getBoundingClientRect();
-  await expect(context.top).toBeGreaterThanOrEqual(clip.top);
-  await expect(context.bottom).toBeLessThanOrEqual(clip.bottom);
-  await expect(context.left).toBeGreaterThanOrEqual(clip.right);
+  await expect(context.top).toBeGreaterThanOrEqual(clip.bottom);
+  await expect(context.bottom).toBeLessThanOrEqual(window.innerHeight);
+  await expect(context.left).toBeGreaterThanOrEqual(clip.left);
+  await expect(context.right).toBeLessThanOrEqual(clip.right);
 }
 
 /** Keyboard navigation must reveal its cell without concealing either coordinate. */
 export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   await checkInitialWordWorkspace(canvasElement);
-  await userEvent.click(
-    within(canvasElement).getByRole('button', { name: 'Enlarge board' })
-  );
+  const enlarge = within(canvasElement).getByRole('button', {
+    name: 'Enlarge board',
+  });
+  if (enlarge.getAttribute('aria-pressed') !== 'true')
+    await userEvent.click(enlarge);
   // regression: word-tiles-enlarged-context-loss
   const canvas = within(canvasElement);
   const overview = canvas.getByTestId('custom-game-board-overview');
@@ -61,6 +64,13 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: 'Enlarge board' })
   ).toHaveAttribute('aria-pressed', 'true');
   await checkPrecisionWorkspace(canvasElement);
+  canvas
+    .getByTestId('custom-game-board-cell-h8')
+    .focus({ preventScroll: true });
+  await assertFocusedCoordinates(canvasElement, 'h8');
+  await userEvent.click(canvas.getByRole('button', { name: 'View a1 to e5' }));
+  await assertFocusedCoordinates(canvasElement, 'c3');
+  await userEvent.click(canvas.getByRole('button', { name: 'View f6 to j10' }));
   await assertFocusedCoordinates(canvasElement, 'h8');
   for (const [keys, cell] of [
     ['{Control>}{Home}{/Control}', 'a1'],
@@ -92,7 +102,7 @@ async function checkPrecisionWorkspace(
   await expect(rect.width).toBeGreaterThanOrEqual(308);
   await expect(rect.width / available.width).toBeGreaterThanOrEqual(0.8);
   await expect(rect.height).toBeGreaterThanOrEqual(308);
-  await expect(context.width / available.width).toBeLessThanOrEqual(0.2);
+  await expect(context.width).toBeGreaterThanOrEqual(132);
   await assertClear(viewport, false);
   await assertClear(overview);
   await assertClear(canvas.getByTestId('custom-game-board-rack'));

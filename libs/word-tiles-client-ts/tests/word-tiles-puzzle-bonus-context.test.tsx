@@ -44,6 +44,10 @@ test('AEST?RN at j8 explains the covered triple-letter square beside the rack', 
   expect(document.activeElement).toBe(
     view.getByTestId('word-tiles-puzzle-blank-A')
   );
+  // regression: word-tiles-blank-duplicate-instruction
+  expect(
+    view.getAllByText(/^Choose the letter your blank plays\.?$/)
+  ).toHaveLength(1);
   fireEvent.click(view.getByTestId('word-tiles-puzzle-blank-S'));
   expect(document.activeElement).toBe(
     view.getByTestId('word-tiles-puzzle-cell-j8')

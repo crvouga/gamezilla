@@ -57,7 +57,10 @@ export function WordTilesBlankChooser(props: {
   return (
     <StackVertical gap="xs">
       <P variant="bodyBold">{t`Choose the letter your blank plays`}</P>
-      <WordTileLetterChoices label={t`Choose the letter your blank plays`}>
+      <WordTileLetterChoices
+        label={t`Choose the letter your blank plays`}
+        onLetter={props.onChoose}
+      >
         <For each={letters}>
           {(letter) => (
             <Button

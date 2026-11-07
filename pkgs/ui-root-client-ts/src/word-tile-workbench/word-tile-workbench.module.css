@@ -1,7 +1,7 @@
 .workbench {
   display: grid;
   min-width: 0;
-  gap: var(--ui-space-2);
+  gap: var(--ui-space-1);
 }
 .workbench button,
 .workbench [role="status"] {
@@ -21,7 +21,7 @@
 .letters {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ui-space-1);
+  gap: 0;
 }
 .letters button {
   padding-inline: var(--ui-space-1);

@@ -152,15 +152,15 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
-  height: calc(var(--ui-control-size-lg) * 6);
-  max-height: 48dvh;
+  height: calc(var(--ui-control-size-md) * 7);
+  min-height: calc(var(--ui-control-size-md) * 7);
 }
 .board[data-enlarged="true"] {
   width: max-content;
   max-width: none;
   grid-template-columns: var(--ui-space-4) repeat(
       var(--word-tile-columns),
-      var(--ui-control-size-lg)
+      var(--ui-control-size-md)
     );
 }
 
@@ -191,12 +191,13 @@
 .precision {
   container-type: inline-size;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--ui-space-1);
   min-width: 0;
 }
 .precision > .viewport {
-  flex: 1;
+  flex: none;
 }
 
 @container (min-width: 32rem) {
@@ -214,4 +215,12 @@
 .board[data-measure="compact"][data-enlarged="false"] {
   max-width: calc(var(--ui-control-size-lg) * 9);
   margin-inline: auto;
+}
+
+.cell[data-state="empty"][data-square]:not([data-square="none"]) {
+  background: var(--ui-color-game-word-tiles-surface);
+  color: var(--ui-color-game-word-tiles-ink);
+}
+.square {
+  font-weight: 400;
 }

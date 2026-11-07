@@ -49,7 +49,7 @@ test('a mistaken edge target can be corrected before spending the shot', () => {
 
 test('keyboard selection previews a shot before confirmation', async () => {
   const actions = mount();
-  const cell = byTestId('precision-target-a1');
+  const cell = byTestId('precision-aim-a1');
   cell.focus();
   const user = userEvent.setup({ delay: null });
   await user.keyboard('{Enter}');
@@ -98,13 +98,11 @@ test('a refreshed game record preserves the selected target when its position is
 test('large targeting areas partition all 100 cells and allow correction and cancellation', () => {
   // regression: battleship-large-targets-unavailable
   const actions = mount();
-  fireEvent.click(byTestId('precision-large-targets'));
   const seen = new Set<string>();
-  for (let area = 0; area < 4; area += 1) {
-    fireEvent.click(byTestId('precision-region'));
+  for (let area = 0; area < 10; area += 1) {
     fireEvent.click(byTestId(`precision-area-${area}`));
-    const cells = byTestId('precision-target-grid').querySelectorAll('button');
-    expect(cells.length).toBe(25);
+    const cells = byTestId('precision-aim-grid').querySelectorAll('button');
+    expect(cells.length).toBe(10);
     for (const cell of cells) seen.add(cell.getAttribute('data-testid') ?? '');
   }
   expect(seen.size).toBe(100);
@@ -142,9 +140,12 @@ test('enlarging J10 opens its region and returning to all waters preserves the a
       'c3:hit',
     ])
   );
+  fireEvent.click(byTestId('precision-large-targets'));
   fireEvent.click(byTestId('precision-target-j10'));
   fireEvent.click(byTestId('precision-large-targets'));
-  expect(byTestId('precision-region').textContent).toContain('F6–J10');
+  expect(byTestId('precision-area-9').getAttribute('aria-pressed')).toBe(
+    'true'
+  );
   expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
     'recent'
   );

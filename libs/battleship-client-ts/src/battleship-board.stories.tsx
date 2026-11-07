@@ -101,6 +101,7 @@ export const Opening: Story = {};
 
 /** Mid-game on Blue's turn: a sunk destroyer, hits and misses on both boards. */
 export const YourTurn: Story = {
+  play: async ({ canvasElement }) => assertTargetWorkbench(canvasElement),
   args: { position: after(VOLLEYS) },
   parameters: {
     table: { moves: recorded(after(VOLLEYS)) } satisfies GameTableStory,
@@ -208,10 +209,17 @@ function shotJourney(
     },
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
-      const cell = await canvas.findByTestId(
-        `custom-game-board-target-${target}`
+      await assertTargetWorkbench(canvasElement);
+      const area =
+        Number(target.charAt(0) >= 'f') +
+        Math.floor((Number(target.slice(1)) - 1) / 2) * 2;
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-area-${area}`)
       );
-      await userEvent.click(cell);
+      const aim = canvas.getByTestId(`custom-game-board-aim-${target}`);
+      await assertTargetViewport(canvasElement, [aim]);
+      await userEvent.click(aim);
+      const cell = canvas.getByTestId(`custom-game-board-target-${target}`);
       await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
       await expect(cell).toHaveAccessibleName(outcome);
       await expect(cell).toHaveAttribute('aria-disabled', 'true');
@@ -257,23 +265,15 @@ export const CorrectTargetBeforeFiring: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // regression: battleship-touch-spends-mistarget
-    await assertTargetViewport(canvasElement, [
-      canvas.getByTestId('custom-game-board-target-j10'),
-      canvas.getByTestId('custom-game-board-fire'),
-      canvas.getByTestId('custom-game-board-large-targets'),
-    ]);
-    await userEvent.click(
-      canvas.getByTestId('custom-game-board-large-targets')
-    );
-    await userEvent.click(canvas.getByTestId('custom-game-board-region'));
-    await userEvent.click(
-      within(canvasElement.ownerDocument.body).getByTestId(
-        'custom-game-board-area-3'
-      )
-    );
+    await assertTargetWorkbench(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-aim-b1'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-area-9'));
+    await expect(
+      canvas.getByTestId('custom-game-board-fire')
+    ).toHaveTextContent('Fire at B1');
     await assertTargetWorkbench(canvasElement);
     const targetBounds = canvas
-      .getByTestId('custom-game-board-target-j10')
+      .getByTestId('custom-game-board-aim-j10')
       .getBoundingClientRect();
     await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
     await expect(targetBounds.width).toBeLessThanOrEqual(64);
@@ -281,16 +281,16 @@ export const CorrectTargetBeforeFiring: Story = {
     await userEvent.pointer([
       {
         keys: '[TouchA]',
-        target: canvas.getByTestId('custom-game-board-target-j9'),
+        target: canvas.getByTestId('custom-game-board-aim-j9'),
       },
     ]);
     await expect(
-      canvas.getByTestId('custom-game-board-target-j9')
+      canvas.getByTestId('custom-game-board-aim-j9')
     ).toHaveAccessibleName('Fire at J9');
     await userEvent.pointer([
       {
         keys: '[TouchA]',
-        target: canvas.getByTestId('custom-game-board-target-j10'),
+        target: canvas.getByTestId('custom-game-board-aim-j10'),
       },
     ]);
     await expect(
@@ -299,10 +299,10 @@ export const CorrectTargetBeforeFiring: Story = {
     await assertTargetWorkbench(canvasElement, true);
     await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
     await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
-    await userEvent.click(canvas.getByTestId('custom-game-board-target-j10'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-aim-j10'));
     await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
     await expect(
-      canvas.getByTestId('custom-game-board-target-j10')
+      canvas.getByTestId('custom-game-board-aim-j10')
     ).toHaveAccessibleName('J10: miss, latest shot');
   },
 };

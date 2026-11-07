@@ -89,14 +89,33 @@ export function WordTileActions(props: {
   );
 }
 
-/** Disjoint full-sized blank-letter choices; keyboard entry starts at the first letter. */
+/** Disjoint full-sized blank-letter choices; typing a letter chooses it directly. */
 export function WordTileLetterChoices(props: {
   label: string;
+  onLetter?: (letter: string) => void;
   children: JSX.Element;
 }): JSX.Element {
   let root: HTMLDivElement | undefined;
+  const chooseKey = (event: KeyboardEvent): void => {
+    if (
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      !/^[a-z]$/i.test(event.key)
+    )
+      return;
+    event.preventDefault();
+    props.onLetter?.(event.key.toUpperCase());
+  };
   onMount(() => {
     const previous = document.activeElement;
+    const buttons = root?.querySelectorAll('button');
+    for (const button of buttons ?? [])
+      button.addEventListener('keydown', chooseKey);
+    onCleanup(() => {
+      for (const button of buttons ?? [])
+        button.removeEventListener('keydown', chooseKey);
+    });
     root
       ?.querySelector<HTMLButtonElement>('button')
       ?.focus({ preventScroll: true });

@@ -1,0 +1,11 @@
+/* Keep the score strip beside compact precision workspaces within the initial
+   phone viewport. The board's production attributes survive test-hook removal. */
+.column:has([data-measure="compact"]) {
+  gap: 0;
+}
+.stage:has([data-measure="compact"]) {
+  gap: 0;
+}
+.board:has([data-measure="compact"]) {
+  gap: 0;
+}

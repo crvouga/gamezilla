@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844 YourTurn pushes the local seat below the initial viewport; the compact targeting workbench checks the seat before input can scroll it into view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

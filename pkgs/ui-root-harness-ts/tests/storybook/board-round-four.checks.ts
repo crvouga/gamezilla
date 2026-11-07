@@ -99,6 +99,8 @@ test('screens-games-word-tiles-board--accepted-exchange regression word-tiles-ex
 // New board-local compositions retain desktop evidence as well as the canonical phone cases.
 for (const id of [
   'games-battleship-placement-layout--enlarged',
+  'games-battleship-target-layout--precise',
+  'games-battleship-target-layout--map-only',
   'product-wordtileworkbench--recovery',
 ]) {
   for (const theme of ['light', 'dark']) {

@@ -9,6 +9,10 @@ export async function expectBlankTargets(
   // regression: word-tiles-blank-letter-content-overflow
   // regression: word-tiles-blank-small-targets
   const canvas = within(canvasElement);
+  // regression: word-tiles-blank-duplicate-instruction
+  await expect(
+    canvas.getAllByText(/^Choose the letter your blank plays\.?$/)
+  ).toHaveLength(1);
   const boxes: DOMRect[] = [];
   for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
     const button = canvas.getByTestId(`${testId}-blank-${letter}`);
