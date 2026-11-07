@@ -23,6 +23,7 @@ import { raceUntilAborted } from './race-until-aborted';
 import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 import type { TableChangeBus } from './table-change-bus';
+import { validMutationResponse } from './valid-mutation-response';
 
 // The wire accepts larger batches, but replay holds a pooled database session
 // for the whole request. Keep an offline backlog from monopolizing that hold.
@@ -168,22 +169,8 @@ async function applyUploadResult(
   result: MutationUploadResult,
   now: () => number
 ): Promise<void> {
-  if (result.verdicts.length !== pending.length) {
-    throw new Error(
-      `mutation upload verdict count mismatch: ${result.verdicts.length} verdicts for ${pending.length} pending`
-    );
-  }
-  const pendingIds = new Set(pending.map((row) => row.id));
-  for (const verdict of result.verdicts) {
-    assert.ok(
-      verdict.mutationId.length > 0,
-      'mutation verdict id must be non-empty'
-    );
-    if (!pendingIds.has(verdict.mutationId)) {
-      throw new Error(
-        `mutation upload verdict id not pending: ${verdict.mutationId}`
-      );
-    }
+  if (!validMutationResponse(result, pending.map(toWireRow))) {
+    throw new Error('Invalid mutation upload acknowledgement');
   }
 
   const clientId = options.clientId();
