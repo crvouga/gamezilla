@@ -335,3 +335,21 @@ Only these 16 approved baseline reconciliations were adopted.
 
 The full ci:storybook task then passed all 380 checks without snapshot updates.
 The complete local catalog remains pending.
+
+## Round nineteen release registration fixture
+
+Full verification cleared Storybook (380 checks) and recorded 428 executed
+successes before a release-entry registration test failed. Its fixture supplied
+web and API origins but omitted idpOrigins.google, throwing before registration
+assertions ran. A literal module-scope regression reproduced the same error.
+
+The fixture now supplies typed Google and Apple origins. Separate live and
+release examples retain all 13 exact journey/health bindings, rejection of a
+local DOM harness and the successful child-process assertion. Product behavior
+and specs are unchanged. The critic found no weakened assertion; overall
+scores remain 10/9/9/10 pending full verification.
+
+All 87 tests in the affected product shard, lint, typechecks and goals pass.
+Cache sync changed no derived files. Four current Quoridor captures pass
+without updates; they are unchanged visual context for the bound journeys,
+not proof of the fixture correction. That proof is the red/green regression.
