@@ -106,3 +106,19 @@ containment and header non-overlap assertions preserved.
 All 71 affected browser cases pass, along with goals, lint and typecheck. The
 independent critic found no weakened assertions or new product blockers; scores
 remain 10/9/9/10 pending the complete gate.
+
+## Round six coordinate clearance
+
+Hosted verification is green. The next full local run completed 596 tasks before
+an inherited native-browser contract found nine overlapping ink pixels between
+file b and the b1 white knight at 358px. Boards with internal coordinates now
+use an 80% piece footprint; other boards retain 84%, including frames that move
+coordinates outside the squares. Labels, hitboxes and game rules are unchanged.
+The existing zero-overlap matrix and all 31 native browser contracts pass. The
+critic found no assertion weakening; full verification remains required.
+
+The critic approved all ten compact-board captures. Their previous goldens date
+from a 100% piece footprint and older coordinate styling; accepting these images
+also reconciles that inherited drift. The production change in this round is
+84% to 80% only where coordinates remain inside squares. Promotion captures show
+the pre-choice board, not an open chooser; native contracts cover that behavior.
