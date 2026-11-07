@@ -1,5 +1,53 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
+// regression: account-connect-error-label-clipped
+test('storybook integration: Apple connection retry fits at 390 pixels', async ({
+  page,
+}) => {
+  await open(page, 'screens-account--connect-failed', 390, 'light');
+  const retry = page.getByTestId('account-link-provider-apple');
+  await expect(retry).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText("Couldn't reach Apple");
+  await expect(retry).toHaveAccessibleName('Try again');
+  expect(
+    await textBounds(retry.locator('p:not([aria-hidden="true"] p)'))
+  ).toEqual([]);
+});
+
+// regression: friend-long-name-escapes-profile
+test('storybook integration: the long username leaves Block reachable at 390 pixels', async ({
+  page,
+}) => {
+  await open(page, 'screens-friends-user--long-name', 390, 'light');
+  await expect(page.getByTestId('friend-user-username')).toHaveText(
+    '@a_really_long_username_that_keeps_going_and_going'
+  );
+  const title = page.getByRole('heading', { level: 1 });
+  const block = page.getByRole('button', { name: 'Block', exact: true });
+  await expect(title).toBeVisible();
+  await expect(block).toBeVisible();
+  const titleBox = await title.boundingBox();
+  const blockBox = await block.boundingBox();
+  if (!titleBox || !blockBox)
+    throw new Error('Profile header controls are missing');
+  expect(titleBox.x).toBeGreaterThanOrEqual(0);
+  expect(titleBox.x + titleBox.width).toBeLessThanOrEqual(blockBox.x);
+  expect(blockBox.x + blockBox.width).toBeLessThanOrEqual(390);
+});
+
+// regression: synthetic-population-initial-state-fixture-saveable
+test('storybook integration: failed initial population configuration cannot be saved', async ({
+  page,
+}) => {
+  await open(page, 'screens-admin-synthetic-population--failed', 390, 'light');
+  await expect(
+    page.getByRole('button', {
+      name: 'Save synthetic population',
+      exact: true,
+    })
+  ).toBeDisabled();
+});
+
 async function open(page: Page, story: string, width: number, theme: string) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(
