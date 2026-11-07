@@ -242,7 +242,7 @@ function framesSeats(
   }
   for (const viewer of [null, ...sides])
     for (const committed of [[], sides]) {
-      const status = frame.turnStatus(position, viewer, committed);
+      const status = frame.turnStatus(position, viewer, committed, () => null);
       must(
         status === null || filled(status),
         `the turn line for ${String(viewer)} is empty`

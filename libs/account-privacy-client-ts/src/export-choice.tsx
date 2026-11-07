@@ -8,6 +8,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
+import type { PrivacyActionAccess } from './privacy-action-access';
 import { exportReadyByMs, formatPrivacyMoment } from './privacy-dates';
 import type { ExportPhase } from './privacy-export-state';
 import type { AccountPrivacyRow } from './use-account-privacy';
@@ -53,6 +54,7 @@ function ExportStatus(props: {
 }
 
 export type ExportChoiceProps = {
+  readonly access: PrivacyActionAccess;
   readonly row: AccountPrivacyRow | null;
   readonly phase: ExportPhase;
   /** Why the last request was refused, with its way forward. */
@@ -69,6 +71,48 @@ export type ExportChoiceProps = {
  * The export request: a button (confirm-first while a ready export would be
  * replaced), any refusal, and where the export stands.
  */
+function ExportRequestControl(props: {
+  readonly choice: ExportChoiceProps;
+  readonly request: ReturnType<typeof useMutationButton>;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <>
+      <Show
+        when={
+          props.choice.access.kind === 'allowed' ||
+          props.request.feedback() !== 'idle'
+        }
+      >
+        <Show
+          when={props.choice.phase === 'readyToReplace'}
+          fallback={
+            <Button
+              {...props.request.buttonProps}
+              dataSet={{ testid: 'privacy-export-request' }}
+            />
+          }
+        >
+          <Button
+            title={t`Request personal-data export`}
+            onClick={() => props.choice.onReviewReplace()}
+            dataSet={{ testid: 'privacy-export-request' }}
+          />
+        </Show>
+      </Show>
+      <Show
+        when={
+          props.choice.access.kind === 'denied'
+            ? props.choice.access.denial
+            : undefined
+        }
+      >
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
+      </Show>
+    </>
+  );
+}
+
 export function ExportChoice(props: ExportChoiceProps): JSX.Element {
   const { t } = useLingui();
   const request = useMutationButton({
@@ -82,23 +126,9 @@ export function ExportChoice(props: ExportChoiceProps): JSX.Element {
   });
   return (
     <StackVertical gap="md">
-      <Show
-        when={props.phase === 'readyToReplace'}
-        fallback={
-          <Button
-            {...request.buttonProps}
-            dataSet={{ testid: 'privacy-export-request' }}
-          />
-        }
-      >
-        <Button
-          title={t`Request personal-data export`}
-          onClick={() => props.onReviewReplace()}
-          dataSet={{ testid: 'privacy-export-request' }}
-        />
-      </Show>
+      <ExportRequestControl choice={props} request={request} />
       <Show when={props.denial}>
-        {(denial) => <DenialSurfaceView denial={denial()} />}
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
       </Show>
       <ExportStatus row={props.row} phase={props.phase} />
       <MutationModal

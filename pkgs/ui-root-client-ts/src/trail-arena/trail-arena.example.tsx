@@ -45,6 +45,11 @@ function SteeredArena(props: {
     <StackVertical gap="md">
       <P id={props.helpId}>{props.help}</P>
       <TrailArena
+        touchRegions={
+          round().riders.filter((rider) => rider.controlled).length === 2
+            ? ['Left rider · WASD', 'Right rider · arrows']
+            : undefined
+        }
         width={WIDTH}
         height={HEIGHT}
         cells={round().cells}

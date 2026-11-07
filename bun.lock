@@ -149,6 +149,7 @@
         "@pkgs/sync-engine-server-ts": "workspace:*",
         "@pkgs/tailwind-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
         "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
@@ -223,6 +224,7 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "storybook": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plugin-solid": "catalog:",
@@ -780,6 +782,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@solidjs/router": "catalog:",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
         "storybook": "catalog:",
@@ -2325,7 +2328,7 @@
         "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/tts-root-server-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
-        "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
@@ -7543,6 +7546,12 @@
     "pkgs/ui-testing-bun-webview-server-ts": {
       "name": "@pkgs/ui-testing-bun-webview-server-ts",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

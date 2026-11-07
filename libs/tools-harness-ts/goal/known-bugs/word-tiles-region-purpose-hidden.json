@@ -1,0 +1,4 @@
+{
+  "summary": "CAT/TOE fifteen-column board has nine unlabeled visible region controls; show purpose and direction before activation.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Invalid TOEEA puzzle placement looked like ordinary move information instead of actionable refusal.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-puzzle-refusal.test.tsx"
+}

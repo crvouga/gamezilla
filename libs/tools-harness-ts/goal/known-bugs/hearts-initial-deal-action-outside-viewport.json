@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts initial-deal bounds checked cards alone and omitted the primary pass action; static Passing had no pre-interaction geometry check.",
+  "regressionTest": "libs/hearts-client-ts/tests/hand-bounds.test.ts"
+}

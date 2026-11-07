@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x844, Classic precise coordinates e2 then preview d4h placed wall confirmation outside the viewport; Hill four-player and recovery fixtures also exposed the unbounded wide board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles editing actions were separated from the rack by the entire board.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx"
+}

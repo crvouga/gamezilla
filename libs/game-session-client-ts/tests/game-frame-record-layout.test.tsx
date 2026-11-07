@@ -47,6 +47,9 @@ function mount(ui: () => JSX.Element, width: number): void {
 }
 
 const handlers = {
+  phase: 'active' as const,
+  connection: 'online' as const,
+  stopped: false,
   onSeek: () => undefined,
   onReturnLive: () => undefined,
   onSelectRecord: () => undefined,

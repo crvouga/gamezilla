@@ -1,0 +1,4 @@
+{
+  "summary": "Literal seven-tile match rack exposed seven actions across three rows before the phone board. Keep primary exposed and secondary tools in an accessible disclosure with focus recovery.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-board.test.tsx"
+}

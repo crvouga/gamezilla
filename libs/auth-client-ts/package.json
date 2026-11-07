@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@solidjs/router": "catalog:",
     "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
     "storybook": "catalog:",

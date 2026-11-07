@@ -117,6 +117,8 @@ export type GameFrameAction = {
   readonly label: string;
   readonly enabled: boolean;
   readonly emphasis?: 'primary';
+  /** A required non-board choice may lead the board instead of following it. */
+  readonly placement?: 'before-board';
   /** For a tool that stays chosen (a mode): whether it is chosen now. */
   readonly pressed?: boolean;
   readonly run: () => void;
@@ -131,6 +133,9 @@ export type GameOutlineStep = {
   readonly detail: string;
   readonly current: boolean;
 };
+
+/** A resolved public display name; null means the identity is not known. */
+export type GamePlayerName = (side: GameSide) => string | null;
 
 /** One seat of the game, as the frame shows it. */
 export type GameFrameSeat = {
@@ -209,12 +214,13 @@ export type GameFrame<View> = {
   /**
    * The game's own line about the turn (`Your turn to fire.`), for `viewer`
    * (`null` for a watcher), given the sides that have committed in the
-   * phase open now; `null` leaves the frame's `<Side> to move.`.
+   * phase open now and resolved public player names; `null` leaves the frame's `<Side> to move.`.
    */
   readonly turnStatus: (
     position: string,
     viewer: GameSide | null,
-    committed: readonly GameSide[]
+    committed: readonly GameSide[],
+    nameOf: GamePlayerName
   ) => string | null;
   /** The finished game in `position`, which `winner` won. */
   readonly result: (position: string, winner: GameWinner) => GameResultSummary;

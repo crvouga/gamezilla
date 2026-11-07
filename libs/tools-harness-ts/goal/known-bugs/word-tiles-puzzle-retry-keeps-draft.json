@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle word-list failure had no usable retry and no initial failure explanation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

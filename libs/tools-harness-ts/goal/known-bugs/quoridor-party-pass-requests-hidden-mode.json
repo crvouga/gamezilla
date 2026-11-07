@@ -1,0 +1,4 @@
+{
+  "summary": "Forced-pass automation waited for a move mode control that the pass-only board does not expose.",
+  "regressionTest": "libs/quoridor-shared-ts/tests/quoridor-pass-automation.test.ts"
+}

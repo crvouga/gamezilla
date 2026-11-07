@@ -1,0 +1,4 @@
+{
+  "summary": "Dark Battleship open-cell boundaries were approximately 1.29:1 against water.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

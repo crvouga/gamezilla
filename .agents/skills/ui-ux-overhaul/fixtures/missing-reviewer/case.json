@@ -1,0 +1,6 @@
+{
+  "roster": ["claude", "codex", "gemini"],
+  "minimum": 9,
+  "expectedVerdict": "INCOMPLETE",
+  "why": "gemini timed out: a roster member without a review leaves the round incomplete"
+}

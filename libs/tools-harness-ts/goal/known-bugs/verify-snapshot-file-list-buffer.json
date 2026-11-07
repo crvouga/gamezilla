@@ -1,0 +1,4 @@
+{
+  "summary": "Full verification failed before checks when the repository file list exceeded the default one MiB child-process output buffer.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-snapshot.test.ts"
+}

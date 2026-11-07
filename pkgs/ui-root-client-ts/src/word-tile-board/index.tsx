@@ -1,7 +1,22 @@
+import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { createMediaQuery } from '../media-query';
+import { observeElementResize } from '../observe-element-resize';
+import { StackVertical } from '../stack/index';
+import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
+import { BoardRows } from './word-tile-cell';
+import { WordTileOverview } from './word-tile-overview';
+import { WordTileViewControls } from './word-tile-view-controls';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
 export type WordTileSquare = 'DL' | 'TL' | 'DW' | 'TW' | 'start';
@@ -28,6 +43,10 @@ export type WordTileBoardCell = {
 };
 
 export type WordTileBoardProps = {
+  /** Locator mode shows the whole board; activation chooses a location, never a move. */
+  readonly purpose?: 'placement' | 'locator';
+  /** Compact fitted board leaves room for rack and puzzle actions; enlarged cells stay full size. */
+  readonly measure?: 'full' | 'compact';
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -40,58 +59,44 @@ export type WordTileBoardProps = {
   readonly describedBy?: string | undefined;
 };
 
-function BoardCell(props: {
-  board: WordTileBoardProps;
-  cells: () => readonly WordTileBoardCell[];
-  index: number;
-  focusable: boolean;
-  onFocusIndex: (index: number) => void;
-  onKey: (event: KeyboardEvent, index: number) => void;
-}): JSX.Element {
-  const cell = () => props.cells()[props.index];
-  return (
-    <button
-      type="button"
-      class={styles['cell']}
-      data-index={props.index}
-      data-cell={cell()?.id}
-      data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
-      data-state={cell()?.state ?? 'empty'}
-      data-square={cell()?.square ?? 'none'}
-      aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled !== true}
-      tabIndex={props.focusable ? 0 : -1}
-      onFocus={() => props.onFocusIndex(props.index)}
-      onKeyDown={(event) => props.onKey(event, props.index)}
-      onClick={() => {
-        const id = cell()?.id;
-        if (id !== undefined && cell()?.enabled === true)
-          props.board.onActivate?.(id);
-      }}
-    >
-      <Show
-        when={cell()?.letter}
-        fallback={
-          <span class={styles['square']} aria-hidden="true">
-            <Show when={cell()?.square}>
-              {(square) => props.board.squareText(square())}
-            </Show>
-          </span>
-        }
-      >
-        <span class={styles['letter']} aria-hidden="true">
-          {cell()?.letter}
-        </span>{' '}
-        <span class={styles['points']} aria-hidden="true">
-          {cell()?.points ?? ''}
-        </span>
-      </Show>
-    </button>
+function focusCell(root: HTMLDivElement | undefined, index: number): void {
+  const cell = root?.querySelector<HTMLButtonElement>(
+    `[data-index="${index}"]`
   );
+  cell?.focus();
+  // The overview narrows the viewport. Reveal the whole cell after layout,
+  // retaining the sticky coordinate clearance declared by the board.
+  cell?.scrollIntoView({
+    block: 'nearest',
+    inline: 'nearest',
+    behavior: 'instant',
+  });
 }
 
-function range(count: number): readonly number[] {
-  return Array.from({ length: count }, (_, n) => n);
+function createPrecisionCenter(
+  viewport: () => HTMLDivElement | undefined,
+  root: () => HTMLDivElement | undefined,
+  enlarged: () => boolean,
+  focusIndex: () => number
+): void {
+  createEffect(() => {
+    const element = viewport();
+    if (!element || !enlarged()) return;
+    const center = () => {
+      const cell = root()?.querySelector<HTMLElement>(
+        `[data-index="${focusIndex()}"]`
+      );
+      if (!cell) return;
+      const bounds = cell.getBoundingClientRect();
+      const clip = element.getBoundingClientRect();
+      element.scrollLeft +=
+        bounds.left - clip.left - (clip.width - bounds.width) / 2;
+      element.scrollTop +=
+        bounds.top - clip.top - (clip.height - bounds.height) / 2;
+    };
+    center();
+    onCleanup(observeElementResize(element, center));
+  });
 }
 
 /**
@@ -100,16 +105,24 @@ function range(count: number): readonly number[] {
  * value, a tentative tile dashed and a last-turn tile ringed (each also in
  * its label, so colour never carries a state alone). One cell is the tab
  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
- * activates. It fits its container, shrinking its squares on small screens.
+ * activates. Phones start with precision cells and a whole-board region navigator;
+ * wider screens start fitted. An explicit view choice persists across resizing.
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
-  const [focusIndex, setFocusIndex] = createSignal(112);
+  const [selectedIndex, setFocusIndex] = createSignal<number>();
+  const focusIndex = () =>
+    selectedIndex() ??
+    Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
+      Math.floor(props.columnLabels.length / 2);
+  const compact = createMediaQuery('(max-width: 639px)');
+  const [choice, setEnlarged] = createSignal<boolean>();
+  const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
   // Read once per change: every square reads the list, and a caller that
   // computes it inline would otherwise rebuild it once per square.
   const cells = createMemo(() => props.cells);
-  const rows = createMemo(() => range(props.rowLabels.length));
-  const columns = createMemo(() => range(props.columnLabels.length));
   let root: HTMLDivElement | undefined;
+  const [viewport, setViewport] = createSignal<HTMLDivElement>();
+  createPrecisionCenter(viewport, () => root, enlarged, focusIndex);
   const onKey = (event: KeyboardEvent, index: number): void => {
     const next = cellGridStep(event, index, {
       columns: props.columnLabels.length,
@@ -118,48 +131,82 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     if (next === null) return;
     event.preventDefault();
     setFocusIndex(next);
-    root?.querySelector<HTMLButtonElement>(`[data-index="${next}"]`)?.focus();
+    focusCell(root, next);
+  };
+  const resize = (value: boolean): void => {
+    setEnlarged(value);
+    focusCell(root, focusIndex());
   };
   return (
-    <div
-      ref={root}
-      class={styles['board']}
-      {...dataAttrs({ component: 'WordTileBoard' })}
-      role="group"
-      aria-label={props.label}
-      aria-describedby={props.describedBy}
-      data-testid={props.testId}
-      style={{ '--word-tile-columns': props.columnLabels.length }}
-    >
-      <span class={styles['header']} aria-hidden="true" />
-      <For each={props.columnLabels}>
-        {(label) => (
-          <span class={styles['header']} aria-hidden="true">
-            {label}
-          </span>
-        )}
-      </For>
-      <For each={rows()}>
-        {(row) => (
-          <>
-            <span class={styles['header']} aria-hidden="true">
-              {props.rowLabels[row] ?? ''}
-            </span>
-            <For each={columns()}>
-              {(column) => (
-                <BoardCell
-                  board={props}
-                  cells={cells}
-                  index={row * columns().length + column}
-                  focusable={focusIndex() === row * columns().length + column}
-                  onFocusIndex={setFocusIndex}
-                  onKey={onKey}
-                />
-              )}
-            </For>
-          </>
-        )}
-      </For>
-    </div>
+    <StackVertical gap="none">
+      <Show when={props.purpose !== 'locator' && !enlarged()}>
+        <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+      </Show>
+      <Show when={props.purpose === 'locator'}>
+        <P role="status">{cells()[focusIndex()]?.label}</P>
+      </Show>
+      <div class={styles['precision']}>
+        <div
+          ref={setViewport}
+          class={styles['viewport']}
+          data-enlarged={enlarged()}
+          data-measure={props.measure ?? 'full'}
+          role="region"
+          aria-label={t`Scrollable word board`}
+        >
+          <div
+            ref={root}
+            class={styles['board']}
+            data-measure={props.measure ?? 'full'}
+            data-enlarged={enlarged()}
+            {...dataAttrs({ component: 'WordTileBoard' })}
+            role="group"
+            aria-label={props.label}
+            aria-describedby={props.describedBy}
+            data-testid={props.testId}
+            style={{ '--word-tile-columns': props.columnLabels.length }}
+          >
+            <BoardRows
+              board={props}
+              cells={cells}
+              focusIndex={focusIndex}
+              onFocusIndex={setFocusIndex}
+              onKey={onKey}
+            />
+          </div>
+        </div>
+        <Show when={enlarged()}>
+          <WordTileOverview
+            board={props}
+            viewport={viewport}
+            controls={
+              <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+            }
+            position={cells()[focusIndex()]?.label ?? ''}
+            locator={(onChoose) => (
+              <WordTileBoard
+                {...props}
+                purpose="locator"
+                testId={`${props.testId}-map`}
+                label={t`Whole board locator`}
+                cells={cells().map((cell) => ({ ...cell, enabled: true }))}
+                onActivate={onChoose}
+              />
+            )}
+            onLocate={(id) => {
+              const index = cells().findIndex((cell) => cell.id === id);
+              if (index < 0) return;
+              setFocusIndex(index);
+              focusCell(root, index);
+            }}
+          />
+        </Show>
+      </div>
+      <Show when={props.purpose !== 'locator' && !enlarged()}>
+        <P variant="caption" testId={`${props.testId}-square-details`}>
+          {cells()[focusIndex()]?.label}
+        </P>
+      </Show>
+    </StackVertical>
   );
 }

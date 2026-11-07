@@ -31,6 +31,7 @@ function publication(
 ) {
   return (
     <ContentPublicationControlsView
+      copyState={{ kind: 'draft' }}
       layout="bar"
       before={
         overrides.kind === 'pack'
@@ -211,6 +212,7 @@ export const PublishPending: Story = {
         validation: 'valid',
         proven: true,
         pending: 'online',
+        copyState: { kind: 'pending', connection: 'online' },
       }),
     })),
 };
@@ -223,6 +225,7 @@ export const PublishPendingOffline: Story = {
         validation: 'valid',
         proven: true,
         pending: 'offline',
+        copyState: { kind: 'pending', connection: 'offline' },
       }),
     })),
 };
@@ -256,6 +259,7 @@ const renderPublished = (args: ContentAuthorScreenViewProps) =>
       validation: 'valid',
       proven: true,
       published: true,
+      copyState: { kind: 'edition', current: true },
     }),
   }));
 
@@ -346,4 +350,57 @@ export const ConfirmWithdraw: Story = {
       await page.findByText('Withdraw this publication?')
     ).toBeVisible();
   },
+};
+
+/** The current copy's receipt is still hydrating; its local edition is not proof of confirmation. */
+export const PublicationReading: Story = {
+  render: (args) =>
+    renderWith(args, () => ({
+      publication: publication({
+        validation: 'valid',
+        proven: true,
+        published: true,
+        copyState: { kind: 'reading' },
+      }),
+    })),
+};
+
+/** Edited work remains publishable while a different saved copy waits offline. */
+export const OlderPublicationPending: Story = {
+  render: (args) =>
+    renderWith(args, () => ({
+      publication: publication({
+        validation: 'valid',
+        proven: true,
+        published: true,
+        pending: 'offline',
+        copyState: { kind: 'draft' },
+      }),
+    })),
+};
+
+/** A newer saved working copy coexists with the already published edition. */
+export const NewDraftAfterPublication: Story = {
+  render: (args) =>
+    renderWith(args, () => ({
+      publication: publication({
+        validation: 'valid',
+        proven: true,
+        published: true,
+        copyState: { kind: 'draft' },
+      }),
+    })),
+};
+
+/** This unchanged older copy was published; repeating its request cannot replace a later edition. */
+export const PreviouslyPublishedCopy: Story = {
+  render: (args) =>
+    renderWith(args, () => ({
+      publication: publication({
+        validation: 'valid',
+        proven: true,
+        published: true,
+        copyState: { kind: 'edition', current: false },
+      }),
+    })),
 };

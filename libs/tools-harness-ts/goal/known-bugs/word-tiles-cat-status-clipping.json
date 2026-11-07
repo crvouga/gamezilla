@@ -1,0 +1,4 @@
+{
+  "summary": "The retained CAT draft status was clipped horizontally on phone.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

@@ -3,8 +3,9 @@
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { type JSX, Match, Switch } from 'solid-js';
+import { createSignal, type JSX, Match, Switch } from 'solid-js';
 
 /**
  * Why the local database could not start: it hung past the watchdog
@@ -17,8 +18,8 @@ export type LocalDatabaseBootErrorScreenViewProps = {
   readonly kind: LocalDatabaseBootErrorKind;
   /** The open error's message, shown as the body when `kind` is `failed`. */
   readonly message: string;
-  /** Reload, or for `otherTab` reset local data and reload. */
-  readonly onRetry: () => void;
+  readonly onReload: () => void;
+  readonly onReset: () => Promise<void>;
 };
 
 function BootErrorTitle(props: {
@@ -38,20 +39,20 @@ function BootErrorTitle(props: {
 }
 
 function BootErrorBody(
-  props: Omit<LocalDatabaseBootErrorScreenViewProps, 'onRetry'>
+  props: Pick<LocalDatabaseBootErrorScreenViewProps, 'kind' | 'message'>
 ): JSX.Element {
   return (
     <Switch fallback={props.message}>
       <Match when={props.kind === 'stuck'}>
         <Trans>
-          Local database did not become ready. Reload the app. If this keeps
-          happening after an update, clear site data for this origin.
+          The app could not open its saved data. Close other tabs running this
+          app, then reload. Reloading keeps your local data.
         </Trans>
       </Match>
       <Match when={props.kind === 'otherTab'}>
         <Trans>
-          Another tab stopped sharing the local database. Reload this tab, or
-          reset local data below (your account on the server is unchanged).
+          Another tab stopped sharing saved data. Close the other app tabs, then
+          reload this one. Reloading keeps your local data.
         </Trans>
       </Match>
     </Switch>
@@ -60,14 +61,15 @@ function BootErrorBody(
 
 /**
  * Full-screen boot failure of this device's local database, presentational:
- * what went wrong and the one way forward (reload, or reset local data when
- * another tab took the database). `LocalDatabaseBootErrorScreen` classifies
+ * reload first, with a separately confirmed local reset when another tab
+ * stopped sharing the database. `LocalDatabaseBootErrorScreen` classifies
  * the error and runs the recovery.
  */
 export function LocalDatabaseBootErrorScreenView(
   props: LocalDatabaseBootErrorScreenViewProps
 ): JSX.Element {
   const { t } = useLingui();
+  const [confirmReset, setConfirmReset] = createSignal(false);
   return (
     <Surface tone="background" grow align="center" justify="center">
       <ErrorState
@@ -75,12 +77,30 @@ export function LocalDatabaseBootErrorScreenView(
         title={<BootErrorTitle kind={props.kind} />}
         body={<BootErrorBody kind={props.kind} message={props.message} />}
         retry={{
-          label:
-            props.kind === 'otherTab'
-              ? t`Reset local data and reload`
-              : t`Reload app`,
-          onClick: () => props.onRetry(),
+          label: t`Reload app`,
+          onClick: () => props.onReload(),
         }}
+        secondary={
+          props.kind === 'otherTab'
+            ? {
+                label: t`Reset local data`,
+                onClick: () => setConfirmReset(true),
+              }
+            : undefined
+        }
+      />
+      <MutationModal
+        visible={confirmReset()}
+        onClose={() => setConfirmReset(false)}
+        title={t`Reset data on this device?`}
+        message={t`Changes that have not synced and progress saved only on this device will be permanently lost. Data already synced to your account stays available. Try closing other app tabs and reloading first.`}
+        operation={() => props.onReset()}
+        submitLabel={t`Reset and reload`}
+        variant="destructive"
+        loadingLabel={t`Resetting local data…`}
+        successTitle={t`Local data reset`}
+        successBody={t`Reload the app to continue.`}
+        errorTitle={t`Could not reset local data`}
       />
     </Surface>
   );

@@ -1,0 +1,4 @@
+{
+  "summary": "Shared Comet/Ember touch halves were unnamed on the arena despite different input owners.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

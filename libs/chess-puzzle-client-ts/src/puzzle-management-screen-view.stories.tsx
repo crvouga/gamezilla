@@ -39,6 +39,7 @@ const meta = {
     controls: { exclude: ['denial', 'job', 'source', 'chosenFile'] },
   },
   args: {
+    embedded: true,
     online: true,
     ready: true,
     job: null,

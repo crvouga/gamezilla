@@ -57,7 +57,7 @@ const ALIGN: Readonly<Record<TextAlign, string>> = {
 };
 
 const LINES: Readonly<Record<TextLines, string>> = {
-  1: 'line-clamp-1',
+  1: 'block truncate',
   2: 'line-clamp-2',
   3: 'line-clamp-3',
   4: 'line-clamp-4',

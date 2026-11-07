@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts, Light Cycles and Word Tiles start journeys were missing from health metric names and their game-journey indicator.",
+  "regressionTest": "libs/observability-server-ts/tests/synthetic-checks.test.ts"
+}

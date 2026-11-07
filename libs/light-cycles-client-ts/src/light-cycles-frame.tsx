@@ -22,7 +22,7 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
-import { arenaOverlay } from './light-cycles-view';
+import { riderName } from './light-cycles-view';
 
 /**
  * Each rider's paint: its trail's own, so the marker beside a player's name
@@ -41,13 +41,9 @@ function roundWins(state: LightCyclesState | null, side: GameSide): number {
   return state.scores[state.seats.indexOf(side as LightCyclesSeat)] ?? 0;
 }
 
-/** The round under way, or how the last round or the game ended. */
+/** Round context; the board itself presents the outcome above the arena. */
 function arenaStatus(state: LightCyclesState): string {
-  const ended = state.phase === 'round-over' || state.phase === 'completed';
-  const overlay = ended ? arenaOverlay(state) : undefined;
-  return (
-    overlay?.title ?? t`Round ${state.round} · first to ${state.targetScore}`
-  );
+  return t`Round ${state.round} · first to ${state.targetScore}`;
 }
 
 /**
@@ -91,7 +87,7 @@ export function lightCyclesFrame(
       }),
       // Short, so a player's name keeps its room on a strip or a chip.
       stat: (position, side) => ({
-        label: t`Wins`,
+        label: t`${riderName(side)} wins`,
         value: String(roundWins(decodeLightCycles(position), side)),
       }),
       facts: () => [],

@@ -12,9 +12,8 @@ import type { FramePeople, FrameResult } from './game-frame-view-types';
 const STANDING_AVATAR_SIZE = 32;
 
 /**
- * Game over, under the final board: the headline (the viewer's own finish
- * when they played, else who won), then every player in finishing order
- * with their score and whether they are ready for a rematch.
+ * Final standings below the board or in its rail: every player in finishing
+ * order, their score and whether they are ready for a rematch.
  */
 export function FrameResultView(props: {
   readonly result: FrameResult;
@@ -47,16 +46,24 @@ export function FrameResultView(props: {
   );
   return (
     <StackVertical gap="md" testId="custom-game-result">
-      <GameResultHeadline
-        title={props.result.headline}
-        caption={props.result.note ?? undefined}
-        dataSet={{ testid: 'custom-game-result-headline' }}
-      />
       <GameStandings
         aria-label={t`Standings`}
         scoreLabel={props.result.scoreLabel}
         rows={rows()}
       />
     </StackVertical>
+  );
+}
+
+/** The outcome and reason lead the completed board; standings stay in the rail. */
+export function FrameResultHeadlineView(props: {
+  readonly result: FrameResult;
+}): JSX.Element {
+  return (
+    <GameResultHeadline
+      title={props.result.headline}
+      caption={props.result.note ?? undefined}
+      dataSet={{ testid: 'custom-game-result-headline' }}
+    />
   );
 }

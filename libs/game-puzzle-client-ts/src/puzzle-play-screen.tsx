@@ -142,6 +142,7 @@ function PuzzlePlayerChrome(props: {
   onFeedConfigApplied: () => void;
 }): JSX.Element {
   const p = props.model;
+  const puzzleGame = usePuzzleGame();
   const myId = useMyId();
   const allowance = usePuzzleAllowance();
   const [config] = usePuzzleFeedConfig();
@@ -155,6 +156,7 @@ function PuzzlePlayerChrome(props: {
       <DefineBackButton onPress={p.backToRoot} label={choices()} />
       <PuzzlePlayScreenView
         pick="playing"
+        boardSizing={puzzleGame.client.boardSizing}
         statusKind={p.statusKind()}
         solverSide={solverSide()}
         correct={correct()}

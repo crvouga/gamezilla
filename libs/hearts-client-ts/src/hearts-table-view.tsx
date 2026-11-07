@@ -23,6 +23,7 @@ import {
   trickWinner,
 } from '@libs/hearts-shared-ts/hearts-tricks';
 import { plural, t } from '@lingui/core/macro';
+import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
@@ -173,9 +174,17 @@ function lastDeal(position: HeartsPosition): string {
   return t`Last deal added: ${added}.`;
 }
 
-/** What the table is doing, in one sentence. */
+/** An unknown or blank identity keeps its meaningful seat label. */
+function playerName(side: GameSide, nameOf: GamePlayerName): string {
+  const name = nameOf(side)?.trim();
+  return name === undefined || name === '' ? heartsSeatName(side) : name;
+}
+
+/** What the table is doing, naming the player independently of rendered seats. */
 export function tableCenter(
-  board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>
+  board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>,
+  viewer: GameSide | null,
+  nameOf: GamePlayerName
 ): string {
   const position = decodeHearts(board.position);
   if (position === null) return '';
@@ -191,21 +200,28 @@ export function tableCenter(
   }
   const trick = shownTrick(position);
   const deciding = seatToPlay(position);
-  const next = deciding === null ? '' : heartsSeatName(sideOfSeat(deciding));
+  const next =
+    deciding === null ? '' : playerName(sideOfSeat(deciding), nameOf);
   const winner = trick?.cards.length === 4 ? trickWinner(trick) : null;
   const winning =
     trick === null || winner === null
       ? undefined
       : trick.cards[(winner - trick.leader + 4) % 4];
   if (winner !== null && winning !== undefined) {
-    const taker = heartsSeatName(sideOfSeat(winner));
+    const taker = playerName(sideOfSeat(winner), nameOf);
     const named = cardName(winning);
     // The card's name inside the sentence: `the king of diamonds`.
     const card = `${named.charAt(0).toLocaleLowerCase()}${named.slice(1)}`;
-    return t`${taker} took the trick with the ${card} and leads.`;
+    return sideOfSeat(winner) === viewer
+      ? t`You took the trick with the ${card} and lead.`
+      : t`${taker} took the trick with the ${card} and leads.`;
   }
   const broken = heartsBroken(position) ? t`Hearts are broken.` : '';
-  return `${summary} ${t`${next} to play.`} ${broken}`.trim();
+  const turn =
+    deciding !== null && sideOfSeat(deciding) === viewer
+      ? t`Your turn.`
+      : t`${next} to play.`;
+  return `${summary} ${turn} ${broken}`.trim();
 }
 
 /**
@@ -231,15 +247,20 @@ export function handCards(
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };
-  return held.map((card) => {
-    const reason = refusal(card);
-    return {
-      ...tableCard(card),
-      enabled: passing
-        ? board.interactive && board.commitment === null
-        : board.interactive && reason === undefined,
-      selected: passing ? chosen.includes(card) : null,
-      refusal: reason,
-    };
-  });
+  return [...held]
+    .sort(
+      (a, b) =>
+        Number(refusal(a) !== undefined) - Number(refusal(b) !== undefined)
+    )
+    .map((card) => {
+      const reason = refusal(card);
+      return {
+        ...tableCard(card),
+        enabled: passing
+          ? board.interactive && board.commitment === null
+          : board.interactive && reason === undefined,
+        selected: passing ? chosen.includes(card) : null,
+        refusal: reason,
+      };
+    });
 }

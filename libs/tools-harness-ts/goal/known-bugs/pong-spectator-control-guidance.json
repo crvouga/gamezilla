@@ -1,0 +1,4 @@
+{
+  "summary": "Pong spectators were instructed to drag a paddle despite having no controlled side.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board.test.tsx"
+}

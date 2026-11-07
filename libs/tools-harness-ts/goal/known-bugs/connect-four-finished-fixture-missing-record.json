@@ -1,0 +1,4 @@
+{
+  "summary": "Finished Connect Four stories showed populated boards without their replayed move histories.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/content/integration.checks.ts"
+}

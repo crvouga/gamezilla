@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844, FourPlayerRound e5h wall preview put Place wall at y818.75..862.75 after the shared four-seat rail became two rows. Preserve full participant identities and the initial wall-confirm viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

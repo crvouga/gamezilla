@@ -11,6 +11,7 @@ export const FRAME_NO_PLAY: FramePlay = {
   canResign: false,
   canCancel: false,
   boardActions: [],
+  leadingBoardActions: [],
 };
 
 /** No seats around the board. */

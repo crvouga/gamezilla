@@ -47,6 +47,8 @@ function yourTurnLabel(side: string, correct: boolean): JSX.Element {
 
 export type PuzzleStatusHeaderProps = {
   kind: PuzzleStatusKind;
+  /** A revealed attempt teaches the line rather than reporting a wrong move. */
+  solutionShown?: boolean | undefined;
   /**
    * The solver's side, as the game names it: the `started` label becomes
    * the §5 "your turn" prompt.
@@ -75,12 +77,24 @@ export function PuzzleStatusHeader(
       paddingBottom="xs"
       testId="chess-puzzle-status-row"
     >
-      <PuzzleStatusIcon kind={props.kind} />
+      <Show when={!props.solutionShown}>
+        <PuzzleStatusIcon kind={props.kind} />
+      </Show>
       <StackVertical grow>
         <P variant="label" lines={3} testId="chess-puzzle-status-label">
           <Show
-            when={props.kind === 'started' ? props.solverSide : null}
-            fallback={statusLabel(props.kind)}
+            when={
+              !props.solutionShown && props.kind === 'started'
+                ? props.solverSide
+                : null
+            }
+            fallback={
+              props.solutionShown ? (
+                <Trans>Solution shown</Trans>
+              ) : (
+                statusLabel(props.kind)
+              )
+            }
           >
             {/* The solver's turn in the accent pill the game screens put on
                 the seat to move, right above (or beside) the board. */}

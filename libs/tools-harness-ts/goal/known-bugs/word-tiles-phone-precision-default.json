@@ -1,0 +1,4 @@
+{
+  "summary": "Phone Word Tiles defaults to roughly 22px placement cells instead of comfortable precision targets.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board-precision.test.tsx"
+}

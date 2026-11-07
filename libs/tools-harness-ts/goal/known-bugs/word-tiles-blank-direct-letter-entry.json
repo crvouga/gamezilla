@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting S for a blank requires eighteen Tab presses; direct letter entry does nothing.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx"
+}

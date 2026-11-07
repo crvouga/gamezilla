@@ -239,6 +239,8 @@ export type FramePlay = {
   readonly canCancel: boolean;
   /** The board's own actions (`custom-game-board-${id}`). */
   readonly boardActions: readonly GameActionItem[];
+  /** Required choices shown before the board, with the same action handles. */
+  readonly leadingBoardActions: readonly GameActionItem[];
 };
 
 /** One player's finish. */

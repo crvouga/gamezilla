@@ -1,0 +1,4 @@
+{
+  "summary": "Tapping a small Quoridor wall anchor committed immediately without a persistent preview or chance to cancel.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}

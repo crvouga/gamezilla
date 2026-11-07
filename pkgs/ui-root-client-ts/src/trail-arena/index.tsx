@@ -1,5 +1,12 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createUniqueId, For, Index, type JSX } from 'solid-js';
+import {
+  createMemo,
+  createUniqueId,
+  For,
+  Index,
+  type JSX,
+  Show,
+} from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
 import { controlledSlots, trailArenaInput } from '../trail-arena-input';
 import {
@@ -98,6 +105,12 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
           height={props.height}
           fill={`url(#${arenaId}-grid)`}
         />
+        <Show when={props.touchRegions}>
+          <path
+            class={styles['touchDivider']}
+            d={`M ${props.width / 2} 0 V ${props.height}`}
+          />
+        </Show>
         <For each={TRAIL_RIDER_INDICES}>
           {(index) => (
             <TrailPath
@@ -128,7 +141,33 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
           {(crash) => <CrashMarker crash={crash()} testId={props.testId} />}
         </Index>
       </svg>
+      <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
     </div>
+  );
+}
+
+/** Ownership labels sit beyond the walls so they cannot hide a rider or trail. */
+function TouchRegions(props: {
+  regions: TrailArenaProps['touchRegions'];
+  testId: string;
+}): JSX.Element {
+  return (
+    <Show when={props.regions}>
+      {(regions) => (
+        <div
+          class={styles['touchRegions']}
+          data-testid={`${props.testId}-touch-regions`}
+        >
+          <For each={regions()}>
+            {(label, index) => (
+              <span data-testid={`${props.testId}-touch-${index()}`}>
+                {label}
+              </span>
+            )}
+          </For>
+        </div>
+      )}
+    </Show>
   );
 }

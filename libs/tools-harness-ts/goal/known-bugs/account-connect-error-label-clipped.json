@@ -1,0 +1,4 @@
+{
+  "summary": "A failed account-provider connection clipped the button feedback because the feedback overlay could not grow beyond the shorter idle label.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/content/integration.checks.ts"
+}

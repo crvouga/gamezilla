@@ -7,6 +7,23 @@ export const readOptions = (w: BoardWorld) => {
     ),
   ].map((el) => el.textContent);
   return {
+    frame: (() => {
+      const host = w.app.root.querySelector(
+        '[data-component="ChessBoardFrame"]'
+      );
+      return host === null
+        ? null
+        : {
+            edge: host.getAttribute('data-board-gutter'),
+            labels: [
+              ...host.querySelectorAll(
+                ':scope > [data-ranks] > [aria-hidden="true"]'
+              ),
+            ].map((edge) =>
+              [...edge.children].map((label) => label.textContent)
+            ),
+          };
+    })(),
     width: footprint.width,
     height: footprint.height,
     suppliedWidth: w.app.config().size,

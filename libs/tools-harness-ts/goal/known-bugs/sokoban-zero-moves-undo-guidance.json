@@ -1,0 +1,4 @@
+{
+  "summary": "Blocked initial position suggested undo without history",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

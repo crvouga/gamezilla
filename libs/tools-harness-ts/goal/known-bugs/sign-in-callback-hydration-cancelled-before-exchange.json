@@ -1,0 +1,4 @@
+{
+  "summary": "A resumed Google sign-in on /sso-callback hydrates as a guest before the callback exchange finishes. Premature cancellation clears pending and leaves Sign-in failed over the authenticated Account screen. Pin guest hydration \u2192 provider session \u2192 local ready token; retain error and timeout recovery.",
+  "regressionTest": "libs/auth-client-ts/tests/sign-in-lifecycle.test.tsx"
+}

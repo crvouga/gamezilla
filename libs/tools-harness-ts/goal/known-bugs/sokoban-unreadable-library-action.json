@@ -1,0 +1,4 @@
+{
+  "summary": "Unreadable Sokoban described recovery through navigation without providing a destination.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-player-recovery.test.tsx"
+}

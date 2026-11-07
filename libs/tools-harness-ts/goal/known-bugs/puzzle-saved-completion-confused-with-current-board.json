@@ -1,0 +1,4 @@
+{
+  "summary": "The saved completion headline looked like a claim about the current board after postsolve movement. Name the saved record separately while retaining movement and recovery controls.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

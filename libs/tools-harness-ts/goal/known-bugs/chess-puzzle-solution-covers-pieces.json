@@ -1,0 +1,4 @@
+{
+  "summary": "The heavy solution arrow concealed the f3 knight and e5 pawn silhouettes.",
+  "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-board-feedback.test.ts"
+}

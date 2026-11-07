@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles local word-list recovery copy and its new story incorrectly required a reload before an authoritative submission, although the game can still check submitted words.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

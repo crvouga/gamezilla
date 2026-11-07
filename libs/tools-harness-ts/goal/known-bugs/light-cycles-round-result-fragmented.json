@@ -1,0 +1,4 @@
+{
+  "summary": "Round-over displayed generic waiting copy separately from its winner, obscuring the result hierarchy.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "AEST?RN blank at j8 exposed 26 roughly 36px choices on 390x844. Use separate full 44px controls.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-blank-targets.test.tsx"
+}

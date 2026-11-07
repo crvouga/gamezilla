@@ -1,0 +1,4 @@
+{
+  "summary": "Classic opening d4h preview separates orientation above the board from target and commit below it.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-precision.test.tsx"
+}

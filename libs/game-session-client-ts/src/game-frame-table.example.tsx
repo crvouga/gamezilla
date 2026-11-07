@@ -79,10 +79,12 @@ export type GameTableStory = {
   /** The side to move. */
   readonly turn?: GameSide | null;
   /** How a finished game ended. */
-  readonly ending?: {
-    readonly winner: GameWinner;
-    readonly reason: string;
-  };
+  readonly ending?:
+    | {
+        readonly winner: GameWinner;
+        readonly reason: string;
+      }
+    | undefined;
   /** The moves played to reach the position, as the game writes them. */
   readonly moves?: readonly string[];
   /**
@@ -138,7 +140,8 @@ function tableStatus(props: TableProps): FrameStatus {
   const own = props.presentation.frame.turnStatus(
     props.board.position,
     viewer,
-    props.board.committed
+    props.board.committed,
+    (side) => HOLDERS[side].name
   );
   const turn = props.turn ?? null;
   const ending = props.ending;
@@ -266,6 +269,11 @@ function GameFrameTable(props: TableProps): JSX.Element {
         canOfferDraw: seated() && props.presentation.frame.drawOffers,
         canResign: seated(),
         boardActions: frameActionItems(session.actions(), props.board.testId),
+        leadingBoardActions: frameActionItems(
+          session.actions(),
+          props.board.testId,
+          'before-board'
+        ),
       }}
       result={
         props.ending === undefined ? null : tableResult(props, props.ending)

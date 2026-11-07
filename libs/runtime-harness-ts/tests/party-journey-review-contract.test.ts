@@ -11,6 +11,7 @@ import type { JourneyHost } from '@libs/runtime-harness-ts/journey-types';
 import { openHarness } from './open-app-harness';
 import { harnessJourneyHost } from './steps/journey-harness-host';
 
+// regression: quoridor-party-wall-stops-at-preview
 // regression: party-journey-plays-reviewed-position
 // Same product-harness contract as libs/harness-ts/scripts/test-spec.ts.
 // Exercise the completion adapter against the existing app's real review controls.

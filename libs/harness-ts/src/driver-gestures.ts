@@ -58,7 +58,12 @@ export async function openGlobalMenu(
   const goal = ui.get(item);
   for (let tap = 0; tap < MENU_OPEN_LIMIT; tap += 1) {
     if (await goal.isVisible()) return;
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs });
+    const trigger = ui.get(Handles.statusCurrentUser);
+    if ((await trigger.attribute('aria-expanded')) === 'true') {
+      await goal.expect.visible({ timeoutMs });
+      return;
+    }
+    await trigger.tap({ timeoutMs });
     try {
       await goal.expect.visible({ timeoutMs: MENU_SETTLE_MS });
       return;

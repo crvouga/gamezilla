@@ -11,10 +11,11 @@ import {
   type GameChoice,
   GameChoiceGrid,
 } from '@pkgs/ui-root-client-ts/game-choice-grid';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import { createSignal, createUniqueId, type JSX, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,
@@ -26,6 +27,7 @@ import {
   createSetupController,
   type SetupController,
 } from './battleship-setup-controller';
+import { SetupPrecision } from './battleship-setup-precision';
 
 function shipChoices(draft: Draft, testId: string): readonly GameChoice[] {
   return SHIPS.map(({ id, length }) => {
@@ -37,9 +39,7 @@ function shipChoices(draft: Draft, testId: string): readonly GameChoice[] {
       value: id,
       title: shipName(id),
       detail:
-        placed === undefined
-          ? t`${length} cells, to place`
-          : t`${length} cells, placed at ${bow} ${direction}`,
+        placed === undefined ? t`${length} cells` : t`${bow}, ${direction}`,
       dataSet: { testid: `${testId}-ship-${id}` },
     };
   });
@@ -50,7 +50,8 @@ function SetupCommands(props: {
   testId: string;
 }): JSX.Element {
   const selected = (): ShipId | null => props.setup.selected();
-  const direction = () => orientationName(props.setup.orientation());
+  const direction = () =>
+    orientationName(props.setup.orientation() === 'h' ? 'v' : 'h');
   const placed = () => {
     const ship = selected();
     return ship !== null && props.setup.draft().has(ship);
@@ -58,10 +59,10 @@ function SetupCommands(props: {
   return (
     <StackHorizontal gap="sm" wrap>
       <Button
-        title={t`Rotate: ${direction()}`}
+        title={t`Rotate ${direction()}`}
         intent="neutral"
         variant="outline"
-        size="sm"
+        size="md"
         disabled={props.locked || selected() === null}
         onClick={props.setup.rotate}
         dataSet={{
@@ -73,7 +74,7 @@ function SetupCommands(props: {
         title={t`Remove`}
         intent="neutral"
         variant="ghost"
-        size="sm"
+        size="md"
         disabled={props.locked || !placed()}
         onClick={props.setup.remove}
         dataSet={{ testid: `${props.testId}-remove` }}
@@ -89,14 +90,24 @@ function SetupCommands(props: {
  * `<testId>-progress`: the screen hosting it keeps `<testId>-status` for
  * its own word on the setup.
  */
-export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
+export function BattleshipSetupBoard(
+  props: GameSetupBoardProps & {
+    /** Responsive starts enlarged below 640px; an explicit choice lasts until unmount. */
+    initialPlacement?: 'responsive' | 'full' | 'enlarged';
+  }
+): JSX.Element {
   const setup = createSetupController(props);
   const statusId = createUniqueId();
+  const phone = createMediaQuery('(max-width: 639px)');
+  const [enlarged, setEnlarged] = createSignal(
+    props.initialPlacement === 'enlarged' ||
+      ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())
+  );
   return (
-    <StackVertical gap="md" align="center" testId={props.testId}>
+    <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
       <P
         id={statusId}
-        variant="caption"
+        variant="label"
         role="status"
         aria-live="polite"
         testId={`${props.testId}-progress`}
@@ -108,42 +119,74 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
           {t`Your fleet is locked in and can no longer change.`}
         </Notice>
       </Show>
-      <GameChoiceGrid
-        label={t`Ships`}
-        choices={shipChoices(setup.draft(), props.testId)}
-        value={setup.selected() ?? ''}
-        onChange={(value) => {
-          if (isShipId(value)) setup.choose(value);
-        }}
-        disabled={props.locked}
-      />
-      <SetupCommands
+      <Show when={!enlarged()}>
+        <GameChoiceGrid
+          label={t`Ships`}
+          choices={shipChoices(setup.draft(), props.testId)}
+          value={setup.selected() ?? ''}
+          onChange={(value) => {
+            if (isShipId(value)) setup.choose(value);
+          }}
+          disabled={props.locked}
+        />
+      </Show>
+      <SetupPrecision
         setup={setup}
         locked={props.locked}
         testId={props.testId}
-      />
-      <Show when={setup.refusal()}>
-        {(reason) => (
-          <Notice tone="error" dataSet={{ testid: `${props.testId}-refusal` }}>
-            {reason()}
-          </Notice>
-        )}
-      </Show>
-      <CellGridBoard
-        label={t`Your waters`}
-        testId={`${props.testId}-grid`}
-        cellTestId={(cell) => `${props.testId}-cell-${cell}`}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={setup.cells()}
-        describedBy={statusId}
-        onActivate={setup.place}
-        onPreview={setup.preview}
-        onCellKey={(key) => {
-          if (key !== 'r' && key !== 'R') return false;
-          setup.rotate();
-          return true;
-        }}
+        open={enlarged()}
+        onOpenChange={setEnlarged}
+        commands={
+          <SetupCommands
+            setup={setup}
+            locked={props.locked}
+            testId={props.testId}
+          />
+        }
+        feedback={
+          <Show when={!props.locked}>
+            <Show
+              when={setup.refusal()}
+              fallback={
+                <P variant="caption" testId={`${props.testId}-guidance`}>
+                  {setup.instruction()}
+                </P>
+              }
+            >
+              {(reason) => (
+                <P
+                  variant="caption"
+                  tone="destructive"
+                  role="alert"
+                  testId={`${props.testId}-refusal`}
+                >
+                  {reason()}{' '}
+                  {t`Choose another bow cell or rotate, then try again.`}
+                </P>
+              )}
+            </Show>
+          </Show>
+        }
+        overview={
+          <CellGridBoard
+            label={t`Your waters`}
+            testId={`${props.testId}-grid`}
+            cellTestId={(cell) => `${props.testId}-cell-${cell}`}
+            columnLabels={COLUMN_LABELS}
+            rowLabels={ROW_LABELS}
+            cells={setup.cells()}
+            describedBy={statusId}
+            onActivate={(cell) => {
+              if (!enlarged()) setup.place(cell);
+            }}
+            onPreview={setup.preview}
+            onCellKey={(key) => {
+              if (key !== 'r' && key !== 'R') return false;
+              setup.rotate();
+              return true;
+            }}
+          />
+        }
       />
     </StackVertical>
   );

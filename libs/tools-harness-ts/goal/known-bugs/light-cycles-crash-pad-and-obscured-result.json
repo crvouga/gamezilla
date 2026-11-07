@@ -1,0 +1,4 @@
+{
+  "summary": "Crashed Light Cycles riders retained unusable pads, and the centered result panel obscured collision trails.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

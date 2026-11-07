@@ -1,0 +1,4 @@
+{
+  "summary": "The board changes size and position on failure and completion, requiring spatial reacquisition.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

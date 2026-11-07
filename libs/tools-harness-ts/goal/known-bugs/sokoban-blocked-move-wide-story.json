@@ -1,0 +1,4 @@
+{
+  "summary": "At the desktop1440 viewport, the Sokoban BlockedMove story tried to click a compact-only pad. The story now sends ArrowLeft to the focused board when the pad is absent or hidden, retaining the blocked-move message and no-action assertions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

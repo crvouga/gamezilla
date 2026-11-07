@@ -5,13 +5,6 @@
  * (`@apps/product-ts#health` imports this file).
  */
 
-import './custom-game-journey.steps';
-import './game-journey.steps';
-import './multiplayer-journey.steps';
-import './numberlink-journey.steps';
-import './sokoban-journey.steps';
-import './pong-journey.steps';
-
 import { hostLimit, stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import {
   expectAvatarSeed,
@@ -40,6 +33,12 @@ import {
 } from './space-gestures';
 
 const { Given, When, Then, Step } = stepsFor<JourneyWorld>();
+
+// Both the simulated and live owners discover the same journey bindings.
+const journeyModules = new Bun.Glob('*-journey.steps.ts').scanSync(
+  import.meta.dir
+);
+for (const file of [...journeyModules].sort()) await import(`./${file}`);
 
 function avatarSeed(w: JourneyWorld): string {
   return `synthetic-${w.journey.runId}`;

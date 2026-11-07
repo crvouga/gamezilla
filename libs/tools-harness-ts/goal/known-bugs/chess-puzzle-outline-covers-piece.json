@@ -1,0 +1,4 @@
+{
+  "summary": "An occupied-square hint must frame the f3 knight, including with Black orientation, without a filled central badge.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/puzzle-hint-outline.test.tsx"
+}

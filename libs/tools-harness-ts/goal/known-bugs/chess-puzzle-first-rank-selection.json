@@ -1,0 +1,4 @@
+{
+  "summary": "The clipped first rank was absent from puzzle journeys; pin legal e1-f1 selection with guidance and square fitting.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/puzzle-first-rank.test.tsx"
+}

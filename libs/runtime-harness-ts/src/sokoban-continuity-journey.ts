@@ -93,7 +93,7 @@ export async function finishSokobanPuzzle(host: JourneyHost): Promise<void> {
     await pushSokobanJourneyRight(device(ui));
     await ui
       .get('content-attempt-complete')
-      .expect.text('Puzzle completed', { ...device(ui), exact: false });
+      .expect.text('Completion saved', { ...device(ui), exact: false });
   });
 }
 

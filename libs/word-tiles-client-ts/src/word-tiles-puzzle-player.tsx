@@ -1,6 +1,7 @@
-import type {
-  PuzzlePlayerProps,
-  PuzzlePreviewProps,
+import {
+  type PuzzlePlayerProps,
+  type PuzzlePreviewProps,
+  usePuzzleLibraryNavigation,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import {
   puzzleProgress,
@@ -41,12 +42,20 @@ export function wordTilesPuzzleStatus(
 
 /** One-move challenge: the shared player keeps the attempt; this board makes each move. */
 export function WordTilesPuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
+  const openLibrary = usePuzzleLibraryNavigation();
   const puzzle = createMemo(() => readPuzzle(props.definition));
   const lexicon = useWordTilesLexicon(() => {
     const read = puzzle();
     return read.valid ? read.value.lexicon : '';
   });
-  return <WordTilesPuzzlePlayerView {...props} lexicon={lexicon.state()} />;
+  return (
+    <WordTilesPuzzlePlayerView
+      {...props}
+      onReturnToLibrary={openLibrary}
+      lexicon={lexicon.state()}
+      onRetryLexicon={lexicon.retry}
+    />
+  );
 }
 
 /** The board, rack and target, without any moves. */

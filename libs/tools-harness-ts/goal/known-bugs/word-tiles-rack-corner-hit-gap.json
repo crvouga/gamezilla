@@ -1,0 +1,4 @@
+{
+  "summary": "The 390x844 word rack at x16/y231 has 12px rounded corners whose inset corner hit tests reach the parent instead of the rack. Use the small tray radius while preserving all tile geometry and native hit assertions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-round-five.checks.ts"
+}

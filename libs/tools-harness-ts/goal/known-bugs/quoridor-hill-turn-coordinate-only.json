@@ -1,0 +1,4 @@
+{
+  "summary": "The literal Hill opening turn status used coordinate-only First to e5 wins for active, opponent and spectator views.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-hill-destination-regression.test.tsx"
+}

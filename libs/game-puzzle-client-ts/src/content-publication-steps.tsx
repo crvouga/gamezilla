@@ -35,6 +35,16 @@ export type PublicationStepsProps = {
   /** A pack's puzzles that are still drafts, by title. */
   readonly waitingOn: readonly string[];
   readonly next: PublicationStep;
+  readonly progress:
+    | {
+        readonly label: string;
+        readonly complete: boolean;
+        readonly currentLabel: string;
+        readonly statusInLead: boolean;
+        readonly lead: JSX.Element;
+        readonly action: JSX.Element;
+      }
+    | undefined;
   /** A puzzle's playtest, the first step's action; `true` as the lead. */
   readonly playtest: (lead: boolean) => JSX.Element;
   readonly validate: (place: PublicationActionPlace) => JSX.Element;
@@ -196,7 +206,9 @@ function useLeadPlace(lead: () => JSX.Element): () => boolean {
 export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   const { t } = useLingui();
   const next = createMemo(() => props.next);
-  const lead = useLead(props, next);
+  const usualLead = useLead(props, next);
+  const lead = () =>
+    props.progress === undefined ? usualLead() : props.progress.lead;
   const away = useLeadPlace(lead);
   const actions = useTrackActions(props, next);
   const steps = (): StepTrackStep[] => [
@@ -234,20 +246,42 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
     },
     {
       key: 'publish',
-      label: t`Publish`,
-      state: stateOf('publish', next()),
-      action: actions.publish(),
+      label: props.progress ? t`Publication` : t`Publish`,
+      state: props.progress?.complete ? 'done' : stateOf('publish', next()),
+      action:
+        props.progress === undefined
+          ? actions.publish()
+          : props.progress.action,
     },
   ];
   return (
     <StackVertical gap="md">
       <StackHorizontal gap="md" wrap align="center">
         <Show when={!away()}>{lead()}</Show>
-        <NextLine {...props} />
+        <Show
+          when={props.progress === undefined}
+          fallback={
+            <Show when={!props.progress?.statusInLead}>
+              <P
+                variant="caption"
+                tone="secondary"
+                dataSet={{ testid: 'content-publication-status' }}
+              >
+                {props.progress?.label}
+              </P>
+            </Show>
+          }
+        >
+          <NextLine {...props} />
+        </Show>
       </StackHorizontal>
       <StepTrack
         label={t`Steps to publish`}
-        stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Locked` }}
+        stateNames={{
+          done: t`Done`,
+          current: props.progress?.currentLabel ?? t`Next`,
+          upcoming: t`Locked`,
+        }}
         steps={steps()}
         dataSet={{ testid: 'content-publication-steps' }}
       />

@@ -1,0 +1,4 @@
+{
+  "summary": "The party journey treated an actor-local optimistic move as accepted; the next device waited for move 17 after both boards rolled back to the recorded Hill ply 16. A modeled bot rebase pins this acceptance failure without claiming the unrecorded attempted move was observed.",
+  "regressionTest": "libs/runtime-harness-ts/tests/custom-game-party-acceptance.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Four seats at 390px leave 68.5px for a 70.4px swatch and Walls 5 row, causing an extra row and excessive chip height.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

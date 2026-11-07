@@ -1,0 +1,4 @@
+{
+  "summary": "The square-fit public prop was omitted from the exhaustive contract proof registry, failing the chess harness typecheck.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/puzzle-first-rank.test.tsx"
+}

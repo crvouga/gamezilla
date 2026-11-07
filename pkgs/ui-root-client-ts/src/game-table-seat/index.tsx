@@ -110,7 +110,15 @@ export function GameTableSeat(props: GameTableSeatProps): JSX.Element {
   );
 }
 
-type SeatLender = (side: string) => JSX.Element;
+/** A lent seat carries semantic identity separately from its rendered content. */
+export type GameTablePlayer = {
+  /** Resolved public display name, or null when unknown; a getter may track updates. */
+  readonly name: string | null;
+  /** The identity presentation, mounted once by the borrower. */
+  readonly content: JSX.Element;
+};
+
+type SeatLender = (side: string) => GameTablePlayer;
 
 const GameTableSeatsContext = createContext<SeatLender | undefined>();
 

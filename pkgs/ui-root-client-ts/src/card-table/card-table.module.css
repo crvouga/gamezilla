@@ -149,8 +149,7 @@
   white-space: nowrap;
 }
 .fact + .fact::before {
-  content: "·";
-  margin-inline-end: var(--ui-space-2);
+  content: none;
 }
 /* Said to a listener and kept in the words, not drawn. */
 .spoken {
@@ -249,42 +248,6 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-/*
- * A phone's table: the seats above and below the middle are one strip
- * each, the person beside their facts, and every plate is a step
- * shallower, so the felt is about 280px tall, not 360px, and the hand
- * under it has room for larger cards.
- */
-@container card-table not (min-width: 30rem) {
-  .seat[data-player="true"] {
-    padding: var(--ui-space-1);
-  }
-  .seat[data-player="true"][data-position="top"],
-  .seat[data-player="true"][data-position="bottom"] {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: var(--ui-space-3);
-    max-width: none;
-    padding-inline: var(--ui-space-3);
-  }
-  /* The person takes the strip's room left of the facts (a seat sizes
-     itself by the room it is given, so it is never sized by its content). */
-  .seat[data-player="true"][data-position="top"] > :first-child,
-  .seat[data-player="true"][data-position="bottom"] > :first-child {
-    flex: 1 1 0;
-  }
-  .seat[data-player="true"][data-position="top"] .facts,
-  .seat[data-player="true"][data-position="bottom"] .facts {
-    flex: 0 0 auto;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: end;
-  }
-  .seat[data-player="true"][data-position="top"] .fact + .fact::before,
-  .seat[data-player="true"][data-position="bottom"] .fact + .fact::before {
-    content: none;
-  }
 }
 /* A wider table: larger cards in the trick, the side seats beside it. */
 @container (min-width: 30rem) {
@@ -431,11 +394,24 @@ button.card {
 button.card[aria-disabled="true"] {
   cursor: default;
 }
-/* Refused by the rules now: the face dims, still a card, never
-   see-through. A card that is only waiting (another seat's turn, a pass on
+/* Refused by the rules now: a dashed edge and an explicit marker. A card that is only waiting (another seat's turn, a pass on
    its way) keeps full contrast. */
 button.card[data-refused="true"]:not([aria-pressed="true"]) {
-  filter: brightness(0.72);
+  border-style: dashed;
+  box-shadow: none;
+}
+/* A hatched foot and inverse × distinguish unavailable faces at a glance.
+   Rank and suit ink stay fully opaque; legal cards never wear selection rings. */
+button.card[data-refused="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--ui-space-1);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--ui-color-board-card-face) 0 var(--ui-space-1),
+    var(--ui-color-board-card-ink) var(--ui-space-1) var(--ui-space-2)
+  );
 }
 /* Chosen: lifted 8px out of its row and ringed 3px in the app's selection
    accent (the hand sits on the page, not the felt), so it reads at a
@@ -482,4 +458,104 @@ button.card:focus-visible {
   .card {
     transition: none;
   }
+}
+
+/* Two named player/card pairs per row: every trick place stays directly
+   beside its owner, never in a separate compass that needs decoding. */
+@container card-table not (min-width: 30rem) {
+  .table {
+    grid-template-columns: minmax(0, 1fr) var(--card-w) var(--ui-space-2) minmax(
+        0,
+        1fr
+      ) var(--card-w);
+    grid-template-areas: none;
+    gap: var(--ui-space-1);
+  }
+  .seat[data-position] {
+    grid-column: 1 / 3;
+    width: 100%;
+    max-width: none;
+    align-self: stretch;
+    justify-content: center;
+    padding: var(--ui-space-1);
+  }
+  .seat[data-position="right"],
+  .seat[data-position="bottom"] {
+    grid-column: 4 / 6;
+  }
+  .seat[data-trick="true"] {
+    grid-column: 1;
+  }
+  .seat[data-trick="true"][data-position="right"],
+  .seat[data-trick="true"][data-position="bottom"] {
+    grid-column: 4;
+  }
+  .seat[data-position="top"],
+  .slot[data-position="top"],
+  .seat[data-position="right"],
+  .slot[data-position="right"] {
+    grid-row: 1;
+  }
+  .seat[data-position="left"],
+  .slot[data-position="left"],
+  .seat[data-position="bottom"],
+  .slot[data-position="bottom"] {
+    grid-row: 2;
+  }
+  .seat[data-player="true"][data-position] {
+    max-width: none;
+    gap: var(--ui-space-1);
+  }
+  .seat[data-player="true"] > :first-child {
+    width: 100%;
+    min-width: 0;
+  }
+  .seat[data-player="true"] .facts {
+    flex-direction: row;
+    align-items: center;
+  }
+  .trick[data-trick="true"] {
+    display: contents;
+  }
+  .slot[data-position] {
+    grid-column: 2;
+  }
+  .slot[data-position="right"],
+  .slot[data-position="bottom"] {
+    grid-column: 5;
+  }
+  .pass,
+  .center {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  .pass {
+    flex-direction: row;
+    padding-top: var(--ui-space-1);
+  }
+  .center {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+.guidance {
+  margin: 0;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  text-align: center;
+}
+.unavailable {
+  color: var(--ui-color-board-card-face);
+  background: var(--ui-color-board-card-ink);
+  border-radius: var(--ui-radius-full);
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-4);
+  height: var(--ui-space-4);
+  position: absolute;
+  top: var(--ui-space-1);
+  right: var(--ui-space-1);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
 }

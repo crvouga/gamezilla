@@ -133,3 +133,21 @@ terms:
 
   - term: bot
     from: games
+  - term: under way
+    from: games
+  - term: Hearts
+    from: hearts
+  - term: Word Tiles
+    from: word-tiles
+  - term: Word Tiles for three
+    from: word-tiles
+  - term: Word Tiles for four
+    from: word-tiles
+  - term: Light Cycles
+    from: light-cycles
+  - term: Light Cycles Duel
+    from: light-cycles
+  - term: Light Cycles Trio
+    from: light-cycles
+  - term: Light Cycles Quad
+    from: light-cycles

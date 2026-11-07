@@ -1,0 +1,4 @@
+{
+  "summary": "The games list invited a guest to pick a game while only the host could select one.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-entry-feedback.test.tsx"
+}

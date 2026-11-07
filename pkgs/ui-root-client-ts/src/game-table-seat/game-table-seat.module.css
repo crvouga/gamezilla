@@ -73,3 +73,27 @@
     justify-content: flex-start;
   }
 }
+
+/* A phone card table prioritizes the hand. The player's name and tags stay
+   together beside their trick card; the decorative avatar yields its space. */
+@container card-table (max-width: 30rem) {
+  .avatar {
+    display: none;
+  }
+  .face {
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+  .text {
+    align-items: center;
+  }
+  .name {
+    display: block;
+    font-size: var(--ui-font-size-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tags {
+    justify-content: center;
+  }
+}

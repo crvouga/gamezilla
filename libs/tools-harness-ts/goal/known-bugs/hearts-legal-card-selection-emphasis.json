@@ -1,0 +1,4 @@
+{
+  "summary": "Legal immediate-play cards used the same accent ring as selected pass cards.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-four.checks.ts"
+}

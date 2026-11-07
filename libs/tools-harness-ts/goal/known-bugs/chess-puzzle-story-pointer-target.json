@@ -1,0 +1,4 @@
+{
+  "summary": "The first-rank browser regression clicked keyboard-only square buttons (pointer-events:none). Dispatch the story pointer to the actual application surface at the measured e1 center, preserving selection, legal destination, cancellation and all 64 pre-input geometry assertions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

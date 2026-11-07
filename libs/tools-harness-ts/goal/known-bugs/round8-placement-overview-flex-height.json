@@ -1,0 +1,4 @@
+{
+  "summary": "The placement overview inherits a vertical flex basis of 248px around its 224px map, misaligning it with the working grid at 1440px.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

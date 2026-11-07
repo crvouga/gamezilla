@@ -6,11 +6,13 @@ import {
 } from '@libs/runtime-harness-ts/custom-game-party-journey';
 import { delayedPartyHost } from './custom-game-party-fixture';
 
+// regression: quoridor-party-wall-stops-at-preview
 // regression: party-journey-replays-stale-peer-turn
 test('the party waits for the last accepted turn before choosing the next person', async () => {
   const { host, players, moves } = delayedPartyHost();
   const result = await completeCustomGameParty(host, QUORIDOR_HILL_PLAYABLE);
   expect(moves.slice(0, 4)).toEqual(['e2', 'b5', 'e8', 'h5']);
+  expect(moves[9]).toBe('d4h');
   expect(result.status).toBe('completed');
   expect(result.outcome).not.toBe('');
   expect(result.ply).toBe(moves.length);
@@ -198,4 +200,33 @@ test('a failed party gesture retains its cause and bounded public board context'
   expect(message).toContain('; latest');
   expect(message).not.toContain('EXTRA_SENTINEL');
   expect(message.length).toBeLessThan(1500);
+});
+
+test('a missing accepted move reports the chosen action and latest board', async () => {
+  const fixture = delayedPartyHost();
+  const host = {
+    ...fixture.host,
+    act: (name: string, gestures: Parameters<typeof fixture.host.act>[1]) =>
+      fixture.host.act(name, (ui) =>
+        gestures({
+          ...ui,
+          get: (id) => {
+            const node = ui.get(id);
+            if (id !== 'custom-game-review-move-1') return node;
+            return {
+              ...node,
+              expect: {
+                ...node.expect,
+                visible: async () => {
+                  throw new Error('Accepted move did not render');
+                },
+              },
+            };
+          },
+        })
+      ),
+  };
+  await expect(
+    completeCustomGameParty(host, QUORIDOR_HILL_PLAYABLE)
+  ).rejects.toThrow('Party action e2; chosen');
 });

@@ -22,7 +22,7 @@ export async function readPublicCustomGame(
   return value;
 }
 
-function moveContext(view: PublicCustomGame | null): string {
+export function partyMoveContext(view: PublicCustomGame | null): string {
   return JSON.stringify(
     view === null
       ? null
@@ -37,6 +37,19 @@ function moveContext(view: PublicCustomGame | null): string {
   );
 }
 
+async function moveFailure(
+  ui: Driver,
+  view: PublicCustomGame,
+  action: string,
+  cause: unknown
+): Promise<Error> {
+  const latest = await readPublicCustomGame(ui).catch(() => null);
+  return new Error(
+    `Party action ${action.slice(0, 80)}; chosen ${partyMoveContext(view)}; latest ${partyMoveContext(latest)}`,
+    { cause }
+  );
+}
+
 async function performObservedMove(
   ui: Driver,
   game: PlayableGame,
@@ -46,16 +59,36 @@ async function performObservedMove(
   try {
     await game.shared.automation.turns.perform(ui, 'custom-game-board', action);
   } catch (cause) {
-    const latest = await readPublicCustomGame(ui).catch(() => null);
-    throw new Error(
-      `Party action ${action.slice(0, 80)}; chosen ${moveContext(view)}; latest ${moveContext(latest)}`,
-      { cause }
-    );
+    throw await moveFailure(ui, view, action, cause);
   }
+}
+
+async function failRejectedMove(
+  ui: Driver,
+  view: PublicCustomGame,
+  action: string,
+  cause: unknown
+): Promise<void> {
+  const error = ui.get('custom-game-error');
+  if (await error.isVisible())
+    throw await moveFailure(
+      ui,
+      view,
+      action,
+      new Error(`Party move rejected: ${await error.text()}`, { cause })
+    );
 }
 
 const MOVE_ATTEMPTS = 3;
 const MOVE_SETTLE_MS = 5_000;
+
+export type PartyTurnProgress = {
+  returnedLiveAt: number | null;
+  attempted: {
+    readonly chosen: PublicCustomGame;
+    readonly action: string;
+  } | null;
+};
 
 /** Whether the board changed under a move chosen from `chosen`, at the same ply. */
 async function replacedBoard(
@@ -79,7 +112,8 @@ async function replacedBoard(
 async function playOnSettledBoard(
   ui: Driver,
   game: PlayableGame,
-  shown: PublicCustomGame
+  shown: PublicCustomGame,
+  progress: PartyTurnProgress
 ): Promise<void> {
   let view = shown;
   for (let attempt = 1; ; attempt += 1) {
@@ -94,6 +128,7 @@ async function playOnSettledBoard(
     );
     const last = attempt === MOVE_ATTEMPTS;
     const accepted = ui.get(`custom-game-review-move-${view.ply + 1}`);
+    progress.attempted = { chosen: view, action };
     let performed = false;
     try {
       await performObservedMove(ui, game, view, action);
@@ -103,14 +138,20 @@ async function playOnSettledBoard(
       });
       return;
     } catch (error) {
+      await failRejectedMove(ui, view, action, error);
       const replaced = last ? null : await replacedBoard(ui, view);
       if (replaced !== null) {
         view = replaced;
         continue;
       }
-      if (!performed || last) throw error;
+      if (!performed) throw error;
+      if (last) throw await moveFailure(ui, view, action, error);
       // Not replaced, only slow: the move still has its full wait.
-      await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      try {
+        await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      } catch (cause) {
+        throw await moveFailure(ui, view, action, cause);
+      }
       return;
     }
   }
@@ -121,8 +162,9 @@ export async function playCustomGamePartyTurn(
   ui: Driver,
   game: PlayableGame,
   expected: PublicCustomGame,
-  progress: { returnedLiveAt: number | null }
+  progress: PartyTurnProgress
 ): Promise<number> {
+  progress.attempted = null;
   if (expected.ply > 0)
     await ui
       .get(`custom-game-review-move-${expected.ply}`)
@@ -134,9 +176,13 @@ export async function playCustomGamePartyTurn(
   if (!view.canMove && progress.returnedLiveAt !== view.ply) {
     // A phone's record keeps its steps behind its chevron while the board
     // is live: the person opens it first, as they would to step back.
-    if (!(await ui.get('custom-game-review-live').isVisible()))
-      await tap(ui, 'custom-game-review-jump');
-    await tap(ui, 'custom-game-review-live');
+    if (await ui.get('custom-game-back-to-live').isVisible()) {
+      await tap(ui, 'custom-game-back-to-live');
+    } else {
+      if (!(await ui.get('custom-game-review-live').isVisible()))
+        await tap(ui, 'custom-game-review-jump');
+      await tap(ui, 'custom-game-review-live');
+    }
     progress.returnedLiveAt = view.ply;
     view = await readPublicCustomGame(ui);
   }
@@ -146,6 +192,6 @@ export async function playCustomGamePartyTurn(
     !view.canMove
   )
     return view.ply;
-  await playOnSettledBoard(ui, game, view);
+  await playOnSettledBoard(ui, game, view, progress);
   return view.ply + 1;
 }

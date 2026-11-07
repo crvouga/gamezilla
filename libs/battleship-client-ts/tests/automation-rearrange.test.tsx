@@ -6,6 +6,7 @@ import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import {
   createSolidDomDriver,
@@ -43,13 +44,15 @@ function setupBoardDriver(initial: string) {
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
             <ThemeProvider colorScheme="light">
-              <BattleshipSetupBoard
-                setup={setup()}
-                side="white"
-                locked={false}
-                testId="setup"
-                onChange={setSetup}
-              />
+              <SurfaceStackProvider>
+                <BattleshipSetupBoard
+                  setup={setup()}
+                  side="white"
+                  locked={false}
+                  testId="setup"
+                  onChange={setSetup}
+                />
+              </SurfaceStackProvider>
             </ThemeProvider>
           </ClockProvider>
         </I18nProvider>
@@ -74,3 +77,30 @@ test.each([
     expect(setup()).toBe(RED);
   }
 );
+
+test('phone multiplayer setup arranges the literal fleet through the default precision controls', async () => {
+  // regression: battleship-phone-setup-automation
+  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: () => ({
+      matches: true,
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  });
+  try {
+    const { board, setup } = setupBoardDriver(BLUE);
+    driver = board;
+    await driver.launch();
+    await driver.get('setup-precision-cell-a1').expect.visible();
+    await battleshipAutomation.arrange?.(driver, 'setup', RED);
+    expect(setup()).toBe(RED);
+    await driver.get('setup-precision-cell-j10').expect.visible();
+  } finally {
+    await driver?.close();
+    driver = undefined;
+    if (original) Object.defineProperty(window, 'matchMedia', original);
+    else Reflect.deleteProperty(window, 'matchMedia');
+  }
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844 Battleship required a Larger targets mode change and hid the whole field while aiming; default coarse regions now retain every outcome above a precise two-row picker.",
+  "regressionTest": "libs/battleship-client-ts/tests/targeting-default.test.tsx"
+}

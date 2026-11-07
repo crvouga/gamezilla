@@ -167,6 +167,7 @@ describe('Game frame: actions and watching', () => {
   });
 
   test('the action bar ships each test id, a primary step and pressed tools', () => {
+    // regression: game-board-selected-tool-invisible
     const pressed: string[] = [];
     renderUi(() => (
       <GameActionBar
@@ -200,6 +201,18 @@ describe('Game frame: actions and watching', () => {
       </GameActionBar>
     ));
     const group = screen.getByRole('group', { name: 'Actions' });
+    expect(screen.getByTestId('game-mode-move')).toHaveAttribute(
+      'data-intent',
+      'primary'
+    );
+    expect(screen.getByTestId('game-mode-move')).toHaveAttribute(
+      'data-variant',
+      'solid'
+    );
+    expect(screen.getByTestId('game-mode-h')).toHaveAttribute(
+      'data-intent',
+      'neutral'
+    );
     expect(screen.getByTestId('game-mode-move')).toHaveAttribute(
       'aria-pressed',
       'true'

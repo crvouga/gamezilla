@@ -14,6 +14,7 @@ import { seatSides } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
   createWordTilesSession,
   WordTilesBoardView,
@@ -24,8 +25,16 @@ import {
   STORY_LEXICON,
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
+import { checkEnlargedCoordinates } from './word-tiles-coordinate.example';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
+import {
+  checkCatStatusGeometry,
+  checkExchangeGeometry,
+  checkInitialWordWorkspace,
+} from './word-tiles-geometry.example';
+import { matchJourney } from './word-tiles-match-journey.example';
+import { expectPrecisionDefault } from './word-tiles-precision.example';
 
 /** A position from a new two-seat game, with `changes`. */
 function table(changes: Partial<WordTilesPosition> = {}): string {
@@ -66,7 +75,17 @@ function renderTable(
         }),
     },
   };
-  return renderGameTable(presentation, seatSides(seats), args, context);
+  return renderGameTable(presentation, seatSides(seats), args, {
+    parameters: {
+      ...context.parameters,
+      table: {
+        ...(context.parameters['table'] as GameTableStory),
+        get turn() {
+          return seatSides(seats)[decodePosition(args.position)?.turn ?? 0];
+        },
+      },
+    },
+  });
 }
 
 const meta = {
@@ -93,11 +112,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A new game: the first word must cover the centre star. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => {
+    await checkInitialWordWorkspace(canvasElement);
+    await expectPrecisionDefault(canvasElement, 'custom-game-board');
+  },
+};
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
 export const YourTurn: Story = {
   args: { position: MID_GAME, hand: LATER_RACK },
+  play: async ({ canvasElement }) => {
+    await checkInitialWordWorkspace(canvasElement);
+    await expectPrecisionDefault(canvasElement, 'custom-game-board');
+  },
 };
 
 /** Teal is playing: the rack shows, but nothing can be sent. */
@@ -124,6 +152,22 @@ export const WordListUnavailable: Story = {
       reason: 'Word list enable1.90ef7a729517 is unavailable',
     },
   },
+};
+
+/** Three seats: the third player's turn with all scores and rack counts visible. */
+export const ThreePlayers: Story = {
+  args: {
+    position: encodePosition({
+      ...newPosition(3, STORY_LEXICON_KEY),
+      board: CAT_AND_TOE,
+      scores: [10, 3, 0],
+      bag: 74,
+      turn: 2,
+    }),
+    hand: null,
+    interactive: false,
+  },
+  parameters: { table: { viewer: null, turn: 'red' } },
 };
 
 /** Four seats: every rack's count beside its seat, one board between them. */
@@ -166,6 +210,14 @@ export const GameOver: Story = {
 /** A position this app cannot read says so. */
 export const Unreadable: Story = {
   args: { position: 'wt2|not-a-position', hand: null },
+  play: async ({ canvasElement }) => {
+    // regression: word-tiles-unreadable-no-recovery
+    const reload = within(canvasElement).getByRole('link', {
+      name: 'Check app version',
+    });
+    await expect(reload).toHaveAttribute('href', '/more/about');
+    await expect(reload).toBeVisible();
+  },
 };
 
 /** C, A and T placed across the star: the preview scores the word it checked. */
@@ -211,4 +263,172 @@ export const CheckingWords: Story = {
       await canvas.findByTestId('custom-game-board-status')
     ).toHaveTextContent('Checking the words');
   },
+};
+
+/** Draft recovery asserts real tile movement, not an action callback. */
+export const RecallAndRestore: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const cell = await canvas.findByTestId('custom-game-board-cell-h8');
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-rack-11')
+    );
+    await userEvent.click(cell);
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+    await expect(cell).toHaveAccessibleName('C 3, h8, your tentative tile');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-recall')
+    );
+    await expect(cell).toHaveAttribute('data-state', 'empty');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await userEvent.click(await canvas.findByTestId('custom-game-board-undo'));
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await userEvent.click(await canvas.findByTestId('custom-game-board-redo'));
+    await expect(cell).toHaveAttribute('data-state', 'empty');
+  },
+};
+
+/** Assigning a blank changes the tile on the board while retaining zero points. */
+export const AssignABlank: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await checkInitialWordWorkspace(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-rack-98')
+    );
+    const cell = await canvas.findByTestId('custom-game-board-cell-h8');
+    await userEvent.click(cell);
+    await expectBlankTargets(canvasElement, 'custom-game-board');
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-blank-E')
+    );
+    await expect(cell).toHaveAccessibleName(
+      'E 0, h8, your tentative blank as E'
+    );
+    await expect(cell).toHaveAttribute('data-state', 'tentative');
+  },
+};
+
+/** Real authority accepts the retained CAT draft after the word list recovers. */
+export const RecoverAndSubmit: Story = {
+  args: { lexicon: { status: 'unavailable', reason: 'offline' } },
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    // regression: word-tiles-retry-retained-accepted-draft
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId('custom-game-board-lexicon-retry')
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enlarge board' })
+    );
+    for (const [tile, cell] of [
+      ['11', 'g8'],
+      ['0', 'h8'],
+      ['82', 'i8'],
+    ]) {
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-rack-${tile}`)
+      );
+      await userEvent.click(
+        canvas.getByTestId(`custom-game-board-cell-${cell}`)
+      );
+    }
+    await expect(
+      canvas.getByText(
+        /Reload it to preview words, or play for the game to check them/
+      )
+    ).toBeVisible();
+    // The local list is optional: the game authority still checks submitted words.
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeEnabled();
+    await expect(
+      canvas.getByText(/the game checks the words when you play/)
+    ).toBeVisible();
+    await checkCatStatusGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByTestId('custom-game-board-lexicon-retry')
+    );
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'tentative');
+    await userEvent.click(canvas.getByTestId('custom-game-board-submit'));
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'committed');
+    await expect(
+      canvas.queryByTestId('custom-game-board-rack-11')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
+    await expect(
+      within(canvas.getByTestId('custom-game-white')).getByText('10', {
+        exact: true,
+      })
+    ).toBeVisible();
+    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+      'Teal — to play'
+    );
+    await expect(
+      within(canvas.getByTestId('custom-game-black')).getByText('To move', {
+        exact: true,
+      })
+    ).toBeVisible();
+    await expect(
+      canvas.getByText(/You can plan a word while you wait/)
+    ).toBeVisible();
+  },
+};
+
+export const AcceptedPass: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await expect(
+      canvas.getByTestId('custom-game-board-cell-h8')
+    ).toHaveAttribute('data-state', 'empty');
+    await expect(
+      canvas.getByTestId('custom-game-board-rack-11')
+    ).toBeInTheDocument();
+  },
+};
+
+export const AcceptedExchange: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-exchange'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-rack-11'));
+    await expect(
+      canvas.queryByTestId('custom-game-board-submit')
+    ).not.toBeInTheDocument();
+    await checkExchangeGeometry(canvasElement);
+    await userEvent.click(
+      canvas.getByTestId('custom-game-board-exchange-confirm')
+    );
+    await expect(
+      canvas.queryByTestId('custom-game-board-rack-11')
+    ).not.toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await expect(canvas.getByTestId('custom-game-board-pass')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('custom-game-board-more'));
+    await expect(
+      canvas.queryByTestId('custom-game-board-exchange-confirm')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('custom-game-board-exchange-cancel')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('custom-game-board-submit')).toBeDisabled();
+  },
+};
+
+/** Sticky coordinates and the focused target remain clear at centre and all edges. */
+export const EnlargedCoordinates: Story = {
+  play: async ({ canvasElement }) => checkEnlargedCoordinates(canvasElement),
 };
