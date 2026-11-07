@@ -1,18 +1,18 @@
 [
   {
     "file": "GALLERY.md",
-    "bytes": 2964,
-    "sha256": "a62389cd7e57e862f785fb63b110ffc7baf1914b8332b926920c316ee05a9524"
+    "bytes": 2958,
+    "sha256": "62b07b5f58ade52808fe7d6c86113182d110e59960184474aa27196f19506418"
   },
   {
     "file": "HANDOFF.md",
-    "bytes": 4990,
-    "sha256": "c1aaeadfa2977486cc198ea1ff7ea757a82f04622bf96924cdb5382c8f6c4cf0"
+    "bytes": 5079,
+    "sha256": "236a1da74233532e98575a00961a7a094b8024df94a021b547c282432fbc9f7c"
   },
   {
     "file": "REVIEW_INPUTS.md",
     "bytes": 778,
-    "sha256": "e2a0f820701ced9c70c36c7b147d14f3abfec131e4ab4132424fe00a64744d2e"
+    "sha256": "edc5393b22888e6c81cb02602e4dde74346a939dd1aa4af2815ab20e5a661712"
   },
   {
     "file": "after/capture.json",
@@ -1105,6 +1105,11 @@
     "sha256": "16f672c47413512018be86a3d3512a0cbcf166252f7d22ee8e2ec7fa26c32875"
   },
   {
+    "file": "checks/mp4-encode-audit.log",
+    "bytes": 30903,
+    "sha256": "b40291691d9a003fcbc0e76f0dc049aa444aa7f68100b11e57deb4cd4ad1a608"
+  },
+  {
     "file": "checks/native-registration-checks.log",
     "bytes": 260,
     "sha256": "c3bcd722804e4460b47721e49dfe34224b20ad58c917966d721be98c17a15e3a"
@@ -1140,14 +1145,19 @@
     "sha256": "35551b4c14f8495ea080148bfca6a474c2c950ee5f32263e4046641944e73de7"
   },
   {
+    "file": "encode-playable-media.py",
+    "bytes": 1352,
+    "sha256": "4cc3ffe8a8c437f339a060c80d0ba1276b14570c9b12efb17b2108ca3bdd2702"
+  },
+  {
     "file": "final-repair-paths.json",
     "bytes": 1163,
     "sha256": "4d8f2113dcf5fc4210fbb5e8e816371b74baf51c4757bcf9f93f714b8c0edde6"
   },
   {
     "file": "manifest.json",
-    "bytes": 6011,
-    "sha256": "9d69ea1e1d7d10e10bcc1b929a9fd1b5aba30e4b2374ee8ec6a34d569b9485f0"
+    "bytes": 7568,
+    "sha256": "7dcc0c7ae455310a9812a6fbeb1b5718ce77da856b120deca9fdab98e5cc901d"
   },
   {
     "file": "recordings/capture.json",
@@ -1485,9 +1495,19 @@
     "sha256": "93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836"
   },
   {
+    "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4",
+    "bytes": 229477,
+    "sha256": "c84e10376474122de295c06afc5e57cd3ce26ebaed81d8d9b2491f6e1a4c200e"
+  },
+  {
     "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm",
     "bytes": 244685,
     "sha256": "69643f241a0703f999edc9a9e016a882c29576514b39c98df7374ec96f51b545"
+  },
+  {
+    "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4",
+    "bytes": 139781,
+    "sha256": "9829098bd08a19af3d31756c2c73de56938b3be0adc6f2c84da59ad74f147458"
   },
   {
     "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm",
@@ -1495,9 +1515,19 @@
     "sha256": "32d6cd21d774c6632a96de78f0f370d366400ef4c536a6e8f922afa412e13dcd"
   },
   {
+    "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4",
+    "bytes": 264575,
+    "sha256": "6cba06793d4ae6cdc490c4633b418ddca2940b0c6ee799ceaf80d4018ce3d8b0"
+  },
+  {
     "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm",
     "bytes": 225973,
     "sha256": "578aed4f70f4b48c1a2fb1a682f1c194517dee9b5c9be65df8595db946d84c91"
+  },
+  {
+    "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4",
+    "bytes": 126644,
+    "sha256": "948e604d88b79b5050e438a7a698889af080a4b35a5f638130780bdba17ce03e"
   },
   {
     "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm",
@@ -1505,9 +1535,19 @@
     "sha256": "66f8b2f0f04cfe1d994a68946f97c57d7ce3a27e5ed1d3113f06004bf0898800"
   },
   {
+    "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4",
+    "bytes": 662866,
+    "sha256": "01bfa5d01ccad6b40ab403dba476c22ca347c9e2194e44a0709d4703f2b2279a"
+  },
+  {
     "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm",
     "bytes": 827777,
     "sha256": "f37c037b5984e48a1fdd0a982e9a362761c28009b34f7888279510ebe79bba39"
+  },
+  {
+    "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4",
+    "bytes": 320551,
+    "sha256": "ab765bf19ce6041132ac2337960be08aed472d2e81e8c2a550128222620d8ec5"
   },
   {
     "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",

@@ -1,0 +1,414 @@
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:03.08, start: 0.000000, bitrate: 379 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 390x844, SAR 1:1 DAR 195:422, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:03.080000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x124e19370] using SAR=1/1
+[libx264 @ 0x124e19370] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x124e19370] profile High, level 3.0, 4:2:0, 8-bit
+[libx264 @ 0x124e19370] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:03.080000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[mp4 @ 0x124e17990] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x124e174e0] video:135KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.240693%
+frame=   77 fps=0.0 q=-1.0 Lsize=     137KiB time=00:00:03.00 bitrate= 372.7kbits/s speed=30.8x elapsed=0:00:00.09    
+[libx264 @ 0x124e19370] frame I:3     Avg QP:10.48  size: 18404
+[libx264 @ 0x124e19370] frame P:31    Avg QP:16.56  size:  2444
+[libx264 @ 0x124e19370] frame B:43    Avg QP:11.98  size:   149
+[libx264 @ 0x124e19370] consecutive B-frames: 20.8% 13.0%  3.9% 62.3%
+[libx264 @ 0x124e19370] mb I  I16..4: 66.7% 10.2% 23.0%
+[libx264 @ 0x124e19370] mb P  I16..4:  3.6%  2.9%  0.5%  P16..4: 14.9%  0.8%  0.5%  0.0%  0.0%    skip:76.7%
+[libx264 @ 0x124e19370] mb B  I16..4:  0.6%  0.0%  0.0%  B16..8:  1.6%  0.2%  0.0%  direct: 1.6%  skip:96.0%  L0:33.3% L1:64.5% BI: 2.2%
+[libx264 @ 0x124e19370] 8x8 transform intra:22.3% inter:19.1%
+[libx264 @ 0x124e19370] coded y,uvDC,uvAC intra: 14.0% 16.7% 12.4% inter: 2.9% 4.1% 1.4%
+[libx264 @ 0x124e19370] i16 v,h,dc,p: 80% 16%  4%  0%
+[libx264 @ 0x124e19370] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 31% 11% 56%  0%  0%  0%  0%  0%  0%
+[libx264 @ 0x124e19370] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 28% 22%  2%  3%  3%  3%  2%  3%
+[libx264 @ 0x124e19370] i8c dc,h,v,p: 74% 13% 12%  1%
+[libx264 @ 0x124e19370] Weighted P-Frames: Y:3.2% UV:0.0%
+[libx264 @ 0x124e19370] ref P L0: 85.4% 14.6%
+[libx264 @ 0x124e19370] ref B L0: 88.1% 11.9%
+[libx264 @ 0x124e19370] ref B L1: 98.2%  1.8%
+[libx264 @ 0x124e19370] kb/s:356.83
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:03.08, start: 0.000000, bitrate: 363 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], 358 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x143617130] video:32KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   77 fps=0.0 q=-0.0 Lsize=N/A time=00:00:03.08 bitrate=N/A speed= 365x elapsed=0:00:00.00    
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:03.12, start: 0.000000, bitrate: 627 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 1440x900, SAR 1:1 DAR 8:5, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:03.120000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x1396190c0] using SAR=1/1
+[libx264 @ 0x1396190c0] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x1396190c0] profile High, level 4.0, 4:2:0, 8-bit
+[libx264 @ 0x1396190c0] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:03.120000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[mp4 @ 0x139617990] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x1396174e0] video:222KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.773332%
+frame=   78 fps=0.0 q=-1.0 Lsize=     224KiB time=00:00:03.04 bitrate= 603.9kbits/s speed=9.47x elapsed=0:00:00.32    
+[libx264 @ 0x1396190c0] frame I:2     Avg QP: 8.03  size: 15972
+[libx264 @ 0x1396190c0] frame P:29    Avg QP:15.87  size:  6047
+[libx264 @ 0x1396190c0] frame B:47    Avg QP:13.91  size:   420
+[libx264 @ 0x1396190c0] consecutive B-frames: 11.5% 23.1%  3.8% 61.5%
+[libx264 @ 0x1396190c0] mb I  I16..4: 70.5% 23.4%  6.2%
+[libx264 @ 0x1396190c0] mb P  I16..4:  3.7%  6.2%  0.3%  P16..4: 10.4%  0.5%  0.5%  0.0%  0.0%    skip:78.4%
+[libx264 @ 0x1396190c0] mb B  I16..4:  0.2%  0.0%  0.0%  B16..8:  1.4%  0.1%  0.0%  direct: 4.4%  skip:93.8%  L0:37.5% L1:60.7% BI: 1.8%
+[libx264 @ 0x1396190c0] 8x8 transform intra:44.7% inter:15.5%
+[libx264 @ 0x1396190c0] coded y,uvDC,uvAC intra: 4.7% 5.9% 3.9% inter: 1.6% 4.5% 0.7%
+[libx264 @ 0x1396190c0] i16 v,h,dc,p: 82% 12%  6%  0%
+[libx264 @ 0x1396190c0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 29% 12% 59%  0%  0%  0%  0%  0%  0%
+[libx264 @ 0x1396190c0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 29% 22%  3%  2%  3%  3%  2%  3%
+[libx264 @ 0x1396190c0] i8c dc,h,v,p: 82% 10%  7%  0%
+[libx264 @ 0x1396190c0] Weighted P-Frames: Y:6.9% UV:0.0%
+[libx264 @ 0x1396190c0] ref P L0: 71.2% 28.8%
+[libx264 @ 0x1396190c0] ref B L0: 82.4% 17.6%
+[libx264 @ 0x1396190c0] ref B L1: 96.1%  3.9%
+[libx264 @ 0x1396190c0] kb/s:582.12
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:03.12, start: 0.000000, bitrate: 588 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], 583 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x147617130] video:32KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   78 fps=0.0 q=-0.0 Lsize=N/A time=00:00:03.12 bitrate=N/A speed= 213x elapsed=0:00:00.01    
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:11.92, start: 0.000000, bitrate: 286 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 390x844, SAR 1:1 DAR 195:422, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:11.920000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x13f619350] using SAR=1/1
+[libx264 @ 0x13f619350] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x13f619350] profile High, level 3.0, 4:2:0, 8-bit
+[libx264 @ 0x13f619350] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:11.920000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[mp4 @ 0x13f617970] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x13f6174c0] video:309KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.370257%
+frame=  298 fps=0.0 q=-1.0 Lsize=     313KiB time=00:00:11.84 bitrate= 216.6kbits/s speed=46.7x elapsed=0:00:00.25    
+[libx264 @ 0x13f619350] frame I:6     Avg QP:11.03  size: 26424
+[libx264 @ 0x13f619350] frame P:89    Avg QP:15.51  size:  1570
+[libx264 @ 0x13f619350] frame B:203   Avg QP:13.60  size:    85
+[libx264 @ 0x13f619350] consecutive B-frames:  7.7%  3.4%  3.0% 85.9%
+[libx264 @ 0x13f619350] mb I  I16..4: 59.5%  7.3% 33.2%
+[libx264 @ 0x13f619350] mb P  I16..4:  3.0%  0.6%  0.5%  P16..4:  9.5%  0.3%  0.6%  0.0%  0.0%    skip:85.5%
+[libx264 @ 0x13f619350] mb B  I16..4:  0.2%  0.0%  0.0%  B16..8:  0.5%  0.1%  0.0%  direct: 0.8%  skip:98.4%  L0:39.5% L1:59.1% BI: 1.4%
+[libx264 @ 0x13f619350] 8x8 transform intra:10.0% inter:21.4%
+[libx264 @ 0x13f619350] coded y,uvDC,uvAC intra: 18.9% 24.6% 16.5% inter: 1.5% 1.7% 0.4%
+[libx264 @ 0x13f619350] i16 v,h,dc,p: 81% 16%  3%  0%
+[libx264 @ 0x13f619350] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 28% 16% 52%  1%  0%  1%  1%  1%  1%
+[libx264 @ 0x13f619350] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 32% 16%  2%  3%  3%  4%  2%  4%
+[libx264 @ 0x13f619350] i8c dc,h,v,p: 67% 18% 14%  1%
+[libx264 @ 0x13f619350] Weighted P-Frames: Y:2.2% UV:0.0%
+[libx264 @ 0x13f619350] ref P L0: 91.7%  8.3%
+[libx264 @ 0x13f619350] ref B L0: 84.4% 15.6%
+[libx264 @ 0x13f619350] ref B L1: 97.2%  2.8%
+[libx264 @ 0x13f619350] kb/s:211.76
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:11.92, start: 0.000000, bitrate: 215 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], 212 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x12f015850] video:123KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=  298 fps=0.0 q=-0.0 Lsize=N/A time=00:00:11.92 bitrate=N/A speed= 543x elapsed=0:00:00.02    
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:11.72, start: 0.000000, bitrate: 565 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 1440x900, SAR 1:1 DAR 8:5, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:11.720000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x143e190a0] using SAR=1/1
+[libx264 @ 0x143e190a0] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x143e190a0] profile High, level 4.0, 4:2:0, 8-bit
+[libx264 @ 0x143e190a0] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:11.720000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+frame=  123 fps=0.0 q=22.0 size=     256KiB time=00:00:04.84 bitrate= 433.4kbits/s speed=9.49x elapsed=0:00:00.51    [mp4 @ 0x143e17970] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x143e174c0] video:643KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.656755%
+frame=  293 fps=0.0 q=-1.0 Lsize=     647KiB time=00:00:11.64 bitrate= 455.6kbits/s speed=  12x elapsed=0:00:00.96    
+[libx264 @ 0x143e190a0] frame I:4     Avg QP: 9.41  size: 42145
+[libx264 @ 0x143e190a0] frame P:85    Avg QP:15.88  size:  4569
+[libx264 @ 0x143e190a0] frame B:204   Avg QP:13.17  size:   494
+[libx264 @ 0x143e190a0] consecutive B-frames:  4.1%  7.5%  5.1% 83.3%
+[libx264 @ 0x143e190a0] mb I  I16..4: 73.1% 12.7% 14.1%
+[libx264 @ 0x143e190a0] mb P  I16..4:  3.5%  4.1%  0.4%  P16..4:  7.9%  0.3%  0.4%  0.0%  0.0%    skip:83.4%
+[libx264 @ 0x143e190a0] mb B  I16..4:  0.8%  0.1%  0.0%  B16..8:  0.9%  0.1%  0.0%  direct: 1.9%  skip:96.3%  L0:33.8% L1:65.2% BI: 1.1%
+[libx264 @ 0x143e190a0] 8x8 transform intra:32.4% inter:24.9%
+[libx264 @ 0x143e190a0] coded y,uvDC,uvAC intra: 7.9% 9.0% 6.2% inter: 0.9% 2.2% 0.3%
+[libx264 @ 0x143e190a0] i16 v,h,dc,p: 76% 19%  5%  0%
+[libx264 @ 0x143e190a0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 10% 55%  0%  0%  0%  0%  0%  0%
+[libx264 @ 0x143e190a0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 35% 30% 18%  3%  3%  3%  3%  2%  3%
+[libx264 @ 0x143e190a0] i8c dc,h,v,p: 77% 15%  7%  0%
+[libx264 @ 0x143e190a0] Weighted P-Frames: Y:3.5% UV:1.2%
+[libx264 @ 0x143e190a0] ref P L0: 67.7% 32.3%
+[libx264 @ 0x143e190a0] ref B L0: 67.9% 32.1%
+[libx264 @ 0x143e190a0] ref B L1: 88.7% 11.3%
+[libx264 @ 0x143e190a0] kb/s:449.05
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:11.72, start: 0.000000, bitrate: 452 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], 449 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x15700c0a0] video:121KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=  293 fps=0.0 q=-0.0 Lsize=N/A time=00:00:11.72 bitrate=N/A speed= 251x elapsed=0:00:00.04    
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:02.44, start: 0.000000, bitrate: 406 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 390x844, SAR 1:1 DAR 195:422, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:02.440000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x134e19340] using SAR=1/1
+[libx264 @ 0x134e19340] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x134e19340] profile High, level 3.0, 4:2:0, 8-bit
+[libx264 @ 0x134e19340] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:02.440000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[mp4 @ 0x134e17970] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x134e174c0] video:122KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.189725%
+frame=   61 fps=0.0 q=-1.0 Lsize=     124KiB time=00:00:02.36 bitrate= 429.3kbits/s speed=  27x elapsed=0:00:00.08    
+[libx264 @ 0x134e19340] frame I:3     Avg QP:12.09  size: 18070
+[libx264 @ 0x134e19340] frame P:29    Avg QP:17.12  size:  2296
+[libx264 @ 0x134e19340] frame B:29    Avg QP:12.70  size:   127
+[libx264 @ 0x134e19340] consecutive B-frames: 32.8%  9.8%  4.9% 52.5%
+[libx264 @ 0x134e19340] mb I  I16..4: 59.1% 21.1% 19.8%
+[libx264 @ 0x134e19340] mb P  I16..4:  2.6%  4.9%  0.8%  P16..4: 14.8%  1.1%  1.0%  0.0%  0.0%    skip:74.8%
+[libx264 @ 0x134e19340] mb B  I16..4:  0.9%  0.1%  0.0%  B16..8:  0.7%  0.1%  0.0%  direct: 0.8%  skip:97.4%  L0:69.2% L1:27.8% BI: 3.0%
+[libx264 @ 0x134e19340] 8x8 transform intra:36.2% inter:27.8%
+[libx264 @ 0x134e19340] coded y,uvDC,uvAC intra: 14.8% 15.5% 11.2% inter: 3.5% 3.7% 2.0%
+[libx264 @ 0x134e19340] i16 v,h,dc,p: 68% 27%  5%  0%
+[libx264 @ 0x134e19340] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 31% 37%  0%  0%  0%  0%  0%  0%
+[libx264 @ 0x134e19340] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 28% 31% 20%  3%  4%  3%  4%  3%  4%
+[libx264 @ 0x134e19340] i8c dc,h,v,p: 73% 17% 10%  0%
+[libx264 @ 0x134e19340] Weighted P-Frames: Y:3.4% UV:0.0%
+[libx264 @ 0x134e19340] ref P L0: 86.2% 13.8%
+[libx264 @ 0x134e19340] ref B L0: 79.1% 20.9%
+[libx264 @ 0x134e19340] ref B L1: 99.0%  1.0%
+[libx264 @ 0x134e19340] kb/s:408.09
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:02.44, start: 0.000000, bitrate: 415 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], 410 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 390x844 [SAR 1:1 DAR 195:422], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x136e20640] video:25KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   61 fps=0.0 q=-0.0 Lsize=N/A time=00:00:02.44 bitrate=N/A speed= 309x elapsed=0:00:00.00    
+Input #0, matroska,webm, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm':
+  Metadata:
+    ENCODER         : Lavf61.1.100
+  Duration: 00:00:02.48, start: 0.000000, bitrate: 728 kb/s
+  Stream #0:0: Video: vp8, yuv420p(progressive), 1440x900, SAR 1:1 DAR 8:5, 25 fps, 25 tbr, 1k tbn
+    Metadata:
+      ENCODER         : Lavc61.3.100 libvpx
+      DURATION        : 00:00:02.480000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (vp8 (native) -> h264 (libx264))
+[libx264 @ 0x1546190a0] using SAR=1/1
+[libx264 @ 0x1546190a0] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x1546190a0] profile High, level 4.0, 4:2:0, 8-bit
+[libx264 @ 0x1546190a0] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=2 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=6 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=2 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=30 rc=crf mbtree=1 crf=20.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4':
+  Metadata:
+    encoder         : Lavf63.1.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc63.1.100 libx264
+      DURATION        : 00:00:02.480000000
+    Side data:
+      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[mp4 @ 0x154617970] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x1546174c0] video:257KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.578208%
+frame=   62 fps=0.0 q=-1.0 Lsize=     258KiB time=00:00:02.40 bitrate= 881.9kbits/s speed=7.68x elapsed=0:00:00.31    
+[libx264 @ 0x1546190a0] frame I:2     Avg QP:10.88  size: 16826
+[libx264 @ 0x1546190a0] frame P:30    Avg QP:17.17  size:  6971
+[libx264 @ 0x1546190a0] frame B:30    Avg QP:14.94  size:   653
+[libx264 @ 0x1546190a0] consecutive B-frames: 25.8% 25.8%  9.7% 38.7%
+[libx264 @ 0x1546190a0] mb I  I16..4: 65.9% 28.7%  5.5%
+[libx264 @ 0x1546190a0] mb P  I16..4:  4.4%  9.9%  0.6%  P16..4: 14.3%  0.6%  0.6%  0.0%  0.0%    skip:69.7%
+[libx264 @ 0x1546190a0] mb B  I16..4:  0.6%  0.1%  0.0%  B16..8:  3.0%  0.3%  0.0%  direct: 3.0%  skip:93.0%  L0:31.9% L1:66.9% BI: 1.2%
+[libx264 @ 0x1546190a0] 8x8 transform intra:53.6% inter:20.4%
+[libx264 @ 0x1546190a0] coded y,uvDC,uvAC intra: 6.1% 5.9% 4.2% inter: 2.4% 3.6% 1.0%
+[libx264 @ 0x1546190a0] i16 v,h,dc,p: 68% 24%  8%  0%
+[libx264 @ 0x1546190a0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 45% 10% 44%  0%  0%  0%  0%  0%  0%
+[libx264 @ 0x1546190a0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 29% 21%  3%  3%  3%  4%  3%  4%
+[libx264 @ 0x1546190a0] i8c dc,h,v,p: 82% 12%  6%  0%
+[libx264 @ 0x1546190a0] Weighted P-Frames: Y:3.3% UV:0.0%
+[libx264 @ 0x1546190a0] ref P L0: 61.5% 38.5%
+[libx264 @ 0x1546190a0] ref B L0: 79.6% 20.4%
+[libx264 @ 0x1546190a0] ref B L1: 96.1%  3.9%
+[libx264 @ 0x1546190a0] kb/s:846.34
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Users/chrisvouga/.t3/worktrees/gamezilla/t3-cdbe42ba/.overhaul-evidence/ui-ux-overhaul/round-8/stopping-media/recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Duration: 00:00:02.48, start: 0.000000, bitrate: 853 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], 848 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf63.1.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 1440x900 [SAR 1:1 DAR 8:5], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.100 wrapped_avframe
+      handler_name    : VideoHandler
+[out#0/null @ 0x11de16fb0] video:26KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   62 fps=0.0 q=-0.0 Lsize=N/A time=00:00:02.48 bitrate=N/A speed= 161x elapsed=0:00:00.01    

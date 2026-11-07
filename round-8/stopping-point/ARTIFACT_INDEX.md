@@ -4,9 +4,9 @@ Every published image, video, checkpoint, log and document is listed below; full
 
 | File | Bytes | SHA-256 |
 |---|---:|---|
-| [GALLERY.md](GALLERY.md) | 2964 | `a62389cd7e57e862f785fb63b110ffc7baf1914b8332b926920c316ee05a9524` |
-| [HANDOFF.md](HANDOFF.md) | 4990 | `c1aaeadfa2977486cc198ea1ff7ea757a82f04622bf96924cdb5382c8f6c4cf0` |
-| [REVIEW_INPUTS.md](REVIEW_INPUTS.md) | 778 | `e2a0f820701ced9c70c36c7b147d14f3abfec131e4ab4132424fe00a64744d2e` |
+| [GALLERY.md](GALLERY.md) | 2958 | `62b07b5f58ade52808fe7d6c86113182d110e59960184474aa27196f19506418` |
+| [HANDOFF.md](HANDOFF.md) | 5079 | `236a1da74233532e98575a00961a7a094b8024df94a021b547c282432fbc9f7c` |
+| [REVIEW_INPUTS.md](REVIEW_INPUTS.md) | 778 | `edc5393b22888e6c81cb02602e4dde74346a939dd1aa4af2815ab20e5a661712` |
 | [after/capture.json](after/capture.json) | 5425 | `3400a9520bf95318523c5d37ec784f0d90eb5619f59bf4da2dfbfee1565bf922` |
 | [after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png](after/screens-games-battleship-setup--spatial-region-selection--desktop--dark.png) | 60519 | `fb0826eaefa7ee34e31fbca640535377c7ad16377c9d1391a0ec1482d8de37a8` |
 | [after/screens-games-battleship-setup--spatial-region-selection--desktop--light.png](after/screens-games-battleship-setup--spatial-region-selection--desktop--light.png) | 61172 | `3ca7fa9a2fa5fc2856986f933db6bdf976082bd025790412b4b0da50aed8f282` |
@@ -225,6 +225,7 @@ Every published image, video, checkpoint, log and document is listed below; full
 | [checks/initial-full/verdict.json](checks/initial-full/verdict.json) | 529 | `f251eb4349183e0027428275ffce816877036675005df580748e608e40a3d5b5` |
 | [checks/merge-binding.json](checks/merge-binding.json) | 364 | `5816849e5369baf2189bcce4b3736bae494cfbf5dcbaa870a96488b7aa55b7b0` |
 | [checks/merge-resolution-notes.md](checks/merge-resolution-notes.md) | 1983 | `16f672c47413512018be86a3d3512a0cbcf166252f7d22ee8e2ec7fa26c32875` |
+| [checks/mp4-encode-audit.log](checks/mp4-encode-audit.log) | 30903 | `b40291691d9a003fcbc0e76f0dc049aa444aa7f68100b11e57deb4cd4ad1a608` |
 | [checks/native-registration-checks.log](checks/native-registration-checks.log) | 260 | `c3bcd722804e4460b47721e49dfe34224b20ad58c917966d721be98c17a15e3a` |
 | [checks/pr-final-status.json](checks/pr-final-status.json) | 1572 | `9bbf1d5300f73bf994ef917e5624b7b1f966fe7ad171e2fc1f597a89f96db999` |
 | [checks/verify-diagnostics-parts.json](checks/verify-diagnostics-parts.json) | 2222 | `921504d61750ce8f6b405a50e9bf825e1739a4d07e0da5a06e042334f23af3dd` |
@@ -232,8 +233,9 @@ Every published image, video, checkpoint, log and document is listed below; full
 | [checks/verify-final.log](checks/verify-final.log) | 72181 | `4baf6d15c23bccc2bfde9c4cd50db11a03d62b0029f1e5b755ddadeda35351ec` |
 | [classify-results.py](classify-results.py) | 2020 | `cff027800f51f910c5e18db376c86b38220e3701bdd79d99c3e66eeb4d5f6c69` |
 | [collect-verify.py](collect-verify.py) | 2946 | `35551b4c14f8495ea080148bfca6a474c2c950ee5f32263e4046641944e73de7` |
+| [encode-playable-media.py](encode-playable-media.py) | 1352 | `4cc3ffe8a8c437f339a060c80d0ba1276b14570c9b12efb17b2108ca3bdd2702` |
 | [final-repair-paths.json](final-repair-paths.json) | 1163 | `4d8f2113dcf5fc4210fbb5e8e816371b74baf51c4757bcf9f93f714b8c0edde6` |
-| [manifest.json](manifest.json) | 6011 | `9d69ea1e1d7d10e10bcc1b929a9fd1b5aba30e4b2374ee8ec6a34d569b9485f0` |
+| [manifest.json](manifest.json) | 7568 | `7dcc0c7ae455310a9812a6fbeb1b5718ce77da856b120deca9fdab98e5cc901d` |
 | [recordings/capture.json](recordings/capture.json) | 3028 | `64db353b0fb52e2f53e4e89b0728aaadb28897a9dda66e8fadafaf789369e3d8` |
 | [recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--000.png](recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--000.png) | 60167 | `64b3c98e536c7c0e428803f488f802fe748aa44acf503ac39b74c4b0c2e4b23a` |
 | [recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--042.png](recordings/checkpoints/screens-games-battleship-setup--spatial-region-selection--desktop--light--042.png) | 60167 | `64b3c98e536c7c0e428803f488f802fe748aa44acf503ac39b74c4b0c2e4b23a` |
@@ -301,11 +303,17 @@ Every published image, video, checkpoint, log and document is listed below; full
 | [recordings/screens-games-word-tiles-board--assign-a-blank--desktop--light.png](recordings/screens-games-word-tiles-board--assign-a-blank--desktop--light.png) | 96652 | `536c88ca04e218edda10bf0c9c3208131654de28dab07a23f39bff6ef525e576` |
 | [recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.checkpoints.json](recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.checkpoints.json) | 204261 | `6b44e202a29488f670faf719f6b22c27c027f1ef6d16706c8bf050b0640cd34d` |
 | [recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.png](recordings/screens-games-word-tiles-board--assign-a-blank--phone--light.png) | 71512 | `93c44a94875332b64c904d2db20614e04af2e615d34c8eedda31240265492836` |
+| [recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4](recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4) | 229477 | `c84e10376474122de295c06afc5e57cd3ce26ebaed81d8d9b2491f6e1a4c200e` |
 | [recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm](recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm) | 244685 | `69643f241a0703f999edc9a9e016a882c29576514b39c98df7374ec96f51b545` |
+| [recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4](recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4) | 139781 | `9829098bd08a19af3d31756c2c73de56938b3be0adc6f2c84da59ad74f147458` |
 | [recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm](recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.webm) | 146219 | `32d6cd21d774c6632a96de78f0f370d366400ef4c536a6e8f922afa412e13dcd` |
+| [recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4](recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4) | 264575 | `6cba06793d4ae6cdc490c4633b418ddca2940b0c6ee799ceaf80d4018ce3d8b0` |
 | [recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm](recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm) | 225973 | `578aed4f70f4b48c1a2fb1a682f1c194517dee9b5c9be65df8595db946d84c91` |
+| [recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4](recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4) | 126644 | `948e604d88b79b5050e438a7a698889af080a4b35a5f638130780bdba17ce03e` |
 | [recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm](recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm) | 123976 | `66f8b2f0f04cfe1d994a68946f97c57d7ce3a27e5ed1d3113f06004bf0898800` |
+| [recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4](recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4) | 662866 | `01bfa5d01ccad6b40ab403dba476c22ca347c9e2194e44a0709d4703f2b2279a` |
 | [recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm](recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm) | 827777 | `f37c037b5984e48a1fdd0a982e9a362761c28009b34f7888279510ebe79bba39` |
+| [recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4](recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4) | 320551 | `ab765bf19ce6041132ac2337960be08aed472d2e81e8c2a550128222620d8ec5` |
 | [recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm](recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm) | 427561 | `42f4dc0494b138026cdb8b04549a0ecb78806cc5e19b1b38d731a4c525b33443` |
 | [source-working-tree.json](source-working-tree.json) | 127 | `d84c0663fc01ceffd5914a2b7bcb4401bf878a9c597b8a6de85ec67d18413187` |
 | [story-ids.txt](story-ids.txt) | 149 | `6b6352e3f55a6261da6b5e3bd9d99277974c99f95f890cb56ace473fcbb8c252` |

@@ -99,7 +99,10 @@
       "seconds": 3.08,
       "checkpoints": 92,
       "distinctFrames": 3,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--phone--light.mp4",
+      "playableSha256": "9829098bd08a19af3d31756c2c73de56938b3be0adc6f2c84da59ad74f147458",
+      "playableDecoded": true
     },
     {
       "file": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.webm",
@@ -107,7 +110,10 @@
       "seconds": 3.12,
       "checkpoints": 92,
       "distinctFrames": 3,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-battleship-setup--spatial-region-selection--desktop--light.mp4",
+      "playableSha256": "c84e10376474122de295c06afc5e57cd3ce26ebaed81d8d9b2491f6e1a4c200e",
+      "playableDecoded": true
     },
     {
       "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.webm",
@@ -115,7 +121,10 @@
       "seconds": 11.92,
       "checkpoints": 729,
       "distinctFrames": 4,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--phone--light.mp4",
+      "playableSha256": "ab765bf19ce6041132ac2337960be08aed472d2e81e8c2a550128222620d8ec5",
+      "playableDecoded": true
     },
     {
       "file": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.webm",
@@ -123,7 +132,10 @@
       "seconds": 11.72,
       "checkpoints": 729,
       "distinctFrames": 4,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-word-tiles-board--assign-a-blank--desktop--light.mp4",
+      "playableSha256": "01bfa5d01ccad6b40ab403dba476c22ca347c9e2194e44a0709d4703f2b2279a",
+      "playableDecoded": true
     },
     {
       "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.webm",
@@ -131,7 +143,10 @@
       "seconds": 2.44,
       "checkpoints": 5,
       "distinctFrames": 2,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--phone--light.mp4",
+      "playableSha256": "948e604d88b79b5050e438a7a698889af080a4b35a5f638130780bdba17ce03e",
+      "playableDecoded": true
     },
     {
       "file": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.webm",
@@ -139,11 +154,15 @@
       "seconds": 2.48,
       "checkpoints": 5,
       "distinctFrames": 2,
-      "failures": 0
+      "failures": 0,
+      "playableFile": "recordings/videos/screens-games-numberlink-puzzle--next-puzzle--desktop--light.mp4",
+      "playableSha256": "6cba06793d4ae6cdc490c4633b418ddca2940b0c6ee799ceaf80d4018ce3d8b0",
+      "playableDecoded": true
     }
   ],
   "pacing": "Automated assertion replay, not natural user timing",
   "numberlinkLimit": "Next Puzzle and saving are fixture fidelity, not a persisted-navigation repair",
   "referencesAccepted": false,
-  "evidenceCode": "f429d223ba49c72f"
+  "delivery": "Original WebMs retained. H.264/yuv420p MP4 copies fully decoded and hashed for browser delivery; GitHub serves WebMs as audio/webm.",
+  "evidenceCode": "eab9af9bebde1e36"
 }

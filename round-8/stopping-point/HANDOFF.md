@@ -1,6 +1,6 @@
 # Round 8 stopping point
 
-Source `0e6f06190addaf9cf7610f9ba106d8be6d10fdc0`. Media evidence `f429d223ba49c72f`. The user stopped redesign, further score rounds, new independent reviews and optional canonical/gallery work. No score, acceptance, reference update or PR merge is claimed.
+Source `0e6f06190addaf9cf7610f9ba106d8be6d10fdc0`. Media evidence `eab9af9bebde1e36`. The user stopped redesign, further score rounds, new independent reviews and optional canonical/gallery work. No score, acceptance, reference update or PR merge is claimed.
 
 Main was merged normally at `4faa3b594` from `1d915333c53d81fdc707888f1c087395ee3bc2cb`; the 23 conflicts and resolutions are retained in checks. GitHub reports MERGEABLE, nondraft; required safety is still pending in [run 42342271919](https://github.com/crvouga/gamezilla/actions/runs/42342271919). Parent owns the existing PR watch and final handback.
 
@@ -16,7 +16,7 @@ Main was merged normally at `4faa3b594` from `1d915333c53d81fdc707888f1c087395ee
 
 ## Media and source binding
 
-[Gallery](GALLERY.md): 12 screenshots (390×844 / 1440×900, both themes) and six audited assertion recordings for spatial ship-region selection, contextual blank assignment and Numberlink Next Puzzle. All recordings finish with zero checkpoint failures. Automated pacing is not human timing; before/after human task counts remain unknown.
+[Gallery](GALLERY.md): 12 screenshots (390×844 / 1440×900, both themes) and six audited assertion recordings for spatial ship-region selection, contextual blank assignment and Numberlink Next Puzzle. All recordings finish with zero checkpoint failures. Browser-ready MP4 copies were fully decoded and hashed; original WebMs remain preserved. Automated pacing is not human timing; before/after human task counts remain unknown.
 
 The static build was executed at `54ed1b515d1284887937e7073420b2ff0a315970`, hash `0279a32ab2c3c7f756b3eaea2ab127dc2a3333f67d7be73ce241f66ff53386db`. Final source differs only by registering the new native test file. Media uses the identical build bytes. [Manifest](manifest.json) binds each image/video. Round-seven before images remain pinned to `f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d`, source `b60694664`, evidence `46d72c8321c65c53`; new ship-region and Next Puzzle states explicitly have no prior image. The [prior full gallery and all-family recordings](https://github.com/crvouga/gamezilla/blob/f05f61a51cd6961c7e5ae1883d3c9a1e6f384b0d/round-7/GALLERY.md) are historical evidence, not final-source captures.
 
