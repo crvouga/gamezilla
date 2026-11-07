@@ -114,8 +114,8 @@ describe('game surfaces', () => {
   // regression: light-cycles-rider-cards-uneven — the person's own chip
   // then wrapped its "You" under its figure, so its avatar dropped below
   // its name while the other two chips kept one line. Every chip is the
-  // same two lines: its name, then its swatch, figure and short facts on
-  // one line that never wraps, with no avatar to push them apart.
+  // same name and facts rows, with no avatar to push them apart.
+  // Long facts wrap within their chip; browser checks cover their bounds.
   test('three players on a phone share one row of identical short chips', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
@@ -135,7 +135,7 @@ describe('game surfaces', () => {
     expect(phone).toMatch(/\.chipAvatar \{\s*display: none;/);
     const facts = phone.slice(phone.indexOf('.chipFacts {'));
     expect(facts.slice(0, facts.indexOf('}'))).toMatch(
-      /flex-wrap: nowrap;[\s\S]*white-space: nowrap;/
+      /width: 100%;[\s\S]*flex-wrap: wrap;/
     );
   });
 

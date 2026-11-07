@@ -1,0 +1,4 @@
+{
+  "summary": "Initial loading and failed stories inherited enabled Save despite production requiring a loaded configuration.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/content/integration.checks.ts"
+}

@@ -2,6 +2,7 @@ import {
   StoryPackAttempt,
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanPlayer } from './sokoban-player';
@@ -29,6 +30,10 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      complete={sokobanPuzzleContent.rules.complete(
+        args.definition,
+        args.state
+      )}
       player={<SokobanPlayer {...args} />}
     />
   ),
@@ -52,8 +57,14 @@ export const InProgress: Story = {
 };
 
 /** Every crate on a goal. */
+// regression: solved-pack-story-completion
 export const Solved: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES), disabled: true },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByTestId('content-attempt-complete')
+    ).toHaveTextContent('Puzzle completed');
+  },
 };
 
 /** While the shared player is not taking moves, the board stays still. */
@@ -63,10 +74,20 @@ export const Disabled: Story = { args: { disabled: true } };
 export const Unreadable: Story = { args: { definition: '{}' } };
 
 /** Walking into the wall is refused, with the reason, and sends nothing. */
+// regression: sokoban-blocked-move-wide-story
 export const BlockedMove: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('sokoban-move-left'));
+    const pad = canvas.queryByTestId('sokoban-move-left');
+    if (pad?.checkVisibility()) {
+      await userEvent.click(pad);
+    } else {
+      const board = await canvas.findByTestId('sokoban-board');
+      await expect(board).toBeVisible();
+      board.focus();
+      await expect(board).toHaveFocus();
+      await userEvent.keyboard('{ArrowLeft}');
+    }
     await expect(
       await canvas.findByTestId('sokoban-refusal')
     ).toHaveTextContent("The worker's way is blocked.");

@@ -63,7 +63,7 @@ export function ExportDownload(props: {
       <Match
         when={props.state.kind === 'denied' ? props.state.denial : undefined}
       >
-        {(denial) => <DenialSurfaceView denial={denial()} />}
+        {(denial) => <DenialSurfaceView denial={denial()} variant="compact" />}
       </Match>
       <Match when={props.state.kind === 'ready' ? props.state : undefined}>
         {(ready) => (

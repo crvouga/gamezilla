@@ -254,7 +254,7 @@ test('wide: the search column starts at the page edge, a command sized to its wo
     /\.column:has\(\.layout \[data-setup-split="true"\]\[data-details-across="true"\]\) \{\s*max-width: calc\(\s*var\(--game-board-measure\) \+\s*var\(--ui-space-6\) \+\s*var\(--game-rail-measure\)\s*\);\s*margin-inline: 0 auto;/
   );
   const find = screen.getByTestId('multiplayer-find');
-  expect(find.className).not.toContain('w-full');
+  expect(find.classList.contains('w-full')).toBe(false);
   const points = [
     ...screen
       .getByTestId('multiplayer-guide')

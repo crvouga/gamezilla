@@ -110,6 +110,7 @@ export const Lost: Story = {
   args: { position: after('60615253'), interactive: false },
   parameters: {
     table: {
+      moves: columnsPlayed('60615253'),
       ending: { winner: 'black', reason: 'four in a row' },
     } satisfies GameTableStory,
   },
@@ -123,6 +124,7 @@ export const FullBoardDraw: Story = {
   },
   parameters: {
     table: {
+      moves: columnsPlayed('000000111111222222433333344444555555666666'),
       ending: { winner: 'draw', reason: 'full board' },
     } satisfies GameTableStory,
   },

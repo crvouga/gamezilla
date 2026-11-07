@@ -1,0 +1,4 @@
+{
+  "summary": "At the desktop1440 viewport, the Light Cycles SteerUp story tried to click a compact-only pad. The story now steers the focused arena with ArrowUp when the pad is absent or hidden, and still asserts the exact rider, round, and heading.",
+  "regressionTest": "libs/light-cycles-client-ts/src/light-cycles-board-view.stories.tsx"
+}

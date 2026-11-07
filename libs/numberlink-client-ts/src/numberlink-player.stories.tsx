@@ -3,7 +3,7 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { fn } from 'storybook/test';
+import { expect, fn, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
@@ -46,6 +46,10 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      complete={numberlinkPuzzleContent.rules.complete(
+        args.definition,
+        args.state
+      )}
       figures={figures(args.definition, args.state)}
       player={<NumberlinkPlayer {...args} />}
     />
@@ -76,8 +80,14 @@ export const InProgress: Story = {
 };
 
 /** Every pair joined and every cell covered. */
+// regression: solved-pack-story-completion
 export const Solved: Story = {
   args: { state: progress(SOLUTION), disabled: true },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByTestId('content-attempt-complete')
+    ).toHaveTextContent('Puzzle completed');
+  },
 };
 
 /** While the shared player is not taking moves, nothing can be drawn. */

@@ -26,7 +26,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { FrameErrorView } from './game-frame-status-view';
-import type { FrameRecord } from './game-frame-view-types';
+import type {
+  FrameConnection,
+  FramePhase,
+  FrameRecord,
+} from './game-frame-view-types';
 
 /** Moving through the record: to a numbered position, back to the live one, or another game. */
 export type FrameReviewHandlers = {
@@ -38,6 +42,9 @@ export type FrameReviewHandlers = {
 
 type RecordProps = FrameReviewHandlers & {
   readonly record: FrameRecord;
+  readonly phase: FramePhase;
+  readonly connection: FrameConnection;
+  readonly stopped: boolean;
   /**
    * The game's commands, beside a wide board: the foot of the record's own
    * card, right under its steps, so the rail is one card as tall as what
@@ -428,6 +435,7 @@ function RecordPanel(props: RecordProps): JSX.Element {
         </GameActions>
       }
     >
+      <StripPlace {...props} />
       <RecordSelect {...props} />
       <Show when={!played() && (props.record.outline?.length ?? 0) > 0}>
         <RecordOutline record={props.record} />
@@ -459,27 +467,43 @@ function RecordPanel(props: RecordProps): JSX.Element {
  * `Reviewing move 3 of 6` (the board's own banner and the last step offer
  * the way back).
  */
-function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
+function currentRecordLabel(props: RecordProps): string {
+  if (props.stopped) return t`Stopped`;
+  if (props.phase === 'completed') return t`Finished`;
+  if (props.phase === 'cancelled') return t`Cancelled`;
+  if (props.connection === 'offline-local') return t`Playing offline`;
+  if (props.connection === 'waiting') return t`Waiting for connection`;
+  if (props.connection === 'needed') return t`Offline`;
+  return props.phase === 'active' ? t`Live` : t`Current game`;
+}
+
+function recordIsLive(props: RecordProps): boolean {
   return (
-    <Show when={props.record.moves.length > 0}>
-      <StackHorizontal align="center" gap="xs" shrink>
+    props.phase === 'active' && props.connection === 'online' && !props.stopped
+  );
+}
+
+function StripPlace(props: RecordProps): JSX.Element {
+  return (
+    <StackHorizontal align="center" gap="xs" shrink>
+      <Show when={recordReviewing(props.record) || recordIsLive(props)}>
         <StatusDot
           status={recordReviewing(props.record) ? 'warning' : 'online'}
           size={8}
         />
-        <P variant="label" testId="custom-game-move-strip-place">
-          <Show
-            when={recordReviewing(props.record)}
-            fallback={<Trans>Live</Trans>}
-          >
-            <Trans>
-              Reviewing move {props.record.displayedPly} of{' '}
-              {props.record.moves.length}
-            </Trans>
-          </Show>
-        </P>
-      </StackHorizontal>
-    </Show>
+      </Show>
+      <P variant="label" testId="custom-game-move-strip-place">
+        <Show
+          when={recordReviewing(props.record)}
+          fallback={currentRecordLabel(props)}
+        >
+          <Trans>
+            Reviewing move {props.record.displayedPly} of{' '}
+            {props.record.moves.length}
+          </Trans>
+        </Show>
+      </P>
+    </StackHorizontal>
   );
 }
 
@@ -525,8 +549,13 @@ function RecordStrip(props: RecordProps): JSX.Element {
       >
         {/* The game's own line about the live turn already says the board
             is live: the turn then has the row to itself, on one line. */}
-        <Show when={!reviewing() && props.caption === undefined}>
-          <StripPlace record={props.record} />
+        <Show
+          when={
+            !reviewing() &&
+            (props.caption === undefined || !recordIsLive(props))
+          }
+        >
+          <StripPlace {...props} />
         </Show>
         <Surface tone="muted" radius="control" grow>
           <MoveStrip testId="custom-game-move-strip" overflow="wrap">
@@ -554,7 +583,7 @@ function RecordStrip(props: RecordProps): JSX.Element {
           testId="custom-game-record-steps"
         >
           <Show when={reviewing()}>
-            <StripPlace record={props.record} />
+            <StripPlace {...props} />
           </Show>
           <RecordSteps {...props} />
         </StackHorizontal>
@@ -640,7 +669,7 @@ export function FrameReviewingView(
           }
           trailing={
             <Button
-              title={<Trans>Back to live</Trans>}
+              title={<Trans>Back to current game</Trans>}
               size="sm"
               variant="solid"
               onClick={() => props.onReturnLive()}

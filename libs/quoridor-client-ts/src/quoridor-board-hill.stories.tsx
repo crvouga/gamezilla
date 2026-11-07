@@ -86,8 +86,11 @@ type Story = StoryObj<typeof meta>;
 /** Four pawns around the board, five walls each, all heading for e5. */
 export const Opening: Story = {};
 
-/** No move or wall is legal: the pass is offered beside the tools. */
-export const MustPass: Story = { args: { position: hill(BLOCKED) } };
+/** No move or wall is legal: pass is the first board action. */
+export const MustPass: Story = {
+  args: { position: hill(BLOCKED) },
+  parameters: { table: { moves: BLOCKED } satisfies GameTableStory },
+};
 
 /** East is deciding while the others wait. */
 export const WaitingForOthers: Story = {

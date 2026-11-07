@@ -1,0 +1,4 @@
+{
+  "summary": "Privacy kept idle export and deletion actions visible after the current permission decision refused them, including after account deletion, because availability was checked only after pressing the action.",
+  "regressionTest": "libs/account-privacy-client-ts/tests/privacy-action-access.test.tsx"
+}

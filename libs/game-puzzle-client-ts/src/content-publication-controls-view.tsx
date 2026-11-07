@@ -16,6 +16,11 @@ import {
   Switch,
   untrack,
 } from 'solid-js';
+import type { ContentPublicationCopyState } from './content-publication-copy-state';
+import {
+  PublicationCopyLead,
+  publicationCopyLabel,
+} from './content-publication-copy-view';
 import {
   type PublicationActionPlace,
   PublicationSteps,
@@ -40,6 +45,8 @@ export type ContentPublicationControlsViewProps = {
   /** A pack's puzzles that are still drafts, by title: published first. */
   readonly waitingOn?: readonly string[] | undefined;
   readonly pending: ContentPublicationPending;
+  /** Identity-derived state of the exact current working copy. */
+  readonly copyState: ContentPublicationCopyState;
   /** The server's refusal of the last publication, dismissible. */
   readonly refusal?: JSX.Element;
   /** Set when the person may not publish; replaces the Publish button. */
@@ -71,12 +78,16 @@ export type ContentPublicationControlsViewProps = {
 /** The last choice for this draft stays visible across routes and app reopening. */
 function PublicationStatus(props: {
   pending: ContentPublicationPending;
+  copyState: ContentPublicationCopyState;
   refusal?: JSX.Element;
 }): JSX.Element {
   return (
     <>
       <Show when={props.pending !== null}>
         <Notice dataSet={{ testid: 'content-publication-pending' }}>
+          <Show when={props.copyState.kind === 'draft'}>
+            <Trans>An earlier publication request is still pending.</Trans>{' '}
+          </Show>
           <Show
             when={props.pending === 'online'}
             fallback={
@@ -177,21 +188,28 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
   const publish = useMutationButton({
     operation: () => props.onPublish(),
     labels: {
-      idle: t`Publish`,
+      get idle() {
+        return props.copyState.kind === 'pending' ||
+          props.copyState.kind === 'edition'
+          ? t`Send again`
+          : t`Publish`;
+      },
       loading: t`Publishing…`,
       success: t`Publication saved`,
       error: t`Try publishing again`,
     },
     get disabled() {
-      return props.disabled;
+      return props.disabled || props.copyState.kind === 'reading';
     },
   });
   const next = () =>
-    publicationNextStep({
-      validation: props.validation,
-      needsProof: props.kind === 'puzzle' && !props.proven,
-      waiting: props.kind === 'pack' && (props.waitingOn?.length ?? 0) > 0,
-    });
+    props.copyState.kind === 'pending' || props.copyState.kind === 'edition'
+      ? ('publish' as const)
+      : publicationNextStep({
+          validation: props.validation,
+          needsProof: props.kind === 'puzzle' && !props.proven,
+          waiting: props.kind === 'pack' && (props.waitingOn?.length ?? 0) > 0,
+        });
   const playtestNext = createMemo(() => next() === 'playtest');
   // The stacked layout draws the playtest once; the bar draws it per place.
   const before =
@@ -274,13 +292,27 @@ function PublicationAftermath(props: {
           props.controls.publishDenial === undefined && props.controls.published
         }
       >
-        <Button
-          title={t`View published edition`}
-          intent="neutral"
-          variant="outline"
-          onClick={() => props.controls.onViewPublication()}
-          dataSet={{ testid: 'content-view-publication' }}
-        />
+        <Show
+          when={
+            !(
+              props.controls.copyState.kind === 'edition' &&
+              props.controls.copyState.current
+            )
+          }
+        >
+          <Button
+            title={
+              props.controls.pending !== null ||
+              props.controls.copyState.kind === 'reading'
+                ? t`View saved edition`
+                : t`View published edition`
+            }
+            intent="neutral"
+            variant="outline"
+            onClick={() => props.controls.onViewPublication()}
+            dataSet={{ testid: 'content-view-publication' }}
+          />
+        </Show>
         <ContentWithdraw
           disabled={props.controls.disabled}
           onWithdraw={props.controls.onWithdraw}
@@ -295,13 +327,47 @@ function PublicationAftermath(props: {
  * playtest proof, each action's progress and retryable failure, the
  * publication still on its way or refused, and view / withdraw once out.
  */
+function publicationProgress(
+  props: ContentPublicationControlsViewProps,
+  actions: PublicationActions
+) {
+  const { t } = useLingui();
+  return props.copyState.kind === 'draft' ||
+    (props.copyState.kind === 'reading' && actions.next() !== 'publish')
+    ? undefined
+    : {
+        label: publicationCopyLabel(props.copyState),
+        complete: props.copyState.kind === 'edition',
+        currentLabel:
+          props.copyState.kind === 'reading' ? t`Checking` : t`Pending`,
+        statusInLead:
+          props.publishDenial === undefined &&
+          !(props.copyState.kind === 'edition' && props.copyState.current),
+        lead: (
+          <PublicationCopyLead
+            state={props.copyState}
+            denial={props.publishDenial}
+            onView={props.onViewPublication}
+          />
+        ),
+        action:
+          props.publishDenial !== undefined ? undefined : (
+            <PublishButton controls={props} actions={actions} place="done" />
+          ),
+      };
+}
+
 export function ContentPublicationControlsView(
   props: ContentPublicationControlsViewProps
 ): JSX.Element {
   const actions = usePublicationActions(props);
   return (
     <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
-      <PublicationStatus pending={props.pending} refusal={props.refusal} />
+      <PublicationStatus
+        pending={props.pending}
+        refusal={props.refusal}
+        copyState={props.copyState}
+      />
       <Switch>
         <Match when={props.layout === 'bar'}>
           <BarFinding {...props} />
@@ -311,6 +377,7 @@ export function ContentPublicationControlsView(
             proven={props.proven}
             waitingOn={props.waitingOn ?? []}
             next={actions.next()}
+            progress={publicationProgress(props, actions)}
             playtest={(lead) => props.before?.(() => lead)}
             validate={(place) => (
               <Button
@@ -334,7 +401,25 @@ export function ContentPublicationControlsView(
               {...actions.weight('validate')}
               dataSet={{ testid: 'content-validate' }}
             />
-            <PublishButton controls={props} actions={actions} />
+            <Show when={props.copyState.kind !== 'draft'}>
+              <PublicationCopyLead
+                state={props.copyState}
+                denial={props.publishDenial}
+                onView={props.onViewPublication}
+              />
+            </Show>
+            <Show
+              when={
+                props.copyState.kind === 'draft' ||
+                props.publishDenial === undefined
+              }
+            >
+              <PublishButton
+                controls={props}
+                actions={actions}
+                place={props.copyState.kind === 'draft' ? undefined : 'done'}
+              />
+            </Show>
           </StackHorizontal>
         </Match>
       </Switch>

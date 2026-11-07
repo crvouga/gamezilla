@@ -45,6 +45,7 @@ export function StoryPuzzleBuilder(props: {
       history={<StoryDraftHistory disabled={props.disabled} />}
       publication={
         <ContentPublicationControlsView
+          copyState={{ kind: 'draft' }}
           layout="bar"
           before={(next) => (
             <StoryPlaytest disabled={props.disabled} next={next()} />

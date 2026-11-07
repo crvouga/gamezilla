@@ -5,7 +5,7 @@ import {
   GameStandings,
 } from '@pkgs/ui-root-client-ts/game-result';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, type JSX } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar } from './game-frame-people';
 import type { FramePeople, FrameResult } from './game-frame-view-types';
 
@@ -19,6 +19,7 @@ const STANDING_AVATAR_SIZE = 32;
 export function FrameResultView(props: {
   readonly result: FrameResult;
   readonly people?: FramePeople | undefined;
+  readonly headline?: 'included' | 'separate' | undefined;
 }): JSX.Element {
   const rows = createMemo((): readonly GameStandingRow[] =>
     props.result.standings.map((standing) => ({
@@ -47,11 +48,13 @@ export function FrameResultView(props: {
   );
   return (
     <StackVertical gap="md" testId="custom-game-result">
-      <GameResultHeadline
-        title={props.result.headline}
-        caption={props.result.note ?? undefined}
-        dataSet={{ testid: 'custom-game-result-headline' }}
-      />
+      <Show when={props.headline !== 'separate'}>
+        <GameResultHeadline
+          title={props.result.headline}
+          caption={props.result.note ?? undefined}
+          dataSet={{ testid: 'custom-game-result-headline' }}
+        />
+      </Show>
       <GameStandings
         aria-label={t`Standings`}
         scoreLabel={props.result.scoreLabel}

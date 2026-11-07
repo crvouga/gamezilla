@@ -1,0 +1,49 @@
+{
+  "round": 1,
+  "kind": "round",
+  "startSha": "a1b3c5d7e9a1b3c5d7e9a1b3c5d7e9a1b3c5d7e9",
+  "candidateSha": "b2c4e6f8a0b2c4e6f8a0b2c4e6f8a0b2c4e6f8a0",
+  "evidenceId": "r1-b2c4e6f-3f9a1c2d",
+  "beforeEvidenceId": "r0-a1b3c5d-7e1b0a44",
+  "evidenceDir": ".ui-overhaul/evidence/r1-b2c4e6f",
+  "beforeDir": ".ui-overhaul/evidence/r0-a1b3c5d",
+  "journeys": ["Sign in and reach Home", "Change notification settings"],
+  "screens": ["Home / loaded", "Settings / default", "Settings / error state"],
+  "changes": "Raised body text contrast, aligned card padding to the 8px grid, added visible focus rings.",
+  "rescoreBefore": false,
+  "checks": [
+    {
+      "name": "type-check",
+      "status": "pass"
+    },
+    {
+      "name": "lint",
+      "status": "pass"
+    },
+    {
+      "name": "storybook tests",
+      "status": "pass"
+    }
+  ],
+  "scopeRespected": true,
+  "scopeNotes": "No route, label, control order or step changes in the diff.",
+  "carriedBefore": {
+    "fromRound": 0,
+    "sha": "a1b3c5d7e9a1b3c5d7e9a1b3c5d7e9a1b3c5d7e9",
+    "evidenceId": "r0-a1b3c5d-7e1b0a44",
+    "scores": {
+      "claude": {
+        "design": 7,
+        "ux": 7.5
+      },
+      "codex": {
+        "design": 6.5,
+        "ux": 7
+      },
+      "gemini": {
+        "design": 7,
+        "ux": 7
+      }
+    }
+  }
+}

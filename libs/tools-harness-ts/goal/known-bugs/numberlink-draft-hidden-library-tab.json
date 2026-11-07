@@ -1,0 +1,4 @@
+{
+  "summary": "After solving a Numberlink playtest, its draft remained under the hidden Your work panel while Browse was selected. The journey treated the retained row as visible and tapped a zero-sized target. Library navigation now selects the visible owning tab by aria-selected before tapping its row.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/content-journey-library-tab.test.ts"
+}

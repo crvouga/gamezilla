@@ -89,7 +89,7 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
-        class="box flex-row flex-wrap items-center gap-2 min-w-0"
+        class="box flex-row flex-wrap items-center gap-2 min-w-0 max-w-full shrink"
         classList={{ 'w-full': props.width !== 'content' }}
         role="group"
         aria-label={props['aria-label']}

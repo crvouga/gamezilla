@@ -83,7 +83,7 @@ export function instrumentRealm(ports: RealmMeasurementPorts) {
       onError: (listener) => realm.onError(listener),
       terminate() {
         ports.realms.delete(state);
-        realm.terminate();
+        return realm.terminate();
       },
     };
   };

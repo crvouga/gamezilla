@@ -117,6 +117,8 @@ export type GameFrameAction = {
   readonly label: string;
   readonly enabled: boolean;
   readonly emphasis?: 'primary';
+  /** A required non-board choice may lead the board instead of following it. */
+  readonly placement?: 'before-board';
   /** For a tool that stays chosen (a mode): whether it is chosen now. */
   readonly pressed?: boolean;
   readonly run: () => void;

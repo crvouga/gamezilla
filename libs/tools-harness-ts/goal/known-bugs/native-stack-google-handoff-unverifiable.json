@@ -1,0 +1,4 @@
+{
+  "summary": "Native stack critical Google journey reported no real browser because JourneyHost.browser was hardcoded null. Its matcher additionally rejected the already-configured simulated Google origin. Expose real native navigation and validate the trusted configured provider origin, code response, state, and exact callback without relaxing the live accounts.google.com boundary.",
+  "regressionTest": "libs/runtime-harness-ts/tests/google-handoff.test.ts"
+}

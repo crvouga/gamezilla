@@ -1,0 +1,4 @@
+{
+  "summary": "An unbroken friend name escaped the centered identity and overlapped header actions instead of truncating with an ellipsis.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/content/integration.checks.ts"
+}

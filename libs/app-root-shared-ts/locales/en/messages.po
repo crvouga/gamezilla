@@ -460,6 +460,10 @@ msgstr "{name} has crashed in this round. Watch until the next round."
 msgid "{name} hosts"
 msgstr "{name} hosts"
 
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "{name} must pass: no pawn move or wall is legal."
+msgstr "{name} must pass: no pawn move or wall is legal."
+
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "{name} ran out of time. Game drawn."
 msgstr "{name} ran out of time. Game drawn."
@@ -909,6 +913,19 @@ msgstr "Account deletion did not go through. Nothing was deleted. Try again."
 msgid "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
 msgstr "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
 
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
+msgid "Account deletion is permanent. Take an export first if you want a copy of your personal data."
+msgstr "Account deletion is permanent. Take an export first if you want a copy of your personal data."
+
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
+msgid "Account deletion receipt"
+msgstr "Account deletion receipt"
+
+#. placeholder {0}: eraseBy()
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
+msgid "Account deletion was confirmed. Ordinary personal-data erasure will complete by {0}."
+msgstr "Account deletion was confirmed. Ordinary personal-data erasure will complete by {0}."
+
 #: libs/account-privacy-client-ts/src/use-account-deletion.tsx
 msgid "Account deletion was not confirmed. Nothing was deleted."
 msgstr "Account deletion was not confirmed. Nothing was deleted."
@@ -1102,6 +1119,10 @@ msgstr "An account already uses {0}. Sign in to it to add {1} as another way to 
 msgid "An account was deleted."
 msgstr "An account was deleted."
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "An earlier publication request is still pending."
+msgstr "An earlier publication request is still pending."
+
 #: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "An upload or change is still in progress. Leaving may interrupt it."
 msgstr "An upload or change is still in progress. Leaving may interrupt it."
@@ -1111,8 +1132,8 @@ msgid "Another device saved a different copy of this draft. Choose the copy to k
 msgstr "Another device saved a different copy of this draft. Choose the copy to keep working from under Draft copies before publishing."
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
-msgid "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
-msgstr "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
+msgid "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
+msgstr "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
@@ -1231,14 +1252,18 @@ msgstr "Available transitions"
 msgid "Avatar"
 msgstr "Avatar"
 
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
+msgid "Awaiting confirmation"
+msgstr "Awaiting confirmation"
+
 #: libs/spaces-client-ts/src/space-chrome-nav.tsx
 #: pkgs/ui-root-client-ts/src/back-icon-button/index.tsx
 msgid "Back"
 msgstr "Back"
 
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
-msgid "Back to live"
-msgstr "Back to live"
+msgid "Back to current game"
+msgstr "Back to current game"
 
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
@@ -1476,6 +1501,7 @@ msgid "Canceled · ends {0} · Plus access until {1}"
 msgstr "Canceled · ends {0} · Plus access until {1}"
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -1523,6 +1549,10 @@ msgstr "Change the search or increase the desired synthetic population."
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
 
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Changes that have not synced and progress saved only on this device will be permanently lost. Data already synced to your account stays available. Try closing other app tabs and reloading first."
+msgstr "Changes that have not synced and progress saved only on this device will be permanently lost. Data already synced to your account stays available. Try closing other app tabs and reloading first."
+
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Changes waiting to send"
 msgstr "Changes waiting to send"
@@ -1557,9 +1587,21 @@ msgstr "Check your connection and try again."
 msgid "Check your email"
 msgstr "Check your email"
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Checking"
+msgstr "Checking"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Checking for the saved Lichess file…"
 msgstr "Checking for the saved Lichess file…"
+
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
+msgid "Checking publication"
+msgstr "Checking publication"
+
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
+msgid "Checking the host’s connection…"
+msgstr "Checking the host’s connection…"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "Checking whether {productName} can be reached."
@@ -2043,6 +2085,10 @@ msgid "Correct · {side} to move"
 msgstr "Correct · {side} to move"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Could not reset local data"
+msgstr "Could not reset local data"
+
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Could not start local database"
 msgstr "Could not start local database"
 
@@ -2058,10 +2104,6 @@ msgstr "Couldn't add person"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Couldn't cancel"
 msgstr "Couldn't cancel"
-
-#: libs/auth-client-ts/src/sign-in-method-row.tsx
-msgid "Couldn't connect"
-msgstr "Couldn't connect"
 
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Couldn't copy"
@@ -2258,6 +2300,10 @@ msgstr "dark"
 msgid "Dark"
 msgstr "Dark"
 
+#: libs/account-privacy-client-ts/src/privacy-explanation.tsx
+msgid "Data retention and legal obligations"
+msgstr "Data retention and legal obligations"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "day"
 msgstr "day"
@@ -2311,6 +2357,10 @@ msgstr "Decrease {0}"
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Delete account"
 msgstr "Delete account"
+
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
+msgid "Delete your account"
+msgstr "Delete your account"
 
 #: libs/game-matchmaking-client-ts/src/use-shown-name.tsx
 msgid "Deleted account"
@@ -2655,6 +2705,10 @@ msgid "Ending space…"
 msgstr "Ending space…"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Endpoint to move"
+msgstr "Endpoint to move"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Endpoints removed"
 msgstr "Endpoints removed"
 
@@ -2787,6 +2841,7 @@ msgstr "Export and deletion only happen while you are online, so nothing is save
 msgid "Export requested"
 msgstr "Export requested"
 
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Export your data"
 msgstr "Export your data"
@@ -2892,6 +2947,7 @@ msgid "Finish your Custom Game first"
 msgstr "Finish your Custom Game first"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Finished"
 msgstr "Finished"
 
@@ -2910,6 +2966,10 @@ msgstr "Finishing checkout…"
 #: libs/battleship-client-ts/src/battleship-grid-cells.tsx
 msgid "Fire at {label}"
 msgstr "Fire at {label}"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "First endpoint"
+msgstr "First endpoint"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "First page"
@@ -3063,6 +3123,7 @@ msgid "Game drawn."
 msgstr "Game drawn."
 
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
+#: libs/game-session-client-ts/src/game-frame-summary-view.tsx
 msgid "Game finished"
 msgstr "Game finished"
 
@@ -3852,8 +3913,8 @@ msgid "Loading…"
 msgstr "Loading…"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
-msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
-msgstr "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
+msgid "Local data reset"
+msgstr "Local data reset"
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Locked"
@@ -4038,10 +4099,6 @@ msgstr "Move down"
 msgid "Move endpoints inside the smaller board before resizing it."
 msgstr "Move endpoints inside the smaller board before resizing it."
 
-#: libs/numberlink-client-ts/src/numberlink-editor.tsx
-msgid "Move first endpoint"
-msgstr "Move first endpoint"
-
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move left"
 msgstr "Move left"
@@ -4061,10 +4118,6 @@ msgstr "Move pawn"
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Move right"
 msgstr "Move right"
-
-#: libs/numberlink-client-ts/src/numberlink-editor.tsx
-msgid "Move second endpoint"
-msgstr "Move second endpoint"
 
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
@@ -4312,10 +4365,6 @@ msgstr "No friends yet"
 msgid "No guests yet"
 msgstr "No guests yet"
 
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "No legal move or wall — pass turn"
-msgstr "No legal move or wall — pass turn"
-
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
 msgstr "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
@@ -4376,6 +4425,14 @@ msgstr "No passing this deal"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "No passing this deal."
 msgstr "No passing this deal."
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "No pawn move or wall is legal. Choose Pass turn."
+msgstr "No pawn move or wall is legal. Choose Pass turn."
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "No pawn move or wall is legal. Pass your turn."
+msgstr "No pawn move or wall is legal. Pass your turn."
 
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "No people found"
@@ -4572,6 +4629,7 @@ msgstr "offline"
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -4855,6 +4913,10 @@ msgstr "Pass three cards to the left."
 msgid "Pass three cards to the right."
 msgstr "Pass three cards to the right."
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Pass turn"
+msgstr "Pass turn"
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
 msgstr "Passed"
@@ -4914,6 +4976,10 @@ msgstr "Payment failed · Plus access until {0}"
 #: libs/billing-client-ts/src/billing-screen-view.tsx
 msgid "Payments are processed securely by our billing provider. We never see your card details."
 msgstr "Payments are processed securely by our billing provider. We never see your card details."
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Pending"
+msgstr "Pending"
 
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "People can choose any puzzle. Only published editions can be included when you publish this pack."
@@ -5078,6 +5144,10 @@ msgstr "Playing"
 msgid "Playing now"
 msgstr "Playing now"
 
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Playing offline"
+msgstr "Playing offline"
+
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Playtest"
@@ -5165,6 +5235,10 @@ msgstr "Previous"
 msgid "Previous move"
 msgstr "Previous move"
 
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
+msgid "Previously published"
+msgstr "Previously published"
+
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "Pricing"
 msgstr "Pricing"
@@ -5234,6 +5308,10 @@ msgstr "Prove the account again to continue"
 msgid "Proven: a finished playtest shows it can be solved."
 msgstr "Proven: a finished playtest shows it can be solved."
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Publication"
+msgstr "Publication"
+
 #: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
 msgstr "Publication did not go ahead"
@@ -5251,6 +5329,7 @@ msgid "Publication waits for your connection. Your draft is kept on this device.
 msgstr "Publication waits for your connection. Your draft is kept on this device."
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Publish"
 msgstr "Publish"
@@ -5265,6 +5344,7 @@ msgstr "Publish puzzles"
 
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
 msgid "Published"
 msgstr "Published"
 
@@ -5656,6 +5736,10 @@ msgstr "Reload"
 msgid "Reload app"
 msgstr "Reload app"
 
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Reload the app to continue."
+msgstr "Reload the app to continue."
+
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Rematch"
 msgstr "Rematch"
@@ -5786,8 +5870,16 @@ msgid "Reset"
 msgstr "Reset"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
-msgid "Reset local data and reload"
-msgstr "Reset local data and reload"
+msgid "Reset and reload"
+msgstr "Reset and reload"
+
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Reset data on this device?"
+msgstr "Reset data on this device?"
+
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Reset local data"
+msgstr "Reset local data"
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Resets in {hours} h"
@@ -5796,6 +5888,10 @@ msgstr "Resets in {hours} h"
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Resets in {minutes} min"
 msgstr "Resets in {minutes} min"
+
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "Resetting local data…"
+msgstr "Resetting local data…"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Resident memory"
@@ -6168,6 +6264,10 @@ msgstr "Search…"
 msgid "Searching…"
 msgstr "Searching…"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Second endpoint"
+msgstr "Second endpoint"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "seconds"
 msgstr "seconds"
@@ -6219,6 +6319,10 @@ msgstr "Select…"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "selected"
 msgstr "selected"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "Send again"
+msgstr "Send again"
 
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Sending choice…"
@@ -6655,6 +6759,10 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
+#: libs/account-privacy-client-ts/src/privacy-explanation.tsx
+msgid "Spaces and membership payments"
+msgstr "Spaces and membership payments"
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "spades"
 msgstr "spades"
@@ -6829,6 +6937,7 @@ msgid "Stop<0> finding players</0>"
 msgstr "Stop<0> finding players</0>"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Stopped"
 msgstr "Stopped"
 
@@ -7126,6 +7235,10 @@ msgstr "The {name} does not fit there: it would run off the board."
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "The 15th round was played; the rider with the most round wins takes the game."
 msgstr "The 15th round was played; the rider with the most round wins takes the game."
+
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+msgid "The app could not open its saved data. Close other tabs running this app, then reload. Reloading keeps your local data."
+msgstr "The app could not open its saved data. Close other tabs running this app, then reload. Reloading keeps your local data."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "The arrow keys move your paddle."
@@ -7815,6 +7928,7 @@ msgstr "Try a different search."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 #: libs/app-root-client-ts/src/crash-screen-view.tsx
+#: libs/auth-client-ts/src/sign-in-method-row.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/auth-client-ts/src/use-email-sign-in.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
@@ -8118,8 +8232,13 @@ msgid "View profile"
 msgstr "View profile"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
 msgid "View published edition"
 msgstr "View published edition"
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
+msgid "View saved edition"
+msgstr "View saved edition"
 
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Violet"
@@ -8132,6 +8251,11 @@ msgstr "W and S move Left; the arrow keys move Right."
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "W and S or the arrow keys move your paddle."
 msgstr "W and S or the arrow keys move your paddle."
+
+#: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+msgid "Waiting for connection"
+msgstr "Waiting for connection"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Waiting for participants and readiness."
@@ -8203,6 +8327,10 @@ msgstr "West"
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "West gold diamond"
 msgstr "West gold diamond"
+
+#: libs/account-privacy-client-ts/src/privacy-explanation.tsx
+msgid "What deletion changes"
+msgstr "What deletion changes"
 
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "What next"
@@ -8608,11 +8736,6 @@ msgstr "Your account"
 #: libs/app-root-client-ts/src/identity-boot-screen-view.tsx
 msgid "Your account could not be loaded. Check your connection and reload the app."
 msgstr "Your account could not be loaded. Check your connection and reload the app."
-
-#. placeholder {0}: eraseBy()
-#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
-msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
-msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
 msgid "Your account needs at least one way to sign in. Connect another before removing this one."

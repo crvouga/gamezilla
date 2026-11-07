@@ -1,0 +1,4 @@
+{
+  "summary": "After confirming signed-in Account, Back leaves Settings. Hosting must back Settings \u2192 Profile, then select Spaces; waiting for Create while still on Profile timed out both critical space journeys.",
+  "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
+}

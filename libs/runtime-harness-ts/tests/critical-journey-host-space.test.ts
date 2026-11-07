@@ -15,7 +15,7 @@ import type {
 
 const HOST = 'OldMink726';
 
-type Screen = 'spaces' | 'profile' | 'join' | 'in-space' | 'ended';
+type Screen = 'spaces' | 'profile' | 'settings' | 'join' | 'in-space' | 'ended';
 
 type World = {
   screen: Screen;
@@ -75,10 +75,12 @@ function visible(world: World, id: string): boolean {
   if (id === Handles.spaceEndConfirm) return world.confirm;
   if (id === Handles.spaceMutationDismiss) return world.dismiss;
   if (id === Handles.spaceEnded) return world.screen === 'ended';
+  if (id === Handles.spaceTitle) return world.created;
   if (id === Handles.spaceClose) return world.created && world.overflow;
   if (id === Handles.spaceMembersButton) return world.created;
   if (id === Handles.navBack) {
     return (
+      world.screen === 'settings' ||
       world.screen === 'join' ||
       world.screen === 'in-space' ||
       world.screen === 'ended'
@@ -90,6 +92,8 @@ function visible(world: World, id: string): boolean {
 function applyTap(world: World, id: string): void {
   world.taps.push(id);
   if (id === Handles.tabProfile) world.screen = 'profile';
+  else if (id === Handles.navBack && world.screen === 'settings')
+    world.screen = 'profile';
   else if (id === Handles.tabSpaces || id === Handles.navBack) {
     world.screen = 'spaces';
     world.confirm = false;
@@ -273,6 +277,7 @@ describe('hostSpace', () => {
     expect(world.created).toBe(true);
   });
 
+  // regression: journey-host-readiness-close-in-overflow
   // regression: journey-host-ready-collapsed-minimize
   test('opens a space with Minimize collapsed into the closed overflow menu', async () => {
     const { ui, world } = driver(0);
@@ -312,4 +317,15 @@ test('cleanup ends the space when saved participation opens during the Join tap'
   await hostSpace(ui);
   expect(world.spacesLeft).toBe(0);
   expect(world.created).toBe(true);
+});
+
+// regression: journey-host-from-account-settings
+test('hosting backs from Settings to Profile and selects Spaces before creating', async () => {
+  const { ui, world } = driver(0);
+  world.screen = 'settings';
+  await hostSpace(ui);
+  expect(world.created).toBe(true);
+  expect(world.taps[0]).toBe(Handles.navBack);
+  expect(world.taps[1]).toBe(Handles.tabSpaces);
+  expect(world.taps.at(-1)).toBe(Handles.spaceCreate);
 });

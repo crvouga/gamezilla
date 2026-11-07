@@ -1,0 +1,4 @@
+{
+  "summary": "The narrow tablet Sokoban palette ellipsized Lift crate, hiding part of a tool name.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/editor/integration.checks.ts"
+}

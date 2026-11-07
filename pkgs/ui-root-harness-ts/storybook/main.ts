@@ -37,6 +37,9 @@ const config: StorybookConfig = {
       files: '**/*.stories.tsx',
     })),
   ],
+  previewAnnotations: [
+    resolve(root, 'apps/product-ts/src/storybook-preview.ts'),
+  ],
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-docs',

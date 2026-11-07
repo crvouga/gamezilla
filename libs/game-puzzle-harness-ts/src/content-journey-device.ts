@@ -42,7 +42,6 @@ export async function showLibraryTabOf(
     .get(id)
     .wait('visible', { ...device, visibleOr: [tab] })
     .catch(() => undefined);
-  if (await device.ui.get(id).isVisible()) return;
   if (!(await device.ui.get(tab).isVisible())) return;
   if ((await device.ui.get(tab).attribute('aria-selected')) !== 'true')
     await device.ui.get(tab).tap(device);

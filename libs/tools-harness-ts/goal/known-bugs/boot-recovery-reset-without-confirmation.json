@@ -1,0 +1,4 @@
+{
+  "summary": "Another-tab recovery offered only an unconfirmed destructive reset despite recommending reload; reset errors were logged without visible retry.",
+  "regressionTest": "libs/app-root-client-ts/tests/boot-recovery-actions.test.tsx"
+}

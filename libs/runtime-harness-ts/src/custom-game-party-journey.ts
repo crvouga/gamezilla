@@ -3,6 +3,11 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
+  acceptPartyProgress,
+  readPartyDevices,
+} from './custom-game-party-acceptance';
+import {
+  type PartyTurnProgress,
   playCustomGamePartyTurn,
   readPublicCustomGame,
 } from './custom-game-party-turn';
@@ -74,7 +79,7 @@ export async function completeCustomGameParty(
   game: PlayableGame
 ): Promise<PublicCustomGame> {
   const sides = gameSides(game.shared.turnGame.rules);
-  const progress = { returnedLiveAt: null as number | null };
+  const progress: PartyTurnProgress = { returnedLiveAt: null, attempted: null };
   let acceptedPly = 0;
   for (let step = 0; step < 400; step++) {
     let view: PublicCustomGame | undefined;
@@ -91,6 +96,7 @@ export async function completeCustomGameParty(
     check(current.status === 'active', 'The party game never started');
     const seat = sides.indexOf(current.turn);
     check(seat >= 0, 'The party game names a seat outside its roster');
+    const before = await readPartyDevices(host);
     if (seat >= 2) {
       await host.act('awaitPartyBot', (ui) =>
         ui
@@ -98,12 +104,15 @@ export async function completeCustomGameParty(
           .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
       );
       acceptedPly = current.ply + 1;
+      await acceptPartyProgress(host, acceptedPly, before, null);
       continue;
     }
     const act = seat === 0 ? host.act : host.actAsGuest;
     await act('playPartyMove', async (ui) => {
       acceptedPly = await playCustomGamePartyTurn(ui, game, current, progress);
     });
+    if (progress.attempted !== null)
+      await acceptPartyProgress(host, acceptedPly, before, progress.attempted);
   }
   throw new Error('The party game did not finish within 400 accepted turns');
 }

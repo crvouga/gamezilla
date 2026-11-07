@@ -9,7 +9,6 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
-import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
@@ -32,18 +31,21 @@ import {
   FrameRecordView,
   type FrameReviewHandlers,
   FrameReviewingView,
+  recordReviewing,
 } from './game-frame-record-view';
-import { FrameResultView } from './game-frame-result-view';
 import { FrameSetupSeatsView } from './game-frame-seats-view';
 import {
   FrameConnectionView,
   FrameErrorView,
-  FrameFactsView,
-  FramePlayNoticesView,
   FrameStatusView,
   FrameWatchingView,
-  frameWatchersLabel,
 } from './game-frame-status-view';
+import {
+  FrameCompletionLead,
+  FrameFacts,
+  FrameRequiredActions,
+  FrameStatusRow,
+} from './game-frame-summary-view';
 import {
   FrameBoardSeatView,
   FrameNearSeatView,
@@ -224,31 +226,6 @@ function FrameSetupSlot(props: Props): JSX.Element {
 }
 
 /**
- * Under the board on a phone, heading the rail beside a wide one: what a
- * player is told during play, and the result once the game is over (once it is played the turn line sits
- * between the board and the person's own seat). Play actions follow it, so
- * they stay in view with the board on every screen.
- */
-function FrameStatusRow(props: Props): JSX.Element {
-  return (
-    <>
-      {/* While set up without its setup in view, the line still says why. */}
-      <Show when={props.phase === 'configuring' && props.setup === null}>
-        <FrameStatusView status={props.status} />
-      </Show>
-      <Show when={props.phase === 'active'}>
-        <FramePlayNoticesView play={props.play} people={props.people} />
-      </Show>
-      <Show when={props.phase === 'completed' ? props.result : null}>
-        {(result) => (
-          <FrameResultView result={result()} people={props.people} />
-        )}
-      </Show>
-    </>
-  );
-}
-
-/**
  * The record has nothing to say while a game is set up: it shows once the
  * game is under way (or over), and before a game only for earlier games.
  */
@@ -263,7 +240,9 @@ function strippedRecord(
 ): FrameRecord | null {
   const shown = shownRecord(props);
   return mode() !== 'wide' &&
-    (props.phase === 'active' || props.phase === 'completed') &&
+    (props.phase === 'active' ||
+      props.phase === 'completed' ||
+      props.phase === 'cancelled') &&
     shown !== null &&
     shown.turns
     ? shown
@@ -327,7 +306,9 @@ function asideRecord(
   const stripped =
     mode() !== 'wide' &&
     shown.turns &&
-    (props.phase === 'active' || props.phase === 'completed');
+    (props.phase === 'active' ||
+      props.phase === 'completed' ||
+      props.phase === 'cancelled');
   // A game played in real time lists no moves: with no earlier game to
   // choose it has no card, only its way to the history (`FrameArenaHistory`).
   const empty = frameArena(props.phase, shown) && !arenaRecordShown(shown);
@@ -371,7 +352,13 @@ function FrameUnplayedRail(props: Props): JSX.Element {
             record={shown()}
             layout="panel"
             caption={railCaption(props, mode)}
-            commands={<FrameActions {...props} width="content" />}
+            commands={
+              <FrameActionsView
+                nextLocation="result"
+                {...props}
+                width="content"
+              />
+            }
           />
         </StackVertical>
       )}
@@ -413,6 +400,7 @@ function railCaption(
 ): string | undefined {
   const status = props.status;
   if (
+    props.phase !== 'active' ||
     status === null ||
     status.tone !== 'neutral' ||
     status.sending ||
@@ -462,10 +450,13 @@ function FramePlayActions(props: Props): JSX.Element {
       : null;
   };
   return (
-    <Show when={history()} fallback={<FrameActions {...props} />}>
+    <Show
+      when={history()}
+      fallback={<FrameActionsView nextLocation="result" {...props} />}
+    >
       {(shown) => (
         <GameActions>
-          <FrameActions {...props} width="content" />
+          <FrameActionsView nextLocation="result" {...props} width="content" />
           <FrameHistoryLink {...props} record={shown()} quiet />
         </GameActions>
       )}
@@ -489,22 +480,6 @@ function commandsInRecord(
   );
 }
 
-function FrameActions(
-  props: Props & { readonly width?: 'content' }
-): JSX.Element {
-  return (
-    <FrameActionsView
-      phase={props.phase}
-      play={props.play}
-      next={props.next}
-      onChoose={props.onChoose}
-      onBack={props.onBack}
-      onSeek={props.onSeek}
-      width={props.width}
-    />
-  );
-}
-
 function FrameRecordAside(props: Props): JSX.Element {
   const mode = useLayoutMode();
   return (
@@ -517,7 +492,11 @@ function FrameRecordAside(props: Props): JSX.Element {
             caption={railCaption(props, mode)}
             commands={
               <Show when={!arenaRecordShown(shown())}>
-                <FrameActions {...props} width="content" />
+                <FrameActionsView
+                  nextLocation="result"
+                  {...props}
+                  width="content"
+                />
               </Show>
             }
           />
@@ -541,7 +520,11 @@ function FrameRecordPanelAside(props: Props): JSX.Element {
           caption={railCaption(props, mode)}
           commands={
             <Show when={commandsInRecord(props, mode)}>
-              <FrameActions {...props} width="content" />
+              <FrameActionsView
+                nextLocation="result"
+                {...props}
+                width="content"
+              />
             </Show>
           }
         />
@@ -591,6 +574,7 @@ function FrameBoardStage(props: Props): JSX.Element {
             viewerSide={props.viewerSide}
             compact={mode() !== 'wide'}
           />
+          <FrameRequiredActions {...props} />
         </Show>
       }
       turn={
@@ -599,16 +583,24 @@ function FrameBoardStage(props: Props): JSX.Element {
             record={shownRecord(props)}
             onReturnLive={props.onReturnLive}
           />
-          <FrameStatusView
-            status={props.status}
-            arena={frameArena(props.phase, shownRecord(props))}
-            spokenOnly={
-              plainArenaLine(props) ||
-              turnInSeats(props, mode) ||
-              railCaption(props, mode) !== undefined ||
-              stripCaption(props, mode) !== undefined
+          <Show
+            when={
+              props.phase !== 'completed' &&
+              props.phase !== 'cancelled' &&
+              !recordReviewing(shownRecord(props))
             }
-          />
+          >
+            <FrameStatusView
+              status={props.status}
+              arena={frameArena(props.phase, shownRecord(props))}
+              spokenOnly={
+                plainArenaLine(props) ||
+                turnInSeats(props, mode) ||
+                railCaption(props, mode) !== undefined ||
+                stripCaption(props, mode) !== undefined
+              }
+            />
+          </Show>
         </Show>
       }
       own={
@@ -648,22 +640,6 @@ function FrameBoardStage(props: Props): JSX.Element {
   );
 }
 
-/** On the title's line: unrated, the clock, and how many watch. */
-function FrameFacts(props: Props): JSX.Element {
-  return (
-    <>
-      <FrameFactsView status={props.status} />
-      <Show when={props.watchers > 0}>
-        <GameWatcherCount
-          value={props.watchers}
-          label={frameWatchersLabel(props.watchers)}
-          dataSet={{ testid: 'custom-game-watchers' }}
-        />
-      </Show>
-    </>
-  );
-}
-
 function FrameContent(props: Props): JSX.Element {
   const mode = useLayoutMode();
   return (
@@ -679,12 +655,26 @@ function FrameContent(props: Props): JSX.Element {
         </>
       }
       pinned={<FrameMoveStripSlot {...props} />}
-      setup={<FrameSetupSlot {...props} />}
+      setup={
+        <>
+          <Show when={mode() !== 'wide'}>
+            <FrameCompletionLead {...props} />
+          </Show>
+          <FrameSetupSlot {...props} />
+        </>
+      }
       aside={<FrameRecordAside {...props} />}
       actionsBeside
       arena={arenaBeside(props, mode)}
       boardPreview={props.phase === 'configuring'}
-      status={<FrameStatusRow {...props} />}
+      status={
+        <>
+          <Show when={mode() === 'wide'}>
+            <FrameCompletionLead {...props} />
+          </Show>
+          <FrameStatusRow {...props} />
+        </>
+      }
       actions={
         <Show when={!commandsInRecord(props, mode)}>
           <FramePlayActions {...props} />

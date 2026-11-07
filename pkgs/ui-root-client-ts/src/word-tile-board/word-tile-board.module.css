@@ -1,3 +1,10 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  width: 100%;
+  max-width: 40rem;
+}
 .board {
   --ui-color-background: var(--ui-color-game-word-tiles-canvas);
   --color-background: var(--ui-color-background);
@@ -140,8 +147,7 @@
   .letter {
     font-size: var(--ui-font-size-xs);
   }
-  .points,
-  .square {
+  .points {
     display: none;
   }
 }

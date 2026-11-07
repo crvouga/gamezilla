@@ -1,0 +1,4 @@
+{
+  "summary": "When Bun cannot spawn the missing executable, a child emits error and close but no exit; cleanup must await close, not hang forever waiting for exit.",
+  "regressionTest": "pkgs/os-server-ts/tests/isolated-process.test.ts"
+}
