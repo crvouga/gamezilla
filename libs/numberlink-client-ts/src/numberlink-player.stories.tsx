@@ -77,6 +77,26 @@ export const Fresh: Story = {
   },
 };
 
+/** Matching labels remain the primary cue when every pair shares one color. */
+export const SameColorPairs: Story = {
+  args: {
+    definition: JSON.stringify({
+      ...FIVE_BY_FIVE,
+      pairs: FIVE_BY_FIVE.pairs.map((pair) => ({ ...pair, color: 'blue' })),
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const label of ['1', '2', '3', '4', '5']) {
+      await expect(
+        canvas.getAllByRole('button', {
+          name: new RegExp(`endpoint ${label}, unfinished$`),
+        })
+      ).toHaveLength(2);
+    }
+  },
+};
+
 /** Two pairs joined and a third begun: joined pairs read as connected. */
 export const InProgress: Story = {
   play: async ({ canvasElement }) => {
