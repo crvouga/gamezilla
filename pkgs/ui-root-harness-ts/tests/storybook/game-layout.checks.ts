@@ -174,3 +174,72 @@ test('storybook integration: literal finished Light Cycles keeps next steps with
     })
   ).not.toBeVisible();
 });
+
+// regression: chrome-breadcrumb-current-place-clipped
+test('storybook integration: social chrome narrow breadcrumb preserves the current place', async ({
+  page,
+}) => {
+  await openGame(page, 'components-navigation-chromebreadcrumb--states', 390);
+  const trail = page.getByRole('navigation', { name: 'Breadcrumb' }).last();
+  await expect(
+    trail.getByRole('link', {
+      name: 'The extremely long and very descriptive name of a space about board games',
+    })
+  ).toBeVisible();
+  await expect(trail.getByText('Connect Four', { exact: true })).toBeVisible();
+  expect(await containedItems(trail, '[aria-current="page"]')).toEqual([]);
+});
+
+// Edge-aligned status words must fit as actual glyph ranges, not just boxes.
+test('storybook integration: social chrome narrow steps keep status words inside the track', async ({
+  page,
+}) => {
+  await openGame(page, 'components-inputs-steptrack--states', 390);
+  const tracks = page.locator('[data-component="StepTrack"]');
+  await expect(tracks).toHaveCount(2);
+  expect(await containedItems(tracks, 'li > *')).toEqual([]);
+  const overflow = await tracks.evaluateAll((elements) =>
+    elements.flatMap((element) => {
+      const bounds = element.getBoundingClientRect();
+      return bounds.left >= 0 &&
+        bounds.right <= document.documentElement.clientWidth
+        ? []
+        : [
+            {
+              left: bounds.left,
+              right: bounds.right,
+              viewport: document.documentElement.clientWidth,
+            },
+          ];
+    })
+  );
+  expect(overflow).toEqual([]);
+  const clippedWords = await tracks.evaluateAll((elements) =>
+    elements.flatMap((element) => {
+      const words: {
+        text: string | null;
+        right: number;
+        viewport: number;
+      }[] = [];
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        if (!walker.currentNode.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(walker.currentNode);
+        for (const rect of range.getClientRects()) {
+          if (
+            rect.right > document.documentElement.clientWidth ||
+            rect.left < 0
+          )
+            words.push({
+              text: walker.currentNode.textContent,
+              right: rect.right,
+              viewport: document.documentElement.clientWidth,
+            });
+        }
+      }
+      return words;
+    })
+  );
+  expect(clippedWords).toEqual([]);
+});

@@ -63,3 +63,21 @@ shared sync hub exceed its 45-file cap. Retryable query definitions now live in 
 existing query-definition module; the separate file and all old imports are gone.
 Cache hygiene and affected checks pass after the correction. Final full verification
 and final screenshot comparison remain required.
+
+## Inherited gate repairs
+
+The next full gate stopped at three bot-start journeys without statechart owners.
+The product map now links those existing contracts and the existing Troubleshooting
+route; its gate and pinned regression pass. Product scenarios are unchanged.
+
+Missing visual coverage was inherited too. The independent critic reviewed 265
+newly captured images: 259 were approved initially or after full-resolution
+reconsideration; two breadcrumb captures required a real shrinking fix; four phone
+captures of the documented desktop-only header were removed by correcting story
+viewport metadata. The corrected breadcrumb captures are approved, making 261
+accepted additions. StepTrack needed no product change: rendered glyph-range and
+box containment assertions proved its labels fit the phone viewport.
+
+Existing Word Tiles screenshot differences observed during broad authoring were
+not accepted or overwritten. Final no-update comparison and full verification
+remain the completion criteria.

@@ -82,7 +82,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
   const last = (): number => props.crumbs.length - 1;
   return (
     <nav
-      class="box min-w-0 max-w-full"
+      class="box min-w-0 max-w-full shrink"
       aria-label={t`Breadcrumb`}
       {...dataAttrs({ component: 'ChromeBreadcrumb', ...props.dataSet })}
     >
@@ -91,7 +91,10 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
           {(crumb, index) => (
             <li
               class="box flex-row items-center gap-1 min-w-0"
-              classList={{ 'shrink-0': index() === last() }}
+              classList={{
+                'shrink-0': index() === last(),
+                shrink: index() !== last(),
+              }}
             >
               <Show when={index() > 0}>
                 <span class="box shrink-0" aria-hidden="true">
@@ -105,7 +108,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                 when={crumb.onClick}
                 fallback={
                   <span
-                    class="box flex-row items-center gap-2 min-w-0"
+                    class="box flex-row items-center gap-2 min-w-0 shrink"
                     aria-current={index() === last() ? 'page' : undefined}
                   >
                     <CrumbBody
@@ -120,7 +123,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                   <button
                     type="button"
                     role="link"
-                    class="clickable clickableTint box flex-row items-center gap-2 min-w-0 h-10 px-2 -mx-2 rounded-control"
+                    class="clickable clickableTint box flex-row items-center gap-2 min-w-0 shrink h-10 px-2 -mx-2 rounded-control"
                     data-component="ChromeBreadcrumbLink"
                     data-testid={crumb.linkTestId}
                     onClick={() => onClick()()}
