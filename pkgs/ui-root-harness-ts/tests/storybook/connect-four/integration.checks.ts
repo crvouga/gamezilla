@@ -19,9 +19,15 @@ for (const width of [320, 390, 768, 1440]) {
       await openBoard(page, 'drop-a-disc', theme);
       await captureBoard(page, info, 'two-disc-drop');
       await startTiming(page);
-      const samples: number[] = [];
+      const samples: Awaited<ReturnType<typeof measureDrop>>[] = [];
       for (const column of [1, 2, 3, 5, 6, 7]) {
-        samples.push(await measureDrop(page, column));
+        samples.push(
+          await measureDrop(
+            page,
+            column,
+            column % 3 === 0 ? 'touch' : column % 3 === 1 ? 'keyboard' : 'click'
+          )
+        );
       }
       await page.getByTestId('custom-game-board-column-4').tap();
       await expect(
@@ -35,7 +41,8 @@ for (const width of [320, 390, 768, 1440]) {
             cpuRate,
             samples,
             longTasks,
-            metric: 'click capture to next requestAnimationFrame callback (ms)',
+            metric:
+              'activation click capture to next requestAnimationFrame with updated board (ms)',
             limitation:
               'Synthetic CPU throttle; no physical-device or compositor presentation claim.',
           },
@@ -46,6 +53,15 @@ for (const width of [320, 390, 768, 1440]) {
       });
       await openBoard(page, 'full-column', theme);
       await captureBoard(page, info, 'full-column-keyboard-recovery');
+      const recovered = await page
+        .getByTestId('custom-game-board')
+        .getAttribute('data-cells');
+      await page.getByTestId('custom-game-board-column-1').press('Enter');
+      await expect(page.getByTestId('custom-game-board')).toHaveAttribute(
+        'data-cells',
+        recovered ?? ''
+      );
+      await captureBoard(page, info, 'full-column-refused');
       await openBoard(page, 'connect-four-to-win', theme);
       await captureBoard(page, info, 'winning-drop');
       await openBoard(page, 'watching', theme);
@@ -58,5 +74,19 @@ for (const width of [320, 390, 768, 1440]) {
       await captureBoard(page, info, 'draw');
       expect(errors).toEqual([]);
     });
+  }
+}
+
+for (const state of ['opening', 'waiting-for-opponent', 'lost']) {
+  for (const width of [320, 390, 768, 1440]) {
+    for (const theme of ['light', 'dark']) {
+      test(`storybook integration: connect-four ${state} ${width} ${theme}`, async ({
+        page,
+      }, info) => {
+        await page.setViewportSize({ width, height: width < 768 ? 844 : 1024 });
+        await openBoard(page, state, theme);
+        await captureBoard(page, info, state);
+      });
+    }
   }
 }

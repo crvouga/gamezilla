@@ -7,17 +7,25 @@ export async function startTiming(page: Page): Promise<void> {
     const root = document.querySelector('#storybook-root');
     if (!root) throw new Error('Missing canvas');
     root.setAttribute('data-long-tasks', '[]');
-    const observer = new PerformanceObserver((list) => {
+    const record = (entries: PerformanceEntry[]): void => {
       const durations = JSON.parse(
         root.getAttribute('data-long-tasks') ?? '[]'
       ) as number[];
-      durations.push(...list.getEntries().map((entry) => entry.duration));
+      durations.push(...entries.map((entry) => entry.duration));
       root.setAttribute('data-long-tasks', JSON.stringify(durations));
-    });
+    };
+    const observer = new PerformanceObserver((list) =>
+      record(list.getEntries())
+    );
     observer.observe({ type: 'longtask' });
-    root.addEventListener('stop-timing', () => observer.disconnect(), {
-      once: true,
-    });
+    root.addEventListener(
+      'stop-timing',
+      () => {
+        record(observer.takeRecords());
+        observer.disconnect();
+      },
+      { once: true }
+    );
   });
 }
 

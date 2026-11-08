@@ -21,7 +21,11 @@ export async function openBoard(page: Page, story: string, theme: string) {
 }
 
 /** Input-to-next-frame opportunity, not a physical display latency claim. */
-export async function measureDrop(page: Page, column: number) {
+export async function measureDrop(
+  page: Page,
+  column: number,
+  input: 'click' | 'touch' | 'keyboard' = 'click'
+) {
   await page.evaluate(() => {
     const root = document.querySelector('#storybook-root');
     if (!root) throw new Error('Missing canvas');
@@ -29,7 +33,13 @@ export async function measureDrop(page: Page, column: number) {
       'click',
       () => {
         const start = performance.now();
+        const board = root.querySelector('[data-testid="custom-game-board"]');
+        const before = board?.getAttribute('data-cells');
         requestAnimationFrame(() => {
+          root.setAttribute(
+            'data-updated-at-frame',
+            String(board?.getAttribute('data-cells') !== before)
+          );
           root.setAttribute(
             'data-input-frame-ms',
             String(performance.now() - start)
@@ -42,15 +52,35 @@ export async function measureDrop(page: Page, column: number) {
   });
   const board = page.getByTestId('custom-game-board');
   const before = await board.getAttribute('data-cells');
-  await page.getByTestId(`custom-game-board-column-${column}`).click();
+  const control = page.getByTestId(`custom-game-board-column-${column}`);
+  if (input === 'touch') await control.tap();
+  else if (input === 'keyboard') await control.press('Space');
+  else await control.click();
   await expect(board).not.toHaveAttribute('data-cells', before ?? '');
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-input-frame-ms',
     /.+/
   );
-  return Number(
-    await page.locator('#storybook-root').getAttribute('data-input-frame-ms')
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-updated-at-frame',
+    'true'
   );
+  const oldCells = JSON.parse(before ?? '[]') as number[];
+  const newCells = JSON.parse(
+    (await board.getAttribute('data-cells')) ?? '[]'
+  ) as number[];
+  expect(
+    newCells.filter((value, index) => value !== oldCells[index])
+  ).toHaveLength(1);
+  expect(
+    oldCells.every((value, index) => value === 0 || value === newCells[index])
+  ).toBe(true);
+  return {
+    input,
+    milliseconds: Number(
+      await page.locator('#storybook-root').getAttribute('data-input-frame-ms')
+    ),
+  };
 }
 
 /** Keep all axe findings and target dimensions, including nonblocking findings. */
@@ -94,4 +124,8 @@ export async function captureBoard(page: Page, info: TestInfo, name: string) {
   ).toEqual([]);
   expect(columns).toHaveLength(7);
   expect(columns.every((column) => column.inViewport)).toBe(true);
+  // WCAG 2.2 AA target minimum; raw geometry also exposes the larger UI goal.
+  expect(
+    columns.every((column) => column.width >= 24 && column.height >= 24)
+  ).toBe(true);
 }
