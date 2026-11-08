@@ -1,4 +1,5 @@
 import type { CDPSession, Page, TestInfo } from '@playwright/test';
+import { logEvidence } from './summary';
 
 type TraceEvent = {
   name: string;
@@ -186,6 +187,17 @@ export async function profileMotion(
       return frame ? [[key, frame] as const] : [];
     })
   );
+  logEvidence('PROFILE', {
+    test: info.title,
+    windowMs: Math.round(windowMs),
+    timelineMs: round([...totals]),
+    selfTimeMs: round(
+      [...self]
+        .filter(([key]) => !key.startsWith('('))
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12)
+    ),
+  });
   await info.attach('main-thread-profile.json', {
     body: JSON.stringify(
       {

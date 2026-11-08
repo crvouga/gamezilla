@@ -4,6 +4,7 @@ import { verifySharedSwipeCapture } from '../light-cycles-pointer';
 import { measureSteering } from './measure';
 import { measureMotion } from './motion';
 import { profileMotion } from './profile';
+import { logEvidence, longTasks, percentile } from './summary';
 import { sharedNativeTouch } from './touch';
 
 test.use({
@@ -65,6 +66,26 @@ async function accessibility(page: Page, info: TestInfo) {
     body: JSON.stringify(results, null, 2),
     contentType: 'application/json',
   });
+  logEvidence('AXE', {
+    test: info.title,
+    violations: results.violations.map((item) => [
+      item.id,
+      item.impact,
+      item.nodes.length,
+    ]),
+    incomplete: results.incomplete.map((item) => [
+      item.id,
+      item.nodes.length,
+      [
+        ...new Set(
+          item.nodes.flatMap((node) =>
+            node.any.map((check) => String(check.data?.messageKey ?? check.id))
+          )
+        ),
+      ],
+    ]),
+    passes: results.passes.length,
+  });
   expect(
     results.violations.filter(
       (violation) =>
@@ -94,6 +115,18 @@ for (const screen of screens) {
         expect(arena.y + arena.height).toBeLessThanOrEqual(screen.height);
         const measurements = await measureSteering(page, cpuRate);
         expect(measurements.inputToPaintMs).toHaveLength(12);
+        logEvidence('TIMING', {
+          test: info.title,
+          kind: 'keyboard',
+          cpuRate,
+          inputToPaintMs: {
+            p50: percentile(measurements.inputToPaintMs, 0.5),
+            p95: percentile(measurements.inputToPaintMs, 0.95),
+            max: percentile(measurements.inputToPaintMs, 1),
+          },
+          frameP95Ms: percentile(measurements.frameMs, 0.95),
+          longTasks: longTasks(measurements.longTasksMs),
+        });
         await info.attach('responsiveness.json', {
           body: JSON.stringify(
             {
