@@ -7104,6 +7104,10 @@ msgstr "Solved"
 msgid "Solved · {0} in {1}"
 msgstr "Solved · {0} in {1}"
 
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Solved before. Your completion stays saved."
+msgstr "Solved before. Your completion stays saved."
+
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "Solved."
 msgstr "Solved."

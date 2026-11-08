@@ -18,8 +18,12 @@ export function SokobanHistory(props: {
   const [cursor, setCursor] = createSignal(0);
   const state = () => history()[cursor()] ?? props.state;
   const rules = sokobanPuzzleContent.rules;
-  // As in production, the attempt is complete while its board is solved.
+  // As in production: complete while the board is solved; once solved, the
+  // completion stays saved and is said quietly after a restart.
   const complete = () => rules.complete(props.definition, state());
+  const [completionSaved, setCompletionSaved] = createSignal(
+    untrack(() => complete())
+  );
   return (
     <StoryPackAttempt
       // As the production attempt screen passes the game's frame.
@@ -31,6 +35,7 @@ export function SokobanHistory(props: {
         pack: { title: 'Warehouse basics', position: 3, total: 4 },
       }}
       complete={complete()}
+      solvedBefore={completionSaved()}
       disabled={props.disabled}
       player={
         <SokobanPlayerView
@@ -44,6 +49,8 @@ export function SokobanHistory(props: {
             const next = rules.apply(props.definition, state(), action);
             if (!next.accepted) throw new Error('Player sent a refused move');
             props.onAction(action);
+            if (rules.complete(props.definition, next.state))
+              setCompletionSaved(true);
             setHistory((values) => [
               ...values.slice(0, cursor() + 1),
               next.state,

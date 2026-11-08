@@ -268,7 +268,10 @@ export const CornerRecovery: Story = {
     await expect(
       canvas.queryByTestId('sokoban-solved')
     ).not.toBeInTheDocument();
-    // As in production, the attempt is complete only while it is solved.
+    // The saved completion stays, said quietly once the board is unsolved.
     await expect(canvas.queryByText('Completion saved')).toBeNull();
+    await expect(
+      canvas.getByTestId('content-attempt-solved-before')
+    ).toBeVisible();
   },
 };
