@@ -1,0 +1,4 @@
+{
+  "summary": "The 768x900 active Chess stage does not budget the board's height with both player strips, leaving the near player below the initial viewport.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/chess-viewport-stage.test.tsx"
+}

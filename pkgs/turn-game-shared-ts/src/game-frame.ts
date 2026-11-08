@@ -193,6 +193,13 @@ export type GameFrame<View> = {
    * stand-in bot still shows.
    */
   readonly boardNames?: boolean;
+  /**
+   * The board is square and its seats sit above and below it (Chess): on a
+   * tablet or wider screen the frame narrows the board, never below its
+   * usual readable floor, so the board and both seats fit the first view.
+   * Absent for a board sized by width alone.
+   */
+  readonly boardFit?: 'square';
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

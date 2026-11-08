@@ -67,6 +67,8 @@ export const chessPresentation: GameClientPresentation = {
   sideLabel: (side) => (side === 'white' ? t`White` : t`Black`),
   frame: {
     drawOffers: true,
+    // Square board with a seat above and below: fit both in the first view.
+    boardFit: 'square',
     players: fixedPlayers(2),
     options: [],
     // White and Black are the pieces' own colors: a king says which.
