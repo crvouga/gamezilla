@@ -9,6 +9,7 @@ import {
   type RequiredPrCheck,
   requiredPrCheckFailures,
 } from './required-pr-checks';
+import { completedPrChecks } from './required-pr-checks-completion';
 
 type CheckRun = {
   readonly name: string;
@@ -81,7 +82,7 @@ function checksFor(repository: string, sha: string): readonly PrCheck[] {
   return [...checks, ...statuses.values()];
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const repository = process.env['GITHUB_REPOSITORY'];
   const head = process.env['PR_HEAD'];
   const merge = process.env['GITHUB_SHA'];
@@ -101,8 +102,12 @@ function main(): void {
           readFileSync(join(directory, file), 'utf8')
         ) as RequiredPrCheck
     );
-  const checks = [...new Set([head, merge])].flatMap((sha) =>
-    checksFor(repository, sha)
+  const checks = await completedPrChecks(
+    required,
+    () =>
+      [...new Set([head, merge])].flatMap((sha) => checksFor(repository, sha)),
+    // The existing workflow job deadline bounds this dependency wait.
+    () => Bun.sleep(10_000)
   );
   const failures = requiredPrCheckFailures(
     required,
@@ -115,4 +120,4 @@ function main(): void {
   );
 }
 
-if (import.meta.main) main();
+if (import.meta.main) await main();
