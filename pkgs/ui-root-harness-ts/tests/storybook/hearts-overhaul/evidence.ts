@@ -2,6 +2,7 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 import { attachHeartsText } from './attachments';
+import { diagnoseContrast } from './contrast-diagnostic';
 
 export async function openHearts(page: Page, story: string, theme: string) {
   await page.route('**/*', (route) =>
@@ -49,6 +50,20 @@ export async function auditHearts(page: Page, info: TestInfo) {
     'axe-results.json',
     JSON.stringify(result, null, 2)
   );
+  const unresolved = result.incomplete
+    .filter((rule) => rule.id === 'color-contrast')
+    .flatMap((rule) => rule.nodes.map((node) => String(node.target[0])));
+  const contrast = await diagnoseContrast(page, unresolved);
+  await attachHeartsText(
+    info,
+    'contrast-diagnostic.json',
+    JSON.stringify(contrast, null, 2)
+  );
+  expect(
+    contrast.filter(
+      (finding) => finding.ratio !== null && finding.ratio < finding.required
+    )
+  ).toEqual([]);
   expect(
     result.violations.filter(
       (v) => v.impact === 'serious' || v.impact === 'critical'
