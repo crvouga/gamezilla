@@ -48,6 +48,8 @@ export type QueryRow = Record<string, unknown>;
 export type QueryRequestItem = {
   readonly name: string;
   readonly params: Readonly<Record<string, unknown>>;
+  /** Opt into scoped temporary refusals; older clients retain transport errors. */
+  readonly supportsRetryableErrors?: boolean;
   /** Opaque content hash from a prior `ok` response; equality ⇒ `not_modified`. */
   readonly lastHash?: string | undefined;
   readonly checkpoint?: string | undefined;
@@ -58,7 +60,7 @@ export type QueryBatchRequest = {
 };
 
 /**
- * Exactly three response shapes. Removed forever unless redesign:
+ * Snapshot responses and capability-negotiated temporary query refusals. Removed:
  * `mode: 'delta'|'full'`, `resync`, `gone`.
  */
 export type QueryResponse =
@@ -68,6 +70,11 @@ export type QueryResponse =
       /** Opaque content hash; algorithm is Internal (equality only on the wire). */
       readonly hash: string;
       readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
+    }
+  | {
+      readonly status: 'retry_later';
+      readonly code: string;
+      readonly retryAfterMs: number;
     }
   | { readonly status: 'not_modified' }
   | { readonly status: 'denied' };

@@ -19,7 +19,7 @@ test('storybook integration: word-tiles blank context exposes its production sta
     ['bottom-right-long-summary', 'i13 to o15', 'dark'],
   ]) {
     await page.goto(
-      `/iframe.html?id=games-word-tiles-blank-context--${story}&viewMode=story&globals=theme:${theme}`
+      `/iframe.html?id=product-wordtileblankcontext--${story}&viewMode=story&globals=theme:${theme}`
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',

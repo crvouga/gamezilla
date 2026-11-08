@@ -4,6 +4,7 @@ export type RequiredPrCheck = {
 };
 
 export type PrCheck = {
+  readonly sha?: string;
   readonly name: string;
   readonly appId: number;
   readonly status: string;

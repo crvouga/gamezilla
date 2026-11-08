@@ -1,5 +1,7 @@
 /** @jsxImportSource solid-js */
 
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
+
 import {
   LogOutIcon,
   MenuIcon,
@@ -43,14 +45,7 @@ const DEMO_ACTIONS: readonly OverflowMenuAction[] = [
 ];
 
 function AvatarDisc(props: { large?: boolean }): JSX.Element {
-  return (
-    <div
-      class="box rounded-full bg-surface-muted items-center justify-center"
-      classList={{ 'size-10': props.large === true, 'size-8': !props.large }}
-    >
-      <UserIcon size={props.large === true ? 24 : 20} color="icon" />
-    </div>
-  );
+  return <Avatar size={props.large === true ? 'md' : 'sm'} />;
 }
 
 export default function OverflowMenuButtonExample(): JSX.Element {

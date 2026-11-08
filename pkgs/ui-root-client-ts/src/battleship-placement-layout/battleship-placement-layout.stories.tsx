@@ -25,6 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 /** Ship and rotation controls share a compact fleet context above a stable working quadrant. */
 export const Enlarged: Story = {
+  tags: ['viewport-responsive'],
   args: {
     overviewLabel: 'Choose region',
     controls: null,

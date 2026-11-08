@@ -492,10 +492,15 @@ async function clearState(
 }
 
 function toEngine(state: LocalEngineState): SyncEngine {
-  const subscribeQuery: SyncEngine['subscribeQuery'] = (name, params) =>
+  const subscribeQuery: SyncEngine['subscribeQuery'] = (
+    name,
+    params,
+    options
+  ) =>
     state.runtime.subscribe({
       name,
       params,
+      ...options,
     });
   return {
     db: state.appDb,

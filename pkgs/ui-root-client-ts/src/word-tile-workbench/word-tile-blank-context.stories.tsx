@@ -3,7 +3,25 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import type { WordTileBoardCell } from '../word-tile-board/index';
 import { WordTileBlankContext } from './word-tile-blank-context';
 
-function cells(blank: number): readonly WordTileBoardCell[] {
+const cells: readonly WordTileBoardCell[] = Array.from(
+  { length: 225 },
+  (_, index) => {
+    const id = `${String.fromCharCode(97 + (index % 15))}${Math.floor(index / 15) + 1}`;
+    const letter = index === 111 ? 'C' : index === 113 ? 'T' : '';
+    return {
+      id,
+      letter,
+      points: letter === '' ? null : 1,
+      square: index === 112 ? 'start' : null,
+      state: letter === '' ? 'empty' : 'committed',
+      label: `${id}${letter === '' ? ', empty' : `, ${letter}`}`,
+      enabled: false,
+    };
+  }
+);
+
+/** A board with one tentative blank, for the edge and long-summary cases. */
+function blankCells(blank: number): readonly WordTileBoardCell[] {
   return Array.from({ length: 225 }, (_, index) => {
     const id = `${String.fromCharCode(97 + (index % 15))}${Math.floor(index / 15) + 1}`;
     const letter = index === blank ? 'A' : index === 111 ? 'C' : '';
@@ -23,23 +41,43 @@ function cells(blank: number): readonly WordTileBoardCell[] {
 }
 
 const meta = {
-  id: 'games-word-tiles-blank-context',
+  id: 'product-wordtileblankcontext',
   title: 'Games/Word Tiles/Blank context',
   component: WordTileBlankContext,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'viewport-responsive'],
   args: {
-    cells: cells(112),
+    cells,
     index: 112,
-    summary: 'Scores: Amber 42, Teal 24',
-    testId: 'blank-story',
+    summary: 'Between C and T.',
+    testId: 'blank-example',
   },
   argTypes: { cells: { control: false } },
 } satisfies Meta<typeof WordTileBlankContext>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The blank's location and neighboring committed letters remain visible during assignment. */
+export const InAWord: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText('Blank at h8. Between C and T.')
+    ).toBeVisible();
+    const neighbors = canvas.getByRole('group', {
+      name: 'Nearby squares; outlined square is your blank',
+    });
+    await expect(within(neighbors).getByText('C')).toBeVisible();
+    await expect(within(neighbors).getByText('T')).toBeVisible();
+  },
+};
+
 /** The assignment context keeps the blank, nearby committed tile and scores visible. */
 export const Centre: Story = {
+  args: {
+    cells: blankCells(112),
+    summary: 'Scores: Amber 42, Teal 24',
+    testId: 'blank-story',
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
@@ -56,7 +94,7 @@ export const Centre: Story = {
 
 /** At the top-left edge the neighborhood remains a complete three-by-seven grid. */
 export const TopLeft: Story = {
-  args: { cells: cells(0), index: 0 },
+  args: { cells: blankCells(0), index: 0, testId: 'blank-story' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Nearby squares: a1 to g3')).toBeVisible();
@@ -69,8 +107,9 @@ export const TopLeft: Story = {
 /** Four scores and a long next-action explanation wrap beside a bottom-right blank. */
 export const BottomRightLongSummary: Story = {
   args: {
-    cells: cells(224),
+    cells: blankCells(224),
     index: 224,
+    testId: 'blank-story',
     summary:
       'Scores: Amber 142, Teal 124, Violet 118, Coral 106. Choose a letter to continue building your word; the blank always scores zero points.',
   },

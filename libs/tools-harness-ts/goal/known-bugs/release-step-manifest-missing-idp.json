@@ -1,0 +1,4 @@
+{
+  "summary": "The release step-registration fixture supplied web/api origins but omitted idpOrigins, so the entry threw before checking journey and health bindings.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

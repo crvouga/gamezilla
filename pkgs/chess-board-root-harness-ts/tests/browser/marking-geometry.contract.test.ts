@@ -159,6 +159,7 @@ const LABEL_PIECE_OVERLAP = `(async () => {
   return out;
 })()`;
 
+// regression: chessboard-webkit-knight-label-collision
 test('no coordinate label touches the figure of the piece on its square', async () => {
   // regression: chessboard-coordinate-piece-collision — White, 536px desktop board: h1's rook and c1–e1's bishop, queen and king met their labels.
   for (const width of [358, 536, 640])

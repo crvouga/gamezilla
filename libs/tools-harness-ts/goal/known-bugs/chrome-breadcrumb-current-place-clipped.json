@@ -1,0 +1,4 @@
+{
+  "summary": "At 390px, the room name The extremely long and very descriptive name of a space about board games could not shrink, pushing the current Connect Four breadcrumb outside the visible navigation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-layout.checks.ts"
+}

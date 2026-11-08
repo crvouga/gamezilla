@@ -25,7 +25,7 @@ test('a ready fleet can be repositioned in another enlarged region', async () =>
   ));
   const user = userEvent.setup();
   await user.click(byTestId('setup-enlarge'));
-  await user.click(screen.getByRole('button', { name: 'Ship to place' }));
+  await user.click(screen.getByRole('button', { name: /^Ship to place:/ }));
   await user.click(
     screen.getByRole('option', { name: 'Destroyer · G3, down' })
   );
@@ -65,7 +65,7 @@ test('overlap recovery stays in the placement workspace with ship, direction and
   expect(workspace?.contains(refusal)).toBe(true);
   expect(workspace?.contains(byTestId('setup-rotate'))).toBe(true);
   expect(
-    workspace?.contains(screen.getByRole('button', { name: 'Ship to place' }))
+    workspace?.contains(screen.getByRole('button', { name: /^Ship to place:/ }))
   ).toBe(true);
   expect(
     workspace?.contains(screen.getByRole('button', { name: 'A–E / 1–5' }))
@@ -104,7 +104,7 @@ test('a phone opens comfortable placement without a mode discovery step', () => 
     expect(screen.queryByTestId('setup-precision-cell-a1')).not.toBeNull();
     expect(byTestId('setup-grid').closest('[inert]')).not.toBeNull();
     expect(
-      screen.getByRole('button', { name: 'Ship to place' }).textContent
+      screen.getByRole('button', { name: /^Ship to place:/ }).textContent
     ).toContain('Carrier');
   } finally {
     if (original) Object.defineProperty(window, 'matchMedia', original);
@@ -173,7 +173,7 @@ test('locked comfortable placement keeps all waters visible and refuses editing'
   );
   expect(
     screen
-      .getByRole('button', { name: 'Ship to place' })
+      .getByRole('button', { name: /^Ship to place:/ })
       .hasAttribute('disabled')
   ).toBe(true);
   expect(
@@ -201,7 +201,7 @@ test('one spatial region press reveals F6 for the full named Battleship', async 
     </SurfaceStackProvider>
   ));
   expect(
-    screen.getByRole('button', { name: 'Ship to place' }).textContent
+    screen.getByRole('button', { name: /^Ship to place:/ }).textContent
   ).toContain('Battleship');
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'F–J / 6–10' }));
