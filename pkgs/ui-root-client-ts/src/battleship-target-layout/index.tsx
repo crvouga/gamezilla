@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import { createUniqueId, For, type JSX } from 'solid-js';
 import styles from './battleship-target-layout.module.css';
 
 /** Visible spatial regions over a square ocean; only the enlarged cells commit input. */
@@ -15,6 +15,7 @@ export function BattleshipRegionOverview(props: {
   placement?: boolean;
   disabled?: boolean;
 }): JSX.Element {
+  const descriptionId = createUniqueId();
   return (
     <div
       data-placement={props.placement === true}
@@ -34,7 +35,11 @@ export function BattleshipRegionOverview(props: {
                 type="button"
                 class={styles['region']}
                 aria-label={label}
-                aria-description={props.descriptions?.[index()]}
+                aria-describedby={
+                  props.descriptions?.[index()]
+                    ? `${descriptionId}-${index()}`
+                    : undefined
+                }
                 title={label}
                 aria-pressed={props.region === index()}
                 disabled={props.disabled}
@@ -42,6 +47,12 @@ export function BattleshipRegionOverview(props: {
                 onClick={() => props.onRegion(index())}
               >
                 <span class={styles['regionName']}>{label}</span>
+                <span
+                  id={`${descriptionId}-${index()}`}
+                  class={styles['regionName']}
+                >
+                  {props.descriptions?.[index()]}
+                </span>
               </button>
             )}
           </For>
