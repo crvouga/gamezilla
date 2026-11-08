@@ -40,7 +40,6 @@ import {
   recordReviewing,
 } from './game-frame-record-view';
 import { FrameSetupSeatsView } from './game-frame-seats-view';
-import { withStableTable } from './game-frame-stable-table';
 import {
   FrameConnectionView,
   FrameErrorView,
@@ -646,10 +645,8 @@ function FrameBoardStage(props: Props): JSX.Element {
   );
 }
 
-function FrameContent(shown: Props): JSX.Element {
+function FrameContent(props: Props): JSX.Element {
   const mode = useLayoutMode();
-  // A real-time game must not rebuild every player on every tick.
-  const props = withStableTable(shown);
   return (
     <GameSessionLayout
       dataSet={{

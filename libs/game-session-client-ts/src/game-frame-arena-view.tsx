@@ -2,7 +2,7 @@ import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-c
 import { Trans } from '@lingui/solid/macro';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Index, type JSX } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import {
   FrameHistoryLink,
   type FrameReviewHandlers,
@@ -77,19 +77,18 @@ export function FrameArenaRailView(
       }
     >
       <StackVertical gap="sm">
-        {/* By place: a seat whose figure changes keeps its strip. */}
-        <Index each={scoreboardSeats(props.table)}>
+        <For each={scoreboardSeats(props.table)}>
           {(seat) => (
             <FrameSeatStripView
-              seat={seat()}
+              seat={seat}
               people={props.people}
               onChoose={props.onChoose}
               viewerSide={props.viewerSide}
-              own={seat().side === props.viewerSide}
+              own={seat.side === props.viewerSide}
               quietStat
             />
           )}
-        </Index>
+        </For>
       </StackVertical>
     </GameSection>
   );

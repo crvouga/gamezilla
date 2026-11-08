@@ -18,35 +18,16 @@ export function useFramePlayerPress(
   const decision = useDecision(PERMISSION.friendsUse);
   const unlock = useUnlock();
   const router = useRouter();
-  // One handler per person and outcome, so a seat read again (every tick
-  // of a game played in real time) still reads the same.
-  const opens = new Map<string, () => void>();
-  const unlocks = new Map<string, () => void>();
-  const once = (
-    cache: Map<string, () => void>,
-    person: string,
-    make: () => () => void
-  ): (() => void) => {
-    const known = cache.get(person);
-    if (known !== undefined) return known;
-    const made = make();
-    cache.set(person, made);
-    return made;
-  };
   return (person) => {
     if (person === '' || person === myId()) return undefined;
     const current = decision();
     if (current.allowed)
-      return once(
-        opens,
-        person,
-        () => () =>
-          router.push({
-            pathname: '/profile/user/[userId]',
-            params: { userId: person },
-          })
-      );
+      return () =>
+        router.push({
+          pathname: '/profile/user/[userId]',
+          params: { userId: person },
+        });
     if (unlock.label(current) === undefined) return undefined;
-    return once(unlocks, person, () => () => unlock.run(decision()));
+    return () => unlock.run(decision());
   };
 }
