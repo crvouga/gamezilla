@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   For,
+  Index,
   type JSX,
   onCleanup,
   Show,
@@ -40,6 +41,8 @@ function PathCell(props: {
   onFocus: () => void;
   onKey: (event: KeyboardEvent) => void;
 }): JSX.Element {
+  // Only a cell whose description changed is rewritten during a drawing.
+  const label = createMemo(() => props.board.cellLabel(props.index));
   return (
     <button
       type="button"
@@ -52,7 +55,7 @@ function PathCell(props: {
       aria-current={
         props.index === props.board.selectedCell ? 'true' : undefined
       }
-      aria-label={props.board.cellLabel(props.index)}
+      aria-label={label()}
       aria-disabled={props.board.disabled === true}
       tabIndex={props.focusable ? 0 : -1}
       onFocus={() => props.onFocus()}
@@ -99,22 +102,23 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       viewBox={`0 0 ${props.board.columns * 100} ${props.board.rows * 100}`}
       aria-hidden="true"
     >
-      <For each={props.board.lines}>
+      {/* By position, so a growing path updates its node in place. */}
+      <Index each={props.board.lines}>
         {(line) => (
           <polyline
             class={styles['line']}
-            data-path={line.id}
-            data-tone={line.tone}
-            data-connected={line.connected}
-            points={line.cells
-              .map(
+            data-path={line().id}
+            data-tone={line().tone}
+            data-connected={line().connected}
+            points={line()
+              .cells.map(
                 (cell) =>
                   `${((cell % props.board.columns) + 0.5) * 100},${(Math.floor(cell / props.board.columns) + 0.5) * 100}`
               )
               .join(' ')}
           />
         )}
-      </For>
+      </Index>
     </svg>
   );
 }

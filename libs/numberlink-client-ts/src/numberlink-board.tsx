@@ -3,7 +3,6 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { sameCell } from '@libs/numberlink-shared-ts/numberlink-types';
 import { useLingui } from '@lingui/solid/macro';
 import {
   PathGridBoard,
@@ -34,10 +33,22 @@ function pairColor(definition: NumberlinkDefinition, id: string) {
   return pair.color;
 }
 
+function sameMembers(a: ReadonlySet<string>, b: ReadonlySet<string>) {
+  return a.size === b.size && [...a].every((id) => b.has(id));
+}
+
+type CellOwner = {
+  readonly pair: NumberlinkDefinition['pairs'][number];
+  readonly endpoint: boolean;
+};
+
 export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
   const { t } = useLingui();
+  // Equal membership keeps endpoints and statuses still while a path grows.
   const connected = createMemo(
-    () => new Set(connectedPairs(props.definition, props.state))
+    () => new Set(connectedPairs(props.definition, props.state)),
+    new Set<string>(),
+    { equals: sameMembers }
   );
   const endpoints = createMemo(() =>
     props.definition.pairs.flatMap((pair) =>
@@ -57,26 +68,34 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
       cells: path.cells.map((cell) => cell.y * props.definition.width + cell.x),
     }))
   );
+  // One pass per drawing step, so each of a dense board's cells labels
+  // itself by lookup instead of searching every pair and path.
+  const owners = createMemo(() => {
+    const width = props.definition.width;
+    const byId = new Map(props.definition.pairs.map((pair) => [pair.id, pair]));
+    const result = new Map<number, CellOwner>();
+    for (const path of props.state.paths) {
+      const pair = byId.get(path.pairId);
+      if (pair === undefined) continue;
+      for (const cell of path.cells)
+        result.set(cell.y * width + cell.x, { pair, endpoint: false });
+    }
+    for (const pair of props.definition.pairs)
+      for (const end of pair.endpoints)
+        result.set(end.y * width + end.x, { pair, endpoint: true });
+    return result;
+  });
   const label = (index: number): string => {
-    const cell = {
-      x: index % props.definition.width,
-      y: Math.floor(index / props.definition.width),
-    };
-    const coordinate = `${String.fromCharCode(65 + cell.x)}${cell.y + 1}`;
-    const endpoint = props.definition.pairs.find((pair) =>
-      pair.endpoints.some((end) => sameCell(end, cell))
-    );
-    const path = props.state.paths.find((entry) =>
-      entry.cells.some((at) => sameCell(at, cell))
-    );
-    const pair =
-      endpoint ??
-      props.definition.pairs.find((entry) => entry.id === path?.pairId);
-    if (pair === undefined) return t`${coordinate}: empty`;
+    const x = index % props.definition.width;
+    const y = Math.floor(index / props.definition.width);
+    const coordinate = `${String.fromCharCode(65 + x)}${y + 1}`;
+    const owner = owners().get(index);
+    if (owner === undefined) return t`${coordinate}: empty`;
+    const { pair } = owner;
     const status = connected().has(pair.id) ? t`connected` : t`unfinished`;
-    return endpoint === undefined
-      ? t`${coordinate}: path ${pair.label}, ${status}`
-      : t`${coordinate}: endpoint ${pair.label}, ${status}`;
+    return owner.endpoint
+      ? t`${coordinate}: endpoint ${pair.label}, ${status}`
+      : t`${coordinate}: path ${pair.label}, ${status}`;
   };
   return (
     <PathGridBoard
