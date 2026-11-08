@@ -9,6 +9,7 @@ import type {
   BoardTheme,
   CellFeedbackKind,
 } from '@pkgs/chess-board-core-shared-ts/types';
+import { bestOnColor, ON_LIGHT } from '@pkgs/ui-root-shared-ts/contrast';
 
 export type BoardColorScheme = 'light' | 'dark';
 
@@ -69,7 +70,7 @@ function defaultPromotionPalette(squares: {
     surface: squares.lightSquare,
     surfaceActive: squares.lightSquare,
     cancel: squares.darkSquare,
-    ink: squares.lightSquare,
+    ink: bestOnColor(squares.darkSquare).fg,
   };
 }
 
@@ -89,8 +90,8 @@ export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
     selected: 'rgba(255, 255, 51, 0.5)',
     premove: 'rgba(244, 42, 50, 0.55)',
     hover: 'rgba(255, 255, 255, 0.65)',
-    legalMoveDot: 'rgba(0, 0, 0, 0.14)',
-    legalMoveCaptureRing: 'rgba(0, 0, 0, 0.14)',
+    legalMoveDot: ON_LIGHT.icon,
+    legalMoveCaptureRing: ON_LIGHT.icon,
     check: 'rgba(255, 0, 0, 0.9)',
     feedback: defaultFeedbackPalette(scheme),
     arrows: defaultArrowPalette(scheme),
