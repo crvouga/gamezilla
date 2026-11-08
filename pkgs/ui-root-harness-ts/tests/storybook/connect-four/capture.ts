@@ -119,14 +119,75 @@ export async function measureDrop(
 /** Keep all axe findings and target dimensions, including nonblocking findings. */
 export async function captureBoard(page: Page, info: TestInfo, name: string) {
   await page.addScriptTag({ content: axe.source });
-  const accessibility = await page.evaluate(async () => {
-    const root = document.querySelector<HTMLElement>('#storybook-root');
-    if (!root) throw new Error('Missing canvas');
-    const result = await (window as unknown as { axe: typeof axe }).axe.run(
-      root
-    );
-    return result.violations;
-  });
+  const { accessibility, incomplete, contrastDiagnostics } =
+    await page.evaluate(async () => {
+      const root = document.querySelector<HTMLElement>('#storybook-root');
+      if (!root) throw new Error('Missing canvas');
+      const result = await (window as unknown as { axe: typeof axe }).axe.run(
+        root
+      );
+      // Undecided contrast is not a pass: keep why axe could not decide,
+      // plus a bounded look at the colors and the stack under each node.
+      const contrast = result.incomplete.find(
+        (rule) => rule.id === 'color-contrast'
+      );
+      const contrastDiagnostics = (contrast?.nodes ?? [])
+        .slice(0, 12)
+        .map((node) => {
+          const selector = String(node.target[0] ?? '');
+          const element = document.querySelector<HTMLElement>(selector);
+          const rect = element?.getBoundingClientRect();
+          const style = element ? getComputedStyle(element) : undefined;
+          const stack = rect
+            ? document
+                .elementsFromPoint(
+                  rect.left + rect.width / 2,
+                  rect.top + rect.height / 2
+                )
+                .slice(0, 5)
+                .map((item) => {
+                  const itemStyle = getComputedStyle(item);
+                  return {
+                    tag: item.tagName.toLowerCase(),
+                    className: (item.getAttribute('class') ?? '').slice(0, 80),
+                    backgroundColor: itemStyle.backgroundColor,
+                    backgroundImage: itemStyle.backgroundImage.slice(0, 80),
+                    opacity: itemStyle.opacity,
+                  };
+                })
+            : [];
+          return {
+            selector,
+            messageKeys: node.any.map(
+              (check) =>
+                (check.data as { messageKey?: string } | null)?.messageKey
+            ),
+            color: style?.color,
+            backgroundColor: style?.backgroundColor,
+            stack,
+          };
+        });
+      return {
+        accessibility: result.violations,
+        incomplete: result.incomplete.map((rule) => ({
+          id: rule.id,
+          impact: rule.impact,
+          nodes: rule.nodes.length,
+          messageKeys: [
+            ...new Set(
+              rule.nodes.flatMap((node) =>
+                node.any.map(
+                  (check) =>
+                    (check.data as { messageKey?: string } | null)
+                      ?.messageKey ?? 'none'
+                )
+              )
+            ),
+          ],
+        })),
+        contrastDiagnostics,
+      };
+    });
   const columns = await page.locator('[data-column]').evaluateAll((items) =>
     items.map((item) => {
       const rect = item.getBoundingClientRect();
@@ -140,7 +201,11 @@ export async function captureBoard(page: Page, info: TestInfo, name: string) {
     })
   );
   await info.attach(`${name}-audit`, {
-    body: JSON.stringify({ accessibility, columns }, null, 2),
+    body: JSON.stringify(
+      { accessibility, incomplete, contrastDiagnostics, columns },
+      null,
+      2
+    ),
     contentType: 'application/json',
   });
   await info.attach(name, {
