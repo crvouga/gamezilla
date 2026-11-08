@@ -1,0 +1,4 @@
+{
+  "summary": "A game played in real time reads a new position many times a second, and every read built every seat object afresh (new press handlers too), so each player's strip, avatar and figure were rebuilt on every tick; the wide arena scoreboard keyed strips by object and remounted them. Seats that read the same are now kept as the same object, press handlers are stable per person, and the scoreboard keeps strips by place.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-seat-reuse.test.tsx"
+}
