@@ -55,3 +55,16 @@ test('storybook integration: Sokoban close view keeps maximum-board pieces reada
   await counts(page, 26, 6);
   await capture(page, info, 'overview-preserves-progress');
 });
+
+test('storybook integration: Sokoban dense maximum board input and frame evidence', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openSokoban(page, 'puzzle--dense-maximum-board', 'light');
+  const board = page.getByTestId('sokoban-board');
+  await expect(board.getByRole('img')).toHaveCount(400);
+  await capture(page, info, 'dense-maximum-board');
+  await measureSokoban(page, info, 4, 0);
+  await capture(page, info, 'dense-maximum-board-after-movement');
+  await accessibility(page, info);
+});

@@ -26,6 +26,30 @@ export const MAXIMUM_BOARD = JSON.stringify({
   ],
 });
 
+/**
+ * The size limit, crowded: 36 crates, 36 goals and rows of pillars, with a
+ * clear top row so repeated moves stay legal. Used to time a busy board.
+ */
+export const DENSE_MAXIMUM_BOARD = JSON.stringify({
+  format: 1,
+  rows: [
+    '#'.repeat(20),
+    `# @${' '.repeat(16)}#`,
+    ...Array.from(
+      { length: 16 },
+      (_, row) =>
+        [
+          `#${' $'.repeat(9)}#`,
+          `#${' '.repeat(18)}#`,
+          `#${' .'.repeat(9)}#`,
+          `#${' #'.repeat(9)}#`,
+        ][row % 4] ?? ''
+    ),
+    `#${' '.repeat(18)}#`,
+    '#'.repeat(20),
+  ],
+});
+
 /** The play state after `moves` from the start of {@link TWO_CRATES}. */
 export function playedTwoCrates(moves: readonly SokobanDirection[]): string {
   const board = decodeSokobanBoard(TWO_CRATES);

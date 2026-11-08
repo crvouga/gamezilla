@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanHistory } from './sokoban-history.example';
 import { SokobanPlayer } from './sokoban-player';
 import {
+  DENSE_MAXIMUM_BOARD,
   MAXIMUM_BOARD,
   playedTwoCrates,
   SOLVING_MOVES,
@@ -43,6 +44,14 @@ if (!maximumStart.accepted) throw new Error('Invalid maximum board fixture');
 /** All 400 supported tiles, using the production board and movement rules. */
 export const MaximumBoard: Story = {
   args: { definition: MAXIMUM_BOARD, state: maximumStart.state },
+};
+
+const denseStart = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+if (!denseStart.accepted) throw new Error('Invalid dense board fixture');
+
+/** The size limit, crowded with 36 crates and goals among pillars. */
+export const DenseMaximumBoard: Story = {
+  args: { definition: DENSE_MAXIMUM_BOARD, state: denseStart.state },
 };
 
 /** One crate pushed onto its goal; moves and pushes counted. */
