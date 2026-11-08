@@ -25,6 +25,15 @@ Feature: Learn why people cancel Plus
       When Alice subscribes to Plus
       Then Alice is not offered to share cancellation feedback
 
+    @regression:billing-feedback-asked-after-renewed-membership-ends
+    Scenario: A person who renewed their canceled membership is not asked why they canceled when a payment later fails
+      Given Alice has subscribed to Plus
+      And Alice has canceled the membership in the billing portal
+      And Alice has renewed the membership in the billing portal
+      And Alice's payment has failed
+      When the payment provider gives up on Alice's payment
+      Then Alice is not offered to share cancellation feedback
+
   Rule: A person can share a reason, a comment, or both after canceling
     No counter-example: every part of cancellation feedback is optional.
 
