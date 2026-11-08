@@ -1,17 +1,15 @@
 // @io-wall-ok — transfer only retained synthetic Storybook evidence, never credentials.
 import { createPublicKey, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { ciArtifactsStore } from './ci-artifacts';
-import { openEvidence, sealEvidence } from './storybook-evidence-crypto';
+import { sealEvidence } from './storybook-evidence-crypto';
 import {
   assertEvidencePath,
   decodeEvidence,
-  decodeEvidenceBundle,
   EVIDENCE_MANIFEST,
   encodeEvidence,
   STORYBOOK_RESULTS,
 } from './storybook-evidence-log';
+import { restoreEvidence } from './storybook-evidence-restore';
 
 async function exportEvidence(runId: string): Promise<void> {
   if (!/^\d+$/.test(runId))
@@ -62,35 +60,10 @@ async function exportEvidence(runId: string): Promise<void> {
   );
 }
 
-function restoreEvidence(
-  logPath: string,
-  destination: string,
-  keyPath: string
-): void {
-  if (existsSync(destination)) throw new Error('Destination must not exist');
-  const privateKey = readFileSync(keyPath, 'utf8');
-  const log = readFileSync(logPath, 'utf8');
-  const plaintext = [...log.matchAll(/\uE100[\s\S]*?\uE101/g)]
-    .map((match) => openEvidence(match[0], privateKey))
-    .join('\n');
-  const { runId, records } = decodeEvidenceBundle(plaintext);
-  const manifest = records.map(({ path, bytes, sha256 }) => {
-    const target = resolve(destination, path);
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, bytes);
-    return { path, bytes: bytes.length, sha256 };
-  });
-  writeFileSync(
-    resolve(destination, 'evidence-manifest.json'),
-    `${JSON.stringify({ runId, files: manifest }, null, 2)}\n`
-  );
-  console.log(`Restored ${records.length} checksum-verified evidence files`);
-}
-
 if (import.meta.main) {
   const [, , mode, input, destination, keyPath] = process.argv;
   if (mode === '--decode-log' && input && destination && keyPath)
-    restoreEvidence(input, destination, keyPath);
+    await restoreEvidence(input, destination, keyPath);
   else if (mode === '--export' && process.env['STORYBOOK_EVIDENCE_RUN'])
     await exportEvidence(process.env['STORYBOOK_EVIDENCE_RUN']);
   else throw new Error('Use --export or --decode-log <log> <directory> <key>');

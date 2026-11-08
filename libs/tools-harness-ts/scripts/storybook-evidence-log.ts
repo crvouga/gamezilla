@@ -44,14 +44,10 @@ export function decodeEvidence(log: string): {
   return { path: record.path, bytes, sha256 };
 }
 
-export function decodeEvidenceBundle(log: string): {
-  runId: string;
-  records: ReturnType<typeof decodeEvidence>[];
-} {
-  const records = [...log.matchAll(/\uE100[\s\S]*?\uE101/g)].map((match) =>
-    decodeEvidence(match[0])
-  );
-  const last = records.pop();
+export function validateEvidenceManifest(
+  last: ReturnType<typeof decodeEvidence> | undefined,
+  records: readonly { path: string; sha256: string }[]
+): string {
   if (last?.path !== EVIDENCE_MANIFEST)
     throw new Error('No final evidence manifest: incomplete transfer');
   const manifest = JSON.parse(Buffer.from(last.bytes).toString('utf8')) as {
@@ -69,5 +65,5 @@ export function decodeEvidenceBundle(log: string): {
     )
   )
     throw new Error('Evidence manifest does not match transferred files');
-  return { runId: manifest.runId, records };
+  return manifest.runId;
 }

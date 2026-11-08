@@ -3,10 +3,10 @@ import { readFileSync } from 'node:fs';
 import {
   assertEvidencePath,
   decodeEvidence,
-  decodeEvidenceBundle,
   EVIDENCE_MANIFEST,
   encodeEvidence,
   STORYBOOK_RESULTS,
+  validateEvidenceManifest,
 } from './storybook-evidence-log';
 
 // regression: retained-storybook-evidence-inaccessible
@@ -78,10 +78,16 @@ test('a final manifest is required and binds every decoded file', () => {
     EVIDENCE_MANIFEST,
     Buffer.from(JSON.stringify({ runId: '42433806308', files: [record] }))
   );
-  expect(decodeEvidenceBundle(`${file}\n${manifest}`).runId).toBe(
+  expect(validateEvidenceManifest(decodeEvidence(manifest), [record])).toBe(
     '42433806308'
   );
-  expect(() => decodeEvidenceBundle(file)).toThrow('incomplete');
-  expect(() => decodeEvidenceBundle(manifest)).toThrow('does not match');
-  expect(() => decodeEvidenceBundle(`${file}\n${file}\n${manifest}`)).toThrow();
+  expect(() => validateEvidenceManifest(undefined, [record])).toThrow(
+    'incomplete'
+  );
+  expect(() => validateEvidenceManifest(decodeEvidence(manifest), [])).toThrow(
+    'does not match'
+  );
+  expect(() =>
+    validateEvidenceManifest(decodeEvidence(manifest), [record, record])
+  ).toThrow();
 });
