@@ -1,0 +1,4 @@
+{
+  "summary": "The registered product-shell Storybook preview was incorrectly rejected as production importing preview infrastructure.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-entrypoints.test.ts"
+}
