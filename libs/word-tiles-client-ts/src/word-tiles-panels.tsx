@@ -9,7 +9,7 @@ import {
   WordTileBlankContext,
   WordTileLetterChoices,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import type { WordTilesPreview } from './word-tiles-preview';
 
 export function seatName(seat: number): string {
@@ -28,24 +28,27 @@ export function WordTilesPreviewPanel(props: {
   preview: WordTilesPreview;
   testId: string;
 }): JSX.Element {
+  // One breakdown line is always laid out, empty until tiles are placed, so
+  // placing the first tile or playing the word never moves the board below.
+  const breakdown = (): string => {
+    const preview = props.preview;
+    if (preview.kind !== 'score') return '';
+    const words = preview.words.map(
+      (word) =>
+        `${word.word}: ${word.letters}${word.multiplier > 1 ? ` × ${word.multiplier}` : ''} = ${word.points}`
+    );
+    if (preview.bonus > 0) words.push(t`Seven-tile bonus: ${preview.bonus}`);
+    return words.join(' · ');
+  };
   return (
     <StackVertical gap="xs" dataSet={{ testid: `${props.testId}-preview` }}>
-      <Show when={props.preview.kind === 'score' && props.preview}>
-        {(score) => (
-          <>
-            <For each={score().words}>
-              {(word) => (
-                <P variant="caption">
-                  {`${word.word}: ${word.letters}${word.multiplier > 1 ? ` × ${word.multiplier}` : ''} = ${word.points}`}
-                </P>
-              )}
-            </For>
-            <Show when={score().bonus > 0}>
-              <P variant="caption">{t`Seven-tile bonus: ${score().bonus}`}</P>
-            </Show>
-          </>
-        )}
-      </Show>
+      <P
+        variant="caption"
+        aria-hidden={breakdown() === '' ? true : undefined}
+        testId={`${props.testId}-breakdown`}
+      >
+        {breakdown() === '' ? '\u00a0' : breakdown()}
+      </P>
       <P role="status" dataSet={{ testid: `${props.testId}-status` }}>
         {props.preview.message}
       </P>

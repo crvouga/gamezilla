@@ -163,3 +163,28 @@ test('storybook integration: word-tiles an accepted word appears in the move rec
   await expect(strip).toContainText('10');
   await expect(strip).not.toContainText('No moves yet.');
 });
+
+// regression: word-tiles-preview-moves-board
+test('storybook integration: word-tiles placing the first tile does not move the board', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'two-player-match', 'light');
+  const region = page.getByRole('region', { name: 'Scrollable word board' });
+  const before = await region.boundingBox();
+  await page
+    .getByTestId('custom-game-board-rack')
+    .getByRole('button')
+    .first()
+    .click();
+  await page.getByTestId('custom-game-board-cell-h8').click();
+  await expect(page.getByTestId('custom-game-board-cell-h8')).toHaveAttribute(
+    'data-state',
+    'tentative'
+  );
+  await expect(page.getByTestId('custom-game-board-breakdown')).not.toHaveText(
+    /^\s*$/
+  );
+  const after = await region.boundingBox();
+  expect(after?.y).toBe(before?.y);
+});
