@@ -71,13 +71,7 @@ export function tileBoardSwipe(
   return dy > 0 ? 'down' : 'up';
 }
 
-/**
- * A rectangular board of tiles with pieces standing on them, steered as one
- * focus stop: arrow keys or W A S D give a direction, a swipe gives its
- * direction and a tap names a tile. Pieces glide between tiles unless the
- * person prefers reduced motion; logic never waits for the glide.
- */
-export function TileBoard(props: TileBoardProps): JSX.Element {
+function createTileBoardInput(props: TileBoardProps) {
   let origin: { x: number; y: number; pointerId: number } | null = null;
   const interactive = () =>
     props.disabled !== true &&
@@ -100,7 +94,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     if (from === null || from.pointerId !== event.pointerId) return;
     origin = null;
     const board = event.currentTarget as HTMLElement;
-    if (board.hasPointerCapture?.(event.pointerId))
+    if (board.hasPointerCapture(event.pointerId))
       board.releasePointerCapture(event.pointerId);
     if (!interactive()) return;
     const swipe = tileBoardSwipe(
@@ -111,6 +105,32 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     const index = tileAt(event, event.currentTarget as HTMLElement);
     if (index !== null) props.onTile?.(index);
   };
+  const keyDown = (event: KeyboardEvent): void => {
+    if (!interactive() || props.onDirection === undefined) return;
+    const direction = KEYS[event.key];
+    if (direction === undefined || event.ctrlKey || event.metaKey) return;
+    event.preventDefault();
+    props.onDirection(direction);
+  };
+  const pointerDown = (event: PointerEvent): void => {
+    if (!interactive() || origin !== null || event.button !== 0) return;
+    origin = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  };
+  const cancel = (event: PointerEvent): void => {
+    if (origin?.pointerId === event.pointerId) origin = null;
+  };
+  return { interactive, keyDown, pointerDown, release, cancel };
+}
+
+/**
+ * A rectangular board of tiles with pieces standing on them, steered as one
+ * focus stop: arrow keys or W A S D give a direction, a swipe gives its
+ * direction and a tap names a tile. Pieces glide between tiles unless the
+ * person prefers reduced motion; logic never waits for the glide.
+ */
+export function TileBoard(props: TileBoardProps): JSX.Element {
+  const input = createTileBoardInput(props);
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
@@ -118,37 +138,23 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       {...dataAttrs({ component: 'TileBoard' })}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
-      tabIndex={interactive() ? 0 : -1}
+      tabIndex={input.interactive() ? 0 : -1}
       aria-label={props.label}
       aria-describedby={props.describedBy}
       aria-disabled={props.disabled === true}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
-      data-interactive={String(interactive())}
+      data-interactive={String(input.interactive())}
       data-size={props.size ?? 'compact'}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,
       }}
-      onKeyDown={(event) => {
-        if (!interactive() || props.onDirection === undefined) return;
-        const direction = KEYS[event.key];
-        if (direction === undefined || event.ctrlKey || event.metaKey) return;
-        event.preventDefault();
-        props.onDirection(direction);
-      }}
-      onPointerDown={(event) => {
-        if (!interactive() || origin !== null || event.button !== 0) return;
-        origin = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
-        event.currentTarget.setPointerCapture?.(event.pointerId);
-      }}
-      onPointerUp={release}
-      onPointerCancel={(event) => {
-        if (origin?.pointerId === event.pointerId) origin = null;
-      }}
-      onLostPointerCapture={(event) => {
-        if (origin?.pointerId === event.pointerId) origin = null;
-      }}
+      onKeyDown={input.keyDown}
+      onPointerDown={input.pointerDown}
+      onPointerUp={input.release}
+      onPointerCancel={input.cancel}
+      onLostPointerCapture={input.cancel}
     >
       <div class={styles['tiles']}>
         <Index each={props.tiles}>

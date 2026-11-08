@@ -106,27 +106,37 @@ function Steering(props: {
           </P>
         </StackVertical>
         {/* Screen width does not tell us whether a keyboard is available. */}
-          <DirectionPad
-            size="sm"
-            layout="arrows"
-            labels={{
-              up: t`Move up`,
-              right: t`Move right`,
-              down: t`Move down`,
-              left: t`Move left`,
-            }}
-            // Presses while a move is being kept queue, as keys do.
-            disabled={false}
-            testId="sokoban-move"
-            onDirection={(heading) => steering.steer(heading)}
-          />
+        <DirectionPad
+          size="sm"
+          layout="arrows"
+          labels={{
+            up: t`Move up`,
+            right: t`Move right`,
+            down: t`Move down`,
+            left: t`Move left`,
+          }}
+          // Presses while a move is being kept queue, as keys do.
+          disabled={false}
+          testId="sokoban-move"
+          onDirection={(heading) => steering.steer(heading)}
+        />
       </StackHorizontal>
       <Show when={props.disabled}>
-        <P role="status" variant="caption" tone="secondary" dataSet={{ testid: 'sokoban-saving' }}>
-          <Show when={steering.queueOverflow()} fallback={
-            <Trans>Keeping your move. Up to four directions can wait.</Trans>
-          }>
-            <Trans>Direction not added. Four directions are already waiting.</Trans>
+        <P
+          role="status"
+          variant="caption"
+          tone="secondary"
+          dataSet={{ testid: 'sokoban-saving' }}
+        >
+          <Show
+            when={steering.queueOverflow()}
+            fallback={
+              <Trans>Keeping your move. Up to four directions can wait.</Trans>
+            }
+          >
+            <Trans>
+              Direction not added. Four directions are already waiting.
+            </Trans>
           </Show>
         </P>
       </Show>

@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanHistory } from './sokoban-history.example';
 import { SokobanPlayer } from './sokoban-player';
 import {
+  MAXIMUM_BOARD,
   playedTwoCrates,
   SOLVING_MOVES,
   TWO_CRATES,
@@ -35,6 +36,14 @@ type Story = StoryObj<typeof meta>;
 
 /** The start: the worker beside two crates, two goals to fill. */
 export const Fresh: Story = {};
+
+const maximumStart = sokobanPuzzleContent.rules.initial(MAXIMUM_BOARD);
+if (!maximumStart.accepted) throw new Error('Invalid maximum board fixture');
+
+/** All 400 supported tiles, using the production board and movement rules. */
+export const MaximumBoard: Story = {
+  args: { definition: MAXIMUM_BOARD, state: maximumStart.state },
+};
 
 /** One crate pushed onto its goal; moves and pushes counted. */
 export const InProgress: Story = {
