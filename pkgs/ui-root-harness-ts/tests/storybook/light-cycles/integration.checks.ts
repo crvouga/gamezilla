@@ -5,7 +5,10 @@ import { measureSteering } from './measure';
 import { measureMotion } from './motion';
 import { sharedNativeTouch } from './touch';
 
-test.use({ video: 'on', trace: 'on' });
+test.use({
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'on',
+});
 
 const screens = [
   { width: 390, height: 844 },
@@ -43,7 +46,7 @@ async function accessibility(page: Page, info: TestInfo) {
     return browser.axe.run('#storybook-root');
   });
   await info.attach('accessibility.json', {
-    body: JSON.stringify(results.violations, null, 2),
+    body: JSON.stringify(results, null, 2),
     contentType: 'application/json',
   });
   expect(
@@ -141,8 +144,32 @@ test('storybook integration: light-cycles evidence simultaneous native touch', a
   await accessibility(page, info);
 });
 
+test('storybook integration: light-cycles evidence native Tab focus and first steering key', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openArena(page, 'duel-steering', 'light');
+  const arena = page.getByTestId('custom-game-board-arena');
+  await expect(arena).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(arena).not.toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(arena).toBeFocused();
+  expect(
+    await arena.evaluate((element) => element.matches(':focus-visible'))
+  ).toBe(true);
+  await capture(page, info, 'keyboard-focus');
+  const rider = page.getByTestId('custom-game-board-arena-rider-0');
+  const x = Number(await rider.getAttribute('data-x'));
+  await page.keyboard.press('ArrowRight');
+  await expect(rider).toHaveAttribute('data-x', String(x + 1));
+  await capture(page, info, 'first-key');
+  await accessibility(page, info);
+});
+
 // regression: light-cycles-probe-crossed-quad-round-end
 // regression: light-cycles-probe-throttled-harness-startup
+// regression: light-cycles-frame-sampler-mixed-time-origins
 test('storybook integration: light-cycles evidence Quad measures twelve active inputs across fresh trials', async ({
   page,
 }) => {
@@ -150,6 +177,8 @@ test('storybook integration: light-cycles evidence Quad measures twelve active i
   await openArena(page, 'quad-steering', 'light');
   const measurements = await measureSteering(page, 4);
   expect(measurements.inputToPaintMs).toHaveLength(12);
+  expect(measurements.frameMs.length).toBeGreaterThan(0);
+  expect(measurements.frameMs.every((interval) => interval >= 0)).toBe(true);
 });
 
 for (const variant of ['duel', 'trio', 'quad']) {

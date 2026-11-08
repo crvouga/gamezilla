@@ -21,10 +21,10 @@ export async function startMeasurements(page: Page): Promise<void> {
       longTasksMs: [],
     };
     target.lightCyclesMeasurements = measurements;
-    let previous = performance.now();
+    let previous: number | undefined;
     let frame = 0;
     const sample = (now: number) => {
-      measurements.frameMs.push(now - previous);
+      if (previous !== undefined) measurements.frameMs.push(now - previous);
       previous = now;
       frame = requestAnimationFrame(sample);
     };

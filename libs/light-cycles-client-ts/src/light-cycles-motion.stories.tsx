@@ -7,6 +7,7 @@ import { LIGHT_CYCLES_SEATS } from '@libs/light-cycles-shared-ts/light-cycles-co
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
+import { createMemo } from 'solid-js';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LightCyclesBoardView } from './light-cycles-board-view';
 import {
@@ -25,6 +26,8 @@ function renderMotion(count: 2 | 3 | 4) {
     }
   ) => {
     const state = lightCyclesMotion(count, context.canvasElement);
+    const codec = lightCyclesPositionCodec(count);
+    const position = createMemo(() => codec.encode(state()));
     const client =
       count === 2
         ? lightCyclesDuelClient
@@ -43,7 +46,7 @@ function renderMotion(count: 2 | 3 | 4) {
       {
         ...args,
         get position() {
-          return lightCyclesPositionCodec(count).encode(state());
+          return position();
         },
       },
       context
