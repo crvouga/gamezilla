@@ -3,6 +3,7 @@ import axe from 'axe-core';
 import { verifySharedSwipeCapture } from '../light-cycles-pointer';
 import { measureSteering } from './measure';
 import { measureMotion } from './motion';
+import { profileMotion } from './profile';
 import { sharedNativeTouch } from './touch';
 
 test.use({
@@ -202,4 +203,23 @@ for (const variant of ['duel', 'trio', 'quad']) {
       await accessibility(page, info);
     });
   }
+}
+
+for (const variant of ['trio', 'quad']) {
+  test(`storybook integration: light-cycles evidence main-thread profile ${variant} cpu4`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const cdp = await page.context().newCDPSession(page);
+    await page.goto(
+      `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark`
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+    await profileMotion(page, cdp, info, 60);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  });
 }
