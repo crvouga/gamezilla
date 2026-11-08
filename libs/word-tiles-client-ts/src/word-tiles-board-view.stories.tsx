@@ -12,7 +12,7 @@ import {
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import { seatSides } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
@@ -383,8 +383,11 @@ export const RecoverAndSubmit: Story = {
         exact: true,
       })
     ).toBeVisible();
-    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
-      'Teal — to play'
+    // regression: word-tiles-turn-line-seat-colour
+    await waitFor(() =>
+      expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+        'jordan_plays to play'
+      )
     );
     await expect(canvas.getByTestId('custom-game-black')).toHaveAttribute(
       'aria-current',

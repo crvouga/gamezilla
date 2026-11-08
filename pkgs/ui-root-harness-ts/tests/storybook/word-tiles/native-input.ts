@@ -69,7 +69,7 @@ export async function playWord(
         page.getByTestId('custom-game-white').getByText('10', { exact: true })
       ).toBeVisible();
       await expect(page.getByTestId('custom-game-status')).toContainText(
-        'Teal — to play'
+        'jordan_plays to play'
       );
     }
   );

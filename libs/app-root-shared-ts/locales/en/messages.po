@@ -246,6 +246,11 @@ msgstr "{0} themes"
 msgid "{0} tiles in the bag"
 msgstr "{0} tiles in the bag"
 
+#. placeholder {0}: name ?? seatName(position.turn)
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
+msgid "{0} to play"
+msgstr "{0} to play"
+
 #. placeholder {0}: riderName(side)
 #: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 msgid "{0} wins"
@@ -4319,6 +4324,10 @@ msgstr "Monthly"
 msgid "More"
 msgstr "More"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "More actions"
+msgstr "More actions"
+
 #. placeholder {0}: props.title
 #: libs/game-puzzle-client-ts/src/content-pack-editor-view.tsx
 msgid "More for {0}"
@@ -5204,10 +5213,6 @@ msgstr "Pass three cards to the left."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the right."
 msgstr "Pass three cards to the right."
-
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "Pass, exchange & tools"
-msgstr "Pass, exchange & tools"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
@@ -8321,10 +8326,6 @@ msgstr "To keep your data safe, export and deletion need a sign-in from the last
 msgid "To move"
 msgstr "To move"
 
-#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
-msgid "to play"
-msgstr "to play"
-
 #: libs/notifications-client-ts/src/use-notifications.tsx
 msgid "Today"
 msgstr "Today"
@@ -9511,6 +9512,10 @@ msgstr "your tentative blank as {letter}"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "your tentative tile"
 msgstr "your tentative tile"
+
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
+msgid "Your turn"
+msgstr "Your turn"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Your turn to fire."
