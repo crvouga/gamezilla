@@ -60,10 +60,11 @@ function cellGeometry(page: Page) {
           // Across: inside the endpoint's own border, where long labels
           // touched it. Down: a text box includes the font's empty ascent
           // and descent, so it must stay within the endpoint and centred.
-          (text.left >= ring.left + border &&
-            text.right <= ring.right - border &&
-            text.top >= ring.top &&
-            text.bottom <= ring.bottom &&
+          // Half a pixel absorbs sub-pixel layout rounding.
+          (text.left >= ring.left + border - 0.5 &&
+            text.right <= ring.right - border + 0.5 &&
+            text.top >= ring.top - 0.5 &&
+            text.bottom <= ring.bottom + 0.5 &&
             Math.abs(text.top + text.bottom - (ring.top + ring.bottom)) <= 2 &&
             ring.left >= box.left &&
             ring.right <= box.right),

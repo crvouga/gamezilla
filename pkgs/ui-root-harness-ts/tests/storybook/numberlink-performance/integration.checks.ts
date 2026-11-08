@@ -15,6 +15,12 @@ test.use({
   trace: 'off',
 });
 
+// The measurement is each input's latency, recorded below, not the run's
+// length: 400 throttled inputs with video on ran 22 to over 30 seconds on
+// identical code across hosted runners, so the default budget failed runs
+// at random rather than flagging a slower board.
+test.setTimeout(90_000);
+
 for (const width of [390, 1440])
   for (const theme of ['light', 'dark'])
     test.describe(`${width} ${theme}`, () => {
