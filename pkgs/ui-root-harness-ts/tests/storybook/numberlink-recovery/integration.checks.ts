@@ -7,7 +7,11 @@ import {
   openBoard,
 } from '../numberlink-board/evidence';
 
-test.use({ video: 'on', trace: 'on' });
+test.use({
+  viewport: { width: 390, height: 844 },
+  video: { mode: 'on', size: { width: 390, height: 844 } },
+  trace: 'on',
+});
 
 for (const theme of ['light', 'dark']) {
   test(`storybook integration: numberlink-recovery editor selection ${theme}`, async ({

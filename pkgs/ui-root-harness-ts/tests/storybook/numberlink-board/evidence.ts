@@ -2,7 +2,7 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
-export async function openBoard(
+export async function openStory(
   page: Page,
   theme: string,
   story = 'screens-games-numberlink-puzzle--draw-paths'
@@ -15,6 +15,14 @@ export async function openBoard(
     'true'
   );
   await page.evaluate(() => document.fonts.ready);
+}
+
+export async function openBoard(
+  page: Page,
+  theme: string,
+  story = 'screens-games-numberlink-puzzle--draw-paths'
+) {
+  await openStory(page, theme, story);
   await page.getByTestId('numberlink-board').scrollIntoViewIfNeeded();
 }
 
@@ -22,6 +30,29 @@ export async function capture(page: Page, info: TestInfo, name: string) {
   const path = info.outputPath(`${name}.png`);
   await page.screenshot({ path, fullPage: true, animations: 'disabled' });
   await info.attach(name, { path, contentType: 'image/png' });
+  const geometry = await page.evaluate(() => {
+    const selectors = [
+      '[data-testid="numberlink-board"]',
+      '[data-testid="numberlink-progress"]',
+      '[data-testid="puzzle-attempt-panel"]',
+      '[data-testid="puzzle-attempt-figures"]',
+    ];
+    return selectors.map((selector) => {
+      const element = document.querySelector(selector);
+      const box = element?.getBoundingClientRect();
+      return {
+        selector,
+        box: box
+          ? { x: box.x, y: box.y, width: box.width, height: box.height }
+          : null,
+        text: element?.textContent,
+      };
+    });
+  });
+  await info.attach(`${name}-geometry`, {
+    body: JSON.stringify(geometry),
+    contentType: 'application/json',
+  });
 }
 
 export async function accessibility(page: Page, info: TestInfo) {

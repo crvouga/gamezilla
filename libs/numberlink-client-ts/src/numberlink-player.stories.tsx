@@ -6,6 +6,10 @@ import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-p
 import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import {
+  DENSE_NUMBERLINK,
+  LONG_LABEL_NUMBERLINK,
+} from './numberlink-extremes.example';
 import { numberlinkGeometry } from './numberlink-geometry.example';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
@@ -213,6 +217,18 @@ export const DrawPaths: Story = {
   },
 };
 
+/** Maximum dimensions retain the same real rules and interaction handlers. */
+export const DenseBoard: Story = {
+  ...DrawPaths,
+  args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
+};
+
+/** Long matching labels remain meaningful without distinct pair colors. */
+export const LongLabels: Story = {
+  ...DrawPaths,
+  args: { definition: JSON.stringify(LONG_LABEL_NUMBERLINK) },
+};
+
 /** Complete a fresh attempt using keyboard input and real game rules. */
 export const CompleteWithKeyboard: Story = {
   ...DrawPaths,
@@ -256,7 +272,7 @@ export const CompleteWithKeyboard: Story = {
       'Puzzle solved'
     );
     await expect(
-      canvas.queryByText('Drag from a number to its match.')
+      canvas.queryByTestId('numberlink-drawing-status')
     ).not.toBeInTheDocument();
   },
 };
