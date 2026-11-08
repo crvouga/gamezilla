@@ -6,25 +6,41 @@ import { auditQuoridorAccessibility } from './accessibility';
 /** Observe event-to-next-frame latency and long tasks during the real story play. */
 export async function observeQuoridorInput(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    const samples: { event: string; trusted: boolean; milliseconds: number }[] =
-      [];
+    // The highlight addon rescans every element on each DOM mutation; it is
+    // Storybook tooling, not the board, so it stays off while measuring.
+    Object.assign(globalThis, { __STORYBOOK_HIGHLIGHT_INITIALIZED: true });
+    const samples: {
+      event: string;
+      trusted: boolean;
+      milliseconds: number;
+      handledMilliseconds: number | null;
+    }[] = [];
     const longTasks: number[] = [];
     Object.assign(window, { quoridorMetrics: { samples, longTasks } });
-    for (const type of ['click', 'keydown', 'pointerdown'])
+    for (const type of ['click', 'keydown', 'pointerdown']) {
+      const handled = new WeakMap<Event, number>();
+      // Document bubble: the board's own handlers are done; the preview's
+      // window-level key forwarding to the manager runs after this.
+      document.addEventListener(type, (event) =>
+        handled.set(event, performance.now())
+      );
       document.addEventListener(
         type,
         (event) => {
           const start = performance.now();
-          requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            const end = handled.get(event);
             samples.push({
               event: type,
               trusted: event.isTrusted,
               milliseconds: performance.now() - start,
-            })
-          );
+              handledMilliseconds: end === undefined ? null : end - start,
+            });
+          });
         },
         true
       );
+    }
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) longTasks.push(entry.duration);
     }).observe({ type: 'longtask', buffered: true });
@@ -65,7 +81,7 @@ export async function recordQuoridorState(
         playMilliseconds,
         metrics,
         limits:
-          'Metrics are read before the accessibility audit. playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
+          'Metrics are read before the accessibility audit, with the Storybook highlight addon disabled. milliseconds is capture-phase dispatch to the next animation frame; handledMilliseconds is capture to document bubble, before the preview forwards keys to the manager. playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
       },
       null,
       2
