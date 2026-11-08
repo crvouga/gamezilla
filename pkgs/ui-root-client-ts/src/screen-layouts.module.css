@@ -548,7 +548,8 @@
    the fold (about 420px for title, coach, guidance and actions), never under
    320px. A short landscape window puts the board in a left column at the
    window height (less the 53px bar, the board's 48px guidance and 3px), so
-   the guidance stays in view too; the rest reads down the right. */
+   the guidance stays in view too; the rest reads down the right while the
+   board column stays put. */
 @container puzzle-frame (width < 880px) {
   .puzzle[data-board-sizing="width"] > .well > .board {
     max-width: max(320px, calc(100dvh - 420px));
@@ -569,6 +570,9 @@
       grid-column: 1;
       grid-row: 1 / -1;
       padding-inline: 0;
+      position: sticky;
+      top: 0;
+      align-self: start;
     }
   }
 }
