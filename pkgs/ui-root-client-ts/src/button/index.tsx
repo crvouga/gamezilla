@@ -12,6 +12,8 @@ import { buttonInteraction } from '../button-face';
 import type { ButtonSize, ButtonSizeSpec } from '../button-parts/index';
 import { BUTTON_SIZES, ButtonContent } from '../button-parts/index';
 import type { IconComponent } from '../create-icon/index';
+import { bindElementTargets } from '../element-targets';
+import type { FocusTarget } from '../focus';
 import { LockIcon } from '../icons';
 
 export type ButtonProps = {
@@ -73,6 +75,8 @@ export type ButtonProps = {
   'aria-expanded'?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
+  /** From `createFocusTarget()`: lets the screen move focus to this button. */
+  focusTarget?: FocusTarget | undefined;
 };
 
 function buttonClass(args: {
@@ -140,6 +144,7 @@ export function Button(props: ButtonProps): JSX.Element {
       : undefined;
   return (
     <button
+      ref={(element) => bindElementTargets(element, props)}
       class={`clickable clickableTint btn ${buttonClass({
         flex: props.flex,
         fullWidth: props.fullWidth === true,
