@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
 import { SokobanEditor } from '@libs/sokoban-client-ts/sokoban-editor';
 import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
-import { MAXIMUM_BOARD } from '@libs/sokoban-client-ts/sokoban-player.example';
+import {
+  MAXIMUM_BOARD,
+  TWO_CRATES,
+} from '@libs/sokoban-client-ts/sokoban-player.example';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -324,4 +327,35 @@ test('a maximum board has a close view that follows the worker and maps taps to 
   expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
     '6'
   );
+});
+
+// regression: sokoban-close-view-sticks-on-smaller-board
+test('changing from a close maximum board to a small board restores every square', () => {
+  const [definition, setDefinition] = createSignal(MAXIMUM_BOARD);
+  const state = () => {
+    const initial = sokobanPuzzleContent.rules.initial(definition());
+    if (!initial.accepted) throw new Error('Fixture board refused');
+    return initial.state;
+  };
+  const view = render(() => (
+    <SokobanPlayer
+      definition={definition()}
+      state={state()}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  expect(
+    view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
+  ).toHaveLength(36);
+  setDefinition(TWO_CRATES);
+  expect(
+    view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
+  ).toHaveLength(42);
+  expect(view.getByTestId('sokoban-board').getAttribute('aria-label')).toBe(
+    'Sokoban board'
+  );
+  expect(view.queryByRole('button', { name: 'Show whole board' })).toBeNull();
 });

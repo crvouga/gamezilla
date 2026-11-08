@@ -91,12 +91,14 @@ function createView(props: Props, closer: () => boolean) {
 export function SokobanPlayBoard(props: Props): JSX.Element {
   const { t } = useLingui();
   const [closer, setCloser] = createSignal(false);
-  const view = createView(props, closer);
+  const canClose = () => props.board.width > 8 || props.board.height > 8;
+  const closeView = () => canClose() && closer();
+  const view = createView(props, closeView);
   return (
     <StackVertical gap="xs">
       <TileBoard
         label={
-          closer()
+          closeView()
             ? t`Sokoban board, close view around the worker`
             : t`Sokoban board`
         }
@@ -110,15 +112,15 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
         onDirection={props.onDirection}
         onTile={(index) => props.onTile(view.indexInBoard(index))}
       />
-      <Show when={props.board.width > 8 || props.board.height > 8}>
+      <Show when={canClose()}>
         <Button
-          title={closer() ? t`Show whole board` : t`Look closer`}
+          title={closeView() ? t`Show whole board` : t`Look closer`}
           intent="neutral"
           variant="outline"
-          aria-pressed={closer()}
+          aria-pressed={closeView()}
           onClick={() => setCloser((value) => !value)}
         />
-        <Show when={closer()}>
+        <Show when={closeView()}>
           <P variant="caption" tone="secondary" role="status">
             <Trans>
               Close view follows the worker. Show the whole board to see every

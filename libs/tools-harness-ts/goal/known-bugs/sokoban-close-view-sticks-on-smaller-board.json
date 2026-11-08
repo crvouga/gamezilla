@@ -1,0 +1,4 @@
+{
+  "summary": "Switching a mounted Sokoban player from a 20 by 20 board in close view to a 7 by 6 board left only 36 of 42 squares visible after its view toggle disappeared. Close view now applies only while the current board supports it, restoring the complete smaller board and its accessible label.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}
