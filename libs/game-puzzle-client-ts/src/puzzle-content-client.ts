@@ -33,6 +33,8 @@ export type PuzzleContentFrame = {
   readonly stats: Readonly<Record<string, () => string>>;
   readonly turnStatus: (definition: string, state: string) => string | null;
   readonly controls?: Component<PuzzlePlayerProps>;
+  /** Where the board sits on a one-column screen; default `start`. */
+  readonly stageAlign?: 'start' | 'center';
 };
 
 /** Independent game rendering capabilities, with no board or turn assumptions. */
@@ -42,6 +44,11 @@ export type PuzzleContentClient = {
   readonly authoring?: {
     readonly initialDefinition: () => string;
     readonly Editor: Component<PuzzleEditorProps>;
+    /**
+     * Whether the editor can read a saved draft at all. A draft it cannot
+     * read cannot be playtested; without this, every draft may try.
+     */
+    readonly readable?: ((definition: string) => boolean) | undefined;
   };
   readonly Preview?: Component<PuzzlePreviewProps>;
 };

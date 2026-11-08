@@ -5,6 +5,7 @@ import {
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
+  STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
   validateEvidenceManifest,
 } from './storybook-evidence-log';
@@ -62,6 +63,21 @@ test('exports reject secrets, traversal, executable files and other artifact roo
     `${STORYBOOK_RESULTS}x\\secrets.json`,
     `${STORYBOOK_RESULTS}run.ts`,
     'verify-plan/plan.json',
+  ])
+    expect(() => assertEvidencePath(path)).toThrow();
+});
+
+// regression: storybook-evidence-export-drops-reference-patch
+test('an authoring run exports its reference patch, and only that patch path', () => {
+  const patch = encodeEvidence(
+    STORYBOOK_BASELINE_PATCH,
+    new TextEncoder().encode('diff --git a/x.png b/x.png\n')
+  );
+  expect(decodeEvidence(patch).path).toBe(STORYBOOK_BASELINE_PATCH);
+  for (const path of [
+    '.cache/verify-nightly/other.patch',
+    '.cache/verify-nightly/storybook-baselines.patch/../x.patch',
+    `${STORYBOOK_RESULTS}storybook-baselines.patch`,
   ])
     expect(() => assertEvidencePath(path)).toThrow();
 });

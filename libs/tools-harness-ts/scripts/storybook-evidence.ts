@@ -7,6 +7,7 @@ import {
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
+  STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
 } from './storybook-evidence-log';
 import { restoreEvidence } from './storybook-evidence-restore';
@@ -31,8 +32,14 @@ async function exportEvidence(runId: string): Promise<void> {
     console.log(sealEvidence(record, publicKey, randomBytes(44)));
   };
   const prefix = `${runId}/verify-nightly-storybook-${runId}/`;
-  const keys = await store.listKeys(`${prefix}${STORYBOOK_RESULTS}`);
-  if (!keys.length) throw new Error(`No retained Storybook evidence: ${runId}`);
+  const results = await store.listKeys(`${prefix}${STORYBOOK_RESULTS}`);
+  if (!results.length)
+    throw new Error(`No retained Storybook evidence: ${runId}`);
+  // An authoring run also retains its reference patch; owners commit from it.
+  const keys = [
+    ...results,
+    ...(await store.listKeys(`${prefix}${STORYBOOK_BASELINE_PATCH}`)),
+  ];
   let total = 0;
   const files: { path: string; sha256: string }[] = [];
   for (const key of keys) {
