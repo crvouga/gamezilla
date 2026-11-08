@@ -17,6 +17,7 @@ import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
 import { backgrounds, chromaticModes, viewports } from './preview-options';
 import { loadStoryFonts } from './story-fonts';
+import { storyReducedMotion } from './story-motion';
 import { trackStoryReadiness } from './story-readiness';
 
 // Stories render source English from macro descriptors, without the product
@@ -99,7 +100,7 @@ const withProviders = createJSXDecorator((Story, context) => {
       <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
           colorScheme={context.globals['theme'] === 'dark' ? 'dark' : 'light'}
-          reducedMotion
+          reducedMotion={storyReducedMotion(context.globals)}
           transparent
         >
           <SurfaceStackProvider>
@@ -123,6 +124,7 @@ export default {
   ],
   initialGlobals: {
     theme: 'light',
+    motion: 'reduced',
     timeStep: '0',
     backgrounds: { value: 'canvas', grid: false },
     a11y: { manual: true },
@@ -140,6 +142,10 @@ export default {
           { value: '5000', title: 'Advance 5 seconds' },
         ],
       },
+    },
+    motion: {
+      description: 'Reduced for stable screenshots; system follows the browser',
+      toolbar: { icon: 'play', items: ['reduced', 'system'] },
     },
     theme: {
       description: 'Production color scheme',
