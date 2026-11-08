@@ -84,6 +84,25 @@ test('the arena describes rider locations, directions and queued turns without l
   expect(description.textContent).toContain('Nova has crashed');
 });
 
+// regression: light-cycles-nonvisual-hazards-missing
+test('a steered rider hears its free cells ahead and to each side before a wall or trail', () => {
+  const state = lightCyclesStart(3, 3);
+  const comet = state.riders.find((rider) => rider.seat === 'white')!;
+  const view = board(['white'], state);
+  const text = view.getByTestId('arena-description').textContent ?? '';
+  expect(text).toContain(
+    `Arena ${state.width} columns by ${state.height} rows.`
+  );
+  // Comet faces right along row 7, where Nova's trail starts at column 31;
+  // walls bound its left (up) and right (down).
+  expect(text).toContain(`Nova: column 31, row ${comet.y + 1}`);
+  expect(text).toContain(
+    `Comet: column 10, row 7, heading right. Free cells: 20 ahead, ${comet.y} to the left, ${state.height - comet.y - 1} to the right.`
+  );
+  // Only riders steered here are given their room; others keep positions.
+  expect(text).toContain('Ember: column 31, row 22, heading left. Nova');
+});
+
 test('a rider steers only its own seat, with its round, from the pad and the keyboard', () => {
   const view = board(['black'], running(lightCyclesStart(3, 3)));
   expect(view.queryByTestId('arena-white-pad-up')).toBeNull();

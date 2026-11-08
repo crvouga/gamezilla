@@ -207,7 +207,7 @@ function Arena(props: {
       <Scores state={props.state} testId={props.board.testId} />
       <VisuallyHidden>
         <P id={descriptionId} testId={`${props.board.testId}-description`}>
-          {arenaDescription(props.state)}
+          {arenaDescription(props.state, controlled())}
         </P>
       </VisuallyHidden>
       <P

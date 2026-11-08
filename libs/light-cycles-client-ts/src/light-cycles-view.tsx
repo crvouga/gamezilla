@@ -64,23 +64,91 @@ function directionText(heading: TrailHeading): string {
   return { up: t`up`, right: t`right`, down: t`down`, left: t`left` }[heading];
 }
 
-/** Readable on demand; never a live announcement on every simulation tick. */
-export function arenaDescription(state: LightCyclesState): string {
-  return state.riders
-    .map((rider) => {
-      const name = riderName(rider.seat);
-      const column = rider.x + 1;
-      const row = rider.y + 1;
-      if (!rider.alive)
-        return t`${name} has crashed at column ${column}, row ${row}.`;
-      const heading = directionText(rider.heading);
-      const current = t`${name}: column ${column}, row ${row}, heading ${heading}.`;
-      const next = plannedHeading(rider);
-      return next === rider.heading
-        ? current
-        : `${current} ${t`Next turn: ${directionText(next)}.`}`;
-    })
-    .join(' ');
+const STEP: Readonly<Record<TrailHeading, readonly [number, number]>> = {
+  up: [0, -1],
+  right: [1, 0],
+  down: [0, 1],
+  left: [-1, 0],
+};
+const LEFT_OF: Readonly<Record<TrailHeading, TrailHeading>> = {
+  up: 'left',
+  right: 'up',
+  down: 'right',
+  left: 'down',
+};
+const RIGHT_OF: Readonly<Record<TrailHeading, TrailHeading>> = {
+  up: 'right',
+  right: 'down',
+  down: 'left',
+  left: 'up',
+};
+
+/** Free cells before the first wall or trail, stepping from a head toward `heading`. */
+export function clearCells(
+  state: LightCyclesState,
+  x: number,
+  y: number,
+  heading: TrailHeading
+): number {
+  const [dx, dy] = STEP[heading];
+  let count = 0;
+  for (
+    let cx = x + dx, cy = y + dy;
+    cx >= 0 &&
+    cy >= 0 &&
+    cx < state.width &&
+    cy < state.height &&
+    state.trails.charAt(cy * state.width + cx) === '.';
+    cx += dx, cy += dy
+  )
+    count++;
+  return count;
+}
+
+/**
+ * The room a steered rider has, for a listener: the free cells straight
+ * ahead, to its left and to its right before a wall or a trail, which a
+ * sighted player reads from the drawing.
+ */
+function roomText(
+  state: LightCyclesState,
+  x: number,
+  y: number,
+  heading: TrailHeading
+) {
+  const ahead = clearCells(state, x, y, heading);
+  const left = clearCells(state, x, y, LEFT_OF[heading]);
+  const right = clearCells(state, x, y, RIGHT_OF[heading]);
+  return t`Free cells: ${ahead} ahead, ${left} to the left, ${right} to the right.`;
+}
+
+/**
+ * Readable on demand; never a live announcement on every simulation tick.
+ * Riders steered on this device also hear their room to each side.
+ */
+export function arenaDescription(
+  state: LightCyclesState,
+  controlled: readonly GameSide[] = []
+): string {
+  const size = t`Arena ${state.width} columns by ${state.height} rows.`;
+  const riders = state.riders.map((rider) => {
+    const name = riderName(rider.seat);
+    const column = rider.x + 1;
+    const row = rider.y + 1;
+    if (!rider.alive)
+      return t`${name} has crashed at column ${column}, row ${row}.`;
+    const heading = directionText(rider.heading);
+    const parts = [
+      t`${name}: column ${column}, row ${row}, heading ${heading}.`,
+    ];
+    const next = plannedHeading(rider);
+    if (next !== rider.heading)
+      parts.push(t`Next turn: ${directionText(next)}.`);
+    if (controlled.includes(rider.seat))
+      parts.push(roomText(state, rider.x, rider.y, rider.heading));
+    return parts.join(' ');
+  });
+  return [size, ...riders].join(' ');
 }
 
 function winnerText(winner: GameSide | 'draw'): string {
