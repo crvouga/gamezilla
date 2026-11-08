@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { SokobanEditor } from '@libs/sokoban-client-ts/sokoban-editor';
 import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
 import {
+  DENSE_MAXIMUM_BOARD,
   MAXIMUM_BOARD,
   TWO_CRATES,
 } from '@libs/sokoban-client-ts/sokoban-player.example';
@@ -380,5 +381,27 @@ test('blocked and solved feedback appear beside the pad or over the board, never
   expect(row?.contains(refusal)).toBe(true);
   expect(refusal.textContent).toBe(
     "The worker's way is blocked. Try another direction."
+  );
+});
+
+// regression: sokoban-close-view-hides-crates-silently
+test('the close view says how many crates and open goals are out of view', () => {
+  const start = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+  if (!start.accepted) throw new Error('Fixture board refused');
+  const view = render(() => (
+    <SokobanPlayer
+      definition={DENSE_MAXIMUM_BOARD}
+      state={start.state}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  const outside = view.getByTestId('sokoban-outside-view');
+  expect(outside.getAttribute('data-crates')).toBe('34');
+  expect(outside.getAttribute('data-goals')).toBe('34');
+  expect(outside.textContent).toBe(
+    'Close view follows the worker. Out of view: 34 crates and 34 open goals.'
   );
 });

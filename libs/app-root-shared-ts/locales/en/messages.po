@@ -1969,8 +1969,14 @@ msgid "Close seat"
 msgstr "Close seat"
 
 #: libs/sokoban-client-ts/src/sokoban-play-board.tsx
-msgid "Close view follows the worker. Show the whole board to see every crate and goal."
-msgstr "Close view follows the worker. Show the whole board to see every crate and goal."
+msgid "Close view follows the worker. Every crate and open goal is in view."
+msgstr "Close view follows the worker. Every crate and open goal is in view."
+
+#. placeholder {0}: view.outside().crates
+#. placeholder {1}: view.outside().goals
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
+msgid "Close view follows the worker. Out of view: {0, plural, one {# crate} other {# crates}} and {1, plural, one {# open goal} other {# open goals}}."
+msgstr "Close view follows the worker. Out of view: {0, plural, one {# crate} other {# crates}} and {1, plural, one {# open goal} other {# open goals}}."
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Closed place"
