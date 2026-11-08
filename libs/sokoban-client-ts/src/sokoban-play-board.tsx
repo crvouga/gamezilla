@@ -24,8 +24,6 @@ type Props = {
   readonly describedBy: string;
   readonly onDirection: (direction: TileBoardDirection) => void;
   readonly onTile: (index: number) => void;
-  /** Laid over the board's lower edge, so it never moves the controls below. */
-  readonly overlay?: JSX.Element | undefined;
 };
 
 type Frame = {
@@ -151,7 +149,6 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
           onDirection={props.onDirection}
           onTile={(index) => props.onTile(view.indexInBoard(index))}
         />
-        {props.overlay}
       </StackVertical>
       <Show when={canClose()}>
         <Button

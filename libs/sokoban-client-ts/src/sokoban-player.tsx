@@ -23,11 +23,7 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
-import {
-  type SokobanFeedback,
-  SokobanSolvedCard,
-  SokobanStatus,
-} from './sokoban-feedback';
+import { type SokobanFeedback, SokobanStatus } from './sokoban-feedback';
 import { SokobanPlayBoard } from './sokoban-play-board';
 import { useSokobanWords } from './use-sokoban-words';
 
@@ -66,12 +62,6 @@ function Steering(props: {
         describedBy={help}
         onDirection={steering.steer}
         onTile={steering.tap}
-        overlay={
-          <SokobanSolvedCard
-            solved={complete()}
-            onReturnToLibrary={props.onReturnToLibrary}
-          />
-        }
       />
       <StackHorizontal gap="md" align="center" justify="between">
         <SokobanStatus
@@ -79,6 +69,7 @@ function Steering(props: {
           help={help}
           wide={mode() === 'wide'}
           feedback={feedback()}
+          onReturnToLibrary={props.onReturnToLibrary}
         />
         {/* Screen width does not tell us whether a keyboard is available. */}
         <DirectionPad

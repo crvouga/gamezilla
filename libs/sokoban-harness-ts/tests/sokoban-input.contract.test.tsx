@@ -114,7 +114,7 @@ test('the fifth queued direction reports the limit without promising it was save
   ])
     fireEvent.keyDown(board, { key });
   expect(view.getByTestId('sokoban-saving').textContent).toContain(
-    'Direction not added. Four directions are already waiting.'
+    'Not added: four moves are already waiting.'
   );
   setDisabled(false);
   expect(view.queryByTestId('sokoban-saving')).toBeNull();
@@ -365,10 +365,12 @@ test('changing from a close maximum board to a small board restores every square
 test('on a narrow phone each count keeps its label beside its number', () => {
   const { view } = player();
   const counts = view.getByTestId('sokoban-counts');
-  expect(counts.textContent).toBe('Moves 0 · Pushes 0');
-  const unbroken = [...counts.querySelectorAll('.whitespace-nowrap')].map(
-    (part) => part.textContent
-  );
+  // A phone keeps the counts on two lines, so a longer number never re-wraps.
+  expect(counts.textContent).toBe('Moves 0Pushes 0');
+  expect(counts.querySelectorAll('.block')).toHaveLength(2);
+  const unbroken = [
+    ...counts.querySelectorAll('.whitespace-nowrap, .block'),
+  ].map((part) => part.textContent);
   expect(unbroken).toEqual(['Moves 0', 'Pushes 0']);
 });
 
@@ -379,9 +381,7 @@ test('blocked and solved feedback appear beside the pad or over the board, never
   fireEvent.keyDown(board, { key: 'ArrowLeft' });
   const refusal = view.getByTestId('sokoban-refusal');
   expect(row?.contains(refusal)).toBe(true);
-  expect(refusal.textContent).toBe(
-    "The worker's way is blocked. Try another direction."
-  );
+  expect(refusal.textContent).toBe("The worker's way is blocked.");
 });
 
 // regression: sokoban-close-view-hides-crates-silently
@@ -404,4 +404,19 @@ test('the close view says how many crates and open goals are out of view', () =>
   expect(outside.textContent).toBe(
     'Close view follows the worker. Out of view: 34 crates and 34 open goals.'
   );
+});
+
+// regression: sokoban-solved-card-hides-board
+test('solving leaves the board uncovered and offers the way on once, beside the pad', () => {
+  const { view, board } = player();
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  const solved = view.getByTestId('sokoban-solved');
+  const row = view.getByTestId('sokoban-move').parentElement;
+  expect(row?.contains(solved)).toBe(true);
+  expect(board.parentElement?.contains(solved)).toBe(false);
+  expect(
+    view.getAllByRole('button', { name: 'Choose another puzzle' })
+  ).toHaveLength(1);
+  expect(view.queryByText('Keep playing or choose another puzzle.')).toBeNull();
 });
