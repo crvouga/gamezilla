@@ -14,6 +14,13 @@ export async function openChessStory(
       ? route.continue()
       : route.abort()
   );
+  // Storybook's highlight addon rescans every element on each DOM change in
+  // the story root; it is dev tooling, so it must not inflate app timings.
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
   await page.goto(
     `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
@@ -140,6 +147,14 @@ export async function measureChessInput(page: Page, info: TestInfo) {
       longTasks: number[];
       selected: string | null;
     }[] = [];
+    // Time to the document's bubble phase, then stop there: the preview's
+    // window keydown forwarding to the Storybook manager is not the app.
+    let reached = 0;
+    const atDocument = (event: KeyboardEvent) => {
+      reached = performance.now();
+      event.stopPropagation();
+    };
+    document.addEventListener('keydown', atDocument);
     source.focus();
     // Sample 0 is cold; later samples repeat select after Escape cancels.
     for (let index = 0; index < 8; index += 1) {
@@ -150,7 +165,7 @@ export async function measureChessInput(page: Page, info: TestInfo) {
       observer.observe({ type: 'longtask', buffered: false });
       const start = performance.now();
       press('Enter');
-      const synchronousMs = performance.now() - start;
+      const synchronousMs = reached - start;
       await frames();
       const inputThroughTwoFramesMs = performance.now() - start;
       longTasks.push(...observer.takeRecords().map((entry) => entry.duration));
@@ -167,6 +182,7 @@ export async function measureChessInput(page: Page, info: TestInfo) {
     // Leave e2 selected for the journey that follows, as a single sample did.
     press('Enter');
     await frames();
+    document.removeEventListener('keydown', atDocument);
     const sorted = samples
       .map((sample) => sample.inputThroughTwoFramesMs)
       .sort((a, b) => a - b);
@@ -188,7 +204,7 @@ export async function measureChessInput(page: Page, info: TestInfo) {
         ...measurements,
         cpuThrottle: 4,
         limits:
-          'Synthetic keyboard event through two animation frames; desktop CPU emulation, not a physical mobile device or field INP. Eight selection samples per viewport/theme (first cold), each cancelled with Escape; two-frame time includes frame alignment.',
+          'Synthetic keyboard event through two animation frames; desktop CPU emulation, not a physical mobile device or field INP. Eight selection samples per viewport/theme (first cold), each cancelled with Escape; two-frame time includes frame alignment. Storybook overhead excluded: the highlight addon is disabled before navigation, and keydown stops at the document bubble phase so the preview does not forward it to the manager; synchronous time ends at that document listener.',
       },
       null,
       2

@@ -75,19 +75,28 @@ export async function measureChessFrame(
       new Promise<void>((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
       );
+    // Stop at the document: the preview's window keydown forwarding to the
+    // Storybook manager is not the app (see openChessStory for the addon).
+    let reached = 0;
+    const atDocument = (event: KeyboardEvent) => {
+      reached = performance.now();
+      event.stopPropagation();
+    };
+    document.addEventListener('keydown', atDocument);
     source.focus();
     const samples: { synchronousMs: number; twoFramesMs: number }[] = [];
     let selected = true;
     for (let index = 0; index < 8; index += 1) {
       const start = performance.now();
       press('Enter');
-      const synchronousMs = performance.now() - start;
+      const synchronousMs = reached - start;
       await frames();
       samples.push({ synchronousMs, twoFramesMs: performance.now() - start });
       selected &&= source.getAttribute('aria-pressed') === 'true';
       press('Escape');
       await frames();
     }
+    document.removeEventListener('keydown', atDocument);
     return { samples, selected };
   });
   expect(selection.selected).toBe(true);
@@ -141,7 +150,7 @@ export async function measureChessFrame(
         drag,
         resize,
         limits:
-          'Full game screen in Storybook, desktop Chromium with 4x CPU emulation. Selection is synthetic keyboard events; drag is a Playwright mouse drag returning to its square; resize shrinks the viewport by 200px. Not field INP or a physical device.',
+          'Full game screen in Storybook, desktop Chromium with 4x CPU emulation. Selection is synthetic keyboard events; drag is a Playwright mouse drag returning to its square; resize shrinks the viewport by 200px. Storybook overhead excluded: the highlight addon is disabled before navigation, and keydown stops at the document bubble phase so the preview does not forward it to the manager. Not field INP or a physical device.',
       },
       null,
       2
