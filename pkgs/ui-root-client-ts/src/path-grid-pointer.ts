@@ -45,6 +45,7 @@ export function createPathGridPointer(
 ) {
   let active: number | null = null;
   let previous: Point | null = null;
+  let traced = false;
   const point = (event: PointerEvent): Point | null => {
     const box = element()?.getBoundingClientRect();
     if (box === undefined || box.width <= 0 || box.height <= 0) return null;
@@ -66,9 +67,12 @@ export function createPathGridPointer(
     if (active !== event.pointerId || props.disabled === true) return;
     event.preventDefault();
     const next = point(event);
-    if (next === null || previous === null) return;
-    for (const cell of pathGridSegment(previous, next, props))
+    if (next === null) return cancel();
+    if (previous === null) return;
+    for (const cell of pathGridSegment(previous, next, props)) {
+      traced = true;
       props.onTraceMove?.(cell);
+    }
     previous = next;
   };
   return {
@@ -87,15 +91,20 @@ export function createPathGridPointer(
       event.preventDefault();
       active = event.pointerId;
       previous = start;
+      traced = false;
       element()?.setPointerCapture(event.pointerId);
-      props.onTraceStart(
-        Math.floor(start.y) * props.columns + Math.floor(start.x)
-      );
+      const index = Math.floor(start.y) * props.columns + Math.floor(start.x);
+      element()
+        ?.querySelector<HTMLButtonElement>(`[data-cell="${index}"]`)
+        ?.focus({ preventScroll: true });
+      props.onTraceStart(index);
     },
     move,
     up(event: PointerEvent): void {
       if (active !== event.pointerId) return;
       move(event);
+      if (active === null) return;
+      if (!traced) return cancel();
       const pointer = active;
       active = null;
       previous = null;

@@ -14,6 +14,7 @@ import { createMemo, type JSX } from 'solid-js';
 type NumberlinkBoardProps = Pick<
   PathGridBoardProps,
   | 'disabled'
+  | 'selectedCell'
   | 'onActivate'
   | 'onNavigate'
   | 'onCellKey'
@@ -87,6 +88,7 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
       lines={lines()}
       cellLabel={label}
       disabled={props.disabled}
+      selectedCell={props.selectedCell}
       onActivate={props.onActivate}
       onNavigate={props.onNavigate}
       onCellKey={props.onCellKey}

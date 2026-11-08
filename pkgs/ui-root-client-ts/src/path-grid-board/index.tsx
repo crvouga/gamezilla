@@ -7,6 +7,7 @@ import {
   type JSX,
   onCleanup,
   Show,
+  untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createPathGridPointer } from '../path-grid-pointer';
@@ -36,6 +37,10 @@ function PathCell(props: {
       data-testid={`${props.board.testId}-cell-${props.index}`}
       data-tone={props.endpoint?.tone}
       data-connected={props.endpoint?.connected === true}
+      data-selected={props.index === props.board.selectedCell}
+      aria-current={
+        props.index === props.board.selectedCell ? 'true' : undefined
+      }
       aria-label={props.board.cellLabel(props.index)}
       aria-disabled={props.board.disabled === true}
       tabIndex={props.focusable ? 0 : -1}
@@ -108,7 +113,7 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     void props.rows;
     void props.disabled;
     pointer.cancel();
-    if (focus() >= props.columns * props.rows) setFocus(0);
+    if (untrack(focus) >= props.columns * props.rows) setFocus(0);
   });
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {

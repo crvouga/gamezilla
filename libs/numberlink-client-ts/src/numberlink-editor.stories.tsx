@@ -49,6 +49,23 @@ export const FiveByFive: Story = {
   args: { definition: JSON.stringify(FIVE_BY_FIVE) },
 };
 
+/** The selected endpoint stays identifiable independently of focus and pair color. */
+export const SelectedSecondEndpoint: Story = {
+  ...FiveByFive,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('radio', { name: 'Second endpoint' })
+    );
+    await expect(
+      canvas.getByTestId('numberlink-board-cell-13')
+    ).toHaveAttribute('aria-current', 'true');
+    await expect(
+      canvas.getByTestId('numberlink-placement-target')
+    ).toHaveTextContent('D3');
+  },
+};
+
 /** No pairs yet: only the board size, coverage and Add pair. */
 export const NoPairs: Story = {
   args: { definition: JSON.stringify({ ...FIVE_BY_FIVE, pairs: [] }) },

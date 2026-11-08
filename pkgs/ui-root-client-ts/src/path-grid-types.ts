@@ -28,6 +28,8 @@ export type PathGridBoardProps = {
   readonly endpoints: readonly PathGridEndpoint[];
   readonly lines: readonly PathGridLine[];
   readonly cellLabel: (index: number) => string;
+  /** The endpoint chosen for editing; marked independently of pair color and focus. */
+  readonly selectedCell?: number | undefined;
   readonly disabled?: boolean | undefined;
   readonly describedBy?: string | undefined;
   readonly onActivate?: ((index: number) => void) | undefined;

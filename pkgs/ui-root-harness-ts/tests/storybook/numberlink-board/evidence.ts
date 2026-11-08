@@ -24,7 +24,9 @@ export async function accessibility(page: Page, info: TestInfo) {
   await page.addScriptTag({ content: axe.source });
   const results = await page.evaluate(async () => {
     const scanner = (window as unknown as { axe: typeof axe }).axe;
-    return scanner.run(document.querySelector('#storybook-root')!);
+    const root = document.querySelector<HTMLElement>('#storybook-root');
+    if (!root) throw new Error('Storybook canvas is missing');
+    return scanner.run(root);
   });
   await info.attach('accessibility', {
     body: JSON.stringify(results.violations, null, 2),
@@ -45,7 +47,9 @@ export async function center(page: Page, index: number) {
 }
 
 export async function mousePath(page: Page, cells: readonly number[]) {
-  const start = await center(page, cells[0]!);
+  const first = cells[0];
+  if (first === undefined) throw new Error('A mouse path needs a start');
+  const start = await center(page, first);
   await page.mouse.move(start.x, start.y);
   await page.mouse.down();
   for (const cell of cells.slice(1)) {
@@ -57,7 +61,9 @@ export async function mousePath(page: Page, cells: readonly number[]) {
 
 export async function touchPath(page: Page, cells: readonly number[]) {
   const session = await page.context().newCDPSession(page);
-  const start = await center(page, cells[0]!);
+  const first = cells[0];
+  if (first === undefined) throw new Error('A touch path needs a start');
+  const start = await center(page, first);
   await session.send('Input.dispatchTouchEvent', {
     type: 'touchStart',
     touchPoints: [{ ...start, id: 1 }],

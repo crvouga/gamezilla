@@ -82,6 +82,15 @@
 .cell[aria-disabled="true"] {
   cursor: default;
 }
+.cell[data-selected="true"]::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: var(--ui-space-1);
+  border: calc(2 * var(--ui-space-hairline)) dashed var(--ui-color-text);
+  border-radius: var(--ui-radius-control);
+  pointer-events: none;
+}
 .cell:focus-visible {
   outline: calc(2 * var(--ui-space-hairline)) solid var(--ui-color-focus-ring);
   outline-offset: calc(-1 * calc(2 * var(--ui-space-hairline)));
