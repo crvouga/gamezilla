@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink's keyboard focus outline painted below endpoints and in a hue close to filled endpoints, so focus disappeared on a connected endpoint of a dense board. Focus now paints above endpoints with a thicker ring and a dark inner edge.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-board-presentation.test.tsx"
+}

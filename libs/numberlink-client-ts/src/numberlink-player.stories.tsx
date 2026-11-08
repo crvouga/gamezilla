@@ -315,7 +315,7 @@ export const DrawingHelp: Story = {
     );
     await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
     await expect(
-      canvas.getByText(/Start again at a number to redraw/)
+      canvas.getByText(/Start again at an endpoint to redraw/)
     ).toBeVisible();
   },
 };

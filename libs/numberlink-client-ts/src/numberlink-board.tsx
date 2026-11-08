@@ -24,6 +24,8 @@ type NumberlinkBoardProps = Pick<
 > & {
   readonly definition: NumberlinkDefinition;
   readonly state: NumberlinkState;
+  /** The pair whose path is being drawn and not yet saved. */
+  readonly drawingPair?: string | undefined;
 };
 
 function pairColor(definition: NumberlinkDefinition, id: string) {
@@ -65,6 +67,7 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
       id: path.pairId,
       tone: pairColor(props.definition, path.pairId),
       connected: connected().has(path.pairId),
+      provisional: path.pairId === props.drawingPair,
       cells: path.cells.map((cell) => cell.y * props.definition.width + cell.x),
     }))
   );

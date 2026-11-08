@@ -33,12 +33,24 @@ function cellGeometry(page: Page) {
       const range = document.createRange();
       if (label) range.selectNodeContents(label);
       const text = label ? range.getBoundingClientRect() : null;
+      // Inside the endpoint's own border, not merely inside the cell.
+      const ring = label?.getBoundingClientRect();
+      const border = label
+        ? Number.parseFloat(getComputedStyle(label).borderLeftWidth)
+        : 0;
       return {
         name: cell.getAttribute('aria-label'),
         width: box.width,
         height: box.height,
         labelFits:
-          text === null || (text.left >= box.left && text.right <= box.right),
+          text === null ||
+          ring === undefined ||
+          (text.left >= ring.left + border &&
+            text.right <= ring.right - border &&
+            text.top >= ring.top + border &&
+            text.bottom <= ring.bottom - border &&
+            ring.left >= box.left &&
+            ring.right <= box.right),
       };
     });
   });

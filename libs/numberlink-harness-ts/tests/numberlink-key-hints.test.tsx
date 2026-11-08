@@ -40,7 +40,7 @@ test('wide, the keyboard hint is key caps beside short labels, not a paragraph',
     expect(keys).toEqual(['Enter', 'Arrows', 'Esc', 'Del']);
     expect(
       view.getByText(
-        'Drag from a number to its match, or use Enter and arrow keys.'
+        'Drag from an endpoint to its match, or use Enter and arrow keys.'
       )
     ).toBeDefined();
     expect(hint.textContent).not.toContain('press Enter again');
@@ -59,7 +59,7 @@ test('phone and wide layouts use the same compact drawing instruction', () => {
     expect(view.queryByTestId('numberlink-key-hints')).toBeNull();
     expect(
       view.getByText(
-        'Drag from a number to its match, or use Enter and arrow keys.'
+        'Drag from an endpoint to its match, or use Enter and arrow keys.'
       )
     ).toBeDefined();
     // regression: numberlink-secondary-help-overwhelms-first-use
