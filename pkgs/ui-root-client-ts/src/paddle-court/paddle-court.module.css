@@ -106,9 +106,15 @@
 .paddle[data-color="player4"] {
   fill: var(--ui-color-player4);
 }
-/* The person's own paddle: ringed in the court's ink as well. */
-.paddle[data-controlled="true"] {
+/* Every paddle needs a readable edge, including an opponent or spectator's
+   blue paddle in the light theme. Keep its boundary visible after resizing. */
+.paddle {
   stroke: var(--ui-color-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+/* The person's own paddle retains the stronger boundary. */
+.paddle[data-controlled="true"] {
   stroke-width: 3;
 }
 /* The court under its scoreboard. */

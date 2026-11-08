@@ -166,9 +166,7 @@ function CourtHint(props: {
                 <Show
                   when={shared()}
                   fallback={
-                    <Trans>
-                      Drag up and down along your edge of the court.
-                    </Trans>
+                    <Trans>Drag up and down anywhere on the court.</Trans>
                   }
                 >
                   <Trans>
@@ -178,6 +176,7 @@ function CourtHint(props: {
                 </Show>
               }
             >
+              <Trans>Click or Tab to the court.</Trans>{' '}
               <Switch
                 fallback={<Trans>The arrow keys move your paddle.</Trans>}
               >
@@ -187,7 +186,8 @@ function CourtHint(props: {
                 <Match when={props.board.simulation?.sides[0] === 'white'}>
                   <Trans>W and S or the arrow keys move your paddle.</Trans>
                 </Match>
-              </Switch>
+              </Switch>{' '}
+              <Trans>You can also drag up and down.</Trans>
             </Show>
           </Show>
         </Show>

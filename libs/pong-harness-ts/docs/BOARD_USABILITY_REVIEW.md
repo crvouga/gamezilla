@@ -24,3 +24,15 @@ Existing screen stories use `screens-games-pong-court--*`; their deterministic m
 Every round uses two fresh independent Codex reviewers, `reviewer-a` and `reviewer-b`, with identical immutable revision, evidence and rubric. Reviewers inspect actual captures, interaction traces, automated results and relevant code without seeing each other's scores. Each scores functional visual clarity, UX/playability and measured responsiveness separately. Missing evidence makes a round incomplete. Completion requires both reviewers to award 10/10 in all three dimensions on the same revision, with all checks passing including `bun verify`.
 
 Per-revision evidence, hashes, fixed rubric and raw reviews are retained in the ignored `.ui-ux-overhaul/` workspace and published as immutable PR comments with accessible screenshot and video attachments. Every improvement comment identifies before/after commits, comparable interactions, deductions, task and accessibility results, measured performance limits, and next fixes. Failed or incomplete rounds are retained.
+
+## Readiness evidence
+
+| Player need | Current coverage | Remaining evidence |
+| --- | --- | --- |
+| Resume control after interruption | `pkgs/ui-root-harness-ts/tests/pong-input-interruption.test.tsx` pins held W across disconnect and held ArrowUp across browser blur, with a property over prior key combinations | Hosted pointer, touch, visibility and live-network recovery |
+| Discover keyboard and mouse input | `libs/pong-client-ts/tests/pong-board-layout.test.tsx` checks the focus step, keys and dragging guidance | Fresh narrow/short viewport geometry and keyboard video |
+| See the opponent's paddle | `pkgs/ui-root-harness-ts/tests/storybook/pong-contrast/integration.checks.ts` measures rendered spectator paddle boundaries in both themes | Hosted contrast result and fresh screenshots |
+| Keep paddle rendering stable | `pkgs/ui-root-harness-ts/tests/pong-paddle-render.test.tsx` verifies the same two SVG elements retain identity through 120 new position objects while their geometry updates | Browser node-churn samples and frame/input measurements |
+| Assess responsiveness | `pkgs/ui-root-harness-ts/tests/storybook/pong-overhaul/integration.checks.ts` records video, frame intervals, long tasks and input-to-two-animation-frames samples at normal and 4× CPU throttle | Hosted results; physical device, display and network latency are not established by this proxy |
+
+The central readiness matrix is coordinated by the board-overhaul owner to avoid concurrent edits. This game-owned evidence supplements that row; it does not replace the complete verification gate or certify the unmeasured cases above.

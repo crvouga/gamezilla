@@ -1,11 +1,12 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { For, Index, type JSX, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
   type CourtSide,
   paddleCourtInput,
 } from '../paddle-court-input';
+import { useCourtInputLifecycle } from './input-lifecycle';
 import styles from './paddle-court.module.css';
 
 export type { CourtSide } from '../paddle-court-input';
@@ -218,6 +219,7 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
+  useCourtInputLifecycle(props, input.release);
   return (
     <div class={styles['frame']}>
       <Scoreboard {...props} />
@@ -232,7 +234,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
           onKeyDown={input.keyDown}
           onKeyUp={input.keyUp}
-          onBlur={input.release}
+          onBlur={() => input.release()}
           onPointerDown={input.pointerDown}
           onPointerMove={input.pointerMove}
           onPointerUp={input.pointerUp}
@@ -256,21 +258,21 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
               cy={props.height / 2}
               r={props.height * 0.14}
             />
-            <For each={props.paddles}>
+            <Index each={props.paddles}>
               {(paddle) => (
                 <rect
                   class={styles['paddle']}
-                  data-side={paddle.side}
-                  data-color={paddle.color}
-                  data-testid={`${props.testId}-${paddle.side}-paddle`}
-                  data-controlled={props.controlled.includes(paddle.side)}
-                  x={paddle.x - (paddle.width * PADDLE_DRAWN_SCALE) / 2}
-                  y={paddle.y - paddle.height / 2}
-                  width={paddle.width * PADDLE_DRAWN_SCALE}
-                  height={paddle.height}
+                  data-side={paddle().side}
+                  data-color={paddle().color}
+                  data-testid={`${props.testId}-${paddle().side}-paddle`}
+                  data-controlled={props.controlled.includes(paddle().side)}
+                  x={paddle().x - (paddle().width * PADDLE_DRAWN_SCALE) / 2}
+                  y={paddle().y - paddle().height / 2}
+                  width={paddle().width * PADDLE_DRAWN_SCALE}
+                  height={paddle().height}
                 />
               )}
-            </For>
+            </Index>
             <circle
               class={styles['ball']}
               data-testid={`${props.testId}-ball`}
