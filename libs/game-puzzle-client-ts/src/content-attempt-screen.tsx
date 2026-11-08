@@ -17,6 +17,7 @@ import {
 import { type ContentGame, useContentGame } from './content-game-context';
 import { ContentKeptPositions } from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
+import { puzzlePlayContext } from './puzzle-play-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
 import { useDeniedView } from './use-denied-view';
 
@@ -125,6 +126,7 @@ function AttemptBody(props: {
               onAction={(action: string) =>
                 writer.execute({ kind: 'play', action })
               }
+              context={puzzlePlayContext(props.attempt)}
             />
           )}
         </Show>
