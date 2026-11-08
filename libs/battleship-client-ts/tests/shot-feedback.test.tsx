@@ -38,7 +38,9 @@ test('J10 submission shows a busy action until the existing refusal reset permit
   expect(actions).toEqual(['j10']);
   reset(1);
   expect(byTestId('feedback-fire').hasAttribute('aria-busy')).toBe(false);
-  expect(byTestId('feedback-fire').textContent).toContain('Choose a target');
+  expect(byTestId('feedback-fire').textContent).toContain(
+    'Choose a cell in F9–J10'
+  );
   fireEvent.click(byTestId('feedback-aim-j10'));
   fireEvent.click(byTestId('feedback-fire'));
   expect(actions).toEqual(['j10', 'j10']);

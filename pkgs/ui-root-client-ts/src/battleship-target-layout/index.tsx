@@ -5,7 +5,6 @@ import styles from './battleship-target-layout.module.css';
 /** Visible spatial regions over a square ocean; only the enlarged cells commit input. */
 export function BattleshipRegionOverview(props: {
   overview: JSX.Element;
-  heading?: string;
   region: number;
   regions: readonly string[];
   /** Public outcomes in each region, available without opening its detail grid. */
@@ -25,9 +24,6 @@ export function BattleshipRegionOverview(props: {
       class={styles['navigator']}
       {...dataAttrs({ component: 'BattleshipRegionOverview' })}
     >
-      <Show when={props.heading}>
-        {(heading) => <span class="text textCaption">{heading()}</span>}
-      </Show>
       <div class={styles['map']}>
         <div class={styles['overview']} inert>
           {props.overview}
@@ -66,8 +62,13 @@ export function BattleshipRegionOverview(props: {
   );
 }
 
-/** Square spatial context stays beside the working area when its column has room. */
+/**
+ * Square spatial context stays beside the working area when its column has
+ * room. The optional header spans the whole layout directly above the map:
+ * its instruction first, then anything that reads the map (its key).
+ */
 export function BattleshipTargetLayout(props: {
+  header?: JSX.Element;
   overview: JSX.Element;
   working: JSX.Element;
   controls: JSX.Element;
@@ -77,6 +78,9 @@ export function BattleshipTargetLayout(props: {
       class={styles['layout']}
       {...dataAttrs({ component: 'BattleshipTargetLayout' })}
     >
+      <Show when={props.header}>
+        <div class={styles['header']}>{props.header}</div>
+      </Show>
       {props.overview}
       <div class={styles['workspace']}>
         <div class={styles['working']}>{props.working}</div>

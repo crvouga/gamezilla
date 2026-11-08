@@ -43,19 +43,23 @@ function BoardPanel(props: {
   testId: string;
   view: BoardView;
   cells: readonly CellGridCell[];
+  legend: JSX.Element;
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
-    <CellGridBoard
-      fill
-      label={props.label}
-      testId={`${props.testId}-${props.view}-grid`}
-      cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
-      columnLabels={COLUMN_LABELS}
-      rowLabels={ROW_LABELS}
-      cells={props.cells}
-      onActivate={props.onFire}
-    />
+    <StackVertical gap="xs" align="center" width="full">
+      {props.legend}
+      <CellGridBoard
+        fill
+        label={props.label}
+        testId={`${props.testId}-${props.view}-grid`}
+        cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
+        columnLabels={COLUMN_LABELS}
+        rowLabels={ROW_LABELS}
+        cells={props.cells}
+        onActivate={props.onFire}
+      />
+    </StackVertical>
   );
 }
 /**
@@ -159,9 +163,11 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             : cell
         )}
         onAim={setSelected}
-        confirmation={
+        ships={viewer() !== null}
+        confirmation={(region) => (
           <Show when={interactive() && view() === 'target'}>
             <ShotConfirmation
+              region={region()}
               selected={selected()}
               pending={aim.aiming() !== null}
               testId={props.testId}
@@ -171,18 +177,14 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
               }}
             />
           </Show>
-        }
-      />
-      <CellGridLegend
-        label={t`Key`}
-        items={marks(viewer() !== null)}
-        testId={`${props.testId}-key`}
+        )}
       />
     </StackVertical>
   );
 }
 
 function ShotConfirmation(props: {
+  region: string;
   selected: string | null;
   pending: boolean;
   testId: string;
@@ -216,7 +218,7 @@ function ShotConfirmation(props: {
         dataSet={{ testid: `${props.testId}-fire` }}
         title={
           props.selected === null
-            ? t`Choose a target`
+            ? t`Choose a cell in ${props.region}`
             : t`Fire at ${props.selected.toUpperCase()}`
         }
       />
@@ -232,7 +234,9 @@ function BattlePanels(props: {
   own: readonly CellGridCell[];
   target: readonly CellGridCell[];
   onAim: (cell: string) => void;
-  confirmation: JSX.Element;
+  /** The viewer's own fleet is drawn, so its key names a ship. */
+  ships: boolean;
+  confirmation: (region: () => string) => JSX.Element;
 }): JSX.Element {
   return (
     <PairedPanels
@@ -250,6 +254,13 @@ function BattlePanels(props: {
           testId={props.testId}
           view="own"
           cells={props.own}
+          legend={
+            <CellGridLegend
+              label={t`Key`}
+              items={marks(props.ships)}
+              testId={`${props.testId}-own-key`}
+            />
+          }
         />
       }
       second={
@@ -258,6 +269,13 @@ function BattlePanels(props: {
           testId={props.testId}
           cells={props.target}
           onAim={props.onAim}
+          legend={
+            <CellGridLegend
+              label={t`Key`}
+              items={marks(false)}
+              testId={`${props.testId}-target-key`}
+            />
+          }
           confirmation={props.confirmation}
         />
       }

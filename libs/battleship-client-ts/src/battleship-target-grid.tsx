@@ -9,7 +9,7 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, createSignal, type JSX } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
 
 function regionDescriptions(cells: readonly CellGridCell[]): readonly string[] {
@@ -32,7 +32,10 @@ export function BattleshipTargetGrid(props: {
   testId: string;
   cells: readonly CellGridCell[];
   onAim: (cell: string) => void;
-  confirmation?: JSX.Element;
+  /** The key to the marks, shown beside the region instruction. */
+  legend?: JSX.Element;
+  /** Fire and its instruction, under the cells; given the open region. */
+  confirmation?: (region: () => string) => JSX.Element;
 }): JSX.Element {
   const [area, setArea] = createSignal(0);
   const descriptions = createMemo(() => regionDescriptions(props.cells));
@@ -58,9 +61,14 @@ export function BattleshipTargetGrid(props: {
   return (
     <StackVertical gap="xs" width="full">
       <BattleshipTargetLayout
+        header={
+          <>
+            <P variant="caption">{t`Choose a region`}</P>
+            {props.legend}
+          </>
+        }
         overview={
           <BattleshipRegionOverview
-            heading={t`Choose a region`}
             region={area()}
             regions={regions}
             descriptions={descriptions()}
@@ -86,11 +94,10 @@ export function BattleshipTargetGrid(props: {
         }
         controls={
           <StackVertical gap="xs" testId={`${props.testId}-target-tools`}>
-            <P variant="label">
-              {canAim()
-                ? t`Choose a cell: ${regions[area()]}`
-                : t`Inspect cells: ${regions[area()]}`}
-            </P>
+            {/* While aiming, Fire under the cells carries the instruction. */}
+            <Show when={!canAim()}>
+              <P variant="label">{t`Inspect cells: ${regions[area()]}`}</P>
+            </Show>
           </StackVertical>
         }
         working={
@@ -107,7 +114,7 @@ export function BattleshipTargetGrid(props: {
           </StackVertical>
         }
       />
-      {props.confirmation}
+      {props.confirmation?.(() => regions[area()] ?? '')}
     </StackVertical>
   );
 }

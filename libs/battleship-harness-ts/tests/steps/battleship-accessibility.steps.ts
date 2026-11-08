@@ -79,11 +79,7 @@ Then(
   async (w, actor: string, cell: string, result: string) => {
     const found = FOUND[result as keyof typeof FOUND];
     expect(found).toBeDefined();
-    await hears(
-      w,
-      actor,
-      new RegExp(`You fired at ${escaped(cell)} and ${found}\\.`)
-    );
+    await hears(w, actor, new RegExp(`You ${found} at ${escaped(cell)}\\.`));
   }
 );
 Then(
@@ -97,7 +93,11 @@ Then(
   "{actor} hears {actor}'s shot at {word} on her own board",
   async (w, actor: string, shooter: string, cell: string) => {
     const name = SIDE_NAMES[await sideOf(w, shooter)];
-    await hears(w, actor, new RegExp(`${name} fired at ${escaped(cell)} and`));
+    await hears(
+      w,
+      actor,
+      new RegExp(`${name} (missed|hit|sank the \\S+) at ${escaped(cell)}\\.`)
+    );
   }
 );
 Then(
@@ -106,7 +106,7 @@ Then(
     await hears(
       w,
       actor,
-      new RegExp(`You fired at \\S+ and sank the ${shipNamed(ship)}\\.`, 'i')
+      new RegExp(`You sank the ${shipNamed(ship)} at \\S+\\.`, 'i')
     );
   }
 );

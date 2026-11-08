@@ -7,6 +7,15 @@
   gap: var(--ui-space-1);
   width: 100%;
 }
+.header {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-1) var(--ui-space-3);
+  min-width: 0;
+}
 .navigator {
   flex: 0 0 15.5rem;
   width: 15.5rem;

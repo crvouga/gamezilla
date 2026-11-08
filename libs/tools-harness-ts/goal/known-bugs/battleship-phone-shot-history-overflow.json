@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844, once shots existed the move record joined the frame and the round-2 instruction rows and separate key pushed the player's own seat to 892px, below the screen. The key now shares the region instruction's row, the cell instruction is the Fire control under the cells, and shot lines are shorter so a miss or hit fits one status line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}

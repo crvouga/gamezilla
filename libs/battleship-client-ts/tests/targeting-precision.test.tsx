@@ -96,7 +96,9 @@ test('a refreshed game record preserves the selected target when its position is
   fireEvent.click(byTestId('refresh-fire'));
   expect(actions).toEqual(['f10']);
   setRecord({ position, syncKey: 1 });
-  expect(byTestId('refresh-fire').textContent).toContain('Choose a target');
+  expect(byTestId('refresh-fire').textContent).toContain(
+    'Choose a cell in F9–J10'
+  );
 });
 
 test('large targeting areas partition all 100 cells and allow correction and cancellation', () => {
