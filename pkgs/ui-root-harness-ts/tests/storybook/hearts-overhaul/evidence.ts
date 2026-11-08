@@ -4,14 +4,22 @@ import axe from 'axe-core';
 import { attachHeartsText } from './attachments';
 import { diagnoseContrast } from './contrast-diagnostic';
 
-export async function openHearts(page: Page, story: string, theme: string) {
+/** Evidence runs with real motion: the story follows the browser, and the
+ * browser asks for normal motion unless a check says otherwise. */
+export async function openHearts(
+  page: Page,
+  story: string,
+  theme: string,
+  reducedMotion: 'no-preference' | 'reduce' = 'no-preference'
+) {
+  await page.emulateMedia({ reducedMotion });
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-status',
@@ -26,7 +34,8 @@ export async function openHearts(page: Page, story: string, theme: string) {
 
 export async function captureHearts(page: Page, info: TestInfo, name: string) {
   const path = info.outputPath(`${name}.png`);
-  await page.screenshot({ path, fullPage: true });
+  // Stills finish any motion first; videos keep it.
+  await page.screenshot({ path, fullPage: true, animations: 'disabled' });
   await info.attach(name, {
     path,
     contentType: 'image/png',
