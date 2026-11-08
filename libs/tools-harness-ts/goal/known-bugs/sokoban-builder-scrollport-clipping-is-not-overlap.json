@@ -1,0 +1,4 @@
+{
+  "summary": "The builder overlap probe tested controls clipped above their scrollport against the window, falsely reporting Undo, Redo and Preview at 1200 by 884. It now distinguishes scrollport clipping, preserves detection of covered controls inside it, and scrolls every control into view to prove hit-test reachability.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-builder-scrollport.test.ts"
+}
