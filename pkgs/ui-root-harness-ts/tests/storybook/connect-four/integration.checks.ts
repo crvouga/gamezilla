@@ -1,12 +1,24 @@
 // @io-wall-ok — automated review captures and browser performance observations.
 import { expect, test } from '@playwright/test';
-import { captureBoard, measureDrop, openBoard } from './capture';
+import {
+  captureBoard,
+  measureDrop,
+  openBoard,
+  touchSpectatorColumn,
+} from './capture';
+import { captureMixedInput } from './mixed-input';
 import { finishTiming, startTiming } from './timing';
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
 
 for (const width of [320, 390, 768, 1440]) {
   for (const theme of ['light', 'dark']) {
+    test(`storybook integration: connect-four mixed input ${width} ${theme}`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize({ width, height: width < 768 ? 844 : 1024 });
+      await captureMixedInput(page, info, theme);
+    });
     test(`storybook integration: connect-four review ${width} ${theme}`, async ({
       page,
     }, info) => {
@@ -67,7 +79,7 @@ for (const width of [320, 390, 768, 1440]) {
       await openBoard(page, 'watching', theme);
       const board = page.getByTestId('custom-game-board');
       const cells = await board.getAttribute('data-cells');
-      await page.getByTestId('custom-game-board-column-4').tap();
+      await touchSpectatorColumn(page);
       await expect(board).toHaveAttribute('data-cells', cells ?? '');
       await captureBoard(page, info, 'spectator');
       await openBoard(page, 'full-board-draw', theme);
@@ -76,6 +88,17 @@ for (const width of [320, 390, 768, 1440]) {
     });
   }
 }
+
+// regression: connect-four-evidence-waits-for-spectator-enable
+test('storybook integration: connect-four spectator native touch remains inert', async ({
+  page,
+}) => {
+  await openBoard(page, 'watching', 'light');
+  const board = page.getByTestId('custom-game-board');
+  const before = await board.getAttribute('data-cells');
+  await touchSpectatorColumn(page);
+  await expect(board).toHaveAttribute('data-cells', before ?? '');
+});
 
 for (const state of ['opening', 'waiting-for-opponent', 'lost']) {
   for (const width of [320, 390, 768, 1440]) {
