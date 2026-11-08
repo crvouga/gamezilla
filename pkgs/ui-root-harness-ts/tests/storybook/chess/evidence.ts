@@ -24,15 +24,56 @@ export async function openChessStory(
   await page.goto(
     `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
-  await expect(page.locator('#storybook-root')).toHaveAttribute(
-    'data-story-ready',
-    'true'
-  );
-  await expect(page.locator('#storybook-root')).not.toHaveAttribute(
-    'data-story-status',
-    'error'
-  );
+  try {
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await expect(page.locator('#storybook-root')).not.toHaveAttribute(
+      'data-story-status',
+      'error'
+    );
+  } catch (error) {
+    // Retained artifacts are not always reachable: the failure message
+    // carries the board's layout chain into the hosted test log.
+    throw new Error(
+      `chess-geometry ${id} ${JSON.stringify(await boardGeometry(page))}`,
+      { cause: error }
+    );
+  }
   await page.evaluate(() => document.fonts.ready);
+}
+
+/** The first square and each ancestor's box, padding and overflow. */
+async function boardGeometry(page: Page) {
+  return page.evaluate(() => {
+    const root = document.querySelector('#storybook-root');
+    const square = document.querySelector<HTMLElement>('button[data-square]');
+    const chain = [];
+    for (
+      let node: HTMLElement | null = square;
+      node && chain.length < 24;
+      node = node.parentElement
+    ) {
+      const box = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      chain.push({
+        tag: node.tagName.toLowerCase(),
+        component: node.dataset['component'] ?? null,
+        className: node.className.slice(0, 60),
+        box: [box.left, box.top, box.width, box.height].map(Math.round),
+        padding: style.padding,
+        border: style.borderWidth,
+        overflow: `${style.overflowX}/${style.overflowY}`,
+        scroll: [node.scrollWidth, node.scrollHeight, node.clientWidth],
+      });
+    }
+    return {
+      viewport: [innerWidth, innerHeight],
+      error: root?.getAttribute('data-story-error') ?? null,
+      chain,
+    };
+  });
 }
 
 export async function captureChessState(
