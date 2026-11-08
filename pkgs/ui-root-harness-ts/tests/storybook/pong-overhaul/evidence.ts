@@ -1,6 +1,7 @@
 // @io-wall-ok — browser evidence adapter; all navigation stays on the test server.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
+import { contrastDiagnostic } from './contrast-diagnostic';
 
 export async function openPong(page: Page, state: string, theme: string) {
   const errors: string[] = [];
@@ -31,13 +32,37 @@ export async function recordPong(page: Page, info: TestInfo, name: string) {
     const result = await (window as unknown as { axe: typeof axe }).axe.run(
       '#storybook-root'
     );
-    return result.violations;
+    return {
+      violations: result.violations,
+      incomplete: result.incomplete,
+      passes: result.passes,
+      inapplicable: result.inapplicable,
+      testEnvironment: result.testEnvironment,
+    };
   });
   await info.attach(`${name}-accessibility`, {
     body: JSON.stringify(audit, null, 2),
     contentType: 'application/json',
   });
+  const unresolved = audit.incomplete.filter(
+    (rule) => rule.id === 'color-contrast'
+  );
+  if (unresolved.length > 0) {
+    const selectors = unresolved.flatMap((rule) =>
+      rule.nodes.flatMap((node) =>
+        node.target.filter(
+          (target): target is string => typeof target === 'string'
+        )
+      )
+    );
+    await info.attach(`${name}-incomplete-contrast-context`, {
+      body: JSON.stringify(await contrastDiagnostic(page, selectors), null, 2),
+      contentType: 'application/json',
+    });
+  }
   expect(
-    audit.filter((v) => v.impact === 'serious' || v.impact === 'critical')
+    audit.violations.filter(
+      (v) => v.impact === 'serious' || v.impact === 'critical'
+    )
   ).toEqual([]);
 }
