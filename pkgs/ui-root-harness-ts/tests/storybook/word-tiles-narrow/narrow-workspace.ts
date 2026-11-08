@@ -62,7 +62,13 @@ async function rackTargets(
   const rack = page.getByTestId('custom-game-board-rack');
   await reachable(rack);
   const tiles = rack.getByRole('button');
-  await expect(tiles).toHaveCount(count);
+  await expect(tiles).toHaveCount(7);
+  await expect(rack.locator('button[data-placed="false"]')).toHaveCount(count);
+  await expect(rack.locator('button[data-placed="true"]')).toHaveCount(
+    7 - count
+  );
+  await expect(rack.locator('button[aria-disabled="false"]')).toHaveCount(count);
+  await expect(rack.locator('button[data-placed="true"][aria-disabled="true"]')).toHaveCount(7 - count);
   const boxes = [];
   for (const tile of await tiles.all()) {
     const box = await tile.boundingBox();
