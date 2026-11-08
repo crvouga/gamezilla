@@ -33,7 +33,13 @@ for (const fixture of [
 }
 
 // regression: word-tiles-320-rack-wraps-board-below-fold
-for (const players of ['two', 'three', 'four']) {
+test('storybook integration: word-tiles narrow two players opening fits without scrolling', async ({
+  page,
+}, info) => {
+  await narrowOpeningFits(page, info, { players: 'two', theme: 'light' });
+});
+
+for (const players of ['three', 'four']) {
   test(`storybook integration: word-tiles narrow ${players} players opening fits without scrolling`, async ({
     page,
   }, info) => {
