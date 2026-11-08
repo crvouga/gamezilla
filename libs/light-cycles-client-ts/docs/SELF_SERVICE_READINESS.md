@@ -14,6 +14,6 @@ This game-owned record feeds the coordinator's shared
 
 Scoped DOM, type and lint checks do not establish live transport, physical
 device latency, sustained frame performance or release readiness. Per-revision
-results, independent reviews and missing evidence are retained on
-[PR 291](https://github.com/crvouga/gamezilla/pull/291). The PR stays draft until
+results, independent reviews and missing evidence are retained on PR 291.
+The PR stays draft until
 the full automated gate and fixed independent review contract pass.
