@@ -1,4 +1,5 @@
 import { mutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-registry';
+import { appendNoteToken } from './append-note-mutation';
 import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
 import { befriend } from './friendship-mutations';
 import {
@@ -75,6 +76,7 @@ export const exampleMutationRegistry = mutationRegistry([
   setNoteWrongTopic,
   setNoteStrictExists,
   retouchNotes,
+  appendNoteToken,
 ]);
 
 export const exampleQueryRegistry = queryRegistry([

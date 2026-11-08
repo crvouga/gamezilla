@@ -21,6 +21,7 @@ import {
   createMutationSide,
 } from './client-factory-parts';
 import { decorateHarnessClient } from './decorate-harness-client';
+import type { DurableCrashPointController } from './durable-crash-points';
 import type { EdgeFaultController } from './edge-faults';
 import type { HarnessPushChannels } from './harness-domain-pack';
 import type { HarnessHttpClient } from './http-bridge';
@@ -64,6 +65,7 @@ export type BuildHarnessClientArgs = {
   readonly schemaEpoch?: number;
   readonly faults?: EdgeFaultController;
   readonly storagePressure?: import('./storage-pressure').StoragePressureController;
+  readonly durableCrashPoints?: DurableCrashPointController;
   /** Reuse an existing serial SqlClient (preserveLocalDb restart). */
   readonly existingDb?: {
     readonly raw: SqlClient;
@@ -180,6 +182,15 @@ export async function buildHarnessClient(
     }
     db = serialInner;
   }
+  // The bundle keeps the unwrapped handle: a restart reopens the storage the
+  // killed process left, never the dead process's own handle.
+  const bundleSerial = db;
+  const crashPoints = args.durableCrashPoints;
+  if (crashPoints?.tracks(args.id) === true) {
+    db = createSerialSqlClient(
+      crashPoints.wrap(args.id, rawDb, { raw: rawDb, serial: bundleSerial })
+    );
+  }
   const lifecycle = createControllableLifecycle({
     foreground: true,
     online: true,
@@ -196,7 +207,7 @@ export async function buildHarnessClient(
     actorId: args.actorId,
     deviceId: args.deviceId,
     db,
-    dbBundle: { raw: rawDb, serial: db },
+    dbBundle: { raw: rawDb, serial: bundleSerial },
     engine,
     lifecycle,
     mutationClient,

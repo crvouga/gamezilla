@@ -1,7 +1,7 @@
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client-ts/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
-import type { HarnessClient } from './client';
+import type { HarnessClient, HarnessClientDbBundle } from './client';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
 import type {
   EdgeFaultController,
@@ -61,6 +61,26 @@ export async function crashClientImpl(
     opts?.keepDb === true || otherClientsShareRawDb(k.clients, id);
   await handle.dispose({ keepDb: keepSqlite });
   k.clients.delete(id);
+}
+
+/**
+ * A process killed at a durable boundary: it leaves the run at once (no
+ * invariant or read may reach its dead handle), its storage is kept for the
+ * restart, and its in-memory engine is torn down in the background — every
+ * storage call it still makes throws.
+ */
+export function abandonKilledClient(k: BootedHarnessKernel, id: string): void {
+  const meta = k.metas.get(id);
+  const storage =
+    k.durableCrashPoints.storage<HarnessClientDbBundle>(id) ??
+    k.clients.get(id)?.dbBundle;
+  if (meta !== undefined && storage !== undefined) {
+    meta.lastDbBundle = storage;
+  }
+  const handle = k.clients.get(id);
+  if (handle === undefined) return;
+  k.clients.delete(id);
+  void handle.dispose({ keepDb: true }).catch(() => undefined);
 }
 
 export async function fireCrashIfArmed(

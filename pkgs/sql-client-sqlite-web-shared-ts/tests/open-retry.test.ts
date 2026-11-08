@@ -112,9 +112,17 @@ describe('open-retry', () => {
     expect(isLikelyOpfsLockError(new Error('syntax error'))).toBe(false);
   });
 
-  test('wipe-worthy errors detect pool / corrupt messages', () => {
+  test('wipe-worthy errors detect corrupt messages, never a full store', () => {
     expect(isSqlOwnerWipeWorthyError(new Error('cannot create file'))).toBe(
-      true
+      false
+    );
+    expect(
+      isSqlOwnerWipeWorthyError(
+        new Error('SQLITE_FULL: database or disk is full')
+      )
+    ).toBe(false);
+    expect(isSqlOwnerWipeWorthyError(new Error('SAH pool is full'))).toBe(
+      false
     );
     expect(isSqlOwnerWipeWorthyError(new Error('file is not a database'))).toBe(
       true

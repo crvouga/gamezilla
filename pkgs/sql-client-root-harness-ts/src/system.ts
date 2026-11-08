@@ -164,6 +164,19 @@ export const fillPool = defineAction({
   },
 });
 
+/** The person frees space: the junk holding every pool slot goes away. */
+export const freePool = defineAction({
+  name: 'freePool',
+  act: (s: SqlClientWebSurface) => {
+    requireStore(boardOf(s)).paths.clear();
+  },
+});
+
+/** Times any recovery erased the store. */
+export function wipeCount(s: SqlClientWebSurface): number {
+  return boardOf(s).wipes;
+}
+
 export const corruptStore = defineAction({
   name: 'corruptStore',
   act: (s: SqlClientWebSurface) => {
@@ -231,6 +244,7 @@ export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
       put,
       killTabAction,
       fillPool,
+      freePool,
       corruptStore,
       bumpEpoch,
     ],

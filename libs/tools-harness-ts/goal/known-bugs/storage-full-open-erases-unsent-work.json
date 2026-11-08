@@ -1,0 +1,4 @@
+{
+  "summary": "Opening the local database on a full store (SQLITE_FULL, a full OPFS SAH pool, or 'cannot create file') counted as a wipe-worthy error, so in-process recovery erased a readable database and every write still waiting to upload. Running out of room is now never a reason to erase: the open fails, the app runs on a disposable database, and the next open with room finds the unsent writes intact.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/full-store-keeps-unsent-work.test.ts"
+}

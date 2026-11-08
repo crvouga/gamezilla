@@ -12,6 +12,7 @@ import type { KitFaultApi } from './lifecycle';
 import { crashClientImpl, fireCrashIfArmed } from './lifecycle';
 import type { NetEffectRegistry } from './net-effect';
 import { createHarnessNet } from './net-effect';
+import { HarnessProcessDied } from './durable-crash-points';
 import { createHarnessNode } from './node';
 import { addClientImpl } from './ops-add-client';
 import { restartClientImpl, restartServerImpl } from './restart';
@@ -34,6 +35,8 @@ export async function checkClientSeqs(
       seq = await c.db.transaction((tx) => checkClientFrameworkInvariants(tx));
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
+      // Killed at a durable boundary while this check was queued behind it.
+      if (error instanceof HarnessProcessDied) continue;
       if (error instanceof Error && error.name === 'SqliteStorageFullError') {
         continue;
       }
