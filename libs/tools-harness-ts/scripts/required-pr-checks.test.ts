@@ -59,19 +59,25 @@ test('every declared check passes while the current final verdict is still execu
 // regression: retired-gitguardian-check-blocks-pr
 test('retired GitGuardian results do not gate PRs, but declaring it again enforces its result', () => {
   const skippedScan = { ...SECURITY, conclusion: 'neutral' };
+  // Every configured check passing, whatever the registry declares today.
+  const declared = PASSED.filter((check) => check.name !== SECURITY.name);
   expect(CONFIGURED.some((check) => check.integration_id === 46505)).toBe(
     false
   );
   expect(
-    requiredPrCheckFailures(CONFIGURED, [START, END, skippedScan], false)
+    requiredPrCheckFailures(CONFIGURED, [...declared, skippedScan], false)
   ).toEqual([]);
   expect(
-    requiredPrCheckFailures(REQUIRED, [START, END, skippedScan], false)
+    requiredPrCheckFailures(REQUIRED, [...declared, skippedScan], false)
   ).toEqual([
     'Required check did not pass: GitGuardian Security Checks (neutral)',
   ]);
   expect(
-    requiredPrCheckFailures(CONFIGURED, [END, skippedScan], false)
+    requiredPrCheckFailures(
+      CONFIGURED,
+      [...declared.filter((check) => check.name !== START.name), skippedScan],
+      false
+    )
   ).toContain('Missing required check: verify:start (app 15368)');
 });
 
