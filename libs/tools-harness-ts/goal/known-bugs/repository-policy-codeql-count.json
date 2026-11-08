@@ -1,0 +1,4 @@
+{
+  "summary": "Repository policy test rejected the five required checks after CodeQL registration because it still required exactly two; pin the complete producer-bound check set.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Deleted and unavailable profiles displayed a raw ID prefix as their header and told the person to return to Friends without a direct recovery link. Use readable state headings and an explicit Friends destination.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/content/integration.checks.ts"
+}

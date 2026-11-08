@@ -6,7 +6,10 @@
 import { expect } from 'bun:test';
 import { Given, Then } from '@libs/harness-ts/define';
 import { listenToHearts } from '@libs/hearts-harness-ts/hearts-actions';
-import { heartsHeard } from '@libs/hearts-harness-ts/hearts-view';
+import {
+  heartsHeard,
+  heartsTrickWinnerShown,
+} from '@libs/hearts-harness-ts/hearts-view';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   deciding,
@@ -76,7 +79,11 @@ Then(
       people(w)[0]!,
       (v) => Object.values(trick(v)).length === 4 && deciding(v) === turn
     );
-    expect(view.center).toContain(SEAT_NAMES[taker]);
+    const card = trick(view)[taker];
+    expect(card).toBeDefined();
+    expect(
+      await w.s.read(heartsTrickWinnerShown, people(w)[0]!, taker, card!)
+    ).toBe(true);
     expect(deciding(view)).toBe(turn);
     for (const side of SIDES)
       expect(score(view, side)).toBeGreaterThanOrEqual(0);
@@ -85,8 +92,15 @@ Then(
 Then(
   '{actor} hears {heartsSeat} took the trick with {heartsCard} and leads next',
   async (w, actor: string, taker: GameSide, card: string) => {
-    const heard = await hears(w, actor, [new RegExp(SEAT_NAMES[taker])]);
-    expect(heard).toMatch(new RegExp(`${SEAT_NAMES[taker]} took the trick`));
+    const view = await sees(w, actor);
+    expect(await w.s.read(heartsTrickWinnerShown, actor, taker, card)).toBe(
+      true
+    );
+    const heard = await w.s.until((s) => heartsHeard(s, actor), {
+      maxMs: 15_000,
+      pred: (spoken) => spoken.includes(view.center),
+    });
+    expect(heard).toContain(view.center);
     expect(heard).toMatch(
       new RegExp(`${RANK_NAMES[card[0]!]} of ${SUIT_NAMES[card[1]!]}`, 'i')
     );

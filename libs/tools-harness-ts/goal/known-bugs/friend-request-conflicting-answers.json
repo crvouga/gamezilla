@@ -1,0 +1,4 @@
+{
+  "summary": "Accept and Decline could submit conflicting answers while the other action was pending in request rows and the inbox modal.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-request-exclusive-answer.test.tsx"
+}

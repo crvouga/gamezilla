@@ -28,6 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 /** Ten coarse areas retain the whole field while the working grid provides comfortable aim. */
 export const Precise: Story = {
+  tags: ['viewport-responsive'],
   args: {
     overview: null,
     working: null,

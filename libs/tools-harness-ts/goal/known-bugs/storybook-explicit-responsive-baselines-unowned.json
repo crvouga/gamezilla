@@ -1,0 +1,4 @@
+{
+  "summary": "Explicit desktop browser regressions for Battleship placement/target layouts and Word Tiles workbench produced eight valid baseline images that coverage rejected as orphans because non-screen story IDs defaulted to phone only. Story-level viewport-responsive tags now declare their shared canonical phone/desktop matrix.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-scenarios.test.ts"
+}
