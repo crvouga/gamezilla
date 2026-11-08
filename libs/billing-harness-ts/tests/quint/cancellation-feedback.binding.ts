@@ -55,11 +55,16 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(openBilling, 'alice');
     },
   },
-  observe: async (w) => ({
-    canceled:
-      (await w.quiet.read(membershipShown, 'alice'))?.state === 'canceling',
-    feedback: await w.quiet.read(feedbackShown, 'alice'),
-    feedbackAtTeam: await w.quiet.read(teamFeedback, 'alice'),
-    _online: await w.quiet.read(feedbackOnline, 'alice'),
-  }),
+  observe: async (w) => {
+    const feedback = await w.quiet.read(feedbackShown, 'alice');
+    if (feedback === null)
+      throw new Error('Cancellation feedback is not visible');
+    return {
+      canceled:
+        (await w.quiet.read(membershipShown, 'alice'))?.state === 'canceling',
+      feedback,
+      feedbackAtTeam: await w.quiet.read(teamFeedback, 'alice'),
+      _online: await w.quiet.read(feedbackOnline, 'alice'),
+    };
+  },
 });

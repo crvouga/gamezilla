@@ -9,14 +9,16 @@ import {
   CANCELLATION_REASONS,
 } from './cancellation-feedback';
 
+export const cancellationFeedbackArgsSchema = z.object({
+  subscriptionId: z.string().min(1),
+  reason: z.enum(CANCELLATION_REASONS),
+  comment: z.string().max(CANCELLATION_COMMENT_LIMIT),
+});
+
 /** Own-account, idempotent feedback; it never modifies the membership. */
 export const shareCancellationFeedbackMutation = defineMutation({
   name: 'shareCancellationFeedback',
-  args: z.object({
-    subscriptionId: z.string().min(1),
-    reason: z.enum(CANCELLATION_REASONS),
-    comment: z.string().max(CANCELLATION_COMMENT_LIMIT),
-  }),
+  args: cancellationFeedbackArgsSchema,
   async run(ctx, args) {
     await requireInMutation(ctx, PERMISSION.billingManage);
     const [membership] = await ctx.tx.query(sql<{ id: string }>`

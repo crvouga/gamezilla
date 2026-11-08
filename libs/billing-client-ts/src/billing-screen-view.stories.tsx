@@ -169,7 +169,7 @@ export const Canceling: Story = {
 
 /** The optional answer is saved on this device while its connection is away. */
 export const CancellationFeedbackOffline: Story = {
-  args: Canceling.args,
+  args: { ...Canceling.args },
   render: (args) => (
     <BillingScreenView
       {...args}
@@ -185,7 +185,7 @@ export const CancellationFeedbackOffline: Story = {
 
 /** A failed save retains the answer and offers a retry after cancellation. */
 export const CancellationFeedbackFailure: Story = {
-  args: Canceling.args,
+  args: { ...Canceling.args },
   render: (args) => (
     <BillingScreenView
       {...args}

@@ -17,6 +17,7 @@ import { createEffect, createSignal, type JSX, Show, untrack } from 'solid-js';
 export type CancellationFeedbackFormProps = {
   readonly saved: CancellationFeedback | null;
   readonly online: boolean;
+  readonly delivery?: 'pending' | 'confirmed' | 'rejected' | null;
   readonly onSave: (answer: CancellationFeedback) => Promise<void>;
 };
 
@@ -46,6 +47,9 @@ export function CancellationFeedbackForm(
       error: t`Try saving again`,
     },
   });
+  createEffect(() => {
+    if (props.delivery === 'rejected') save.reset();
+  });
   return (
     <StackVertical gap="md" testId="billing-cancellation-feedback">
       <H2>
@@ -57,8 +61,15 @@ export function CancellationFeedbackForm(
           optional and will not change it.
         </Trans>
       </P>
-      <CancellationReasonSelect value={reason()} disabled={save.feedback() === 'loading'}
-        onChange={(value) => { save.reset(); setDirty(true); setReason(value); }} />
+      <CancellationReasonSelect
+        value={reason()}
+        disabled={save.feedback() === 'loading'}
+        onChange={(value) => {
+          save.reset();
+          setDirty(true);
+          setReason(value);
+        }}
+      />
       <FormField
         label={t`Comment (optional)`}
         help={t`Please leave out payment details or other sensitive information.`}
@@ -82,7 +93,7 @@ export function CancellationFeedbackForm(
         {...save.buttonProps}
         dataSet={{ testid: 'billing-feedback-save' }}
       />
-      <Show when={save.error()}>
+      <Show when={save.error() || props.delivery === 'rejected'}>
         <P role="alert">
           <Trans>
             Your feedback could not be saved. Your answer is still here. Try
@@ -90,9 +101,20 @@ export function CancellationFeedbackForm(
           </Trans>
         </P>
       </Show>
-      <Show when={props.saved !== null && !dirty()}>
+      <Show
+        when={props.saved !== null && !dirty() && props.delivery !== 'rejected'}
+      >
         <P role="status" testId="billing-feedback-saved">
-          <Trans>Feedback saved. Thank you for helping us improve.</Trans>
+          <Show
+            when={props.delivery === 'pending'}
+            fallback={
+              <Trans>Feedback saved. Thank you for helping us improve.</Trans>
+            }
+          >
+            <Trans>
+              Feedback saved on this device. Waiting to share it with the team.
+            </Trans>
+          </Show>
         </P>
       </Show>
       <Show when={!props.online}>
@@ -114,51 +136,51 @@ function CancellationReasonSelect(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-      <Select<CancellationReason>
-        label={t`Reason (optional)`}
-        disabled={props.disabled}
-        value={props.value}
-        onValueChange={props.onChange}
-        triggerDataSet={{ testid: 'billing-feedback-reason' }}
-        options={[
-          {
-            value: '',
-            label: t`Prefer not to say`,
-            dataSet: { testid: 'billing-feedback-option-none' },
+    <Select<CancellationReason>
+      label={t`Reason (optional)`}
+      disabled={props.disabled}
+      value={props.value}
+      onValueChange={props.onChange}
+      triggerDataSet={{ testid: 'billing-feedback-reason' }}
+      options={[
+        {
+          value: '',
+          label: t`Prefer not to say`,
+          dataSet: { testid: 'billing-feedback-option-none' },
+        },
+        {
+          value: 'price',
+          label: t`Too expensive`,
+          dataSet: { testid: 'billing-feedback-option-price' },
+        },
+        {
+          value: 'missing features',
+          label: t`Missing features`,
+          dataSet: { testid: 'billing-feedback-option-missing-features' },
+        },
+        {
+          value: 'difficulty using the app',
+          label: t`Difficult to use`,
+          dataSet: {
+            testid: 'billing-feedback-option-difficulty-using-the-app',
           },
-          {
-            value: 'price',
-            label: t`Too expensive`,
-            dataSet: { testid: 'billing-feedback-option-price' },
-          },
-          {
-            value: 'missing features',
-            label: t`Missing features`,
-            dataSet: { testid: 'billing-feedback-option-missing-features' },
-          },
-          {
-            value: 'difficulty using the app',
-            label: t`Difficult to use`,
-            dataSet: {
-              testid: 'billing-feedback-option-difficulty-using-the-app',
-            },
-          },
-          {
-            value: 'low usage',
-            label: t`Not using it enough`,
-            dataSet: { testid: 'billing-feedback-option-low-usage' },
-          },
-          {
-            value: 'switching products',
-            label: t`Using something else`,
-            dataSet: { testid: 'billing-feedback-option-switching-products' },
-          },
-          {
-            value: 'other',
-            label: t`Another reason`,
-            dataSet: { testid: 'billing-feedback-option-other' },
-          },
-        ]}
-      />
+        },
+        {
+          value: 'low usage',
+          label: t`Not using it enough`,
+          dataSet: { testid: 'billing-feedback-option-low-usage' },
+        },
+        {
+          value: 'switching products',
+          label: t`Using something else`,
+          dataSet: { testid: 'billing-feedback-option-switching-products' },
+        },
+        {
+          value: 'other',
+          label: t`Another reason`,
+          dataSet: { testid: 'billing-feedback-option-other' },
+        },
+      ]}
+    />
   );
 }

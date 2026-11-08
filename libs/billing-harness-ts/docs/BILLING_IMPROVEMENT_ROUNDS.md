@@ -1,0 +1,87 @@
+# Billing improvement rounds
+
+This is an implementation evidence log, not a production certification. The
+independent baseline audit is [BILLING_BASELINE_AUDIT.md](BILLING_BASELINE_AUDIT.md).
+No round has earned a 10/10 acceptance verdict.
+
+## Round 1: optional feedback and checkout identity
+
+Before: cancellation reasons stayed at the provider; the app had no optional
+reason/comment form. Two overlapping Stripe checkout requests could create two
+payable sessions. The privacy harness waited for an action that disappears after
+deletion instead of the resulting task status.
+
+After: the canceled membership offers an optional reason and comment, including
+reason-only, comment-only and offline answers. A confirmed cancellation remains
+eligible after its period ends, so a queued answer is not lost. Feedback is
+scoped to its owner and participates in export and erasure. Stripe customer and
+checkout creation use stable idempotency keys. The deletion observer reads the
+persistent task status.
+
+Evidence: cancellation feedback's 11 Gherkin scenarios passed, including the
+literal offline-period-end regression; the Quint safety replay passed. The
+Stripe overlap regressions passed for both new and existing customers. The
+independent feedback audit rated the implementation 6/10 and identified further
+reporting, rejection recovery and verification gaps.
+
+Visual state: existing pre-change cancellation references are in
+`libs/billing-client-ts/src/baselines/chromium/screens-billing/canceling-*.png`.
+The actual screen stories now include optional feedback, offline saved feedback
+and a failed save that preserves the answer. Local Storybook builds stalled;
+this Linux ARM machine has no supported pinned Chrome build. These attempts
+produced no new visual verification. Hosted screenshots remain required.
+
+## Round 2: delivery recovery and pending payments
+
+Before: feedback could say saved after a permanent server rejection; team access
+was only a helper called by tests. Reopening the app before a paid checkout's
+confirmation arrived forgot the paid-return marker and offered another checkout.
+
+After: durable mutation feedback distinguishes pending delivery and rejection.
+The rejected answer can be recovered from the device's mutation record, edited
+and saved again. An operator command reads feedback in bounded pages, excluding
+withdrawn answers. The paid-return marker remains in the address until membership
+confirmation, so reopening that screen does not offer a second checkout.
+
+Evidence: the pending-payment reopening scenario failed before the fix and all
+9 billing-plan scenarios passed afterward. Focused billing package tests and
+type checks passed; 12 focused lint/type tasks passed. The full billing suite
+passed 109 tests before the new reopening scenario was added. New contract tests
+cover ownership, raw query scope, guest denial, optional-field validation,
+comment bounds, personal-data export/erasure, reporting pagination and recovery
+copy. Full verification and hosted visual evidence remain outstanding.
+
+## Round 3: the right membership, and a payment remembered across restarts
+
+Before: after canceling, waiting out the period and subscribing again, the
+billing screen still asked why the person canceled the old membership, beside
+the new active one. A paid return was remembered only in the address and in
+memory: paying, leaving the billing screen, then reopening the app forgot the
+payment being confirmed and offered a second checkout.
+
+After: cancellation feedback follows the governing membership, the same
+precedence that decides what the person has. It is offered only while that
+membership is the canceled one. The paid return is saved on the device for the
+signed-in account, expires a day later and never applies to another account.
+Until the saved return has been read back, the screen stays in its loading
+state, so it never briefly offers Subscribe.
+
+Evidence: two new regression scenarios
+(`billing-feedback-offered-beside-new-membership`,
+`billing-checkout-reopen-elsewhere-forgets-pending-payment`) failed on the
+previous code: feedback was offered (expected false, received true), and the
+"being confirmed" notice never appeared within 30 virtual seconds. Both pass
+after the fix, as does reopening on the billing screen itself. A unit test
+covers the saved return's account scoping and expiry; it caught an empty
+record matching an empty account id before release. All 165 billing client
+tests, both type checks and lint pass.
+
+## Acceptance still required
+
+- Provider-neutral concurrency and uncertain-outcome reconciliation, including
+  Paddle and switching providers with an unfinished checkout.
+- Ordering overlapping provider reads and membership projection writes.
+- A deployed payment journey whose result actually measures the payment SLO,
+  with observed production history.
+- Complete funnel evidence and independent re-audit of the final revision.
+- A passing full release gate and automated before/after visual evidence.

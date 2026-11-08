@@ -1,4 +1,4 @@
-import { cancellationFeedbackReport } from '@libs/billing-server-ts/cancellation-feedback-report';
+import { cancellationFeedbackReportCommand } from '@libs/billing-server-ts/cancellation-feedback-report';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -21,7 +21,7 @@ export const shareCancellationFeedback = scenarioAction({
   act: async (s, actor: string, reason: string, comment: string) => {
     const ui = await actorUi(s, actor);
     if (!(await ui.get('billing-cancellation-feedback').isVisible()))
-      await openBilling.act(s, actor);
+      await Promise.resolve(openBilling.act(s, actor));
     await ui.get('billing-feedback-reason').tap();
     await ui
       .get(
@@ -40,12 +40,14 @@ export const setupCancellationFeedback = scenarioAction({
   act: async (s, actor: string, reason: string, comment: string) => {
     const ui = await actorUi(s, actor);
     if (!(await ui.get('billing-cancellation-feedback').isVisible())) {
-      await signInWithGoogle.act(s, actor);
-      await openBilling.act(s, actor);
-      await subscribeToPlus.act(s, actor);
-      await cancelPlus.act(s, actor);
+      await Promise.resolve(signInWithGoogle.act(s, actor));
+      await Promise.resolve(openBilling.act(s, actor));
+      await Promise.resolve(subscribeToPlus.act(s, actor));
+      await Promise.resolve(cancelPlus.act(s, actor));
     }
-    await shareCancellationFeedback.act(s, actor, reason, comment);
+    await Promise.resolve(
+      shareCancellationFeedback.act(s, actor, reason, comment)
+    );
   },
 });
 
@@ -74,7 +76,13 @@ export async function feedbackShown(s: ProductHarness, actor: string) {
 
 export async function teamFeedback(s: ProductHarness, actor: string) {
   const account = await signedInAccountOf(s, actor);
-  const rows = await cancellationFeedbackReport(s.harness.serverSql.sqlClient);
+  const { feedback: rows } = await cancellationFeedbackReportCommand(
+    s.harness.serverSql.sqlClient,
+    [
+      '1970-01-01T00:00:00.000Z',
+      new Date(s.session.ports.clock.now() + 1).toISOString(),
+    ]
+  );
   const row = rows.find((entry) => entry.account_id === account);
   return row === undefined
     ? { reason: '', comment: '', shared: false }
@@ -110,7 +118,8 @@ export async function settleFeedback(
 export const showSavedCancellationFeedback = scenarioAction({
   name: 'showSavedCancellationFeedback',
   act: async (s, actor: string) => {
-    if (!(await feedbackOffered(s, actor))) await openBilling.act(s, actor);
+    if (!(await feedbackOffered(s, actor)))
+      await Promise.resolve(openBilling.act(s, actor));
     await pollUntil(
       s,
       async () => ((await feedbackShown(s, actor))?.shared ? true : null),
