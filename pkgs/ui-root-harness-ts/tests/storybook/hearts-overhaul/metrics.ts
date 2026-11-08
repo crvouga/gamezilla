@@ -37,20 +37,28 @@ export async function startHeartsMetrics(page: Page) {
   });
 }
 
-export async function saveHeartsMetrics(
-  page: Page,
-  info: TestInfo,
-  rate: number
-) {
+export async function settleHeartsFrames(page: Page) {
   await page.evaluate(
     () =>
       new Promise<void>((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
       )
   );
-  const samples = await page.evaluate(
+}
+
+export async function readHeartsMetrics(page: Page) {
+  await settleHeartsFrames(page);
+  return await page.evaluate(
     () => (window as unknown as MeasuredWindow).heartsSamples
   );
+}
+
+export async function saveHeartsMetrics(
+  page: Page,
+  info: TestInfo,
+  rate: number
+) {
+  const samples = await readHeartsMetrics(page);
   expect(samples.inputs.length).toBeGreaterThan(0);
   const sorted = samples.inputs
     .map((sample) => sample.milliseconds)
