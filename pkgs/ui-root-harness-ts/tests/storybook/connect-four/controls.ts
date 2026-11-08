@@ -1,10 +1,9 @@
 import { test } from '@playwright/test';
-import { captureInactiveKeyboard, captureKeyboard } from '../keyboard';
-import { forEachBoard } from '../matrix';
-import { captureMotion } from '../motion';
-import { captureTouchEdges } from '../touch';
+import { captureInactiveKeyboard, captureKeyboard } from './keyboard';
+import { captureMotion } from './motion';
+import { captureTouchEdges } from './touch';
 
-forEachBoard((width, theme) => {
+export function defineControls(width: number, theme: string) {
   test(`storybook integration: connect-four native keyboard ${width} ${theme}`, async ({
     page,
   }, info) => {
@@ -27,4 +26,4 @@ forEachBoard((width, theme) => {
       await captureMotion(page, info, theme, reduced);
     });
   }
-});
+}
