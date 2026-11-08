@@ -62,6 +62,33 @@ function readable(game: ContentGame, source: ContentBody): boolean {
   return game.content.rules.validateDefinition(source.definition).valid;
 }
 
+function attemptFigures(
+  game: ContentGame,
+  definition: string,
+  state: string | undefined
+): AttemptFigure[] {
+  if (state === undefined) return [];
+  const values = game.content.statistics?.(definition, state) ?? {};
+  return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
+    const value = values[key];
+    return value === undefined
+      ? []
+      : [{ key, label: label(), value: String(value) }];
+  });
+}
+
+/** A completion of this puzzle is already saved for the person. */
+function savedCompletion(
+  data: ReturnType<typeof useContentLibraryState>,
+  attempt: ContentAttempt
+): boolean {
+  return data
+    .play()
+    .completions.some(
+      (completion) => completion.puzzle_revision_id === attempt.source_id
+    );
+}
+
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
@@ -89,18 +116,9 @@ function AttemptBody(props: {
         });
   });
   // The game's own figures for where the attempt stands, by its labels.
-  const figures = createMemo((): AttemptFigure[] => {
-    const state = progress()?.state;
-    if (state === undefined) return [];
-    const values =
-      game.content.statistics?.(props.source.definition, state) ?? {};
-    return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
-      const value = values[key];
-      return value === undefined
-        ? []
-        : [{ key, label: label(), value: String(value) }];
-    });
-  });
+  const figures = createMemo(() =>
+    attemptFigures(game, props.source.definition, progress()?.state)
+  );
   return (
     <ContentAttemptScreenView
       status="ready"
@@ -112,6 +130,7 @@ function AttemptBody(props: {
       saving={writer.pending()}
       changeError={writer.change.error()?.message ?? null}
       complete={progress()?.complete ?? false}
+      solvedBefore={savedCompletion(data, props.attempt)}
       rulesChanged={rulesChanged()}
       unopenable={progress() === null}
       unreadable={unreadable()}

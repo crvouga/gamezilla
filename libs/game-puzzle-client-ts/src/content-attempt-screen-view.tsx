@@ -51,6 +51,12 @@ export type ContentAttemptScreenViewProps = {
   /** Why the last change was not saved; the earlier position is kept. */
   readonly changeError: string | null;
   readonly complete: boolean;
+  /**
+   * A completion of this puzzle is already saved. Once the board is played
+   * away from solved (a restart, an undo), the panel says so quietly
+   * instead of repeating the full completion message.
+   */
+  readonly solvedBefore?: boolean | undefined;
   /** Published under rules this app version does not have. */
   readonly rulesChanged: boolean;
   /** The saved position cannot be projected onto the board. */
@@ -228,6 +234,17 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
               : t`Your completion is saved. You can keep playing or choose another puzzle.`
           }
         />
+      </Show>
+      <Show
+        when={!props.complete && !props.playtest && props.solvedBefore === true}
+      >
+        <P
+          variant="caption"
+          tone="secondary"
+          testId="content-attempt-solved-before"
+        >
+          {t`Solved before. Your completion stays saved.`}
+        </P>
       </Show>
     </GameSection>
   );

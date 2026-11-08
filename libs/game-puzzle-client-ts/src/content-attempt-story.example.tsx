@@ -86,6 +86,8 @@ export function StoryPackAttempt(props: {
   readonly figures?: readonly AttemptFigure[] | undefined;
   /** The game's `frame.stageAlign`, as the production attempt screen passes it. */
   readonly stageAlign?: 'start' | 'center' | undefined;
+  /** A completion is already saved, as the production screen reads it. */
+  readonly solvedBefore?: boolean | undefined;
 }): JSX.Element {
   return (
     <ContentAttemptScreenView
@@ -108,6 +110,7 @@ export function StoryPackAttempt(props: {
       saving={props.saving === true}
       changeError={null}
       complete={props.complete === true}
+      solvedBefore={props.solvedBefore}
       rulesChanged={false}
       unopenable={false}
       player={props.player}
