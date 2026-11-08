@@ -3,7 +3,7 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, type JSX, untrack } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { numberlinkContentFrame } from './numberlink-content-frame';
@@ -196,8 +196,13 @@ function movementKey(
 function DrawPathsAttempt(props: {
   puzzle: StoryPackPuzzle;
   args: Parameters<NonNullable<Story['render']>>[0];
+  /** Paths already saved when the attempt opens. */
+  saved?: typeof SOLUTION;
 }): JSX.Element {
-  const [state, setState] = createSignal(progress([]));
+  // Only the opening position: later saves come from the player's actions.
+  const [state, setState] = createSignal(
+    progress(untrack(() => props.saved) ?? [])
+  );
   return (
     <StoryPackAttempt
       puzzle={props.puzzle}
@@ -242,6 +247,21 @@ const LONG_LABEL_PUZZLE: StoryPackPuzzle = {
 /** Maximum dimensions retain the same real rules and interaction handlers. */
 export const DenseBoard: Story = {
   render: (args) => <DrawPathsAttempt puzzle={DENSE_PUZZLE} args={args} />,
+  args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
+};
+
+/** The densest board with its top ten rows already joined. */
+export const DenseBoardHalfDrawn: Story = {
+  render: (args) => (
+    <DrawPathsAttempt
+      puzzle={DENSE_PUZZLE}
+      args={args}
+      saved={Array.from({ length: 10 }, (_, row) => ({
+        pairId: `row-${row}`,
+        cells: Array.from({ length: 20 }, (_, x) => ({ x, y: row })),
+      }))}
+    />
+  ),
   args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
 };
 

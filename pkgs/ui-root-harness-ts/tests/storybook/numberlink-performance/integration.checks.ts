@@ -15,61 +15,71 @@ test.use({
   trace: 'off',
 });
 
-// The measurement is each input's latency, recorded below, not the run's
-// length: 400 throttled inputs with video on ran 22 to over 30 seconds on
-// identical code across hosted runners, so the default budget failed runs
-// at random rather than flagging a slower board.
-test.setTimeout(90_000);
+// Two halves of the same twenty-route journey, each well inside the
+// default budget: the whole journey ran 22 to over 30 seconds on identical
+// code across hosted runners. The second half opens with the first ten rows
+// saved and ends with the board solved.
+const HALVES = [
+  {
+    name: 'first half',
+    story: 'screens-games-numberlink-puzzle--dense-board',
+    rows: [0, 10],
+    connected: '10/20 pairs connected',
+  },
+  {
+    name: 'second half',
+    story: 'screens-games-numberlink-puzzle--dense-board-half-drawn',
+    rows: [10, 20],
+    connected: '20/20 pairs connected',
+  },
+] as const;
 
 for (const width of [390, 1440])
   for (const theme of ['light', 'dark'])
     test.describe(`${width} ${theme}`, () => {
       const viewport = { width, height: width < 768 ? 844 : 1024 };
       test.use({ viewport });
-      test(`storybook integration: numberlink-performance repeated dense routes ${width} ${theme}`, async ({
-        page,
-      }, info) => {
-        await openBoard(
+      for (const half of HALVES)
+        test(`storybook integration: numberlink-performance dense routes ${half.name} ${width} ${theme}`, async ({
           page,
-          theme,
-          'screens-games-numberlink-puzzle--dense-board'
-        );
-        await capture(page, info, 'before-measurement');
-        const cpuRate = width < 768 ? 4 : 1;
-        const session = await startMeasurements(page, cpuRate);
-        // Twenty full native routes; screenshots and axe run outside the timed interval.
-        // Video remains enabled, so encoding overhead is not isolated from results.
-        // Each route's duration reaches the log, so a run that overruns its
-        // budget still shows where the time went.
-        const started = Date.now();
-        for (let row = 0; row < 20; row++) {
-          const routeStart = Date.now();
-          await mousePath(
-            page,
-            Array.from({ length: 20 }, (_, column) => row * 20 + column)
+        }, info) => {
+          await openBoard(page, theme, half.story);
+          await capture(page, info, 'before-measurement');
+          const cpuRate = width < 768 ? 4 : 1;
+          const session = await startMeasurements(page, cpuRate);
+          // Ten full native routes; screenshots and axe run outside the timed
+          // interval. Video remains enabled, so encoding overhead is included.
+          // Each route's duration reaches the log.
+          const started = Date.now();
+          for (let row = half.rows[0]; row < half.rows[1]; row++) {
+            const routeStart = Date.now();
+            await mousePath(
+              page,
+              Array.from({ length: 20 }, (_, column) => row * 20 + column)
+            );
+            process.stdout.write(
+              `numberlink-dense-route ${width} ${theme} row=${row + 1} ms=${Date.now() - routeStart} total=${Date.now() - started}\n`
+            );
+          }
+          await reportMeasurements(page, info, cpuRate);
+          await session.detach();
+          await expect(page.getByTestId('numberlink-progress')).toContainText(
+            half.connected
           );
-          process.stdout.write(
-            `numberlink-dense-route ${width} ${theme} row=${row + 1} ms=${Date.now() - routeStart} total=${Date.now() - started}\n`
-          );
-        }
-        await reportMeasurements(page, info, cpuRate);
-        await session.detach();
-        await expect(page.getByTestId('numberlink-progress')).toContainText(
-          '20/20 pairs connected'
-        );
-        await expect(page.getByTestId('numberlink-solved')).toBeVisible();
-        await capture(page, info, 'all-routes-complete');
-        await attachJson(info, 'measurement-protocol', {
-          routes: 20,
-          cellsPerRoute: 20,
-          cpuRate,
-          video: true,
-          trace: false,
-          screenshotsDuringMeasurement: 0,
-          axeDuringMeasurement: false,
-          repeats: 1,
-          limitations:
-            'Single hosted sample per viewport/theme. rAF gaps are scheduling observations, not display presentation. Video encoding overhead remains. CPU throttle is not physical mobile hardware.',
+          if (half.rows[1] === 20)
+            await expect(page.getByTestId('numberlink-solved')).toBeVisible();
+          await capture(page, info, 'routes-complete');
+          await attachJson(info, 'measurement-protocol', {
+            routes: half.rows[1] - half.rows[0],
+            cellsPerRoute: 20,
+            cpuRate,
+            video: true,
+            trace: false,
+            screenshotsDuringMeasurement: 0,
+            axeDuringMeasurement: false,
+            repeats: 1,
+            limitations:
+              'Single hosted sample per viewport/theme and half. rAF gaps are scheduling observations, not display presentation. Video encoding overhead remains. CPU throttle is not physical mobile hardware.',
+          });
         });
-      });
     });
