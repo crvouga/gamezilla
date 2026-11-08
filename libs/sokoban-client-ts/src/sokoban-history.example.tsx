@@ -35,6 +35,8 @@ export function SokobanHistory(props: {
       player={
         <SokobanPlayerView
           onReturnToLibrary={props.onOpenLibrary}
+          // A pack's puzzle: the screen offers the pack overview and next.
+          context={{ kind: 'pack', shellOffersWayOn: true }}
           definition={props.definition}
           state={state()}
           disabled={props.disabled}

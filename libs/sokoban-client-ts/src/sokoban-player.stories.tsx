@@ -85,10 +85,13 @@ export const Solved: Story = {
     await expect(notice.bottom).toBeLessThanOrEqual(window.innerHeight);
     // The way on sits beside the pad, within the pad's row.
     await expect(notice.bottom).toBeLessThanOrEqual(pad.bottom);
-    // regression: sokoban-solved-library-action
-    openLibrary.mockClear();
-    await userEvent.click(canvas.getByRole('button', { name: 'More puzzles' }));
-    await expect(openLibrary).toHaveBeenCalledTimes(1);
+    // A pack's puzzle: the screen offers the way on, so the board does not.
+    await expect(
+      canvas.queryByRole('button', { name: 'More puzzles' })
+    ).toBeNull();
+    await expect(
+      canvas.getByRole('button', { name: 'Pack overview' })
+    ).toBeVisible();
     // Completion must not disable the board or its movement controls.
     canvas.getByTestId('sokoban-board').focus();
     await userEvent.keyboard('{ArrowLeft}');

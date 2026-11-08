@@ -7104,6 +7104,10 @@ msgstr "Solved"
 msgid "Solved · {0} in {1}"
 msgstr "Solved · {0} in {1}"
 
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Solved."
+msgstr "Solved."
+
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
 msgstr "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."

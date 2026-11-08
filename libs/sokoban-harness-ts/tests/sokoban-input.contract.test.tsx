@@ -428,3 +428,34 @@ test('the solved action is named by the words it shows', () => {
   expect(action.getAttribute('aria-label')).toBeNull();
   expect(action.textContent).toContain('More puzzles');
 });
+
+// regression: sokoban-solved-repeats-shell-way-on
+test('when the screen offers a way on, solving says so once and adds none of its own', () => {
+  const start = sokobanPuzzleContent.rules.initial(CORRIDOR);
+  if (!start.accepted) throw new Error('corridor refused');
+  const [state, setState] = createSignal(start.state);
+  const view = render(() => (
+    <SokobanPlayer
+      definition={CORRIDOR}
+      state={state()}
+      disabled={false}
+      context={{ kind: 'pack', shellOffersWayOn: true }}
+      onAction={(action) => {
+        const change = sokobanPuzzleContent.rules.apply(
+          CORRIDOR,
+          state(),
+          action
+        );
+        if (change.accepted) setState(change.state);
+      }}
+      onReturnToLibrary={() => {
+        throw new Error('The screen offers the way on');
+      }}
+    />
+  ));
+  const board = view.getByTestId('sokoban-board');
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  expect(view.getByTestId('sokoban-solved').textContent).toContain('Solved.');
+  expect(view.queryByRole('button', { name: 'More puzzles' })).toBeNull();
+});

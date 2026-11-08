@@ -21,9 +21,10 @@ export type SokobanFeedback =
 
 /**
  * Solved: the board shows every crate on a goal and the attempt says the
- * completion is saved, so this is only the way on, said once.
+ * completion is saved. The way on is offered once: by the screen when it
+ * has one (a pack or a playtest), otherwise here.
  */
-function Solved(props: { readonly onReturnToLibrary: () => void }) {
+function Solved(props: { readonly wayOn: (() => void) | undefined }) {
   const { t } = useLingui();
   return (
     <StackVertical
@@ -34,11 +35,18 @@ function Solved(props: { readonly onReturnToLibrary: () => void }) {
       <VisuallyHidden role="status">
         <Trans>All crates are on goals</Trans>
       </VisuallyHidden>
-      <Button
-        title={t`More puzzles`}
-        size="sm"
-        onClick={props.onReturnToLibrary}
-      />
+      <Show
+        when={props.wayOn}
+        fallback={
+          <P variant="caption" tone="success">
+            <Trans>Solved.</Trans>
+          </P>
+        }
+      >
+        {(open) => (
+          <Button title={t`More puzzles`} size="sm" onClick={open()} />
+        )}
+      </Show>
     </StackVertical>
   );
 }
@@ -46,7 +54,7 @@ function Solved(props: { readonly onReturnToLibrary: () => void }) {
 function Message(props: {
   readonly feedback: SokobanFeedback;
   readonly wide: boolean;
-  readonly onReturnToLibrary: () => void;
+  readonly onReturnToLibrary: (() => void) | undefined;
 }): JSX.Element {
   const words = useSokobanWords();
   const refusal = () =>
@@ -89,7 +97,7 @@ function Message(props: {
         </P>
       </Match>
       <Match when={props.feedback?.kind === 'solved'}>
-        <Solved onReturnToLibrary={props.onReturnToLibrary} />
+        <Solved wayOn={props.onReturnToLibrary} />
       </Match>
     </Switch>
   );
@@ -105,7 +113,7 @@ export function SokobanStatus(props: {
   readonly help: string;
   readonly wide: boolean;
   readonly feedback: SokobanFeedback;
-  readonly onReturnToLibrary: () => void;
+  readonly onReturnToLibrary: (() => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   const hint = () => (

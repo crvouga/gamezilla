@@ -32,7 +32,7 @@ function Steering(props: {
   position: SokobanPosition;
   disabled: boolean;
   onAction: (action: string) => void;
-  onReturnToLibrary: () => void;
+  onReturnToLibrary: (() => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   const mode = useLayoutMode();
@@ -135,7 +135,12 @@ export function SokobanPlayerView(
           position={value().position}
           disabled={props.disabled}
           onAction={props.onAction}
-          onReturnToLibrary={props.onReturnToLibrary}
+          // The screen's own way on (pack or playtest) replaces ours.
+          onReturnToLibrary={
+            props.context?.shellOffersWayOn === true
+              ? undefined
+              : props.onReturnToLibrary
+          }
         />
       )}
     </Show>
