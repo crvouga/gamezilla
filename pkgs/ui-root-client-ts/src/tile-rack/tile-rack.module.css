@@ -1,6 +1,6 @@
 .rack {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 3rem));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--ui-space-1);
   padding: var(--ui-space-2);
@@ -11,8 +11,10 @@
   position: relative;
   display: grid;
   place-items: center;
+  flex: 1 0 var(--ui-control-size-md);
+  max-width: 3rem;
   aspect-ratio: 1;
-  min-width: 0;
+  min-width: var(--ui-control-size-md);
   min-height: 2.75rem;
   padding: 0;
   border: 1px solid var(--ui-color-outline);

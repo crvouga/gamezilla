@@ -1,4 +1,4 @@
 {
-  "summary": "At a 320px phone width, the seven-column rack compresses letter buttons below the full-sized touch targets while board navigation and local score require scrolling.",
+  "summary": "At a 320px phone width, the seven-column rack tracks are narrower than its 44px letter buttons, causing overlapping or clipped targets. Native corner hit-tests fail even though scrolling reaches the local score and navigation.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-narrow/integration.checks.ts"
 }
