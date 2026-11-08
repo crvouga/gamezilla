@@ -99,6 +99,15 @@ export async function warmQuoridorStory(
   await testStoryReady(page, story, theme);
 }
 
+/** The story's own play (its assertions) completed without error. */
+export async function expectQuoridorStoryPasses(
+  page: Page,
+  story: string,
+  theme: string
+): Promise<void> {
+  await testStoryReady(page, story, theme);
+}
+
 async function testStoryReady(
   page: Page,
   story: string,
