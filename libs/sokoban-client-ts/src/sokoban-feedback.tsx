@@ -66,7 +66,11 @@ export function SokobanSolvedCard(props: {
 /** What to know right now, most urgent first; `null` shows how to move. */
 export type SokobanFeedback =
   | { readonly kind: 'overflow' }
-  | { readonly kind: 'refusal'; readonly code: string; readonly message: string }
+  | {
+      readonly kind: 'refusal';
+      readonly code: string;
+      readonly message: string;
+    }
   | { readonly kind: 'saving' }
   | { readonly kind: 'solved' }
   | null;
@@ -84,7 +88,9 @@ function Message(props: { readonly feedback: SokobanFeedback }): JSX.Element {
           tone="warning"
           dataSet={{ testid: 'sokoban-saving', state: 'full' }}
         >
-          <Trans>Direction not added. Four directions are already waiting.</Trans>
+          <Trans>
+            Direction not added. Four directions are already waiting.
+          </Trans>
         </P>
       </Match>
       <Match when={refusal()}>
