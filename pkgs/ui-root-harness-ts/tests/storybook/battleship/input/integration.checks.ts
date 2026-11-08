@@ -1,0 +1,80 @@
+import { expect, test } from '@playwright/test';
+import { captureBattleEvidence, openBattleStory } from '../evidence';
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 1440, height: 900 },
+]) {
+  test.describe(`battleship input ${viewport.width}`, () => {
+    test.use({
+      viewport,
+      hasTouch: true,
+      video: { mode: 'on', size: viewport },
+      trace: 'on',
+    });
+    for (const theme of ['light', 'dark']) {
+      test(`storybook integration: battleship pending confirmation ${theme}`, async ({
+        page,
+      }, info) => {
+        const errors = await openBattleStory(
+          page,
+          'screens-games-battleship-board--opening',
+          theme
+        );
+        await test.step('Select the last region with touch and correct J9 to J10', async () => {
+          await page.getByTestId('custom-game-board-area-9').tap();
+          await page.getByTestId('custom-game-board-aim-j9').tap();
+          await page.getByTestId('custom-game-board-aim-j10').tap();
+          await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+            'Fire at J10'
+          );
+        });
+        await test.step('Cancel and select J10 with the keyboard', async () => {
+          await page.getByTestId('custom-game-board-cancel-aim').click();
+          await expect(
+            page.getByTestId('custom-game-board-fire')
+          ).toBeDisabled();
+          await page.getByTestId('custom-game-board-aim-j9').focus();
+          await page.keyboard.press('ArrowDown');
+          await expect(
+            page.getByTestId('custom-game-board-aim-j10')
+          ).toBeFocused();
+          await page.keyboard.press('Enter');
+          await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+            'Fire at J10'
+          );
+        });
+        await test.step('Confirm once and retain the pending coordinate', async () => {
+          await page.getByTestId('custom-game-board-fire').click();
+          await expect(
+            page.getByTestId('custom-game-board-fire')
+          ).toBeDisabled();
+          await expect(
+            page.getByTestId('custom-game-board-aim-j10')
+          ).toHaveAccessibleName('J10: fired, waiting for the result');
+          await captureBattleEvidence(page, info);
+        });
+        expect(errors).toEqual([]);
+      });
+      test(`storybook integration: battleship passive inspection ${theme}`, async ({
+        page,
+      }, info) => {
+        const errors = await openBattleStory(
+          page,
+          'screens-games-battleship-board--watching',
+          theme
+        );
+        const switcher = page.getByTestId('custom-game-board-view-target');
+        if (await switcher.isVisible()) await switcher.click();
+        await page.getByTestId('custom-game-board-area-9').tap();
+        await expect(
+          page.getByTestId('custom-game-board-aim-f10')
+        ).toHaveAccessibleName('F10: hit, sunk Destroyer');
+        await expect(page.getByTestId('custom-game-board-fire')).toHaveCount(0);
+        await captureBattleEvidence(page, info);
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+}
