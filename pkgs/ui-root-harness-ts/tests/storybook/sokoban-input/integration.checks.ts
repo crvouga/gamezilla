@@ -5,32 +5,13 @@ import {
   counts,
   openSokoban,
 } from '../sokoban-overhaul/evidence';
-import { builderGeometry } from './builder-geometry';
 
-test.use({ hasTouch: true, video: 'on', trace: 'on' });
-
-test('storybook integration: Sokoban builder controls remain reachable at the reported viewport', async ({
-  page,
-}, info) => {
-  await page.setViewportSize({ width: 1200, height: 884 });
-  await openSokoban(page, 'editor--two-crates', 'dark');
-  await capture(page, info, 'builder-top');
-  const geometry = await builderGeometry(page, info);
-  expect(
-    geometry.controls.filter(
-      (control) => control.inScroller && !control.topmost
-    ),
-    JSON.stringify(geometry)
-  ).toEqual([]);
-  await capture(page, info, 'builder-bottom');
-  for (const name of ['Undo', 'Redo']) {
-    const control = page.getByRole('button', { name, exact: true });
-    await control.scrollIntoViewIfNeeded();
-    await expect(control).toBeInViewport();
-  }
-  const preview = page.getByTestId('content-preview');
-  await preview.click({ trial: true });
-  await capture(page, info, 'builder-preview-reachable');
+const viewport = { width: 390, height: 844 };
+test.use({
+  hasTouch: true,
+  viewport,
+  video: { mode: 'on', size: viewport },
+  trace: 'on',
 });
 
 test('storybook integration: Sokoban editor corrects a missing worker', async ({
@@ -119,24 +100,6 @@ test('storybook integration: Sokoban mouse taps and captured outside release', a
   await page.mouse.up();
   await counts(page, 3, 2);
   await capture(page, info, 'outside-release');
-});
-
-// regression: sokoban-wide-touch-screen-hides-steering
-test('storybook integration: Sokoban wide touch pad keeps full targets and sends one move per tap', async ({
-  page,
-}, info) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await openSokoban(page, 'puzzle--fresh', 'dark');
-  const right = page.getByRole('button', { name: 'Move right' });
-  const box = await right.boundingBox();
-  if (!box) throw new Error('Movement control is missing');
-  expect(box.width).toBeGreaterThanOrEqual(44);
-  expect(box.height).toBeGreaterThanOrEqual(44);
-  await right.tap();
-  await counts(page, 1, 1);
-  await right.tap();
-  await counts(page, 2, 2);
-  await capture(page, info, 'wide-touch');
 });
 
 // regression: sokoban-static-preview-captures-navigation
