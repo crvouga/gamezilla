@@ -10,6 +10,7 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core-shared-ts/types';
+import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { For, type JSX, onMount, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
@@ -175,6 +176,7 @@ function PromotionStack(props: {
 export function ChessBoardPromotion(
   props: ChessBoardPromotionProps
 ): JSX.Element {
+  const { t } = useLingui();
   const layout = () =>
     stackLayout({
       to: props.to,
@@ -202,14 +204,21 @@ export function ChessBoardPromotion(
         }
       }}
     >
-      <PromotionStack
-        boardTestId={props.boardTestId}
-        layout={layout()}
-        color={props.color}
-        theme={props.theme}
-        onPick={props.onPick}
-        onCancel={props.onCancel}
-      />
+      <FocusTrap
+        active
+        autoFocus={false}
+        returnFocus={false}
+        label={t`Promote pawn`}
+      >
+        <PromotionStack
+          boardTestId={props.boardTestId}
+          layout={layout()}
+          color={props.color}
+          theme={props.theme}
+          onPick={props.onPick}
+          onCancel={props.onCancel}
+        />
+      </FocusTrap>
     </div>
   );
 }
